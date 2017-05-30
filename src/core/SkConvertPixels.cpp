@@ -394,9 +394,10 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
     }
 
+    auto run = pipeline.compile();
     // This y is declared above when handling dither (which needs to know y).
     for (y = 0; y < srcInfo.height(); ++y) {
-        pipeline.run(0,srcInfo.width());
+        run(0,srcInfo.width());
         // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
         // loop to move between rows of src/dst.
         dstRow = SkTAddOffset<void>(dstRow, dstRB);
