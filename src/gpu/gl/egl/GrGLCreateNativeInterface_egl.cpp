@@ -24,6 +24,7 @@ static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
     return ptr;
 }
 
+
 const GrGLInterface* GrGLCreateNativeInterface() {
     return GrGLAssembleInterface(nullptr, egl_get_gl_proc);
 }
