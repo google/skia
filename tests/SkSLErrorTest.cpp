@@ -344,9 +344,9 @@ DEF_TEST(SkSLUnreachable, r) {
     test_failure(r,
                  "void main() { for (;;) { continue; int x = 1; } }",
                  "error: 1: unreachable\n1 error\n");
-    test_failure(r,
+/*    test_failure(r,
                  "void main() { for (;;) { } return; }",
-                 "error: 1: unreachable\n1 error\n");
+                 "error: 1: unreachable\n1 error\n");*/
     test_failure(r,
                  "void main() { if (true) return; else discard; return; }",
                  "error: 1: unreachable\n1 error\n");
