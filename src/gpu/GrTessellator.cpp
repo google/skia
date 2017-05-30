@@ -959,20 +959,27 @@ void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Comparato
 }
 
 void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Comparator& c) {
-    if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
-                                 !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
-        merge_edges_above(edge, edge->fPrevEdgeAbove, activeEdges, c);
-    } else if (edge->fNextEdgeAbove && (edge->fTop == edge->fNextEdgeAbove->fTop ||
-                                        !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
-        merge_edges_above(edge, edge->fNextEdgeAbove, activeEdges, c);
+    for (;;) {
+        if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
+                                     !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
+            merge_edges_above(edge, edge->fPrevEdgeAbove, activeEdges, c);
+        } else if (edge->fNextEdgeAbove && (edge->fTop == edge->fNextEdgeAbove->fTop ||
+                                            !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
+            merge_edges_above(edge, edge->fNextEdgeAbove, activeEdges, c);
+        } else if (edge->fPrevEdgeBelow && (edge->fBottom == edge->fPrevEdgeBelow->fBottom ||
+                                     !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
+            merge_edges_below(edge, edge->fPrevEdgeBelow, activeEdges, c);
+        } else if (edge->fNextEdgeBelow && (edge->fBottom == edge->fNextEdgeBelow->fBottom ||
+                                            !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
+            merge_edges_below(edge, edge->fNextEdgeBelow, activeEdges, c);
+        } else {
+            break;
+        }
     }
-    if (edge->fPrevEdgeBelow && (edge->fBottom == edge->fPrevEdgeBelow->fBottom ||
-                                 !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
-        merge_edges_below(edge, edge->fPrevEdgeBelow, activeEdges, c);
-    } else if (edge->fNextEdgeBelow && (edge->fBottom == edge->fNextEdgeBelow->fBottom ||
-                                        !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
-        merge_edges_below(edge, edge->fNextEdgeBelow, activeEdges, c);
-    }
+    SkASSERT(!edge->fPrevEdgeAbove || edge->fPrevEdgeAbove->isLeftOf(edge->fTop));
+    SkASSERT(!edge->fPrevEdgeBelow || edge->fPrevEdgeBelow->isLeftOf(edge->fBottom));
+    SkASSERT(!edge->fNextEdgeAbove || edge->fNextEdgeAbove->isRightOf(edge->fTop));
+    SkASSERT(!edge->fNextEdgeBelow || edge->fNextEdgeBelow->isRightOf(edge->fBottom));
 }
 
 void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c, SkArenaAlloc& alloc);
