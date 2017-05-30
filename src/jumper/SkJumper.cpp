@@ -137,7 +137,7 @@ static SkJumper_Engine choose_engine() {
     }
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    if (1 && SkCpu::Supports(SkCpu::HSW)) {
+    if (0 && SkCpu::Supports(SkCpu::HSW)) {
         return {
         #define M(stage) ASM(stage, hsw),
             { SK_RASTER_PIPELINE_STAGES(M) },
@@ -145,7 +145,7 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
-    if (1 && SkCpu::Supports(SkCpu::AVX)) {
+    if (0 && SkCpu::Supports(SkCpu::AVX)) {
         return {
         #define M(stage) ASM(stage, avx),
             { SK_RASTER_PIPELINE_STAGES(M) },
@@ -153,7 +153,7 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
-    if (1 && SkCpu::Supports(SkCpu::SSE41)) {
+    if (0 && SkCpu::Supports(SkCpu::SSE41)) {
         return {
         #define M(stage) ASM(stage, sse41),
             { SK_RASTER_PIPELINE_STAGES(M) },
