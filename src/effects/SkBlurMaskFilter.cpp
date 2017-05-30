@@ -1364,10 +1364,6 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
 
     if (devRRect.isRect() || devRRect.isCircle()) {
-        if (this->ignoreXform()) {
-            return false;
-        }
-
         sk_sp<GrFragmentProcessor> fp;
         if (devRRect.isRect()) {
             SkScalar pad = 3.0f * xformedSigma;
