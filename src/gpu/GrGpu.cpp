@@ -291,15 +291,6 @@ bool GrGpu::getWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     SkASSERT(dstSurface);
     SkASSERT(kGpuPrefersDraw_DrawPreference != *drawPreference);
 
-    if (SkToBool(dstSurface->asRenderTarget())) {
-        if (this->caps()->useDrawInsteadOfAllRenderTargetWrites()) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        } else if (this->caps()->useDrawInsteadOfPartialRenderTargetWrite() &&
-                   (width < dstSurface->width() || height < dstSurface->height())) {
-            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-        }
-    }
-
     if (!this->onGetWritePixelsInfo(dstSurface, width, height, srcConfig, drawPreference,
                                     tempDrawInfo)) {
         return false;
