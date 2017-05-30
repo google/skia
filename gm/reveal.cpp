@@ -9,7 +9,6 @@
 #include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkBlurMaskFilter.h"
-#include "SkGaussianEdgeShader.h"
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
@@ -314,7 +313,6 @@ namespace skiagm {
 class RevealGM : public GM {
 public:
     enum Mode {
-        kGaussianEdge_Mode,
         kBlurMask_Mode,
         kRRectsGaussianEdge_Mode,
 
@@ -386,20 +384,7 @@ protected:
 
                 // The goal is to replace this clipped draw (which clips the 
                 // shadow) with a draw using the geometric clip
-                if (kGaussianEdge_Mode == fMode) {
-                    canvas->save();
-                        clipObj->clip(canvas);
-
-                        // Draw with GaussianEdgeShader
-                        SkPaint paint;
-                        paint.setAntiAlias(true);
-                        // G channel is an F6.2 radius
-                        int iBlurRad = (int)(4.0f * fBlurRadius);
-                        paint.setColor(SkColorSetARGB(255, iBlurRad >> 8, iBlurRad & 0xFF, 0));
-                        paint.setShader(SkGaussianEdgeShader::Make());
-                        drawObj->draw(canvas, paint);
-                    canvas->restore();
-                } else if (kBlurMask_Mode == fMode) {
+                if (kBlurMask_Mode == fMode) {
                     SkPath clippedPath;
 
                     SkScalar sigma = fBlurRadius / 4.0f;
