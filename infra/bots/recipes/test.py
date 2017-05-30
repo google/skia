@@ -603,7 +603,7 @@ def test_steps(api):
         import time
         import urllib2
 
-        HASHES_URL = 'https://gold.skia.org/_/hashes'
+        HASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'
         RETRIES = 5
         TIMEOUT = 60
         WAIT_BASE = 15
