@@ -2566,8 +2566,8 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
-    MemoryLayout layout = intf.fVariable.fModifiers.fLayout.fPushConstant |
-                          (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag)) ?
+    bool isBuffer = (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag));
+    MemoryLayout layout = (intf.fVariable.fModifiers.fLayout.fPushConstant || isBuffer) ?
                           MemoryLayout(MemoryLayout::k430_Standard) :
                           fDefaultLayout;
     SpvId result = this->nextId();
