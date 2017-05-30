@@ -10,6 +10,7 @@
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
 #include "SkBitmap.h"
+#include "SkBitmapRegionDecoder.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
 #include "SkColorSpace_XYZ.h"
@@ -39,6 +40,26 @@
     // The parts that are broken are likely not used by Google3.
     #define SK_PNG_DISABLE_TESTS
 #endif
+
+DEF_TEST(Codec_webp_mips_crash, r) {
+    auto path = "webp-animated-semitransparent5.webp";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        ERRORF(r, "Failed to find %s", path);
+        return;
+    }
+
+    std::unique_ptr<SkBitmapRegionDecoder> brd(SkBitmapRegionDecoder::Create(std::move(data),
+            SkBitmapRegionDecoder::kAndroidCodec_Strategy));
+    if (!brd) {
+        ERRORF(r, "Failed to create a brd from %s", path);
+        return;
+    }
+
+    SkBitmap bm;
+    brd->decodeRegion(&bm, nullptr, SkIRect::MakeXYWH(0, 0, brd->width(), brd->height()),
+                      32, kN32_SkColorType, false, SkColorSpace::MakeSRGB());
+}
 
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
     SkASSERT(bm.getPixels());
