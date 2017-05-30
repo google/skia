@@ -306,4 +306,33 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
     }
 }
 
+#include "SkAlphaThresholdFilter.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AlphaThresholdTest, reporter, ctxInfo) {
+    GrResourceProvider* provider = ctxInfo.grContext()->resourceProvider();
+
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(100, 100);
+
+    sk_sp<SkSurface> s1 = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes, ii,
+                                                      0, kTopLeft_GrSurfaceOrigin, nullptr);
+    SkCanvas* c1 = s1->getCanvas();
+
+    c1->clear(SK_ColorGREEN);
+
+    sk_sp<SkSurface> s2 = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes, ii,
+                                                      0, kTopLeft_GrSurfaceOrigin, nullptr);
+    SkCanvas* c2 = s2->getCanvas();
+
+    c2->clear(SK_ColorBLUE);
+
+    SkRegion region;
+    region.setRect(50, 50, 100, 100);
+    SkPaint paint;
+    paint.setImageFilter(SkAlphaThresholdFilter::Make(region, 1.0f, 0.0f, nullptr));
+
+
+}
+
 #endif
