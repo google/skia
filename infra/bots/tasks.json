@@ -1798,6 +1798,12 @@
         "Upload-Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD"
       ]
     },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind"
+      ]
+    },
     "Test-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-PreAbandonGpuContext": {
       "priority": 0.8,
       "tasks": [
@@ -13420,6 +13426,59 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:59"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:2"
+        }
+      ],
+      "dependencies": [
+        "Build-Ubuntu-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Ubuntu-14.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-PreAbandonGpuContext": {
       "cipd_packages": [
         {
@@ -13483,6 +13542,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:2"
         }
       ],
       "dependencies": [
@@ -13530,6 +13594,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:2"
         }
       ],
       "dependencies": [
@@ -13577,6 +13646,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:2"
         }
       ],
       "dependencies": [
