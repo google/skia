@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a769bae_ac7148dc",
+        "filename": "src/gpu/GrOpFlushState.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-30T21:35:10Z",
+      "side": 1,
+      "message": "I\u0027d like to rename all this \"Draw\" preference stuff  to indicate that it means either a draw or a copySurface (since here we use a copySurface). However, I thought it\u0027d be better to do that separately.",
+      "range": {
+        "startLine": 37,
+        "startChar": 15,
+        "endLine": 37,
+        "endChar": 29
+      },
+      "revId": "1763a19325be93711feec3f73941291dd5e10aea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
