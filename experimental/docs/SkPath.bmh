@@ -1,0 +1,2756 @@
+#Topic Path
+
+    #Subtopic Contour
+        #Subtopic Zero_Length
+        #Alias Zero_Length_Contour
+        #Subtopic ##
+    #Subtopic ##
+ 
+
+
+#Class SkPath
+
+#Topic Overview
+
+#Subtopic Path_Member_Functions
+#Table
+#Legend
+# function                    # description                                                   ##
+#Legend ##
+# ConvertConicToQuads         # ##
+# ConvertToNonInverseFillType # ##
+# IsCubicDegenerate           # ##
+# IsInverseFillType           # ##
+# IsLineDegenerate            # ##
+# IsQuadDegenerate            # ##
+# SK_ATTR_DEPRECATED          # ##
+# SkDEBUGCODE                 # ##
+# SkPath                      # ##
+# addArc                      # ##
+# addCircle                   # ##
+# addOval                     # ##
+# addPath                     # ##
+# addPoly                     # ##
+# addRRect                    # ##
+# addRect                     # ##
+# addRoundRect                # ##
+# arcTo                       # ##
+# close                       # ##
+# computeTightBounds          # ##
+# conicTo                     # ##
+# conservativelyContainsRect  # ##
+# contains                    # ##
+# countPoints                 # ##
+# countVerbs                  # ##
+# cubicTo                     # ##
+# dump                        # ##
+# dumpHex                     # ##
+# getBounds                   # ##
+# getConvexity                # ##
+# getConvexityOrUnknown       # ##
+# getFillType                 # ##
+# getGenerationID             # ##
+# getLastPt                   # ##
+# getPoint                    # ##
+# getPoints                   # ##
+# getSegmentMasks             # ##
+# getVerbs                    # ##
+# incReserve                  # ##
+# interpolate                 # ##
+# isConvex                    # ##
+# isEmpty                     # ##
+# isFinite                    # ##
+# isInterpolatable            # ##
+# isInverseFillType           # ##
+# isLastContourClosed         # ##
+# isLine                      # ##
+# isNestedFillRects           # ##
+# isOval                      # ##
+# isRRect                     # ##
+# isRect                      # ##
+# isVolatile                  # ##
+# lineTo                      # ##
+# moveTo                      # ##
+# offset                      # ##
+# operator!=                  # ##
+# operator=                   # ##
+# operator==                  # ##
+# quadTo                      # ##
+# rArcTo                      # ##
+# rConicTo                    # ##
+# rCubicTo                    # ##
+# rLineTo                     # ##
+# rMoveTo                     # ##
+# rQuadTo                     # ##
+# readFromMemory              # ##
+# reset                       # ##
+# reverseAddPath              # ##
+# rewind                      # ##
+# setConvexity                # ##
+# setFillType                 # ##
+# setIsConvex                 # ##
+# setIsVolatile               # ##
+# setLastPt                   # ##
+# swap                        # ##
+# toggleInverseFillType       # ##
+# transform                   # ##
+# unique                      # ##
+# updateBoundsCache           # ##
+# writeToMemory               # ##
+# ~SkPath                     # ##
+#Table ##
+#Subtopic Path_Member_Functions ##
+#Topic Overview ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Direction
+
+#Code
+    enum Direction {
+        kCW_Direction 
+        kCCW_Direction 
+    };
+##
+
+** clockwise direction for adding closed contours 
+** counter-clockwise direction for adding closed contours 
+#Const kCW_Direction
+##
+#Const kCCW_Direction
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPath()
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPath(const SkPath& path)
+
+#Param path  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method ~SkPath()
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPath& operator=(const SkPath& path)
+
+#Param path  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method friend SK_API bool operator==(const SkPath& a, const SkPath& b)
+
+/ mac chromium dbg requires SK_API to make operator== visible
+#Param a  ##
+#Param b  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method friend bool operator!=(const SkPath& a, const SkPath& b) 
+
+#Param a  ##
+#Param b  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isInterpolatable(const SkPath& compare) const
+
+Return true if the paths contain an equal array of verbs and weights. Paths
+with equal verb counts can be readily interpolated. If the paths contain one
+or more conics, the conics' weights must also match.
+
+#Param compare  The path to compare. ##
+
+#Return  true if the paths have the same verbs and weights. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const
+
+Interpolate between two paths with same-sized point arrays.
+The out path contains the verbs and weights of this path.
+The out points are a weighted average of this path and the ending path.
+
+#Param ending  The path to interpolate between. ##
+#Param weight  The weight, from 0 to 1. The output points are set to
+(this->points * weight) + ending->points * (1 - weight). ##
+#Param out  ##
+
+#Return  true if the paths could be interpolated. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool unique() const 
+
+Returns true if the caller is the only owner of the underlying path data *
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+#Subtopic Fill_Type
+
+#Enum FillType
+
+#Code
+    enum FillType {
+        kWinding_FillType 
+        kEvenOdd_FillType 
+        kInverseWinding_FillType 
+        kInverseEvenOdd_FillType 
+    };
+##
+
+** Specifies that "inside" is computed by a non-zero sum of signed
+            edge crossings
+        
+** Specifies that "inside" is computed by an odd number of edge
+            crossings
+        
+** Same as Winding, but draws outside of the path, rather than inside
+        
+** Same as EvenOdd, but draws outside of the path, rather than inside
+         
+#Const kWinding_FillType
+##
+#Const kEvenOdd_FillType
+##
+#Const kInverseWinding_FillType
+##
+#Const kInverseEvenOdd_FillType
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method FillType getFillType() const 
+
+Return the path's fill type. This is used to define how "inside" is
+computed. The default value is kWinding_FillType.
+
+#Return  the path's fill type ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setFillType(FillType ft) 
+
+Set the path's fill type. This is used to define how "inside" is
+computed. The default value is kWinding_FillType.
+
+#Param ft  The new fill type for this path ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isInverseFillType() const 
+
+Returns true if the filltype is one of the Inverse variants *
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void toggleInverseFillType() 
+
+Toggle between inverse and normal filltypes. This reverse the return
+value of isInverseFillType()
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+#Subtopic Fill_Type ##
+
+# ------------------------------------------------------------------------------
+#Subtopic Convexity
+    Each Contour in Path may be Convex or Concave. If Convex, Path  
+    draws faster and requires fewer resources on some GPU_Surface implementations. 
+
+    #Subtopic Convex
+        Path is Convex when all Segment angles have the same sign, and the sum of
+        the changes in Direction is 360 degrees.
+    #Subtopic Convex ##
+
+    #Subtopic Concave
+        Path is Concave when either at least one Segment angle is positive and
+        another is negative, or the sum of the changes in Direction is not 360
+        degrees.
+    #Subtopic Concave ##
+#Subtopic Convexity ##
+
+#Enum Convexity
+
+Initially Path Convexity is kUnknown_Convexity. Path Convexity is computed 
+if needed by destination Surface.
+
+#Code
+    enum Convexity {
+        kUnknown_Convexity, 
+        kConvex_Convexity,
+        kConcave_Convexity 
+    };
+##
+
+#Const kUnknown_Convexity
+    Indicates Convexity has not been determined.
+##
+#Const kConvex_Convexity
+    Path has one Contour made of a simple geometry without indentations.
+##
+#Const kConcave_Convexity
+    Path has more than one Contour, or a geometry with indentations.
+##
+
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}}; 
+    const char* labels[] = { "unknown", "convex", "concave" };
+    for (SkScalar x : { 40, 100 } ) {
+        SkPath path;
+        quad[0].fX = x;
+        path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
+        canvas->drawPath(path, paint);
+        canvas->drawString(labels[(int) path.getConvexity()], 30, 100, paint);
+        canvas->translate(100, 100);
+    }
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method Convexity getConvexity() const 
+
+Computes Convexity if required, and returns stored value. 
+Convexity is computed if stored value is kUnknown_Convexity,
+or if Path has been altered since Convexity was computed or set.
+
+#Return  Computed or stored Convexity. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkDebugf("%s path convexity is %s\n", prefix, 
+                SkPath::kUnknown_Convexity == path.getConvexity() ? "unknown" :
+                SkPath::kConvex_Convexity == path.getConvexity() ? "convex" : "concave"); };
+    SkPath path;
+    debugster("initial", path);
+    path.lineTo(50, 0);
+    debugster("first line", path);
+    path.lineTo(50, 50);
+    debugster("second line", path);
+    path.lineTo(100, 50);
+    debugster("third line", path);
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method Convexity getConvexityOrUnknown() const 
+
+Returns last computed Convexity, or kUnknown_Convexity if 
+Path has been altered since Convexity was computed or set.
+
+#Return  Stored Convexity. ##
+
+#Example
+#Description
+Convexity is unknown unless getConvexity is called without a subsequent call
+that alters the path.
+##
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkDebugf("%s path convexity is %s\n", prefix, 
+            SkPath::kUnknown_Convexity == path.getConvexityOrUnknown() ? "unknown" :
+            SkPath::kConvex_Convexity == path.getConvexityOrUnknown() ? "convex" : "concave"); };
+    SkPath path;
+    debugster("initial", path);
+    path.lineTo(50, 0);
+    debugster("first line", path);
+    path.getConvexity();
+    path.lineTo(50, 50);
+    debugster("second line", path);
+    path.lineTo(100, 50);
+    path.getConvexity();
+    debugster("third line", path);
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setConvexity(Convexity convexity)
+
+Stores convexity so that it is later returned by getConvexity or getConvexityOrUnknown.
+convexity may differ from getConvexity, although setting an incorrect value may
+cause incorrect or inefficient drawing.
+
+If convexity is kUnknown_Convexity: getConvexity will
+compute Convexity, and getConvexityOrUknown will return kUnknown_Convexity.
+
+If convexity is kConvex_Convexity or kConcave_Convexity, getConvexity
+and getConvexityOrUknown will return convexity until the path is
+altered.
+
+#Param convexity  One of kUnknown_Convexity, kConvex_Convexity, or kConcave_Convexity. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkDebugf("%s path convexity is %s\n", prefix, 
+                SkPath::kUnknown_Convexity == path.getConvexity() ? "unknown" :
+                SkPath::kConvex_Convexity == path.getConvexity() ? "convex" : "concave"); };
+        SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}}; 
+        SkPath path;
+        path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
+        debugster("initial", path);
+        path.setConvexity(SkPath::kConcave_Convexity);
+        debugster("after forcing concave", path);
+        path.setConvexity(SkPath::kUnknown_Convexity);
+        debugster("after forcing unknown", path);
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isConvex() const 
+
+Computes Convexity if required, and returns true if value is kConvex_Convexity.
+If setConvexity was called with kConvex_Convexity or kConcave_Convexity, and
+the path has not been altered, Convexity is not recomputed.
+
+#Return  true if Convexity stored or computed is kConvex_Convexity. ##
+
+#Example
+#Description
+Concave shape is erroneously considered convex after a forced call to 
+setConvexity.
+##
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}}; 
+    for (SkScalar x : { 40, 100 } ) {
+        SkPath path;
+        quad[0].fX = x;
+        path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
+        path.setConvexity(SkPath::kConvex_Convexity);
+        canvas->drawPath(path, paint);
+        canvas->drawString(path.isConvex() ? "convex" : "not convex", 30, 100, paint);
+        canvas->translate(100, 100);
+    }
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setIsConvex(bool isConvex) 
+
+Deprecated. Use setConvexity.
+
+#Param isConvex  ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isOval(SkRect* rect, Direction* dir = nullptr,
+                unsigned* start = nullptr) const 
+
+Path is Oval if constructed by addCircle, addOval; and in some cases,
+addRoundRect, addRRect.  Path constructed with conicTo or rConicTo will not
+return true though Path draws Oval.
+
+isOval triggers performance optimizations on some GPU_Surface implementations.
+
+#Param rect  storage for bounding Rect of Oval. Oval is Circle if rect width
+equals rect height. Unwritten if Path is not Oval. May be nullptr.
+##
+#Param dir  storage for Direction; kCW_Direction if clockwise, kCCW_Direction if
+counterclockwise. Unwritten if Path is not Oval. May be nullptr.
+##
+#Param start  storage for start of Oval: 0 for top,
+1 for right, 2 for bottom, 3 for left. Unwritten if Path is not Oval. May be nullptr. 
+##
+
+#Return  true if Path was constructed by method that reduces to Oval. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    SkPath path;
+    path.addOval({20, 20, 220, 220}, SkPath::kCW_Direction, 1);
+    SkRect bounds;
+    SkPath::Direction direction;
+    unsigned start;
+    path.isOval(&bounds, &direction, &start);
+    paint.setColor(0xFF9FBFFF);
+    canvas->drawRect(bounds, paint);
+    paint.setColor(0x3f000000);
+    canvas->drawPath(path, paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->rotate(start * 90, bounds.centerX(), bounds.centerY());
+    char startText = '0' + start;
+    paint.setTextSize(20);
+    canvas->drawText(&startText, 1, bounds.centerX(), bounds.fTop + 20, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(4);
+    path.reset();
+    path.addArc(bounds, -90, SkPath::kCW_Direction == direction ? 90 : -90);
+    path.rLineTo(20, -20); 
+    canvas->drawPath(path, paint);
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isRRect(SkRRect* rrect, Direction* dir = nullptr,
+                 unsigned* start = nullptr) const 
+
+Path is Round_Rect if constructed by addRoundRect, addRRect; and if construction
+is not empty, not Rect, and not Oval. Path constructed with other other calls
+will not return true though Path draws Round_Rect.
+
+isRRect triggers performance optimizations on some GPU_Surface implementations.
+
+#Param rrect  storage for bounding Rect of Round_Rect. 
+Unwritten if Path is not Round_Rect. May be nullptr. 
+##
+#Param dir  storage for Direction; kCW_Direction if clockwise, kCCW_Direction if
+counterclockwise. Unwritten if Path is not Round_Rect. May be nullptr.
+##
+#Param start  storage for start of Round_Rect: 0 for top,
+1 for right, 2 for bottom, 3 for left. Unwritten if Path is not Round_Rect. May be nullptr. 
+##
+
+#Return  true for Round_Rect Path constructed by addRoundRect or addRRect. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    SkPath path;
+    path.addRRect(SkRRect::MakeRectXY({20, 20, 220, 220}, 30, 50), SkPath::kCCW_Direction, 3);
+    SkRRect rrect;
+    SkPath::Direction direction;
+    unsigned start;
+    path.isRRect(&rrect, &direction, &start);
+    const SkRect& bounds = rrect.rect();
+    paint.setColor(0xFF9FBFFF);
+    canvas->drawRect(bounds, paint);
+    paint.setColor(0x3f000000);
+    canvas->drawPath(path, paint);
+    paint.setColor(SK_ColorBLACK);
+    canvas->rotate(start * 90, bounds.centerX(), bounds.centerY());
+    char startText = '0' + start;
+    paint.setTextSize(20);
+    canvas->drawText(&startText, 1, bounds.centerX(), bounds.fTop + 20, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(4);
+    path.reset();
+    path.addArc(bounds, -90, SkPath::kCW_Direction == direction ? 90 : -90);
+    path.rLineTo(20, -20); 
+    canvas->drawPath(path, paint);
+}
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void reset()
+
+Clear any lines and curves from the path, making it empty. This frees up
+internal storage associated with those segments.
+On Android, does not change fSourcePath.
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rewind()
+
+Similar to reset(), in that all lines and curves are removed from the
+path. However, any internal storage for those lines/curves is retained,
+making reuse of the path potentially faster.
+On Android, does not change fSourcePath.
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmpty() const 
+
+Empty Path may have FillType but has no SkPoint, Verb, or Conic_Weight.
+SkPath() constructs empty Path; reset() and (rewind) make Path empty. 
+
+#Return  true if the path contains no Verb array.  ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkDebugf("%s path is %s" "empty\n", prefix, path.isEmpty() ? "" : "not ");
+    };
+    SkPath path;
+    debugster("initial", path);
+    path.moveTo(0, 0);
+    debugster("after moveTo", path);
+    path.rewind();
+    debugster("after rewind", path);
+    path.lineTo(0, 0);
+    debugster("after lineTo", path);
+    path.reset();
+    debugster("after reset", path);
+}
+#StdOut
+initial path is empty
+after moveTo path is not empty
+after rewind path is empty
+after lineTo path is not empty
+after reset path is empty
+##
+##
+
+#SeeAlso SkPath() reset() rewind()
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isLastContourClosed() const
+
+Contour is closed if Path Verb array was last modified by close(). 
+Closed Contour draws Join instead of Cap at first and last Point. 
+
+#Return  true if the last Contour ends with a kClose_Verb. ##
+
+#Example
+#Description
+close() has no effect if Path is empty; isLastContourClosed() returns
+false until Path has geometry followed by close().
+##
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkDebugf("%s last contour is %s" "closed\n", prefix,
+                 path.isLastContourClosed() ? "" : "not ");
+    };
+    SkPath path;
+    debugster("initial", path);
+    path.close();
+    debugster("after close", path);
+    path.lineTo(0, 0);
+    debugster("after lineTo", path);
+    path.close();
+    debugster("after close", path);
+}
+#StdOut
+initial last contour is not closed
+after close last contour is not closed
+after lineTo last contour is not closed
+after close last contour is closed
+##
+##
+
+#SeeAlso close()
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isFinite() const 
+
+Finite Point array values are between negative SK_ScalarMax and
+positive SK_ScalarMax. Any Point array value of
+SK_ScalarInfinity, SK_ScalarNegativeInfinity, or SK_ScalarNaN
+cause isFinite to return false.
+
+#Return  true if all Point values are finite. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkDebugf("%s path is %s" "finite\n", prefix, path.isFinite() ? "" : "not ");
+    };
+    SkPath path;
+    debugster("initial", path);
+    path.lineTo(SK_ScalarMax, SK_ScalarMax);
+    debugster("after line", path);
+    SkMatrix matrix;
+    matrix.setScale(2, 2);
+    path.transform(matrix);
+    debugster("after scale", path);
+}
+#StdOut
+initial path is finite
+after line path is finite
+after scale path is not finite
+##
+##
+
+#ToDo incomplete ##
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isVolatile() const 
+
+Returns true if the path is volatile; it will not be altered or discarded
+by the caller after it is drawn. Paths by default have volatile set false, allowing 
+Surface to attach a cache of data which speeds repeated drawing. If true, Surface
+may not speed repeated drawing.
+
+#Return  true if caller will alter Path after drawing. ##
+
+#Example
+    SkPath path;
+    SkDebugf("volatile by default is %s\n", path.isVolatile() ? "true" : "false");
+#StdOut
+false
+##
+##
+
+#SeeAlso setIsVolatile
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setIsVolatile(bool isVolatile) 
+
+Specify whether Path is volatile; whether it will be altered or discarded
+by the caller after it is drawn. Paths by default have volatile set false, allowing 
+Device to attach a cache of data which speeds repeated drawing.
+
+Mark temporary paths, discarded or modified after use, as volatile
+to inform Device that the path need not be cached.
+
+Mark animating Path volatile to improve performance.
+Mark unchanging Path non-volative to improve repeated rendering.
+
+Raster_Surface Path draws are affected by volatile for some shadows.
+GPU_Surface Path draws are affected by volatile for some shadows and concave geometries.
+
+#Param isVolatile  true if caller will alter Path after drawing. ##
+
+#Example
+    SkPaint paint;
+    SkPath path;
+    path.setIsVolatile(true);
+    path.lineTo(40, 40);
+    canvas->drawPath(paint);
+    path.rewind();
+    path.moveTo(0, 40);
+    path.lineTo(40, 0);
+    canvas->drawPath(paint);
+##
+
+#ToDo tie example to bench to show how volatile affects speed or dm to show resource usage ##
+
+#SeeAlso isVolatile
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool IsLineDegenerate(const SkPoint& p1, const SkPoint& p2, bool exact) 
+
+Test if Line between Point pair is degenerate.
+Line with no length or that moves a very short distance is degenerate; it is
+treated as a point. 
+
+#Param p1     Line Start_Point. ##
+#Param p2     Line End_Point. ##
+#Param exact  If true, returns true only if p1 equals p2. If false, returns true
+              if p1 equals or nearly equals p2. 
+##
+
+#Return  true if Line is degenerate; its length is effectively zero. ##
+
+#Example
+#Description
+As single precision floats, 100 and 100.000001f have the same bit representation,
+and are exactly equal. 100 and 100.0001f have different bit representations, and
+are not exactly equal, but are nearly equal.
+##
+void draw(SkCanvas* canvas) {
+    SkPoint points[] = { {100, 100}, {100.000001f, 100.000001f}, {100.0001f, 100.0001f} };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(points) - 1; ++i) {
+        for (bool exact : { false, true } ) {
+            SkDebugf("line from (%1.8g,%1.8g) to (%1.8g,%1.8g) is %s" "degenerate, %s\n",
+                    points[i].fX, points[i].fY, points[i + 1].fX, points[i + 1].fY,
+                    SkPath::IsLineDegenerate(points[i], points[i + 1], exact)
+                    ? "" : "not ", exact ? "exactly" : "nearly");
+        }
+    }
+}
+#StdOut
+line from (100,100) to (100,100) is degenerate, nearly
+line from (100,100) to (100,100) is degenerate, exactly
+line from (100,100) to (100.0001,100.0001) is degenerate, nearly
+line from (100,100) to (100.0001,100.0001) is not degenerate, exactly
+#StdOut ##
+##
+
+#SeeAlso IsQuadDegenerate IsCubicDegenerate SkPoint::equalsWithinTolerance 
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool IsQuadDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                 const SkPoint& p3, bool exact) 
+
+Test if Quad is degenerate.
+Quad with no length or that moves a very short distance is degenerate; it is
+treated as a point. 
+
+#Param p1  Quad Start_Point. ##
+#Param p2  Quad Control_Point. ##
+#Param p3  Quad End_Point. ##
+#Param exact  If true, returns true only if p1, p2, and p3 are equal. 
+              If false, returns true if p1, p2, and p3 are equal or nearly equal. 
+##
+
+#Return  true if Quad is degenerate; its length is effectively zero. ##
+
+#Example
+#Description
+As single precision floats: 100, 100.00001f, and 100.00002f have different bit representations
+but nearly the same value. Translating all three by 1000 gives them the same bit representation;
+the fractional portion of the number can't be represented by the float and is lost.
+##
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const SkPath& path, bool exact) -> void {
+        SkDebugf("quad (%1.8g,%1.8g), (%1.8g,%1.8g), (%1.8g,%1.8g) is %s" "degenerate, %s\n", 
+            path.getPoint(0).fX, path.getPoint(0).fY, path.getPoint(1).fX,
+            path.getPoint(1).fY, path.getPoint(2).fX, path.getPoint(2).fY,
+            SkPath::IsQuadDegenerate(path.getPoint(0), path.getPoint(1), path.getPoint(2), exact) ?
+            "" : "not ", exact ? "exactly" : "nearly");
+    };
+    SkPath path, offset;
+    path.moveTo({100, 100});
+    path.quadTo({100.00001f, 100.00001f}, {100.00002f, 100.00002f});
+    offset.addPath(path, 1000, 1000);
+    for (bool exact : { false, true } ) {
+        debugster(path, exact);
+        debugster(offset, exact);
+    }
+}
+#StdOut
+quad (100,100), (100.00001,100.00001), (100.00002,100.00002) is degenerate, nearly
+quad (1100,1100), (1100,1100), (1100,1100) is degenerate, nearly
+quad (100,100), (100.00001,100.00001), (100.00002,100.00002) is not degenerate, exactly
+quad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly
+#StdOut ##
+##
+
+#SeeAlso IsLineDegenerate IsCubicDegenerate SkPoint::equalsWithinTolerance 
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
+                                  const SkPoint& p3, const SkPoint& p4, bool exact) 
+
+Test if Cubic is degenerate.
+Cubic with no length or that moves a very short distance is degenerate; it is
+treated as a point. 
+
+#Param p1  Cubic Start_Point. ##
+#Param p2  Cubic Control_Point 1. ##
+#Param p3  Cubic Control_Point 2. ##
+#Param p4  Cubic End_Point. ##
+#Param exact  If true, returns true only if p1, p2, p3, and p4 are equal. 
+              If false, returns true if p1, p2, p3, and p4 are equal or nearly equal.
+##
+
+#Return  true if Cubic is degenerate; its length is effectively zero. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPoint points[] = {{1, 0}, {0, 0}, {0, 0}, {0, 0}};
+    SkScalar step = 1;
+    SkScalar prior, length, degenerate;
+    do {
+        prior = points[0].fX;
+        step /= 2;
+        if (SkPath::IsCubicDegenerate(points[0], points[1], points[2], points[3], false)) {
+            degenerate = prior;
+            points[0].fX += step;
+        } else {
+            length = prior;
+            points[0].fX -= step;
+        }
+    } while (prior != points[0].fX);
+    SkDebugf("%1.8g is degenerate\n", degenerate);
+    SkDebugf("%1.8g is length\n", length);
+}
+#StdOut
+0.00024414062 is degenerate
+0.00024414065 is length
+#StdOut ##
+##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isLine(SkPoint line[2]) const
+
+Returns true if Path contains only one Line;
+Path_Verb array has two entries: kMove_Verb, kLine_Verb. 
+If Path contains one Line and line is not nullptr, line is set to 
+Line_Start_Point and Line_End_Point.
+Returns false if Path is not one Line; line is unaltered.
+
+#Param line  storage for Line. May be nullptr. ##
+
+#Return  true if Path contains exactly one Line. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+        SkPoint line[2];
+        if (path.isLine(line)) {
+            SkDebugf("%s is line (%1.8g,%1.8g) (%1.8g,%1.8g)\n", prefix,
+                 line[0].fX, line[0].fY, line[1].fX, line[1].fY);
+        } else {
+            SkDebugf("%s is not line\n", prefix);
+        }
+    };
+    SkPath path;
+    debugster("empty", path);
+    path.lineTo(0, 0);
+    debugster("zero line", path);
+    path.rewind();
+    path.moveTo(10, 10);
+    path.lineTo(20, 20);
+    debugster("line", path);
+    path.moveTo(20, 20);
+    debugster("second move", path);
+}
+#StdOut
+empty is not line
+zero line is line (0,0) (0,0)
+line is line (10,10) (20,20)
+second move is not line
+##
+##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int countPoints() const
+
+Returns the number of points in Path.
+Point count is initially zero. 
+
+#Return  Path Point array length. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+         SkDebugf("%s point count: %d\n", prefix, path.countPoints());
+    };
+    SkPath path;
+    debugster("empty", path);
+    path.lineTo(0, 0);
+    debugster("zero line", path);
+    path.rewind();
+    path.moveTo(10, 10);
+    path.lineTo(20, 20);
+    debugster("line", path);
+    path.moveTo(20, 20);
+    debugster("second move", path);
+}
+#StdOut
+empty point count: 0
+zero line point count: 2
+line point count: 2
+second move point count: 3
+##
+##
+
+#SeeAlso getPoints
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkPoint getPoint(int index) const
+
+Returns Point at index in Path_Point array. Valid range for index is
+0 to countPoints - 1.
+If the index is out of range, getPoint returns (0, 0). 
+
+#Param index  Path_Point array element selector. ##
+
+#Return  Path_Point array Point value or (0, 0). ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+         SkDebugf("%s point count: %d\n", prefix, path.countPoints());
+    };
+    SkPath path;
+    path.lineTo(20, 20);
+    path.offset(-10, -10);
+    for (int i= 0; i < path.countPoints(); ++i) {
+         SkDebugf("point %d: (%1.8g,%1.8g)\n", i, path.getPoint(i).fX, path.getPoint(i).fY);
+    }  
+}
+#StdOut
+point 0: (-10,-10)
+point 1: (10,10)
+##
+##
+
+#SeeAlso countPoints getPoints
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int getPoints(SkPoint points[], int max) const
+
+Returns number of points in Path. Up to max points are copied.
+points may be nullptr; then, max must be zero.
+If max is greater than number of points, excess points storage is unaltered. 
+
+#Param points  storage for Path Point array. May be nullptr. ##
+#Param max  Number of points alloted in points storage; must be greater than or equal to zero. ##
+
+#Return  Path Point array length. ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    auto debugster = [](const char* prefix, const SkPath& path, SkPoint* points, int max) -> void {
+         int count = path.getPoints(points, max);
+         SkDebugf("%s point count: %d  ", prefix, count);
+         for (int i = 0; i < SkTMin(count, max) && points; ++i) {
+             SkDebugf("(%1.8g,%1.8g) ", points[i].fX, points[i].fY);
+         }
+         SkDebugf("\n");
+    };
+    SkPath path;
+    path.lineTo(20, 20);
+    path.lineTo(-10, -10);
+    SkPoint points[2];
+    debugster("no points",  path, nullptr, 0);
+    debugster("zero max",  path, points, 0);
+    debugster("too small",  path, points, (int) SK_ARRAY_COUNT(points));
+}
+#StdOut
+no points point count: 3  
+zero max point count: 3  
+too small point count: 3  (0,0) (20,20) 
+##
+##
+
+#SeeAlso countPoints getPoint
+##
+
+# ------------------------------------------------------------------------------
+#Method int countVerbs() const
+
+Return the number of verbs in the path
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method int getVerbs(uint8_t verbs[], int max) const
+
+Returns the number of verbs in the path. Up to max verbs are copied. The
+verbs are copied as one byte per verb.
+
+#Param verbs  If not null, receives up to max verbs ##
+#Param max  The maximum number of verbs to copy into verbs ##
+
+#Return  the actual number of verbs in the path ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void swap(SkPath& other)
+
+/! Swap contents of this and other. Guaranteed not to throw
+#Param other  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRect& getBounds() const 
+
+Returns the bounds of the path's points. If the path contains zero points/verbs, this
+will return the "empty" rect [0, 0, 0, 0].
+Note: this bounds may be larger than the actual shape, since curves
+do not extend as far as their control points. Additionally this bound encompases all points,
+even isolated moveTos either preceeding or following the last non-degenerate contour.
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void updateBoundsCache() const 
+
+Calling this will, if the internal cache of the bounds is out of date,
+update it so that subsequent calls to getBounds will be instantaneous.
+This also means that any copies or simple transformations of the path
+will inherit the cached bounds.
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRect computeTightBounds() const
+
+Computes a bounds that is conservatively "snug" around the path. This assumes that the
+path will be filled. It does not attempt to collapse away contours that are logically
+empty (e.g. moveTo(x, y) + lineTo(x, y)) but will include them in the calculation.
+It differs from getBounds() in that it will look at the snug bounds of curves, whereas
+getBounds() just returns the bounds of the control-points. Thus computing this may be
+slower than just calling getBounds().
+If the path is empty (i.e. no points or verbs), it will return SkRect::MakeEmpty().
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool conservativelyContainsRect(const SkRect& rect) const
+
+Does a conservative test to see whether a rectangle is inside a path. Currently it only
+will ever return true for single convex contour paths. The empty-status of the rect is not
+considered (e.g. a rect that is a point can be inside a path). Points or line segments where
+the rect edge touches the path border are not considered containment violations.
+#Param rect  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void incReserve(unsigned extraPtCount)
+
+/  Construction methods
+Hint to the path to prepare for adding more points. This can allow the
+path to more efficiently grow its storage.
+
+#Param extraPtCount  The number of extra points the path should
+preallocate for. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void moveTo(SkScalar x, SkScalar y)
+
+Set the beginning of the next contour to the point (x,y).
+
+#Param x  The x-coordinate of the start of a new contour ##
+#Param y  The y-coordinate of the start of a new contour ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void moveTo(const SkPoint& p) 
+
+Set the beginning of the next contour to the point
+
+#Param p  The start of a new contour ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rMoveTo(SkScalar dx, SkScalar dy)
+
+Set the beginning of the next contour relative to the last point on the
+previous contour. If there is no previous contour, this is treated the
+same as moveTo().
+
+#Param dx  The amount to add to the x-coordinate of the end of the
+previous contour, to specify the start of a new contour ##
+#Param dy  The amount to add to the y-coordinate of the end of the
+previous contour, to specify the start of a new contour ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void lineTo(SkScalar x, SkScalar y)
+
+Add a line from the last point to the specified point (x,y). If no
+moveTo() call has been made for this contour, the first point is
+automatically set to (0,0).
+
+#Param x  The x-coordinate of the end of a line ##
+#Param y  The y-coordinate of the end of a line ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void lineTo(const SkPoint& p) 
+
+Add a line from the last point to the specified point. If no moveTo()
+call has been made for this contour, the first point is automatically
+set to (0,0).
+
+#Param p  The end of a line ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rLineTo(SkScalar dx, SkScalar dy)
+
+Same as lineTo, but the coordinates are considered relative to the last
+point on this contour. If there is no previous point, then a moveTo(0,0)
+is inserted automatically.
+
+#Param dx  The amount to add to the x-coordinate of the previous point
+on this contour, to specify a line ##
+#Param dy  The amount to add to the y-coordinate of the previous point
+on this contour, to specify a line ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2)
+
+Add a quadratic bezier from the last point, approaching control point
+(x1,y1), and ending at (x2,y2). If no moveTo() call has been made for
+this contour, the first point is automatically set to (0,0).
+
+#Param x1  The x-coordinate of the control point on a quadratic curve ##
+#Param y1  The y-coordinate of the control point on a quadratic curve ##
+#Param x2  The x-coordinate of the end point on a quadratic curve ##
+#Param y2  The y-coordinate of the end point on a quadratic curve ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void quadTo(const SkPoint& p1, const SkPoint& p2) 
+
+Add a quadratic bezier from the last point, approaching control point
+p1, and ending at p2. If no moveTo() call has been made for this
+contour, the first point is automatically set to (0,0).
+
+#Param p1  The control point on a quadratic curve ##
+#Param p2  The end point on a quadratic curve ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2)
+
+Same as quadTo, but the coordinates are considered relative to the last
+point on this contour. If there is no previous point, then a moveTo(0,0)
+is inserted automatically.
+
+#Param dx1  The amount to add to the x-coordinate of the last point on
+this contour, to specify the control point of a quadratic curve ##
+#Param dy1  The amount to add to the y-coordinate of the last point on
+this contour, to specify the control point of a quadratic curve ##
+#Param dx2  The amount to add to the x-coordinate of the last point on
+this contour, to specify the end point of a quadratic curve ##
+#Param dy2  The amount to add to the y-coordinate of the last point on
+this contour, to specify the end point of a quadratic curve ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
+                 SkScalar w)
+
+#Param x1  ##
+#Param y1  ##
+#Param x2  ##
+#Param y2  ##
+#Param w  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void conicTo(const SkPoint& p1, const SkPoint& p2, SkScalar w) 
+
+#Param p1  ##
+#Param p2  ##
+#Param w  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2,
+                  SkScalar w)
+
+#Param dx1  ##
+#Param dy1  ##
+#Param dx2  ##
+#Param dy2  ##
+#Param w  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
+                 SkScalar x3, SkScalar y3)
+
+Add a cubic bezier from the last point, approaching control points
+(x1,y1) and (x2,y2), and ending at (x3,y3). If no moveTo() call has been
+made for this contour, the first point is automatically set to (0,0).
+
+#Param x1  The x-coordinate of the 1st control point on a cubic curve ##
+#Param y1  The y-coordinate of the 1st control point on a cubic curve ##
+#Param x2  The x-coordinate of the 2nd control point on a cubic curve ##
+#Param y2  The y-coordinate of the 2nd control point on a cubic curve ##
+#Param x3  The x-coordinate of the end point on a cubic curve ##
+#Param y3  The y-coordinate of the end point on a cubic curve ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3) 
+
+Add a cubic bezier from the last point, approaching control points p1
+and p2, and ending at p3. If no moveTo() call has been made for this
+contour, the first point is automatically set to (0,0).
+
+#Param p1  The 1st control point on a cubic curve ##
+#Param p2  The 2nd control point on a cubic curve ##
+#Param p3  The end point on a cubic curve ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
+                  SkScalar x3, SkScalar y3)
+
+Same as cubicTo, but the coordinates are considered relative to the
+current point on this contour. If there is no previous point, then a
+moveTo(0,0) is inserted automatically.
+
+#Param x1  The amount to add to the x-coordinate of the last point on
+this contour, to specify the 1st control point of a cubic curve ##
+#Param y1  The amount to add to the y-coordinate of the last point on
+this contour, to specify the 1st control point of a cubic curve ##
+#Param x2  The amount to add to the x-coordinate of the last point on
+this contour, to specify the 2nd control point of a cubic curve ##
+#Param y2  The amount to add to the y-coordinate of the last point on
+this contour, to specify the 2nd control point of a cubic curve ##
+#Param x3  The amount to add to the x-coordinate of the last point on
+this contour, to specify the end point of a cubic curve ##
+#Param y3  The amount to add to the y-coordinate of the last point on
+this contour, to specify the end point of a cubic curve ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+#Topic Arc
+
+Arc can be constructed in a number of ways. Arc may be described by part of Oval and angles,
+by start point and end point, and by radius and tangent lines. Each construction has advantages,
+and some constructions match Arc drawing in graphics standards.
+
+All Arc draws are implemented by one or more Conic draws. When Conic_Weight is less than one,
+Conic describes an Arc of some Oval or Circle.
+
+arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)
+describes Arc as a piece of Oval, beginning at startAngle, sweeping clockwise or counterclockwise,
+which may continue Contour or start a new one.
+
+
+
+#ToDo  allow example to hide source and not be exposed as fiddle since markdown / html can't
+       do the kind of table shown in the illustration.
+       example is spaced correctly on pc but text is too wide on fiddle
+##
+
+#Example
+struct data {
+   const char* name;
+   char super;
+   int yn[10];
+};
+
+const data dataSet[] = {
+{ "arcTo sweep",    '1', {1,  3, 1, 0, 0, 0, 0, 1, 0, 0 }},
+{ "drawArc",         0,  {1, -1, 1, 1, 1, 1, 1, 0, 0, 0 }},
+{ "addArc",          0,  {1,  1, 1, 4, 0, 1, 1, 1, 0, 0 }},
+{ "arcTo tangents", '4', {0,  0, 0, 0, 0, 0, 0, 1, 1, 0 }},
+{ "arcTo radii",    '5', {1,  0, 1, 0, 0, 0, 0, 1, 1, 0 }},
+{ "conicTo",         0,  {1,  1, 0, 0, 0, 0, 0, 1, 1, 1 }}
+};
+
+#define __degree_symbol__ "\xC2" "\xB0"
+
+const char* headers[] = {
+    "Oval part",
+    "force moveTo",
+    "can draw 180" __degree_symbol__,
+    "can draw 360" __degree_symbol__,
+    "can draw greater than 360" __degree_symbol__,
+    "ignored if radius is zero",
+    "ignored if sweep is zero",
+    "requires Path",
+    "describes rotation",
+    "describes perspective",
+};
+
+const char* yna[] = {
+     "n/a",
+     "no",
+     "yes"
+};
+
+void draw(SkCanvas* canvas) {
+    canvas->clear(SK_ColorWHITE);
+    SkPaint lp;
+    lp.setAntiAlias(true);
+    SkPaint tp(lp);
+    SkPaint sp(tp);
+    SkPaint bp(tp);
+    bp.setFakeBoldText(true);
+    sp.setTextSize(10);
+    lp.setColor(SK_ColorGRAY);
+    canvas->translate(0, 24);
+    for (unsigned col = 0; col <= SK_ARRAY_COUNT(headers); ++col) {
+       canvas->drawLine(100 + col * 35, 100, 100 + col * 35, 250, lp);
+       if (0 == col) {
+          continue;
+       }
+       canvas->drawLine(100 + col * 35, 100, 200 + col * 35, 0, lp);
+       SkPath path;
+       path.moveTo(97 + col * 35, 103);
+       path.lineTo(224 + col * 35, -24);
+       canvas->drawTextOnPathHV(headers[col -1], strlen(headers[col -1]), path, 0, -9, bp);
+    }
+    for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {
+        if (0 == row) {
+            canvas->drawLine(100, 100, 450, 100, lp);
+        } else {
+            canvas->drawLine(5, 100 + row * 25, 450, 100 + row * 25, lp);
+        }
+        if (row == SK_ARRAY_COUNT(dataSet)) {
+            break;
+        }
+        canvas->drawString(dataSet[row].name, 5, 117 + row * 25, bp);
+        if (dataSet[row].super) {
+            SkScalar width = bp.measureText(dataSet[row].name, strlen(dataSet[row].name));
+            canvas->drawText(&dataSet[row].super, 1, 8 + width, 112 + row * 25, sp);
+        }
+        for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {
+            int val = dataSet[row].yn[col];
+            canvas->drawString(yna[SkTMin(2, val + 1)], 105 + col * 35, 117 + row * 25, tp);
+            if (val > 1) {
+                char supe = '0' + val - 1;
+                canvas->drawText(&supe, 1, 125 + col * 35, 112 + row * 25, sp);
+            }
+        }
+    }
+}
+#Example ##
+
+#Example
+#Height 128
+#Description
+1 describes an arc from an oval, a starting angle, and a sweep angle.
+2 is similar to 1, but does not require building a path to draw.
+3 is similar to 1, but always begins new Contour.
+4 describes an arc from a pair of tangent lines and a radius.
+5 describes an arc from Oval center, arc start Point and arc end Point.
+6 describes an arc from a pair of tangent lines and a Conic_Weight.
+##
+void draw(SkCanvas* canvas) {
+    canvas->clear(SK_ColorWHITE);
+    SkRect oval = {8, 8, 56, 56};
+    SkPaint ovalPaint;
+    ovalPaint.setAntiAlias(true);
+    SkPaint textPaint(ovalPaint);
+    ovalPaint.setStyle(SkPaint::kStroke_Style);
+    SkPaint arcPaint(ovalPaint);
+    arcPaint.setStrokeWidth(5);
+    arcPaint.setColor(SK_ColorBLUE);
+    canvas->translate(-64, 0);
+    for (char arcStyle = '1'; arcStyle <= '6'; ++arcStyle) {
+        '4' == arcStyle ? canvas->translate(-96, 55) : canvas->translate(64, 0);
+        canvas->drawText(&arcStyle, 1, 30, 36, textPaint);
+        canvas->drawOval(oval, ovalPaint);
+        SkPath path;
+        path.moveTo({56, 32});
+        switch (arcStyle) {
+            case '1':
+                path.arcTo(oval, 0, 90, false);
+                break;
+            case '2':
+                canvas->drawArc(oval, 0, 90, false, arcPaint);
+                continue;
+            case '3':
+                path.addArc(oval, 0, 90);
+                break;
+            case '4':
+                path.arcTo({56, 56}, {32, 56}, 24);
+                break;
+            case '5':
+                path.arcTo({24, 24}, 0, SkPath::kSmall_ArcSize, SkPath::kCW_Direction, {32, 56});
+                break;
+            case '6':
+                path.conicTo({56, 56}, {32, 56}, SK_ScalarRoot2Over2);
+                break;
+         }
+         canvas->drawPath(path, arcPaint);
+     }
+}
+#Example ##
+
+
+#Method void arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)
+
+Append the specified arc to the path. If the start of the arc is different from the path's
+current last point, then an automatic lineTo() is added to connect the current contour
+to the start of the arc. However, if the path is empty, then we call moveTo() with
+the first point of the arc. The sweep angle is treated mod 360.
+
+#Param oval  The bounding oval defining the shape and size of the arc ##
+#Param startAngle  Starting angle (in degrees) where the arc begins ##
+#Param sweepAngle  Sweep angle (in degrees) measured clockwise. This is treated mod 360. ##
+#Param forceMoveTo  If true, always begin a new contour with the arc ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar radius)
+
+Append a line and arc to the current path. This is the same as the PostScript call "arct".
+#Param x1  ##
+#Param y1  ##
+#Param x2  ##
+#Param y2  ##
+#Param radius  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void arcTo(const SkPoint p1, const SkPoint p2, SkScalar radius) 
+
+Append a line and arc to the current path. This is the same as the
+PostScript call "arct".
+#Param p1  ##
+#Param p2  ##
+#Param radius  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum ArcSize
+
+#Code
+    enum ArcSize {
+        kSmall_ArcSize 
+        kLarge_ArcSize 
+    };
+##
+
+** the smaller of the two possible SVG arcs. 
+** the larger of the two possible SVG arcs. 
+#Const kSmall_ArcSize
+##
+#Const kLarge_ArcSize
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+               Direction sweep, SkScalar x, SkScalar y)
+
+Append an elliptical arc from the current point in the format used by SVG.
+The center of the ellipse is computed to satisfy the constraints below.
+
+#Param rx  The radii in the x and y directions respectively. ##
+#Param ry  The radii in the x and y directions respectively. ##
+#Param xAxisRotate  The angle in degrees relative to the x-axis. ##
+#Param largeArc  Determines whether the smallest or largest arc possible
+is drawn. ##
+#Param sweep  Determines if the arc should be swept in an anti-clockwise or
+clockwise direction. Note that this enum value is opposite the SVG
+arc sweep value. ##
+#Param x  The destination coordinates. ##
+#Param y  The destination coordinates. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
+               const SkPoint xy) 
+
+#Param r  ##
+#Param xAxisRotate  ##
+#Param largeArc  ##
+#Param sweep  ##
+#Param xy  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+                Direction sweep, SkScalar dx, SkScalar dy)
+
+Same as arcTo format used by SVG, but the destination coordinate is relative to the
+last point on this contour. If there is no previous point, then a
+moveTo(0,0) is inserted automatically.
+
+#Param rx  The radii in the x and y directions respectively. ##
+#Param ry  The radii in the x and y directions respectively. ##
+#Param xAxisRotate  The angle in degrees relative to the x-axis. ##
+#Param largeArc  Determines whether the smallest or largest arc possible
+is drawn. ##
+#Param sweep  Determines if the arc should be swept in an anti-clockwise or
+clockwise direction. Note that this enum value is opposite the SVG
+arc sweep value. ##
+#Param dx  The destination coordinates relative to the last point. ##
+#Param dy  The destination coordinates relative to the last point. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+#Topic Arc ##
+
+# ------------------------------------------------------------------------------
+
+#Method void close()
+
+Close the current contour. If the current point is not equal to the
+first point of the contour, a line segment is automatically added.
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static bool IsInverseFillType(FillType fill) 
+
+Returns whether or not a fill type is inverted
+kWinding_FillType        -> false
+kEvenOdd_FillType        -> false
+kInverseWinding_FillType -> true
+kInverseEvenOdd_FillType -> true
+#Param fill  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static FillType ConvertToNonInverseFillType(FillType fill) 
+
+Returns the equivalent non-inverted fill type to the given fill type
+kWinding_FillType        -> kWinding_FillType
+kEvenOdd_FillType        -> kEvenOdd_FillType
+kInverseWinding_FillType -> kWinding_FillType
+kInverseEvenOdd_FillType -> kEvenOdd_FillType
+#Param fill  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                                   SkScalar w, SkPoint pts[], int pow2)
+
+Chop a conic into N quads, stored continguously in pts[], where
+N = 1 << pow2. The amount of storage needed is (1 + 2 * N)
+#Param p0  ##
+#Param p1  ##
+#Param p2  ##
+#Param w  ##
+#Param pts  ##
+#Param pow2  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isRect(SkRect* rect, bool* isClosed = NULL, Direction* direction = NULL) const
+
+Returns true if the path specifies a rectangle.
+If this returns false, then all output parameters are ignored, and left
+unchanged. If this returns true, then each of the output parameters
+are checked for NULL. If they are not, they return their value.
+
+#Param rect  If not null, set to the bounds of the rectangle.
+Note : this bounds may be smaller than the path's bounds, since it is just
+the bounds of the "drawable" parts of the path. e.g. a trailing MoveTo would
+be ignored in this rect, but not by the path's bounds ##
+#Param isClosed  If not null, set to true if the path is closed ##
+#Param direction  If not null, set to the rectangle's direction ##
+
+#Return  true if the path specifies a rectangle ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isNestedFillRects(SkRect rect[2], Direction dirs[2] = NULL) const
+
+Returns true if the path specifies a pair of nested rectangles, or would draw a
+pair of nested rectangles when filled. If so, and if
+rect is not null, set rect[0] to the outer rectangle and rect[1] to the inner
+rectangle. If so, and dirs is not null, set dirs[0] to the direction of
+the outer rectangle and dirs[1] to the direction of the inner rectangle. If
+the path does not specify a pair of nested rectangles, return
+false and ignore rect and dirs.
+
+#Param rect  If not null, returns the path as a pair of nested rectangles ##
+#Param dirs  If not null, returns the direction of the rects ##
+
+#Return  true if the path describes a pair of nested rectangles ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRect(const SkRect& rect, Direction dir = kCW_Direction)
+
+Add a closed rectangle contour to the path
+
+#Param rect  The rectangle to add as a closed contour to the path ##
+#Param dir  The direction to wind the rectangle's contour.
+Note: the contour initial point index is 0 (as defined below). ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRect(const SkRect& rect, Direction dir, unsigned start)
+
+Add a closed rectangle contour to the path
+
+#Param rect  The rectangle to add as a closed contour to the path ##
+#Param dir  The direction to wind the rectangle's contour. ##
+#Param start  Initial point of the contour (initial moveTo), expressed as
+a corner index, starting in the upper-left position, clock-wise:
+0         1
+-------*
+|       |
+-------*
+3         2 ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
+                 Direction dir = kCW_Direction)
+
+Add a closed rectangle contour to the path
+
+#Param left  The left side of a rectangle to add as a closed contour
+to the path ##
+#Param top  The top of a rectangle to add as a closed contour to the
+path ##
+#Param right  The right side of a rectangle to add as a closed contour
+to the path ##
+#Param bottom  The bottom of a rectangle to add as a closed contour to
+the path ##
+#Param dir  The direction to wind the rectangle's contour.
+Note: the contour initial point index is 0 (as defined above). ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addOval(const SkRect& oval, Direction dir = kCW_Direction)
+
+Add a closed oval contour to the path
+
+#Param oval  The bounding oval to add as a closed contour to the path ##
+#Param dir  The direction to wind the oval's contour.
+Note: the contour initial point index is 1 (as defined below). ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addOval(const SkRect& oval, Direction dir, unsigned start)
+
+Add a closed oval contour to the path
+
+#Param oval  The bounding oval to add as a closed contour to the path ##
+#Param dir  The direction to wind the oval's contour. ##
+#Param start  Initial point of the contour (initial moveTo), expressed
+as an ellipse vertex index, starting at the top, clock-wise
+(90/0/270/180deg order):
+0
+-*-
+|     |
+3 *     * 1
+|     |
+-*-
+2 ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addCircle(SkScalar x, SkScalar y, SkScalar radius,
+                   Direction dir = kCW_Direction)
+
+Add a closed circle contour to the path. The circle contour begins at
+the right-most point (as though 1 were passed to addOval's 'start' param).
+
+#Param x  The x-coordinate of the center of a circle to add as a
+closed contour to the path ##
+#Param y  The y-coordinate of the center of a circle to add as a
+closed contour to the path ##
+#Param radius  The radius of a circle to add as a closed contour to the
+path ##
+#Param dir  The direction to wind the circle's contour. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle)
+
+Add the specified arc to the path as a new contour.
+
+#Param oval  The bounds of oval used to define the size of the arc ##
+#Param startAngle  Starting angle (in degrees) where the arc begins ##
+#Param sweepAngle  Sweep angle (in degrees) measured clockwise ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
+                      Direction dir = kCW_Direction)
+
+Add a closed round-rectangle contour to the path
+
+#Param rect  The bounds of a round-rectangle to add as a closed contour ##
+#Param rx  The x-radius of the rounded corners on the round-rectangle ##
+#Param ry  The y-radius of the rounded corners on the round-rectangle ##
+#Param dir  The direction to wind the rectangle's contour. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRoundRect(const SkRect& rect, const SkScalar radii[],
+                      Direction dir = kCW_Direction)
+
+Add a closed round-rectangle contour to the path. Each corner receives
+two radius values [X, Y]. The corners are ordered top-left, top-right,
+bottom-right, bottom-left.
+
+#Param rect  The bounds of a round-rectangle to add as a closed contour ##
+#Param radii  Array of 8 scalars, 4 [X,Y] pairs for each corner ##
+#Param dir  The direction to wind the rectangle's contour.
+Note: The radii here now go through the same constraint handling as the
+SkRRect radii (i.e., either radii at a corner being 0 implies a
+sqaure corner and oversized radii are proportionally scaled down). ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRRect(const SkRRect& rrect, Direction dir = kCW_Direction)
+
+Add an SkRRect contour to the path
+
+#Param rrect  The rounded rect to add as a closed contour ##
+#Param dir  The winding direction for the new contour.
+Note: the contour initial point index is either 6 (for dir == kCW_Direction)
+or 7 (for dir == kCCW_Direction), as defined below. ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addRRect(const SkRRect& rrect, Direction dir, unsigned start)
+
+Add an SkRRect contour to the path
+
+#Param rrect  The rounded rect to add as a closed contour ##
+#Param dir  The winding direction for the new contour. ##
+#Param start  Initial point of the contour (initial moveTo), expressed as
+an index of the radii minor/major points, ordered clock-wise:
+0    1
+----*
+7 *      * 2
+|      |
+6 *      * 3
+----*
+5    4 ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addPoly(const SkPoint pts[], int count, bool close)
+
+Add a new contour made of just lines. This is just a fast version of
+the following:
+this->moveTo(pts[0]);
+for (int i = 1; i < count; ++i) {
+this->lineTo(pts[i]);
+}
+if (close) {
+this->close();
+}
+#Param pts  ##
+#Param count  ##
+#Param close  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum AddPathMode
+
+#Code
+    enum AddPathMode {
+        kAppend_AddPathMode 
+        kExtend_AddPathMode 
+    };
+##
+
+** Source path contours are added as new contours.
+        
+** Path is added by extending the last contour of the destination path
+            with the first contour of the source path. If the last contour of
+            the destination path is closed, then it will not be extended.
+            Instead, the start of source path will be extended by a straight
+            line to the end point of the destination path.
+        
+#Const kAppend_AddPathMode
+##
+#Const kExtend_AddPathMode
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addPath(const SkPath& src, SkScalar dx, SkScalar dy,
+                 AddPathMode mode = kAppend_AddPathMode)
+
+Add a copy of src to the path, offset by (dx,dy)
+
+#Param src  The path to add as a new contour ##
+#Param dx  The amount to translate the path in X as it is added ##
+#Param dy  The amount to translate the path in Y as it is added ##
+#Param mode  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode) 
+
+Add a copy of src to the path
+#Param src  ##
+#Param mode  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend_AddPathMode)
+
+Add a copy of src to the path, transformed by matrix
+
+#Param src  The path to add as a new contour ##
+#Param matrix  Transform applied to src ##
+#Param mode  Determines how path is added ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void reverseAddPath(const SkPath& src)
+
+Same as addPath(), but reverses the src input
+#Param src  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(SkScalar dx, SkScalar dy, SkPath* dst) const
+
+Offset the path by (dx,dy), returning true on success
+
+#Param dx  The amount in the X direction to offset the entire path ##
+#Param dy  The amount in the Y direction to offset the entire path ##
+#Param dst  The translated path is written here ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void offset(SkScalar dx, SkScalar dy) 
+
+Offset the path by (dx,dy), returning true on success
+
+#Param dx  The amount in the X direction to offset the entire path ##
+#Param dy  The amount in the Y direction to offset the entire path ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void transform(const SkMatrix& matrix, SkPath* dst) const
+
+Transform the points in this path by matrix, and write the answer into
+dst.
+
+#Param matrix  The matrix to apply to the path ##
+#Param dst  The transformed path is written here ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void transform(const SkMatrix& matrix) 
+
+Transform the points in this path by matrix
+
+#Param matrix  The matrix to apply to the path ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool getLastPt(SkPoint* lastPt) const
+
+Return the last point on the path. If no points have been added, (0,0)
+is returned. If there are no points, this returns false, otherwise it
+returns true.
+
+#Param lastPt  The last point on the path is returned here ##
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLastPt(SkScalar x, SkScalar y)
+
+Set the last point on the path. If no points have been added,
+moveTo(x,y) is automatically called.
+
+#Param x  The new x-coordinate for the last point ##
+#Param y  The new y-coordinate for the last point ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void setLastPt(const SkPoint& p) 
+
+Set the last point on the path. If no points have been added, moveTo(p)
+is automatically called.
+
+#Param p  The new location for the last point ##
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Enum SegmentMask
+
+#Code
+    enum SegmentMask {
+        kLine_SegmentMask = 1 << 0
+        kQuad_SegmentMask = 1 << 1
+        kConic_SegmentMask = 1 << 2
+        kCubic_SegmentMask = 1 << 3
+    };
+##
+
+#Const kLine_SegmentMask = 1 << 0
+##
+#Const kQuad_SegmentMask = 1 << 1
+##
+#Const kConic_SegmentMask = 1 << 2
+##
+#Const kCubic_SegmentMask = 1 << 3
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method uint32_t getSegmentMasks() const 
+
+Returns a mask, where each bit corresponding to a SegmentMask is
+set if the path contains 1 or more segments of that type.
+Returns 0 for an empty path (no segments).
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+#Subtopic Verb
+
+#Enum Verb
+
+#Code
+    enum Verb {
+        kMove_Verb 
+        kLine_Verb 
+        kQuad_Verb 
+        kConic_Verb 
+        kCubic_Verb 
+        kClose_Verb 
+        kDone_Verb 
+    };
+##
+
+/!< iter.next returns 1 point
+/!< iter.next returns 2 points
+/!< iter.next returns 3 points
+/!< iter.next returns 3 points + iter.conicWeight()
+/!< iter.next returns 4 points
+/!< iter.next returns 0 points
+/!< iter.next returns 0 points
+#Const kMove_Verb
+##
+#Const kLine_Verb
+##
+#Const kQuad_Verb
+##
+#Const kConic_Verb
+##
+#Const kCubic_Verb
+##
+#Const kClose_Verb
+##
+#Const kDone_Verb
+##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+#Subtopic ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool contains(SkScalar x, SkScalar y) const
+
+Returns true if the point { x, y } is contained by the path, taking into
+account the FillType.
+#Param x  ##
+#Param y  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const
+
+#Param stream  ##
+#Param forceClose  ##
+#Param dumpAsHex  ##
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void dump() const
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void dumpHex() const
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t writeToMemory(void* buffer) const
+
+Write the path to the buffer, and return the number of bytes written.
+If buffer is NULL, it still returns the number of bytes.
+#Param buffer  ##
+
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t readFromMemory(const void* buffer, size_t length)
+
+Initializes the path from the buffer
+
+#Param buffer  Memory to read from ##
+#Param length  Amount of memory available in the buffer ##
+
+#Return  number of bytes read (must be a multiple of 4) or ##
+0 if there was not enough memory available
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method uint32_t getGenerationID() const
+
+Returns a non-zero, globally unique value corresponding to the set of verbs
+and points in the path (but not the fill type [except on Android skbug.com/1762]).
+Each time the path is modified, a different generation ID will be returned.
+#Return  ##
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void validate() const
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void experimentalValidateRef() const { fPathRef->validate(); }
+
+
+#Example
+##
+
+#ToDo incomplete ##
+
+##
+
+#Class SkPath ##
+
+#Topic Path ##
