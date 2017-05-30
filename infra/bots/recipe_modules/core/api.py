@@ -33,28 +33,6 @@ class SkiaApi(recipe_api.RecipeApi):
 
     self.m.flavor.setup()
 
-  def update_repo(self, parent_dir, repo):
-    """Update an existing repo. This is safe to call without gen_steps."""
-    repo_path = parent_dir.join(repo.name)
-    if self.m.path.exists(repo_path) or self._test_data.enabled:
-      if 'Win' in self.m.properties.get('buildername', ''):
-        git = 'git.bat'
-      else:
-        git = 'git'
-      with self.m.context(cwd=repo_path):
-        self.m.step('git remote set-url',
-                    cmd=[git, 'remote', 'set-url', 'origin', repo.url],
-                    infra_step=True)
-        self.m.step('git fetch',
-                    cmd=[git, 'fetch'],
-                    infra_step=True)
-        self.m.step('git reset',
-                    cmd=[git, 'reset', '--hard', repo.revision],
-                    infra_step=True)
-        self.m.step('git clean',
-                    cmd=[git, 'clean', '-d', '-f'],
-                    infra_step=True)
-
   def checkout_steps(self):
     """Run the steps to obtain a checkout of Skia."""
     cfg_kwargs = {}
@@ -129,8 +107,6 @@ class SkiaApi(recipe_api.RecipeApi):
       patch_repo = 'https://skia.googlesource.com/skia.git'
       patch_root = skia_dep_path
 
-    self.update_repo(self.m.vars.checkout_root, main)
-
     # TODO(rmistry): Remove the below block after there is a solution for
     #                crbug.com/616443
     entries_file = self.m.vars.checkout_root.join('.gclient_entries')
@@ -145,7 +121,6 @@ class SkiaApi(recipe_api.RecipeApi):
       chromium.managed = False
       chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
       chromium.revision = 'origin/lkgr'
-      self.update_repo(self.m.vars.checkout_root, chromium)
 
     # Run bot_update.
 
