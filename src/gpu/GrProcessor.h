@@ -344,7 +344,7 @@ public:
 
     bool operator!=(const ImageStorageAccess& that) const { return !(*this == that); }
 
-    GrTextureProxy* proxy() const { return fProxyRef.getProxy()->asTextureProxy(); }
+    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
     GrShaderFlags visibility() const { return fVisibility; }
     GrIOType ioType() const { return fProxyRef.ioType(); }
     GrImageStorageFormat format() const { return fFormat; }
@@ -353,12 +353,12 @@ public:
 
     // 'instantiate' should only ever be called at flush time.
     bool instantiate(GrResourceProvider* resourceProvider) const {
-        return SkToBool(fProxyRef.getProxy()->instantiate(resourceProvider));
+        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
     }
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
     GrTexture* peekTexture() const {
-        SkASSERT(fProxyRef.getProxy()->priv().peekTexture());
-        return fProxyRef.getProxy()->priv().peekTexture();
+        SkASSERT(fProxyRef.get()->priv().peekTexture());
+        return fProxyRef.get()->priv().peekTexture();
     }
 
     /**
