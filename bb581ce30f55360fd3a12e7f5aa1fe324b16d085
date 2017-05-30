@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d16e60dc_40919b66",
+        "filename": "src/effects/SkPerlinNoiseShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-05-30T18:52:11Z",
+      "side": 0,
+      "message": "This was probably added after the fork, maybe we should keep?",
+      "revId": "bb581ce30f55360fd3a12e7f5aa1fe324b16d085",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
