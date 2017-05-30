@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7bb49ff_0c93dd19",
+        "filename": "gm/blurignorexform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-30T15:04:13Z",
+      "side": 1,
+      "message": "// This GM tests out the SkBlurMaskFilter\u0027s kIgnoreTransform flag. That flag causes the blur mask filter to *not* apply the CTM to the blur\u0027s radius.\n??",
+      "revId": "e804544ed943cad7e6ac124fea4a87e1ead42d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7620e66_29af76cb",
+        "filename": "gm/blurignorexform.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-30T15:04:13Z",
+      "side": 1,
+      "message": "Can we make the \u0027paint\u0027 out here ?",
+      "revId": "e804544ed943cad7e6ac124fea4a87e1ead42d33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
