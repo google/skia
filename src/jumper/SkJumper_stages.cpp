@@ -74,75 +74,37 @@ struct LazyCtx {
 #endif
 
 // We're finally going to get to what a Stage function looks like!
-// It's best to jump down to the #else case first, then to come back up here for AVX.
+//    tail == 0 ~~> work on a full kStride pixels
+//    tail != 0 ~~> work on only the first tail pixels
+// tail is always < kStride.
+using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
-#if defined(JUMPER) && (defined(__SSE2__) || defined(__arm__) || defined(__aarch64__))
-    // Process the tail on all x86 processors with SSE2 or better instructions.
-    //    tail == 0 ~~> work on a full kStride pixels
-    //    tail != 0 ~~> work on only the first tail pixels
-    // tail is always < kStride.
-    using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
-
-    MAYBE_MSABI
-    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-        F v{};
-        auto start = (Stage*)load_and_inc(program);
-        while (x + kStride <= limit) {
-            start(x,program,k,0,    v,v,v,v, v,v,v,v);
-            x += kStride;
-        }
-        if (size_t tail = limit - x) {
-            start(x,program,k,tail, v,v,v,v, v,v,v,v);
-        }
-        return limit;
+MAYBE_MSABI
+extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+    F v{};
+    auto start = (Stage*)load_and_inc(program);
+    while (x + kStride <= limit) {
+        start(x,program,k,0,    v,v,v,v, v,v,v,v);
+        x += kStride;
     }
-
-    #define STAGE(name)                                                           \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
-        extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-            LazyCtx ctx(program);                                                 \
-            name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
-            auto next = (Stage*)load_and_inc(program);                            \
-            next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
-        }                                                                         \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-
-#else
-    // Other instruction sets (NEON, portable) currently always assume tail == 0.
-
-    // Stages tail call between each other by following program as described above.
-    // x is our induction variable, stepping forward kStride at a time.
-    using Stage = void(size_t x, void** program, K* k, F,F,F,F, F,F,F,F);
-
-    // On Windows, start_pipeline() has a normal Windows ABI, and then the rest is System V.
-    MAYBE_MSABI
-    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
-        F v{};
-        auto start = (Stage*)load_and_inc(program);
-        while (x + kStride <= limit) {
-            start(x,program,k, v,v,v,v, v,v,v,v);
-            x += kStride;
-        }
-        return x;
+    if (size_t tail = limit - x) {
+        start(x,program,k,tail, v,v,v,v, v,v,v,v);
     }
+}
 
-    // This STAGE macro makes it easier to write stages, handling all the Stage chaining for you.
-    #define STAGE(name)                                                           \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
-        extern "C" void WRAP(name)(size_t x, void** program, K* k,                \
-                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-            LazyCtx ctx(program);                                                 \
-            name##_k(x,ctx,k,0, r,g,b,a, dr,dg,db,da);                            \
-            auto next = (Stage*)load_and_inc(program);                            \
-            next(x,program,k, r,g,b,a, dr,dg,db,da);                              \
-        }                                                                         \
-        SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
-#endif
+#define STAGE(name)                                                           \
+    SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
+    extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
+                               F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
+        LazyCtx ctx(program);                                                 \
+        name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
+        auto next = (Stage*)load_and_inc(program);                            \
+        next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
+    }                                                                         \
+    SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+
 
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
