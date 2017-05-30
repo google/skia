@@ -14,14 +14,14 @@ class ValgrindFlavorUtils(gn_flavor.GNFlavorUtils):
     super(ValgrindFlavorUtils, self).__init__(m)
     self._suppressions_file = self.m.vars.skia_dir.join(
         'tools', 'valgrind.supp')
+    self._valgrind = self.m.vars.slave_dir.join('valgrind', 'bin', 'valgrind')
 
   def step(self, name, cmd, **kwargs):
-    new_cmd = ['valgrind', '--gen-suppressions=all', '--leak-check=full',
-               '--track-origins=yes', '--error-exitcode=1', '--num-callers=40',
+    new_cmd = [self._valgrind, '-v', '--gen-suppressions=all',
+               '--leak-check=full', '--track-origins=yes', '--error-exitcode=1',
+               '--num-callers=40',
                '--suppressions=%s' % self._suppressions_file]
     path_to_app = self.out_dir.join(cmd[0])
     new_cmd.append(path_to_app)
     new_cmd.extend(cmd[1:])
-    return self.m.run(self.m.step, name, cmd=new_cmd,
-                            **kwargs)
-
+    return self.m.run(self.m.step, name, cmd=new_cmd, **kwargs)
