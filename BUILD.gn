@@ -1124,7 +1124,6 @@ if (skia_enable_tools) {
     public_include_dirs = [ "samplecode" ]
     include_dirs = [ "experimental" ]
     sources = samples_sources + [
-                "experimental/SkPerlinNoiseShader2/SkPerlinNoiseShader2.cpp",
                 "experimental/SkSetPoly3To3.cpp",
                 "experimental/SkSetPoly3To3_A.cpp",
                 "experimental/SkSetPoly3To3_D.cpp",
