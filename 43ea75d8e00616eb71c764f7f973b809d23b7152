@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f5c8f17_2c3346c4",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-30T17:35:07Z",
+      "side": 1,
+      "message": "0 -\u003e 1 here?\n\nor\n\nif (__builtin_expect(tail \u003d\u003d 0, true)) { ... }",
+      "revId": "43ea75d8e00616eb71c764f7f973b809d23b7152",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9600d7e6_374731b3",
+        "filename": "src/jumper/SkJumper_vectors.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-30T17:35:07Z",
+      "side": 1,
+      "message": "Alternatively,\n\n rgba \u003d vld4_dup_f32(ptr);",
+      "revId": "43ea75d8e00616eb71c764f7f973b809d23b7152",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
