@@ -240,7 +240,7 @@ static inline __m128i SkPixel32ToPixel16_ToU16_SSE2(const __m128i& src_pixel1,
 
 // Portable version is SkPMSrcOver in SkColorPriv.h.
 static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
-    return _mm_add_epi32(src,
+    return _mm_adds_epu8(src,
                          SkAlphaMulQ_SSE2(dst, _mm_sub_epi32(_mm_set1_epi32(256),
                                                              SkGetPackedA32_SSE2(src))));
 }
