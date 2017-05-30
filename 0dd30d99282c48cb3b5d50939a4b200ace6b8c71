@@ -16,6 +16,24 @@
       "revId": "0dd30d99282c48cb3b5d50939a4b200ace6b8c71",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbfd92eb_c7c90052",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2532,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-05-30T19:37:04Z",
+      "side": 1,
+      "message": "Fortunately the first meaning was intended, so this isn\u0027t a bug, but I\u0027ll clarify the expression.",
+      "parentUuid": "37b8ba55_fbf2e3e7",
+      "revId": "0dd30d99282c48cb3b5d50939a4b200ace6b8c71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
