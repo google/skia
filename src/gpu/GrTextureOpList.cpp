@@ -15,8 +15,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrAuditTrail* auditTrail)
-    : INHERITED(proxy, auditTrail) {
+GrTextureOpList::GrTextureOpList(GrContext* context,
+                                 GrTextureProxy* proxy,
+                                 GrAuditTrail* auditTrail)
+    : INHERITED(context, proxy, auditTrail) {
 }
 
 GrTextureOpList::~GrTextureOpList() {

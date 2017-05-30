@@ -95,7 +95,7 @@ class GrSurfaceProxyRef : SkNoncopyable {
 public:
     virtual ~GrSurfaceProxyRef();
 
-    GrSurfaceProxy* getProxy() const { return fProxy; }
+    GrSurfaceProxy* get() const { return fProxy; }
 
     /** Does this object own a pending read or write on the resource it is wrapping. */
     bool ownsPendingIO() const { return fPendingIO; }
@@ -226,7 +226,7 @@ public:
         : GrPendingIOResource(that.get()) {
     }
 
-    void reset(T* resource) {
+    void reset(T* resource = nullptr) {
         if (resource) {
             switch (IO_TYPE) {
                 case kRead_GrIOType:
