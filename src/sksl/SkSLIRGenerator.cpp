@@ -143,6 +143,7 @@ void IRGenerator::start(const Program::Settings* settings) {
         fill_caps(*settings->fCaps, &fCapsMap);
     }
     this->pushSymbolTable();
+    fInvocations = -1;
     fInputs.reset();
 }
 
@@ -278,7 +279,17 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
 
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
                                                                  const ASTModifiersDeclaration& m) {
-    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(m.fModifiers));
+    Modifiers modifiers = m.fModifiers;
+    if (modifiers.fLayout.fInvocations != -1) {
+        fInvocations = modifiers.fLayout.fInvocations;
+        if (fSettings->fCaps->mustImplementGSInvocationsWithLoop()) {
+            modifiers.fLayout.fInvocations = -1;
+            if (modifiers.fLayout.description() == "") {
+                return nullptr;
+            }
+        }
+    }
+    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(modifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
@@ -490,6 +501,45 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTDiscardStatement
     return std::unique_ptr<Statement>(new DiscardStatement(d.fPosition));
 }
 
+std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main,
+        Variable* invocationID) {
+    std::vector<std::unique_ptr<VarDeclaration>> variables;
+    variables.emplace_back(new VarDeclaration(
+                             invocationID,
+                             std::vector<std::unique_ptr<Expression>>(),
+                             std::unique_ptr<IntLiteral>(new IntLiteral(fContext, Position(), 0))));
+    std::unique_ptr<Statement> initializer(new VarDeclarationsStatement(
+                            std::unique_ptr<VarDeclarations>(new VarDeclarations(Position(),
+                                                                   fContext.fInt_Type.get(),
+                                                                   std::move(variables)))));
+    std::unique_ptr<Expression> test(new BinaryExpression(Position(),
+                std::unique_ptr<Expression>(new VariableReference(Position(), *invocationID)),
+                Token::LT,
+                std::unique_ptr<IntLiteral>(new IntLiteral(fContext, Position(), fInvocations)),
+                *fContext.fBool_Type));
+    std::unique_ptr<Expression> next(new PostfixExpression(
+                std::unique_ptr<Expression>(
+                                      new VariableReference(Position(),
+                                                            *invocationID,
+                                                            VariableReference::kReadWrite_RefKind)),
+                Token::PLUSPLUS));
+    ASTIdentifier endPrimitiveID = ASTIdentifier(Position(), "EndPrimitive");
+    std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
+    ASSERT(endPrimitive);
+    main->fStatements.push_back(std::unique_ptr<Statement>(new ExpressionStatement(
+                                    this->call(Position(), std::move(endPrimitive), { }))));
+    std::unique_ptr<Statement> loop = std::unique_ptr<Statement>(
+                                                    new ForStatement(Position(),
+                                                                     std::move(initializer),
+                                                                     std::move(test),
+                                                                     std::move(next),
+                                                                     std::move(main),
+                                                                     fSymbolTable));
+    std::vector<std::unique_ptr<Statement>> children;
+    children.push_back(std::move(loop));
+    return std::unique_ptr<Block>(new Block(Position(), std::move(children)));
+}
+
 std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
     if (!returnType) {
@@ -589,13 +639,26 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
         }
+        Variable* invocationIDWorkaround;
+        bool needInvocationIDWorkaround = fSettings->fCaps->mustImplementGSInvocationsWithLoop() &&
+                                          fInvocations != -1;
+        if (needInvocationIDWorkaround) {
+            invocationIDWorkaround = new Variable(Position(), Modifiers(), "sk_InvocationID",
+                                                   *fContext.fInt_Type, Variable::kLocal_Storage);
+            fSymbolTable->add(invocationIDWorkaround->fName,
+                              std::unique_ptr<Symbol>(invocationIDWorkaround));
+        }
         std::unique_ptr<Block> body = this->convertBlock(*f.fBody);
         fCurrentFunction = nullptr;
         if (!body) {
             return nullptr;
         }
+        if (needInvocationIDWorkaround) {
+            body = this->applyInvocationIDWorkaround(std::move(body), invocationIDWorkaround);
+        }
         // conservatively assume all user-defined functions have side effects
         ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
+
         return std::unique_ptr<FunctionDefinition>(new FunctionDefinition(f.fPosition, *decl,
                                                                           std::move(body)));
     }

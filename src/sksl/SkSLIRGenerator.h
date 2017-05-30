@@ -163,6 +163,8 @@ private:
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
+    std::unique_ptr<Block> applyInvocationIDWorkaround(std::unique_ptr<Block> main,
+                                                       Variable* invocationID);
 
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
@@ -175,6 +177,7 @@ private:
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;
+    int fInvocations;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
