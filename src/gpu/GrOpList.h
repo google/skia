@@ -25,7 +25,7 @@ class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
 public:
-    GrOpList(GrSurfaceProxy*, GrAuditTrail*);
+    GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
     // These three methods are invoked at flush time
@@ -79,8 +79,8 @@ public:
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
 protected:
-    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fTarget;
-    GrAuditTrail*                                        fAuditTrail;
+    GrSurfaceProxyRef fTarget;
+    GrAuditTrail*     fAuditTrail;
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
