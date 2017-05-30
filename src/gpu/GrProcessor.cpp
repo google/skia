@@ -57,7 +57,7 @@ SkTArray<GrXPFactoryTestFactory*, true>* GrXPFactoryTestFactory::GetFactories() 
  * we verify the count is as expected.  If a new factory is added, then these numbers must be
  * manually adjusted.
  */
-static const int kFPFactoryCount = 41;
+static const int kFPFactoryCount = 42;
 static const int kGPFactoryCount = 14;
 static const int kXPFactoryCount = 4;
 
