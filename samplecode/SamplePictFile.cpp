@@ -118,6 +118,10 @@ protected:
             *picture = LoadPicture(fFilename.c_str(), fBBox).release();
         }
 
+        if (*picture) {
+            canvas->drawPicture(*picture);
+        }
+
 #ifdef SK_GLYPHCACHE_TRACK_HASH_STATS
         SkGlyphCache::Dump();
         SkDebugf("\n");
