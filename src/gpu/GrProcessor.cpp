@@ -279,14 +279,14 @@ GrResourceIOProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTexturePro
                                                               GrSLRestrict restrict,
                                                               GrShaderFlags visibility)
         : fProxyRef(std::move(proxy), ioType) {
-    SkASSERT(fProxyRef.getProxy());
+    SkASSERT(fProxyRef.get());
 
     fMemoryModel = memoryModel;
     fRestrict = restrict;
     fVisibility = visibility;
     // We currently infer this from the config. However, we could allow the client to specify
     // a format that is different but compatible with the config.
-    switch (fProxyRef.getProxy()->config()) {
+    switch (fProxyRef.get()->config()) {
         case kRGBA_8888_GrPixelConfig:
             fFormat = GrImageStorageFormat::kRGBA8;
             break;
