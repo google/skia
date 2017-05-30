@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37b8ba55_fbf2e3e7",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2532,
+      "author": {
+        "id": 5980
+      },
+      "writtenOn": "2017-05-30T19:24:07Z",
+      "side": 1,
+      "message": "This code looks worrisome. It is possibly incorrect, and certainly ambiguous to a typical reader. The experimental /analyze builder said this:\n\nwarning C6314: Incorrect order of operations:  bitwise-or has higher precedence than the conditional-expression operator.  Add parentheses to clarify intent.\n\nThat is, the meaning is (... fPushConstant | (0 !\u003d ...)) ? k430_Standard : fDefaultLayout\n\nwhereas many readers might interpret it as:\n\n... fPushConstant | ((0 !\u003d ...) ? k430_Standard : fDefaultLayout)\n\nI suspect that the second meaning is what was intended, in which case the code is actually wrong instead of just confusing.",
+      "revId": "0dd30d99282c48cb3b5d50939a4b200ace6b8c71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
