@@ -660,7 +660,8 @@
   },
   {
     "cmd": [
-      "idevice-app-runner",
+      "idevice-app-runner-old",
+      "-d",
       "-s",
       "com.google.dm",
       "--args",
