@@ -121,8 +121,8 @@ private:
             }
         }
         std::unique_ptr<GrOp> fOp;
-        DstProxy fDstProxy;
-        const GrAppliedClip* fAppliedClip;
+        DstProxy              fDstProxy;
+        const GrAppliedClip*  fAppliedClip;
     };
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
