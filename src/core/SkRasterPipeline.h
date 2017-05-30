@@ -148,6 +148,9 @@ public:
 
     bool empty() const { return fStages == nullptr; }
 
+    // Append a stage that SkDebugs the current state of the main {r,g,b,a} registers.
+    void append_debug();
+
 private:
     struct StageList {
         StageList* prev;
