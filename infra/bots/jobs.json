@@ -297,6 +297,7 @@
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-SK_USE_DISCARDABLE_SCALEDIMAGECACHE",
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release",
   "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD",
+  "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-Valgrind",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
   "Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
