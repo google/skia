@@ -1,6 +1,23 @@
 [
   {
     "cmd": [
+      "ln",
+      "-s",
+      "-f",
+      "[START_DIR]/valgrind",
+      "[CUSTOM_/_B_WORK]/valgrind"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "infra_step": true,
+    "name": "create symlink"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
@@ -95,7 +112,8 @@
   },
   {
     "cmd": [
-      "valgrind",
+      "[CUSTOM_/_B_WORK]/valgrind/bin/valgrind",
+      "-v",
       "--gen-suppressions=all",
       "--leak-check=full",
       "--track-origins=yes",
@@ -159,7 +177,8 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "SKIA_OUT": "[START_DIR]/out",
+      "VALGRIND_LIB": "[CUSTOM_/_B_WORK]/valgrind/lib/valgrind"
     },
     "name": "nanobench"
   },

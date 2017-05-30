@@ -37,6 +37,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.gclient_env = {}
     self.is_compile_bot = self.builder_name.startswith('Build-')
 
+    if 'Win' in self.builder_name:
+      self.persistent_workdir = self.make_path('C:\\', 'b', 'work')
+    else:
+      self.persistent_workdir = self.make_path('/', 'b', 'work')
+
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or
                                 'RecreateSKPs' in self.builder_name or
@@ -46,11 +51,10 @@ class SkiaVarsApi(recipe_api.RecipeApi):
                                 'InfraTests' in self.builder_name or
                                 self.builder_name == "Housekeeper-PerCommit")
     if self.persistent_checkout:
+      self.checkout_root = self.persistent_workdir
       if 'Win' in self.builder_name:
-        self.checkout_root = self.make_path('C:\\', 'b', 'work')
         self.gclient_cache = self.make_path('C:\\', 'b', 'cache')
       else:
-        self.checkout_root = self.make_path('/', 'b', 'work')
         self.gclient_cache = self.make_path('/', 'b', 'cache')
 
       # got_revision is filled in after checkout steps.
