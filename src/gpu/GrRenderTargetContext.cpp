@@ -1138,7 +1138,21 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             spotShadowRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
         }
 
-        GrColor spotColor = color.mulByScalar(rec.fSpotAlpha).toGrColor();
+        SkScalar max = SkTMax(SkTMax(color.fRGBA[0], color.fRGBA[1]), color.fRGBA[2]);
+        SkScalar min = SkTMin(SkTMin(color.fRGBA[0], color.fRGBA[1]), color.fRGBA[2]);
+
+        SkScalar luminance = 0.5f*(max + min);
+        if (0 != luminance) {
+            SkScalar alpha = (1 - rec.fSpotAlpha)*luminance;
+            color.fRGBA[0] *= alpha;
+            color.fRGBA[1] *= alpha;
+            color.fRGBA[2] *= alpha;
+            color.fRGBA[3] = rec.fSpotAlpha + alpha;
+        } else {
+            color.fRGBA[3] = rec.fSpotAlpha;
+        }
+
+        GrColor spotColor = color.toGrColor();
         std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
                                                                        spotShadowRRect,
                                                                        devSpaceSpotBlur,
