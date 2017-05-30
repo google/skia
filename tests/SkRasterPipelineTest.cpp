@@ -115,15 +115,18 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         float* src = &data[0][0];
         float* dst = &buffer[0][0];
 
-        for (unsigned i = 0; i < 4; i++) {
+        for (unsigned i = 1; i <= 4; i++) {
             memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_f32, &src);
             p.append(SkRasterPipeline::store_f32, &dst);
             p.run(0, i);
             for (unsigned j = 0; j < i; j++) {
-                REPORTER_ASSERT(r,
-                                !memcmp(&data[j][0], &buffer[j][0], sizeof(buffer[j])));
+                for (unsigned k = 0; k < 4; k++) {
+                    if (buffer[j][k] != data[j][k]) {
+                        ERRORF(r, "(%u, %u) - a: %g r: %g\n", j, k, data[j][k], buffer[j][k]);
+                    }
+                }
             }
             for (int j = i; j < 4; j++) {
                 for (auto f : buffer[j]) {
@@ -144,7 +147,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         uint16_t* src = &data[0][0];
         uint16_t* dst = &buffer[0][0];
 
-        for (unsigned i = 0; i < 4; i++) {
+        for (unsigned i = 1; i <= 4; i++) {
             memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_f16, &src);
@@ -181,7 +184,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         uint16_t* src = &data[0][0];
         float* dst = &buffer[0][0];
 
-        for (unsigned i = 0; i < 4; i++) {
+        for (unsigned i = 1; i <= 4; i++) {
             memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_rgb_u16_be, &src);
