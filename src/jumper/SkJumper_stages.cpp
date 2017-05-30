@@ -84,7 +84,7 @@ struct LazyCtx {
     using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
 
     MAYBE_MSABI
-    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+    extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
         F v{};
         auto start = (Stage*)load_and_inc(program);
         while (x + kStride <= limit) {
@@ -119,7 +119,7 @@ struct LazyCtx {
 
     // On Windows, start_pipeline() has a normal Windows ABI, and then the rest is System V.
     MAYBE_MSABI
-    extern "C" size_t WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+    extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
         F v{};
         auto start = (Stage*)load_and_inc(program);
         while (x + kStride <= limit) {

@@ -96,8 +96,7 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 // Engines comprise everything we need to run SkRasterPipelines.
 struct SkJumper_Engine {
     StageFn* stages[kNumStages];
-    int      min_stride;
-    size_t (*start_pipeline)(size_t, void**, K*, size_t);
+    void (*start_pipeline)(size_t, void**, K*, size_t);
     StageFn* just_return;
 };
 
@@ -106,7 +105,6 @@ static const SkJumper_Engine kPortable = {
 #define M(stage) sk_##stage,
     { SK_RASTER_PIPELINE_STAGES(M) },
 #undef M
-    1,
     sk_start_pipeline,
     sk_just_return,
 };
@@ -122,7 +120,7 @@ static SkJumper_Engine choose_engine() {
     return {
     #define M(stage) ASM(stage, aarch64),
         { SK_RASTER_PIPELINE_STAGES(M) },
-        1, M(start_pipeline) M(just_return)
+        M(start_pipeline) M(just_return)
     #undef M
     };
 
@@ -131,7 +129,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, vfp4),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -141,7 +139,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, hsw),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -149,7 +147,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, avx),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -157,7 +155,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, sse41),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -165,7 +163,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, sse2),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
