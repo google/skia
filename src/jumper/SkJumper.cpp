@@ -131,7 +131,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, vfp4),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            2, M(start_pipeline) M(just_return)
+            1, M(start_pipeline) M(just_return)
         #undef M
         };
     }

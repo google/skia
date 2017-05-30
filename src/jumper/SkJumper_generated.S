@@ -4288,30 +4288,44 @@ HIDDEN _sk_start_pipeline_vfp4
 FUNCTION(_sk_start_pipeline_vfp4)
 _sk_start_pipeline_vfp4:
   .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
-  .long  0xe1a04000                          // mov           r4, r0
-  .long  0xe2840002                          // add           r0, r4, #2
-  .long  0xe1a05003                          // mov           r5, r3
-  .long  0xe1a08002                          // mov           r8, r2
-  .long  0xe1a07001                          // mov           r7, r1
-  .long  0xe1500005                          // cmp           r0, r5
-  .long  0x8a000010                          // bhi           64 <sk_start_pipeline_vfp4+0x64>
-  .long  0xe4976004                          // ldr           r6, [r7], #4
+  .long  0xe1a06001                          // mov           r6, r1
+  .long  0xe1a07000                          // mov           r7, r0
+  .long  0xe1a04003                          // mov           r4, r3
+  .long  0xe1a05002                          // mov           r5, r2
+  .long  0xe4968004                          // ldr           r8, [r6], #4
+  .long  0xe2870002                          // add           r0, r7, #2
+  .long  0xea00000e                          // b             5c <sk_start_pipeline_vfp4+0x5c>
   .long  0xf2800010                          // vmov.i32      d0, #0
-  .long  0xe1a00004                          // mov           r0, r4
+  .long  0xe1a00007                          // mov           r0, r7
   .long  0xf2801010                          // vmov.i32      d1, #0
-  .long  0xe1a01007                          // mov           r1, r7
+  .long  0xe1a01006                          // mov           r1, r6
   .long  0xf2802010                          // vmov.i32      d2, #0
-  .long  0xe1a02008                          // mov           r2, r8
+  .long  0xe1a02005                          // mov           r2, r5
+  .long  0xf2803010                          // vmov.i32      d3, #0
+  .long  0xe3a03000                          // mov           r3, #0
+  .long  0xf2804010                          // vmov.i32      d4, #0
+  .long  0xf2805010                          // vmov.i32      d5, #0
+  .long  0xf2806010                          // vmov.i32      d6, #0
+  .long  0xf2807010                          // vmov.i32      d7, #0
+  .long  0xe12fff38                          // blx           r8
+  .long  0xe2870004                          // add           r0, r7, #4
+  .long  0xe2877002                          // add           r7, r7, #2
+  .long  0xe1500004                          // cmp           r0, r4
+  .long  0x9affffee                          // bls           20 <sk_start_pipeline_vfp4+0x20>
+  .long  0xe0543007                          // subs          r3, r4, r7
+  .long  0x0a00000b                          // beq           9c <sk_start_pipeline_vfp4+0x9c>
+  .long  0xf2800010                          // vmov.i32      d0, #0
+  .long  0xe1a00007                          // mov           r0, r7
+  .long  0xf2801010                          // vmov.i32      d1, #0
+  .long  0xe1a01006                          // mov           r1, r6
+  .long  0xf2802010                          // vmov.i32      d2, #0
+  .long  0xe1a02005                          // mov           r2, r5
   .long  0xf2803010                          // vmov.i32      d3, #0
   .long  0xf2804010                          // vmov.i32      d4, #0
   .long  0xf2805010                          // vmov.i32      d5, #0
   .long  0xf2806010                          // vmov.i32      d6, #0
   .long  0xf2807010                          // vmov.i32      d7, #0
-  .long  0xe12fff36                          // blx           r6
-  .long  0xe2840004                          // add           r0, r4, #4
-  .long  0xe2844002                          // add           r4, r4, #2
-  .long  0xe1500005                          // cmp           r0, r5
-  .long  0x9affffef                          // bls           24 <sk_start_pipeline_vfp4+0x24>
+  .long  0xe12fff38                          // blx           r8
   .long  0xe1a00004                          // mov           r0, r4
   .long  0xe8bd81f0                          // pop           {r4, r5, r6, r7, r8, pc}
 
@@ -4325,44 +4339,49 @@ HIDDEN _sk_seed_shader_vfp4
 .globl _sk_seed_shader_vfp4
 FUNCTION(_sk_seed_shader_vfp4)
 _sk_seed_shader_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xee800b90                          // vdup.32       d16, r0
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
-  .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xedd23b00                          // vldr          d19, [r2]
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xf2872f10                          // vmov.f32      d2, #1
-  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
+  .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf4ee2c9f                          // vld1.32       {d18[]}, [lr :32]
   .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
   .long  0xf2400da1                          // vadd.f32      d16, d16, d17
+  .long  0xf2872f10                          // vmov.f32      d2, #1
   .long  0xf2803010                          // vmov.i32      d3, #0
-  .long  0xf2804010                          // vmov.i32      d4, #0
   .long  0xf2021da1                          // vadd.f32      d1, d18, d17
   .long  0xf2000da3                          // vadd.f32      d0, d16, d19
+  .long  0xf2804010                          // vmov.i32      d4, #0
   .long  0xf2805010                          // vmov.i32      d5, #0
   .long  0xf2806010                          // vmov.i32      d6, #0
   .long  0xf2807010                          // vmov.i32      d7, #0
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_dither_vfp4
 .globl _sk_dither_vfp4
 FUNCTION(_sk_dither_vfp4)
 _sk_dither_vfp4:
   .long  0xe92d4010                          // push          {r4, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xee800b90                          // vdup.32       d16, r0
   .long  0xedd21b08                          // vldr          d17, [r2, #32]
   .long  0xf2c02011                          // vmov.i32      d18, #1
-  .long  0xe8911010                          // ldm           r1, {r4, ip}
-  .long  0xee800b90                          // vdup.32       d16, r0
   .long  0xf26108a0                          // vadd.i32      d16, d17, d16
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xf2c01012                          // vmov.i32      d17, #2
-  .long  0xe3a035f2                          // mov           r3, #1015021568
-  .long  0xe494e004                          // ldr           lr, [r4], #4
+  .long  0xe49e4004                          // ldr           r4, [lr], #4
   .long  0xf24041b2                          // vand          d20, d16, d18
-  .long  0xf24051b1                          // vand          d21, d16, d17
   .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xf24051b1                          // vand          d21, d16, d17
   .long  0xf2c03014                          // vmov.i32      d19, #4
-  .long  0xf4ee7c9f                          // vld1.32       {d23[]}, [lr :32]
+  .long  0xf4e47c9f                          // vld1.32       {d23[]}, [r4 :32]
   .long  0xf2e44534                          // vshl.s32      d20, d20, #4
+  .long  0xe3a045f2                          // mov           r4, #1015021568
   .long  0xf24061b3                          // vand          d22, d16, d19
   .long  0xf34001b7                          // veor          d16, d16, d23
   .long  0xf2e15535                          // vshl.s32      d21, d21, #1
@@ -4379,12 +4398,12 @@ _sk_dither_vfp4:
   .long  0xf26211b1                          // vorr          d17, d18, d17
   .long  0xf2c03010                          // vmov.i32      d19, #0
   .long  0xf26101b0                          // vorr          d16, d17, d16
-  .long  0xee813b90                          // vdup.32       d17, r3
+  .long  0xee814b90                          // vdup.32       d17, r4
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf3400db1                          // vmul.f32      d16, d16, d17
-  .long  0xeddf1b0e                          // vldr          d17, [pc, #56]
+  .long  0xeddf1b0d                          // vldr          d17, [pc, #52]
   .long  0xf2400da1                          // vadd.f32      d16, d16, d17
-  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xf4ee1c9f                          // vld1.32       {d17[]}, [lr :32]
   .long  0xf3410db0                          // vmul.f32      d16, d17, d16
   .long  0xf2401d80                          // vadd.f32      d17, d16, d0
   .long  0xf2402d81                          // vadd.f32      d18, d16, d1
@@ -4397,7 +4416,6 @@ _sk_dither_vfp4:
   .long  0xf2032fa0                          // vmax.f32      d2, d19, d16
   .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0xbefc0000                          // .word         0xbefc0000
   .long  0xbefc0000                          // .word         0xbefc0000
 
@@ -4405,66 +4423,71 @@ HIDDEN _sk_constant_color_vfp4
 .globl _sk_constant_color_vfp4
 FUNCTION(_sk_constant_color_vfp4)
 _sk_constant_color_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe283400c                          // add           r4, r3, #12
-  .long  0xe1a0e003                          // mov           lr, r3
-  .long  0xe2833008                          // add           r3, r3, #8
-  .long  0xf4ae0c9d                          // vld1.32       {d0[]}, [lr :32]!
-  .long  0xf4a43c9f                          // vld1.32       {d3[]}, [r4 :32]
-  .long  0xf4a32c9f                          // vld1.32       {d2[]}, [r3 :32]
-  .long  0xf4ae1c9f                          // vld1.32       {d1[]}, [lr :32]
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe28e500c                          // add           r5, lr, #12
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0xf4a40c9d                          // vld1.32       {d0[]}, [r4 :32]!
+  .long  0xf4a53c9f                          // vld1.32       {d3[]}, [r5 :32]
+  .long  0xe28e5008                          // add           r5, lr, #8
+  .long  0xf4a52c9f                          // vld1.32       {d2[]}, [r5 :32]
+  .long  0xf4a41c9f                          // vld1.32       {d1[]}, [r4 :32]
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_load_rgba_vfp4
 .globl _sk_load_rgba_vfp4
 FUNCTION(_sk_load_rgba_vfp4)
 _sk_load_rgba_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4010                          // push          {r4, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe1a0e003                          // mov           lr, r3
-  .long  0xed932b04                          // vldr          d2, [r3, #16]
-  .long  0xf42e078d                          // vld1.32       {d0}, [lr]!
-  .long  0xed933b06                          // vldr          d3, [r3, #24]
-  .long  0xed9e1b00                          // vldr          d1, [lr]
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0xed9e2b04                          // vldr          d2, [lr, #16]
+  .long  0xf424078d                          // vld1.32       {d0}, [r4]!
+  .long  0xed9e3b06                          // vldr          d3, [lr, #24]
+  .long  0xed941b00                          // vldr          d1, [r4]
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_store_rgba_vfp4
 .globl _sk_store_rgba_vfp4
 FUNCTION(_sk_store_rgba_vfp4)
 _sk_store_rgba_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xe591c000                          // ldr           ip, [r1]
-  .long  0xe1a0300c                          // mov           r3, ip
-  .long  0xf403078d                          // vst1.32       {d0}, [r3]!
-  .long  0xed831b00                          // vstr          d1, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0xe1a0e00c                          // mov           lr, ip
+  .long  0xf40e078d                          // vst1.32       {d0}, [lr]!
+  .long  0xed8e1b00                          // vstr          d1, [lr]
   .long  0xed8c2b04                          // vstr          d2, [ip, #16]
   .long  0xed8c3b06                          // vstr          d3, [ip, #24]
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_clear_vfp4
 .globl _sk_clear_vfp4
 FUNCTION(_sk_clear_vfp4)
 _sk_clear_vfp4:
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2800010                          // vmov.i32      d0, #0
   .long  0xf2801010                          // vmov.i32      d1, #0
   .long  0xf2802010                          // vmov.i32      d2, #0
   .long  0xf2803010                          // vmov.i32      d3, #0
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_srcatop_vfp4
 .globl _sk_srcatop_vfp4
 FUNCTION(_sk_srcatop_vfp4)
 _sk_srcatop_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2603d83                          // vsub.f32      d19, d16, d3
   .long  0xf3033d17                          // vmul.f32      d3, d3, d7
   .long  0xf3430d94                          // vmul.f32      d16, d19, d4
@@ -4477,14 +4500,14 @@ _sk_srcatop_vfp4:
   .long  0xf22001b0                          // vorr          d0, d16, d16
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_dstatop_vfp4
 .globl _sk_dstatop_vfp4
 FUNCTION(_sk_dstatop_vfp4)
 _sk_dstatop_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3431d15                          // vmul.f32      d17, d3, d5
   .long  0xf2604d87                          // vsub.f32      d20, d16, d7
   .long  0xf3430d14                          // vmul.f32      d16, d3, d4
@@ -4498,75 +4521,75 @@ _sk_dstatop_vfp4:
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xf22331b3                          // vorr          d3, d19, d19
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_srcin_vfp4
 .globl _sk_srcin_vfp4
 FUNCTION(_sk_srcin_vfp4)
 _sk_srcin_vfp4:
   .long  0xf3000d17                          // vmul.f32      d0, d0, d7
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3011d17                          // vmul.f32      d1, d1, d7
   .long  0xf3022d17                          // vmul.f32      d2, d2, d7
   .long  0xf3033d17                          // vmul.f32      d3, d3, d7
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_dstin_vfp4
 .globl _sk_dstin_vfp4
 FUNCTION(_sk_dstin_vfp4)
 _sk_dstin_vfp4:
   .long  0xf3030d14                          // vmul.f32      d0, d3, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3031d15                          // vmul.f32      d1, d3, d5
   .long  0xf3032d16                          // vmul.f32      d2, d3, d6
   .long  0xf3033d17                          // vmul.f32      d3, d3, d7
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_srcout_vfp4
 .globl _sk_srcout_vfp4
 FUNCTION(_sk_srcout_vfp4)
 _sk_srcout_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2600d87                          // vsub.f32      d16, d16, d7
   .long  0xf3000d90                          // vmul.f32      d0, d16, d0
   .long  0xf3001d91                          // vmul.f32      d1, d16, d1
   .long  0xf3002d92                          // vmul.f32      d2, d16, d2
   .long  0xf3003d93                          // vmul.f32      d3, d16, d3
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_dstout_vfp4
 .globl _sk_dstout_vfp4
 FUNCTION(_sk_dstout_vfp4)
 _sk_dstout_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2600d83                          // vsub.f32      d16, d16, d3
   .long  0xf3000d94                          // vmul.f32      d0, d16, d4
   .long  0xf3001d95                          // vmul.f32      d1, d16, d5
   .long  0xf3002d96                          // vmul.f32      d2, d16, d6
   .long  0xf3003d97                          // vmul.f32      d3, d16, d7
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_srcover_vfp4
 .globl _sk_srcover_vfp4
 FUNCTION(_sk_srcover_vfp4)
 _sk_srcover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2600d83                          // vsub.f32      d16, d16, d3
   .long  0xf2040c30                          // vfma.f32      d0, d4, d16
   .long  0xf2051c30                          // vfma.f32      d1, d5, d16
   .long  0xf2062c30                          // vfma.f32      d2, d6, d16
   .long  0xf2073c30                          // vfma.f32      d3, d7, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_dstover_vfp4
 .globl _sk_dstover_vfp4
 FUNCTION(_sk_dstover_vfp4)
 _sk_dstover_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2651115                          // vorr          d17, d5, d5
   .long  0xf2604d87                          // vsub.f32      d20, d16, d7
   .long  0xf2640114                          // vorr          d16, d4, d4
@@ -4580,25 +4603,25 @@ _sk_dstover_vfp4:
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xf22331b3                          // vorr          d3, d19, d19
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_modulate_vfp4
 .globl _sk_modulate_vfp4
 FUNCTION(_sk_modulate_vfp4)
 _sk_modulate_vfp4:
   .long  0xf3000d14                          // vmul.f32      d0, d0, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3011d15                          // vmul.f32      d1, d1, d5
   .long  0xf3022d16                          // vmul.f32      d2, d2, d6
   .long  0xf3033d17                          // vmul.f32      d3, d3, d7
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_multiply_vfp4
 .globl _sk_multiply_vfp4
 FUNCTION(_sk_multiply_vfp4)
 _sk_multiply_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2601d87                          // vsub.f32      d17, d16, d7
   .long  0xf2600d83                          // vsub.f32      d16, d16, d3
   .long  0xf3412d90                          // vmul.f32      d18, d17, d0
@@ -4621,25 +4644,25 @@ _sk_multiply_vfp4:
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xf22331b3                          // vorr          d3, d19, d19
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_plus__vfp4
 .globl _sk_plus__vfp4
 FUNCTION(_sk_plus__vfp4)
 _sk_plus__vfp4:
   .long  0xf2000d04                          // vadd.f32      d0, d0, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2011d05                          // vadd.f32      d1, d1, d5
   .long  0xf2022d06                          // vadd.f32      d2, d2, d6
   .long  0xf2033d07                          // vadd.f32      d3, d3, d7
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_screen_vfp4
 .globl _sk_screen_vfp4
 FUNCTION(_sk_screen_vfp4)
 _sk_screen_vfp4:
   .long  0xf2400d04                          // vadd.f32      d16, d0, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2411d05                          // vadd.f32      d17, d1, d5
   .long  0xf2422d06                          // vadd.f32      d18, d2, d6
   .long  0xf2433d07                          // vadd.f32      d19, d3, d7
@@ -4651,14 +4674,14 @@ _sk_screen_vfp4:
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xf22331b3                          // vorr          d3, d19, d19
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_xor__vfp4
 .globl _sk_xor__vfp4
 FUNCTION(_sk_xor__vfp4)
 _sk_xor__vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2603d83                          // vsub.f32      d19, d16, d3
   .long  0xf2604d87                          // vsub.f32      d20, d16, d7
   .long  0xf3430d94                          // vmul.f32      d16, d19, d4
@@ -4673,14 +4696,14 @@ _sk_xor__vfp4:
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xf22331b3                          // vorr          d3, d19, d19
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_darken_vfp4
 .globl _sk_darken_vfp4
 FUNCTION(_sk_darken_vfp4)
 _sk_darken_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3431d14                          // vmul.f32      d17, d3, d4
   .long  0xf3402d17                          // vmul.f32      d18, d0, d7
   .long  0xf3433d15                          // vmul.f32      d19, d3, d5
@@ -4698,14 +4721,14 @@ _sk_darken_vfp4:
   .long  0xf2270da1                          // vsub.f32      d0, d23, d17
   .long  0xf2221da3                          // vsub.f32      d1, d18, d19
   .long  0xf2242da5                          // vsub.f32      d2, d20, d21
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_lighten_vfp4
 .globl _sk_lighten_vfp4
 FUNCTION(_sk_lighten_vfp4)
 _sk_lighten_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3431d14                          // vmul.f32      d17, d3, d4
   .long  0xf3402d17                          // vmul.f32      d18, d0, d7
   .long  0xf3433d15                          // vmul.f32      d19, d3, d5
@@ -4723,14 +4746,14 @@ _sk_lighten_vfp4:
   .long  0xf2270da1                          // vsub.f32      d0, d23, d17
   .long  0xf2221da3                          // vsub.f32      d1, d18, d19
   .long  0xf2242da5                          // vsub.f32      d2, d20, d21
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_difference_vfp4
 .globl _sk_difference_vfp4
 FUNCTION(_sk_difference_vfp4)
 _sk_difference_vfp4:
   .long  0xf3430d14                          // vmul.f32      d16, d3, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3401d17                          // vmul.f32      d17, d0, d7
   .long  0xf3432d15                          // vmul.f32      d18, d3, d5
   .long  0xf3413d17                          // vmul.f32      d19, d1, d7
@@ -4751,14 +4774,14 @@ _sk_difference_vfp4:
   .long  0xf2240da0                          // vsub.f32      d0, d20, d16
   .long  0xf2251da1                          // vsub.f32      d1, d21, d17
   .long  0xf2262da2                          // vsub.f32      d2, d22, d18
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_exclusion_vfp4
 .globl _sk_exclusion_vfp4
 FUNCTION(_sk_exclusion_vfp4)
 _sk_exclusion_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3401d14                          // vmul.f32      d17, d0, d4
   .long  0xf3412d15                          // vmul.f32      d18, d1, d5
   .long  0xf3423d16                          // vmul.f32      d19, d2, d6
@@ -4773,7 +4796,7 @@ _sk_exclusion_vfp4:
   .long  0xf2240da1                          // vsub.f32      d0, d20, d17
   .long  0xf2251da2                          // vsub.f32      d1, d21, d18
   .long  0xf2262da3                          // vsub.f32      d2, d22, d19
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_colorburn_vfp4
 .globl _sk_colorburn_vfp4
@@ -4781,7 +4804,7 @@ FUNCTION(_sk_colorburn_vfp4)
 _sk_colorburn_vfp4:
   .long  0xed2d8b08                          // vpush         {d8-d11}
   .long  0xf2670d04                          // vsub.f32      d16, d7, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2671d06                          // vsub.f32      d17, d7, d6
   .long  0xf2672d05                          // vsub.f32      d18, d7, d5
   .long  0xf3008d93                          // vmul.f32      d8, d16, d3
@@ -4840,7 +4863,7 @@ _sk_colorburn_vfp4:
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
   .long  0xecbd8b08                          // vpop          {d8-d11}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_colordodge_vfp4
 .globl _sk_colordodge_vfp4
@@ -4848,7 +4871,7 @@ FUNCTION(_sk_colordodge_vfp4)
 _sk_colordodge_vfp4:
   .long  0xed2d8b0e                          // vpush         {d8-d14}
   .long  0xf2238d02                          // vsub.f32      d8, d3, d2
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3039d16                          // vmul.f32      d9, d3, d6
   .long  0xf223ad01                          // vsub.f32      d10, d3, d1
   .long  0xf303bd15                          // vmul.f32      d11, d3, d5
@@ -4901,14 +4924,14 @@ _sk_colordodge_vfp4:
   .long  0xf31211ba                          // vbsl          d1, d18, d26
   .long  0xf31521be                          // vbsl          d2, d21, d30
   .long  0xecbd8b0e                          // vpop          {d8-d14}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_hardlight_vfp4
 .globl _sk_hardlight_vfp4
 FUNCTION(_sk_hardlight_vfp4)
 _sk_hardlight_vfp4:
   .long  0xf2c71f10                          // vmov.f32      d17, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2670d04                          // vsub.f32      d16, d7, d4
   .long  0xf2617d87                          // vsub.f32      d23, d17, d7
   .long  0xf2611d83                          // vsub.f32      d17, d17, d3
@@ -4955,14 +4978,14 @@ _sk_hardlight_vfp4:
   .long  0xf20b0da4                          // vadd.f32      d0, d27, d20
   .long  0xf20d1da6                          // vadd.f32      d1, d29, d22
   .long  0xf2012da9                          // vadd.f32      d2, d17, d25
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_overlay_vfp4
 .globl _sk_overlay_vfp4
 FUNCTION(_sk_overlay_vfp4)
 _sk_overlay_vfp4:
   .long  0xf2c71f10                          // vmov.f32      d17, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2670d04                          // vsub.f32      d16, d7, d4
   .long  0xf2617d87                          // vsub.f32      d23, d17, d7
   .long  0xf2611d83                          // vsub.f32      d17, d17, d3
@@ -5009,7 +5032,7 @@ _sk_overlay_vfp4:
   .long  0xf20b0da4                          // vadd.f32      d0, d27, d20
   .long  0xf20d1da6                          // vadd.f32      d1, d29, d22
   .long  0xf2012da9                          // vadd.f32      d2, d17, d25
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_softlight_vfp4
 .globl _sk_softlight_vfp4
@@ -5018,7 +5041,7 @@ _sk_softlight_vfp4:
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xeec58aa7                          // vdiv.f32      s17, s11, s15
   .long  0xf3f90407                          // vcgt.f32      d16, d7, #0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeec49aa7                          // vdiv.f32      s19, s9, s15
   .long  0xeec6aaa7                          // vdiv.f32      s21, s13, s15
   .long  0xee858a07                          // vdiv.f32      s16, s10, s14
@@ -5145,7 +5168,8 @@ _sk_softlight_vfp4:
   .long  0xf2091da4                          // vadd.f32      d1, d25, d20
   .long  0xf2082daa                          // vadd.f32      d2, d24, d26
   .long  0xecbd8b06                          // vpop          {d8-d10}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_hue_vfp4
 .globl _sk_hue_vfp4
@@ -5153,7 +5177,7 @@ FUNCTION(_sk_hue_vfp4)
 _sk_hue_vfp4:
   .long  0xed2d8b0c                          // vpush         {d8-d13}
   .long  0xf3420d13                          // vmul.f32      d16, d2, d3
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3411d13                          // vmul.f32      d17, d1, d3
   .long  0xf2652f06                          // vmin.f32      d18, d5, d6
   .long  0xf2453f06                          // vmax.f32      d19, d5, d6
@@ -5280,7 +5304,7 @@ _sk_hue_vfp4:
   .long  0xf2031da7                          // vadd.f32      d1, d19, d23
   .long  0xf2042da0                          // vadd.f32      d2, d20, d16
   .long  0xecbd8b0c                          // vpop          {d8-d13}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0x3f170a3d                          // .word         0x3f170a3d
   .long  0x3f170a3d                          // .word         0x3f170a3d
   .long  0x3e99999a                          // .word         0x3e99999a
@@ -5296,7 +5320,7 @@ _sk_saturation_vfp4:
   .long  0xf3430d16                          // vmul.f32      d16, d3, d6
   .long  0xeddf7b82                          // vldr          d23, [pc, #520]
   .long  0xf3431d15                          // vmul.f32      d17, d3, d5
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2612f02                          // vmin.f32      d18, d1, d2
   .long  0xf2413f02                          // vmax.f32      d19, d1, d2
   .long  0xf3434d14                          // vmul.f32      d20, d3, d4
@@ -5421,7 +5445,7 @@ _sk_saturation_vfp4:
   .long  0xf2031da7                          // vadd.f32      d1, d19, d23
   .long  0xf2042da0                          // vadd.f32      d2, d20, d16
   .long  0xecbd8b0c                          // vpop          {d8-d13}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0x3f170a3d                          // .word         0x3f170a3d
   .long  0x3f170a3d                          // .word         0x3f170a3d
   .long  0x3e99999a                          // .word         0x3e99999a
@@ -5441,7 +5465,7 @@ _sk_color_vfp4:
   .long  0xf3454d30                          // vmul.f32      d20, d5, d16
   .long  0xeddf7b62                          // vldr          d23, [pc, #392]
   .long  0xf3446d33                          // vmul.f32      d22, d4, d19
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3425d17                          // vmul.f32      d21, d2, d7
   .long  0xf3428db0                          // vmul.f32      d24, d18, d16
   .long  0xf3419db3                          // vmul.f32      d25, d17, d19
@@ -5533,7 +5557,7 @@ _sk_color_vfp4:
   .long  0xf2021da6                          // vadd.f32      d1, d18, d22
   .long  0xf2032da4                          // vadd.f32      d2, d19, d20
   .long  0xecbd8b0e                          // vpop          {d8-d14}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x3f170a3d                          // .word         0x3f170a3d
   .long  0x3f170a3d                          // .word         0x3f170a3d
@@ -5554,7 +5578,7 @@ _sk_luminosity_vfp4:
   .long  0xf3414d30                          // vmul.f32      d20, d1, d16
   .long  0xeddf7b62                          // vldr          d23, [pc, #392]
   .long  0xf3406d33                          // vmul.f32      d22, d0, d19
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3435d16                          // vmul.f32      d21, d3, d6
   .long  0xf3428db0                          // vmul.f32      d24, d18, d16
   .long  0xf3419db3                          // vmul.f32      d25, d17, d19
@@ -5646,7 +5670,7 @@ _sk_luminosity_vfp4:
   .long  0xf2021da6                          // vadd.f32      d1, d18, d22
   .long  0xf2032da4                          // vadd.f32      d2, d19, d20
   .long  0xecbd8b0e                          // vpop          {d8-d14}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x3f170a3d                          // .word         0x3f170a3d
   .long  0x3f170a3d                          // .word         0x3f170a3d
@@ -5659,32 +5683,35 @@ HIDDEN _sk_srcover_rgba_8888_vfp4
 .globl _sk_srcover_rgba_8888_vfp4
 FUNCTION(_sk_srcover_rgba_8888_vfp4)
 _sk_srcover_rgba_8888_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
-  .long  0xf2c72f10                          // vmov.f32      d18, #1
-  .long  0xf3c7101f                          // vmov.i32      d17, #255
-  .long  0xeddf6b29                          // vldr          d22, [pc, #164]
-  .long  0xf2622d83                          // vsub.f32      d18, d18, d3
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xf3033d36                          // vmul.f32      d3, d3, d22
-  .long  0xf3011d36                          // vmul.f32      d1, d1, d22
-  .long  0xe0833100                          // add           r3, r3, r0, lsl #2
-  .long  0xf3000d36                          // vmul.f32      d0, d0, d22
-  .long  0xf3022d36                          // vmul.f32      d2, d2, d22
-  .long  0xedd30b00                          // vldr          d16, [r3]
-  .long  0xf3f83030                          // vshr.u32      d19, d16, #8
-  .long  0xf3e84030                          // vshr.u32      d20, d16, #24
-  .long  0xf3f05030                          // vshr.u32      d21, d16, #16
-  .long  0xf24331b1                          // vand          d19, d19, d17
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc100                          // add           ip, ip, r0, lsl #2
+  .long  0x0a00002b                          // beq           13ec <sk_srcover_rgba_8888_vfp4+0xc4>
+  .long  0xed9c4b00                          // vldr          d4, [ip]
+  .long  0xf2c71f10                          // vmov.f32      d17, #1
+  .long  0xeddf6b2d                          // vldr          d22, [pc, #180]
+  .long  0xf3c7001f                          // vmov.i32      d16, #255
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xf3f82014                          // vshr.u32      d18, d4, #8
+  .long  0xf3e84014                          // vshr.u32      d20, d4, #24
+  .long  0xf2611d83                          // vsub.f32      d17, d17, d3
+  .long  0xf24221b0                          // vand          d18, d18, d16
+  .long  0xf3f03014                          // vshr.u32      d19, d4, #16
   .long  0xf3bb7624                          // vcvt.f32.s32  d7, d20
-  .long  0xf24001b1                          // vand          d16, d16, d17
-  .long  0xf24511b1                          // vand          d17, d21, d17
-  .long  0xf3bb5623                          // vcvt.f32.s32  d5, d19
-  .long  0xf3bb4620                          // vcvt.f32.s32  d4, d16
-  .long  0xf3bb6621                          // vcvt.f32.s32  d6, d17
-  .long  0xf2073c32                          // vfma.f32      d3, d7, d18
-  .long  0xf2051c32                          // vfma.f32      d1, d5, d18
-  .long  0xf2040c32                          // vfma.f32      d0, d4, d18
-  .long  0xf2062c32                          // vfma.f32      d2, d6, d18
+  .long  0xf2445130                          // vand          d21, d4, d16
+  .long  0xf3033d36                          // vmul.f32      d3, d3, d22
+  .long  0xf24301b0                          // vand          d16, d19, d16
+  .long  0xf3bb5622                          // vcvt.f32.s32  d5, d18
+  .long  0xf3011d36                          // vmul.f32      d1, d1, d22
+  .long  0xf3bb4625                          // vcvt.f32.s32  d4, d21
+  .long  0xf3000d36                          // vmul.f32      d0, d0, d22
+  .long  0xf3bb6620                          // vcvt.f32.s32  d6, d16
+  .long  0xf2073c31                          // vfma.f32      d3, d7, d17
+  .long  0xf3022d36                          // vmul.f32      d2, d2, d22
+  .long  0xf2051c31                          // vfma.f32      d1, d5, d17
+  .long  0xf2040c31                          // vfma.f32      d0, d4, d17
+  .long  0xf2062c31                          // vfma.f32      d2, d6, d17
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
   .long  0xf2431d20                          // vadd.f32      d17, d3, d16
   .long  0xf2413d20                          // vadd.f32      d19, d1, d16
@@ -5700,62 +5727,69 @@ _sk_srcover_rgba_8888_vfp4:
   .long  0xf2f00530                          // vshl.s32      d16, d16, #16
   .long  0xf26111b2                          // vorr          d17, d17, d18
   .long  0xf26101b0                          // vorr          d16, d17, d16
-  .long  0xedc30b00                          // vstr          d16, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0x0a000006                          // beq           13f8 <sk_srcover_rgba_8888_vfp4+0xd0>
+  .long  0xedcc0b00                          // vstr          d16, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
+  .long  0xeddf4a05                          // vldr          s9, [pc, #20]
+  .long  0xed9c4a00                          // vldr          s8, [ip]
+  .long  0xeaffffd1                          // b             1340 <sk_srcover_rgba_8888_vfp4+0x18>
+  .long  0xf4cc083f                          // vst1.32       {d16[0]}, [ip :32]
+  .long  0xeafffff7                          // b             13e0 <sk_srcover_rgba_8888_vfp4+0xb8>
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
+  .long  0x00000000                          // .word         0x00000000
 
 HIDDEN _sk_clamp_0_vfp4
 .globl _sk_clamp_0_vfp4
 FUNCTION(_sk_clamp_0_vfp4)
 _sk_clamp_0_vfp4:
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2000f20                          // vmax.f32      d0, d0, d16
   .long  0xf2011f20                          // vmax.f32      d1, d1, d16
   .long  0xf2022f20                          // vmax.f32      d2, d2, d16
   .long  0xf2033f20                          // vmax.f32      d3, d3, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_clamp_1_vfp4
 .globl _sk_clamp_1_vfp4
 FUNCTION(_sk_clamp_1_vfp4)
 _sk_clamp_1_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2200f20                          // vmin.f32      d0, d0, d16
   .long  0xf2211f20                          // vmin.f32      d1, d1, d16
   .long  0xf2222f20                          // vmin.f32      d2, d2, d16
   .long  0xf2233f20                          // vmin.f32      d3, d3, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_clamp_a_vfp4
 .globl _sk_clamp_a_vfp4
 FUNCTION(_sk_clamp_a_vfp4)
 _sk_clamp_a_vfp4:
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2233f20                          // vmin.f32      d3, d3, d16
   .long  0xf2200f03                          // vmin.f32      d0, d0, d3
   .long  0xf2211f03                          // vmin.f32      d1, d1, d3
   .long  0xf2222f03                          // vmin.f32      d2, d2, d3
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_set_rgb_vfp4
 .globl _sk_set_rgb_vfp4
 FUNCTION(_sk_set_rgb_vfp4)
 _sk_set_rgb_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4010                          // push          {r4, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe283e008                          // add           lr, r3, #8
-  .long  0xf4a30c9d                          // vld1.32       {d0[]}, [r3 :32]!
-  .long  0xf4ae2c9f                          // vld1.32       {d2[]}, [lr :32]
-  .long  0xf4a31c9f                          // vld1.32       {d1[]}, [r3 :32]
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe28e4008                          // add           r4, lr, #8
+  .long  0xf4ae0c9d                          // vld1.32       {d0[]}, [lr :32]!
+  .long  0xf4a42c9f                          // vld1.32       {d2[]}, [r4 :32]
+  .long  0xf4ae1c9f                          // vld1.32       {d1[]}, [lr :32]
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_swap_rb_vfp4
@@ -5763,17 +5797,17 @@ HIDDEN _sk_swap_rb_vfp4
 FUNCTION(_sk_swap_rb_vfp4)
 _sk_swap_rb_vfp4:
   .long  0xeef00b40                          // vmov.f64      d16, d0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeeb00b42                          // vmov.f64      d0, d2
   .long  0xeeb02b60                          // vmov.f64      d2, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_swap_vfp4
 .globl _sk_swap_vfp4
 FUNCTION(_sk_swap_vfp4)
 _sk_swap_vfp4:
   .long  0xeef00b43                          // vmov.f64      d16, d3
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeef01b42                          // vmov.f64      d17, d2
   .long  0xeef02b41                          // vmov.f64      d18, d1
   .long  0xeef03b40                          // vmov.f64      d19, d0
@@ -5785,39 +5819,39 @@ _sk_swap_vfp4:
   .long  0xeeb05b62                          // vmov.f64      d5, d18
   .long  0xeeb06b61                          // vmov.f64      d6, d17
   .long  0xeeb07b60                          // vmov.f64      d7, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_move_src_dst_vfp4
 .globl _sk_move_src_dst_vfp4
 FUNCTION(_sk_move_src_dst_vfp4)
 _sk_move_src_dst_vfp4:
   .long  0xeeb04b40                          // vmov.f64      d4, d0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeeb05b41                          // vmov.f64      d5, d1
   .long  0xeeb06b42                          // vmov.f64      d6, d2
   .long  0xeeb07b43                          // vmov.f64      d7, d3
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_move_dst_src_vfp4
 .globl _sk_move_dst_src_vfp4
 FUNCTION(_sk_move_dst_src_vfp4)
 _sk_move_dst_src_vfp4:
   .long  0xeeb00b44                          // vmov.f64      d0, d4
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeeb01b45                          // vmov.f64      d1, d5
   .long  0xeeb02b46                          // vmov.f64      d2, d6
   .long  0xeeb03b47                          // vmov.f64      d3, d7
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_premul_vfp4
 .globl _sk_premul_vfp4
 FUNCTION(_sk_premul_vfp4)
 _sk_premul_vfp4:
   .long  0xf3000d13                          // vmul.f32      d0, d0, d3
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3011d13                          // vmul.f32      d1, d1, d3
   .long  0xf3022d13                          // vmul.f32      d2, d2, d3
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_unpremul_vfp4
 .globl _sk_unpremul_vfp4
@@ -5827,7 +5861,7 @@ _sk_unpremul_vfp4:
   .long  0xeeb78a00                          // vmov.f32      s16, #112
   .long  0xf3f91503                          // vceq.f32      d17, d3, #0
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeec89a23                          // vdiv.f32      s19, s16, s7
   .long  0xee889a03                          // vdiv.f32      s18, s16, s6
   .long  0xf3501199                          // vbsl          d17, d16, d9
@@ -5835,7 +5869,7 @@ _sk_unpremul_vfp4:
   .long  0xf3011d91                          // vmul.f32      d1, d17, d1
   .long  0xf3012d92                          // vmul.f32      d2, d17, d2
   .long  0xecbd8b04                          // vpop          {d8-d9}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_from_srgb_vfp4
@@ -5853,7 +5887,7 @@ _sk_from_srgb_vfp4:
   .long  0xf2415c30                          // vfma.f32      d21, d1, d16
   .long  0xeddfcb1d                          // vldr          d28, [pc, #116]
   .long  0xf2423c30                          // vfma.f32      d19, d2, d16
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3426d12                          // vmul.f32      d22, d2, d2
   .long  0xf3417d11                          // vmul.f32      d23, d1, d1
   .long  0xf3620e80                          // vcgt.f32      d16, d18, d0
@@ -5873,7 +5907,7 @@ _sk_from_srgb_vfp4:
   .long  0xf22001b0                          // vorr          d0, d16, d16
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0x3e99999a                          // .word         0x3e99999a
   .long  0x3e99999a                          // .word         0x3e99999a
   .long  0x3f328f5c                          // .word         0x3f328f5c
@@ -5894,7 +5928,7 @@ _sk_to_srgb_vfp4:
   .long  0xf3fb1581                          // vrsqrte.f32   d17, d1
   .long  0xeddf7b37                          // vldr          d23, [pc, #220]
   .long  0xf3fb2582                          // vrsqrte.f32   d18, d2
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf269a1b9                          // vorr          d26, d25, d25
   .long  0xf269c1b9                          // vorr          d28, d25, d25
   .long  0xf3403db0                          // vmul.f32      d19, d16, d16
@@ -5945,7 +5979,7 @@ _sk_to_srgb_vfp4:
   .long  0xf22001b0                          // vorr          d0, d16, d16
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22221b2                          // vorr          d2, d18, d18
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x3e10c64c                          // .word         0x3e10c64c
   .long  0x3e10c64c                          // .word         0x3e10c64c
@@ -5968,7 +6002,7 @@ _sk_rgb_to_hsl_vfp4:
   .long  0xf2401f01                          // vmax.f32      d17, d0, d1
   .long  0xeddf9b2c                          // vldr          d25, [pc, #176]
   .long  0xf2600f01                          // vmin.f32      d16, d0, d1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xeeb78a00                          // vmov.f32      s16, #112
   .long  0xf2c3461f                          // vmov.i32      d20, #1056964608
   .long  0xf2411f82                          // vmax.f32      d17, d17, d2
@@ -6010,7 +6044,7 @@ _sk_rgb_to_hsl_vfp4:
   .long  0xf3020db1                          // vmul.f32      d0, d18, d17
   .long  0xf22021b0                          // vorr          d2, d16, d16
   .long  0xecbd8b08                          // vpop          {d8-d11}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x40c00000                          // .word         0x40c00000
   .long  0x40c00000                          // .word         0x40c00000
@@ -6029,7 +6063,7 @@ _sk_hsl_to_rgb_vfp4:
   .long  0xf2401d21                          // vadd.f32      d17, d0, d17
   .long  0xeddfab50                          // vldr          d26, [pc, #320]
   .long  0xf3416d12                          // vmul.f32      d22, d1, d2
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
   .long  0xf3fb3720                          // vcvt.s32.f32  d19, d16
   .long  0xf3fb4721                          // vcvt.s32.f32  d20, d17
@@ -6104,7 +6138,7 @@ _sk_hsl_to_rgb_vfp4:
   .long  0xf3120131                          // vbsl          d0, d2, d17
   .long  0xf22021b0                          // vorr          d2, d16, d16
   .long  0xecbd8b02                          // vpop          {d8}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xbeaaaaab                          // .word         0xbeaaaaab
   .long  0xbeaaaaab                          // .word         0xbeaaaaab
   .long  0x3eaaaaab                          // .word         0x3eaaaaab
@@ -6120,53 +6154,72 @@ HIDDEN _sk_scale_1_float_vfp4
 .globl _sk_scale_1_float_vfp4
 FUNCTION(_sk_scale_1_float_vfp4)
 _sk_scale_1_float_vfp4:
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
+  .long  0xf4ee0c9f                          // vld1.32       {d16[]}, [lr :32]
   .long  0xf3000d90                          // vmul.f32      d0, d16, d0
   .long  0xf3001d91                          // vmul.f32      d1, d16, d1
   .long  0xf3002d92                          // vmul.f32      d2, d16, d2
   .long  0xf3003d93                          // vmul.f32      d3, d16, d3
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_scale_u8_vfp4
 .globl _sk_scale_u8_vfp4
 FUNCTION(_sk_scale_u8_vfp4)
 _sk_scale_u8_vfp4:
-  .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833000                          // add           r3, r3, r0
-  .long  0xe1d330b0                          // ldrh          r3, [r3]
-  .long  0xe1cd30b0                          // strh          r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3041f                          // vld1.16       {d16[0]}, [r3 :16]
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xe24dd008                          // sub           sp, sp, #8
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc000                          // add           ip, ip, r0
+  .long  0x0a000013                          // beq           19f4 <sk_scale_u8_vfp4+0x6c>
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xe1cdc0b4                          // strh          ip, [sp, #4]
+  .long  0xe28dc004                          // add           ip, sp, #4
+  .long  0xf4ec041f                          // vld1.16       {d16[0]}, [ip :16]
   .long  0xf3c80a30                          // vmovl.u8      q8, d16
-  .long  0xf3d00a30                          // vmovl.u16     q8, d16
+  .long  0xf3908a30                          // vmovl.u16     q4, d16
+  .long  0xf3c7001f                          // vmov.i32      d16, #255
+  .long  0xeddf1b10                          // vldr          d17, [pc, #64]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xf2480130                          // vand          d16, d8, d16
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
-  .long  0xeddf1b06                          // vldr          d17, [pc, #24]
   .long  0xf3400db1                          // vmul.f32      d16, d16, d17
   .long  0xf3000d90                          // vmul.f32      d0, d16, d0
   .long  0xf3001d91                          // vmul.f32      d1, d16, d1
   .long  0xf3002d92                          // vmul.f32      d2, d16, d2
   .long  0xf3003d93                          // vmul.f32      d3, d16, d3
-  .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xe28dd008                          // add           sp, sp, #8
+  .long  0xecbd8b04                          // vpop          {d8-d9}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe5dcc000                          // ldrb          ip, [ip]
+  .long  0xeddf8a04                          // vldr          s17, [pc, #16]
+  .long  0xee08ca10                          // vmov          s16, ip
+  .long  0xeaffffed                          // b             19bc <sk_scale_u8_vfp4+0x34>
+  .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
+  .long  0x00000000                          // .word         0x00000000
 
 HIDDEN _sk_lerp_1_float_vfp4
 .globl _sk_lerp_1_float_vfp4
 FUNCTION(_sk_lerp_1_float_vfp4)
 _sk_lerp_1_float_vfp4:
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2600d04                          // vsub.f32      d16, d0, d4
   .long  0xf2611d05                          // vsub.f32      d17, d1, d5
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xf2622d06                          // vsub.f32      d18, d2, d6
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2633d07                          // vsub.f32      d19, d3, d7
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4ee4c9f                          // vld1.32       {d20[]}, [lr :32]
   .long  0xf2240114                          // vorr          d0, d4, d4
   .long  0xf2251115                          // vorr          d1, d5, d5
   .long  0xf2262116                          // vorr          d2, d6, d6
@@ -6175,92 +6228,125 @@ _sk_lerp_1_float_vfp4:
   .long  0xf2011cb4                          // vfma.f32      d1, d17, d20
   .long  0xf2022cb4                          // vfma.f32      d2, d18, d20
   .long  0xf2033cb4                          // vfma.f32      d3, d19, d20
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_lerp_u8_vfp4
 .globl _sk_lerp_u8_vfp4
 FUNCTION(_sk_lerp_u8_vfp4)
 _sk_lerp_u8_vfp4:
-  .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xe24dd008                          // sub           sp, sp, #8
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc000                          // add           ip, ip, r0
+  .long  0x0a00001e                          // beq           1afc <sk_lerp_u8_vfp4+0x9c>
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xe1cdc0b4                          // strh          ip, [sp, #4]
+  .long  0xe28dc004                          // add           ip, sp, #4
+  .long  0xf4ec041f                          // vld1.16       {d16[0]}, [ip :16]
+  .long  0xf3c80a30                          // vmovl.u8      q8, d16
+  .long  0xf3908a30                          // vmovl.u16     q4, d16
+  .long  0xf3c7001f                          // vmov.i32      d16, #255
+  .long  0xeddf1b1b                          // vldr          d17, [pc, #108]
   .long  0xf2602d04                          // vsub.f32      d18, d0, d4
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xf2480130                          // vand          d16, d8, d16
+  .long  0xe281c008                          // add           ip, r1, #8
   .long  0xf2623d06                          // vsub.f32      d19, d2, d6
+  .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
+  .long  0xe1a0100c                          // mov           r1, ip
   .long  0xf2634d07                          // vsub.f32      d20, d3, d7
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xe1a0c00e                          // mov           ip, lr
   .long  0xf2240114                          // vorr          d0, d4, d4
   .long  0xf2262116                          // vorr          d2, d6, d6
-  .long  0xe0833000                          // add           r3, r3, r0
-  .long  0xf2273117                          // vorr          d3, d7, d7
-  .long  0xe1d330b0                          // ldrh          r3, [r3]
-  .long  0xe1cd30b0                          // strh          r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3041f                          // vld1.16       {d16[0]}, [r3 :16]
-  .long  0xf3c80a30                          // vmovl.u8      q8, d16
-  .long  0xf3d00a30                          // vmovl.u16     q8, d16
-  .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
-  .long  0xeddf1b08                          // vldr          d17, [pc, #32]
   .long  0xf3400db1                          // vmul.f32      d16, d16, d17
   .long  0xf2611d05                          // vsub.f32      d17, d1, d5
   .long  0xf2251115                          // vorr          d1, d5, d5
+  .long  0xf2273117                          // vorr          d3, d7, d7
   .long  0xf2020cb0                          // vfma.f32      d0, d18, d16
   .long  0xf2011cb0                          // vfma.f32      d1, d17, d16
   .long  0xf2032cb0                          // vfma.f32      d2, d19, d16
   .long  0xf2043cb0                          // vfma.f32      d3, d20, d16
-  .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xe28dd008                          // add           sp, sp, #8
+  .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe5dcc000                          // ldrb          ip, [ip]
+  .long  0xeddf8a04                          // vldr          s17, [pc, #16]
+  .long  0xee08ca10                          // vmov          s16, ip
+  .long  0xeaffffe2                          // b             1a98 <sk_lerp_u8_vfp4+0x38>
+  .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_lerp_565_vfp4
 .globl _sk_lerp_565_vfp4
 FUNCTION(_sk_lerp_565_vfp4)
 _sk_lerp_565_vfp4:
-  .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xf2c1201f                          // vmov.i32      d18, #31
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xed2d8b04                          // vpush         {d8-d9}
+  .long  0xe24dd008                          // sub           sp, sp, #8
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc080                          // add           ip, ip, r0, lsl #1
+  .long  0x0a00002e                          // beq           1bfc <sk_lerp_565_vfp4+0xdc>
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe58dc004                          // str           ip, [sp, #4]
+  .long  0xe28dc004                          // add           ip, sp, #4
+  .long  0xf4ec083f                          // vld1.32       {d16[0]}, [ip :32]
+  .long  0xf3908a30                          // vmovl.u16     q4, d16
+  .long  0xf2c1001f                          // vmov.i32      d16, #31
+  .long  0xe3a0ce7e                          // mov           ip, #2016
+  .long  0xee82cb90                          // vdup.32       d18, ip
   .long  0xf3c71218                          // vmov.i32      d17, #63488
+  .long  0xf2480130                          // vand          d16, d8, d16
   .long  0xeddf3b28                          // vldr          d19, [pc, #160]
-  .long  0xf2679117                          // vorr          d25, d7, d7
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xf2617d05                          // vsub.f32      d23, d1, d5
-  .long  0xf2251115                          // vorr          d1, d5, d5
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf2606d04                          // vsub.f32      d22, d0, d4
-  .long  0xe7933080                          // ldr           r3, [r3, r0, lsl #1]
-  .long  0xf2628d06                          // vsub.f32      d24, d2, d6
-  .long  0xf2240114                          // vorr          d0, d4, d4
-  .long  0xe58d3000                          // str           r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3083f                          // vld1.32       {d16[0]}, [r3 :32]
-  .long  0xe3a03e7e                          // mov           r3, #2016
-  .long  0xf2262116                          // vorr          d2, d6, d6
-  .long  0xf3d04a30                          // vmovl.u16     q10, d16
-  .long  0xee803b90                          // vdup.32       d16, r3
-  .long  0xf24421b2                          // vand          d18, d20, d18
-  .long  0xf24401b0                          // vand          d16, d20, d16
-  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
+  .long  0xf2482132                          // vand          d18, d8, d18
+  .long  0xeddf4b28                          // vldr          d20, [pc, #160]
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
-  .long  0xf24411b1                          // vand          d17, d20, d17
-  .long  0xeddf4b14                          // vldr          d20, [pc, #80]
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xf2481131                          // vand          d17, d8, d17
   .long  0xf2635d07                          // vsub.f32      d21, d3, d7
+  .long  0xe1a0100c                          // mov           r1, ip
   .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
-  .long  0xf3422db3                          // vmul.f32      d18, d18, d19
-  .long  0xeddf3b12                          // vldr          d19, [pc, #72]
-  .long  0xf3400db4                          // vmul.f32      d16, d16, d20
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xf3400db3                          // vmul.f32      d16, d16, d19
+  .long  0xeddf3b1f                          // vldr          d19, [pc, #124]
+  .long  0xf3422db4                          // vmul.f32      d18, d18, d20
   .long  0xf2674117                          // vorr          d20, d7, d7
   .long  0xf3411db3                          // vmul.f32      d17, d17, d19
   .long  0xf2673117                          // vorr          d19, d7, d7
-  .long  0xf2453cb2                          // vfma.f32      d19, d21, d18
-  .long  0xf2454cb0                          // vfma.f32      d20, d21, d16
+  .long  0xf2453cb0                          // vfma.f32      d19, d21, d16
+  .long  0xf2454cb2                          // vfma.f32      d20, d21, d18
+  .long  0xf2679117                          // vorr          d25, d7, d7
+  .long  0xf2628d06                          // vsub.f32      d24, d2, d6
   .long  0xf2459cb1                          // vfma.f32      d25, d21, d17
-  .long  0xf2071cb0                          // vfma.f32      d1, d23, d16
-  .long  0xf2060cb1                          // vfma.f32      d0, d22, d17
-  .long  0xf2082cb2                          // vfma.f32      d2, d24, d18
+  .long  0xf2262116                          // vorr          d2, d6, d6
+  .long  0xf2606d04                          // vsub.f32      d22, d0, d4
+  .long  0xf2617d05                          // vsub.f32      d23, d1, d5
+  .long  0xf2082cb0                          // vfma.f32      d2, d24, d16
   .long  0xf2440fa3                          // vmax.f32      d16, d20, d19
+  .long  0xf2240114                          // vorr          d0, d4, d4
+  .long  0xf2251115                          // vorr          d1, d5, d5
+  .long  0xf2060cb1                          // vfma.f32      d0, d22, d17
+  .long  0xf2071cb2                          // vfma.f32      d1, d23, d18
   .long  0xf2093fa0                          // vmax.f32      d3, d25, d16
-  .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xe28dd008                          // add           sp, sp, #8
+  .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xeddf8a08                          // vldr          s17, [pc, #32]
+  .long  0xee08ca10                          // vmov          s16, ip
+  .long  0xeaffffd1                          // b             1b54 <sk_lerp_565_vfp4+0x34>
   .long  0xe320f000                          // nop           {0}
   .long  0x3d042108                          // .word         0x3d042108
   .long  0x3d042108                          // .word         0x3d042108
@@ -6268,112 +6354,130 @@ _sk_lerp_565_vfp4:
   .long  0x3a020821                          // .word         0x3a020821
   .long  0x37842108                          // .word         0x37842108
   .long  0x37842108                          // .word         0x37842108
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_load_tables_vfp4
 .globl _sk_load_tables_vfp4
 FUNCTION(_sk_load_tables_vfp4)
 _sk_load_tables_vfp4:
-  .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d47f0                          // push          {r4, r5, r6, r7, r8, r9, sl, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59ce000                          // ldr           lr, [ip]
+  .long  0xe08ee100                          // add           lr, lr, r0, lsl #2
+  .long  0x0a000023                          // beq           1cd8 <sk_load_tables_vfp4+0xa8>
+  .long  0xed9e0b00                          // vldr          d0, [lr]
   .long  0xf3c7001f                          // vmov.i32      d16, #255
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe99300b0                          // ldmib         r3, {r4, r5, r7}
-  .long  0xe08e3100                          // add           r3, lr, r0, lsl #2
-  .long  0xedd31b00                          // vldr          d17, [r3]
-  .long  0xf24121b0                          // vand          d18, d17, d16
-  .long  0xf3f83031                          // vshr.u32      d19, d17, #8
-  .long  0xee323b90                          // vmov.32       r3, d18[1]
-  .long  0xee126b90                          // vmov.32       r6, d18[0]
-  .long  0xf3f02031                          // vshr.u32      d18, d17, #16
+  .long  0xe59c7004                          // ldr           r7, [ip, #4]
+  .long  0xf3f01010                          // vshr.u32      d17, d0, #16
+  .long  0xe59c6008                          // ldr           r6, [ip, #8]
+  .long  0xf3f82010                          // vshr.u32      d18, d0, #8
+  .long  0xe59c400c                          // ldr           r4, [ip, #12]
+  .long  0xf24111b0                          // vand          d17, d17, d16
   .long  0xf24221b0                          // vand          d18, d18, d16
-  .long  0xf24301b0                          // vand          d16, d19, d16
-  .long  0xe0843103                          // add           r3, r4, r3, lsl #2
-  .long  0xedd30a00                          // vldr          s1, [r3]
-  .long  0xe0843106                          // add           r3, r4, r6, lsl #2
-  .long  0xee326b90                          // vmov.32       r6, d18[1]
-  .long  0xed930a00                          // vldr          s0, [r3]
-  .long  0xee303b90                          // vmov.32       r3, d16[1]
-  .long  0xee104b90                          // vmov.32       r4, d16[0]
-  .long  0xf3e80031                          // vshr.u32      d16, d17, #24
-  .long  0xeddf1b0d                          // vldr          d17, [pc, #52]
+  .long  0xf2400130                          // vand          d16, d0, d16
+  .long  0xee31eb90                          // vmov.32       lr, d17[1]
+  .long  0xee329b90                          // vmov.32       r9, d18[1]
+  .long  0xee305b90                          // vmov.32       r5, d16[1]
+  .long  0xee108b90                          // vmov.32       r8, d16[0]
+  .long  0xf3e80010                          // vshr.u32      d16, d0, #24
+  .long  0xee12cb90                          // vmov.32       ip, d18[0]
+  .long  0xee11ab90                          // vmov.32       sl, d17[0]
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
+  .long  0xeddf1b14                          // vldr          d17, [pc, #80]
   .long  0xf3003db1                          // vmul.f32      d3, d16, d17
-  .long  0xe087e106                          // add           lr, r7, r6, lsl #2
-  .long  0xee126b90                          // vmov.32       r6, d18[0]
-  .long  0xe0853103                          // add           r3, r5, r3, lsl #2
+  .long  0xe084e10e                          // add           lr, r4, lr, lsl #2
+  .long  0xe0869109                          // add           r9, r6, r9, lsl #2
+  .long  0xe0875105                          // add           r5, r7, r5, lsl #2
   .long  0xedde2a00                          // vldr          s5, [lr]
-  .long  0xedd31a00                          // vldr          s3, [r3]
-  .long  0xe0853104                          // add           r3, r5, r4, lsl #2
-  .long  0xed931a00                          // vldr          s2, [r3]
-  .long  0xe0873106                          // add           r3, r7, r6, lsl #2
-  .long  0xed932a00                          // vldr          s4, [r3]
-  .long  0xe8bd48f0                          // pop           {r4, r5, r6, r7, fp, lr}
+  .long  0xedd91a00                          // vldr          s3, [r9]
+  .long  0xedd50a00                          // vldr          s1, [r5]
+  .long  0xe0875108                          // add           r5, r7, r8, lsl #2
+  .long  0xe086710c                          // add           r7, r6, ip, lsl #2
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xed950a00                          // vldr          s0, [r5]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xed971a00                          // vldr          s2, [r7]
+  .long  0xe084710a                          // add           r7, r4, sl, lsl #2
+  .long  0xed972a00                          // vldr          s4, [r7]
+  .long  0xe8bd47f0                          // pop           {r4, r5, r6, r7, r8, r9, sl, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xeddf0a04                          // vldr          s1, [pc, #16]
+  .long  0xed9e0a00                          // vldr          s0, [lr]
+  .long  0xeaffffd9                          // b             1c4c <sk_load_tables_vfp4+0x1c>
   .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_load_tables_u16_be_vfp4
 .globl _sk_load_tables_u16_be_vfp4
 FUNCTION(_sk_load_tables_u16_be_vfp4)
 _sk_load_tables_u16_be_vfp4:
-  .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xf3c7801f                          // vmov.i32      d24, #255
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5936000                          // ldr           r6, [r3]
-  .long  0xe9934030                          // ldmib         r3, {r4, r5, lr}
-  .long  0xe0863180                          // add           r3, r6, r0, lsl #3
-  .long  0xf4e3070d                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [r3]!
-  .long  0xf4e3074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [r3]
-  .long  0xee903bb0                          // vmov.u16      r3, d16[0]
-  .long  0xee926bb0                          // vmov.u16      r6, d18[0]
-  .long  0xee043b90                          // vmov.32       d20[0], r3
-  .long  0xee913bb0                          // vmov.u16      r3, d17[0]
-  .long  0xee056b90                          // vmov.32       d21[0], r6
-  .long  0xee906bf0                          // vmov.u16      r6, d16[1]
-  .long  0xee063b90                          // vmov.32       d22[0], r3
-  .long  0xee933bb0                          // vmov.u16      r3, d19[0]
-  .long  0xee246b90                          // vmov.32       d20[1], r6
+  .long  0xe92d47f0                          // push          {r4, r5, r6, r7, r8, r9, sl, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59ce000                          // ldr           lr, [ip]
+  .long  0xe08ee180                          // add           lr, lr, r0, lsl #3
+  .long  0xf4ee070f                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [lr]
+  .long  0x1a000001                          // bne           1d1c <sk_load_tables_u16_be_vfp4+0x24>
+  .long  0xe28ee008                          // add           lr, lr, #8
+  .long  0xf4ee074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [lr]
+  .long  0xee92ebb0                          // vmov.u16      lr, d18[0]
+  .long  0xf3c7701f                          // vmov.i32      d23, #255
+  .long  0xee905bb0                          // vmov.u16      r5, d16[0]
+  .long  0xee914bb0                          // vmov.u16      r4, d17[0]
   .long  0xee926bf0                          // vmov.u16      r6, d18[1]
-  .long  0xf24441b8                          // vand          d20, d20, d24
-  .long  0xee073b90                          // vmov.32       d23[0], r3
-  .long  0xee913bf0                          // vmov.u16      r3, d17[1]
-  .long  0xee256b90                          // vmov.32       d21[1], r6
-  .long  0xee936bf0                          // vmov.u16      r6, d19[1]
-  .long  0xf24501b8                          // vand          d16, d21, d24
-  .long  0xee107b90                          // vmov.32       r7, d16[0]
-  .long  0xee263b90                          // vmov.32       d22[1], r3
-  .long  0xee343b90                          // vmov.32       r3, d20[1]
-  .long  0xf24611b8                          // vand          d17, d22, d24
-  .long  0xee276b90                          // vmov.32       d23[1], r6
-  .long  0xee146b90                          // vmov.32       r6, d20[0]
-  .long  0xf2e82537                          // vshl.s32      d18, d23, #8
-  .long  0xe0843103                          // add           r3, r4, r3, lsl #2
-  .long  0xedd30a00                          // vldr          s1, [r3]
-  .long  0xe0843106                          // add           r3, r4, r6, lsl #2
-  .long  0xee304b90                          // vmov.32       r4, d16[1]
-  .long  0xee116b90                          // vmov.32       r6, d17[0]
-  .long  0xf3c70c1f                          // vmov.i32      d16, #65535
-  .long  0xed930a00                          // vldr          s0, [r3]
-  .long  0xee313b90                          // vmov.32       r3, d17[1]
-  .long  0xf24711b0                          // vand          d17, d23, d16
+  .long  0xee908bf0                          // vmov.u16      r8, d16[1]
+  .long  0xee917bf0                          // vmov.u16      r7, d17[1]
+  .long  0xee04eb90                          // vmov.32       d20[0], lr
+  .long  0xee065b90                          // vmov.32       d22[0], r5
+  .long  0xee054b90                          // vmov.32       d21[0], r4
+  .long  0xe59c400c                          // ldr           r4, [ip, #12]
+  .long  0xee246b90                          // vmov.32       d20[1], r6
+  .long  0xee936bb0                          // vmov.u16      r6, d19[0]
+  .long  0xee268b90                          // vmov.32       d22[1], r8
+  .long  0xee257b90                          // vmov.32       d21[1], r7
+  .long  0xee937bf0                          // vmov.u16      r7, d19[1]
+  .long  0xf24621b7                          // vand          d18, d22, d23
+  .long  0xf24401b7                          // vand          d16, d20, d23
+  .long  0xf24511b7                          // vand          d17, d21, d23
+  .long  0xee32eb90                          // vmov.32       lr, d18[1]
+  .long  0xee305b90                          // vmov.32       r5, d16[1]
+  .long  0xee319b90                          // vmov.32       r9, d17[1]
+  .long  0xee128b90                          // vmov.32       r8, d18[0]
+  .long  0xf3c72c1f                          // vmov.i32      d18, #65535
+  .long  0xee036b90                          // vmov.32       d19[0], r6
+  .long  0xe59c6008                          // ldr           r6, [ip, #8]
+  .long  0xee237b90                          // vmov.32       d19[1], r7
+  .long  0xe59c7004                          // ldr           r7, [ip, #4]
+  .long  0xee11cb90                          // vmov.32       ip, d17[0]
+  .long  0xf24311b2                          // vand          d17, d19, d18
+  .long  0xe084a105                          // add           sl, r4, r5, lsl #2
+  .long  0xe087510e                          // add           r5, r7, lr, lsl #2
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xf2e80533                          // vshl.s32      d16, d19, #8
   .long  0xf3f81031                          // vshr.u32      d17, d17, #8
-  .long  0xf26211b1                          // vorr          d17, d18, d17
-  .long  0xf24101b0                          // vand          d16, d17, d16
-  .long  0xeddf1b0c                          // vldr          d17, [pc, #48]
+  .long  0xe0869109                          // add           r9, r6, r9, lsl #2
+  .long  0xedd50a00                          // vldr          s1, [r5]
+  .long  0xe0875108                          // add           r5, r7, r8, lsl #2
+  .long  0xf26001b1                          // vorr          d16, d16, d17
+  .long  0xedd91a00                          // vldr          s3, [r9]
+  .long  0xeddf1b0d                          // vldr          d17, [pc, #52]
+  .long  0xf24001b2                          // vand          d16, d16, d18
+  .long  0xedda2a00                          // vldr          s5, [sl]
+  .long  0xed950a00                          // vldr          s0, [r5]
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
   .long  0xf3003db1                          // vmul.f32      d3, d16, d17
-  .long  0xe08e4104                          // add           r4, lr, r4, lsl #2
-  .long  0xedd42a00                          // vldr          s5, [r4]
-  .long  0xe0853103                          // add           r3, r5, r3, lsl #2
-  .long  0xedd31a00                          // vldr          s3, [r3]
-  .long  0xe0853106                          // add           r3, r5, r6, lsl #2
-  .long  0xed931a00                          // vldr          s2, [r3]
-  .long  0xe08e3107                          // add           r3, lr, r7, lsl #2
-  .long  0xed932a00                          // vldr          s4, [r3]
-  .long  0xe8bd48f0                          // pop           {r4, r5, r6, r7, fp, lr}
+  .long  0xe086710c                          // add           r7, r6, ip, lsl #2
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xed971a00                          // vldr          s2, [r7]
+  .long  0xe084710e                          // add           r7, r4, lr, lsl #2
+  .long  0xed972a00                          // vldr          s4, [r7]
+  .long  0xe8bd47f0                          // pop           {r4, r5, r6, r7, r8, r9, sl, lr}
   .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x37800080                          // .word         0x37800080
@@ -6383,115 +6487,119 @@ HIDDEN _sk_load_tables_rgb_u16_be_vfp4
 .globl _sk_load_tables_rgb_u16_be_vfp4
 FUNCTION(_sk_load_tables_rgb_u16_be_vfp4)
 _sk_load_tables_rgb_u16_be_vfp4:
-  .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xf3c7601f                          // vmov.i32      d22, #255
-  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xe92d47f0                          // push          {r4, r5, r6, r7, r8, r9, sl, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe0804080                          // add           r4, r0, r0, lsl #1
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59ce000                          // ldr           lr, [ip]
+  .long  0xe08ee084                          // add           lr, lr, r4, lsl #1
+  .long  0xf4ee060f                          // vld3.16       {d16[0],d17[0],d18[0]}, [lr]
+  .long  0x1a000001                          // bne           1e28 <sk_load_tables_rgb_u16_be_vfp4+0x28>
+  .long  0xe28e4006                          // add           r4, lr, #6
+  .long  0xf4e4064f                          // vld3.16       {d16[1],d17[1],d18[1]}, [r4]
+  .long  0xee924bb0                          // vmov.u16      r4, d18[0]
   .long  0xf2873f10                          // vmov.f32      d3, #1
-  .long  0xe5936000                          // ldr           r6, [r3]
-  .long  0xe9934030                          // ldmib         r3, {r4, r5, lr}
-  .long  0xe0803080                          // add           r3, r0, r0, lsl #1
-  .long  0xe0863083                          // add           r3, r6, r3, lsl #1
-  .long  0xf4e3060d                          // vld3.16       {d16[0],d17[0],d18[0]}, [r3]!
-  .long  0xf4e3064f                          // vld3.16       {d16[1],d17[1],d18[1]}, [r3]
-  .long  0xee903bb0                          // vmov.u16      r3, d16[0]
-  .long  0xee926bb0                          // vmov.u16      r6, d18[0]
-  .long  0xee043b90                          // vmov.32       d20[0], r3
-  .long  0xee903bf0                          // vmov.u16      r3, d16[1]
-  .long  0xee056b90                          // vmov.32       d21[0], r6
-  .long  0xee916bb0                          // vmov.u16      r6, d17[0]
-  .long  0xee243b90                          // vmov.32       d20[1], r3
-  .long  0xee923bf0                          // vmov.u16      r3, d18[1]
-  .long  0xf24441b6                          // vand          d20, d20, d22
-  .long  0xee076b90                          // vmov.32       d23[0], r6
-  .long  0xee916bf0                          // vmov.u16      r6, d17[1]
-  .long  0xee253b90                          // vmov.32       d21[1], r3
-  .long  0xee343b90                          // vmov.32       r3, d20[1]
-  .long  0xf24501b6                          // vand          d16, d21, d22
-  .long  0xee276b90                          // vmov.32       d23[1], r6
-  .long  0xee146b90                          // vmov.32       r6, d20[0]
-  .long  0xf24711b6                          // vand          d17, d23, d22
-  .long  0xee107b90                          // vmov.32       r7, d16[0]
-  .long  0xe0843103                          // add           r3, r4, r3, lsl #2
-  .long  0xedd30a00                          // vldr          s1, [r3]
-  .long  0xe0843106                          // add           r3, r4, r6, lsl #2
-  .long  0xee304b90                          // vmov.32       r4, d16[1]
-  .long  0xee116b90                          // vmov.32       r6, d17[0]
-  .long  0xed930a00                          // vldr          s0, [r3]
-  .long  0xee313b90                          // vmov.32       r3, d17[1]
-  .long  0xe08e4104                          // add           r4, lr, r4, lsl #2
-  .long  0xedd42a00                          // vldr          s5, [r4]
-  .long  0xe0853103                          // add           r3, r5, r3, lsl #2
-  .long  0xedd31a00                          // vldr          s3, [r3]
-  .long  0xe0853106                          // add           r3, r5, r6, lsl #2
-  .long  0xed931a00                          // vldr          s2, [r3]
-  .long  0xe08e3107                          // add           r3, lr, r7, lsl #2
-  .long  0xed932a00                          // vldr          s4, [r3]
-  .long  0xe8bd48f0                          // pop           {r4, r5, r6, r7, fp, lr}
+  .long  0xee905bb0                          // vmov.u16      r5, d16[0]
+  .long  0xee908bf0                          // vmov.u16      r8, d16[1]
+  .long  0xf3c7301f                          // vmov.i32      d19, #255
+  .long  0xee926bf0                          // vmov.u16      r6, d18[1]
+  .long  0xee91ebb0                          // vmov.u16      lr, d17[0]
+  .long  0xee917bf0                          // vmov.u16      r7, d17[1]
+  .long  0xee004b90                          // vmov.32       d16[0], r4
+  .long  0xee025b90                          // vmov.32       d18[0], r5
+  .long  0xee206b90                          // vmov.32       d16[1], r6
+  .long  0xe99c0070                          // ldmib         ip, {r4, r5, r6}
+  .long  0xee228b90                          // vmov.32       d18[1], r8
+  .long  0xf24001b3                          // vand          d16, d16, d19
+  .long  0xee01eb90                          // vmov.32       d17[0], lr
+  .long  0xf24221b3                          // vand          d18, d18, d19
+  .long  0xee217b90                          // vmov.32       d17[1], r7
+  .long  0xee307b90                          // vmov.32       r7, d16[1]
+  .long  0xf24111b3                          // vand          d17, d17, d19
+  .long  0xee328b90                          // vmov.32       r8, d18[1]
+  .long  0xee12eb90                          // vmov.32       lr, d18[0]
+  .long  0xee319b90                          // vmov.32       r9, d17[1]
+  .long  0xee11cb90                          // vmov.32       ip, d17[0]
+  .long  0xe086a107                          // add           sl, r6, r7, lsl #2
+  .long  0xe0847108                          // add           r7, r4, r8, lsl #2
+  .long  0xee108b90                          // vmov.32       r8, d16[0]
+  .long  0xedda2a00                          // vldr          s5, [sl]
+  .long  0xe0859109                          // add           r9, r5, r9, lsl #2
+  .long  0xedd70a00                          // vldr          s1, [r7]
+  .long  0xe084710e                          // add           r7, r4, lr, lsl #2
+  .long  0xedd91a00                          // vldr          s3, [r9]
+  .long  0xed970a00                          // vldr          s0, [r7]
+  .long  0xe085710c                          // add           r7, r5, ip, lsl #2
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xed971a00                          // vldr          s2, [r7]
+  .long  0xe0867108                          // add           r7, r6, r8, lsl #2
+  .long  0xed972a00                          // vldr          s4, [r7]
+  .long  0xe8bd47f0                          // pop           {r4, r5, r6, r7, r8, r9, sl, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_byte_tables_vfp4
 .globl _sk_byte_tables_vfp4
 FUNCTION(_sk_byte_tables_vfp4)
 _sk_byte_tables_vfp4:
-  .long  0xe92d4bf0                          // push          {r4, r5, r6, r7, r8, r9, fp, lr}
+  .long  0xe92d47f0                          // push          {r4, r5, r6, r7, r8, r9, sl, lr}
   .long  0xeddf0b37                          // vldr          d16, [pc, #220]
-  .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2c3361f                          // vmov.i32      d19, #1056964608
-  .long  0xe8911010                          // ldm           r1, {r4, ip}
-  .long  0xf2422c30                          // vfma.f32      d18, d2, d16
   .long  0xf2413c30                          // vfma.f32      d19, d1, d16
+  .long  0xe8911020                          // ldm           r1, {r5, ip}
+  .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
+  .long  0xf2422c30                          // vfma.f32      d18, d2, d16
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2c3461f                          // vmov.i32      d20, #1056964608
-  .long  0xe89402e0                          // ldm           r4, {r5, r6, r7, r9}
+  .long  0xe89504c0                          // ldm           r5, {r6, r7, sl}
   .long  0xf2404c30                          // vfma.f32      d20, d0, d16
+  .long  0xe595900c                          // ldr           r9, [r5, #12]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2431c30                          // vfma.f32      d17, d3, d16
-  .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf3fb37a3                          // vcvt.u32.f32  d19, d19
+  .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf3fb47a4                          // vcvt.u32.f32  d20, d20
-  .long  0xee123b90                          // vmov.32       r3, d18[0]
+  .long  0xee138b90                          // vmov.32       r8, d19[0]
   .long  0xf3fb07a1                          // vcvt.u32.f32  d16, d17
-  .long  0xee13eb90                          // vmov.32       lr, d19[0]
+  .long  0xee12eb90                          // vmov.32       lr, d18[0]
   .long  0xee144b90                          // vmov.32       r4, d20[0]
-  .long  0xe7d78003                          // ldrb          r8, [r7, r3]
-  .long  0xe7d6300e                          // ldrb          r3, [r6, lr]
-  .long  0xee053b90                          // vmov.32       d21[0], r3
-  .long  0xe7d53004                          // ldrb          r3, [r5, r4]
-  .long  0xee344b90                          // vmov.32       r4, d20[1]
-  .long  0xee013b90                          // vmov.32       d17[0], r3
-  .long  0xee103b90                          // vmov.32       r3, d16[0]
-  .long  0xee048b90                          // vmov.32       d20[0], r8
-  .long  0xe7d5e004                          // ldrb          lr, [r5, r4]
-  .long  0xee334b90                          // vmov.32       r4, d19[1]
-  .long  0xee325b90                          // vmov.32       r5, d18[1]
+  .long  0xe7d75008                          // ldrb          r5, [r7, r8]
+  .long  0xe7dae00e                          // ldrb          lr, [sl, lr]
+  .long  0xee055b90                          // vmov.32       d21[0], r5
+  .long  0xe7d64004                          // ldrb          r4, [r6, r4]
+  .long  0xee345b90                          // vmov.32       r5, d20[1]
+  .long  0xee04eb90                          // vmov.32       d20[0], lr
+  .long  0xee014b90                          // vmov.32       d17[0], r4
+  .long  0xee104b90                          // vmov.32       r4, d16[0]
+  .long  0xe7d6e005                          // ldrb          lr, [r6, r5]
+  .long  0xee335b90                          // vmov.32       r5, d19[1]
+  .long  0xee326b90                          // vmov.32       r6, d18[1]
   .long  0xf3c7201f                          // vmov.i32      d18, #255
-  .long  0xe7d93003                          // ldrb          r3, [r9, r3]
   .long  0xee21eb90                          // vmov.32       d17[1], lr
+  .long  0xe7d94004                          // ldrb          r4, [r9, r4]
   .long  0xf24111b2                          // vand          d17, d17, d18
   .long  0xf3fb16a1                          // vcvt.f32.u32  d17, d17
-  .long  0xe7d64004                          // ldrb          r4, [r6, r4]
-  .long  0xee306b90                          // vmov.32       r6, d16[1]
-  .long  0xee003b90                          // vmov.32       d16[0], r3
-  .long  0xee254b90                          // vmov.32       d21[1], r4
-  .long  0xe7d74005                          // ldrb          r4, [r7, r5]
+  .long  0xe7d75005                          // ldrb          r5, [r7, r5]
+  .long  0xee307b90                          // vmov.32       r7, d16[1]
+  .long  0xee004b90                          // vmov.32       d16[0], r4
+  .long  0xee255b90                          // vmov.32       d21[1], r5
+  .long  0xe7da5006                          // ldrb          r5, [sl, r6]
   .long  0xf24531b2                          // vand          d19, d21, d18
-  .long  0xee244b90                          // vmov.32       d20[1], r4
+  .long  0xee245b90                          // vmov.32       d20[1], r5
   .long  0xf24441b2                          // vand          d20, d20, d18
   .long  0xf3fb46a4                          // vcvt.f32.u32  d20, d20
-  .long  0xe7d93006                          // ldrb          r3, [r9, r6]
-  .long  0xee203b90                          // vmov.32       d16[1], r3
+  .long  0xe7d94007                          // ldrb          r4, [r9, r7]
+  .long  0xee204b90                          // vmov.32       d16[1], r4
   .long  0xf24001b2                          // vand          d16, d16, d18
   .long  0xf3fb26a3                          // vcvt.f32.u32  d18, d19
-  .long  0xeddf3b09                          // vldr          d19, [pc, #36]
+  .long  0xeddf3b08                          // vldr          d19, [pc, #32]
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
   .long  0xf3010db3                          // vmul.f32      d0, d17, d19
   .long  0xf3042db3                          // vmul.f32      d2, d20, d19
   .long  0xf3021db3                          // vmul.f32      d1, d18, d19
   .long  0xf3003db3                          // vmul.f32      d3, d16, d19
-  .long  0xe8bd4bf0                          // pop           {r4, r5, r6, r7, r8, r9, fp, lr}
+  .long  0xe8bd47f0                          // pop           {r4, r5, r6, r7, r8, r9, sl, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x3b808081                          // .word         0x3b808081
@@ -6501,56 +6609,56 @@ HIDDEN _sk_byte_tables_rgb_vfp4
 .globl _sk_byte_tables_rgb_vfp4
 FUNCTION(_sk_byte_tables_rgb_vfp4)
 _sk_byte_tables_rgb_vfp4:
-  .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4bf0                          // push          {r4, r5, r6, r7, r8, r9, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf3c7301f                          // vmov.i32      d19, #255
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe9930110                          // ldmib         r3, {r4, r8}
-  .long  0xe593300c                          // ldr           r3, [r3, #12]
-  .long  0xe2433001                          // sub           r3, r3, #1
-  .long  0xee803b90                          // vdup.32       d16, r3
+  .long  0xe89e0210                          // ldm           lr, {r4, r9}
+  .long  0xe59e600c                          // ldr           r6, [lr, #12]
+  .long  0xe59e8008                          // ldr           r8, [lr, #8]
+  .long  0xe2466001                          // sub           r6, r6, #1
+  .long  0xee806b90                          // vdup.32       d16, r6
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf2402c30                          // vfma.f32      d18, d0, d16
   .long  0xf2411c30                          // vfma.f32      d17, d1, d16
   .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf3fb17a1                          // vcvt.u32.f32  d17, d17
-  .long  0xee123b90                          // vmov.32       r3, d18[0]
-  .long  0xee326b90                          // vmov.32       r6, d18[1]
+  .long  0xee126b90                          // vmov.32       r6, d18[0]
+  .long  0xee327b90                          // vmov.32       r7, d18[1]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2422c30                          // vfma.f32      d18, d2, d16
   .long  0xf3fb07a2                          // vcvt.u32.f32  d16, d18
-  .long  0xee107b90                          // vmov.32       r7, d16[0]
-  .long  0xee305b90                          // vmov.32       r5, d16[1]
-  .long  0xe7de3003                          // ldrb          r3, [lr, r3]
-  .long  0xe7dee006                          // ldrb          lr, [lr, r6]
+  .long  0xee105b90                          // vmov.32       r5, d16[0]
+  .long  0xe7d46006                          // ldrb          r6, [r4, r6]
+  .long  0xe7d4e007                          // ldrb          lr, [r4, r7]
+  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee026b90                          // vmov.32       d18[0], r6
   .long  0xee116b90                          // vmov.32       r6, d17[0]
-  .long  0xee023b90                          // vmov.32       d18[0], r3
-  .long  0xee313b90                          // vmov.32       r3, d17[1]
+  .long  0xee307b90                          // vmov.32       r7, d16[1]
   .long  0xee22eb90                          // vmov.32       d18[1], lr
   .long  0xf24221b3                          // vand          d18, d18, d19
   .long  0xf3fb26a2                          // vcvt.f32.u32  d18, d18
-  .long  0xe7d87007                          // ldrb          r7, [r8, r7]
-  .long  0xee017b90                          // vmov.32       d17[0], r7
-  .long  0xe7d46006                          // ldrb          r6, [r4, r6]
-  .long  0xe7d43003                          // ldrb          r3, [r4, r3]
+  .long  0xe7d85005                          // ldrb          r5, [r8, r5]
+  .long  0xee015b90                          // vmov.32       d17[0], r5
+  .long  0xe7d94004                          // ldrb          r4, [r9, r4]
+  .long  0xe7d96006                          // ldrb          r6, [r9, r6]
+  .long  0xe7d85007                          // ldrb          r5, [r8, r7]
   .long  0xee006b90                          // vmov.32       d16[0], r6
-  .long  0xe7d84005                          // ldrb          r4, [r8, r5]
-  .long  0xee203b90                          // vmov.32       d16[1], r3
-  .long  0xee214b90                          // vmov.32       d17[1], r4
-  .long  0xf24001b3                          // vand          d16, d16, d19
+  .long  0xee215b90                          // vmov.32       d17[1], r5
+  .long  0xee204b90                          // vmov.32       d16[1], r4
   .long  0xf24111b3                          // vand          d17, d17, d19
-  .long  0xeddf3b07                          // vldr          d19, [pc, #28]
-  .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
+  .long  0xf24001b3                          // vand          d16, d16, d19
+  .long  0xeddf3b06                          // vldr          d19, [pc, #24]
   .long  0xf3fb16a1                          // vcvt.f32.u32  d17, d17
+  .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
   .long  0xf3020db3                          // vmul.f32      d0, d18, d19
-  .long  0xf3001db3                          // vmul.f32      d1, d16, d19
   .long  0xf3012db3                          // vmul.f32      d2, d17, d19
-  .long  0xe8bd41f0                          // pop           {r4, r5, r6, r7, r8, lr}
+  .long  0xf3001db3                          // vmul.f32      d1, d16, d19
+  .long  0xe8bd4bf0                          // pop           {r4, r5, r6, r7, r8, r9, fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
@@ -6558,116 +6666,120 @@ HIDDEN _sk_table_r_vfp4
 .globl _sk_table_r_vfp4
 FUNCTION(_sk_table_r_vfp4)
 _sk_table_r_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe5933004                          // ldr           r3, [r3, #4]
-  .long  0xe2433001                          // sub           r3, r3, #1
-  .long  0xee803b90                          // vdup.32       d16, r3
+  .long  0xe59e4004                          // ldr           r4, [lr, #4]
+  .long  0xe59e5000                          // ldr           r5, [lr]
+  .long  0xe2444001                          // sub           r4, r4, #1
+  .long  0xee804b90                          // vdup.32       d16, r4
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf2401c30                          // vfma.f32      d17, d0, d16
   .long  0xf3fb07a1                          // vcvt.u32.f32  d16, d17
-  .long  0xee303b90                          // vmov.32       r3, d16[1]
-  .long  0xee104b90                          // vmov.32       r4, d16[0]
-  .long  0xe08e3103                          // add           r3, lr, r3, lsl #2
-  .long  0xedd30a00                          // vldr          s1, [r3]
-  .long  0xe08e3104                          // add           r3, lr, r4, lsl #2
-  .long  0xed930a00                          // vldr          s0, [r3]
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xee304b90                          // vmov.32       r4, d16[1]
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe0854104                          // add           r4, r5, r4, lsl #2
+  .long  0xe085510e                          // add           r5, r5, lr, lsl #2
+  .long  0xedd40a00                          // vldr          s1, [r4]
+  .long  0xed950a00                          // vldr          s0, [r5]
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_table_g_vfp4
 .globl _sk_table_g_vfp4
 FUNCTION(_sk_table_g_vfp4)
 _sk_table_g_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe5933004                          // ldr           r3, [r3, #4]
-  .long  0xe2433001                          // sub           r3, r3, #1
-  .long  0xee803b90                          // vdup.32       d16, r3
+  .long  0xe59e4004                          // ldr           r4, [lr, #4]
+  .long  0xe59e5000                          // ldr           r5, [lr]
+  .long  0xe2444001                          // sub           r4, r4, #1
+  .long  0xee804b90                          // vdup.32       d16, r4
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf2411c30                          // vfma.f32      d17, d1, d16
   .long  0xf3fb07a1                          // vcvt.u32.f32  d16, d17
-  .long  0xee303b90                          // vmov.32       r3, d16[1]
-  .long  0xee104b90                          // vmov.32       r4, d16[0]
-  .long  0xe08e3103                          // add           r3, lr, r3, lsl #2
-  .long  0xedd31a00                          // vldr          s3, [r3]
-  .long  0xe08e3104                          // add           r3, lr, r4, lsl #2
-  .long  0xed931a00                          // vldr          s2, [r3]
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xee304b90                          // vmov.32       r4, d16[1]
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe0854104                          // add           r4, r5, r4, lsl #2
+  .long  0xe085510e                          // add           r5, r5, lr, lsl #2
+  .long  0xedd41a00                          // vldr          s3, [r4]
+  .long  0xed951a00                          // vldr          s2, [r5]
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_table_b_vfp4
 .globl _sk_table_b_vfp4
 FUNCTION(_sk_table_b_vfp4)
 _sk_table_b_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe5933004                          // ldr           r3, [r3, #4]
-  .long  0xe2433001                          // sub           r3, r3, #1
-  .long  0xee803b90                          // vdup.32       d16, r3
+  .long  0xe59e4004                          // ldr           r4, [lr, #4]
+  .long  0xe59e5000                          // ldr           r5, [lr]
+  .long  0xe2444001                          // sub           r4, r4, #1
+  .long  0xee804b90                          // vdup.32       d16, r4
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf2421c30                          // vfma.f32      d17, d2, d16
   .long  0xf3fb07a1                          // vcvt.u32.f32  d16, d17
-  .long  0xee303b90                          // vmov.32       r3, d16[1]
-  .long  0xee104b90                          // vmov.32       r4, d16[0]
-  .long  0xe08e3103                          // add           r3, lr, r3, lsl #2
-  .long  0xedd32a00                          // vldr          s5, [r3]
-  .long  0xe08e3104                          // add           r3, lr, r4, lsl #2
-  .long  0xed932a00                          // vldr          s4, [r3]
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xee304b90                          // vmov.32       r4, d16[1]
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe0854104                          // add           r4, r5, r4, lsl #2
+  .long  0xe085510e                          // add           r5, r5, lr, lsl #2
+  .long  0xedd42a00                          // vldr          s5, [r4]
+  .long  0xed952a00                          // vldr          s4, [r5]
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_table_a_vfp4
 .globl _sk_table_a_vfp4
 FUNCTION(_sk_table_a_vfp4)
 _sk_table_a_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe5933004                          // ldr           r3, [r3, #4]
-  .long  0xe2433001                          // sub           r3, r3, #1
-  .long  0xee803b90                          // vdup.32       d16, r3
+  .long  0xe59e4004                          // ldr           r4, [lr, #4]
+  .long  0xe59e5000                          // ldr           r5, [lr]
+  .long  0xe2444001                          // sub           r4, r4, #1
+  .long  0xee804b90                          // vdup.32       d16, r4
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf2431c30                          // vfma.f32      d17, d3, d16
   .long  0xf3fb07a1                          // vcvt.u32.f32  d16, d17
-  .long  0xee303b90                          // vmov.32       r3, d16[1]
-  .long  0xee104b90                          // vmov.32       r4, d16[0]
-  .long  0xe08e3103                          // add           r3, lr, r3, lsl #2
-  .long  0xedd33a00                          // vldr          s7, [r3]
-  .long  0xe08e3104                          // add           r3, lr, r4, lsl #2
-  .long  0xed933a00                          // vldr          s6, [r3]
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xee304b90                          // vmov.32       r4, d16[1]
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe0854104                          // add           r4, r5, r4, lsl #2
+  .long  0xe085510e                          // add           r5, r5, lr, lsl #2
+  .long  0xedd43a00                          // vldr          s7, [r4]
+  .long  0xed953a00                          // vldr          s6, [r5]
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_parametric_r_vfp4
 .globl _sk_parametric_r_vfp4
 FUNCTION(_sk_parametric_r_vfp4)
 _sk_parametric_r_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xeddf3b41                          // vldr          d19, [pc, #260]
   .long  0xed9f8a4e                          // vldr          s16, [pc, #312]
-  .long  0xe1a0300e                          // mov           r3, lr
+  .long  0xe1a0400e                          // mov           r4, lr
   .long  0xeddf4b42                          // vldr          d20, [pc, #264]
-  .long  0xf4e30c9d                          // vld1.32       {d16[]}, [r3 :32]!
+  .long  0xf4e40c9d                          // vld1.32       {d16[]}, [r4 :32]!
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3008                          // add           r3, lr, #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e300c                          // add           r3, lr, #12
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4008                          // add           r4, lr, #8
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e400c                          // add           r4, lr, #12
   .long  0xf2412c90                          // vfma.f32      d18, d17, d0
   .long  0xf2c71d1f                          // vmov.i32      d17, #8388607
   .long  0xf24211b1                          // vand          d17, d18, d17
@@ -6706,15 +6818,15 @@ _sk_parametric_r_vfp4:
   .long  0xf2c4161b                          // vmov.i32      d17, #1258291200
   .long  0xf2400d8a                          // vadd.f32      d16, d16, d10
   .long  0xf2402cb1                          // vfma.f32      d18, d16, d17
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3018                          // add           r3, lr, #24
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3010                          // add           r3, lr, #16
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4018                          // add           r4, lr, #24
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4010                          // add           r4, lr, #16
   .long  0xf2401c90                          // vfma.f32      d17, d16, d0
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf3400e80                          // vcge.f32      d16, d16, d0
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
   .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf2442da2                          // vadd.f32      d18, d20, d18
   .long  0xf35101b2                          // vbsl          d16, d17, d18
@@ -6722,7 +6834,7 @@ _sk_parametric_r_vfp4:
   .long  0xf2400fa3                          // vmax.f32      d16, d16, d19
   .long  0xf2200fa1                          // vmin.f32      d0, d16, d17
   .long  0xecbd8b06                          // vpop          {d8-d10}
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
   .long  0x3eb444f9                          // .word         0x3eb444f9
   .long  0x3eb444f9                          // .word         0x3eb444f9
@@ -6745,20 +6857,20 @@ HIDDEN _sk_parametric_g_vfp4
 .globl _sk_parametric_g_vfp4
 FUNCTION(_sk_parametric_g_vfp4)
 _sk_parametric_g_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xeddf3b41                          // vldr          d19, [pc, #260]
   .long  0xed9f8a4e                          // vldr          s16, [pc, #312]
-  .long  0xe1a0300e                          // mov           r3, lr
+  .long  0xe1a0400e                          // mov           r4, lr
   .long  0xeddf4b42                          // vldr          d20, [pc, #264]
-  .long  0xf4e30c9d                          // vld1.32       {d16[]}, [r3 :32]!
+  .long  0xf4e40c9d                          // vld1.32       {d16[]}, [r4 :32]!
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3008                          // add           r3, lr, #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e300c                          // add           r3, lr, #12
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4008                          // add           r4, lr, #8
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e400c                          // add           r4, lr, #12
   .long  0xf2412c91                          // vfma.f32      d18, d17, d1
   .long  0xf2c71d1f                          // vmov.i32      d17, #8388607
   .long  0xf24211b1                          // vand          d17, d18, d17
@@ -6797,15 +6909,15 @@ _sk_parametric_g_vfp4:
   .long  0xf2c4161b                          // vmov.i32      d17, #1258291200
   .long  0xf2400d8a                          // vadd.f32      d16, d16, d10
   .long  0xf2402cb1                          // vfma.f32      d18, d16, d17
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3018                          // add           r3, lr, #24
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3010                          // add           r3, lr, #16
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4018                          // add           r4, lr, #24
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4010                          // add           r4, lr, #16
   .long  0xf2401c91                          // vfma.f32      d17, d16, d1
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf3400e81                          // vcge.f32      d16, d16, d1
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
   .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf2442da2                          // vadd.f32      d18, d20, d18
   .long  0xf35101b2                          // vbsl          d16, d17, d18
@@ -6813,7 +6925,7 @@ _sk_parametric_g_vfp4:
   .long  0xf2400fa3                          // vmax.f32      d16, d16, d19
   .long  0xf2201fa1                          // vmin.f32      d1, d16, d17
   .long  0xecbd8b06                          // vpop          {d8-d10}
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
   .long  0x3eb444f9                          // .word         0x3eb444f9
   .long  0x3eb444f9                          // .word         0x3eb444f9
@@ -6836,20 +6948,20 @@ HIDDEN _sk_parametric_b_vfp4
 .globl _sk_parametric_b_vfp4
 FUNCTION(_sk_parametric_b_vfp4)
 _sk_parametric_b_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xeddf3b41                          // vldr          d19, [pc, #260]
   .long  0xed9f8a4e                          // vldr          s16, [pc, #312]
-  .long  0xe1a0300e                          // mov           r3, lr
+  .long  0xe1a0400e                          // mov           r4, lr
   .long  0xeddf4b42                          // vldr          d20, [pc, #264]
-  .long  0xf4e30c9d                          // vld1.32       {d16[]}, [r3 :32]!
+  .long  0xf4e40c9d                          // vld1.32       {d16[]}, [r4 :32]!
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3008                          // add           r3, lr, #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e300c                          // add           r3, lr, #12
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4008                          // add           r4, lr, #8
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e400c                          // add           r4, lr, #12
   .long  0xf2412c92                          // vfma.f32      d18, d17, d2
   .long  0xf2c71d1f                          // vmov.i32      d17, #8388607
   .long  0xf24211b1                          // vand          d17, d18, d17
@@ -6888,15 +7000,15 @@ _sk_parametric_b_vfp4:
   .long  0xf2c4161b                          // vmov.i32      d17, #1258291200
   .long  0xf2400d8a                          // vadd.f32      d16, d16, d10
   .long  0xf2402cb1                          // vfma.f32      d18, d16, d17
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3018                          // add           r3, lr, #24
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3010                          // add           r3, lr, #16
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4018                          // add           r4, lr, #24
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4010                          // add           r4, lr, #16
   .long  0xf2401c92                          // vfma.f32      d17, d16, d2
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf3400e82                          // vcge.f32      d16, d16, d2
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
   .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf2442da2                          // vadd.f32      d18, d20, d18
   .long  0xf35101b2                          // vbsl          d16, d17, d18
@@ -6904,7 +7016,7 @@ _sk_parametric_b_vfp4:
   .long  0xf2400fa3                          // vmax.f32      d16, d16, d19
   .long  0xf2202fa1                          // vmin.f32      d2, d16, d17
   .long  0xecbd8b06                          // vpop          {d8-d10}
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
   .long  0x3eb444f9                          // .word         0x3eb444f9
   .long  0x3eb444f9                          // .word         0x3eb444f9
@@ -6927,20 +7039,20 @@ HIDDEN _sk_parametric_a_vfp4
 .globl _sk_parametric_a_vfp4
 FUNCTION(_sk_parametric_a_vfp4)
 _sk_parametric_a_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xed2d8b06                          // vpush         {d8-d10}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xeddf3b41                          // vldr          d19, [pc, #260]
   .long  0xed9f8a4e                          // vldr          s16, [pc, #312]
-  .long  0xe1a0300e                          // mov           r3, lr
+  .long  0xe1a0400e                          // mov           r4, lr
   .long  0xeddf4b42                          // vldr          d20, [pc, #264]
-  .long  0xf4e30c9d                          // vld1.32       {d16[]}, [r3 :32]!
+  .long  0xf4e40c9d                          // vld1.32       {d16[]}, [r4 :32]!
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3008                          // add           r3, lr, #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e300c                          // add           r3, lr, #12
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4008                          // add           r4, lr, #8
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e400c                          // add           r4, lr, #12
   .long  0xf2412c93                          // vfma.f32      d18, d17, d3
   .long  0xf2c71d1f                          // vmov.i32      d17, #8388607
   .long  0xf24211b1                          // vand          d17, d18, d17
@@ -6979,15 +7091,15 @@ _sk_parametric_a_vfp4:
   .long  0xf2c4161b                          // vmov.i32      d17, #1258291200
   .long  0xf2400d8a                          // vadd.f32      d16, d16, d10
   .long  0xf2402cb1                          // vfma.f32      d18, d16, d17
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3018                          // add           r3, lr, #24
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3010                          // add           r3, lr, #16
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4018                          // add           r4, lr, #24
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4010                          // add           r4, lr, #16
   .long  0xf2401c93                          // vfma.f32      d17, d16, d3
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf3400e83                          // vcge.f32      d16, d16, d3
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
   .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
   .long  0xf2442da2                          // vadd.f32      d18, d20, d18
   .long  0xf35101b2                          // vbsl          d16, d17, d18
@@ -6995,7 +7107,7 @@ _sk_parametric_a_vfp4:
   .long  0xf2400fa3                          // vmax.f32      d16, d16, d19
   .long  0xf2203fa1                          // vmin.f32      d3, d16, d17
   .long  0xecbd8b06                          // vpop          {d8-d10}
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
   .long  0x3eb444f9                          // .word         0x3eb444f9
   .long  0x3eb444f9                          // .word         0x3eb444f9
@@ -7032,7 +7144,7 @@ _sk_lab_to_xyz_vfp4:
   .long  0xf2411da4                          // vadd.f32      d17, d17, d20
   .long  0xeddf4b24                          // vldr          d20, [pc, #144]
   .long  0xf2422da3                          // vadd.f32      d18, d18, d19
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2400da3                          // vadd.f32      d16, d16, d19
   .long  0xeddf3b22                          // vldr          d19, [pc, #136]
   .long  0xf3411db3                          // vmul.f32      d17, d17, d19
@@ -7062,7 +7174,7 @@ _sk_lab_to_xyz_vfp4:
   .long  0xf30a2db2                          // vmul.f32      d2, d26, d18
   .long  0xf3410db8                          // vmul.f32      d16, d17, d24
   .long  0xf31511b0                          // vbsl          d1, d21, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
@@ -7089,57 +7201,69 @@ HIDDEN _sk_load_a8_vfp4
 .globl _sk_load_a8_vfp4
 FUNCTION(_sk_load_a8_vfp4)
 _sk_load_a8_vfp4:
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc000                          // add           ip, ip, r0
+  .long  0x0a000012                          // beq           2898 <sk_load_a8_vfp4+0x60>
   .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xe1cdc0b0                          // strh          ip, [sp]
+  .long  0xe1a0c00d                          // mov           ip, sp
+  .long  0xf4ec041f                          // vld1.16       {d16[0]}, [ip :16]
+  .long  0xf3c80a30                          // vmovl.u8      q8, d16
+  .long  0xf3900a30                          // vmovl.u16     q0, d16
+  .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xf3c7001f                          // vmov.i32      d16, #255
+  .long  0xeddf1b0c                          // vldr          d17, [pc, #48]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf2802010                          // vmov.i32      d2, #0
+  .long  0xf2400130                          // vand          d16, d0, d16
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2800010                          // vmov.i32      d0, #0
-  .long  0xf2801010                          // vmov.i32      d1, #0
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xf2802010                          // vmov.i32      d2, #0
-  .long  0xe0833000                          // add           r3, r3, r0
-  .long  0xe1d330b0                          // ldrh          r3, [r3]
-  .long  0xe1cd30b0                          // strh          r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3041f                          // vld1.16       {d16[0]}, [r3 :16]
-  .long  0xf3c80a30                          // vmovl.u8      q8, d16
-  .long  0xf3d00a30                          // vmovl.u16     q8, d16
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
-  .long  0xeddf1b03                          // vldr          d17, [pc, #12]
+  .long  0xf2801010                          // vmov.i32      d1, #0
   .long  0xf3003db1                          // vmul.f32      d3, d16, d17
-  .long  0xe28dd004                          // add           sp, sp, #4
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
+  .long  0xe5dcc000                          // ldrb          ip, [ip]
+  .long  0xeddf0a03                          // vldr          s1, [pc, #12]
+  .long  0xee00ca10                          // vmov          s0, ip
+  .long  0xeafffff0                          // b             286c <sk_load_a8_vfp4+0x34>
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_gather_a8_vfp4
 .globl _sk_gather_a8_vfp4
 FUNCTION(_sk_gather_a8_vfp4)
 _sk_gather_a8_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2800010                          // vmov.i32      d0, #0
-  .long  0xe493e008                          // ldr           lr, [r3], #8
+  .long  0xe49e4008                          // ldr           r4, [lr], #8
   .long  0xf2801010                          // vmov.i32      d1, #0
   .long  0xf2802010                          // vmov.i32      d2, #0
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xf4ee2c9f                          // vld1.32       {d18[]}, [lr :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee11eb90                          // vmov.32       lr, d17[0]
+  .long  0xee315b90                          // vmov.32       r5, d17[1]
   .long  0xf3c7101f                          // vmov.i32      d17, #255
-  .long  0xe7de3003                          // ldrb          r3, [lr, r3]
-  .long  0xe7de4004                          // ldrb          r4, [lr, r4]
-  .long  0xee003b90                          // vmov.32       d16[0], r3
+  .long  0xe7d4e00e                          // ldrb          lr, [r4, lr]
+  .long  0xe7d44005                          // ldrb          r4, [r4, r5]
+  .long  0xee00eb90                          // vmov.32       d16[0], lr
   .long  0xee204b90                          // vmov.32       d16[1], r4
   .long  0xf24001b1                          // vand          d16, d16, d17
-  .long  0xeddf1b03                          // vldr          d17, [pc, #12]
+  .long  0xeddf1b04                          // vldr          d17, [pc, #16]
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
   .long  0xf3003db1                          // vmul.f32      d3, d16, d17
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
@@ -7147,22 +7271,28 @@ HIDDEN _sk_store_a8_vfp4
 .globl _sk_store_a8_vfp4
 FUNCTION(_sk_store_a8_vfp4)
 _sk_store_a8_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
-  .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
+  .long  0xe92d4010                          // push          {r4, lr}
+  .long  0xeddf0b13                          // vldr          d16, [pc, #76]
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2431c30                          // vfma.f32      d17, d3, d16
-  .long  0xe5913000                          // ldr           r3, [r1]
-  .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc000                          // add           ip, ip, r0
   .long  0xf3fb07a1                          // vcvt.u32.f32  d16, d17
-  .long  0xee10eb90                          // vmov.32       lr, d16[0]
-  .long  0xee30cb90                          // vmov.32       ip, d16[1]
-  .long  0xe7e3e000                          // strb          lr, [r3, r0]!
-  .long  0xe5c3c001                          // strb          ip, [r3, #1]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0x0a000007                          // beq           2970 <sk_store_a8_vfp4+0x48>
+  .long  0xee30eb90                          // vmov.32       lr, d16[1]
+  .long  0xee104b90                          // vmov.32       r4, d16[0]
+  .long  0xe5cce001                          // strb          lr, [ip, #1]
+  .long  0xe5cc4000                          // strb          r4, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe5cce000                          // strb          lr, [ip]
+  .long  0xeafffff8                          // b             2960 <sk_store_a8_vfp4+0x38>
+  .long  0xe320f000                          // nop           {0}
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
 
@@ -7170,57 +7300,69 @@ HIDDEN _sk_load_g8_vfp4
 .globl _sk_load_g8_vfp4
 FUNCTION(_sk_load_g8_vfp4)
 _sk_load_g8_vfp4:
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc000                          // add           ip, ip, r0
+  .long  0x0a000012                          // beq           29e8 <sk_load_g8_vfp4+0x60>
   .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf2873f10                          // vmov.f32      d3, #1
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833000                          // add           r3, r3, r0
-  .long  0xe1d330b0                          // ldrh          r3, [r3]
-  .long  0xe1cd30b0                          // strh          r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3041f                          // vld1.16       {d16[0]}, [r3 :16]
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xe1cdc0b0                          // strh          ip, [sp]
+  .long  0xe1a0c00d                          // mov           ip, sp
+  .long  0xf4ec041f                          // vld1.16       {d16[0]}, [ip :16]
   .long  0xf3c80a30                          // vmovl.u8      q8, d16
-  .long  0xf3d00a30                          // vmovl.u16     q8, d16
+  .long  0xf3900a30                          // vmovl.u16     q0, d16
+  .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xf3c7001f                          // vmov.i32      d16, #255
+  .long  0xeddf1b0c                          // vldr          d17, [pc, #48]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf2873f10                          // vmov.f32      d3, #1
+  .long  0xf2400130                          // vand          d16, d0, d16
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
-  .long  0xeddf1b05                          // vldr          d17, [pc, #20]
   .long  0xf3000db1                          // vmul.f32      d0, d16, d17
   .long  0xf2201110                          // vorr          d1, d0, d0
   .long  0xf2202110                          // vorr          d2, d0, d0
-  .long  0xe28dd004                          // add           sp, sp, #4
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
+  .long  0xe5dcc000                          // ldrb          ip, [ip]
+  .long  0xeddf0a03                          // vldr          s1, [pc, #12]
+  .long  0xee00ca10                          // vmov          s0, ip
+  .long  0xeafffff0                          // b             29bc <sk_load_g8_vfp4+0x34>
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_gather_g8_vfp4
 .globl _sk_gather_g8_vfp4
 FUNCTION(_sk_gather_g8_vfp4)
 _sk_gather_g8_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2873f10                          // vmov.f32      d3, #1
-  .long  0xe493e008                          // ldr           lr, [r3], #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xe49e4008                          // ldr           r4, [lr], #8
+  .long  0xf4ee2c9f                          // vld1.32       {d18[]}, [lr :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee11eb90                          // vmov.32       lr, d17[0]
+  .long  0xee315b90                          // vmov.32       r5, d17[1]
   .long  0xf3c7101f                          // vmov.i32      d17, #255
-  .long  0xe7de3003                          // ldrb          r3, [lr, r3]
-  .long  0xe7de4004                          // ldrb          r4, [lr, r4]
-  .long  0xee003b90                          // vmov.32       d16[0], r3
+  .long  0xe7d4e00e                          // ldrb          lr, [r4, lr]
+  .long  0xe7d44005                          // ldrb          r4, [r4, r5]
+  .long  0xee00eb90                          // vmov.32       d16[0], lr
   .long  0xee204b90                          // vmov.32       d16[1], r4
   .long  0xf24001b1                          // vand          d16, d16, d17
-  .long  0xeddf1b05                          // vldr          d17, [pc, #20]
+  .long  0xeddf1b06                          // vldr          d17, [pc, #24]
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
   .long  0xf3000db1                          // vmul.f32      d0, d16, d17
   .long  0xf2201110                          // vorr          d1, d0, d0
   .long  0xf2202110                          // vorr          d2, d0, d0
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
@@ -7228,37 +7370,37 @@ HIDDEN _sk_gather_i8_vfp4
 .globl _sk_gather_i8_vfp4
 FUNCTION(_sk_gather_i8_vfp4)
 _sk_gather_i8_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe1a0e001                          // mov           lr, r1
-  .long  0xe491c004                          // ldr           ip, [r1], #4
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe1a0c001                          // mov           ip, r1
+  .long  0xe491e004                          // ldr           lr, [r1], #4
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
-  .long  0xe35c0000                          // cmp           ip, #0
+  .long  0xe35e0000                          // cmp           lr, #0
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
-  .long  0xe1a0300c                          // mov           r3, ip
-  .long  0x028e1008                          // addeq         r1, lr, #8
-  .long  0x059e3004                          // ldreq         r3, [lr, #4]
-  .long  0xe493e008                          // ldr           lr, [r3], #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0x028c1008                          // addeq         r1, ip, #8
+  .long  0x059c4004                          // ldreq         r4, [ip, #4]
+  .long  0xe494c008                          // ldr           ip, [r4], #8
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee114b90                          // vmov.32       r4, d17[0]
+  .long  0xee315b90                          // vmov.32       r5, d17[1]
   .long  0xf3c7101f                          // vmov.i32      d17, #255
-  .long  0xe7de3003                          // ldrb          r3, [lr, r3]
-  .long  0xe7de4004                          // ldrb          r4, [lr, r4]
-  .long  0xee003b90                          // vmov.32       d16[0], r3
-  .long  0xee204b90                          // vmov.32       d16[1], r4
-  .long  0xe59c4004                          // ldr           r4, [ip, #4]
+  .long  0xe7dc4004                          // ldrb          r4, [ip, r4]
+  .long  0xe7dc5005                          // ldrb          r5, [ip, r5]
+  .long  0xee004b90                          // vmov.32       d16[0], r4
+  .long  0xe59e4004                          // ldr           r4, [lr, #4]
+  .long  0xee205b90                          // vmov.32       d16[1], r5
   .long  0xf24001b1                          // vand          d16, d16, d17
-  .long  0xee103b90                          // vmov.32       r3, d16[0]
-  .long  0xee30eb90                          // vmov.32       lr, d16[1]
-  .long  0xe0843103                          // add           r3, r4, r3, lsl #2
-  .long  0xf4e3083f                          // vld1.32       {d16[0]}, [r3 :32]
-  .long  0xe084310e                          // add           r3, r4, lr, lsl #2
-  .long  0xf4e308bf                          // vld1.32       {d16[1]}, [r3 :32]
+  .long  0xee105b90                          // vmov.32       r5, d16[0]
+  .long  0xee30cb90                          // vmov.32       ip, d16[1]
+  .long  0xe0845105                          // add           r5, r4, r5, lsl #2
+  .long  0xf4e5083f                          // vld1.32       {d16[0]}, [r5 :32]
+  .long  0xe084510c                          // add           r5, r4, ip, lsl #2
+  .long  0xf4e508bf                          // vld1.32       {d16[1]}, [r5 :32]
   .long  0xf24021b1                          // vand          d18, d16, d17
   .long  0xf3f83030                          // vshr.u32      d19, d16, #8
   .long  0xf3e84030                          // vshr.u32      d20, d16, #24
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3f00030                          // vshr.u32      d16, d16, #16
   .long  0xf24331b1                          // vand          d19, d19, d17
   .long  0xf24001b1                          // vand          d16, d16, d17
@@ -7271,8 +7413,8 @@ _sk_gather_i8_vfp4:
   .long  0xf3043db1                          // vmul.f32      d3, d20, d17
   .long  0xf3031db1                          // vmul.f32      d1, d19, d17
   .long  0xf3002db1                          // vmul.f32      d2, d16, d17
-  .long  0xe8bd4010                          // pop           {r4, lr}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
@@ -7281,81 +7423,91 @@ HIDDEN _sk_load_565_vfp4
 .globl _sk_load_565_vfp4
 FUNCTION(_sk_load_565_vfp4)
 _sk_load_565_vfp4:
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc080                          // add           ip, ip, r0, lsl #1
+  .long  0x0a00001a                          // beq           2bb8 <sk_load_565_vfp4+0x80>
   .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xf2c1101f                          // vmov.i32      d17, #31
-  .long  0xf3c72218                          // vmov.i32      d18, #63488
-  .long  0xeddf3b16                          // vldr          d19, [pc, #88]
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xf2873f10                          // vmov.f32      d3, #1
-  .long  0xe7933080                          // ldr           r3, [r3, r0, lsl #1]
-  .long  0xe58d3000                          // str           r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3083f                          // vld1.32       {d16[0]}, [r3 :32]
-  .long  0xe3a03e7e                          // mov           r3, #2016
-  .long  0xf3d04a30                          // vmovl.u16     q10, d16
-  .long  0xee803b90                          // vdup.32       d16, r3
-  .long  0xf24411b1                          // vand          d17, d20, d17
-  .long  0xeddf5b0e                          // vldr          d21, [pc, #56]
-  .long  0xf24421b2                          // vand          d18, d20, d18
-  .long  0xf24401b0                          // vand          d16, d20, d16
-  .long  0xeddf4b09                          // vldr          d20, [pc, #36]
-  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
-  .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
-  .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
-  .long  0xf3020db3                          // vmul.f32      d0, d18, d19
-  .long  0xf3001db4                          // vmul.f32      d1, d16, d20
-  .long  0xf3012db5                          // vmul.f32      d2, d17, d21
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe58dc000                          // str           ip, [sp]
+  .long  0xe1a0c00d                          // mov           ip, sp
+  .long  0xf4ec083f                          // vld1.32       {d16[0]}, [ip :32]
+  .long  0xf3900a30                          // vmovl.u16     q0, d16
   .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xf3c70218                          // vmov.i32      d16, #63488
+  .long  0xe3a0ce7e                          // mov           ip, #2016
+  .long  0xf2c1101f                          // vmov.i32      d17, #31
+  .long  0xee82cb90                          // vdup.32       d18, ip
+  .long  0xf2400130                          // vand          d16, d0, d16
+  .long  0xeddf3b11                          // vldr          d19, [pc, #68]
+  .long  0xf2402132                          // vand          d18, d0, d18
+  .long  0xeddf4b11                          // vldr          d20, [pc, #68]
+  .long  0xf2401131                          // vand          d17, d0, d17
+  .long  0xeddf5b11                          // vldr          d21, [pc, #68]
+  .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
+  .long  0xf2873f10                          // vmov.f32      d3, #1
+  .long  0xf3000db3                          // vmul.f32      d0, d16, d19
+  .long  0xf3021db4                          // vmul.f32      d1, d18, d20
+  .long  0xf3012db5                          // vmul.f32      d2, d17, d21
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xeddf0a07                          // vldr          s1, [pc, #28]
+  .long  0xee00ca10                          // vmov          s0, ip
+  .long  0xeaffffe7                          // b             2b68 <sk_load_565_vfp4+0x30>
   .long  0x37842108                          // .word         0x37842108
   .long  0x37842108                          // .word         0x37842108
   .long  0x3a020821                          // .word         0x3a020821
   .long  0x3a020821                          // .word         0x3a020821
   .long  0x3d042108                          // .word         0x3d042108
   .long  0x3d042108                          // .word         0x3d042108
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_gather_565_vfp4
 .globl _sk_gather_565_vfp4
 FUNCTION(_sk_gather_565_vfp4)
 _sk_gather_565_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4070                          // push          {r4, r5, r6, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
   .long  0xeddf4b20                          // vldr          d20, [pc, #128]
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe493e008                          // ldr           lr, [r3], #8
+  .long  0xeddf5b21                          // vldr          d21, [pc, #132]
   .long  0xf2873f10                          // vmov.f32      d3, #1
-  .long  0xeddf5b1e                          // vldr          d21, [pc, #120]
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xe49e4008                          // ldr           r4, [lr], #8
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xf4ee2c9f                          // vld1.32       {d18[]}, [lr :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
   .long  0xf2c1201f                          // vmov.i32      d18, #31
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee11eb90                          // vmov.32       lr, d17[0]
+  .long  0xee316b90                          // vmov.32       r6, d17[1]
   .long  0xf3c71218                          // vmov.i32      d17, #63488
-  .long  0xe08e3083                          // add           r3, lr, r3, lsl #1
-  .long  0xe08e4084                          // add           r4, lr, r4, lsl #1
-  .long  0xe1d330b0                          // ldrh          r3, [r3]
-  .long  0xe1d440b0                          // ldrh          r4, [r4]
-  .long  0xee003b90                          // vmov.32       d16[0], r3
-  .long  0xe3a03e7e                          // mov           r3, #2016
-  .long  0xee833b90                          // vdup.32       d19, r3
-  .long  0xee204b90                          // vmov.32       d16[1], r4
+  .long  0xe084508e                          // add           r5, r4, lr, lsl #1
+  .long  0xe0846086                          // add           r6, r4, r6, lsl #1
+  .long  0xe1d550b0                          // ldrh          r5, [r5]
+  .long  0xe1d660b0                          // ldrh          r6, [r6]
+  .long  0xee005b90                          // vmov.32       d16[0], r5
+  .long  0xee206b90                          // vmov.32       d16[1], r6
+  .long  0xe3a06e7e                          // mov           r6, #2016
+  .long  0xee836b90                          // vdup.32       d19, r6
   .long  0xf24011b1                          // vand          d17, d16, d17
   .long  0xf24031b3                          // vand          d19, d16, d19
   .long  0xf24001b2                          // vand          d16, d16, d18
   .long  0xf3fb2623                          // vcvt.f32.s32  d18, d19
-  .long  0xeddf3b07                          // vldr          d19, [pc, #28]
+  .long  0xeddf3b06                          // vldr          d19, [pc, #24]
   .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf3021db4                          // vmul.f32      d1, d18, d20
   .long  0xf3010db3                          // vmul.f32      d0, d17, d19
   .long  0xf3002db5                          // vmul.f32      d2, d16, d21
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4070                          // pop           {r4, r5, r6, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x37842108                          // .word         0x37842108
   .long  0x37842108                          // .word         0x37842108
   .long  0x3a020821                          // .word         0x3a020821
@@ -7368,16 +7520,17 @@ HIDDEN _sk_store_565_vfp4
 FUNCTION(_sk_store_565_vfp4)
 _sk_store_565_vfp4:
   .long  0xf2c30f1f                          // vmov.f32      d16, #31
-  .long  0xeddf1b15                          // vldr          d17, [pc, #84]
+  .long  0xeddf1b1b                          // vldr          d17, [pc, #108]
   .long  0xf2c3361f                          // vmov.i32      d19, #1056964608
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2413c31                          // vfma.f32      d19, d1, d17
+  .long  0xe3530001                          // cmp           r3, #1
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2401c30                          // vfma.f32      d17, d0, d16
-  .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xe59cc000                          // ldr           ip, [ip]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2422c30                          // vfma.f32      d18, d2, d16
-  .long  0xe0833080                          // add           r3, r3, r0, lsl #1
+  .long  0xe08cc080                          // add           ip, ip, r0, lsl #1
   .long  0xf3fb07a3                          // vcvt.u32.f32  d16, d19
   .long  0xf3fb17a1                          // vcvt.u32.f32  d17, d17
   .long  0xf3fb27a2                          // vcvt.u32.f32  d18, d18
@@ -7385,12 +7538,17 @@ _sk_store_565_vfp4:
   .long  0xf2eb1531                          // vshl.s32      d17, d17, #11
   .long  0xf26001b1                          // vorr          d16, d16, d17
   .long  0xf26001b2                          // vorr          d16, d16, d18
+  .long  0x0a000004                          // beq           2cf4 <sk_store_565_vfp4+0x64>
   .long  0xf3f60121                          // vuzp.16       d16, d17
-  .long  0xf4c3080f                          // vst1.32       {d16[0]}, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0xf4cc080f                          // vst1.32       {d16[0]}, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe1cce0b0                          // strh          lr, [ip]
+  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xeafffff7                          // b             2ce8 <sk_store_565_vfp4+0x58>
   .long  0x427c0000                          // .word         0x427c0000
   .long  0x427c0000                          // .word         0x427c0000
 
@@ -7398,37 +7556,45 @@ HIDDEN _sk_load_4444_vfp4
 .globl _sk_load_4444_vfp4
 FUNCTION(_sk_load_4444_vfp4)
 _sk_load_4444_vfp4:
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc080                          // add           ip, ip, r0, lsl #1
+  .long  0x0a00001d                          // beq           2d9c <sk_load_4444_vfp4+0x8c>
   .long  0xe24dd004                          // sub           sp, sp, #4
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xf3c71210                          // vmov.i32      d17, #61440
-  .long  0xf3c74010                          // vmov.i32      d20, #240
-  .long  0xf2c0501f                          // vmov.i32      d21, #15
-  .long  0xeddf6b1d                          // vldr          d22, [pc, #116]
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe7933080                          // ldr           r3, [r3, r0, lsl #1]
-  .long  0xe58d3000                          // str           r3, [sp]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xf4e3083f                          // vld1.32       {d16[0]}, [r3 :32]
-  .long  0xf3d02a30                          // vmovl.u16     q9, d16
-  .long  0xf2c0021f                          // vmov.i32      d16, #3840
-  .long  0xf24211b1                          // vand          d17, d18, d17
-  .long  0xf24201b0                          // vand          d16, d18, d16
-  .long  0xf24241b4                          // vand          d20, d18, d20
-  .long  0xf24221b5                          // vand          d18, d18, d21
-  .long  0xeddf3b0c                          // vldr          d19, [pc, #48]
-  .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
-  .long  0xeddf5b0c                          // vldr          d21, [pc, #48]
-  .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
-  .long  0xf3fb4624                          // vcvt.f32.s32  d20, d20
-  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
-  .long  0xf3010db3                          // vmul.f32      d0, d17, d19
-  .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
-  .long  0xf3001db5                          // vmul.f32      d1, d16, d21
-  .long  0xf3042db6                          // vmul.f32      d2, d20, d22
-  .long  0xf3023db1                          // vmul.f32      d3, d18, d17
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe58dc000                          // str           ip, [sp]
+  .long  0xe1a0c00d                          // mov           ip, sp
+  .long  0xf4ec083f                          // vld1.32       {d16[0]}, [ip :32]
+  .long  0xf3900a30                          // vmovl.u16     q0, d16
   .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xf3c70210                          // vmov.i32      d16, #61440
+  .long  0xeddf4b19                          // vldr          d20, [pc, #100]
+  .long  0xf2c0121f                          // vmov.i32      d17, #3840
+  .long  0xeddf5b19                          // vldr          d21, [pc, #100]
+  .long  0xf3c72010                          // vmov.i32      d18, #240
+  .long  0xeddf6b19                          // vldr          d22, [pc, #100]
+  .long  0xf2400130                          // vand          d16, d0, d16
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf2c0301f                          // vmov.i32      d19, #15
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xf2401131                          // vand          d17, d0, d17
+  .long  0xf2402132                          // vand          d18, d0, d18
+  .long  0xf2403133                          // vand          d19, d0, d19
+  .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
+  .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
+  .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
+  .long  0xf3fb3623                          // vcvt.f32.s32  d19, d19
+  .long  0xf3000db4                          // vmul.f32      d0, d16, d20
+  .long  0xeddf0b0e                          // vldr          d16, [pc, #56]
+  .long  0xf3011db5                          // vmul.f32      d1, d17, d21
+  .long  0xf3022db6                          // vmul.f32      d2, d18, d22
+  .long  0xf3033db0                          // vmul.f32      d3, d19, d16
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe1dcc0b0                          // ldrh          ip, [ip]
+  .long  0xeddf0a0a                          // vldr          s1, [pc, #40]
+  .long  0xee00ca10                          // vmov          s0, ip
+  .long  0xeaffffe4                          // b             2d40 <sk_load_4444_vfp4+0x30>
   .long  0xe320f000                          // nop           {0}
   .long  0x37888889                          // .word         0x37888889
   .long  0x37888889                          // .word         0x37888889
@@ -7438,49 +7604,53 @@ _sk_load_4444_vfp4:
   .long  0x3b888889                          // .word         0x3b888889
   .long  0x3d888889                          // .word         0x3d888889
   .long  0x3d888889                          // .word         0x3d888889
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_gather_4444_vfp4
 .globl _sk_gather_4444_vfp4
 FUNCTION(_sk_gather_4444_vfp4)
 _sk_gather_4444_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4070                          // push          {r4, r5, r6, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
+  .long  0xeddf5b24                          // vldr          d21, [pc, #144]
   .long  0xf3c73010                          // vmov.i32      d19, #240
-  .long  0xeddf5b21                          // vldr          d21, [pc, #132]
-  .long  0xe493e008                          // ldr           lr, [r3], #8
+  .long  0xeddf6b24                          // vldr          d22, [pc, #144]
+  .long  0xe49e4008                          // ldr           r4, [lr], #8
   .long  0xf2c0401f                          // vmov.i32      d20, #15
-  .long  0xeddf6b20                          // vldr          d22, [pc, #128]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xf4ee2c9f                          // vld1.32       {d18[]}, [lr :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
   .long  0xf2c0221f                          // vmov.i32      d18, #3840
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee11eb90                          // vmov.32       lr, d17[0]
+  .long  0xee316b90                          // vmov.32       r6, d17[1]
   .long  0xf3c71210                          // vmov.i32      d17, #61440
-  .long  0xe08e3083                          // add           r3, lr, r3, lsl #1
-  .long  0xe08e4084                          // add           r4, lr, r4, lsl #1
-  .long  0xe1d330b0                          // ldrh          r3, [r3]
-  .long  0xe1d440b0                          // ldrh          r4, [r4]
-  .long  0xee003b90                          // vmov.32       d16[0], r3
-  .long  0xee204b90                          // vmov.32       d16[1], r4
+  .long  0xe084508e                          // add           r5, r4, lr, lsl #1
+  .long  0xe0846086                          // add           r6, r4, r6, lsl #1
+  .long  0xe1d550b0                          // ldrh          r5, [r5]
+  .long  0xe1d660b0                          // ldrh          r6, [r6]
+  .long  0xee005b90                          // vmov.32       d16[0], r5
+  .long  0xee206b90                          // vmov.32       d16[1], r6
   .long  0xf24011b1                          // vand          d17, d16, d17
   .long  0xf24021b2                          // vand          d18, d16, d18
   .long  0xf24031b3                          // vand          d19, d16, d19
   .long  0xf24001b4                          // vand          d16, d16, d20
-  .long  0xeddf4b0a                          // vldr          d20, [pc, #40]
+  .long  0xeddf4b0b                          // vldr          d20, [pc, #44]
   .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
   .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
   .long  0xf3fb3623                          // vcvt.f32.s32  d19, d19
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf3010db4                          // vmul.f32      d0, d17, d20
-  .long  0xeddf1b0a                          // vldr          d17, [pc, #40]
+  .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
   .long  0xf3021db5                          // vmul.f32      d1, d18, d21
   .long  0xf3032db6                          // vmul.f32      d2, d19, d22
   .long  0xf3003db1                          // vmul.f32      d3, d16, d17
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4070                          // pop           {r4, r5, r6, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x37888889                          // .word         0x37888889
   .long  0x37888889                          // .word         0x37888889
   .long  0x39888889                          // .word         0x39888889
@@ -7495,14 +7665,15 @@ HIDDEN _sk_store_4444_vfp4
 FUNCTION(_sk_store_4444_vfp4)
 _sk_store_4444_vfp4:
   .long  0xf2c20f1e                          // vmov.f32      d16, #15
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
+  .long  0xe3530001                          // cmp           r3, #1
   .long  0xf2c3361f                          // vmov.i32      d19, #1056964608
   .long  0xf2402c30                          // vfma.f32      d18, d0, d16
-  .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xe59cc000                          // ldr           ip, [ip]
   .long  0xf2413c30                          // vfma.f32      d19, d1, d16
   .long  0xf2c3461f                          // vmov.i32      d20, #1056964608
-  .long  0xe0833080                          // add           r3, r3, r0, lsl #1
+  .long  0xe08cc080                          // add           ip, ip, r0, lsl #1
   .long  0xf2424c30                          // vfma.f32      d20, d2, d16
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2431c30                          // vfma.f32      d17, d3, d16
@@ -7516,68 +7687,82 @@ _sk_store_4444_vfp4:
   .long  0xf26201b0                          // vorr          d16, d18, d16
   .long  0xf26001b3                          // vorr          d16, d16, d19
   .long  0xf26001b1                          // vorr          d16, d16, d17
+  .long  0x0a000004                          // beq           2f0c <sk_store_4444_vfp4+0x74>
   .long  0xf3f60121                          // vuzp.16       d16, d17
-  .long  0xf4c3080f                          // vst1.32       {d16[0]}, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0xf4cc080f                          // vst1.32       {d16[0]}, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xee10eb90                          // vmov.32       lr, d16[0]
+  .long  0xe1cce0b0                          // strh          lr, [ip]
+  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xeafffff7                          // b             2f00 <sk_store_4444_vfp4+0x68>
 
 HIDDEN _sk_load_8888_vfp4
 .globl _sk_load_8888_vfp4
 FUNCTION(_sk_load_8888_vfp4)
 _sk_load_8888_vfp4:
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530001                          // cmp           r3, #1
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc100                          // add           ip, ip, r0, lsl #2
+  .long  0x0a000013                          // beq           2f84 <sk_load_8888_vfp4+0x64>
+  .long  0xed9c0b00                          // vldr          d0, [ip]
   .long  0xf3c7001f                          // vmov.i32      d16, #255
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf3f81010                          // vshr.u32      d17, d0, #8
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833100                          // add           r3, r3, r0, lsl #2
-  .long  0xedd31b00                          // vldr          d17, [r3]
-  .long  0xf24121b0                          // vand          d18, d17, d16
-  .long  0xf3f83031                          // vshr.u32      d19, d17, #8
-  .long  0xf3e84031                          // vshr.u32      d20, d17, #24
-  .long  0xf3f01031                          // vshr.u32      d17, d17, #16
-  .long  0xf24331b0                          // vand          d19, d19, d16
-  .long  0xf24101b0                          // vand          d16, d17, d16
-  .long  0xeddf1b08                          // vldr          d17, [pc, #32]
+  .long  0xf3f03010                          // vshr.u32      d19, d0, #16
+  .long  0xf3e82010                          // vshr.u32      d18, d0, #24
+  .long  0xf24111b0                          // vand          d17, d17, d16
+  .long  0xf2404130                          // vand          d20, d0, d16
+  .long  0xf24301b0                          // vand          d16, d19, d16
+  .long  0xf3fb3624                          // vcvt.f32.s32  d19, d20
+  .long  0xeddf4b0a                          // vldr          d20, [pc, #40]
   .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
-  .long  0xf3fb4624                          // vcvt.f32.s32  d20, d20
-  .long  0xf3fb3623                          // vcvt.f32.s32  d19, d19
+  .long  0xf3fb1621                          // vcvt.f32.s32  d17, d17
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
-  .long  0xf3020db1                          // vmul.f32      d0, d18, d17
-  .long  0xf3043db1                          // vmul.f32      d3, d20, d17
-  .long  0xf3031db1                          // vmul.f32      d1, d19, d17
-  .long  0xf3002db1                          // vmul.f32      d2, d16, d17
+  .long  0xf3030db4                          // vmul.f32      d0, d19, d20
+  .long  0xf3023db4                          // vmul.f32      d3, d18, d20
+  .long  0xf3011db4                          // vmul.f32      d1, d17, d20
+  .long  0xf3002db4                          // vmul.f32      d2, d16, d20
   .long  0xe12fff1c                          // bx            ip
+  .long  0xeddf0a03                          // vldr          s1, [pc, #12]
+  .long  0xed9c0a00                          // vldr          s0, [ip]
+  .long  0xeaffffe9                          // b             2f38 <sk_load_8888_vfp4+0x18>
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
+  .long  0x00000000                          // .word         0x00000000
+  .long  0xe320f000                          // .word         0xe320f000
 
 HIDDEN _sk_gather_8888_vfp4
 .globl _sk_gather_8888_vfp4
 FUNCTION(_sk_gather_8888_vfp4)
 _sk_gather_8888_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4070                          // push          {r4, r5, r6, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe493e008                          // ldr           lr, [r3], #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xe49e4008                          // ldr           r4, [lr], #8
+  .long  0xf4ee2c9f                          // vld1.32       {d18[]}, [lr :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee11eb90                          // vmov.32       lr, d17[0]
+  .long  0xee316b90                          // vmov.32       r6, d17[1]
   .long  0xf3c7101f                          // vmov.i32      d17, #255
-  .long  0xe08e3103                          // add           r3, lr, r3, lsl #2
-  .long  0xf4e3083f                          // vld1.32       {d16[0]}, [r3 :32]
-  .long  0xe08e3104                          // add           r3, lr, r4, lsl #2
-  .long  0xf4e308bf                          // vld1.32       {d16[1]}, [r3 :32]
+  .long  0xe084510e                          // add           r5, r4, lr, lsl #2
+  .long  0xe0846106                          // add           r6, r4, r6, lsl #2
+  .long  0xf4e5083f                          // vld1.32       {d16[0]}, [r5 :32]
+  .long  0xf4e608bf                          // vld1.32       {d16[1]}, [r6 :32]
   .long  0xf24021b1                          // vand          d18, d16, d17
   .long  0xf3f83030                          // vshr.u32      d19, d16, #8
   .long  0xf3e84030                          // vshr.u32      d20, d16, #24
   .long  0xf3f00030                          // vshr.u32      d16, d16, #16
   .long  0xf24331b1                          // vand          d19, d19, d17
   .long  0xf24001b1                          // vand          d16, d16, d17
-  .long  0xeddf1b09                          // vldr          d17, [pc, #36]
+  .long  0xeddf1b0a                          // vldr          d17, [pc, #40]
   .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
   .long  0xf3fb4624                          // vcvt.f32.s32  d20, d20
   .long  0xf3fb3623                          // vcvt.f32.s32  d19, d19
@@ -7586,8 +7771,9 @@ _sk_gather_8888_vfp4:
   .long  0xf3043db1                          // vmul.f32      d3, d20, d17
   .long  0xf3031db1                          // vmul.f32      d1, d19, d17
   .long  0xf3002db1                          // vmul.f32      d2, d16, d17
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4070                          // pop           {r4, r5, r6, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x3b808081                          // .word         0x3b808081
   .long  0x3b808081                          // .word         0x3b808081
 
@@ -7595,17 +7781,18 @@ HIDDEN _sk_store_8888_vfp4
 .globl _sk_store_8888_vfp4
 FUNCTION(_sk_store_8888_vfp4)
 _sk_store_8888_vfp4:
-  .long  0xeddf0b1a                          // vldr          d16, [pc, #104]
+  .long  0xeddf0b1c                          // vldr          d16, [pc, #112]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2412c30                          // vfma.f32      d18, d1, d16
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c3361f                          // vmov.i32      d19, #1056964608
+  .long  0xe3530001                          // cmp           r3, #1
   .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2423c30                          // vfma.f32      d19, d2, d16
-  .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xe59cc000                          // ldr           ip, [ip]
   .long  0xf2c3461f                          // vmov.i32      d20, #1056964608
   .long  0xf2401c30                          // vfma.f32      d17, d0, d16
-  .long  0xe0833100                          // add           r3, r3, r0, lsl #2
+  .long  0xe08cc100                          // add           ip, ip, r0, lsl #2
   .long  0xf2434c30                          // vfma.f32      d20, d3, d16
   .long  0xf3fb07a2                          // vcvt.u32.f32  d16, d18
   .long  0xf3fb27a3                          // vcvt.u32.f32  d18, d19
@@ -7617,12 +7804,13 @@ _sk_store_8888_vfp4:
   .long  0xf2f81533                          // vshl.s32      d17, d19, #24
   .long  0xf26001b2                          // vorr          d16, d16, d18
   .long  0xf26001b1                          // vorr          d16, d16, d17
-  .long  0xedc30b00                          // vstr          d16, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0x0a000003                          // beq           30a0 <sk_store_8888_vfp4+0x70>
+  .long  0xedcc0b00                          // vstr          d16, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
+  .long  0xf4cc083f                          // vst1.32       {d16[0]}, [ip :32]
+  .long  0xeafffffa                          // b             3094 <sk_store_8888_vfp4+0x64>
   .long  0x437f0000                          // .word         0x437f0000
   .long  0x437f0000                          // .word         0x437f0000
 
@@ -7630,13 +7818,17 @@ HIDDEN _sk_load_f16_vfp4
 .globl _sk_load_f16_vfp4
 FUNCTION(_sk_load_f16_vfp4)
 _sk_load_f16_vfp4:
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833180                          // add           r3, r3, r0, lsl #3
-  .long  0xf4e3070d                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [r3]!
-  .long  0xf4e3074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [r3]
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc180                          // add           ip, ip, r0, lsl #3
+  .long  0xf4ec070f                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [ip]
+  .long  0x1a000001                          // bne           30d0 <sk_load_f16_vfp4+0x20>
+  .long  0xe28cc008                          // add           ip, ip, #8
+  .long  0xf4ec074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [ip]
   .long  0xf3b60720                          // vcvt.f32.f16  q0, d16
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf3b62722                          // vcvt.f32.f16  q1, d18
   .long  0xf3f64721                          // vcvt.f32.f16  q10, d17
   .long  0xf3f60723                          // vcvt.f32.f16  q8, d19
@@ -7652,32 +7844,32 @@ _sk_gather_f16_vfp4:
   .long  0xe28db008                          // add           fp, sp, #8
   .long  0xe24dd010                          // sub           sp, sp, #16
   .long  0xe7c3d01f                          // bfc           sp, #0, #4
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf3fb0701                          // vcvt.s32.f32  d16, d1
   .long  0xf3fb1700                          // vcvt.s32.f32  d17, d0
-  .long  0xe493c008                          // ldr           ip, [r3], #8
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xe49ce008                          // ldr           lr, [ip], #8
+  .long  0xf4ec2c9f                          // vld1.32       {d18[]}, [ip :32]
   .long  0xf26219a0                          // vmla.i32      d17, d18, d16
-  .long  0xee113b90                          // vmov.32       r3, d17[0]
-  .long  0xee31eb90                          // vmov.32       lr, d17[1]
-  .long  0xe08c4183                          // add           r4, ip, r3, lsl #3
-  .long  0xe08c318e                          // add           r3, ip, lr, lsl #3
-  .long  0xedd31b00                          // vldr          d17, [r3]
-  .long  0xe1a0300d                          // mov           r3, sp
-  .long  0xedd40b00                          // vldr          d16, [r4]
-  .long  0xf4430aef                          // vst1.64       {d16-d17}, [r3 :128]
-  .long  0xf4e3071f                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [r3 :64]
-  .long  0xe3833008                          // orr           r3, r3, #8
-  .long  0xf4e3075f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [r3 :64]
+  .long  0xee314b90                          // vmov.32       r4, d17[1]
+  .long  0xee11cb90                          // vmov.32       ip, d17[0]
+  .long  0xe08e4184                          // add           r4, lr, r4, lsl #3
+  .long  0xe08ec18c                          // add           ip, lr, ip, lsl #3
+  .long  0xedd41b00                          // vldr          d17, [r4]
+  .long  0xe1a0400d                          // mov           r4, sp
+  .long  0xeddc0b00                          // vldr          d16, [ip]
+  .long  0xf4440aef                          // vst1.64       {d16-d17}, [r4 :128]
+  .long  0xf4e4071f                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [r4 :64]
+  .long  0xe3844008                          // orr           r4, r4, #8
+  .long  0xf4e4075f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [r4 :64]
   .long  0xf3b60720                          // vcvt.f32.f16  q0, d16
   .long  0xf3b62722                          // vcvt.f32.f16  q1, d18
-  .long  0xe5913004                          // ldr           r3, [r1, #4]
+  .long  0xe5914004                          // ldr           r4, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf3f64721                          // vcvt.f32.f16  q10, d17
   .long  0xf3f60723                          // vcvt.f32.f16  q8, d19
   .long  0xf22411b4                          // vorr          d1, d20, d20
   .long  0xf22031b0                          // vorr          d3, d16, d16
-  .long  0xe12fff33                          // blx           r3
+  .long  0xe12fff34                          // blx           r4
   .long  0xe24bd008                          // sub           sp, fp, #8
   .long  0xe8bd8c10                          // pop           {r4, sl, fp, pc}
 
@@ -7686,81 +7878,87 @@ HIDDEN _sk_store_f16_vfp4
 FUNCTION(_sk_store_f16_vfp4)
 _sk_store_f16_vfp4:
   .long  0xf2630113                          // vorr          d16, d3, d3
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2612111                          // vorr          d18, d1, d1
+  .long  0xe3530000                          // cmp           r3, #0
   .long  0xf3f67620                          // vcvt.f16.f32  d23, q8
-  .long  0xe5933000                          // ldr           r3, [r3]
+  .long  0xe59cc000                          // ldr           ip, [ip]
   .long  0xf3f66602                          // vcvt.f16.f32  d22, q1
-  .long  0xe0833180                          // add           r3, r3, r0, lsl #3
+  .long  0xe08cc180                          // add           ip, ip, r0, lsl #3
   .long  0xf3f65622                          // vcvt.f16.f32  d21, q9
   .long  0xf3f64600                          // vcvt.f16.f32  d20, q0
+  .long  0xf4cc470f                          // vst4.16       {d20[0],d21[0],d22[0],d23[0]}, [ip]
+  .long  0x1a000001                          // bne           31ac <sk_store_f16_vfp4+0x38>
+  .long  0xe28cc008                          // add           ip, ip, #8
+  .long  0xf4cc474f                          // vst4.16       {d20[1],d21[1],d22[1],d23[1]}, [ip]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xf22211b2                          // vorr          d1, d18, d18
   .long  0xf22031b0                          // vorr          d3, d16, d16
-  .long  0xf4c3470d                          // vst4.16       {d20[0],d21[0],d22[0],d23[0]}, [r3]!
-  .long  0xf4c3474f                          // vst4.16       {d20[1],d21[1],d22[1],d23[1]}, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_load_u16_be_vfp4
 .globl _sk_load_u16_be_vfp4
 FUNCTION(_sk_load_u16_be_vfp4)
 _sk_load_u16_be_vfp4:
-  .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833180                          // add           r3, r3, r0, lsl #3
-  .long  0xf4e3070d                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [r3]!
-  .long  0xf4e3074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [r3]
-  .long  0xee903bb0                          // vmov.u16      r3, d16[0]
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc180                          // add           ip, ip, r0, lsl #3
+  .long  0xf4ec070f                          // vld4.16       {d16[0],d17[0],d18[0],d19[0]}, [ip]
+  .long  0x1a000001                          // bne           31e0 <sk_load_u16_be_vfp4+0x20>
+  .long  0xe28cc008                          // add           ip, ip, #8
+  .long  0xf4ec074f                          // vld4.16       {d16[1],d17[1],d18[1],d19[1]}, [ip]
+  .long  0xe92d4bf0                          // push          {r4, r5, r6, r7, r8, r9, fp, lr}
+  .long  0xee90cbb0                          // vmov.u16      ip, d16[0]
+  .long  0xee937bb0                          // vmov.u16      r7, d19[0]
   .long  0xee92ebb0                          // vmov.u16      lr, d18[0]
   .long  0xee914bb0                          // vmov.u16      r4, d17[0]
-  .long  0xee937bb0                          // vmov.u16      r7, d19[0]
   .long  0xee905bf0                          // vmov.u16      r5, d16[1]
+  .long  0xee939bf0                          // vmov.u16      r9, d19[1]
+  .long  0xf3c73c1f                          // vmov.i32      d19, #65535
   .long  0xee926bf0                          // vmov.u16      r6, d18[1]
-  .long  0xee043b90                          // vmov.32       d20[0], r3
-  .long  0xee05eb90                          // vmov.32       d21[0], lr
-  .long  0xee93ebf0                          // vmov.u16      lr, d19[1]
-  .long  0xee913bf0                          // vmov.u16      r3, d17[1]
-  .long  0xf3c71c1f                          // vmov.i32      d17, #65535
-  .long  0xee004b90                          // vmov.32       d16[0], r4
-  .long  0xee027b90                          // vmov.32       d18[0], r7
-  .long  0xee245b90                          // vmov.32       d20[1], r5
-  .long  0xf24431b1                          // vand          d19, d20, d17
-  .long  0xee256b90                          // vmov.32       d21[1], r6
-  .long  0xf2e84534                          // vshl.s32      d20, d20, #8
-  .long  0xf24561b1                          // vand          d22, d21, d17
-  .long  0xf3f83033                          // vshr.u32      d19, d19, #8
-  .long  0xf2e85535                          // vshl.s32      d21, d21, #8
-  .long  0xf26431b3                          // vorr          d19, d20, d19
-  .long  0xf3f86036                          // vshr.u32      d22, d22, #8
-  .long  0xf24331b1                          // vand          d19, d19, d17
-  .long  0xf26551b6                          // vorr          d21, d21, d22
-  .long  0xf3fb36a3                          // vcvt.f32.u32  d19, d19
-  .long  0xee22eb90                          // vmov.32       d18[1], lr
-  .long  0xee203b90                          // vmov.32       d16[1], r3
-  .long  0xf24281b1                          // vand          d24, d18, d17
-  .long  0xf2e82532                          // vshl.s32      d18, d18, #8
-  .long  0xf24071b1                          // vand          d23, d16, d17
-  .long  0xf3f84038                          // vshr.u32      d20, d24, #8
+  .long  0xee918bf0                          // vmov.u16      r8, d17[1]
+  .long  0xee00cb90                          // vmov.32       d16[0], ip
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xee01eb90                          // vmov.32       d17[0], lr
+  .long  0xee024b90                          // vmov.32       d18[0], r4
+  .long  0xee047b90                          // vmov.32       d20[0], r7
+  .long  0xee205b90                          // vmov.32       d16[1], r5
+  .long  0xf24051b3                          // vand          d21, d16, d19
+  .long  0xee216b90                          // vmov.32       d17[1], r6
   .long  0xf2e80530                          // vshl.s32      d16, d16, #8
+  .long  0xee228b90                          // vmov.32       d18[1], r8
+  .long  0xf24161b3                          // vand          d22, d17, d19
+  .long  0xf3f85035                          // vshr.u32      d21, d21, #8
+  .long  0xee249b90                          // vmov.32       d20[1], r9
+  .long  0xf24271b3                          // vand          d23, d18, d19
+  .long  0xf26001b5                          // vorr          d16, d16, d21
+  .long  0xf24481b3                          // vand          d24, d20, d19
+  .long  0xf2e82532                          // vshl.s32      d18, d18, #8
   .long  0xf3f87037                          // vshr.u32      d23, d23, #8
-  .long  0xf26221b4                          // vorr          d18, d18, d20
-  .long  0xf26001b7                          // vorr          d16, d16, d23
-  .long  0xf24541b1                          // vand          d20, d21, d17
-  .long  0xf24001b1                          // vand          d16, d16, d17
-  .long  0xf24211b1                          // vand          d17, d18, d17
-  .long  0xeddf2b09                          // vldr          d18, [pc, #36]
+  .long  0xf2e81531                          // vshl.s32      d17, d17, #8
+  .long  0xf3f86036                          // vshr.u32      d22, d22, #8
+  .long  0xf2e84534                          // vshl.s32      d20, d20, #8
+  .long  0xf3f85038                          // vshr.u32      d21, d24, #8
+  .long  0xf26221b7                          // vorr          d18, d18, d23
+  .long  0xf26111b6                          // vorr          d17, d17, d22
+  .long  0xf26441b5                          // vorr          d20, d20, d21
+  .long  0xf24001b3                          // vand          d16, d16, d19
+  .long  0xf24221b3                          // vand          d18, d18, d19
+  .long  0xf24111b3                          // vand          d17, d17, d19
+  .long  0xf24431b3                          // vand          d19, d20, d19
+  .long  0xeddf4b0a                          // vldr          d20, [pc, #40]
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
-  .long  0xf3fb46a4                          // vcvt.f32.u32  d20, d20
+  .long  0xf3fb26a2                          // vcvt.f32.u32  d18, d18
   .long  0xf3fb16a1                          // vcvt.f32.u32  d17, d17
-  .long  0xf3030db2                          // vmul.f32      d0, d19, d18
-  .long  0xf3001db2                          // vmul.f32      d1, d16, d18
-  .long  0xf3042db2                          // vmul.f32      d2, d20, d18
-  .long  0xf3013db2                          // vmul.f32      d3, d17, d18
-  .long  0xe8bd48f0                          // pop           {r4, r5, r6, r7, fp, lr}
+  .long  0xf3fb36a3                          // vcvt.f32.u32  d19, d19
+  .long  0xf3000db4                          // vmul.f32      d0, d16, d20
+  .long  0xf3021db4                          // vmul.f32      d1, d18, d20
+  .long  0xf3012db4                          // vmul.f32      d2, d17, d20
+  .long  0xf3033db4                          // vmul.f32      d3, d19, d20
+  .long  0xe8bd4bf0                          // pop           {r4, r5, r6, r7, r8, r9, fp, lr}
   .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x37800080                          // .word         0x37800080
@@ -7771,23 +7969,27 @@ HIDDEN _sk_load_rgb_u16_be_vfp4
 FUNCTION(_sk_load_rgb_u16_be_vfp4)
 _sk_load_rgb_u16_be_vfp4:
   .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
-  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe080e080                          // add           lr, r0, r0, lsl #1
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc08e                          // add           ip, ip, lr, lsl #1
+  .long  0xf4ec060f                          // vld3.16       {d16[0],d17[0],d18[0]}, [ip]
+  .long  0x1a000001                          // bne           32e0 <sk_load_rgb_u16_be_vfp4+0x28>
+  .long  0xe28cc006                          // add           ip, ip, #6
+  .long  0xf4ec064f                          // vld3.16       {d16[1],d17[1],d18[1]}, [ip]
+  .long  0xee90cbb0                          // vmov.u16      ip, d16[0]
   .long  0xf2873f10                          // vmov.f32      d3, #1
-  .long  0xe593e000                          // ldr           lr, [r3]
-  .long  0xe0803080                          // add           r3, r0, r0, lsl #1
-  .long  0xe08e3083                          // add           r3, lr, r3, lsl #1
-  .long  0xf4e3060d                          // vld3.16       {d16[0],d17[0],d18[0]}, [r3]!
-  .long  0xf4e3064f                          // vld3.16       {d16[1],d17[1],d18[1]}, [r3]
-  .long  0xee90ebb0                          // vmov.u16      lr, d16[0]
-  .long  0xee913bb0                          // vmov.u16      r3, d17[0]
+  .long  0xee91ebb0                          // vmov.u16      lr, d17[0]
   .long  0xee924bb0                          // vmov.u16      r4, d18[0]
   .long  0xee927bf0                          // vmov.u16      r7, d18[1]
   .long  0xf3c73c1f                          // vmov.i32      d19, #65535
   .long  0xee905bf0                          // vmov.u16      r5, d16[1]
   .long  0xee916bf0                          // vmov.u16      r6, d17[1]
-  .long  0xee00eb90                          // vmov.32       d16[0], lr
-  .long  0xee013b90                          // vmov.32       d17[0], r3
+  .long  0xee00cb90                          // vmov.32       d16[0], ip
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xe2811008                          // add           r1, r1, #8
+  .long  0xee01eb90                          // vmov.32       d17[0], lr
   .long  0xee024b90                          // vmov.32       d18[0], r4
   .long  0xee205b90                          // vmov.32       d16[1], r5
   .long  0xee216b90                          // vmov.32       d17[1], r6
@@ -7823,14 +8025,15 @@ HIDDEN _sk_store_u16_be_vfp4
 .globl _sk_store_u16_be_vfp4
 FUNCTION(_sk_store_u16_be_vfp4)
 _sk_store_u16_be_vfp4:
-  .long  0xeddf0b2a                          // vldr          d16, [pc, #168]
+  .long  0xeddf0b2c                          // vldr          d16, [pc, #176]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2c3361f                          // vmov.i32      d19, #1056964608
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2432c30                          // vfma.f32      d18, d3, d16
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2c3461f                          // vmov.i32      d20, #1056964608
   .long  0xf2423c30                          // vfma.f32      d19, d2, d16
-  .long  0xf2c3161f                          // vmov.i32      d17, #1056964608
   .long  0xf2414c30                          // vfma.f32      d20, d1, d16
   .long  0xf2401c30                          // vfma.f32      d17, d0, d16
   .long  0xf3fb07a2                          // vcvt.u32.f32  d16, d18
@@ -7844,27 +8047,28 @@ _sk_store_u16_be_vfp4:
   .long  0xf24131b3                          // vand          d19, d17, d19
   .long  0xf2e80530                          // vshl.s32      d16, d16, #8
   .long  0xf3f85035                          // vshr.u32      d21, d21, #8
-  .long  0xf2e82532                          // vshl.s32      d18, d18, #8
+  .long  0xf2e88532                          // vshl.s32      d24, d18, #8
   .long  0xf3f86036                          // vshr.u32      d22, d22, #8
-  .long  0xf260b1b5                          // vorr          d27, d16, d21
   .long  0xf2e84534                          // vshl.s32      d20, d20, #8
   .long  0xf3f87037                          // vshr.u32      d23, d23, #8
-  .long  0xf262a1b6                          // vorr          d26, d18, d22
-  .long  0xf2e81531                          // vshl.s32      d17, d17, #8
-  .long  0xf3f83033                          // vshr.u32      d19, d19, #8
-  .long  0xf26491b7                          // vorr          d25, d20, d23
-  .long  0xf26181b3                          // vorr          d24, d17, d19
-  .long  0xf3f6b120                          // vuzp.16       d27, d16
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xf3f6a120                          // vuzp.16       d26, d16
-  .long  0xe0833180                          // add           r3, r3, r0, lsl #3
-  .long  0xf3f69120                          // vuzp.16       d25, d16
-  .long  0xf3f68120                          // vuzp.16       d24, d16
-  .long  0xf4c3870d                          // vst4.16       {d24[0],d25[0],d26[0],d27[0]}, [r3]!
-  .long  0xf4c3874f                          // vst4.16       {d24[1],d25[1],d26[1],d27[1]}, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0xf2e89531                          // vshl.s32      d25, d17, #8
+  .long  0xf3f8a033                          // vshr.u32      d26, d19, #8
+  .long  0xf26031b5                          // vorr          d19, d16, d21
+  .long  0xf26821b6                          // vorr          d18, d24, d22
+  .long  0xf26411b7                          // vorr          d17, d20, d23
+  .long  0xf26901ba                          // vorr          d16, d25, d26
+  .long  0xf3f63124                          // vuzp.16       d19, d20
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xf3f62124                          // vuzp.16       d18, d20
+  .long  0xe08cc180                          // add           ip, ip, r0, lsl #3
+  .long  0xf3f61124                          // vuzp.16       d17, d20
+  .long  0xf3f60124                          // vuzp.16       d16, d20
+  .long  0xf4cc070f                          // vst4.16       {d16[0],d17[0],d18[0],d19[0]}, [ip]
+  .long  0x1a000001                          // bne           3430 <sk_store_u16_be_vfp4+0xa8>
+  .long  0xe28cc008                          // add           ip, ip, #8
+  .long  0xf4cc074f                          // vst4.16       {d16[1],d17[1],d18[1],d19[1]}, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x477fff00                          // .word         0x477fff00
@@ -7874,60 +8078,76 @@ HIDDEN _sk_load_f32_vfp4
 .globl _sk_load_f32_vfp4
 FUNCTION(_sk_load_f32_vfp4)
 _sk_load_f32_vfp4:
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc200                          // add           ip, ip, r0, lsl #4
+  .long  0x1a000003                          // bne           346c <sk_load_f32_vfp4+0x24>
+  .long  0xf42c008f                          // vld4.32       {d0-d3}, [ip]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833200                          // add           r3, r3, r0, lsl #4
-  .long  0xf423008f                          // vld4.32       {d0-d3}, [r3]
   .long  0xe12fff1c                          // bx            ip
+  .long  0xf4ac0f8f                          // vld4.32       {d0[]-d3[]}, [ip]
+  .long  0xeafffffa                          // b             3460 <sk_load_f32_vfp4+0x18>
 
 HIDDEN _sk_store_f32_vfp4
 .globl _sk_store_f32_vfp4
 FUNCTION(_sk_store_f32_vfp4)
 _sk_store_f32_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
-  .long  0xe5933000                          // ldr           r3, [r3]
-  .long  0xe0833200                          // add           r3, r3, r0, lsl #4
-  .long  0xf403008f                          // vst4.32       {d0-d3}, [r3]
-  .long  0xe2813008                          // add           r3, r1, #8
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe3530000                          // cmp           r3, #0
+  .long  0xe59cc000                          // ldr           ip, [ip]
+  .long  0xe08cc200                          // add           ip, ip, r0, lsl #4
+  .long  0x1a000003                          // bne           3498 <sk_store_f32_vfp4+0x24>
+  .long  0xf40c008f                          // vst4.32       {d0-d3}, [ip]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xe12fff1c                          // bx            ip
+  .long  0xf48c0b0f                          // vst4.32       {d0[0],d1[0],d2[0],d3[0]}, [ip]
+  .long  0xeafffffa                          // b             348c <sk_store_f32_vfp4+0x18>
 
 HIDDEN _sk_clamp_x_vfp4
 .globl _sk_clamp_x_vfp4
 FUNCTION(_sk_clamp_x_vfp4)
 _sk_clamp_x_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2400f80                          // vmax.f32      d16, d16, d0
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
+  .long  0xf4ee1c9f                          // vld1.32       {d17[]}, [lr :32]
   .long  0xf2200fa1                          // vmin.f32      d0, d16, d17
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_clamp_y_vfp4
 .globl _sk_clamp_y_vfp4
 FUNCTION(_sk_clamp_y_vfp4)
 _sk_clamp_y_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2400f81                          // vmax.f32      d16, d16, d1
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
+  .long  0xf4ee1c9f                          // vld1.32       {d17[]}, [lr :32]
   .long  0xf2201fa1                          // vmin.f32      d1, d16, d17
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_repeat_x_vfp4
 .globl _sk_repeat_x_vfp4
 FUNCTION(_sk_repeat_x_vfp4)
 _sk_repeat_x_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xed2d8b04                          // vpush         {d8-d9}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c02010                          // vmov.i32      d18, #0
+  .long  0xeddf3b0e                          // vldr          d19, [pc, #56]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xeddf3b0c                          // vldr          d19, [pc, #48]
-  .long  0xed938a00                          // vldr          s16, [r3]
+  .long  0xed9e8a00                          // vldr          s16, [lr]
   .long  0xeec09a88                          // vdiv.f32      s19, s1, s16
   .long  0xee809a08                          // vdiv.f32      s18, s0, s16
   .long  0xf3fb0709                          // vcvt.s32.f32  d16, d9
@@ -7938,8 +8158,8 @@ _sk_repeat_x_vfp4:
   .long  0xf3f41c08                          // vdup.32       d17, d8[0]
   .long  0xf2210cb0                          // vfms.f32      d0, d17, d16
   .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
@@ -7947,12 +8167,14 @@ HIDDEN _sk_repeat_y_vfp4
 .globl _sk_repeat_y_vfp4
 FUNCTION(_sk_repeat_y_vfp4)
 _sk_repeat_y_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xed2d8b04                          // vpush         {d8-d9}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c02010                          // vmov.i32      d18, #0
+  .long  0xeddf3b0e                          // vldr          d19, [pc, #56]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xeddf3b0c                          // vldr          d19, [pc, #48]
-  .long  0xed938a00                          // vldr          s16, [r3]
+  .long  0xed9e8a00                          // vldr          s16, [lr]
   .long  0xeec19a88                          // vdiv.f32      s19, s3, s16
   .long  0xee819a08                          // vdiv.f32      s18, s2, s16
   .long  0xf3fb0709                          // vcvt.s32.f32  d16, d9
@@ -7963,8 +8185,8 @@ _sk_repeat_y_vfp4:
   .long  0xf3f41c08                          // vdup.32       d17, d8[0]
   .long  0xf2211cb0                          // vfms.f32      d1, d17, d16
   .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
@@ -7972,12 +8194,14 @@ HIDDEN _sk_mirror_x_vfp4
 .globl _sk_mirror_x_vfp4
 FUNCTION(_sk_mirror_x_vfp4)
 _sk_mirror_x_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xed2d8b04                          // vpush         {d8-d9}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c03010                          // vmov.i32      d19, #0
+  .long  0xeddf4b14                          // vldr          d20, [pc, #80]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xeddf4b10                          // vldr          d20, [pc, #64]
-  .long  0xed938a00                          // vldr          s16, [r3]
+  .long  0xed9e8a00                          // vldr          s16, [lr]
   .long  0xee389a08                          // vadd.f32      s18, s16, s16
   .long  0xf3f40c08                          // vdup.32       d16, d8[0]
   .long  0xf2200d20                          // vsub.f32      d0, d0, d16
@@ -7993,7 +8217,9 @@ _sk_mirror_x_vfp4:
   .long  0xf2610da0                          // vsub.f32      d16, d17, d16
   .long  0xf3b90720                          // vabs.f32      d0, d16
   .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
@@ -8001,12 +8227,14 @@ HIDDEN _sk_mirror_y_vfp4
 .globl _sk_mirror_y_vfp4
 FUNCTION(_sk_mirror_y_vfp4)
 _sk_mirror_y_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xed2d8b04                          // vpush         {d8-d9}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2c03010                          // vmov.i32      d19, #0
+  .long  0xeddf4b14                          // vldr          d20, [pc, #80]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xeddf4b10                          // vldr          d20, [pc, #64]
-  .long  0xed938a00                          // vldr          s16, [r3]
+  .long  0xed9e8a00                          // vldr          s16, [lr]
   .long  0xee389a08                          // vadd.f32      s18, s16, s16
   .long  0xf3f40c08                          // vdup.32       d16, d8[0]
   .long  0xf2211d20                          // vsub.f32      d1, d1, d16
@@ -8022,7 +8250,9 @@ _sk_mirror_y_vfp4:
   .long  0xf2610da0                          // vsub.f32      d16, d17, d16
   .long  0xf3b91720                          // vabs.f32      d1, d16
   .long  0xecbd8b04                          // vpop          {d8-d9}
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
@@ -8031,11 +8261,11 @@ HIDDEN _sk_clamp_x_1_vfp4
 FUNCTION(_sk_clamp_x_1_vfp4)
 _sk_clamp_x_1_vfp4:
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2c71f10                          // vmov.f32      d17, #1
   .long  0xf2400f80                          // vmax.f32      d16, d16, d0
   .long  0xf2200fa1                          // vmin.f32      d0, d16, d17
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_repeat_x_1_vfp4
 .globl _sk_repeat_x_1_vfp4
@@ -8044,13 +8274,13 @@ _sk_repeat_x_1_vfp4:
   .long  0xf3fb0700                          // vcvt.s32.f32  d16, d0
   .long  0xeddf3b07                          // vldr          d19, [pc, #28]
   .long  0xf2c02010                          // vmov.i32      d18, #0
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3fb0620                          // vcvt.f32.s32  d16, d16
   .long  0xf3601e80                          // vcgt.f32      d17, d16, d0
   .long  0xf35311b2                          // vbsl          d17, d19, d18
   .long  0xf2600da1                          // vsub.f32      d16, d16, d17
   .long  0xf2200d20                          // vsub.f32      d0, d0, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
@@ -8061,7 +8291,7 @@ _sk_mirror_x_1_vfp4:
   .long  0xf3c70f10                          // vmov.f32      d16, #-1
   .long  0xeddf5b0f                          // vldr          d21, [pc, #60]
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2401d20                          // vadd.f32      d17, d0, d16
   .long  0xf2c04010                          // vmov.i32      d20, #0
   .long  0xf3412db2                          // vmul.f32      d18, d17, d18
@@ -8074,7 +8304,7 @@ _sk_mirror_x_1_vfp4:
   .long  0xf2611da2                          // vsub.f32      d17, d17, d18
   .long  0xf2410da0                          // vadd.f32      d16, d17, d16
   .long  0xf3b90720                          // vabs.f32      d0, d16
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
@@ -8086,7 +8316,7 @@ _sk_luminance_to_alpha_vfp4:
   .long  0xeddf0b0a                          // vldr          d16, [pc, #40]
   .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
   .long  0xf3410d30                          // vmul.f32      d16, d1, d16
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3401d31                          // vmul.f32      d17, d0, d17
   .long  0xf2800010                          // vmov.i32      d0, #0
   .long  0xf2801010                          // vmov.i32      d1, #0
@@ -8094,7 +8324,7 @@ _sk_luminance_to_alpha_vfp4:
   .long  0xeddf0b06                          // vldr          d16, [pc, #24]
   .long  0xf2023c30                          // vfma.f32      d3, d2, d16
   .long  0xf2802010                          // vmov.i32      d2, #0
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0x3f371759                          // .word         0x3f371759
   .long  0x3f371759                          // .word         0x3f371759
   .long  0x3e59b3d0                          // .word         0x3e59b3d0
@@ -8106,19 +8336,19 @@ HIDDEN _sk_matrix_2x3_vfp4
 .globl _sk_matrix_2x3_vfp4
 FUNCTION(_sk_matrix_2x3_vfp4)
 _sk_matrix_2x3_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe28e300c                          // add           r3, lr, #12
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e3008                          // add           r3, lr, #8
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3010                          // add           r3, lr, #16
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xe28e400c                          // add           r4, lr, #12
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e4008                          // add           r4, lr, #8
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4010                          // add           r4, lr, #16
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf2410c31                          // vfma.f32      d16, d1, d17
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
   .long  0xf2411c32                          // vfma.f32      d17, d1, d18
   .long  0xf4ee2c9d                          // vld1.32       {d18[]}, [lr :32]!
   .long  0xf4ee3c9f                          // vld1.32       {d19[]}, [lr :32]
@@ -8126,195 +8356,197 @@ _sk_matrix_2x3_vfp4:
   .long  0xf2401c33                          // vfma.f32      d17, d0, d19
   .long  0xf22001b0                          // vorr          d0, d16, d16
   .long  0xf22111b1                          // vorr          d1, d17, d17
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_matrix_3x4_vfp4
 .globl _sk_matrix_3x4_vfp4
 FUNCTION(_sk_matrix_3x4_vfp4)
 _sk_matrix_3x4_vfp4:
-  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe92d4010                          // push          {r4, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe28e3020                          // add           r3, lr, #32
-  .long  0xf4e33c9f                          // vld1.32       {d19[]}, [r3 :32]
-  .long  0xe28e302c                          // add           r3, lr, #44
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e301c                          // add           r3, lr, #28
+  .long  0xe28e4020                          // add           r4, lr, #32
+  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
+  .long  0xe28e402c                          // add           r4, lr, #44
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e401c                          // add           r4, lr, #28
   .long  0xf2420c33                          // vfma.f32      d16, d2, d19
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
-  .long  0xe28e3018                          // add           r3, lr, #24
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e3024                          // add           r3, lr, #36
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3028                          // add           r3, lr, #40
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
+  .long  0xe28e4018                          // add           r4, lr, #24
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e4024                          // add           r4, lr, #36
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4028                          // add           r4, lr, #40
   .long  0xf2421c32                          // vfma.f32      d17, d2, d18
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
-  .long  0xe28e3010                          // add           r3, lr, #16
+  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
+  .long  0xe28e4010                          // add           r4, lr, #16
   .long  0xf2422c34                          // vfma.f32      d18, d2, d20
-  .long  0xf4e33c9f                          // vld1.32       {d19[]}, [r3 :32]
-  .long  0xe28e300c                          // add           r3, lr, #12
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
+  .long  0xe28e400c                          // add           r4, lr, #12
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf2411c34                          // vfma.f32      d17, d1, d20
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
   .long  0xf2410c34                          // vfma.f32      d16, d1, d20
-  .long  0xe28e3008                          // add           r3, lr, #8
+  .long  0xe28e4008                          // add           r4, lr, #8
   .long  0xf2412c33                          // vfma.f32      d18, d1, d19
   .long  0xf4ee3c9d                          // vld1.32       {d19[]}, [lr :32]!
   .long  0xf4ee4c9f                          // vld1.32       {d20[]}, [lr :32]
   .long  0xf2401c33                          // vfma.f32      d17, d0, d19
-  .long  0xf4e33c9f                          // vld1.32       {d19[]}, [r3 :32]
+  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
   .long  0xf2400c33                          // vfma.f32      d16, d0, d19
   .long  0xf2402c34                          // vfma.f32      d18, d0, d20
   .long  0xf22101b1                          // vorr          d0, d17, d17
   .long  0xf22021b0                          // vorr          d2, d16, d16
   .long  0xf22211b2                          // vorr          d1, d18, d18
-  .long  0xe8bd4800                          // pop           {fp, lr}
+  .long  0xe8bd4010                          // pop           {r4, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_matrix_4x5_vfp4
 .globl _sk_matrix_4x5_vfp4
 FUNCTION(_sk_matrix_4x5_vfp4)
 _sk_matrix_4x5_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xf2620112                          // vorr          d16, d2, d2
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe2834014                          // add           r4, r3, #20
-  .long  0xe1a0e003                          // mov           lr, r3
-  .long  0xf4e45c9f                          // vld1.32       {d21[]}, [r4 :32]
-  .long  0xe2834028                          // add           r4, r3, #40
-  .long  0xf4e46c9f                          // vld1.32       {d22[]}, [r4 :32]
-  .long  0xe2834038                          // add           r4, r3, #56
-  .long  0xf4e47c9f                          // vld1.32       {d23[]}, [r4 :32]
-  .long  0xe2834048                          // add           r4, r3, #72
-  .long  0xf4a42c9f                          // vld1.32       {d2[]}, [r4 :32]
-  .long  0xe2834034                          // add           r4, r3, #52
+  .long  0xe28e5014                          // add           r5, lr, #20
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0xf4e55c9f                          // vld1.32       {d21[]}, [r5 :32]
+  .long  0xe28e5028                          // add           r5, lr, #40
+  .long  0xf4e56c9f                          // vld1.32       {d22[]}, [r5 :32]
+  .long  0xe28e5038                          // add           r5, lr, #56
+  .long  0xf4e57c9f                          // vld1.32       {d23[]}, [r5 :32]
+  .long  0xe28e5048                          // add           r5, lr, #72
+  .long  0xf4a52c9f                          // vld1.32       {d2[]}, [r5 :32]
+  .long  0xe28e5034                          // add           r5, lr, #52
   .long  0xf2032c37                          // vfma.f32      d2, d3, d23
-  .long  0xf4e48c9f                          // vld1.32       {d24[]}, [r4 :32]
-  .long  0xe2834044                          // add           r4, r3, #68
-  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
-  .long  0xe2834030                          // add           r4, r3, #48
+  .long  0xf4e58c9f                          // vld1.32       {d24[]}, [r5 :32]
+  .long  0xe28e5044                          // add           r5, lr, #68
+  .long  0xf4e51c9f                          // vld1.32       {d17[]}, [r5 :32]
+  .long  0xe28e5030                          // add           r5, lr, #48
   .long  0xf2431c38                          // vfma.f32      d17, d3, d24
-  .long  0xf4e49c9f                          // vld1.32       {d25[]}, [r4 :32]
-  .long  0xe283403c                          // add           r4, r3, #60
-  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
-  .long  0xe283404c                          // add           r4, r3, #76
+  .long  0xf4e59c9f                          // vld1.32       {d25[]}, [r5 :32]
+  .long  0xe28e503c                          // add           r5, lr, #60
+  .long  0xf4e53c9f                          // vld1.32       {d19[]}, [r5 :32]
+  .long  0xe28e504c                          // add           r5, lr, #76
   .long  0xf2002cb6                          // vfma.f32      d2, d16, d22
-  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
-  .long  0xe2834040                          // add           r4, r3, #64
+  .long  0xf4e52c9f                          // vld1.32       {d18[]}, [r5 :32]
+  .long  0xe28e5040                          // add           r5, lr, #64
   .long  0xf2432c33                          // vfma.f32      d18, d3, d19
-  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
-  .long  0xe2834020                          // add           r4, r3, #32
+  .long  0xf4e53c9f                          // vld1.32       {d19[]}, [r5 :32]
+  .long  0xe28e5020                          // add           r5, lr, #32
   .long  0xf2433c39                          // vfma.f32      d19, d3, d25
-  .long  0xf4e47c9f                          // vld1.32       {d23[]}, [r4 :32]
-  .long  0xe283402c                          // add           r4, r3, #44
-  .long  0xf4e48c9f                          // vld1.32       {d24[]}, [r4 :32]
-  .long  0xe2834024                          // add           r4, r3, #36
+  .long  0xf4e57c9f                          // vld1.32       {d23[]}, [r5 :32]
+  .long  0xe28e502c                          // add           r5, lr, #44
+  .long  0xf4e58c9f                          // vld1.32       {d24[]}, [r5 :32]
+  .long  0xe28e5024                          // add           r5, lr, #36
   .long  0xf2402cb8                          // vfma.f32      d18, d16, d24
-  .long  0xf4e48c9f                          // vld1.32       {d24[]}, [r4 :32]
+  .long  0xf4e58c9f                          // vld1.32       {d24[]}, [r5 :32]
   .long  0xf2401cb8                          // vfma.f32      d17, d16, d24
-  .long  0xe2834010                          // add           r4, r3, #16
+  .long  0xe28e5010                          // add           r5, lr, #16
   .long  0xf2403cb7                          // vfma.f32      d19, d16, d23
-  .long  0xf4ee4c9d                          // vld1.32       {d20[]}, [lr :32]!
-  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
-  .long  0xe283401c                          // add           r4, r3, #28
-  .long  0xf4e46c9f                          // vld1.32       {d22[]}, [r4 :32]
-  .long  0xe2834018                          // add           r4, r3, #24
+  .long  0xf4e44c9d                          // vld1.32       {d20[]}, [r4 :32]!
+  .long  0xf4e50c9f                          // vld1.32       {d16[]}, [r5 :32]
+  .long  0xe28e501c                          // add           r5, lr, #28
+  .long  0xf4e56c9f                          // vld1.32       {d22[]}, [r5 :32]
+  .long  0xe28e5018                          // add           r5, lr, #24
   .long  0xf2412c36                          // vfma.f32      d18, d1, d22
   .long  0xf2411c35                          // vfma.f32      d17, d1, d21
-  .long  0xf4ee5c9f                          // vld1.32       {d21[]}, [lr :32]
+  .long  0xf4e45c9f                          // vld1.32       {d21[]}, [r4 :32]
   .long  0xf2413c30                          // vfma.f32      d19, d1, d16
-  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
-  .long  0xe2834008                          // add           r4, r3, #8
-  .long  0xe283300c                          // add           r3, r3, #12
+  .long  0xf4e50c9f                          // vld1.32       {d16[]}, [r5 :32]
+  .long  0xe28e5008                          // add           r5, lr, #8
   .long  0xf2012c30                          // vfma.f32      d2, d1, d16
-  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xf4e50c9f                          // vld1.32       {d16[]}, [r5 :32]
+  .long  0xe28e500c                          // add           r5, lr, #12
   .long  0xf2401c35                          // vfma.f32      d17, d0, d21
   .long  0xf2403c34                          // vfma.f32      d19, d0, d20
-  .long  0xf4e34c9f                          // vld1.32       {d20[]}, [r3 :32]
+  .long  0xf4e54c9f                          // vld1.32       {d20[]}, [r5 :32]
   .long  0xf2402c34                          // vfma.f32      d18, d0, d20
   .long  0xf2002c30                          // vfma.f32      d2, d0, d16
   .long  0xf22111b1                          // vorr          d1, d17, d17
   .long  0xf22301b3                          // vorr          d0, d19, d19
   .long  0xf22231b2                          // vorr          d3, d18, d18
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_matrix_4x3_vfp4
 .globl _sk_matrix_4x3_vfp4
 FUNCTION(_sk_matrix_4x3_vfp4)
 _sk_matrix_4x3_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe2834018                          // add           r4, r3, #24
-  .long  0xe1a0e003                          // mov           lr, r3
-  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
-  .long  0xe2834028                          // add           r4, r3, #40
-  .long  0xf4a42c9f                          // vld1.32       {d2[]}, [r4 :32]
-  .long  0xe2834014                          // add           r4, r3, #20
+  .long  0xe28e5018                          // add           r5, lr, #24
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0xf4e53c9f                          // vld1.32       {d19[]}, [r5 :32]
+  .long  0xe28e5028                          // add           r5, lr, #40
+  .long  0xf4a52c9f                          // vld1.32       {d2[]}, [r5 :32]
+  .long  0xe28e5014                          // add           r5, lr, #20
   .long  0xf2012c33                          // vfma.f32      d2, d1, d19
-  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
-  .long  0xe2834010                          // add           r4, r3, #16
-  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
-  .long  0xe2834020                          // add           r4, r3, #32
-  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
-  .long  0xe283401c                          // add           r4, r3, #28
+  .long  0xf4e54c9f                          // vld1.32       {d20[]}, [r5 :32]
+  .long  0xe28e5010                          // add           r5, lr, #16
+  .long  0xf4e51c9f                          // vld1.32       {d17[]}, [r5 :32]
+  .long  0xe28e5020                          // add           r5, lr, #32
+  .long  0xf4e50c9f                          // vld1.32       {d16[]}, [r5 :32]
+  .long  0xe28e501c                          // add           r5, lr, #28
   .long  0xf2410c31                          // vfma.f32      d16, d1, d17
-  .long  0xf4e45c9f                          // vld1.32       {d21[]}, [r4 :32]
-  .long  0xe283402c                          // add           r4, r3, #44
-  .long  0xf4a43c9f                          // vld1.32       {d3[]}, [r4 :32]
-  .long  0xe2834024                          // add           r4, r3, #36
+  .long  0xf4e55c9f                          // vld1.32       {d21[]}, [r5 :32]
+  .long  0xe28e502c                          // add           r5, lr, #44
+  .long  0xf4a53c9f                          // vld1.32       {d3[]}, [r5 :32]
+  .long  0xe28e5024                          // add           r5, lr, #36
   .long  0xf2013c35                          // vfma.f32      d3, d1, d21
-  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
-  .long  0xe2834008                          // add           r4, r3, #8
+  .long  0xf4e51c9f                          // vld1.32       {d17[]}, [r5 :32]
+  .long  0xe28e5008                          // add           r5, lr, #8
   .long  0xf2411c34                          // vfma.f32      d17, d1, d20
-  .long  0xe283300c                          // add           r3, r3, #12
-  .long  0xf4ee2c9d                          // vld1.32       {d18[]}, [lr :32]!
+  .long  0xf4e42c9d                          // vld1.32       {d18[]}, [r4 :32]!
   .long  0xf2400c32                          // vfma.f32      d16, d0, d18
-  .long  0xf4ee4c9f                          // vld1.32       {d20[]}, [lr :32]
-  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
+  .long  0xf4e44c9f                          // vld1.32       {d20[]}, [r4 :32]
+  .long  0xf4e53c9f                          // vld1.32       {d19[]}, [r5 :32]
+  .long  0xe28e500c                          // add           r5, lr, #12
   .long  0xf2002c33                          // vfma.f32      d2, d0, d19
   .long  0xf2401c34                          // vfma.f32      d17, d0, d20
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xf4e52c9f                          // vld1.32       {d18[]}, [r5 :32]
   .long  0xf2003c32                          // vfma.f32      d3, d0, d18
   .long  0xf22001b0                          // vorr          d0, d16, d16
   .long  0xf22111b1                          // vorr          d1, d17, d17
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_matrix_perspective_vfp4
 .globl _sk_matrix_perspective_vfp4
 FUNCTION(_sk_matrix_perspective_vfp4)
 _sk_matrix_perspective_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
   .long  0xe591e000                          // ldr           lr, [r1]
   .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe28e301c                          // add           r3, lr, #28
-  .long  0xe28e4010                          // add           r4, lr, #16
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe28e3020                          // add           r3, lr, #32
-  .long  0xf4e31c9f                          // vld1.32       {d17[]}, [r3 :32]
-  .long  0xe28e3018                          // add           r3, lr, #24
+  .long  0xe28e401c                          // add           r4, lr, #28
+  .long  0xe28e5010                          // add           r5, lr, #16
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe28e4020                          // add           r4, lr, #32
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xe28e4018                          // add           r4, lr, #24
   .long  0xf2411c30                          // vfma.f32      d17, d1, d16
-  .long  0xf4e30c9f                          // vld1.32       {d16[]}, [r3 :32]
-  .long  0xe1a0300e                          // mov           r3, lr
-  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
-  .long  0xe28e4008                          // add           r4, lr, #8
-  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
+  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0xf4e52c9f                          // vld1.32       {d18[]}, [r5 :32]
+  .long  0xe28e5008                          // add           r5, lr, #8
+  .long  0xf4e53c9f                          // vld1.32       {d19[]}, [r5 :32]
+  .long  0xe28e500c                          // add           r5, lr, #12
   .long  0xf2401c30                          // vfma.f32      d17, d0, d16
-  .long  0xf4e30c9d                          // vld1.32       {d16[]}, [r3 :32]!
-  .long  0xf4e35c9f                          // vld1.32       {d21[]}, [r3 :32]
-  .long  0xe28e3014                          // add           r3, lr, #20
+  .long  0xf4e40c9d                          // vld1.32       {d16[]}, [r4 :32]!
+  .long  0xf4e45c9f                          // vld1.32       {d21[]}, [r4 :32]
+  .long  0xe28e4014                          // add           r4, lr, #20
   .long  0xf2413c35                          // vfma.f32      d19, d1, d21
-  .long  0xf4e35c9f                          // vld1.32       {d21[]}, [r3 :32]
-  .long  0xe28e300c                          // add           r3, lr, #12
+  .long  0xf4e45c9f                          // vld1.32       {d21[]}, [r4 :32]
   .long  0xf2415c32                          // vfma.f32      d21, d1, d18
-  .long  0xf4e32c9f                          // vld1.32       {d18[]}, [r3 :32]
+  .long  0xf4e52c9f                          // vld1.32       {d18[]}, [r5 :32]
   .long  0xf3fb4521                          // vrecpe.f32    d20, d17
   .long  0xf2403c30                          // vfma.f32      d19, d0, d16
   .long  0xf2411fb4                          // vrecps.f32    d17, d17, d20
@@ -8322,73 +8554,73 @@ _sk_matrix_perspective_vfp4:
   .long  0xf3440db1                          // vmul.f32      d16, d20, d17
   .long  0xf3030db0                          // vmul.f32      d0, d19, d16
   .long  0xf3051db0                          // vmul.f32      d1, d21, d16
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_evenly_spaced_gradient_vfp4
 .globl _sk_evenly_spaced_gradient_vfp4
 FUNCTION(_sk_evenly_spaced_gradient_vfp4)
 _sk_evenly_spaced_gradient_vfp4:
-  .long  0xe92d47f0                          // push          {r4, r5, r6, r7, r8, r9, sl, lr}
+  .long  0xe92d4ff0                          // push          {r4, r5, r6, r7, r8, r9, sl, fp, lr}
+  .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xed2d8b0a                          // vpush         {d8-d12}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe8934010                          // ldm           r3, {r4, lr}
-  .long  0xe2444001                          // sub           r4, r4, #1
-  .long  0xe5937010                          // ldr           r7, [r3, #16]
-  .long  0xe593a020                          // ldr           sl, [r3, #32]
-  .long  0xee804b90                          // vdup.32       d16, r4
-  .long  0xe593900c                          // ldr           r9, [r3, #12]
+  .long  0xe89e0720                          // ldm           lr, {r5, r8, r9, sl}
+  .long  0xe2455001                          // sub           r5, r5, #1
+  .long  0xe59e4010                          // ldr           r4, [lr, #16]
+  .long  0xe59eb020                          // ldr           fp, [lr, #32]
+  .long  0xee805b90                          // vdup.32       d16, r5
   .long  0xf3fb06a0                          // vcvt.f32.u32  d16, d16
-  .long  0xe5938008                          // ldr           r8, [r3, #8]
   .long  0xf3400d90                          // vmul.f32      d16, d16, d0
   .long  0xf3fb0720                          // vcvt.s32.f32  d16, d16
-  .long  0xee304b90                          // vmov.32       r4, d16[1]
-  .long  0xe0875104                          // add           r5, r7, r4, lsl #2
-  .long  0xe08a6104                          // add           r6, sl, r4, lsl #2
-  .long  0xedd59a00                          // vldr          s19, [r5]
-  .long  0xee105b90                          // vmov.32       r5, d16[0]
-  .long  0xedd63a00                          // vldr          s7, [r6]
-  .long  0xe0896104                          // add           r6, r9, r4, lsl #2
-  .long  0xedd6aa00                          // vldr          s21, [r6]
-  .long  0xe0896105                          // add           r6, r9, r5, lsl #2
-  .long  0xe0877105                          // add           r7, r7, r5, lsl #2
-  .long  0xe5939018                          // ldr           r9, [r3, #24]
-  .long  0xed96aa00                          // vldr          s20, [r6]
-  .long  0xe593601c                          // ldr           r6, [r3, #28]
-  .long  0xed979a00                          // vldr          s18, [r7]
-  .long  0xe0867104                          // add           r7, r6, r4, lsl #2
-  .long  0xe5933014                          // ldr           r3, [r3, #20]
-  .long  0xe0866105                          // add           r6, r6, r5, lsl #2
-  .long  0xedd72a00                          // vldr          s5, [r7]
-  .long  0xe0887104                          // add           r7, r8, r4, lsl #2
-  .long  0xedd7ba00                          // vldr          s23, [r7]
+  .long  0xee305b90                          // vmov.32       r5, d16[1]
+  .long  0xe0846105                          // add           r6, r4, r5, lsl #2
+  .long  0xe08b7105                          // add           r7, fp, r5, lsl #2
+  .long  0xedd69a00                          // vldr          s19, [r6]
+  .long  0xee106b90                          // vmov.32       r6, d16[0]
+  .long  0xedd73a00                          // vldr          s7, [r7]
+  .long  0xe08a7105                          // add           r7, sl, r5, lsl #2
+  .long  0xedd7aa00                          // vldr          s21, [r7]
+  .long  0xe08a7106                          // add           r7, sl, r6, lsl #2
+  .long  0xe0844106                          // add           r4, r4, r6, lsl #2
+  .long  0xe59ea018                          // ldr           sl, [lr, #24]
+  .long  0xed97aa00                          // vldr          s20, [r7]
+  .long  0xe59e701c                          // ldr           r7, [lr, #28]
+  .long  0xed949a00                          // vldr          s18, [r4]
+  .long  0xe0874105                          // add           r4, r7, r5, lsl #2
+  .long  0xedd42a00                          // vldr          s5, [r4]
+  .long  0xe0894105                          // add           r4, r9, r5, lsl #2
+  .long  0xedd4ba00                          // vldr          s23, [r4]
+  .long  0xe0894106                          // add           r4, r9, r6, lsl #2
+  .long  0xe08b9106                          // add           r9, fp, r6, lsl #2
+  .long  0xe087b106                          // add           fp, r7, r6, lsl #2
+  .long  0xed94ba00                          // vldr          s22, [r4]
+  .long  0xe08a4105                          // add           r4, sl, r5, lsl #2
   .long  0xe0887105                          // add           r7, r8, r5, lsl #2
-  .long  0xe08a8105                          // add           r8, sl, r5, lsl #2
-  .long  0xed962a00                          // vldr          s4, [r6]
-  .long  0xed97ba00                          // vldr          s22, [r7]
-  .long  0xe0897104                          // add           r7, r9, r4, lsl #2
-  .long  0xed983a00                          // vldr          s6, [r8]
+  .long  0xed9b2a00                          // vldr          s4, [fp]
+  .long  0xedd41a00                          // vldr          s3, [r4]
+  .long  0xe59e4014                          // ldr           r4, [lr, #20]
   .long  0xf2002c1a                          // vfma.f32      d2, d0, d10
-  .long  0xedd71a00                          // vldr          s3, [r7]
-  .long  0xe08e7104                          // add           r7, lr, r4, lsl #2
-  .long  0xf2003c19                          // vfma.f32      d3, d0, d9
   .long  0xedd7ca00                          // vldr          s25, [r7]
-  .long  0xe08e7105                          // add           r7, lr, r5, lsl #2
+  .long  0xe0887106                          // add           r7, r8, r6, lsl #2
+  .long  0xe0845105                          // add           r5, r4, r5, lsl #2
+  .long  0xed993a00                          // vldr          s6, [r9]
   .long  0xed97ca00                          // vldr          s24, [r7]
-  .long  0xe0837105                          // add           r7, r3, r5, lsl #2
-  .long  0xe0833104                          // add           r3, r3, r4, lsl #2
-  .long  0xedd38a00                          // vldr          s17, [r3]
-  .long  0xe0893105                          // add           r3, r9, r5, lsl #2
+  .long  0xe0847106                          // add           r7, r4, r6, lsl #2
+  .long  0xedd58a00                          // vldr          s17, [r5]
+  .long  0xf2003c19                          // vfma.f32      d3, d0, d9
   .long  0xed978a00                          // vldr          s16, [r7]
-  .long  0xed931a00                          // vldr          s2, [r3]
+  .long  0xe08a7106                          // add           r7, sl, r6, lsl #2
   .long  0xf2008c1c                          // vfma.f32      d8, d0, d12
+  .long  0xed971a00                          // vldr          s2, [r7]
   .long  0xf2001c1b                          // vfma.f32      d1, d0, d11
   .long  0xf2280118                          // vorr          d0, d8, d8
   .long  0xecbd8b0a                          // vpop          {d8-d12}
-  .long  0xe8bd47f0                          // pop           {r4, r5, r6, r7, r8, r9, sl, lr}
+  .long  0xe28dd004                          // add           sp, sp, #4
+  .long  0xe8bd4ff0                          // pop           {r4, r5, r6, r7, r8, r9, sl, fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_gauss_a_to_rgba_vfp4
 .globl _sk_gauss_a_to_rgba_vfp4
@@ -8399,7 +8631,7 @@ _sk_gauss_a_to_rgba_vfp4:
   .long  0xf2431c30                          // vfma.f32      d17, d3, d16
   .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
   .long  0xed9f0b10                          // vldr          d0, [pc, #64]
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2430c31                          // vfma.f32      d16, d3, d17
   .long  0xeddf1b0b                          // vldr          d17, [pc, #44]
   .long  0xf2431c30                          // vfma.f32      d17, d3, d16
@@ -8407,7 +8639,7 @@ _sk_gauss_a_to_rgba_vfp4:
   .long  0xf2201110                          // vorr          d1, d0, d0
   .long  0xf2202110                          // vorr          d2, d0, d0
   .long  0xf2203110                          // vorr          d3, d0, d0
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xc011102d                          // .word         0xc011102d
   .long  0xc011102d                          // .word         0xc011102d
   .long  0x40397812                          // .word         0x40397812
@@ -8426,106 +8658,112 @@ _sk_gradient_vfp4:
   .long  0xe92d4ff0                          // push          {r4, r5, r6, r7, r8, r9, sl, fp, lr}
   .long  0xe24dd004                          // sub           sp, sp, #4
   .long  0xed2d8b0a                          // vpush         {d8-d12}
-  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe24dd008                          // sub           sp, sp, #8
+  .long  0xe58d3004                          // str           r3, [sp, #4]
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe59c3000                          // ldr           r3, [ip]
-  .long  0xe3530002                          // cmp           r3, #2
-  .long  0x3a00000b                          // bcc           3880 <sk_gradient_vfp4+0x50>
-  .long  0xe59c4024                          // ldr           r4, [ip, #36]
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xe59c4000                          // ldr           r4, [ip]
+  .long  0xe3540002                          // cmp           r4, #2
+  .long  0x3a00000b                          // bcc           3c28 <sk_gradient_vfp4+0x58>
+  .long  0xe59c5024                          // ldr           r5, [ip, #36]
   .long  0xf2c01010                          // vmov.i32      d17, #0
   .long  0xf2c02011                          // vmov.i32      d18, #1
-  .long  0xe243e001                          // sub           lr, r3, #1
+  .long  0xe244e001                          // sub           lr, r4, #1
   .long  0xf2c00010                          // vmov.i32      d16, #0
-  .long  0xe2843004                          // add           r3, r4, #4
-  .long  0xf4e33c9d                          // vld1.32       {d19[]}, [r3 :32]!
+  .long  0xe2854004                          // add           r4, r5, #4
+  .long  0xf4e43c9d                          // vld1.32       {d19[]}, [r4 :32]!
   .long  0xe25ee001                          // subs          lr, lr, #1
   .long  0xf3403e23                          // vcge.f32      d19, d0, d19
   .long  0xf35231b1                          // vbsl          d19, d18, d17
   .long  0xf26308a0                          // vadd.i32      d16, d19, d16
-  .long  0x1afffff9                          // bne           3868 <sk_gradient_vfp4+0x38>
-  .long  0xee303b90                          // vmov.32       r3, d16[1]
-  .long  0xe59c7010                          // ldr           r7, [ip, #16]
+  .long  0x1afffff9                          // bne           3c10 <sk_gradient_vfp4+0x40>
+  .long  0xee304b90                          // vmov.32       r4, d16[1]
+  .long  0xe59c6010                          // ldr           r6, [ip, #16]
   .long  0xee10eb90                          // vmov.32       lr, d16[0]
-  .long  0xe59c600c                          // ldr           r6, [ip, #12]
-  .long  0xe59c5020                          // ldr           r5, [ip, #32]
-  .long  0xe59c8008                          // ldr           r8, [ip, #8]
+  .long  0xe59c700c                          // ldr           r7, [ip, #12]
+  .long  0xe59ca020                          // ldr           sl, [ip, #32]
   .long  0xe59c9004                          // ldr           r9, [ip, #4]
-  .long  0xe0874103                          // add           r4, r7, r3, lsl #2
-  .long  0xe085a10e                          // add           sl, r5, lr, lsl #2
-  .long  0xedd49a00                          // vldr          s19, [r4]
-  .long  0xe087410e                          // add           r4, r7, lr, lsl #2
-  .long  0xe59c7018                          // ldr           r7, [ip, #24]
-  .long  0xed949a00                          // vldr          s18, [r4]
-  .long  0xe0864103                          // add           r4, r6, r3, lsl #2
-  .long  0xedd4aa00                          // vldr          s21, [r4]
-  .long  0xe086410e                          // add           r4, r6, lr, lsl #2
-  .long  0xed94aa00                          // vldr          s20, [r4]
-  .long  0xe0854103                          // add           r4, r5, r3, lsl #2
-  .long  0xe0885103                          // add           r5, r8, r3, lsl #2
-  .long  0xedd43a00                          // vldr          s7, [r4]
-  .long  0xe59c401c                          // ldr           r4, [ip, #28]
-  .long  0xedd5ba00                          // vldr          s23, [r5]
-  .long  0xe088510e                          // add           r5, r8, lr, lsl #2
-  .long  0xe0846103                          // add           r6, r4, r3, lsl #2
-  .long  0xe084b10e                          // add           fp, r4, lr, lsl #2
-  .long  0xe59c4014                          // ldr           r4, [ip, #20]
-  .long  0xedd62a00                          // vldr          s5, [r6]
-  .long  0xe089610e                          // add           r6, r9, lr, lsl #2
-  .long  0xe0899103                          // add           r9, r9, r3, lsl #2
-  .long  0xed95ba00                          // vldr          s22, [r5]
-  .long  0xe0875103                          // add           r5, r7, r3, lsl #2
-  .long  0xe0843103                          // add           r3, r4, r3, lsl #2
+  .long  0xe59c8008                          // ldr           r8, [ip, #8]
+  .long  0xe0865104                          // add           r5, r6, r4, lsl #2
+  .long  0xe089310e                          // add           r3, r9, lr, lsl #2
+  .long  0xe0899104                          // add           r9, r9, r4, lsl #2
+  .long  0xedd59a00                          // vldr          s19, [r5]
+  .long  0xe086510e                          // add           r5, r6, lr, lsl #2
   .long  0xedd9ca00                          // vldr          s25, [r9]
-  .long  0xedd51a00                          // vldr          s3, [r5]
-  .long  0xe084510e                          // add           r5, r4, lr, lsl #2
+  .long  0xed959a00                          // vldr          s18, [r5]
+  .long  0xe0875104                          // add           r5, r7, r4, lsl #2
+  .long  0xed93ca00                          // vldr          s24, [r3]
+  .long  0xedd5aa00                          // vldr          s21, [r5]
+  .long  0xe087510e                          // add           r5, r7, lr, lsl #2
+  .long  0xed95aa00                          // vldr          s20, [r5]
+  .long  0xe08a5104                          // add           r5, sl, r4, lsl #2
+  .long  0xe08aa10e                          // add           sl, sl, lr, lsl #2
+  .long  0xedd53a00                          // vldr          s7, [r5]
+  .long  0xe59c501c                          // ldr           r5, [ip, #28]
+  .long  0xed9a3a00                          // vldr          s6, [sl]
+  .long  0xe0856104                          // add           r6, r5, r4, lsl #2
+  .long  0xe085b10e                          // add           fp, r5, lr, lsl #2
+  .long  0xe0885104                          // add           r5, r8, r4, lsl #2
+  .long  0xe088810e                          // add           r8, r8, lr, lsl #2
+  .long  0xedd62a00                          // vldr          s5, [r6]
+  .long  0xf2003c19                          // vfma.f32      d3, d0, d9
+  .long  0xedd5ba00                          // vldr          s23, [r5]
+  .long  0xe59c6014                          // ldr           r6, [ip, #20]
+  .long  0xe59c5018                          // ldr           r5, [ip, #24]
+  .long  0xe0863104                          // add           r3, r6, r4, lsl #2
+  .long  0xed9b2a00                          // vldr          s4, [fp]
+  .long  0xe0857104                          // add           r7, r5, r4, lsl #2
+  .long  0xed98ba00                          // vldr          s22, [r8]
   .long  0xedd38a00                          // vldr          s17, [r3]
-  .long  0xe087310e                          // add           r3, r7, lr, lsl #2
-  .long  0xed96ca00                          // vldr          s24, [r6]
-  .long  0xed958a00                          // vldr          s16, [r5]
+  .long  0xe085310e                          // add           r3, r5, lr, lsl #2
+  .long  0xedd71a00                          // vldr          s3, [r7]
+  .long  0xe086710e                          // add           r7, r6, lr, lsl #2
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
+  .long  0xf2002c1a                          // vfma.f32      d2, d0, d10
+  .long  0xed978a00                          // vldr          s16, [r7]
+  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xed931a00                          // vldr          s2, [r3]
   .long  0xf2008c1c                          // vfma.f32      d8, d0, d12
-  .long  0xed9b2a00                          // vldr          s4, [fp]
-  .long  0xed9a3a00                          // vldr          s6, [sl]
+  .long  0xe59d3004                          // ldr           r3, [sp, #4]
   .long  0xf2001c1b                          // vfma.f32      d1, d0, d11
-  .long  0xe5913004                          // ldr           r3, [r1, #4]
-  .long  0xf2002c1a                          // vfma.f32      d2, d0, d10
-  .long  0xf2003c19                          // vfma.f32      d3, d0, d9
-  .long  0xe2811008                          // add           r1, r1, #8
   .long  0xf2280118                          // vorr          d0, d8, d8
+  .long  0xe28dd008                          // add           sp, sp, #8
   .long  0xecbd8b0a                          // vpop          {d8-d12}
   .long  0xe28dd004                          // add           sp, sp, #4
   .long  0xe8bd4ff0                          // pop           {r4, r5, r6, r7, r8, r9, sl, fp, lr}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_evenly_spaced_2_stop_gradient_vfp4
 .globl _sk_evenly_spaced_2_stop_gradient_vfp4
 FUNCTION(_sk_evenly_spaced_2_stop_gradient_vfp4)
 _sk_evenly_spaced_2_stop_gradient_vfp4:
-  .long  0xe92d4010                          // push          {r4, lr}
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4830                          // push          {r4, r5, fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xe283400c                          // add           r4, r3, #12
-  .long  0xe1a0e003                          // mov           lr, r3
-  .long  0xf4e42c9f                          // vld1.32       {d18[]}, [r4 :32]
-  .long  0xe2834008                          // add           r4, r3, #8
-  .long  0xf4e43c9f                          // vld1.32       {d19[]}, [r4 :32]
-  .long  0xe2834018                          // add           r4, r3, #24
-  .long  0xf4a42c9f                          // vld1.32       {d2[]}, [r4 :32]
-  .long  0xe2834010                          // add           r4, r3, #16
+  .long  0xe28e500c                          // add           r5, lr, #12
+  .long  0xe1a0400e                          // mov           r4, lr
+  .long  0xf4e52c9f                          // vld1.32       {d18[]}, [r5 :32]
+  .long  0xe28e5008                          // add           r5, lr, #8
+  .long  0xf4e53c9f                          // vld1.32       {d19[]}, [r5 :32]
+  .long  0xe28e5018                          // add           r5, lr, #24
+  .long  0xf4a52c9f                          // vld1.32       {d2[]}, [r5 :32]
+  .long  0xe28e5010                          // add           r5, lr, #16
   .long  0xf2002c33                          // vfma.f32      d2, d0, d19
-  .long  0xf4e40c9f                          // vld1.32       {d16[]}, [r4 :32]
-  .long  0xe283401c                          // add           r4, r3, #28
-  .long  0xe2833014                          // add           r3, r3, #20
-  .long  0xf4ee1c9d                          // vld1.32       {d17[]}, [lr :32]!
+  .long  0xf4e50c9f                          // vld1.32       {d16[]}, [r5 :32]
+  .long  0xe28e501c                          // add           r5, lr, #28
+  .long  0xf4e41c9d                          // vld1.32       {d17[]}, [r4 :32]!
   .long  0xf2400c31                          // vfma.f32      d16, d0, d17
-  .long  0xf4a43c9f                          // vld1.32       {d3[]}, [r4 :32]
+  .long  0xf4a53c9f                          // vld1.32       {d3[]}, [r5 :32]
+  .long  0xe28e5014                          // add           r5, lr, #20
   .long  0xf2003c32                          // vfma.f32      d3, d0, d18
-  .long  0xf4ee1c9f                          // vld1.32       {d17[]}, [lr :32]
-  .long  0xf4a31c9f                          // vld1.32       {d1[]}, [r3 :32]
+  .long  0xf4e41c9f                          // vld1.32       {d17[]}, [r4 :32]
+  .long  0xf4a51c9f                          // vld1.32       {d1[]}, [r5 :32]
   .long  0xf2001c31                          // vfma.f32      d1, d0, d17
   .long  0xf22001b0                          // vorr          d0, d16, d16
-  .long  0xe8bd4010                          // pop           {r4, lr}
+  .long  0xe8bd4830                          // pop           {r4, r5, fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_xy_to_unit_angle_vfp4
 .globl _sk_xy_to_unit_angle_vfp4
@@ -8536,7 +8774,7 @@ _sk_xy_to_unit_angle_vfp4:
   .long  0xeddf3b24                          // vldr          d19, [pc, #144]
   .long  0xf3f91700                          // vabs.f32      d17, d0
   .long  0xeddf4b24                          // vldr          d20, [pc, #144]
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf2018fa0                          // vmax.f32      d8, d17, d16
   .long  0xf2219fa0                          // vmin.f32      d9, d17, d16
   .long  0xf3600ea1                          // vcgt.f32      d16, d16, d17
@@ -8570,7 +8808,7 @@ _sk_xy_to_unit_angle_vfp4:
   .long  0xf3b005a0                          // vmvn          d0, d16
   .long  0xf31101b2                          // vbsl          d0, d17, d18
   .long  0xecbd8b06                          // vpop          {d8-d10}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xbbe72b6f                          // .word         0xbbe72b6f
   .long  0xbbe72b6f                          // .word         0xbbe72b6f
   .long  0x3ccad79f                          // .word         0x3ccad79f
@@ -8585,7 +8823,7 @@ HIDDEN _sk_xy_to_radius_vfp4
 FUNCTION(_sk_xy_to_radius_vfp4)
 _sk_xy_to_radius_vfp4:
   .long  0xf3410d11                          // vmul.f32      d16, d1, d1
-  .long  0xe4913004                          // ldr           r3, [r1], #4
+  .long  0xe491c004                          // ldr           ip, [r1], #4
   .long  0xf3401d10                          // vmul.f32      d17, d0, d0
   .long  0xf2410da0                          // vadd.f32      d16, d17, d16
   .long  0xf3fb15a0                          // vrsqrte.f32   d17, d16
@@ -8596,21 +8834,22 @@ _sk_xy_to_radius_vfp4:
   .long  0xf2602fb2                          // vrsqrts.f32   d18, d16, d18
   .long  0xf3411db2                          // vmul.f32      d17, d17, d18
   .long  0xf3000db1                          // vmul.f32      d0, d16, d17
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe12fff1c                          // bx            ip
   .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_save_xy_vfp4
 .globl _sk_save_xy_vfp4
 FUNCTION(_sk_save_xy_vfp4)
 _sk_save_xy_vfp4:
+  .long  0xe92d4800                          // push          {fp, lr}
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
-  .long  0xeddf7b17                          // vldr          d23, [pc, #92]
+  .long  0xeddf7b1a                          // vldr          d23, [pc, #104]
   .long  0xf2c06010                          // vmov.i32      d22, #0
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2401d20                          // vadd.f32      d17, d0, d16
   .long  0xf2410d20                          // vadd.f32      d16, d1, d16
-  .long  0xed830b00                          // vstr          d0, [r3]
-  .long  0xed831b08                          // vstr          d1, [r3, #32]
+  .long  0xed8c0b00                          // vstr          d0, [ip]
+  .long  0xed8c1b08                          // vstr          d1, [ip, #32]
   .long  0xf3fb2721                          // vcvt.s32.f32  d18, d17
   .long  0xf3fb3720                          // vcvt.s32.f32  d19, d16
   .long  0xf3fb2622                          // vcvt.f32.s32  d18, d18
@@ -8623,12 +8862,15 @@ _sk_save_xy_vfp4:
   .long  0xf2633da5                          // vsub.f32      d19, d19, d21
   .long  0xf2611da2                          // vsub.f32      d17, d17, d18
   .long  0xf2600da3                          // vsub.f32      d16, d16, d19
-  .long  0xedc31b10                          // vstr          d17, [r3, #64]
-  .long  0xedc30b18                          // vstr          d16, [r3, #96]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc1b10                          // vstr          d17, [ip, #64]
+  .long  0xedcc0b18                          // vstr          d16, [ip, #96]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0x3f800000                          // .word         0x3f800000
   .long  0x3f800000                          // .word         0x3f800000
 
@@ -8636,103 +8878,121 @@ HIDDEN _sk_accumulate_vfp4
 .globl _sk_accumulate_vfp4
 FUNCTION(_sk_accumulate_vfp4)
 _sk_accumulate_vfp4:
-  .long  0xe8911008                          // ldm           r1, {r3, ip}
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591e000                          // ldr           lr, [r1]
+  .long  0xe591c004                          // ldr           ip, [r1, #4]
   .long  0xe2811008                          // add           r1, r1, #8
-  .long  0xedd31b28                          // vldr          d17, [r3, #160]
-  .long  0xedd30b20                          // vldr          d16, [r3, #128]
+  .long  0xedde1b28                          // vldr          d17, [lr, #160]
+  .long  0xedde0b20                          // vldr          d16, [lr, #128]
   .long  0xf3400db1                          // vmul.f32      d16, d16, d17
   .long  0xf2004c90                          // vfma.f32      d4, d16, d0
   .long  0xf2005c91                          // vfma.f32      d5, d16, d1
   .long  0xf2006c92                          // vfma.f32      d6, d16, d2
   .long  0xf2007c93                          // vfma.f32      d7, d16, d3
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_bilinear_nx_vfp4
 .globl _sk_bilinear_nx_vfp4
 FUNCTION(_sk_bilinear_nx_vfp4)
 _sk_bilinear_nx_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xedd32b10                          // vldr          d18, [r3, #64]
+  .long  0xeddc2b10                          // vldr          d18, [ip, #64]
   .long  0xf2600da2                          // vsub.f32      d16, d16, d18
-  .long  0xedd31b00                          // vldr          d17, [r3]
+  .long  0xeddc1b00                          // vldr          d17, [ip]
   .long  0xf3c3261f                          // vmov.i32      d18, #-1090519040
   .long  0xf2010da2                          // vadd.f32      d0, d17, d18
-  .long  0xedc30b20                          // vstr          d16, [r3, #128]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc0b20                          // vstr          d16, [ip, #128]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_bilinear_px_vfp4
 .globl _sk_bilinear_px_vfp4
 FUNCTION(_sk_bilinear_px_vfp4)
 _sk_bilinear_px_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
-  .long  0xedd31b00                          // vldr          d17, [r3]
-  .long  0xedd32b10                          // vldr          d18, [r3, #64]
+  .long  0xeddc2b10                          // vldr          d18, [ip, #64]
+  .long  0xeddc1b00                          // vldr          d17, [ip]
+  .long  0xedcc2b20                          // vstr          d18, [ip, #128]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
   .long  0xf2010da0                          // vadd.f32      d0, d17, d16
-  .long  0xedc32b20                          // vstr          d18, [r3, #128]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_bilinear_ny_vfp4
 .globl _sk_bilinear_ny_vfp4
 FUNCTION(_sk_bilinear_ny_vfp4)
 _sk_bilinear_ny_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xedd32b18                          // vldr          d18, [r3, #96]
+  .long  0xeddc2b18                          // vldr          d18, [ip, #96]
   .long  0xf2600da2                          // vsub.f32      d16, d16, d18
-  .long  0xedd31b08                          // vldr          d17, [r3, #32]
+  .long  0xeddc1b08                          // vldr          d17, [ip, #32]
   .long  0xf3c3261f                          // vmov.i32      d18, #-1090519040
   .long  0xf2011da2                          // vadd.f32      d1, d17, d18
-  .long  0xedc30b28                          // vstr          d16, [r3, #160]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc0b28                          // vstr          d16, [ip, #160]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
 
 HIDDEN _sk_bilinear_py_vfp4
 .globl _sk_bilinear_py_vfp4
 FUNCTION(_sk_bilinear_py_vfp4)
 _sk_bilinear_py_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
-  .long  0xedd31b08                          // vldr          d17, [r3, #32]
-  .long  0xedd32b18                          // vldr          d18, [r3, #96]
+  .long  0xeddc2b18                          // vldr          d18, [ip, #96]
+  .long  0xeddc1b08                          // vldr          d17, [ip, #32]
+  .long  0xedcc2b28                          // vstr          d18, [ip, #160]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
   .long  0xf2011da0                          // vadd.f32      d1, d17, d16
-  .long  0xedc32b28                          // vstr          d18, [r3, #160]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
 
 HIDDEN _sk_bicubic_n3x_vfp4
 .globl _sk_bicubic_n3x_vfp4
 FUNCTION(_sk_bicubic_n3x_vfp4)
 _sk_bicubic_n3x_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xeddf3b10                          // vldr          d19, [pc, #64]
-  .long  0xedd32b10                          // vldr          d18, [r3, #64]
+  .long  0xeddf3b11                          // vldr          d19, [pc, #68]
+  .long  0xeddc2b10                          // vldr          d18, [ip, #64]
   .long  0xf2600da2                          // vsub.f32      d16, d16, d18
-  .long  0xeddf2b0b                          // vldr          d18, [pc, #44]
-  .long  0xedd31b00                          // vldr          d17, [r3]
+  .long  0xeddf2b0c                          // vldr          d18, [pc, #48]
+  .long  0xeddc1b00                          // vldr          d17, [ip]
   .long  0xf2403cb2                          // vfma.f32      d19, d16, d18
   .long  0xf3400db0                          // vmul.f32      d16, d16, d16
   .long  0xf3c72f18                          // vmov.f32      d18, #-1.5
   .long  0xf2010da2                          // vadd.f32      d0, d17, d18
   .long  0xf3400db3                          // vmul.f32      d16, d16, d19
-  .long  0xedc30b20                          // vstr          d16, [r3, #128]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc0b20                          // vstr          d16, [ip, #128]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0xbeaaaaab                          // .word         0xbeaaaaab
@@ -8742,26 +9002,28 @@ HIDDEN _sk_bicubic_n1x_vfp4
 .globl _sk_bicubic_n1x_vfp4
 FUNCTION(_sk_bicubic_n1x_vfp4)
 _sk_bicubic_n1x_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xf2c73f18                          // vmov.f32      d19, #1.5
-  .long  0xedd32b10                          // vldr          d18, [r3, #64]
+  .long  0xeddc2b10                          // vldr          d18, [ip, #64]
   .long  0xf2600da2                          // vsub.f32      d16, d16, d18
-  .long  0xeddf2b0d                          // vldr          d18, [pc, #52]
-  .long  0xedd31b00                          // vldr          d17, [r3]
+  .long  0xeddf2b0e                          // vldr          d18, [pc, #56]
+  .long  0xeddc1b00                          // vldr          d17, [ip]
   .long  0xf2403cb2                          // vfma.f32      d19, d16, d18
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2402cb3                          // vfma.f32      d18, d16, d19
-  .long  0xeddf3b0a                          // vldr          d19, [pc, #40]
+  .long  0xeddf3b0b                          // vldr          d19, [pc, #44]
   .long  0xf2403cb2                          // vfma.f32      d19, d16, d18
   .long  0xf3c3061f                          // vmov.i32      d16, #-1090519040
   .long  0xf2010da0                          // vadd.f32      d0, d17, d16
-  .long  0xedc33b20                          // vstr          d19, [r3, #128]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc3b20                          // vstr          d19, [ip, #128]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0xbf955555                          // .word         0xbf955555
   .long  0xbf955555                          // .word         0xbf955555
   .long  0x3d638e39                          // .word         0x3d638e39
@@ -8771,22 +9033,26 @@ HIDDEN _sk_bicubic_p1x_vfp4
 .globl _sk_bicubic_p1x_vfp4
 FUNCTION(_sk_bicubic_p1x_vfp4)
 _sk_bicubic_p1x_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c71f18                          // vmov.f32      d17, #1.5
-  .long  0xeddf0b0c                          // vldr          d16, [pc, #48]
-  .long  0xedd33b10                          // vldr          d19, [r3, #64]
+  .long  0xeddf0b0f                          // vldr          d16, [pc, #60]
+  .long  0xeddc3b10                          // vldr          d19, [ip, #64]
   .long  0xf2431cb0                          // vfma.f32      d17, d19, d16
-  .long  0xedd32b00                          // vldr          d18, [r3]
+  .long  0xeddc2b00                          // vldr          d18, [ip]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
   .long  0xf2020da0                          // vadd.f32      d0, d18, d16
   .long  0xf2430cb1                          // vfma.f32      d16, d19, d17
-  .long  0xeddf1b07                          // vldr          d17, [pc, #28]
+  .long  0xeddf1b0a                          // vldr          d17, [pc, #40]
   .long  0xf2431cb0                          // vfma.f32      d17, d19, d16
-  .long  0xedc31b20                          // vstr          d17, [r3, #128]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc1b20                          // vstr          d17, [ip, #128]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0xbf955555                          // .word         0xbf955555
   .long  0xbf955555                          // .word         0xbf955555
   .long  0x3d638e39                          // .word         0x3d638e39
@@ -8796,22 +9062,24 @@ HIDDEN _sk_bicubic_p3x_vfp4
 .globl _sk_bicubic_p3x_vfp4
 FUNCTION(_sk_bicubic_p3x_vfp4)
 _sk_bicubic_p3x_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
-  .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
-  .long  0xeddf3b0e                          // vldr          d19, [pc, #56]
-  .long  0xedd32b10                          // vldr          d18, [r3, #64]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xeddf0b0e                          // vldr          d16, [pc, #56]
+  .long  0xeddf3b0f                          // vldr          d19, [pc, #60]
+  .long  0xeddc2b10                          // vldr          d18, [ip, #64]
   .long  0xf2423cb0                          // vfma.f32      d19, d18, d16
-  .long  0xedd31b00                          // vldr          d17, [r3]
+  .long  0xeddc1b00                          // vldr          d17, [ip]
   .long  0xf3420db2                          // vmul.f32      d16, d18, d18
   .long  0xf2c72f18                          // vmov.f32      d18, #1.5
   .long  0xf2010da2                          // vadd.f32      d0, d17, d18
   .long  0xf3400db3                          // vmul.f32      d16, d16, d19
-  .long  0xedc30b20                          // vstr          d16, [r3, #128]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc0b20                          // vstr          d16, [ip, #128]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0xbeaaaaab                          // .word         0xbeaaaaab
@@ -8821,24 +9089,26 @@ HIDDEN _sk_bicubic_n3y_vfp4
 .globl _sk_bicubic_n3y_vfp4
 FUNCTION(_sk_bicubic_n3y_vfp4)
 _sk_bicubic_n3y_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
-  .long  0xeddf3b10                          // vldr          d19, [pc, #64]
-  .long  0xedd32b18                          // vldr          d18, [r3, #96]
+  .long  0xeddf3b11                          // vldr          d19, [pc, #68]
+  .long  0xeddc2b18                          // vldr          d18, [ip, #96]
   .long  0xf2600da2                          // vsub.f32      d16, d16, d18
-  .long  0xeddf2b0b                          // vldr          d18, [pc, #44]
-  .long  0xedd31b08                          // vldr          d17, [r3, #32]
+  .long  0xeddf2b0c                          // vldr          d18, [pc, #48]
+  .long  0xeddc1b08                          // vldr          d17, [ip, #32]
   .long  0xf2403cb2                          // vfma.f32      d19, d16, d18
   .long  0xf3400db0                          // vmul.f32      d16, d16, d16
   .long  0xf3c72f18                          // vmov.f32      d18, #-1.5
   .long  0xf2011da2                          // vadd.f32      d1, d17, d18
   .long  0xf3400db3                          // vmul.f32      d16, d16, d19
-  .long  0xedc30b28                          // vstr          d16, [r3, #160]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc0b28                          // vstr          d16, [ip, #160]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0xbeaaaaab                          // .word         0xbeaaaaab
@@ -8848,26 +9118,28 @@ HIDDEN _sk_bicubic_n1y_vfp4
 .globl _sk_bicubic_n1y_vfp4
 FUNCTION(_sk_bicubic_n1y_vfp4)
 _sk_bicubic_n1y_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c70f10                          // vmov.f32      d16, #1
   .long  0xf2c73f18                          // vmov.f32      d19, #1.5
-  .long  0xedd32b18                          // vldr          d18, [r3, #96]
+  .long  0xeddc2b18                          // vldr          d18, [ip, #96]
   .long  0xf2600da2                          // vsub.f32      d16, d16, d18
-  .long  0xeddf2b0d                          // vldr          d18, [pc, #52]
-  .long  0xedd31b08                          // vldr          d17, [r3, #32]
+  .long  0xeddf2b0e                          // vldr          d18, [pc, #56]
+  .long  0xeddc1b08                          // vldr          d17, [ip, #32]
   .long  0xf2403cb2                          // vfma.f32      d19, d16, d18
   .long  0xf2c3261f                          // vmov.i32      d18, #1056964608
   .long  0xf2402cb3                          // vfma.f32      d18, d16, d19
-  .long  0xeddf3b0a                          // vldr          d19, [pc, #40]
+  .long  0xeddf3b0b                          // vldr          d19, [pc, #44]
   .long  0xf2403cb2                          // vfma.f32      d19, d16, d18
   .long  0xf3c3061f                          // vmov.i32      d16, #-1090519040
   .long  0xf2011da0                          // vadd.f32      d1, d17, d16
-  .long  0xedc33b28                          // vstr          d19, [r3, #160]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc3b28                          // vstr          d19, [ip, #160]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0xbf955555                          // .word         0xbf955555
   .long  0xbf955555                          // .word         0xbf955555
   .long  0x3d638e39                          // .word         0x3d638e39
@@ -8877,22 +9149,26 @@ HIDDEN _sk_bicubic_p1y_vfp4
 .globl _sk_bicubic_p1y_vfp4
 FUNCTION(_sk_bicubic_p1y_vfp4)
 _sk_bicubic_p1y_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
   .long  0xf2c71f18                          // vmov.f32      d17, #1.5
-  .long  0xeddf0b0c                          // vldr          d16, [pc, #48]
-  .long  0xedd33b18                          // vldr          d19, [r3, #96]
+  .long  0xeddf0b0f                          // vldr          d16, [pc, #60]
+  .long  0xeddc3b18                          // vldr          d19, [ip, #96]
   .long  0xf2431cb0                          // vfma.f32      d17, d19, d16
-  .long  0xedd32b08                          // vldr          d18, [r3, #32]
+  .long  0xeddc2b08                          // vldr          d18, [ip, #32]
   .long  0xf2c3061f                          // vmov.i32      d16, #1056964608
   .long  0xf2021da0                          // vadd.f32      d1, d18, d16
   .long  0xf2430cb1                          // vfma.f32      d16, d19, d17
-  .long  0xeddf1b07                          // vldr          d17, [pc, #28]
+  .long  0xeddf1b0a                          // vldr          d17, [pc, #40]
   .long  0xf2431cb0                          // vfma.f32      d17, d19, d16
-  .long  0xedc31b28                          // vstr          d17, [r3, #160]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc1b28                          // vstr          d17, [ip, #160]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
+  .long  0xe320f000                          // nop           {0}
   .long  0xbf955555                          // .word         0xbf955555
   .long  0xbf955555                          // .word         0xbf955555
   .long  0x3d638e39                          // .word         0x3d638e39
@@ -8902,22 +9178,24 @@ HIDDEN _sk_bicubic_p3y_vfp4
 .globl _sk_bicubic_p3y_vfp4
 FUNCTION(_sk_bicubic_p3y_vfp4)
 _sk_bicubic_p3y_vfp4:
-  .long  0xe5913000                          // ldr           r3, [r1]
-  .long  0xeddf0b0d                          // vldr          d16, [pc, #52]
-  .long  0xeddf3b0e                          // vldr          d19, [pc, #56]
-  .long  0xedd32b18                          // vldr          d18, [r3, #96]
+  .long  0xe92d4800                          // push          {fp, lr}
+  .long  0xe591c000                          // ldr           ip, [r1]
+  .long  0xeddf0b0e                          // vldr          d16, [pc, #56]
+  .long  0xeddf3b0f                          // vldr          d19, [pc, #60]
+  .long  0xeddc2b18                          // vldr          d18, [ip, #96]
   .long  0xf2423cb0                          // vfma.f32      d19, d18, d16
-  .long  0xedd31b08                          // vldr          d17, [r3, #32]
+  .long  0xeddc1b08                          // vldr          d17, [ip, #32]
   .long  0xf3420db2                          // vmul.f32      d16, d18, d18
   .long  0xf2c72f18                          // vmov.f32      d18, #1.5
   .long  0xf2011da2                          // vadd.f32      d1, d17, d18
   .long  0xf3400db3                          // vmul.f32      d16, d16, d19
-  .long  0xedc30b28                          // vstr          d16, [r3, #160]
-  .long  0xe2813008                          // add           r3, r1, #8
-  .long  0xe591c004                          // ldr           ip, [r1, #4]
-  .long  0xe1a01003                          // mov           r1, r3
+  .long  0xedcc0b28                          // vstr          d16, [ip, #160]
+  .long  0xe281c008                          // add           ip, r1, #8
+  .long  0xe591e004                          // ldr           lr, [r1, #4]
+  .long  0xe1a0100c                          // mov           r1, ip
+  .long  0xe1a0c00e                          // mov           ip, lr
+  .long  0xe8bd4800                          // pop           {fp, lr}
   .long  0xe12fff1c                          // bx            ip
-  .long  0xe320f000                          // nop           {0}
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0x3ec71c72                          // .word         0x3ec71c72
   .long  0xbeaaaaab                          // .word         0xbeaaaaab
@@ -8927,35 +9205,39 @@ HIDDEN _sk_callback_vfp4
 .globl _sk_callback_vfp4
 FUNCTION(_sk_callback_vfp4)
 _sk_callback_vfp4:
-  .long  0xe92d48f0                          // push          {r4, r5, r6, r7, fp, lr}
+  .long  0xe92d41f0                          // push          {r4, r5, r6, r7, r8, lr}
   .long  0xed2d8b08                          // vpush         {d8-d11}
-  .long  0xe1a05001                          // mov           r5, r1
-  .long  0xe1a06000                          // mov           r6, r0
-  .long  0xe5957000                          // ldr           r7, [r5]
-  .long  0xe1a04002                          // mov           r4, r2
-  .long  0xe3a01002                          // mov           r1, #2
+  .long  0xe1a06001                          // mov           r6, r1
+  .long  0xe1a07000                          // mov           r7, r0
+  .long  0xe5965000                          // ldr           r5, [r6]
+  .long  0xe1a04003                          // mov           r4, r3
+  .long  0xe1a08002                          // mov           r8, r2
+  .long  0xe3540000                          // cmp           r4, #0
+  .long  0xe2850004                          // add           r0, r5, #4
+  .long  0xe1a01004                          // mov           r1, r4
+  .long  0x03a01002                          // moveq         r1, #2
   .long  0xeeb08b47                          // vmov.f64      d8, d7
-  .long  0xe2870004                          // add           r0, r7, #4
   .long  0xf400008f                          // vst4.32       {d0-d3}, [r0]
-  .long  0xe1a00007                          // mov           r0, r7
-  .long  0xe5972000                          // ldr           r2, [r7]
+  .long  0xe1a00005                          // mov           r0, r5
+  .long  0xe5952000                          // ldr           r2, [r5]
   .long  0xeeb09b46                          // vmov.f64      d9, d6
   .long  0xeeb0ab45                          // vmov.f64      d10, d5
   .long  0xeeb0bb44                          // vmov.f64      d11, d4
   .long  0xe12fff32                          // blx           r2
-  .long  0xe5970084                          // ldr           r0, [r7, #132]
-  .long  0xe2851008                          // add           r1, r5, #8
-  .long  0xe5953004                          // ldr           r3, [r5, #4]
-  .long  0xe1a02004                          // mov           r2, r4
+  .long  0xe5950084                          // ldr           r0, [r5, #132]
+  .long  0xe2861008                          // add           r1, r6, #8
+  .long  0xe596c004                          // ldr           ip, [r6, #4]
+  .long  0xe1a02008                          // mov           r2, r8
+  .long  0xe1a03004                          // mov           r3, r4
   .long  0xeeb04b4b                          // vmov.f64      d4, d11
   .long  0xf420008f                          // vld4.32       {d0-d3}, [r0]
-  .long  0xe1a00006                          // mov           r0, r6
+  .long  0xe1a00007                          // mov           r0, r7
   .long  0xeeb05b4a                          // vmov.f64      d5, d10
   .long  0xeeb06b49                          // vmov.f64      d6, d9
   .long  0xeeb07b48                          // vmov.f64      d7, d8
   .long  0xecbd8b08                          // vpop          {d8-d11}
-  .long  0xe8bd48f0                          // pop           {r4, r5, r6, r7, fp, lr}
-  .long  0xe12fff13                          // bx            r3
+  .long  0xe8bd41f0                          // pop           {r4, r5, r6, r7, r8, lr}
+  .long  0xe12fff1c                          // bx            ip
 #elif defined(__x86_64__)
 BALIGN32
 

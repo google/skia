@@ -120,7 +120,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_f32, &src);
             p.append(SkRasterPipeline::store_f32, &dst);
-            p.run(0, i % 4);
+            p.run(0, i);
             for (unsigned j = 0; j < i; j++) {
                 REPORTER_ASSERT(r,
                                 !memcmp(&data[j][0], &buffer[j][0], sizeof(buffer[j])));
@@ -149,7 +149,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_f16, &src);
             p.append(SkRasterPipeline::store_f16, &dst);
-            p.run(0, i % 4);
+            p.run(0, i);
             for (unsigned j = 0; j < i; j++) {
                 REPORTER_ASSERT(r,
                                 !memcmp(&data[j][0], &buffer[j][0], sizeof(buffer[j])));
@@ -186,7 +186,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_rgb_u16_be, &src);
             p.append(SkRasterPipeline::store_f32, &dst);
-            p.run(0, i % 4);
+            p.run(0, i);
             for (unsigned j = 0; j < i; j++) {
                 for (unsigned k = 0; k < 4; k++) {
                     if (buffer[j][k] != answer[j][k]) {
