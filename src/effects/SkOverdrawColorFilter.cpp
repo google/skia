@@ -7,6 +7,7 @@
 
 #include "SkOverdrawColorFilter.h"
 #include "SkPM4f.h"
+#include "SkReadBuffer.h"
 
 void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     for (int x = 0; x < count; x++) {

@@ -6,7 +6,7 @@
  */
 
 #include "SkColorFilter.h"
-#include "../../src/core/SkReadBuffer.h"
+#include "SkFlattenable.h"
 
 #ifndef SkOverdrawColorFilter_DEFINED
 #define SkOverdrawColorFilter_DEFINED
