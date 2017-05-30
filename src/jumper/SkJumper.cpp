@@ -43,24 +43,24 @@ extern "C" {
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
-    size_t ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,aarch64)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
 #elif defined(__arm__)
-    size_t ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,vfp4)(size_t, void**, K*, size_t);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    size_t ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
-    size_t ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,hsw  )(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,avx  )(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,sse41)(size_t, void**, K*, size_t);
+    void ASM(start_pipeline,sse2 )(size_t, void**, K*, size_t);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
@@ -82,7 +82,7 @@ extern "C" {
 #endif
 
     // Portable, single-pixel stages.
-    size_t sk_start_pipeline(size_t, void**, K*, size_t);
+    void sk_start_pipeline(size_t, void**, K*, size_t);
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
         SK_RASTER_PIPELINE_STAGES(M)
@@ -96,22 +96,18 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 // Engines comprise everything we need to run SkRasterPipelines.
 struct SkJumper_Engine {
     StageFn* stages[kNumStages];
-    int      min_stride;
-    size_t (*start_pipeline)(size_t, void**, K*, size_t);
+    void (*start_pipeline)(size_t, void**, K*, size_t);
     StageFn* just_return;
 };
 
-// We'll always have two engines.  A portable engine with guaranteed min_stride = 1...
-static const SkJumper_Engine kPortable = {
+// Start initialized to a portable engine.
+static SkJumper_Engine gEngine = {
 #define M(stage) sk_##stage,
     { SK_RASTER_PIPELINE_STAGES(M) },
 #undef M
-    1,
     sk_start_pipeline,
     sk_just_return,
 };
-// ...and a platform-specific engine chosen on first use based on CPU features.
-static SkJumper_Engine gPlatform = kPortable;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
@@ -122,7 +118,7 @@ static SkJumper_Engine choose_engine() {
     return {
     #define M(stage) ASM(stage, aarch64),
         { SK_RASTER_PIPELINE_STAGES(M) },
-        1, M(start_pipeline) M(just_return)
+        M(start_pipeline) M(just_return)
     #undef M
     };
 
@@ -131,7 +127,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, vfp4),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -141,7 +137,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, hsw),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -149,7 +145,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, avx),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -157,7 +153,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, sse41),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -165,7 +161,7 @@ static SkJumper_Engine choose_engine() {
         return {
         #define M(stage) ASM(stage, sse2),
             { SK_RASTER_PIPELINE_STAGES(M) },
-            1, M(start_pipeline) M(just_return)
+            M(start_pipeline) M(just_return)
         #undef M
         };
     }
@@ -191,48 +187,27 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
     if (this->empty()) {
         return;
     }
-    gChooseEngineOnce([]{ gPlatform = choose_engine(); });
+    gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
     const size_t limit = x+n;
 
-    if (x + gPlatform.min_stride <= limit) {
-        BuildPipeline(fStages, gPlatform, program.get() + fSlotsNeeded);
-        x = gPlatform.start_pipeline(x, program.get(), &kConstants, limit);
-    }
-    if (x < limit) {
-        BuildPipeline(fStages, kPortable, program.get() + fSlotsNeeded);
-        kPortable.start_pipeline(x, program.get(), &kConstants, limit);
-    }
+    BuildPipeline(fStages, gEngine, program.get() + fSlotsNeeded);
+    gEngine.start_pipeline(x, program.get(), &kConstants, limit);
 }
 
 std::function<void(size_t, size_t)> SkRasterPipeline::compile() const {
     if (this->empty()) {
         return [](size_t, size_t) {};
     }
-    gChooseEngineOnce([]{ gPlatform = choose_engine(); });
+    gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
-    void** platform = fAlloc->makeArray<void*>(fSlotsNeeded);
-    BuildPipeline(fStages, gPlatform, platform + fSlotsNeeded);
-
-    if (gPlatform.min_stride == 1) {
-        return [=](size_t x, size_t n) {
-            const size_t limit = x+n;
-            gPlatform.start_pipeline(x, platform, &kConstants, limit);
-        };
-    }
-
-    void** portable = fAlloc->makeArray<void*>(fSlotsNeeded);
-    BuildPipeline(fStages, kPortable, portable + fSlotsNeeded);
+    void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
+    BuildPipeline(fStages, gEngine, program + fSlotsNeeded);
 
     return [=](size_t x, size_t n) {
         const size_t limit = x+n;
-        if (x + gPlatform.min_stride <= limit) {
-            x = gPlatform.start_pipeline(x, platform, &kConstants, limit);
-        }
-        if (x < limit) {
-            kPortable.start_pipeline(x, portable, &kConstants, limit);
-        }
+        gEngine.start_pipeline(x, program, &kConstants, limit);
     };
 }
