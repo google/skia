@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d37f03ff_277536bf",
+        "filename": "infra/bots/assets/valgrind/create.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-31T11:48:40Z",
+      "side": 1,
+      "message": "Not as far as I know.",
+      "parentUuid": "00a39fb6_5895e6dc",
+      "range": {
+        "startLine": 27,
+        "startChar": 16,
+        "endLine": 27,
+        "endChar": 20
+      },
+      "revId": "2a34bf9e7d8e5d9a94149d27c107e5c17d981245",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1a170f18_5ddb498f",
         "filename": "infra/bots/recipe_modules/flavor/valgrind_flavor.py",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-31T00:33:24Z",
       "side": 1,
       "message": "Probably better without -v, right?",
+      "range": {
+        "startLine": 32,
+        "startChar": 31,
+        "endLine": 32,
+        "endChar": 35
+      },
+      "revId": "2a34bf9e7d8e5d9a94149d27c107e5c17d981245",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15f0082b_8ec74a68",
+        "filename": "infra/bots/recipe_modules/flavor/valgrind_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-05-31T11:48:40Z",
+      "side": 1,
+      "message": "Yeah, this is for debugging while I work out all of the issues.",
+      "parentUuid": "1a170f18_5ddb498f",
       "range": {
         "startLine": 32,
         "startChar": 31,
