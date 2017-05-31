@@ -1030,8 +1030,9 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
         } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
+            fMSFBOType = kStandard_MSFBOType;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
             fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
             fMSFBOType = kEXT_MSFBOType;
@@ -1770,9 +1771,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
     }
     if (this->textureRedSupport() ||
-        (kStandard_MSFBOType == this->msFBOType() && ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
+        (kStandard_MSFBOType == this->msFBOType() &&
+            ctxInfo.renderer() != kOSMesa_GrGLRenderer &&
+            ctxInfo.renderer() != kANGLE_D3D9_GrGLRenderer)) {
         // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
-        // However, osmesa fails if it used even when GL_ARB_framebuffer_object is present.
+        // However, osmesa fails if it is used even when GL_ARB_framebuffer_object is present.
+        // D3D9 (when wrapped in ANGLE) also lacks support for a single-channel format.
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
     }
