@@ -536,7 +536,23 @@ static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
     return result;
 }
 
-static SkColor compute_render_color(SkColor color, float alpha) {
+static SkColor compute_render_color(SkColor color, float alpha, bool useTonalColor) {
+    if (useTonalColor) {
+        uint8_t max = SkTMax(SkTMax(SkColorGetR(color), SkColorGetG(color)),
+                                SkColorGetB(color));
+        uint8_t min = SkTMin(SkTMin(SkColorGetR(color), SkColorGetG(color)),
+                                SkColorGetB(color));
+        SkScalar luminance = 0.5f*(max + min) / 255.f;
+
+        SkScalar tonalAlpha = alpha + luminance - alpha*luminance;
+        // After pre-multiplying, we want the alpha to be scaled by tonalAlpha, and
+        // the color scaled by (luminance - alpha*luminance). This scale factor gives that.
+        SkScalar colorScale = (luminance - alpha*luminance) / tonalAlpha;
+
+        return SkColorSetARGB(tonalAlpha*SkColorGetA(color), colorScale*SkColorGetR(color),
+                              colorScale*SkColorGetG(color), colorScale*SkColorGetB(color));
+    }
+    
     return SkColorSetARGB(alpha*SkColorGetA(color), SkColorGetR(color),
                           SkColorGetG(color), SkColorGetB(color));
 }
@@ -580,6 +596,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     bool tiltZPlane = tilted(rec.fZPlaneParams);
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
     bool uncached = tiltZPlane || path.isVolatile();
+    bool useTonalColor = SkToBool(rec.fFlags & kTonalColor_ShadowFlag);
 
     SkColor color = rec.fColor;
     SkPoint3 zPlaneParams = rec.fZPlaneParams;
@@ -589,11 +606,16 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     float ambientAlpha = rec.fAmbientAlpha;
     if (ambientAlpha > 0) {
         ambientAlpha = SkTMin(ambientAlpha, 1.f);
+        SkColor renderColor;
+        if (useTonalColor) {
+            renderColor = compute_render_color(SK_ColorBLACK, ambientAlpha, false);
+        } else {
+            renderColor = compute_render_color(color, ambientAlpha, false);
+        }
         if (uncached) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
                                                                           zPlaneParams,
                                                                           transparent);
-            SkColor renderColor = compute_render_color(color, ambientAlpha);
             SkPaint paint;
             // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
             // result of that against our 'color' param.
@@ -612,7 +634,6 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                 factory.fOffset.fY = viewMatrix.getTranslateY();
             }
 
-            SkColor renderColor = compute_render_color(color, ambientAlpha);
             draw_shadow(factory, drawVertsProc, shadowedPath, renderColor);
         }
     }
@@ -620,12 +641,12 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     float spotAlpha = rec.fSpotAlpha;
     if (spotAlpha > 0) {
         spotAlpha = SkTMin(spotAlpha, 1.f);
+        SkColor renderColor = compute_render_color(color, spotAlpha, useTonalColor);
         if (uncached) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix,
                                                                        zPlaneParams,
                                                                        devLightPos, lightRadius,
                                                                        transparent);
-            SkColor renderColor = compute_render_color(color, spotAlpha);
             SkPaint paint;
             // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
             // result of that against our 'color' param.
@@ -679,7 +700,6 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                     break;
             }
 #endif
-            SkColor renderColor = compute_render_color(color, spotAlpha);
             draw_shadow(factory, drawVertsProc, shadowedPath, renderColor);
         }
     }
