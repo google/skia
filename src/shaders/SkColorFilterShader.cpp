@@ -95,10 +95,11 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor
 
 void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f result[],
                                                           int count) {
-    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
+//    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
 
     fShaderContext->shadeSpan4f(x, y, result, count);
-    filterShader.fFilter->filterSpan4f(result, count, result);
+    // HACK -- REED
+//    filterShader.fFilter->onFilterStage(result, count, result);
 }
 
 #if SK_SUPPORT_GPU
