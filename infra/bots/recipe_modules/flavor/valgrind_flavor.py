@@ -14,14 +14,27 @@ class ValgrindFlavorUtils(gn_flavor.GNFlavorUtils):
     super(ValgrindFlavorUtils, self).__init__(m)
     self._suppressions_file = self.m.vars.skia_dir.join(
         'tools', 'valgrind.supp')
+    self._valgrind_cipd_dir = self.m.vars.slave_dir.join('valgrind')
+    # This is assumed to be /b/work/valgrind when building Valgrind.
+    self._valgrind_fake_dir = self._valgrind_cipd_dir #self.m.vars.persistent_workdir.join('valgrind')
+    self._valgrind = self._valgrind_fake_dir.join('bin', 'valgrind')
+    self._lib_dir = self._valgrind_fake_dir.join('lib', 'valgrind')
+
+  def install(self):
+    super(ValgrindFlavorUtils, self).install()
+    #self.m.run(
+    #    self.m.step, 'create symlink',
+    #    cmd=['ln', '-s', '-f',
+    #         self._valgrind_cipd_dir, self._valgrind_fake_dir],
+    #    infra_step=True)
 
   def step(self, name, cmd, **kwargs):
-    new_cmd = ['valgrind', '--gen-suppressions=all', '--leak-check=full',
-               '--track-origins=yes', '--error-exitcode=1', '--num-callers=40',
+    new_cmd = [self._valgrind, '-v', '--gen-suppressions=all',
+               '--leak-check=full', '--track-origins=yes', '--error-exitcode=1',
+               '--num-callers=40',
                '--suppressions=%s' % self._suppressions_file]
     path_to_app = self.out_dir.join(cmd[0])
     new_cmd.append(path_to_app)
     new_cmd.extend(cmd[1:])
-    return self.m.run(self.m.step, name, cmd=new_cmd,
-                            **kwargs)
-
+    with self.m.env({'VALGRIND_LIB': self._lib_dir}):
+      return self.m.run(self.m.step, name, cmd=new_cmd, **kwargs)

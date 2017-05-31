@@ -50,7 +50,7 @@ class tmp_dir(object):
 
   def __exit__(self, t, v, tb):
     os.chdir(self._orig_dir)
-    RemoveDirectory(self._tmp_dir)
+    #RemoveDirectory(self._tmp_dir)
 
   @property
   def name(self):
