@@ -60,7 +60,7 @@ public:
         if (dst.colorType() != src.colorType()) {
             return false;
         }
-        if (dst.info().gammaCloseToSRGB() != src.info().gammaCloseToSRGB()) {
+        if (dst.colorSpace()) {
             return false;
         }
         if (paint.getMaskFilter() || paint.getColorFilter() || paint.getImageFilter()) {
@@ -79,7 +79,7 @@ public:
 
         // At this point memcpy can't be used. The following check for using SrcOver.
 
-        if (dst.colorType() != kN32_SkColorType || !dst.info().gammaCloseToSRGB()) {
+        if (dst.colorType() != kN32_SkColorType) {
             return false;
         }
 
@@ -103,7 +103,6 @@ public:
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(fDst.colorType() == fSource.colorType());
-        SkASSERT(fDst.info().gammaCloseToSRGB() == fSource.info().gammaCloseToSRGB());
         SkASSERT(width > 0 && height > 0);
 
         if (fUseMemcpy) {
@@ -138,15 +137,6 @@ private:
     bool fUseMemcpy {true};
 };
 
-// Returns the hash of the color space gamut if we can, or sRGB's gamut hash if we can't.
-static uint32_t safe_gamut_hash(SkColorSpace* cs) {
-    if (!cs) {
-        static const uint32_t srgb_hash = as_CSB(SkColorSpace::MakeSRGB())->toXYZD50Hash();
-        return srgb_hash;
-    }
-    return as_CSB(cs)->toXYZD50Hash();
-}
-
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
 SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
@@ -162,8 +152,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     */
     SkASSERT(allocator != nullptr);
 
-    // No sprite blitters support gamut conversion.
-    if (safe_gamut_hash(source.colorSpace()) != safe_gamut_hash(dst.colorSpace())) {
+    if (dst.colorSpace()) {
         return nullptr;
     }
 
@@ -183,14 +172,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
                 blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
                 break;
             case kN32_SkColorType:
-                if (dst.info().gammaCloseToSRGB()) {
-                    blitter = SkSpriteBlitter::ChooseS32(source, paint, allocator);
-                } else {
-                    blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
-                }
-                break;
-            case kRGBA_F16_SkColorType:
-                blitter = SkSpriteBlitter::ChooseF16(source, paint, allocator);
+                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
                 break;
             default:
                 break;
