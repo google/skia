@@ -135,6 +135,7 @@ gm_sources = [
   "$_gm/gammaencodedpremul.cpp",
   "$_gm/gammatext.cpp",
   "$_gm/gamut.cpp",
+  "$_gm/gaussianedge.cpp",
   "$_gm/getpostextpath.cpp",
   "$_gm/giantbitmap.cpp",
   "$_gm/glyph_pos.cpp",

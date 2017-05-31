@@ -12,6 +12,7 @@
 #include "SkColorFilter.h"
 #include "SkCamera.h"
 #include "SkCanvas.h"
+#include "SkGaussianEdgeShader.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPoint3.h"

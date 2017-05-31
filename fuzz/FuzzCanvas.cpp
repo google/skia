@@ -38,6 +38,7 @@
 #include "SkDiscretePathEffect.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
+#include "SkGaussianEdgeShader.h"
 #include "SkGradientShader.h"
 #include "SkHighContrastFilter.h"
 #include "SkImageSource.h"
@@ -381,8 +382,7 @@ static sk_sp<SkShader> make_fuzz_shader(Fuzz* fuzz, int depth) {
         }
         // EFFECTS:
         case 9:
-            // Deprecated SkGaussianEdgeShader
-            return nullptr;
+            return SkGaussianEdgeShader::Make();
         case 10: {
             constexpr int kMaxColors = 12;
             SkPoint pts[2];
