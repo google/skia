@@ -29,7 +29,7 @@ public:
     static int Width() { return 10; }
     static int Height() { return 10; }
     // value choosen so that there is no loss when converting to to RGB565 and back
-    static SkColor Color() { return 0xff10345a; }
+    static SkColor Color() { return 0xff10355a; }
     static SkPMColor PMColor() { return SkPreMultiplyColor(Color()); }
 
     TestImageGenerator(TestType type, skiatest::Reporter* reporter,
