@@ -42,8 +42,10 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               int meshCount,
                               const SkRect& bounds) {
 #ifdef SK_DEBUG
+    SkASSERT(!primProc.hasInstanceAttribs() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(SkToBool(primProc.numAttribs()) == meshes[i].hasVertexData());
+        SkASSERT(primProc.hasVertexAttribs() == meshes[i].hasVertexData());
+        SkASSERT(primProc.hasInstanceAttribs() == meshes[i].isInstanced());
     }
 #endif
 
