@@ -1378,11 +1378,18 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         if (!fp) {
             return false;
         }
-
         paint.addCoverageFragmentProcessor(std::move(fp));
 
         SkRect srcProxyRect = srcRRect.rect();
-        srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
+        SkScalar outsetX = 3.0f*fSigma;
+        SkScalar outsetY = 3.0f*fSigma;
+        if (this->ignoreXform()) {
+            // The matrix passed in here is guaranteed to be just scale and translate so we can just
+            // grab the X and Y scales off the matrix.
+            outsetX /= viewMatrix.getScaleX();
+            outsetY /= viewMatrix.getScaleY();
+        }
+        srcProxyRect.outset(outsetX, outsetY);
 
         renderTargetContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
         return true;
