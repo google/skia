@@ -16,6 +16,24 @@
       "revId": "48bde29a61cd775f6ee557bf657139e818c8d8da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "842e0a03_7a0a19f9",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-31T13:55:25Z",
+      "side": 1,
+      "message": "oh, yes!",
+      "parentUuid": "4d2b0556_09136d27",
+      "revId": "48bde29a61cd775f6ee557bf657139e818c8d8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
