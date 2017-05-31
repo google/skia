@@ -109,7 +109,8 @@ public:
                                            const GrUniqueKey& key,
                                            SkImage::CachingHint,
                                            bool willBeMipped,
-                                           SkColorSpace* dstColorSpace) override;
+                                           SkColorSpace* dstColorSpace,
+                                           bool textureGenerationIsFast) override;
 
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even
@@ -687,7 +688,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                                                      const GrUniqueKey& origKey,
                                                      SkImage::CachingHint chint,
                                                      bool willBeMipped,
-                                                     SkColorSpace* dstColorSpace) {
+                                                     SkColorSpace* dstColorSpace,
+                                                     bool textureGenerationIsFast) {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -726,12 +728,17 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     // 2. Ask the generator to natively create one
     {
         ScopedGenerator generator(fSharedGenerator);
-        if (sk_sp<GrTextureProxy> proxy = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
+        if (sk_sp<GrTextureProxy> proxy = generator->generateTexture(ctx, cacheInfo, fOrigin,
+                                                                     textureGenerationIsFast)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
             set_key_on_proxy(ctx->resourceProvider(), proxy.get(), key);
             return proxy;
         }
+    }
+
+    if (textureGenerationIsFast) {
+        return nullptr;
     }
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert

@@ -142,7 +142,7 @@ public:
      *  - it can somehow convert its texture into one that is valid for the provided context.
      */
     sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
-                                          const SkIPoint& origin);
+                                          const SkIPoint& origin, bool textureGenerationIsFast);
 #endif
 
     /**
@@ -178,7 +178,7 @@ protected:
 #if SK_SUPPORT_GPU
     virtual bool onCanGenerateTexture() const { return false; }
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                    const SkIPoint&);   // returns nullptr
+                                                    const SkIPoint&, bool);   // returns nullptr
 #endif
 
 private:

@@ -23,7 +23,7 @@ protected:
 #if SK_SUPPORT_GPU
     bool onCanGenerateTexture() const override { return true; }
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
-                                            const SkIPoint&) override;
+                                            const SkIPoint&, bool) override;
 #endif
 
 private:

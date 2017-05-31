@@ -46,7 +46,8 @@ protected:
      *  caching of the original if desired.
      */
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                          SkColorSpace* dstColorSpace) = 0;
+                                                          SkColorSpace* dstColorSpace,
+                                                          bool textureGenerationIsFast) = 0;
 
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with

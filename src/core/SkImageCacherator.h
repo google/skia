@@ -45,7 +45,8 @@ public:
                                                    const GrUniqueKey& key,
                                                    SkImage::CachingHint,
                                                    bool willBeMipped,
-                                                   SkColorSpace* dstColorSpace) = 0;
+                                                   SkColorSpace* dstColorSpace,
+                                                   bool textureGenerationIsFast) = 0;
 
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even

@@ -102,8 +102,12 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(GrContext* ctx,
                                                                  const SkImageInfo& info,
-                                                                 const SkIPoint& origin) {
+                                                                 const SkIPoint& origin,
+                                                                 bool textureGenerationIsFast) {
     SkASSERT(ctx);
+    if (textureGenerationIsFast) {
+        return nullptr;
+    }
 
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface

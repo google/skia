@@ -165,7 +165,8 @@ public:
     }
 protected:
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
-                                            const SkIPoint& origin) override {
+                                            const SkIPoint& origin,
+                                            bool textureGenerationIsFast) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());
 
