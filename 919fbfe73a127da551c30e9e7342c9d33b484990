@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "070c5fd4_52dc92d9",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-31T12:36:02Z",
+      "side": 1,
+      "message": "nit, wrap",
+      "revId": "919fbfe73a127da551c30e9e7342c9d33b484990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e713dbb6_204ff10e",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1248,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-31T12:36:02Z",
+      "side": 1,
+      "message": "nit, wrap here and at 1252",
+      "revId": "919fbfe73a127da551c30e9e7342c9d33b484990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
