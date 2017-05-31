@@ -47,8 +47,8 @@ class iOSFlavorUtils(gn_flavor.GNFlavorUtils):
   def step(self, name, cmd, env=None, **kwargs):
     bundle_id = 'com.google.%s' % cmd[0]
     self.m.run(self.m.step, name,
-               cmd=['idevice-app-runner', '-s', bundle_id, '--args'] +
-                    map(str, cmd[1:]))
+               cmd=['idevice-app-runner-standard', '-d', '-s', bundle_id,
+                    '--args'] + map(str, cmd[1:]))
 
   def _run_ios_script(self, script, first, *rest):
     full = self.m.vars.skia_dir.join('platform_tools/ios/bin/ios_' + script)
