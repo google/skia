@@ -56,8 +56,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
-    fDisallowTexSubImageForTexturesEverBoundToFBO = false;
-    fUseDrawInsteadOfAllRenderTargetWrites = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
@@ -499,12 +497,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
-        fDisallowTexSubImageForTexturesEverBoundToFBO = true;
+        fUseDrawInsteadOfPartialRenderTargetWrite = true;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
     if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
-        fDisallowTexSubImageForTexturesEverBoundToFBO = true;
+        fUseDrawInsteadOfPartialRenderTargetWrite = true;
         fUseDrawInsteadOfAllRenderTargetWrites = true;
     }
 
@@ -1255,10 +1253,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
     r.appendf("BGRA to RGBA readback conversions are slow: %s\n",
               (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
-    r.appendf("Intermediate texture for partial updates of textures ever bound to FBOs: %s\n",
-              fDisallowTexSubImageForTexturesEverBoundToFBO ? "YES" : "NO");
-    r.appendf("Intermediate texture for all updates of textures bound to FBOs: %s\n",
-              fUseDrawInsteadOfAllRenderTargetWrites ? "YES" : "NO");
 
     r.append("Configs\n-------\n");
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
@@ -2152,8 +2146,5 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         // glDraw*Indirect, regardless of the underlying GPU.
         fAvoidInstancedDrawsToFPTargets = true;
 #endif
-    }
-    if (options.fUseDrawInsteadOfPartialRenderTargetWrite) {
-        fUseDrawInsteadOfAllRenderTargetWrites = true;
     }
 }
