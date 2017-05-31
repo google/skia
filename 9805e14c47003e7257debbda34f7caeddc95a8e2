@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46a3e42b_0f006498",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-31T18:16:02Z",
+      "side": 1,
+      "message": "what if we did this:\n\n        } else if (ctxInfo.version() \u003e\u003d GR_GL_VER(3,0)) {\n            fMSFBOType \u003d kStandard_MSFBOType;\n        } else if (ctxInfo.hasExtension(\"GL_CHROMIUM_framebuffer_multisample\")) {\n            if (ctxInfo.renderer() \u003d\u003d kANGLE_D3D9_GrGLRenderer) {\n                // In this case GL_CHROMIUM_framebuffer_multisample is implemented as\n                // GL_ANGLE_framebuffer_multisample.\n                fMSFBOType \u003d kEXT_MSFBOType;\n            } else {\n                fMSFBOType \u003d kStandard_MSFBOType;\n            }\n        } else if (ctxInfo.hasExtension(\"GL_ANGLE_framebuffer_multisample\")) {\n            fMSFBOType \u003d kEXT_MSFBOType;\n        }\n\nI think then we wouldn\u0027t need the check below and might prevent other bugs.",
+      "range": {
+        "startLine": 1033,
+        "startChar": 0,
+        "endLine": 1038,
+        "endChar": 40
+      },
+      "revId": "9805e14c47003e7257debbda34f7caeddc95a8e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
