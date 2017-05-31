@@ -1958,7 +1958,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
                       glRT->renderTargetPriv().numStencilBits());
     }
-   // this->flushStencil(stencil);
+    this->flushStencil(stencil);
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
     this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT);
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());

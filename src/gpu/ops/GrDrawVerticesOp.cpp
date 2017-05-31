@@ -38,7 +38,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> GrDrawVerticesOp::Make(GrColor color,
     GrPrimitiveType primType = SkVertexModeToGrPrimitiveType(vertices->mode());
     return std::unique_ptr<GrLegacyMeshDrawOp>(
             new GrDrawVerticesOp(std::move(vertices), primType, color,
-                                 GrRenderTargetContext::ColorArrayType::kSkColor, viewMatrix));
+                                 GrRenderTargetContext::ColorArrayType::kPremulGrColor, viewMatrix));
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType primitiveType,
