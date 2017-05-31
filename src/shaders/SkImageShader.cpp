@@ -313,7 +313,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
             case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::gather_f16,  gather); break;
             default: SkASSERT(false);
         }
-        if (info.gammaCloseToSRGB() && dstCS != nullptr) {
+        if (dstCS && (!info.colorSpace() || info.gammaCloseToSRGB())) {
             p->append_from_srgb(info.alphaType());
         }
     };
