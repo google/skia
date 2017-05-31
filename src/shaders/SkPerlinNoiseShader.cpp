@@ -66,8 +66,226 @@ static uint8_t improved_noise_permutations[] = {
 
 class SkPerlinNoiseShaderImpl : public SkShaderBase {
 public:
-    struct StitchData;
-    struct PaintingData;
+    struct StitchData {
+        StitchData()
+          : fWidth(0)
+          , fWrapX(0)
+          , fHeight(0)
+          , fWrapY(0)
+        {}
+
+        bool operator==(const StitchData& other) const {
+            return fWidth == other.fWidth &&
+                   fWrapX == other.fWrapX &&
+                   fHeight == other.fHeight &&
+                   fWrapY == other.fWrapY;
+        }
+
+        int fWidth; // How much to subtract to wrap for stitching.
+        int fWrapX; // Minimum value to wrap.
+        int fHeight;
+        int fWrapY;
+    };
+
+    struct PaintingData {
+        PaintingData(const SkISize& tileSize, SkScalar seed,
+                     SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                     const SkMatrix& matrix)
+        {
+            SkVector vec[2] = {
+                { SkScalarInvert(baseFrequencyX),   SkScalarInvert(baseFrequencyY)  },
+                { SkIntToScalar(tileSize.fWidth),   SkIntToScalar(tileSize.fHeight) },
+            };
+            matrix.mapVectors(vec, 2);
+
+            fBaseFrequency.set(SkScalarInvert(vec[0].fX), SkScalarInvert(vec[0].fY));
+            fTileSize.set(SkScalarRoundToInt(vec[1].fX), SkScalarRoundToInt(vec[1].fY));
+            this->init(seed);
+            if (!fTileSize.isEmpty()) {
+                this->stitch();
+            }
+
+    #if SK_SUPPORT_GPU
+            fPermutationsBitmap.setInfo(SkImageInfo::MakeA8(kBlockSize, 1));
+            fPermutationsBitmap.setPixels(fLatticeSelector);
+
+            fNoiseBitmap.setInfo(SkImageInfo::MakeN32Premul(kBlockSize, 4));
+            fNoiseBitmap.setPixels(fNoise[0][0]);
+
+            fImprovedPermutationsBitmap.setInfo(SkImageInfo::MakeA8(256, 1));
+            fImprovedPermutationsBitmap.setPixels(improved_noise_permutations);
+
+            fGradientBitmap.setInfo(SkImageInfo::MakeN32Premul(16, 1));
+            static uint8_t gradients[] = { 2, 2, 1, 0,
+                                           0, 2, 1, 0,
+                                           2, 0, 1, 0,
+                                           0, 0, 1, 0,
+                                           2, 1, 2, 0,
+                                           0, 1, 2, 0,
+                                           2, 1, 0, 0,
+                                           0, 1, 0, 0,
+                                           1, 2, 2, 0,
+                                           1, 0, 2, 0,
+                                           1, 2, 0, 0,
+                                           1, 0, 0, 0,
+                                           2, 2, 1, 0,
+                                           1, 0, 2, 0,
+                                           0, 2, 1, 0,
+                                           1, 0, 0, 0 };
+            fGradientBitmap.setPixels(gradients);
+    #endif
+        }
+
+        int         fSeed;
+        uint8_t     fLatticeSelector[kBlockSize];
+        uint16_t    fNoise[4][kBlockSize][2];
+        SkPoint     fGradient[4][kBlockSize];
+        SkISize     fTileSize;
+        SkVector    fBaseFrequency;
+        StitchData  fStitchDataInit;
+
+    private:
+
+    #if SK_SUPPORT_GPU
+        SkBitmap   fPermutationsBitmap;
+        SkBitmap   fNoiseBitmap;
+        SkBitmap   fImprovedPermutationsBitmap;
+        SkBitmap   fGradientBitmap;
+    #endif
+
+        inline int random()  {
+            static const int gRandAmplitude = 16807; // 7**5; primitive root of m
+            static const int gRandQ = 127773; // m / a
+            static const int gRandR = 2836; // m % a
+
+            int result = gRandAmplitude * (fSeed % gRandQ) - gRandR * (fSeed / gRandQ);
+            if (result <= 0)
+                result += kRandMaximum;
+            fSeed = result;
+            return result;
+        }
+
+        // Only called once. Could be part of the constructor.
+        void init(SkScalar seed)
+        {
+            static const SkScalar gInvBlockSizef = SkScalarInvert(SkIntToScalar(kBlockSize));
+
+            // According to the SVG spec, we must truncate (not round) the seed value.
+            fSeed = SkScalarTruncToInt(seed);
+            // The seed value clamp to the range [1, kRandMaximum - 1].
+            if (fSeed <= 0) {
+                fSeed = -(fSeed % (kRandMaximum - 1)) + 1;
+            }
+            if (fSeed > kRandMaximum - 1) {
+                fSeed = kRandMaximum - 1;
+            }
+            for (int channel = 0; channel < 4; ++channel) {
+                for (int i = 0; i < kBlockSize; ++i) {
+                    fLatticeSelector[i] = i;
+                    fNoise[channel][i][0] = (random() % (2 * kBlockSize));
+                    fNoise[channel][i][1] = (random() % (2 * kBlockSize));
+                }
+            }
+            for (int i = kBlockSize - 1; i > 0; --i) {
+                int k = fLatticeSelector[i];
+                int j = random() % kBlockSize;
+                SkASSERT(j >= 0);
+                SkASSERT(j < kBlockSize);
+                fLatticeSelector[i] = fLatticeSelector[j];
+                fLatticeSelector[j] = k;
+            }
+
+            // Perform the permutations now
+            {
+                // Copy noise data
+                uint16_t noise[4][kBlockSize][2];
+                for (int i = 0; i < kBlockSize; ++i) {
+                    for (int channel = 0; channel < 4; ++channel) {
+                        for (int j = 0; j < 2; ++j) {
+                            noise[channel][i][j] = fNoise[channel][i][j];
+                        }
+                    }
+                }
+                // Do permutations on noise data
+                for (int i = 0; i < kBlockSize; ++i) {
+                    for (int channel = 0; channel < 4; ++channel) {
+                        for (int j = 0; j < 2; ++j) {
+                            fNoise[channel][i][j] = noise[channel][fLatticeSelector[i]][j];
+                        }
+                    }
+                }
+            }
+
+            // Half of the largest possible value for 16 bit unsigned int
+            static const SkScalar gHalfMax16bits = 32767.5f;
+
+            // Compute gradients from permutated noise data
+            for (int channel = 0; channel < 4; ++channel) {
+                for (int i = 0; i < kBlockSize; ++i) {
+                    fGradient[channel][i] = SkPoint::Make(
+                        (fNoise[channel][i][0] - kBlockSize) * gInvBlockSizef,
+                        (fNoise[channel][i][1] - kBlockSize) * gInvBlockSizef);
+                    fGradient[channel][i].normalize();
+                    // Put the normalized gradient back into the noise data
+                    fNoise[channel][i][0] = SkScalarRoundToInt(
+                                                   (fGradient[channel][i].fX + 1) * gHalfMax16bits);
+                    fNoise[channel][i][1] = SkScalarRoundToInt(
+                                                   (fGradient[channel][i].fY + 1) * gHalfMax16bits);
+                }
+            }
+        }
+
+        // Only called once. Could be part of the constructor.
+        void stitch() {
+            SkScalar tileWidth  = SkIntToScalar(fTileSize.width());
+            SkScalar tileHeight = SkIntToScalar(fTileSize.height());
+            SkASSERT(tileWidth > 0 && tileHeight > 0);
+            // When stitching tiled turbulence, the frequencies must be adjusted
+            // so that the tile borders will be continuous.
+            if (fBaseFrequency.fX) {
+                SkScalar lowFrequencx =
+                    SkScalarFloorToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
+                SkScalar highFrequencx =
+                    SkScalarCeilToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
+                // BaseFrequency should be non-negative according to the standard.
+                if (fBaseFrequency.fX / lowFrequencx < highFrequencx / fBaseFrequency.fX) {
+                    fBaseFrequency.fX = lowFrequencx;
+                } else {
+                    fBaseFrequency.fX = highFrequencx;
+                }
+            }
+            if (fBaseFrequency.fY) {
+                SkScalar lowFrequency =
+                    SkScalarFloorToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
+                SkScalar highFrequency =
+                    SkScalarCeilToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
+                if (fBaseFrequency.fY / lowFrequency < highFrequency / fBaseFrequency.fY) {
+                    fBaseFrequency.fY = lowFrequency;
+                } else {
+                    fBaseFrequency.fY = highFrequency;
+                }
+            }
+            // Set up TurbulenceInitial stitch values.
+            fStitchDataInit.fWidth  =
+                SkScalarRoundToInt(tileWidth * fBaseFrequency.fX);
+            fStitchDataInit.fWrapX  = kPerlinNoise + fStitchDataInit.fWidth;
+            fStitchDataInit.fHeight =
+                SkScalarRoundToInt(tileHeight * fBaseFrequency.fY);
+            fStitchDataInit.fWrapY  = kPerlinNoise + fStitchDataInit.fHeight;
+        }
+
+    public:
+
+#if SK_SUPPORT_GPU
+        const SkBitmap& getPermutationsBitmap() const { return fPermutationsBitmap; }
+
+        const SkBitmap& getNoiseBitmap() const { return fNoiseBitmap; }
+
+        const SkBitmap& getImprovedPermutationsBitmap() const { return fImprovedPermutationsBitmap; }
+
+        const SkBitmap& getGradientBitmap() const { return fGradientBitmap; }
+#endif
+    };
 
     /**
      *  About the noise types : the difference between the first 2 is just minor tweaks to the
@@ -93,13 +311,10 @@ public:
     SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type, SkScalar baseFrequencyX,
                       SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
                       const SkISize* tileSize);
-    ~SkPerlinNoiseShaderImpl() override;
-
 
     class PerlinNoiseShaderContext : public Context {
     public:
         PerlinNoiseShaderContext(const SkPerlinNoiseShaderImpl& shader, const ContextRec&);
-        ~PerlinNoiseShaderContext() override;
 
         void shadeSpan(int x, int y, SkPMColor[], int count) override;
 
@@ -112,8 +327,8 @@ public:
         SkScalar noise2D(int channel,
                          const StitchData& stitchData, const SkPoint& noiseVector) const;
 
-        SkMatrix fMatrix;
-        PaintingData* fPaintingData;
+        SkMatrix     fMatrix;
+        PaintingData fPaintingData;
 
         typedef Context INHERITED;
     };
@@ -164,227 +379,6 @@ inline SkScalar smoothCurve(SkScalar t) {
 
 } // end namespace
 
-struct SkPerlinNoiseShaderImpl::StitchData {
-    StitchData()
-      : fWidth(0)
-      , fWrapX(0)
-      , fHeight(0)
-      , fWrapY(0)
-    {}
-
-    bool operator==(const StitchData& other) const {
-        return fWidth == other.fWidth &&
-               fWrapX == other.fWrapX &&
-               fHeight == other.fHeight &&
-               fWrapY == other.fWrapY;
-    }
-
-    int fWidth; // How much to subtract to wrap for stitching.
-    int fWrapX; // Minimum value to wrap.
-    int fHeight;
-    int fWrapY;
-};
-
-struct SkPerlinNoiseShaderImpl::PaintingData {
-    PaintingData(const SkISize& tileSize, SkScalar seed,
-                 SkScalar baseFrequencyX, SkScalar baseFrequencyY,
-                 const SkMatrix& matrix)
-    {
-        SkVector vec[2] = {
-            { SkScalarInvert(baseFrequencyX),   SkScalarInvert(baseFrequencyY)  },
-            { SkIntToScalar(tileSize.fWidth),   SkIntToScalar(tileSize.fHeight) },
-        };
-        matrix.mapVectors(vec, 2);
-
-        fBaseFrequency.set(SkScalarInvert(vec[0].fX), SkScalarInvert(vec[0].fY));
-        fTileSize.set(SkScalarRoundToInt(vec[1].fX), SkScalarRoundToInt(vec[1].fY));
-        this->init(seed);
-        if (!fTileSize.isEmpty()) {
-            this->stitch();
-        }
-
-#if SK_SUPPORT_GPU
-        fPermutationsBitmap.setInfo(SkImageInfo::MakeA8(kBlockSize, 1));
-        fPermutationsBitmap.setPixels(fLatticeSelector);
-
-        fNoiseBitmap.setInfo(SkImageInfo::MakeN32Premul(kBlockSize, 4));
-        fNoiseBitmap.setPixels(fNoise[0][0]);
-
-        fImprovedPermutationsBitmap.setInfo(SkImageInfo::MakeA8(256, 1));
-        fImprovedPermutationsBitmap.setPixels(improved_noise_permutations);
-
-        fGradientBitmap.setInfo(SkImageInfo::MakeN32Premul(16, 1));
-        static uint8_t gradients[] = { 2, 2, 1, 0,
-                                       0, 2, 1, 0,
-                                       2, 0, 1, 0,
-                                       0, 0, 1, 0,
-                                       2, 1, 2, 0,
-                                       0, 1, 2, 0,
-                                       2, 1, 0, 0,
-                                       0, 1, 0, 0,
-                                       1, 2, 2, 0,
-                                       1, 0, 2, 0,
-                                       1, 2, 0, 0,
-                                       1, 0, 0, 0,
-                                       2, 2, 1, 0,
-                                       1, 0, 2, 0,
-                                       0, 2, 1, 0,
-                                       1, 0, 0, 0 };
-        fGradientBitmap.setPixels(gradients);
-#endif
-    }
-
-    int         fSeed;
-    uint8_t     fLatticeSelector[kBlockSize];
-    uint16_t    fNoise[4][kBlockSize][2];
-    SkPoint     fGradient[4][kBlockSize];
-    SkISize     fTileSize;
-    SkVector    fBaseFrequency;
-    StitchData  fStitchDataInit;
-
-private:
-
-#if SK_SUPPORT_GPU
-    SkBitmap   fPermutationsBitmap;
-    SkBitmap   fNoiseBitmap;
-    SkBitmap   fImprovedPermutationsBitmap;
-    SkBitmap   fGradientBitmap;
-#endif
-
-    inline int random()  {
-        static const int gRandAmplitude = 16807; // 7**5; primitive root of m
-        static const int gRandQ = 127773; // m / a
-        static const int gRandR = 2836; // m % a
-
-        int result = gRandAmplitude * (fSeed % gRandQ) - gRandR * (fSeed / gRandQ);
-        if (result <= 0)
-            result += kRandMaximum;
-        fSeed = result;
-        return result;
-    }
-
-    // Only called once. Could be part of the constructor.
-    void init(SkScalar seed)
-    {
-        static const SkScalar gInvBlockSizef = SkScalarInvert(SkIntToScalar(kBlockSize));
-
-        // According to the SVG spec, we must truncate (not round) the seed value.
-        fSeed = SkScalarTruncToInt(seed);
-        // The seed value clamp to the range [1, kRandMaximum - 1].
-        if (fSeed <= 0) {
-            fSeed = -(fSeed % (kRandMaximum - 1)) + 1;
-        }
-        if (fSeed > kRandMaximum - 1) {
-            fSeed = kRandMaximum - 1;
-        }
-        for (int channel = 0; channel < 4; ++channel) {
-            for (int i = 0; i < kBlockSize; ++i) {
-                fLatticeSelector[i] = i;
-                fNoise[channel][i][0] = (random() % (2 * kBlockSize));
-                fNoise[channel][i][1] = (random() % (2 * kBlockSize));
-            }
-        }
-        for (int i = kBlockSize - 1; i > 0; --i) {
-            int k = fLatticeSelector[i];
-            int j = random() % kBlockSize;
-            SkASSERT(j >= 0);
-            SkASSERT(j < kBlockSize);
-            fLatticeSelector[i] = fLatticeSelector[j];
-            fLatticeSelector[j] = k;
-        }
-
-        // Perform the permutations now
-        {
-            // Copy noise data
-            uint16_t noise[4][kBlockSize][2];
-            for (int i = 0; i < kBlockSize; ++i) {
-                for (int channel = 0; channel < 4; ++channel) {
-                    for (int j = 0; j < 2; ++j) {
-                        noise[channel][i][j] = fNoise[channel][i][j];
-                    }
-                }
-            }
-            // Do permutations on noise data
-            for (int i = 0; i < kBlockSize; ++i) {
-                for (int channel = 0; channel < 4; ++channel) {
-                    for (int j = 0; j < 2; ++j) {
-                        fNoise[channel][i][j] = noise[channel][fLatticeSelector[i]][j];
-                    }
-                }
-            }
-        }
-
-        // Half of the largest possible value for 16 bit unsigned int
-        static const SkScalar gHalfMax16bits = 32767.5f;
-
-        // Compute gradients from permutated noise data
-        for (int channel = 0; channel < 4; ++channel) {
-            for (int i = 0; i < kBlockSize; ++i) {
-                fGradient[channel][i] = SkPoint::Make(
-                    (fNoise[channel][i][0] - kBlockSize) * gInvBlockSizef,
-                    (fNoise[channel][i][1] - kBlockSize) * gInvBlockSizef);
-                fGradient[channel][i].normalize();
-                // Put the normalized gradient back into the noise data
-                fNoise[channel][i][0] = SkScalarRoundToInt(
-                                               (fGradient[channel][i].fX + 1) * gHalfMax16bits);
-                fNoise[channel][i][1] = SkScalarRoundToInt(
-                                               (fGradient[channel][i].fY + 1) * gHalfMax16bits);
-            }
-        }
-    }
-
-    // Only called once. Could be part of the constructor.
-    void stitch() {
-        SkScalar tileWidth  = SkIntToScalar(fTileSize.width());
-        SkScalar tileHeight = SkIntToScalar(fTileSize.height());
-        SkASSERT(tileWidth > 0 && tileHeight > 0);
-        // When stitching tiled turbulence, the frequencies must be adjusted
-        // so that the tile borders will be continuous.
-        if (fBaseFrequency.fX) {
-            SkScalar lowFrequencx =
-                SkScalarFloorToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
-            SkScalar highFrequencx =
-                SkScalarCeilToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
-            // BaseFrequency should be non-negative according to the standard.
-            if (fBaseFrequency.fX / lowFrequencx < highFrequencx / fBaseFrequency.fX) {
-                fBaseFrequency.fX = lowFrequencx;
-            } else {
-                fBaseFrequency.fX = highFrequencx;
-            }
-        }
-        if (fBaseFrequency.fY) {
-            SkScalar lowFrequency =
-                SkScalarFloorToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
-            SkScalar highFrequency =
-                SkScalarCeilToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
-            if (fBaseFrequency.fY / lowFrequency < highFrequency / fBaseFrequency.fY) {
-                fBaseFrequency.fY = lowFrequency;
-            } else {
-                fBaseFrequency.fY = highFrequency;
-            }
-        }
-        // Set up TurbulenceInitial stitch values.
-        fStitchDataInit.fWidth  =
-            SkScalarRoundToInt(tileWidth * fBaseFrequency.fX);
-        fStitchDataInit.fWrapX  = kPerlinNoise + fStitchDataInit.fWidth;
-        fStitchDataInit.fHeight =
-            SkScalarRoundToInt(tileHeight * fBaseFrequency.fY);
-        fStitchDataInit.fWrapY  = kPerlinNoise + fStitchDataInit.fHeight;
-    }
-
-public:
-
-#if SK_SUPPORT_GPU
-    const SkBitmap& getPermutationsBitmap() const { return fPermutationsBitmap; }
-
-    const SkBitmap& getNoiseBitmap() const { return fNoiseBitmap; }
-
-    const SkBitmap& getImprovedPermutationsBitmap() const { return fImprovedPermutationsBitmap; }
-
-    const SkBitmap& getGradientBitmap() const { return fGradientBitmap; }
-#endif
-};
-
 SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type type,
                                          SkScalar baseFrequencyX,
                                          SkScalar baseFrequencyY,
@@ -400,9 +394,6 @@ SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type t
   , fStitchTiles(!fTileSize.isEmpty())
 {
     SkASSERT(numOctaves >= 0 && numOctaves < 256);
-}
-
-SkPerlinNoiseShaderImpl::~SkPerlinNoiseShaderImpl() {
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
@@ -470,10 +461,8 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::noise2D(
     noiseY.noisePositionIntegerValue &= kBlockMask;
     noiseX.nextNoisePositionIntegerValue &= kBlockMask;
     noiseY.nextNoisePositionIntegerValue &= kBlockMask;
-    int i =
-        fPaintingData->fLatticeSelector[noiseX.noisePositionIntegerValue];
-    int j =
-        fPaintingData->fLatticeSelector[noiseX.nextNoisePositionIntegerValue];
+    int i = fPaintingData.fLatticeSelector[noiseX.noisePositionIntegerValue];
+    int j = fPaintingData.fLatticeSelector[noiseX.nextNoisePositionIntegerValue];
     int b00 = (i + noiseY.noisePositionIntegerValue) & kBlockMask;
     int b10 = (j + noiseY.noisePositionIntegerValue) & kBlockMask;
     int b01 = (i + noiseY.nextNoisePositionIntegerValue) & kBlockMask;
@@ -488,14 +477,14 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::noise2D(
     // This is taken 1:1 from SVG spec: http://www.w3.org/TR/SVG11/filters.html#feTurbulenceElement
     SkPoint fractionValue = SkPoint::Make(noiseX.noisePositionFractionValue,
                                           noiseY.noisePositionFractionValue); // Offset (0,0)
-    u = fPaintingData->fGradient[channel][b00].dot(fractionValue);
+    u = fPaintingData.fGradient[channel][b00].dot(fractionValue);
     fractionValue.fX -= SK_Scalar1; // Offset (-1,0)
-    v = fPaintingData->fGradient[channel][b10].dot(fractionValue);
+    v = fPaintingData.fGradient[channel][b10].dot(fractionValue);
     SkScalar a = SkScalarInterp(u, v, sx);
     fractionValue.fY -= SK_Scalar1; // Offset (-1,-1)
-    v = fPaintingData->fGradient[channel][b11].dot(fractionValue);
+    v = fPaintingData.fGradient[channel][b11].dot(fractionValue);
     fractionValue.fX = noiseX.noisePositionFractionValue; // Offset (0,-1)
-    u = fPaintingData->fGradient[channel][b01].dot(fractionValue);
+    u = fPaintingData.fGradient[channel][b01].dot(fractionValue);
     SkScalar b = SkScalarInterp(u, v, sx);
     return SkScalarInterp(a, b, sy);
 }
@@ -505,11 +494,11 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::calculateTurbulenceV
     const SkPerlinNoiseShaderImpl& perlinNoiseShader = static_cast<const SkPerlinNoiseShaderImpl&>(fShader);
     if (perlinNoiseShader.fStitchTiles) {
         // Set up TurbulenceInitial stitch values.
-        stitchData = fPaintingData->fStitchDataInit;
+        stitchData = fPaintingData.fStitchDataInit;
     }
     SkScalar turbulenceFunctionResult = 0;
-    SkPoint noiseVector(SkPoint::Make(point.x() * fPaintingData->fBaseFrequency.fX,
-                                      point.y() * fPaintingData->fBaseFrequency.fY));
+    SkPoint noiseVector(SkPoint::Make(point.x() * fPaintingData.fBaseFrequency.fX,
+                                      point.y() * fPaintingData.fBaseFrequency.fY));
     SkScalar ratio = SK_Scalar1;
     for (int octave = 0; octave < perlinNoiseShader.fNumOctaves; ++octave) {
         SkScalar noise = noise2D(channel, stitchData, noiseVector);
@@ -631,23 +620,28 @@ SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(const ContextRec& 
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
 
+static inline SkMatrix total_matrix(const SkShaderBase::ContextRec& rec,
+                                    const SkShaderBase& shader) {
+    SkMatrix matrix = SkMatrix::Concat(*rec.fMatrix, shader.getLocalMatrix());
+    if (rec.fLocalMatrix) {
+        matrix.preConcat(*rec.fLocalMatrix);
+    }
+
+    return matrix;
+}
+
 SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::PerlinNoiseShaderContext(
         const SkPerlinNoiseShaderImpl& shader, const ContextRec& rec)
     : INHERITED(shader, rec)
+    , fMatrix(total_matrix(rec, shader)) // used for temp storage, adjusted below
+    , fPaintingData(shader.fTileSize, shader.fSeed, shader.fBaseFrequencyX,
+                    shader.fBaseFrequencyY, fMatrix)
 {
-    SkMatrix newMatrix = *rec.fMatrix;
-    newMatrix.preConcat(shader.getLocalMatrix());
-    if (rec.fLocalMatrix) {
-        newMatrix.preConcat(*rec.fLocalMatrix);
-    }
     // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
     // (as opposed to 0 based, usually). The same adjustment is in the setData() function.
-    fMatrix.setTranslate(-newMatrix.getTranslateX() + SK_Scalar1, -newMatrix.getTranslateY() + SK_Scalar1);
-    fPaintingData = new PaintingData(shader.fTileSize, shader.fSeed, shader.fBaseFrequencyX,
-                                     shader.fBaseFrequencyY, newMatrix);
+    fMatrix.setTranslate(-fMatrix.getTranslateX() + SK_Scalar1,
+                         -fMatrix.getTranslateY() + SK_Scalar1);
 }
-
-SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::~PerlinNoiseShaderContext() { delete fPaintingData; }
 
 void SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shadeSpan(
         int x, int y, SkPMColor result[], int count) {
