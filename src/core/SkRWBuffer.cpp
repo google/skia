@@ -9,6 +9,7 @@
 
 #include "SkAtomics.h"
 #include "SkMalloc.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
 
 // Force small chunks to be a page's worth
@@ -359,4 +360,8 @@ private:
 SkStreamAsset* SkRWBuffer::newStreamSnapshot() const {
     sk_sp<SkROBuffer> buffer(this->newRBufferSnapshot());
     return new SkROBufferStreamAsset(buffer.get());
+}
+
+std::unique_ptr<SkStreamAsset> SkRWBuffer::makeStreamSnapshot() const {
+    return skstd::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot().get());
 }
