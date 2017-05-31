@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkOverdrawColorFilter.h"
 #include "SkPM4f.h"
+#include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
+#include "../jumper/SkJumper.h"
 
 void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     for (int x = 0; x < count; x++) {
@@ -20,14 +23,28 @@ void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
     }
 }
 
-void SkOverdrawColorFilter::onFilterStage(const SkPM4f src[], int count, SkPM4f dst[]) const {
-    for (int i = 0; i < count; ++i) {
-        uint8_t alpha = (int)(src[i].a() * 255);
-        if (alpha >= kNumColors) {
-            alpha = kNumColors - 1;
+void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
+                                           SkColorSpace* dstCS,
+                                           SkArenaAlloc* alloc,
+                                           bool shader_is_opaque) const {
+    struct Ctx : public SkJumper_CallbackCtx {
+        const SkPMColor* colors;
+    };
+    // TODO: do we care about transforming to dstCS?
+    auto ctx = alloc->make<Ctx>();
+    ctx->colors = fColors;
+    ctx->fn = [](SkJumper_CallbackCtx* arg, int active_pixels) {
+        auto ctx = (Ctx*)arg;
+        auto pixels = (SkPM4f*)ctx->rgba;
+        for (int i = 0; i < active_pixels; i++) {
+            uint8_t alpha = (int)(pixels[i].a() * 255);
+            if (alpha >= kNumColors) {
+                alpha = kNumColors - 1;
+            }
+            pixels[i] = SkPM4f::FromPMColor(ctx->colors[alpha]);
         }
-        dst[i] = SkPM4f::FromPMColor(fColors[alpha]);
-    }
+    };
+    p->append(SkRasterPipeline::callback, ctx);
 }
 
 void SkOverdrawColorFilter::toString(SkString* str) const {
