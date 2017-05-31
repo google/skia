@@ -6,13 +6,14 @@
 # Recipe for the Skia PerCommit Housekeeper.
 
 DEPS = [
+  'checkout',
   'depot_tools/bot_update',
+  'flavor',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
-  'core',
   'run',
   'vars',
 ]
@@ -20,7 +21,9 @@ DEPS = [
 
 def RunSteps(api):
   # Checkout, compile, etc.
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
+  api.flavor.setup()
 
   cwd = api.path['checkout']
 
@@ -32,10 +35,10 @@ def RunSteps(api):
       api.run(
         api.step,
         'generate and upload doxygen',
-        cmd=['python', api.core.resource('generate_and_upload_doxygen.py')],
+        cmd=['python', api.checkout.resource('generate_and_upload_doxygen.py')],
         abort_on_failure=False)
 
-    cmd = ['python', api.core.resource('run_binary_size_analysis.py'),
+    cmd = ['python', api.checkout.resource('run_binary_size_analysis.py'),
            '--library', api.vars.skia_out.join(
                'Release', 'lib', 'libskia.so'),
            '--githash', api.properties['revision'],

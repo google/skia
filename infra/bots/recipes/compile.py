@@ -7,7 +7,7 @@
 
 
 DEPS = [
-  'core',
+  'checkout',
   'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
@@ -43,7 +43,9 @@ def get_extra_env_vars(builder_dict):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
+  api.flavor.setup()
 
   env = get_extra_env_vars(api.vars.builder_cfg)
   build_targets = build_targets_from_builder_dict(api.vars.builder_cfg)

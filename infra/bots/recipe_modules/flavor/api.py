@@ -75,6 +75,12 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return gn_flavor.GNFlavorUtils(self)
 
   def setup(self):
+    if not self.m.path.exists(self.m.vars.tmp_dir):
+      self.m.run.run_once(self.m.file.makedirs,
+                          'tmp_dir',
+                          self.m.vars.tmp_dir,
+                          infra_step=True)
+
     self._f = self.get_flavor(self.m.vars.builder_cfg)
 
   def step(self, name, cmd, **kwargs):

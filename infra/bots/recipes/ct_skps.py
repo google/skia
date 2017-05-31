@@ -7,6 +7,8 @@ import math
 
 
 DEPS = [
+  'checkout',
+  'ct',
   'depot_tools/gsutil',
   'file',
   'recipe_engine/context',
@@ -15,8 +17,6 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
-  'core',
-  'ct',
   'flavor',
   'run',
   'skia_swarming',
@@ -72,7 +72,9 @@ def RunSteps(api):
   else:
     raise Exception('Do not recognise the buildername %s.' % buildername)
 
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
+  api.flavor.setup()
   api.flavor.compile(build_target)
 
   # Required paths.

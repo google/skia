@@ -7,16 +7,16 @@
 
 
 DEPS = [
+  'checkout',
   'depot_tools/gclient',
   'file',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'core',
-  'infra',
   'run',
   'vars',
 ]
@@ -36,7 +36,8 @@ UPDATE_META_CONFIG_KEY = 'update_meta_config_git_cookies'
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
 
   if api.vars.is_trybot:
     raise Exception('Cannot run update_meta_config recipe as a trybot')

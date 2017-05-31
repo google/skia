@@ -10,7 +10,7 @@ import calendar
 
 
 DEPS = [
-  'core',
+  'checkout',
   'env',
   'file',
   'flavor',
@@ -313,7 +313,10 @@ def perf_steps(api):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
+  api.flavor.setup()
+
   env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
