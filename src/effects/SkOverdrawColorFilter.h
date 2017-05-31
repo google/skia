@@ -32,7 +32,6 @@ public:
 #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
     void toString(SkString* str) const override;
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);
@@ -46,6 +45,8 @@ private:
     SkOverdrawColorFilter(const SkPMColor colors[kNumColors]) {
         memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
     }
+
+    void onFilterStage(const SkPM4f src[], int count, SkPM4f result[]) const override;
 
     SkPMColor fColors[kNumColors];
 

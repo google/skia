@@ -38,7 +38,6 @@ public:
     }
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
@@ -125,13 +124,6 @@ void SkGaussianColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
         SkPMColor c = src[i];
         uint8_t a = gByteExpU8Table[SkGetPackedA32(c)];
         dst[i] = SkPackARGB32(a, a, a, a);
-    }
-}
-
-void SkGaussianColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
-    for (int i = 0; i < count; ++i) {
-        float v = eval_gaussian(src[i].a());
-        dst[i] = SkPM4f::FromPremulRGBA(v, v, v, v);
     }
 }
 

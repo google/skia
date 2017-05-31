@@ -64,14 +64,6 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
     }
 }
 
-void SkModeColorFilter::filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const {
-    SkXfermodeProc4f  proc = SkXfermode::GetProc4f(fMode);
-    auto pm4f = fPMColor4f;
-    for (int i = 0; i < count; i++) {
-        result[i] = proc(pm4f, shader[i]);
-    }
-}
-
 void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
     buffer.writeUInt((int)fMode);
@@ -167,21 +159,6 @@ private:
     typedef SkModeColorFilter INHERITED;
 };
 
-class Modulate_SkModeColorFilter final : public SkModeColorFilter {
-public:
-    Modulate_SkModeColorFilter(SkColor color) : INHERITED(color, SkBlendMode::kModulate) { }
-
-    void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override {
-        auto pm4f = fPMColor4f.to4f();
-        for (int i = 0; i < count; i++) {
-            (pm4f * shader[i].to4f()).store(result[i].fVec);
-        }
-    }
-
-private:
-    typedef SkModeColorFilter INHERITED;
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkColorFilter> SkColorFilter::MakeModeFilter(SkColor color, SkBlendMode mode) {
@@ -222,8 +199,6 @@ sk_sp<SkColorFilter> SkColorFilter::MakeModeFilter(SkColor color, SkBlendMode mo
             return sk_make_sp<Src_SkModeColorFilter>(color);
         case SkBlendMode::kSrcOver:
             return sk_make_sp<SrcOver_SkModeColorFilter>(color);
-        case SkBlendMode::kModulate:
-            return sk_make_sp<Modulate_SkModeColorFilter>(color);
         default:
             return SkModeColorFilter::Make(color, mode);
     }
