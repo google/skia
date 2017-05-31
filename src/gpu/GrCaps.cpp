@@ -72,6 +72,8 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fImmediateFlush = options.fImmediateMode;
     fWireframeMode = options.fWireframeMode;
     fBufferMapThreshold = options.fBufferMapThreshold;
+    fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
+    fUseDrawInsteadOfAllRenderTargetWrites = false;
     fAvoidInstancedDrawsToFPTargets = false;
     fAvoidStencilBuffers = false;
 
@@ -139,6 +141,8 @@ SkString GrCaps::dump() const {
     r.appendf("Cross context texture support      : %s\n", gNY[fCrossContextTextureSupport]);
 
     r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
+    r.appendf("Draw Instead of TexSubImage [workaround] : %s\n",
+              gNY[fUseDrawInsteadOfPartialRenderTargetWrite]);
     r.appendf("Prefer VRAM Use over flushes [workaround] : %s\n", gNY[fPreferVRAMUseOverFlushes]);
 
     if (this->advancedBlendEquationSupport()) {
