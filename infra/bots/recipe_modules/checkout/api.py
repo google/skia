@@ -15,23 +15,7 @@ from recipe_engine import recipe_api
 from recipe_engine import config_types
 
 
-class SkiaApi(recipe_api.RecipeApi):
-
-  def setup(self):
-    """Prepare the bot to run."""
-    # Setup dependencies.
-    self.m.vars.setup()
-
-    # Check out the Skia code.
-    self.checkout_steps()
-
-    if not self.m.path.exists(self.m.vars.tmp_dir):
-      self.m.run.run_once(self.m.file.makedirs,
-                          'tmp_dir',
-                          self.m.vars.tmp_dir,
-                          infra_step=True)
-
-    self.m.flavor.setup()
+class CheckoutApi(recipe_api.RecipeApi):
 
   def checkout_steps(self):
     """Run the steps to obtain a checkout of Skia."""

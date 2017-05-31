@@ -7,7 +7,7 @@
 
 
 DEPS = [
-  'core',
+  'checkout',
   'infra',
   'recipe_engine/path',
   'recipe_engine/properties',

@@ -7,6 +7,7 @@
 
 
 DEPS = [
+  'checkout',
   'depot_tools/gclient',
   'file',
   'recipe_engine/context',
@@ -15,7 +16,6 @@ DEPS = [
   'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
-  'core',
   'infra',
   'run',
   'vars',
@@ -38,7 +38,8 @@ UPDATE_SKPS_KEY = 'update_skps_git_cookies'
 
 def RunSteps(api):
   # Check out Chrome.
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
 
   src_dir = api.vars.checkout_root.join('src')
   out_dir = src_dir.join('out', 'Release')

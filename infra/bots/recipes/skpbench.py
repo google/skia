@@ -10,7 +10,7 @@ import calendar
 
 
 DEPS = [
-  'core',
+  'checkout',
   'file',
   'recipe_engine/context',
   'recipe_engine/path',
@@ -97,7 +97,9 @@ def skpbench_steps(api):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
+  api.flavor.setup()
   try:
     api.flavor.install(skps=True)
     skpbench_steps(api)

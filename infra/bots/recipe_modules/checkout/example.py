@@ -4,14 +4,16 @@
 
 
 DEPS = [
-  'core',
+  'checkout',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'vars',
 ]
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.checkout.checkout_steps()
 
 
 def GenTests(api):
