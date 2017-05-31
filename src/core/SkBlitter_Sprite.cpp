@@ -6,8 +6,11 @@
  */
 
 #include "SkArenaAlloc.h"
-#include "SkColorSpace_Base.h"
+#include "SkColorSpace.h"
+#include "SkCoreBlitters.h"
 #include "SkOpts.h"
+#include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 #include "SkSpriteBlitter.h"
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
@@ -92,6 +95,82 @@ private:
     typedef SkSpriteBlitter INHERITED;
 };
 
+class SkRasterPipelineSpriteBlitter : public SkSpriteBlitter {
+public:
+    SkRasterPipelineSpriteBlitter(const SkPixmap& src, SkArenaAlloc* alloc)
+        : INHERITED(src)
+        , fAlloc(alloc)
+        , fBlitter(nullptr)
+        , fSrcPtr(nullptr)
+    {}
+
+    static bool Supports(const SkPixmap& src) {
+        // We'd need to add a load_i8 stage.
+        return src.colorType() != kIndex_8_SkColorType;
+    }
+
+    void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
+        fDst  = dst;
+        fLeft = left;
+        fTop  = top;
+
+        fPaintColor = SkColor4f_from_SkColor(paint.getColor(), fDst.colorSpace());
+
+        SkRasterPipeline p(fAlloc);
+        switch (fSource.colorType()) {
+            case kAlpha_8_SkColorType:   p.append(SkRasterPipeline::load_a8,   &fSrcPtr); break;
+            case kGray_8_SkColorType:    p.append(SkRasterPipeline::load_g8,   &fSrcPtr); break;
+            case kRGB_565_SkColorType:   p.append(SkRasterPipeline::load_565,  &fSrcPtr); break;
+            case kARGB_4444_SkColorType: p.append(SkRasterPipeline::load_4444, &fSrcPtr); break;
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType: p.append(SkRasterPipeline::load_8888, &fSrcPtr); break;
+            case kRGBA_F16_SkColorType:  p.append(SkRasterPipeline::load_f16,  &fSrcPtr); break;
+            default: SkASSERT(false);
+        }
+        if (fDst.colorSpace() &&
+                (!fSource.colorSpace() || fSource.colorSpace()->gammaCloseToSRGB())) {
+            p.append_from_srgb(fSource.alphaType());
+        }
+        if (fSource.colorType() == kBGRA_8888_SkColorType) {
+            p.append(SkRasterPipeline::swap_rb);
+        }
+        if (fSource.colorType() == kAlpha_8_SkColorType) {
+            p.append(SkRasterPipeline::set_rgb, &fPaintColor);
+            p.append(SkRasterPipeline::premul);
+        }
+        append_gamut_transform(&p, fAlloc,
+                               fSource.colorSpace(), fDst.colorSpace(), kPremul_SkAlphaType);
+        if (fPaintColor.fA != 1.0f) {
+            p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
+        }
+
+        bool is_opaque    = fSource.isOpaque() && fPaintColor.fA == 1.0f,
+             wants_dither = paint.isDither();
+        fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, is_opaque, wants_dither, fAlloc);
+    }
+
+    void blitRect(int x, int y, int width, int height) override {
+        fSrcPtr = (const char*)fSource.addr(x-fLeft,y-fTop);
+
+        // Our pipeline will load from fSrcPtr+x, fSrcPtr+x+1, etc.,
+        // so we back up an extra x pixels to start at 0.
+        fSrcPtr -= fSource.info().bytesPerPixel() * x;
+
+        while (height --> 0) {
+            fBlitter->blitH(x,y++, width);
+            fSrcPtr += fSource.rowBytes();
+        }
+    }
+
+private:
+    SkArenaAlloc* fAlloc;
+    SkBlitter*    fBlitter;
+    const char*   fSrcPtr;
+    SkColor4f     fPaintColor;
+
+    typedef SkSpriteBlitter INHERITED;
+};
+
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
 SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
@@ -113,16 +192,14 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     SkSpriteBlitter* blitter = nullptr;
 
-    if (SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
+    if (!blitter && SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
         blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
-    } else if (!dst.colorSpace()) {
-        switch (dst.colorType()) {
-            case kN32_SkColorType:
-                blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
-                break;
-            default:
-                break;
-        }
+    }
+    if (!blitter && !dst.colorSpace() && dst.colorType() == kN32_SkColorType) {
+        blitter = SkSpriteBlitter::ChooseL32(source, paint, allocator);
+    }
+    if (!blitter && SkRasterPipelineSpriteBlitter::Supports(source)) {
+        blitter = allocator->make<SkRasterPipelineSpriteBlitter>(source, allocator);
     }
 
     if (blitter) {
