@@ -19,6 +19,11 @@ class GrImageTextureMaker : public GrTextureMaker {
 public:
     GrImageTextureMaker(GrContext* context, const SkImage* client, SkImage::CachingHint chint);
 
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams& params,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* texColorSpace,
+                                                   SkScalar scaleAdjust[2]) override;
+
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)

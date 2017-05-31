@@ -13,6 +13,8 @@
 #include "SkImage_Base.h"
 #include "SkImageCacherator.h"
 #include "SkPixelRef.h"
+#include "GrGpu.h"
+#include "GrResourceProvider.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
                                          SkImage::CachingHint chint)
@@ -51,4 +53,52 @@ SkAlphaType GrImageTextureMaker::alphaType() const {
 }
 sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
     return fCacher->getColorSpace(this->context(), dstColorSpace);
+}
+
+sk_sp<GrTextureProxy> GrImageTextureMaker::refTextureProxyForParams(
+                                                               const GrSamplerParams& params,
+                                                               SkColorSpace* dstColorSpace,
+                                                               sk_sp<SkColorSpace>* texColorSpace,
+                                                               SkScalar scaleAdjust[2]) {
+    GrContext*  context = this->context();
+    CopyParams copyParams;
+    bool willBeMipped = params.filterMode() == GrSamplerParams::kMipMap_FilterMode;
+
+    if (!context->caps()->mipMapSupport()) {
+        willBeMipped = false;
+    }
+
+    if (texColorSpace) {
+        *texColorSpace = this->getColorSpace(dstColorSpace);
+    }
+
+    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace));
+    if (!original) {
+        return nullptr;
+    }
+
+    if (!context->getGpu()->isACopyNeededForTextureParams(original.get(), params, &copyParams,
+                                                          scaleAdjust)) {
+        return original;
+    }
+    GrUniqueKey copyKey;
+    this->makeCopyKey(copyParams, &copyKey, dstColorSpace);
+    if (copyKey.isValid()) {
+        sk_sp<GrTextureProxy> result(context->resourceProvider()->findProxyByUniqueKey(copyKey));
+        if (result) {
+            return result;
+        }
+    }
+
+    sk_sp<GrTextureProxy> result(CopyOnGpu(context, std::move(original), nullptr, copyParams));
+    if (!result) {
+        return nullptr;
+    }
+
+    if (copyKey.isValid()) {
+        context->resourceProvider()->assignUniqueKeyToProxy(copyKey, result.get());
+        this->didCacheCopy(copyKey);
+    }
+
+    return result;
 }
