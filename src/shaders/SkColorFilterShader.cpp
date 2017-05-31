@@ -54,6 +54,16 @@ uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
     return shaderF;
 }
 
+bool SkColorFilterShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
+                                         SkArenaAlloc* alloc, const SkMatrix& ctm,
+                                         const SkPaint& paint, const SkMatrix* localM) const {
+    if (!as_SB(fShader)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {
+        return false;
+    }
+    fFilter->appendStages(pipeline, dstCS, alloc, fShader->isOpaque());
+    return true;
+}
+
 SkShaderBase::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
                                                           SkArenaAlloc* alloc) const {
     auto* shaderContext = as_SB(fShader)->makeContext(rec, alloc);
