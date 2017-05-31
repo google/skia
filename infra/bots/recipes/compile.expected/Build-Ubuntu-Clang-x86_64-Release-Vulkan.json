@@ -61,7 +61,7 @@
     "env": {
       "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
       "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "bot_update",
@@ -104,7 +104,7 @@
       "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "/usr/bin/clang++",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Release-Vulkan"
     },
     "infra_step": true,
@@ -123,7 +123,7 @@
       "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "/usr/bin/clang++",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Release-Vulkan"
     },
     "name": "gn gen"
@@ -140,7 +140,7 @@
       "CC": "/usr/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "/usr/bin/clang++",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Release-Vulkan"
     },
     "name": "ninja"

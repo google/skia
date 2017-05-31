@@ -61,7 +61,7 @@
     "env": {
       "GIT_HTTP_LOW_SPEED_LIMIT": "1000",
       "GIT_HTTP_LOW_SPEED_TIME": "300",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "bot_update",
@@ -102,7 +102,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "infra_step": true,
@@ -119,7 +119,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "gn gen"
@@ -134,7 +134,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s;RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>;RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]\\skia\\out\\Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "ninja"

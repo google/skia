@@ -21,7 +21,7 @@
     ],
     "cwd": "[START_DIR]/swarming.client",
     "env": {
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
     },
     "infra_step": true,
     "name": "git fetch (swarming_client)"
@@ -110,7 +110,7 @@
       "lmydirimydirnmydirumydirxmydir6mydir4"
     ],
     "env": {
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
     },
     "name": "download luci-go linux"
   },
@@ -126,7 +126,7 @@
       "mmydiramydircmydir6mydir4"
     ],
     "env": {
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
     },
     "name": "download luci-go mac"
   },
@@ -142,7 +142,7 @@
       "wmydirimydirnmydir6mydir4"
     ],
     "env": {
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:<PATH>"
     },
     "name": "download luci-go win"
   },

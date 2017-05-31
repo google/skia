@@ -6,7 +6,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "fail",
@@ -22,7 +22,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "fail again",
@@ -39,7 +39,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "do a thing"
@@ -52,7 +52,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "run 0"
@@ -100,7 +100,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "mydir:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "mydir:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "env"
@@ -150,7 +150,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry fail",
@@ -166,7 +166,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry fail (attempt 2)",
@@ -182,7 +182,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry fail (attempt 3)",
@@ -198,7 +198,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry fail (attempt 4)",
@@ -214,7 +214,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry fail (attempt 5)",
@@ -230,7 +230,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry success",
@@ -246,7 +246,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry success (attempt 2)",
@@ -262,7 +262,7 @@
     "env": {
       "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-MSVC-x86_64-Release-Vulkan"
     },
     "name": "retry success (attempt 3)"
