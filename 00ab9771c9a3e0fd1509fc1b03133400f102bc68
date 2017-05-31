@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1f122cb7_dad2c734",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-31T18:40:27Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "37c37f5d_e5bcf08e",
+      "range": {
+        "startLine": 284,
+        "startChar": 22,
+        "endLine": 284,
+        "endChar": 23
+      },
+      "revId": "00ab9771c9a3e0fd1509fc1b03133400f102bc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b786f45a_422b5a36",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "How about we convert returns to continues, so we avoid a function call?",
       "parentUuid": "b786f45a_422b5a36",
+      "range": {
+        "startLine": 536,
+        "startChar": 74,
+        "endLine": 536,
+        "endChar": 78
+      },
+      "revId": "00ab9771c9a3e0fd1509fc1b03133400f102bc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36be7514_4e20b90e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-31T18:40:27Z",
+      "side": 1,
+      "message": "Oh I\u0027m fine with anything as long as return statements work.. Although I think converting the return to a continue would break nested loops.",
+      "parentUuid": "0e5d4b50_8aeb3cb4",
       "range": {
         "startLine": 536,
         "startChar": 74,
