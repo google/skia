@@ -760,14 +760,21 @@ if (skia_enable_tools) {
     # TODO: worth fixing?
     executable("fiddle") {
       libs = []
-      if (is_linux) {
-        libs += [ "OSMesa" ]
-      }
-
       sources = [
         "tools/fiddle/draw.cpp",
         "tools/fiddle/fiddle_main.cpp",
       ]
+
+      if (skia_use_egl) {
+        sources += [ "tools/fiddle/egl_context.cpp" ]
+      } else if (skia_use_mesa) {
+        sources += [ "tools/fiddle/mesa_context.cpp" ]
+        if (is_linux) {
+          libs += [ "OSMesa" ]
+        }
+      } else {
+        sources += [ "tools/fiddle/null_context.cpp" ]
+      }
       testonly = true
       deps = [
         ":flags",

@@ -55,4 +55,8 @@ extern DrawOptions GetDrawOptions();
 extern void SkDebugf(const char * format, ...);
 extern void draw(SkCanvas*);
 
+// There are different implementations of create_grcontext() for EGL, Mesa,
+// and a fallback to a null context.
+extern sk_sp<GrContext> create_grcontext();
+
 #endif  // fiddle_main_DEFINED

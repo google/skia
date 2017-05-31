@@ -90,34 +90,6 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     return img ? img->encode() : nullptr;
 }
 
-#if defined(__linux) && !defined(__ANDROID__)
-    #include <GL/osmesa.h>
-    static sk_sp<GrContext> create_grcontext() {
-        // We just leak the OSMesaContext... the process will die soon anyway.
-        if (OSMesaContext osMesaContext = OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, nullptr)) {
-            static uint32_t buffer[16 * 16];
-            OSMesaMakeCurrent(osMesaContext, &buffer, GL_UNSIGNED_BYTE, 16, 16);
-        }
-
-        auto osmesa_get = [](void* ctx, const char name[]) {
-            SkASSERT(nullptr == ctx);
-            SkASSERT(OSMesaGetCurrentContext());
-            return OSMesaGetProcAddress(name);
-        };
-        sk_sp<const GrGLInterface> mesa(GrGLAssembleInterface(nullptr, osmesa_get));
-        if (!mesa) {
-            return nullptr;
-        }
-        return sk_sp<GrContext>(GrContext::Create(
-                                        kOpenGL_GrBackend,
-                                        reinterpret_cast<intptr_t>(mesa.get())));
-    }
-#else
-    static sk_sp<GrContext> create_grcontext() { return nullptr; }
-#endif
-
-
-
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     duration = FLAGS_duration;
