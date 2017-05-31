@@ -16,6 +16,24 @@
       "revId": "69914ed093dac87d31b0874041116f3446b23cdb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15c4d0fc_8e9035bc",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1387,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-05-31T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48065529_5189a4c6",
+      "revId": "69914ed093dac87d31b0874041116f3446b23cdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
