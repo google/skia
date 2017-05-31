@@ -34,8 +34,6 @@ public:
 
     static SkSpriteBlitter* ChooseD16(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
     static SkSpriteBlitter* ChooseL32(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
-    static SkSpriteBlitter* ChooseS32(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
-    static SkSpriteBlitter* ChooseF16(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
 
 protected:
     SkPixmap        fDst;
