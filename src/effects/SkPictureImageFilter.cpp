@@ -131,15 +131,6 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
 
     SkCanvas* canvas = surf->getCanvas();
     SkASSERT(canvas);
-
-    std::unique_ptr<SkCanvas> xformCanvas = nullptr;
-    if (fColorSpace) {
-        // Only non-null in the case where onMakeColorSpace() was called.  This instructs
-        // us to do the color space xform on playback.
-        xformCanvas = SkCreateColorSpaceXformCanvas(canvas, fColorSpace);
-        canvas = xformCanvas.get();
-    }
-
     canvas->clear(0x0);
 
     if (kDeviceSpace_PictureResolution == fPictureResolution ||
@@ -162,6 +153,13 @@ sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(SkColorSpaceXformer*
 void SkPictureImageFilter::drawPictureAtDeviceResolution(SkCanvas* canvas,
                                                          const SkIRect& deviceBounds,
                                                          const Context& ctx) const {
+    std::unique_ptr<SkCanvas> xformCanvas = nullptr;
+    if (fColorSpace) {
+        // Only non-null in the case where onMakeColorSpace() was called.  This instructs
+        // us to do the color space xform on playback.
+        xformCanvas = SkCreateColorSpaceXformCanvas(canvas, fColorSpace);
+        canvas = xformCanvas.get();
+    }
     canvas->translate(-SkIntToScalar(deviceBounds.fLeft), -SkIntToScalar(deviceBounds.fTop));
     canvas->concat(ctx.ctm());
     canvas->drawPicture(fPicture);
