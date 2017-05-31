@@ -1030,8 +1030,9 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
         } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
+            fMSFBOType = kStandard_MSFBOType;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
             fMSFBOType = kStandard_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
             fMSFBOType = kEXT_MSFBOType;
@@ -1051,7 +1052,7 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
     }
 
     // We disable MSAA across the board for Intel GPUs
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
+    if (kIntel_GrGLVendor == ctxInfo.vendor() || kANGLE_Intel_GrGLRenderer == ctxInfo.renderer()) {
         fMSFBOType = kNone_MSFBOType;
     }
 
