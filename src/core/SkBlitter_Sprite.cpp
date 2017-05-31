@@ -55,6 +55,9 @@ public:
         if (dst.colorType() != src.colorType()) {
             return false;
         }
+        if (!SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
+            return false;
+        }
         if (paint.getMaskFilter() || paint.getColorFilter() || paint.getImageFilter()) {
             return false;
         }
@@ -104,9 +107,6 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     */
     SkASSERT(allocator != nullptr);
 
-    if (dst.colorSpace()) {
-        return nullptr;
-    }
     if (source.alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -115,7 +115,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
 
     if (SkSpriteBlitter_Memcpy::Supports(dst, source, paint)) {
         blitter = allocator->make<SkSpriteBlitter_Memcpy>(source);
-    } else {
+    } else if (!dst.colorSpace()) {
         switch (dst.colorType()) {
             case kRGB_565_SkColorType:
                 blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
