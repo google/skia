@@ -1568,7 +1568,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
             // The APPLE extension doesn't make this renderable.
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-            if (version < GR_GL_VER(3,0) && !ctxInfo.hasExtension("GL_EXT_texture_storage")) {
+            if (version < GR_GL_VER(3,0)) {
                 // On ES2 the internal format of a BGRA texture is RGBA with the APPLE extension.
                 // Though, that seems to not be the case if the texture storage extension is
                 // present. The specs don't exactly make that clear.
