@@ -22,6 +22,8 @@ class SkTraceMemoryDump;
 
 class SkGlyphCache_Globals;
 
+class SkGlyphCacheIterator;
+
 /** \class SkGlyphCache
 
     This class represents a strike: a specific combination of typeface, size, matrix, etc., and
@@ -175,6 +177,7 @@ public:
 
 private:
     friend class SkGlyphCache_Globals;
+    friend class SkGlyphCacheIterator;
 
     enum MetricsType {
         kJustAdvance_MetricsType,
@@ -286,5 +289,19 @@ public:
 };
 #define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
+
+
+class SkGlyphCacheIterator {
+public:
+    SkGlyphCacheIterator(const SkPaint& paint,
+                         const SkSurfaceProps* props,
+                         uint32_t scalerContextFlags,
+                         const SkMatrix& matrix);
+
+    void Apply(uint16_t* glyphs, size_t glyphCount);
+private:
+
+
+};
 
 #endif
