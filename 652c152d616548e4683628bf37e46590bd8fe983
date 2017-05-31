@@ -22,6 +22,30 @@
       "revId": "652c152d616548e4683628bf37e46590bd8fe983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8104d3c2_c91c4bc6",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-05-31T18:00:45Z",
+      "side": 1,
+      "message": "Still looks ok to me except for this.",
+      "parentUuid": "05e16476_e29a6818",
+      "range": {
+        "startLine": 84,
+        "startChar": 49,
+        "endLine": 84,
+        "endChar": 53
+      },
+      "revId": "652c152d616548e4683628bf37e46590bd8fe983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
