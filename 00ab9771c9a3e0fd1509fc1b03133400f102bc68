@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a5b5684_e3ed0263",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-31T17:14:58Z",
+      "side": 1,
+      "message": "When I run this on my Mac, I find that modifiers.fLayout.fInvocations is 1 when it should be 4. Any ideas?",
+      "range": {
+        "startLine": 284,
+        "startChar": 22,
+        "endLine": 284,
+        "endChar": 23
+      },
+      "revId": "00ab9771c9a3e0fd1509fc1b03133400f102bc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b786f45a_422b5a36",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-05-31T17:14:58Z",
+      "side": 1,
+      "message": "Here the actual geometry Shader block needs to be in a separate function call. Reason being, if somebody calls \"return\" from their Shader during a particular invocation, the subsequent invocations still need to execute.",
+      "range": {
+        "startLine": 536,
+        "startChar": 74,
+        "endLine": 536,
+        "endChar": 78
+      },
+      "revId": "00ab9771c9a3e0fd1509fc1b03133400f102bc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
