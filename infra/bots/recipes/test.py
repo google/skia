@@ -635,6 +635,37 @@ def test_steps(api):
       api.flavor.copy_file_to_device(host_hashes_file, hashes_file)
       use_hash_file = True
 
+  # dobgen test
+  api.run(
+      api.python.inline,
+      'dogben test-output',
+      program="""
+      import subprocess
+      import sys
+      import time
+
+      limit = 4000
+      print 'Writing %d lines and then killing server.' % limit
+      for i in range(0, limit):
+        print '%d' % i
+
+      print 'Sleeping 60 seconds...'
+      sys.stdout.flush()
+      time.sleep(60)
+
+      print 'Killing bot...'
+      sys.stdout.flush()
+      subprocess.check_call(['sudo', 'reboot'])
+
+      print 'Sleeping 60 seconds...'
+      sys.stdout.flush()
+      time.sleep(60)
+      """,
+      args=[],
+      abort_on_failure=False,
+      fail_build_on_failure=False,
+      infra_step=True)
+
   # Run DM.
   properties = [
     'gitHash',      api.vars.got_revision,
