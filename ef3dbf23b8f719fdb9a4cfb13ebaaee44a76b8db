@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "624dda5c_4ffa6e26",
+        "filename": "infra/bots/assets/valgrind/common.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-05-31T18:58:59Z",
+      "side": 1,
+      "message": "nit: 2017 x 5",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "ef3dbf23b8f719fdb9a4cfb13ebaaee44a76b8db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
