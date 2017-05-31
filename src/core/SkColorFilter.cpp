@@ -61,7 +61,7 @@ void SkColorFilter::onAppendStages(SkRasterPipeline* p,
     ctx->fn = [](SkJumper_CallbackCtx* arg, int active_pixels) {
         auto ctx = (Ctx*)arg;
         auto buf = (SkPM4f*)ctx->rgba;
-        ctx->cf->filterSpan4f(buf, active_pixels, buf);
+        ctx->cf->onFilterStage(buf, active_pixels, buf);
     };
     p->append(SkRasterPipeline::callback, ctx);
 }
@@ -72,9 +72,19 @@ SkColor SkColorFilter::filterColor(SkColor c) const {
     return SkUnPreMultiply::PMColorToColor(dst);
 }
 
+#include "SkRasterPipeline.h"
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c) const {
     SkPM4f dst, src = c.premul();
-    this->filterSpan4f(&src, 1, &dst);
+
+    SkSTArenaAlloc<128> alloc;
+    SkRasterPipeline    pipeline(&alloc);
+
+    pipeline.append(SkRasterPipeline::constant_color, &src);
+    this->onAppendStages(&pipeline, nullptr, &alloc, c.fA == 1);
+    SkPM4f* dstPtr = &dst;
+    pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
+    pipeline.run(0,1);
+
     return dst.unpremul();
 }
 
@@ -100,11 +110,6 @@ public:
     void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
         fInner->filterSpan(shader, count, result);
         fOuter->filterSpan(result, count, result);
-    }
-
-    void filterSpan4f(const SkPM4f shader[], int count, SkPM4f result[]) const override {
-        fInner->filterSpan4f(shader, count, result);
-        fOuter->filterSpan4f(result, count, result);
     }
 
 #ifndef SK_IGNORE_TO_STRING

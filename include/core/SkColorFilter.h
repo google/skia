@@ -72,8 +72,6 @@ public:
     */
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) const = 0;
 
-    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const = 0;
-
     void appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool shaderIsOpaque) const;
 
     enum Flags {
@@ -188,6 +186,10 @@ private:
     virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 bool shaderIsOpaque) const;
 
+
+    virtual void onFilterStage(const SkPM4f[], int, SkPM4f[]) const {
+        SkASSERT(false);
+    }
 
     friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
