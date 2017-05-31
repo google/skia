@@ -522,7 +522,8 @@
   },
   {
     "cmd": [
-      "idevice-app-runner",
+      "idevice-app-runner-standard",
+      "-d",
       "-s",
       "com.google.nanobench",
       "--args",
