@@ -46,7 +46,7 @@ private:
         memcpy(fColors, colors, kNumColors * sizeof(SkPMColor));
     }
 
-    void onFilterStage(const SkPM4f src[], int count, SkPM4f result[]) const override;
+    void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool) const override;
 
     SkPMColor fColors[kNumColors];
 

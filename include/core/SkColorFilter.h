@@ -184,12 +184,7 @@ private:
     }
 
     virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                bool shaderIsOpaque) const;
-
-
-    virtual void onFilterStage(const SkPM4f[], int, SkPM4f[]) const {
-        SkASSERT(false);
-    }
+                                bool shaderIsOpaque) const = 0;
 
     friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
