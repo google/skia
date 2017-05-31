@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d2b0556_09136d27",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-05-31T13:51:19Z",
+      "side": 1,
+      "message": "return texRT ?",
+      "revId": "48bde29a61cd775f6ee557bf657139e818c8d8da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
