@@ -231,7 +231,7 @@ void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
 
     GrMesh mesh(this->primitiveType());
     if (!indices) {
-        mesh.setNonIndexed(fVertexCount);
+        mesh.setNonIndexedNonInstanced(fVertexCount);
     } else {
         mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1);
     }

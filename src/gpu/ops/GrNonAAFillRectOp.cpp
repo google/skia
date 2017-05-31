@@ -119,6 +119,7 @@ public:
                     const SkRect& rect, const SkRect* localRect, const SkMatrix* localMatrix,
                     GrAAType aaType, const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID()), fHelper(args, aaType, stencilSettings) {
+
         SkASSERT(!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective()));
         RectInfo& info = fRects.push_back();
         info.fColor = color;

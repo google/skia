@@ -43,6 +43,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fTextureBarrierSupport = false;
     fSampleLocationsSupport = false;
     fMultisampleDisableSupport = false;
+    fInstanceAttribSupport = false;
     fUsesMixedSamples = false;
     fPreferClientSideDynamicBuffers = false;
     fFullClearIsFree = false;
@@ -132,6 +133,7 @@ SkString GrCaps::dump() const {
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
     r.appendf("Sample Locations Support           : %s\n", gNY[fSampleLocationsSupport]);
     r.appendf("Multisample disable support        : %s\n", gNY[fMultisampleDisableSupport]);
+    r.appendf("Instance Attrib Support            : %s\n", gNY[fInstanceAttribSupport]);
     r.appendf("Uses Mixed Samples                 : %s\n", gNY[fUsesMixedSamples]);
     r.appendf("Prefer client-side dynamic buffers : %s\n", gNY[fPreferClientSideDynamicBuffers]);
     r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);

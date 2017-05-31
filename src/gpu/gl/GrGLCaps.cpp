@@ -38,7 +38,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDirectStateAccessSupport = false;
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
-    fDrawInstancedSupport = false;
     fDrawIndirectSupport = false;
     fMultiDrawIndirectSupport = false;
     fBaseInstanceSupport = false;
@@ -182,6 +181,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMultisampleDisableSupport = true;
     } else {
         fMultisampleDisableSupport = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
+        // instanced arrays, but we could make this more granular if we wanted
+        fInstanceAttribSupport =
+                version >= GR_GL_VER(3, 2) ||
+                (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
+                 ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
+    } else {
+        fInstanceAttribSupport =
+                version >= GR_GL_VER(3, 0) ||
+                (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
+                 ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -529,20 +542,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kGL_GrGLStandard == standard) {
-        // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
-        // instanced arrays, but we could make this more granular if we wanted
-        fDrawInstancedSupport =
-                version >= GR_GL_VER(3, 2) ||
-                (ctxInfo.hasExtension("GL_ARB_draw_instanced") &&
-                 ctxInfo.hasExtension("GL_ARB_instanced_arrays"));
-    } else {
-        fDrawInstancedSupport =
-                version >= GR_GL_VER(3, 0) ||
-                (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
-                 ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
-    }
-
-    if (kGL_GrGLStandard == standard) {
         fDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
                                ctxInfo.hasExtension("GL_ARB_draw_indirect");
         fBaseInstanceSupport = version >= GR_GL_VER(4,2);
@@ -848,6 +847,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
                 shaderCaps->fTexelBufferExtensionString = "GL_EXT_texture_buffer";
             }
         }
+    }
+
+    if (kGL_GrGLStandard == standard) {
+        shaderCaps->fVertexIDSupport = true;
+    } else {
+        // Desktop GLSL 3.30 == ES GLSL 3.00.
+        shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
     }
 
     // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0), so we must do
@@ -1242,7 +1248,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
     r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Draw instanced support: %s\n", (fDrawInstancedSupport ? "YES" : "NO"));
     r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
     r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
