@@ -8,6 +8,7 @@
 #include "GrDefaultGeoProcFactory.h"
 
 #include "SkRefCnt.h"
+#include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
@@ -26,18 +27,22 @@ enum GPFlag {
     kColorAttributeIsSkColor_GPFlag = 0x2,
     kLocalCoordAttribute_GPFlag     = 0x4,
     kCoverageAttribute_GPFlag       = 0x8,
+
+    kLinearizeColorAttribute_GPFlag = 0x10,
 };
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(uint32_t gpTypeFlags,
                                            GrColor color,
+                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& viewMatrix,
                                            const SkMatrix& localMatrix,
                                            bool localCoordsWillBeRead,
                                            uint8_t coverage) {
         return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
-                gpTypeFlags, color, viewMatrix, localMatrix, coverage, localCoordsWillBeRead));
+                gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix, localMatrix, coverage,
+                localCoordsWillBeRead));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -53,6 +58,12 @@ public:
     bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
     uint8_t coverage() const { return fCoverage; }
     bool hasVertexCoverage() const { return SkToBool(fInCoverage); }
+    bool linearizeColor() const {
+        // Linearization should only happen with SkColor
+        bool linearize = SkToBool(fFlags & kLinearizeColorAttribute_GPFlag);
+        SkASSERT(!linearize || (fFlags & kColorAttributeIsSkColor_GPFlag));
+        return linearize;
+    }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -73,14 +84,47 @@ public:
             if (gp.hasVertexColor()) {
                 GrGLSLVertToFrag varying(kVec4f_GrSLType);
                 varyingHandler->addVarying("color", &varying);
-                if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
-                    // Do a red/blue swap and premul the color.
-                    vertBuilder->codeAppendf("%s = vec4(%s.a*%s.bgr, %s.a);", varying.vsOut(),
-                                             gp.inColor()->fName, gp.inColor()->fName,
+
+                // There are several optional steps to process the color. Start with the attribute:
+                vertBuilder->codeAppendf("vec4 color = %s;", gp.inColor()->fName);
+
+                // Linearize
+                if (gp.linearizeColor()) {
+                    SkString srgbFuncName;
+                    static const GrShaderVar gSrgbArgs[] = {
+                        GrShaderVar("x", kFloat_GrSLType),
+                    };
+                    vertBuilder->emitFunction(kFloat_GrSLType,
+                                              "srgb_to_linear",
+                                              SK_ARRAY_COUNT(gSrgbArgs),
+                                              gSrgbArgs,
+                                              "return (x <= 0.04045) ? (x / 12.92) "
+                                              ": pow((x + 0.055) / 1.055, 2.4);",
+                                              &srgbFuncName);
+                    vertBuilder->codeAppendf("color = vec4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
+                                             srgbFuncName.c_str(), gp.inColor()->fName,
+                                             srgbFuncName.c_str(), gp.inColor()->fName,
+                                             srgbFuncName.c_str(), gp.inColor()->fName,
                                              gp.inColor()->fName);
-                } else {
-                    vertBuilder->codeAppendf("%s = %s;\n", varying.vsOut(), gp.inColor()->fName);
                 }
+
+                // For SkColor, do a red/blue swap and premul
+                if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
+                    vertBuilder->codeAppend("color = vec4(color.a * color.bgr, color.a);");
+                }
+
+                // Do color-correction to destination gamut
+                if (gp.linearizeColor()) {
+                    fColorSpaceHelper.emitCode(uniformHandler, gp.fColorSpaceXform.get(),
+                                               kVertex_GrShaderFlag);
+                    if (fColorSpaceHelper.isValid()) {
+                        SkString xformedColor;
+                        vertBuilder->appendColorGamutXform(&xformedColor, "color",
+                                                           &fColorSpaceHelper);
+                        vertBuilder->codeAppendf("color = %s;", xformedColor.c_str());
+                    }
+                }
+                vertBuilder->codeAppendf("%s = color;\n", varying.vsOut());
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, varying.fsIn());
             } else {
                 this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
@@ -142,6 +186,9 @@ public:
             key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x20 : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 20;
             b->add32(key);
+            if (def.linearizeColor()) {
+                b->add32(GrColorSpaceXform::XformKey(def.fColorSpaceXform.get()));
+            }
         }
 
         void setData(const GrGLSLProgramDataManager& pdman,
@@ -168,6 +215,10 @@ public:
                 fCoverage = dgp.coverage();
             }
             this->setTransformDataHelper(dgp.fLocalMatrix, pdman, &transformIter);
+
+            if (dgp.linearizeColor() && dgp.fColorSpaceXform) {
+                fColorSpaceHelper.setData(pdman, dgp.fColorSpaceXform.get());
+            }
         }
 
     private:
@@ -177,6 +228,7 @@ public:
         UniformHandle fViewMatrixUniform;
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
+        GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
         typedef GrGLSLGeometryProcessor INHERITED;
     };
@@ -192,6 +244,7 @@ public:
 private:
     DefaultGeoProc(uint32_t gpTypeFlags,
                    GrColor color,
+                   sk_sp<GrColorSpaceXform> colorSpaceXform,
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage,
@@ -201,7 +254,8 @@ private:
             , fLocalMatrix(localMatrix)
             , fCoverage(coverage)
             , fFlags(gpTypeFlags)
-            , fLocalCoordsWillBeRead(localCoordsWillBeRead) {
+            , fLocalCoordsWillBeRead(localCoordsWillBeRead)
+            , fColorSpaceXform(std::move(colorSpaceXform)) {
         this->initClassID<DefaultGeoProc>();
         fInPosition = &this->addVertexAttrib("inPosition", kVec2f_GrVertexAttribType,
                                              kHigh_GrSLPrecision);
@@ -228,6 +282,7 @@ private:
     uint8_t fCoverage;
     uint32_t fFlags;
     bool fLocalCoordsWillBeRead;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
@@ -254,9 +309,9 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
 
     return DefaultGeoProc::Make(flags,
                                 GrRandomColor(d->fRandom),
+                                GrTest::TestColorXform(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
-
                                 d->fRandom->nextBool(),
                                 GrRandomCoverage(d->fRandom));
 }
@@ -272,6 +327,12 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
     } else if (Color::kUnpremulSkColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag | kColorAttributeIsSkColor_GPFlag;
     }
+    if (color.fLinearize) {
+        // It only makes sense to linearize SkColors (which are always sRGB). GrColor values should
+        // have been linearized and gamut-converted during paint conversion
+        SkASSERT(Color::kUnpremulSkColorAttribute_Type == color.fType);
+        flags |= kLinearizeColorAttribute_GPFlag;
+    }
     flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
 
@@ -281,6 +342,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
     GrColor inColor = color.fColor;
     return DefaultGeoProc::Make(flags,
                                 inColor,
+                                color.fColorSpaceXform,
                                 viewMatrix,
                                 localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
                                 localCoordsWillBeRead,

@@ -848,6 +848,8 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     SkASSERT(vertices);
     std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(paint.getColor(),
                                                                     std::move(vertices), viewMatrix,
+                                                                    this->isGammaCorrect(),
+                                                                    fColorXformFromSRGB,
                                                                     overridePrimType);
     if (!op) {
         return;
