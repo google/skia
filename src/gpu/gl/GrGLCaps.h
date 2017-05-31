@@ -368,6 +368,18 @@ public:
     // https://bugs.chromium.org/p/skia/issues/detail?id=6650
     bool drawArraysBaseVertexIsBroken() const { return fDrawArraysBaseVertexIsBroken; }
 
+    // If true then we must use an intermediate surface to perform partial updates to a texture that
+    // has ever been bound to a FBO.
+    bool disallowTexSubImageForTexturesEverBoundToFBO() const {
+        return fDisallowTexSubImageForTexturesEverBoundToFBO;
+    }
+
+    // Use an intermediate surface to write pixels (full or partial overwrite) to into a texture
+    // that is bound to an FBO.
+    bool useDrawInsteadOfAllRenderTargetWrites() const {
+        return fUseDrawInsteadOfAllRenderTargetWrites;
+    }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -442,6 +454,8 @@ private:
     bool fClearToBoundaryValuesIsBroken : 1;
     bool fClearTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
+    bool fDisallowTexSubImageForTexturesEverBoundToFBO : 1;
+    bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
 
     uint32_t fBlitFramebufferFlags;
 
