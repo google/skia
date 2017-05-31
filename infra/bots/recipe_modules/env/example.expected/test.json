@@ -22,7 +22,7 @@
       "hi"
     ],
     "env": {
-      "PATH": "mypath:%(PATH)s"
+      "PATH": "mypath:<PATH>"
     },
     "name": "3"
   },
@@ -32,7 +32,7 @@
       "hi"
     ],
     "env": {
-      "PATH": "mypath:%(PATH)s:otherpath"
+      "PATH": "mypath:<PATH>:otherpath"
     },
     "name": "4"
   },
