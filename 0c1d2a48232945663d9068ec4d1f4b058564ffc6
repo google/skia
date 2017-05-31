@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9f2e489_49b53ea0",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-31T12:43:11Z",
+      "side": 1,
+      "message": "Could we assert that kColorAttributeIsSkColor_GPFlag is set? Or add a this-\u003elinearizeColor() helper that returns the presence of the flag and asserts since we check this in multiple places.",
+      "range": {
+        "startLine": 85,
+        "startChar": 30,
+        "endLine": 85,
+        "endChar": 61
+      },
+      "revId": "0c1d2a48232945663d9068ec4d1f4b058564ffc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b59f6807_4126791b",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-05-31T12:43:11Z",
+      "side": 1,
+      "message": "Should we as Ethan to make srgb_to_linear and linear_to_srgb sksl builtins?",
+      "revId": "0c1d2a48232945663d9068ec4d1f4b058564ffc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
