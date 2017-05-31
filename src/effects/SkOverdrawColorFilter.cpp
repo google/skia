@@ -20,7 +20,7 @@ void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMCol
     }
 }
 
-void SkOverdrawColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+void SkOverdrawColorFilter::onFilterStage(const SkPM4f src[], int count, SkPM4f dst[]) const {
     for (int i = 0; i < count; ++i) {
         uint8_t alpha = (int)(src[i].a() * 255);
         if (alpha >= kNumColors) {

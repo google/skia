@@ -144,7 +144,6 @@ public:
  #endif
 
     void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
-    void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const override;
     void onAppendStages(SkRasterPipeline* p,
                         SkColorSpace* dst,
                         SkArenaAlloc* scratch,
@@ -176,12 +175,6 @@ void SkHighContrast_Filter::filterSpan(const SkPMColor src[], int count, SkPMCol
         };
         SkColor4f d4 = ApplyHighContrastFilter(fConfig, s4);
         dst[i] = d4.premul().toPMColor();
-    }
-}
-
-void SkHighContrast_Filter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
-    for (int i = 0; i < count; ++i) {
-        dst[i] = ApplyHighContrastFilter(fConfig, dst[i].unpremul()).premul();
     }
 }
 
