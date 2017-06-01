@@ -7188,6 +7188,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
         }
       ],
       "dependencies": [
@@ -7235,6 +7240,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
         }
       ],
       "dependencies": [

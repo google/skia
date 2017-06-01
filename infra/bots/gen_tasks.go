@@ -653,6 +653,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
 		s.IoTimeout = time.Hour
+		s.CipdPackages = append(s.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		s.ExecutionTimeout = 9 * time.Hour
 	}
