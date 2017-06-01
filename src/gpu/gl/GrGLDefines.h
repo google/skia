@@ -1071,6 +1071,7 @@
 #define GR_EGL_FALSE                                        0x0
 #define GR_EGL_TRUE                                         0x1
 #define GR_EGL_NONE                                         0x3038
-#define GR_EGL_NO_IMAGE                                    ((GrEGLImage)0)
+#define GR_EGL_NO_IMAGE                                     ((GrEGLImage)0)
+#define GR_EGL_NATIVE_BUFFER_ANDROID                        0x3140
 
 #endif
