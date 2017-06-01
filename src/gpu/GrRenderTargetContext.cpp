@@ -605,8 +605,9 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
 
     AutoCheckFlush acf(fRenderTargetContext->drawingManager());
 
-    std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(clip, insideStencilMask,
-                                                        fRenderTargetContext));
+    std::unique_ptr<GrOp> op(GrClearStencilClipOp::Make(
+                                                 clip, insideStencilMask,
+                                                 fRenderTargetContext->fRenderTargetProxy.get()));
     if (!op) {
         return;
     }
@@ -662,7 +663,6 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
                                                      appliedClip.hasStencilClip(),
                                                      stencilAttachment->bits(),
                                                      appliedClip.scissorState(),
-                                                     fRenderTargetContext,
                                                      path);
     if (!op) {
         return;
