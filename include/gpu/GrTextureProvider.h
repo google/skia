@@ -40,11 +40,12 @@ public:
      *                  field is ignored.
      */
     GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* srcData,
-                             size_t rowBytes);
+                             size_t rowBytes, uint32_t uniqueID = SK_InvalidUniqueID);
 
     /** Shortcut for creating a texture with no initial data to upload. */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-        return this->createTexture(desc, budgeted, nullptr, 0);
+    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                             uint32_t uniqueID = SK_InvalidUniqueID) {
+        return this->createTexture(desc, budgeted, nullptr, 0, uniqueID);
     }
 
     /** Assigns a unique key to the texture. The texture will be findable via this key using
@@ -72,7 +73,7 @@ public:
      * The contents of the texture are undefined. The caller owns a ref on the returned texture and
      * must balance with a call to unref.
      */
-    GrTexture* createApproxTexture(const GrSurfaceDesc&);
+    GrTexture* createApproxTexture(const GrSurfaceDesc&, uint32_t uniqueID);
 
     /** Legacy function that no longer should be used. */
     enum ScratchTexMatch {

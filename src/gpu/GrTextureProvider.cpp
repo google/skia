@@ -79,7 +79,8 @@ GrTexture* GrTextureProvider::createMipMappedTexture(const GrSurfaceDesc& desc, 
 }
 
 GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            const void* srcData, size_t rowBytes) {
+                                            const void* srcData, size_t rowBytes,
+                                            uint32_t uniqueID) {
     GrMipLevel tempTexels;
     GrMipLevel* texels = nullptr;
     int levelCount = 0;
@@ -89,12 +90,12 @@ GrTexture* GrTextureProvider::createTexture(const GrSurfaceDesc& desc, SkBudgete
       texels = &tempTexels;
       levelCount = 1;
     }
-    return this->createMipMappedTexture(desc, budgeted, texels, levelCount);
+    return this->createMipMappedTexture(desc, budgeted, texels, levelCount, uniqueID);
 }
 
-GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc) {
+GrTexture* GrTextureProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t uniqueID) {
     ASSERT_SINGLE_OWNER
-    return this->internalCreateApproxTexture(desc, 0);
+    return this->internalCreateApproxTexture(desc, 0, uniqueID);
 }
 
 GrTexture* GrTextureProvider::internalCreateApproxTexture(const GrSurfaceDesc& desc,

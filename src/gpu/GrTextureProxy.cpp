@@ -25,9 +25,9 @@ GrTexture* GrTextureProxy::instantiate(GrTextureProvider* texProvider) {
     }
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = texProvider->createApproxTexture(fDesc);
+        fTarget = texProvider->createApproxTexture(fDesc, this->uniqueID());
     } else {
-        fTarget = texProvider->createTexture(fDesc, fBudgeted);
+        fTarget = texProvider->createTexture(fDesc, fBudgeted, this->uniqueID());
     }
 
 #ifdef SK_DEBUG
