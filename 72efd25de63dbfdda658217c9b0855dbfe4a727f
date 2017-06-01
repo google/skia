@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "4982c2ec_012e7e6c",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "deleted fContext, because i don\u0027t need it anymore",
+      "parentUuid": "00b01f59_585edd58",
+      "range": {
+        "startLine": 43,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "914d5601_9cebf963",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
         "patchSetId": 4
@@ -204,6 +228,24 @@
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6b7d148_1bce2847",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "914d5601_9cebf963",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -239,6 +281,24 @@
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26fe77b1_fe9437c6",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "6cede347_a3fe518d",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -295,6 +355,24 @@
     },
     {
       "key": {
+        "uuid": "ad4e316d_ff99b2c8",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "I removed all references to GrGLInterface and used opengl headers instead.",
+      "parentUuid": "e7cfe418_77e0d2b3",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c4c83eb_d5c196a6",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
         "patchSetId": 4
@@ -315,6 +393,30 @@
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6468ab0_e0a732bf",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "I passed kTextureBinding_GrGLBackendState to indicate only texture binding state has changed.",
+      "parentUuid": "6c4c83eb_d5c196a6",
+      "range": {
+        "startLine": 149,
+        "startChar": 37,
+        "endLine": 149,
+        "endChar": 60
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -377,6 +479,30 @@
       "side": 1,
       "message": "On this note, wondering if we should name this class something with GL in the name.",
       "parentUuid": "68dfdff1_f3a2f6b4",
+      "range": {
+        "startLine": 198,
+        "startChar": 19,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70793e2b_faecc858",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "I suggest to add Vulkan support in the same class and keep the current name. There is a TODO in \"onIsValid\" to add Vulkan implementation.",
+      "parentUuid": "333e262e_5000fc56",
       "range": {
         "startLine": 198,
         "startChar": 19,
@@ -621,6 +747,30 @@
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ee2dc40_e3a0a3ba",
+        "filename": "tools/viewer/sk_app/android/GLWindowContext_android.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T22:19:45Z",
+      "side": 1,
+      "message": "suggest to keep this change, because it allows to build locally with latest NDK which is needed to experiment with hardware buffers.",
+      "parentUuid": "c91048cd_de8e1bbc",
+      "range": {
+        "startLine": 35,
+        "startChar": 15,
+        "endLine": 35,
+        "endChar": 30
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
