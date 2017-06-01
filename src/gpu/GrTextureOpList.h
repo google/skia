@@ -24,7 +24,6 @@ struct SkIRect;
 class GrTextureOpList final : public GrOpList {
 public:
     GrTextureOpList(GrResourceProvider*, GrTextureProxy*, GrAuditTrail*);
-
     ~GrTextureOpList() override;
 
     /**
