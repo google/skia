@@ -783,16 +783,16 @@
         "Upload-Perf-ChromeOS-Clang-Chromebook_CB5_311-GPU-TegraK1-arm-Release"
       ]
     },
-    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+    "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug"
+        "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug"
       ]
     },
-    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+    "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
       "priority": 0.8,
       "tasks": [
-        "Upload-Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
+        "Upload-Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
       ]
     },
     "Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug": {
@@ -6180,7 +6180,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug": {
+    "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug": {
       "dependencies": [
         "Build-Ubuntu-GCC-arm-Debug-Chromecast",
         "Housekeeper-PerCommit-BundleRecipes",
@@ -6199,7 +6199,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug",
+        "buildername=Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -6212,7 +6212,7 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+    "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
       "dependencies": [
         "Build-Ubuntu-GCC-arm-Release-Chromecast",
         "Housekeeper-PerCommit-BundleRecipes",
@@ -6231,7 +6231,7 @@
         "../../..",
         "perf",
         "repository=<(REPO)",
-        "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
+        "buildername=Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -17900,9 +17900,9 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release": {
+    "Upload-Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release": {
       "dependencies": [
-        "Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release"
+        "Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release"
       ],
       "dimensions": [
         "cpu:x86-64-avx2",
@@ -17915,7 +17915,7 @@
         "../../..",
         "upload_nano_results",
         "repository=<(REPO)",
-        "buildername=Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release",
+        "buildername=Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
