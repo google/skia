@@ -22,6 +22,30 @@
       "revId": "630edac65b9d9d9fe3fd9b05da22eaacf88ab7f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d8235ca_0e64cfeb",
+        "filename": "infra/bots/recipe_modules/flavor/gn_chromecast_flavor.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2017-06-01T19:40:02Z",
+      "side": 1,
+      "message": "Yes - we use adb for nearly everything.",
+      "parentUuid": "4564695b_e825ca48",
+      "range": {
+        "startLine": 13,
+        "startChar": 30,
+        "endLine": 13,
+        "endChar": 68
+      },
+      "revId": "630edac65b9d9d9fe3fd9b05da22eaacf88ab7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
