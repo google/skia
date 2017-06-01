@@ -19,7 +19,7 @@ public:
     static std::unique_ptr<SkImageGenerator> Make(sk_sp<GrTexture>, sk_sp<GrSemaphore>,
                                                   SkAlphaType, sk_sp<SkColorSpace>);
 
-    ~GrBackendTextureImageGenerator();
+    ~GrBackendTextureImageGenerator() override;
 
 protected:
     // NOTE: We would like to validate that the owning context hasn't been abandoned, but we can't
