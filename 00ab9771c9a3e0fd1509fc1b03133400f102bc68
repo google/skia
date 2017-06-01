@@ -141,6 +141,30 @@
       "revId": "00ab9771c9a3e0fd1509fc1b03133400f102bc68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be942f3b_4e098491",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-01T20:32:13Z",
+      "side": 1,
+      "message": "Over 20 years working in a language with named continues; I sometimes forget the inconvenience of not having them :-).\nMoved into a function.",
+      "parentUuid": "36be7514_4e20b90e",
+      "range": {
+        "startLine": 536,
+        "startChar": 74,
+        "endLine": 536,
+        "endChar": 78
+      },
+      "revId": "00ab9771c9a3e0fd1509fc1b03133400f102bc68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
