@@ -22,6 +22,30 @@
       "revId": "625271c0739b32fbfd4a17c30fd9a755387c3935",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "573a393b_4639f07e",
+        "filename": "include/core/SkRWBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-01T15:33:00Z",
+      "side": 1,
+      "message": "Yes.  I believe Chrome is the only user, so I\u0027m planning to update it after this lands and then remove these old methods.\n\n(and I\u0027m too lazy to do the compile flag dance for something this trivial :)",
+      "parentUuid": "1ded64bd_26beac63",
+      "range": {
+        "startLine": 93,
+        "startChar": 16,
+        "endLine": 93,
+        "endChar": 34
+      },
+      "revId": "625271c0739b32fbfd4a17c30fd9a755387c3935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
