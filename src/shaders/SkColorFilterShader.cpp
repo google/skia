@@ -93,10 +93,24 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor
     filterShader.fFilter->filterSpan(result, count, result);
 }
 
+#include "SkRasterPipeline.h"
 void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f result[],
                                                            int count) {
-    // Should never get here, as shadeSpan4f should only be called if stages fails
-    SkASSERT(false);
+    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
+
+    fShaderContext->shadeSpan4f(x, y, result, count);
+
+    // now apply the filter
+
+    SkSTArenaAlloc<128> alloc;
+    SkRasterPipeline    pipeline(&alloc);
+
+    const SkPM4f* src = result;
+    pipeline.append(SkRasterPipeline::load_f32, &src);
+    filterShader.fFilter->appendStages(&pipeline, nullptr, &alloc, filterShader.isOpaque());
+    SkPM4f* dst = result;
+    pipeline.append(SkRasterPipeline::store_f32, &dst);
+    pipeline.run(0, count);
 }
 
 #if SK_SUPPORT_GPU
