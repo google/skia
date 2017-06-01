@@ -198,8 +198,8 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     // We assume (and here enforce) that the allocation size is the smallest power of two that
     // is greater than or equal to the number of geometries (and at least
     // kMinGeometryAllocated).
-    int newAllocSize = GrNextPow2(newGeoCount);
-    int currAllocSize = SkTMax<int>(kMinGeometryAllocated, GrNextPow2(fGeoCount));
+    int newAllocSize = GrNextPow2I(newGeoCount);
+    int currAllocSize = SkTMax<int>(kMinGeometryAllocated, GrNextPow2I(fGeoCount));
 
     if (newGeoCount > currAllocSize) {
         fGeoData.realloc(newAllocSize);
