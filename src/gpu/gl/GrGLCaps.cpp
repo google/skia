@@ -1571,14 +1571,16 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_BGRA;
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_BGRA8;
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
-            // The APPLE extension doesn't make this renderable.
-            fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-            if (version < GR_GL_VER(3,0) && !ctxInfo.hasExtension("GL_EXT_texture_storage")) {
-                // On ES2 the internal format of a BGRA texture is RGBA with the APPLE extension.
-                // Though, that seems to not be the case if the texture storage extension is
-                // present. The specs don't exactly make that clear.
-                fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
-                fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8;
+            // This APPLE extension introduces complexity on ES2. It leaves the internal format
+            // as RGBA, but allows BGRA as the external format. From testing, it appears that the
+            // driver remembers the external format when the texture is created (with TexImage).
+            // If you then try to upload data in the other swizzle (with TexSubImage), it fails.
+            // We could work around this, but it adds even more state tracking to code that is
+            // already too tricky. Instead, we opt not to support BGRA on ES2 with this extension.
+            // This also side-steps some ambiguous interactions with the texture storage extension.
+            if (version >= GR_GL_VER(3,0)) {
+                // The APPLE extension doesn't make this renderable.
+                fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
             }
         } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
