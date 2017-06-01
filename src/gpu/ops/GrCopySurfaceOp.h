@@ -15,9 +15,7 @@ class GrCopySurfaceOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    // MDB TODO: remove the resourceProvider parameter
-    static std::unique_ptr<GrOp> Make(GrResourceProvider*,
-                                      GrSurfaceProxy* dst, GrSurfaceProxy* src,
+    static std::unique_ptr<GrOp> Make(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
 
@@ -26,10 +24,10 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
-        string.printf("src: (proxyID: %d, rtID: %d), dst: (proxyID: %d, rtID: %d),\n"
-                      "srcRect: [L: %d, T: %d, R: %d, B: %d], dstPt: [X: %d, Y: %d]\n",
-                      fSrcProxyID.asUInt(), fSrc.get()->uniqueID().asUInt(),
-                      fDstProxyID.asUInt(), fDst.get()->uniqueID().asUInt(),
+        string.printf("srcProxyID: %d, dstProxyID: %d,\n"
+                      "srcRect: [ L: %d, T: %d, R: %d, B: %d ], dstPt: [ X: %d, Y: %d ]\n",
+                      fSrc.get()->uniqueID().asUInt(),
+                      fDst.get()->uniqueID().asUInt(),
                       fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom,
                       fDstPoint.fX, fDstPoint.fY);
         return string;
@@ -38,12 +36,9 @@ public:
     bool needsCommandBufferIsolation() const override { return true; }
 
 private:
-    GrCopySurfaceOp(GrSurface* dst, GrSurface* src,
-                    GrSurfaceProxy::UniqueID dstID, GrSurfaceProxy::UniqueID srcID,
+    GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                     const SkIRect& srcRect, const SkIPoint& dstPoint)
             : INHERITED(ClassID())
-            , fDstProxyID(dstID)
-            , fSrcProxyID(srcID)
             , fDst(dst)
             , fSrc(src)
             , fSrcRect(srcRect)
@@ -60,17 +55,22 @@ private:
 
     void onExecute(GrOpFlushState* state) override {
         SkASSERT(!state->commandBuffer());
-        state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
+
+        GrSurface* dst = fDst.get()->instantiate(state->resourceProvider());
+        GrSurface* src = fSrc.get()->instantiate(state->resourceProvider());
+        if (!dst || !src) {
+            return;
+        }
+
+        state->gpu()->copySurface(dst, src, fSrcRect, fDstPoint);
     }
 
-    // MDB TODO: remove the proxy IDs once the GrSurfaceProxy carries the ref since they will
-    // be redundant
-    GrSurfaceProxy::UniqueID                        fDstProxyID;
-    GrSurfaceProxy::UniqueID                        fSrcProxyID;
-    GrPendingIOResource<GrSurface, kWrite_GrIOType> fDst;
-    GrPendingIOResource<GrSurface, kRead_GrIOType>  fSrc;
-    SkIRect                                         fSrcRect;
-    SkIPoint                                        fDstPoint;
+    // For RenderTargetContexts 'fDst' is redundant with the RenderTarget that will be passed
+    // into onExecute in the drawOpArgs.
+    GrPendingIOResource<GrSurfaceProxy, kWrite_GrIOType> fDst;
+    GrPendingIOResource<GrSurfaceProxy, kRead_GrIOType>  fSrc;
+    SkIRect                                              fSrcRect;
+    SkIPoint                                             fDstPoint;
 
     typedef GrOp INHERITED;
 };

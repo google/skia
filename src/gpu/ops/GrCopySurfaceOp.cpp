@@ -58,8 +58,7 @@ static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
     return !clippedSrcRect->isEmpty();
 }
 
-std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrResourceProvider* resourceProvider,
-                                            GrSurfaceProxy* dstProxy, GrSurfaceProxy* srcProxy,
+std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurfaceProxy* dstProxy, GrSurfaceProxy* srcProxy,
                                             const SkIRect& srcRect,
                                             const SkIPoint& dstPoint) {
     SkASSERT(dstProxy);
@@ -75,17 +74,6 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrResourceProvider* resourceProvider
         return nullptr;
     }
 
-    // MDB TODO: remove this instantiation
-    GrSurface* dstTex = dstProxy->instantiate(resourceProvider);
-    if (!dstTex) {
-        return nullptr;
-    }
-    GrSurface* srcTex = srcProxy->instantiate(resourceProvider);
-    if (!srcTex) {
-        return nullptr;
-    }
-
-    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstTex, srcTex,
-                                                     dstProxy->uniqueID(), srcProxy->uniqueID(),
+    return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstProxy, srcProxy,
                                                      clippedSrcRect, clippedDstPoint));
 }

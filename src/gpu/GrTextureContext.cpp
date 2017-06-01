@@ -77,7 +77,7 @@ bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::onCopy");
 
-    return this->getOpList()->copySurface(fContext->resourceProvider(),
+    return this->getOpList()->copySurface(*fContext->caps(),
                                           fTextureProxy.get(), srcProxy, srcRect, dstPoint);
 }
 
