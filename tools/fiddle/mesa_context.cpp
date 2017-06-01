@@ -10,12 +10,13 @@
 #include <GL/osmesa.h>
 
 // create_grcontext implementation for Mesa.
-sk_sp<GrContext> create_grcontext() {
+sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
     // We just leak the OSMesaContext... the process will die soon anyway.
     if (OSMesaContext osMesaContext = OSMesaCreateContextExt(OSMESA_BGRA, 0, 0, 0, nullptr)) {
         static uint32_t buffer[16 * 16];
         OSMesaMakeCurrent(osMesaContext, &buffer, GL_UNSIGNED_BYTE, 16, 16);
     }
+    driverinfo << "Mesa";
 
     auto osmesa_get = [](void* ctx, const char name[]) {
         SkASSERT(nullptr == ctx);

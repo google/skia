@@ -29,7 +29,7 @@ static const EGLint pbufferAttribs[] = {
 };
 
 // create_grcontext implementation for EGL.
-sk_sp<GrContext> create_grcontext() {
+sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
     EGLDisplay eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == eglDpy) {
         return nullptr;
@@ -39,6 +39,7 @@ sk_sp<GrContext> create_grcontext() {
     if (EGL_TRUE != eglInitialize(eglDpy, &major, &minor)) {
         return nullptr;
     }
+    driverinfo << "EGL " << major << "." << minor;
 
     EGLint numConfigs;
     EGLConfig eglCfg;
