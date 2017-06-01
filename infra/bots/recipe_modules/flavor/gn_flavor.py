@@ -146,7 +146,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
   def step(self, name, cmd):
     app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
     cmd = [app] + cmd[1:]
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
 
     clang_linux = str(self.m.vars.slave_dir.join('clang_linux'))
     extra_config = self.m.vars.builder_cfg.get('extra_config', '')
