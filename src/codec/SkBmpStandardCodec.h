@@ -7,7 +7,7 @@
 #ifndef SkBmpStandardCodec_DEFINED
 #define SkBmpStandardCodec_DEFINED
 
-#include "SkBmpCodec.h"
+#include "SkBmpBaseCodec.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
@@ -17,7 +17,7 @@
  * This class implements the decoding for bmp images that use "standard" modes,
  * which essentially means they do not contain bit masks or RLE codes.
  */
-class SkBmpStandardCodec : public SkBmpCodec {
+class SkBmpStandardCodec : public SkBmpBaseCodec {
 public:
 
     /*
@@ -92,12 +92,11 @@ private:
     const uint32_t              fBytesPerColor;
     const uint32_t              fOffset;
     std::unique_ptr<SkSwizzler> fSwizzler;
-    std::unique_ptr<uint8_t[]>  fSrcBuffer;
     const bool                  fIsOpaque;
     const bool                  fInIco;
     const size_t                fAndMaskRowBytes; // only used for fInIco decodes
     bool                        fXformOnDecode;
 
-    typedef SkBmpCodec INHERITED;
+    typedef SkBmpBaseCodec INHERITED;
 };
 #endif  // SkBmpStandardCodec_DEFINED

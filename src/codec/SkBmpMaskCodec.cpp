@@ -18,7 +18,6 @@ SkBmpMaskCodec::SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info,
     : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)
-    , fSrcBuffer(new uint8_t [this->srcRowBytes()])
 {}
 
 /*
@@ -81,7 +80,7 @@ int SkBmpMaskCodec::decodeRows(const SkImageInfo& dstInfo,
                                            void* dst, size_t dstRowBytes,
                                            const Options& opts) {
     // Iterate over rows of the image
-    uint8_t* srcRow = fSrcBuffer.get();
+    uint8_t* srcRow = this->srcBuffer();
     const int height = dstInfo.height();
     for (int y = 0; y < height; y++) {
         // Read a row of the input
