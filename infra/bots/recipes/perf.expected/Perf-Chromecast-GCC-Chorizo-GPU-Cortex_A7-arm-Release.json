@@ -339,8 +339,8 @@
       "/cache/skia/resources",
       "--images",
       "/cache/skia/resources/color_wheel.jpg",
-      "--svgs",
-      "/cache/skia/svgs",
+      "--skps",
+      "/cache/skia/skps",
       "--pre_log",
       "--match",
       "~matrixconvolution",
@@ -362,7 +362,7 @@
       "compiler",
       "GCC",
       "cpu_or_gpu",
-      "CPU",
+      "GPU",
       "cpu_or_gpu_value",
       "Cortex_A7",
       "model",
@@ -383,7 +383,7 @@
       "python",
       "-u",
       "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release/data",
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release/data",
       "511"
     ],
     "name": "makedirs perf_dir",
@@ -405,7 +405,7 @@
       "adb",
       "pull",
       "/cache/skia/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release/data"
+      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release/data"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -415,7 +415,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "pull /cache/skia/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release/data"
+    "name": "pull /cache/skia/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release/data"
   },
   {
     "cmd": [
