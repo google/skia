@@ -107,6 +107,12 @@ public:
 
     void setDrawOpArgs(DrawOpArgs* opArgs) { fOpArgs = opArgs; }
 
+#ifdef SK_DEBUG
+    const DrawOpArgs* drawOpArgPtr() const {
+        return fOpArgs;
+    }
+#endif
+
     const DrawOpArgs& drawOpArgs() const {
         SkASSERT(fOpArgs);
         return *fOpArgs;

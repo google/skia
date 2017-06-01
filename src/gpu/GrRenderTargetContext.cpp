@@ -138,8 +138,8 @@ bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::onCopy");
 
-    return this->getOpList()->copySurface(fContext->resourceProvider(),
-                                          this, srcProxy, srcRect, dstPoint);
+    return this->getOpList()->copySurface(*this->caps(),
+                                          this->asSurfaceProxy(), srcProxy, srcRect, dstPoint);
 }
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,

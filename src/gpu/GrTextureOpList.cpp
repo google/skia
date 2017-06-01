@@ -78,12 +78,14 @@ void GrTextureOpList::reset() {
 ////////////////////////////////////////////////////////////////////////////////
 
 // MDB TODO: fuse with GrRenderTargetOpList::copySurface
-bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
+bool GrTextureOpList::copySurface(const GrCaps& caps,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
                                   const SkIRect& srcRect,
                                   const SkIPoint& dstPoint) {
-    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(resourceProvider, dst, src, srcRect, dstPoint);
+    SkASSERT(dst == fTarget.get());
+
+    std::unique_ptr<GrOp> op = GrCopySurfaceOp::Make(dst, src, srcRect, dstPoint);
     if (!op) {
         return false;
     }
