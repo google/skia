@@ -98,7 +98,7 @@ public:
 
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
-        GrTexture* atlas = gp.textureSampler(0).texture();
+        GrTextureProxy* atlas = gp.textureSampler(0).proxy();
         if (atlas) {
             b->add32(atlas->width());
             b->add32(atlas->height());

@@ -21,6 +21,7 @@ class GrOpFlushState;
 class GrRenderTargetOpList;
 class GrResourceProvider;
 class GrSurfaceProxy;
+class GrTextureProxy;
 class GrTextureOpList;
 
 class GrOpList : public SkRefCnt {
