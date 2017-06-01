@@ -24,13 +24,7 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    GrSurface* instantiate(GrResourceProvider* resourceProvider) override;
-    GrRenderTarget* instantiateRenderTarget(GrResourceProvider* resourceProvider) {
-        if (auto surf = this->instantiate(resourceProvider)) {
-            return surf->asRenderTarget();
-        }
-        return nullptr;
-    }
+    bool instantiate(GrResourceProvider* resourceProvider) override;
 
     GrFSAAType fsaaType() const {
         if (!fSampleCnt) {

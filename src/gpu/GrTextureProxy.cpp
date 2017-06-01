@@ -21,17 +21,17 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
         : INHERITED(std::move(surf), SkBackingFit::kExact)
         , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
-        , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode()) {}
+        , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode()) {
+}
 
-GrSurface* GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
-    GrSurface* surf =
-            this->instantiateImpl(resourceProvider, 0, kNone_GrSurfaceFlags, fIsMipMapped,
-                                  fMipColorMode);
-    if (!surf) {
-        return nullptr;
+bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
+    if (!this->instantiateImpl(resourceProvider, 0, kNone_GrSurfaceFlags, fIsMipMapped,
+                               fMipColorMode)) {
+        return false;
     }
-    SkASSERT(surf->asTexture());
-    return surf;
+
+    SkASSERT(fTarget->asTexture());
+    return true;
 }
 
 void GrTextureProxy::setMipColorMode(SkDestinationSurfaceColorMode colorMode) {
