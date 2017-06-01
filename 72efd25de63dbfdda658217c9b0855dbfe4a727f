@@ -1,0 +1,227 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51087057_bb1e39a6",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "also note that it takes a ref on the buffer",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6e2932a_450fbfa1",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "comment that this define is only until Skia bug 6672 is resolved",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dd5103e_43569f8c",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "why is this ref counted? Is there ever any more than one person holding this?  I would think just calling delete instead of unref would make it more clear that this is a unique ptr.",
+      "range": {
+        "startLine": 30,
+        "startChar": 35,
+        "endLine": 30,
+        "endChar": 45
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b82d25f0_db0e79ca",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "if this object will ever live longer than the scope in which it was created (which I think it does), then yes you should take a ref.",
+      "range": {
+        "startLine": 43,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "914d5601_9cebf963",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "I\u0027ll defer to the Brian(s) on if this is the best way to write this method.",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd10a94b_813a0ea5",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "this code seems very GL specific.",
+      "range": {
+        "startLine": 198,
+        "startChar": 19,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70922245_9f4e8103",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "comments on what this class does and what refs it takes.  Specifically that the same hardware buffer can be used in multiple GPU contexts.",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a83eae1_ddfb9a4d",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "virtual?",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb6c94ee_9aa6d9ad",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "why was that needed for this CL?",
+      "range": {
+        "startLine": 22,
+        "startChar": 38,
+        "endLine": 22,
+        "endChar": 46
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55717a4a_dc3a24f5",
+        "filename": "src/gpu/gl/GrGLDefines.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "no tabs just spaces",
+      "range": {
+        "startLine": 1075,
+        "startChar": 36,
+        "endLine": 1075,
+        "endChar": 37
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08659f53_7e47b667",
+        "filename": "tools/viewer/sk_app/android/GLWindowContext_android.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T13:01:37Z",
+      "side": 1,
+      "message": "this doesn\u0027t seem relevant to this CL.",
+      "range": {
+        "startLine": 35,
+        "startChar": 15,
+        "endLine": 35,
+        "endChar": 30
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
