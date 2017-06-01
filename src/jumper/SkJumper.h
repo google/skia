@@ -95,11 +95,6 @@ struct SkJumper_ParametricTransferFunction {
     float G, A,B,C,D,E,F;
 };
 
-struct SkJumper_DitherCtx {
-    const int* y;
-    float rate;
-};
-
 struct SkJumper_GradientCtx {
     size_t stopCount;
     float* fs[4];

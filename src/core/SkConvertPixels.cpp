@@ -359,17 +359,16 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     SkASSERT(premulState == dat || kOpaque_SkAlphaType == srcInfo.alphaType());
 
     // We'll dither if we're decreasing precision below 32-bit.
-    int y;
-    SkJumper_DitherCtx dither = {&y, 0.0f};
+    float dither_rate = 0.0f;
     if (srcInfo.bytesPerPixel() > dstInfo.bytesPerPixel()) {
         switch (dstInfo.colorType()) {
-            case   kRGB_565_SkColorType: dither.rate = 1/63.0f; break;
-            case kARGB_4444_SkColorType: dither.rate = 1/15.0f; break;
-            default:                     dither.rate =    0.0f; break;
+            case   kRGB_565_SkColorType: dither_rate = 1/63.0f; break;
+            case kARGB_4444_SkColorType: dither_rate = 1/15.0f; break;
+            default:                     dither_rate =    0.0f; break;
         }
     }
-    if (dither.rate > 0) {
-        pipeline.append(SkRasterPipeline::dither, &dither);
+    if (dither_rate > 0) {
+        pipeline.append(SkRasterPipeline::dither, &dither_rate);
     }
 
     switch (dstInfo.colorType()) {
@@ -395,8 +394,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     }
 
     auto run = pipeline.compile();
-    // This y is declared above when handling dither (which needs to know y).
-    for (y = 0; y < srcInfo.height(); ++y) {
+    for (int y = 0; y < srcInfo.height(); ++y) {
         run(0,y, srcInfo.width());
         // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
         // loop to move between rows of src/dst.
