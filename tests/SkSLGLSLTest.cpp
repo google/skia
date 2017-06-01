@@ -1340,24 +1340,55 @@ DEF_TEST(SkSLMultipleAssignments, r) {
 
 DEF_TEST(SkSLComplexDelete, r) {
     test(r,
-        "uniform mat4 colorXform;"
-        "uniform sampler2D sampler;"
-        "void main() {"
-        "vec4 tmpColor;"
-        "sk_FragColor = vec4(1.0) * (tmpColor = texture(sampler, vec2(1)) , "
-        "colorXform != mat4(1.0) ? vec4(clamp((mat4(colorXform) * vec4(tmpColor.xyz, 1.0)).xyz, "
-        "0.0, tmpColor.w), tmpColor.w) : tmpColor);"
-        "}",
-        *SkSL::ShaderCapsFactory::Default(),
-        "#version 400\n"
-        "out vec4 sk_FragColor;\n"
-        "uniform mat4 colorXform;\n"
-        "uniform sampler2D sampler;\n"
-        "void main() {\n"
-        "    vec4 tmpColor;\n"
-        "    sk_FragColor = (tmpColor = texture(sampler, vec2(1.0)) , colorXform != mat4(1.0) ? "
-        "vec4(clamp((colorXform * vec4(tmpColor.xyz, 1.0)).xyz, 0.0, tmpColor.w), tmpColor.w) : "
-        "tmpColor);\n"
-        "}\n");
+         "uniform mat4 colorXform;"
+         "uniform sampler2D sampler;"
+         "void main() {"
+         "vec4 tmpColor;"
+         "sk_FragColor = vec4(1.0) * (tmpColor = texture(sampler, vec2(1)) , "
+         "colorXform != mat4(1.0) ? vec4(clamp((mat4(colorXform) * vec4(tmpColor.xyz, 1.0)).xyz, "
+         "0.0, tmpColor.w), tmpColor.w) : tmpColor);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform mat4 colorXform;\n"
+         "uniform sampler2D sampler;\n"
+         "void main() {\n"
+         "    vec4 tmpColor;\n"
+         "    sk_FragColor = (tmpColor = texture(sampler, vec2(1.0)) , colorXform != mat4(1.0) ? "
+         "vec4(clamp((colorXform * vec4(tmpColor.xyz, 1.0)).xyz, 0.0, tmpColor.w), tmpColor.w) : "
+         "tmpColor);\n"
+         "}\n");
 }
+
+DEF_TEST(SkSLInvocations, r) {
+    test(r,
+         "layout(points) in;"
+         "layout(invocations = 2) in;"
+         "layout(line_strip, max_vertices = 2) out;"
+         "void main() {"
+         "gl_Position = sk_in[0].gl_Position + vec4(-0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "gl_Position = sk_in[0].gl_Position + vec4(0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "}",
+         *SkSL::ShaderCapsFactory::MustImplementGSInvocationsWithLoop(),
+         "#version 400\n"
+         "layout (points) in ;\n"
+         "layout (line_strip, max_vertices = 2) out ;\n"
+         "void _invoke(int sk_InvocationID) {\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(sk_InvocationID));\n"
+         "    EmitVertex();\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(sk_InvocationID));\n"
+         "    EmitVertex();\n"
+         "}\n"
+         "void main() {\n"
+         "    for (int i = 0;i < 2; i++) {\n"
+         "        _invoke(i);\n"
+         "        EndPrimitive();\n"
+         "    }\n"
+         "}\n",
+         SkSL::Program::kGeometry_Kind);
+}
+
 #endif
