@@ -23,14 +23,6 @@ class GrContextPriv {
 public:
     GrDrawingManager* drawingManager() { return fContext->fDrawingManager.get(); }
 
-    // Create a renderTargetContext that wraps an existing renderTarget
-    sk_sp<GrRenderTargetContext> makeWrappedRenderTargetContext(sk_sp<GrRenderTarget>,
-                                                                sk_sp<SkColorSpace>,
-                                                                const SkSurfaceProps* = nullptr);
-
-    // Create a surfaceContext that wraps an existing texture or renderTarget
-    sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurface>);
-
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
 
     sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,

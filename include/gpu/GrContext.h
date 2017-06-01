@@ -10,7 +10,6 @@
 
 #include "GrCaps.h"
 #include "GrColor.h"
-#include "GrRenderTarget.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
