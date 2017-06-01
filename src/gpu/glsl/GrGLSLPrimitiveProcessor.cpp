@@ -18,8 +18,8 @@ SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatri
     SkMatrix combined;
     combined.setConcat(coordTransform.getMatrix(), localMatrix);
     if (coordTransform.normalize()) {
-        SkASSERT(coordTransform.texture());
-        combined.postIDiv(coordTransform.texture()->width(), coordTransform.texture()->height());
+        combined.postIDiv(coordTransform.peekTexture()->width(),
+                          coordTransform.peekTexture()->height());
     }
 
     if (coordTransform.reverseY()) {

@@ -447,6 +447,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         }
     }
 }
+
 #endif  // GR_TEST_UTILS
 #endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 #endif  // SK_SUPPORT_GPU
