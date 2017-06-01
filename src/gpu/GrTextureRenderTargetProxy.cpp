@@ -44,16 +44,15 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
                                   SkBackingFit::kApprox == fFit);
 }
 
-GrSurface* GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
+bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
-    GrSurface* surf = this->instantiateImpl(resourceProvider, this->numStencilSamples(), kFlags,
-                                            this->isMipMapped(), this->mipColorMode());
-    if (!surf) {
-        return nullptr;
+    if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), kFlags,
+                               this->isMipMapped(), this->mipColorMode())) {
+        return false;
     }
-    SkASSERT(surf->asRenderTarget());
-    SkASSERT(surf->asTexture());
+    SkASSERT(fTarget->asRenderTarget());
+    SkASSERT(fTarget->asTexture());
 
-    return surf;
+    return true;
 }

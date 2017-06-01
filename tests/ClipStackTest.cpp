@@ -16,6 +16,7 @@
 #include "GrClipStackClip.h"
 #include "GrReducedClip.h"
 #include "GrResourceCache.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;
@@ -1442,7 +1443,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
         stack.save();
         stack.clipPath(path, m, SkClipOp::kIntersect, true);
         sk_sp<GrTextureProxy> mask = GrClipStackClip(&stack).testingOnly_createClipMask(context);
-        GrTexture* tex = mask->instantiateTexture(context->resourceProvider());
+        mask->instantiate(context->resourceProvider());
+        GrTexture* tex = mask->priv().peekTexture();
         REPORTER_ASSERT(reporter, 0 == strcmp(tex->getUniqueKey().tag(), kTag));
         // Make sure mask isn't pinned in cache.
         mask.reset(nullptr);

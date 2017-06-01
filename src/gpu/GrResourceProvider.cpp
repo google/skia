@@ -313,10 +313,10 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
         return;
     }
 
-    GrTexture* texture = proxy->instantiateTexture(this);
-    if (!texture) {
+    if (!proxy->instantiate(this)) {
         return;
     }
+    GrTexture* texture = proxy->priv().peekTexture();
 
     this->assignUniqueKeyToResource(key, texture);
 }
