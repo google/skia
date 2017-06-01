@@ -333,7 +333,7 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
                 p.append(SkRasterPipeline::load_f16, &row);
                 p.append(SkRasterPipeline::premul);
                 p.append(SkRasterPipeline::store_f16, &row);
-                p.run(0, bitmap.width());
+                p.run(0,y, bitmap.width());
             }
             break;
         case kN32_SkColorType:

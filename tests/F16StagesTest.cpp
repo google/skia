@@ -25,7 +25,7 @@ DEF_TEST(F16Stages, r) {
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline:: load_f32, &f32);
         p.append(SkRasterPipeline::store_f16, &f16);
-        p.run(0,16/4);
+        p.run(0,0,16/4);
     }
     REPORTER_ASSERT(r, f16[0] == 0x0000);
     REPORTER_ASSERT(r, f16[1] == 0x3400);
@@ -40,7 +40,7 @@ DEF_TEST(F16Stages, r) {
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline:: load_f16, &f16);
         p.append(SkRasterPipeline::store_f32, &f32);
-        p.run(0,16/4);
+        p.run(0,0,16/4);
     }
     REPORTER_ASSERT(r, f32[0] ==  0.00f);
     REPORTER_ASSERT(r, f32[1] ==  0.25f);

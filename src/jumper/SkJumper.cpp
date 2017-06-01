@@ -184,7 +184,7 @@ void SkRasterPipeline::BuildPipeline(const StageList* st,
     }
 }
 
-void SkRasterPipeline::run(size_t x, size_t n) const {
+void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
     if (this->empty()) {
         return;
     }
@@ -198,16 +198,16 @@ void SkRasterPipeline::run(size_t x, size_t n) const {
     gEngine.start_pipeline(x, program.get(), &kConstants, limit);
 }
 
-std::function<void(size_t, size_t)> SkRasterPipeline::compile() const {
+std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     if (this->empty()) {
-        return [](size_t, size_t) {};
+        return [](size_t, size_t, size_t) {};
     }
     gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
     void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
     BuildPipeline(fStages, gEngine, program + fSlotsNeeded);
 
-    return [=](size_t x, size_t n) {
+    return [=](size_t x, size_t y, size_t n) {
         const size_t limit = x+n;
         gEngine.start_pipeline(x, program, &kConstants, limit);
     };

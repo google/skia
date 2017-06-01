@@ -54,7 +54,7 @@ DEF_TEST(sk_pipeline_srgb_roundtrip, r) {
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &ptr);
 
-    p.run(0,256);
+    p.run(0,0,256);
 
     for (int i = 0; i < 256; i++) {
         if (reds[i] != (uint32_t)i) {
@@ -73,7 +73,7 @@ DEF_TEST(sk_pipeline_srgb_edge_cases, r) {
     p.append(SkRasterPipeline::constant_color, &color);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_f32, &dst);
-    p.run(0,4);
+    p.run(0,0,4);
 
     if (color.r() != 0.0f) {
         ERRORF(r, "expected to_srgb() to map 0.0f to 0.0f, got %f", color.r());

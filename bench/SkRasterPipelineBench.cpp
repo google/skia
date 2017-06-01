@@ -59,7 +59,7 @@ public:
         }
 
         while (loops --> 0) {
-            p.run(0,N);
+            p.run(0,0,N);
         }
     }
 };
@@ -89,11 +89,11 @@ public:
         if (fCompile) {
             auto fn = p.compile();
             while (loops --> 0) {
-                fn(0,N);
+                fn(0,0,N);
             }
         } else {
             while (loops --> 0) {
-                p.run(0,N);
+                p.run(0,0,N);
             }
         }
     }
@@ -132,7 +132,7 @@ public:
         p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
 
         while (loops --> 0) {
-            p.run(0,N);
+            p.run(0,0,N);
         }
     }
 };
@@ -150,7 +150,7 @@ public:
         p.append(SkRasterPipeline::to_srgb);
 
         while (loops --> 0) {
-            p.run(0,N);
+            p.run(0,0,N);
         }
     }
 };

@@ -377,7 +377,7 @@ static void blend_line(SkColorType dstCT, void* dst,
     }
     p.append(store_dst, dst);
 
-    p.run(0, width);
+    p.run(0,0, width);
 }
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
