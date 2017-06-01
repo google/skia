@@ -16,6 +16,24 @@
       "revId": "a91514e1a441843cb50b31abccaf2b84afc283a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "974119bc_c1d911e9",
+        "filename": "src/gpu/ops/GrCopySurfaceOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-01T14:57:03Z",
+      "side": 1,
+      "message": "Doh. I got the assert working locally but never uploaded it. It is now in PS #4.",
+      "parentUuid": "5f6800f1_2b4ea97b",
+      "revId": "a91514e1a441843cb50b31abccaf2b84afc283a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
