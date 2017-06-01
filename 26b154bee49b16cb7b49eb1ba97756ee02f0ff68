@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b64a807_1bdbff9b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-01T18:01:53Z",
+      "side": 1,
+      "message": "https://skia-review.googlesource.com/c/8966/ (already backported to N) fixes the problem for the image specified in b/37623797, since it has a width of 1835887981, which is much greater than our max width of 65535. But there is still a potential for OOM if a BMP is 65535 wide by 4 bytes per pixel. This change defends against that.",
+      "range": {
+        "startLine": 18,
+        "startChar": 7,
+        "endLine": 18,
+        "endChar": 15
+      },
+      "revId": "26b154bee49b16cb7b49eb1ba97756ee02f0ff68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "287f693c_7a879b75",
+        "filename": "src/codec/SkBmpBaseCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-01T18:01:53Z",
+      "side": 1,
+      "message": "Alternatively, we could move this stuff into SkBmpCodec, but it is already fairly cluttered. I was thinking there was more to share between Standard and Mask, but I was mistaken. Standard and RLE both have a method for createColorTable; if they could be merged into one in SkBmpCodec I\u0027d be more inclined to put this there, too.",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 20
+      },
+      "revId": "26b154bee49b16cb7b49eb1ba97756ee02f0ff68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
