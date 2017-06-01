@@ -37,8 +37,8 @@ public:
             *fRects[0].append() = SkISize::Make(random.nextRangeU(kMinRectSize, kMaxRectSize),
                                                 random.nextRangeU(kMinRectSize, kMaxRectSize));
             *fRects[1].append() = SkISize::Make(
-                        GrNextPow2(random.nextRangeU(kMinRectSize, kMaxRectSize)),
-                        GrNextPow2(random.nextRangeU(kMinRectSize, kMaxRectSize)));
+                        GrNextPow232(random.nextRangeU(kMinRectSize, kMaxRectSize)),
+                        GrNextPow232(random.nextRangeU(kMinRectSize, kMaxRectSize)));
             *fRects[2].append() = SkISize::Make(128, 128);
             *fRectLocations.append() = SkIPoint16::Make(0, 0);
         }
