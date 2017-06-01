@@ -448,6 +448,23 @@ int SkGlyphCache_Globals::setCacheCountLimit(int newCount) {
     return prevCount;
 }
 
+int SkGlyphCache_Globals::getCachePointSizeLimit() const {
+    SkAutoExclusive ac(fLock);
+    return fPointSizeLimit;
+}
+
+int SkGlyphCache_Globals::setCachePointSizeLimit(int newLimit) {
+    if (newLimit < 0) {
+        newLimit = 0;
+    }
+
+    SkAutoExclusive ac(fLock);
+
+    int prevLimit = fPointSizeLimit;
+    fPointSizeLimit = newLimit;
+    return prevLimit;
+}
+
 void SkGlyphCache_Globals::purgeAll() {
     SkAutoExclusive ac(fLock);
     this->internalPurge(fTotalMemoryUsed);
@@ -773,6 +790,14 @@ int SkGraphics::SetFontCacheCountLimit(int count) {
 
 int SkGraphics::GetFontCacheCountUsed() {
     return get_globals().getCacheCountUsed();
+}
+
+int SkGraphics::GetFontCachePointSizeLimit() {
+    return get_globals().getCachePointSizeLimit();
+}
+
+int SkGraphics::SetFontCachePointSizeLimit(int limit) {
+    return get_globals().setCachePointSizeLimit(limit);
 }
 
 void SkGraphics::PurgeFontCache() {
