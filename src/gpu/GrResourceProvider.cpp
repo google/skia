@@ -161,11 +161,14 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
         sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
-        sk_sp<GrSurfaceContext> sContext =
-                            context->contextPriv().makeWrappedSurfaceContext(std::move(tex));
-        if (sContext) {
-            if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
-                return sContext->asTextureProxyRef();
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+        if (proxy) {
+            sk_sp<GrSurfaceContext> sContext =
+                       context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+            if (sContext) {
+                if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
+                    return sContext->asTextureProxyRef();
+                }
             }
         }
     }
