@@ -220,7 +220,9 @@ public:
         this->state()->putBackVertexSpace(vertices * vertexStride);
     }
 
-    GrRenderTarget* renderTarget() const { return this->state()->drawOpArgs().fRenderTarget; }
+    GrRenderTarget* renderTarget() const {
+        return this->state()->drawOpArgs().fRenderTarget;
+    }
 
     const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
 

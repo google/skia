@@ -550,8 +550,8 @@ static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
 
 void GrVkPipeline::SetDynamicState(GrVkGpu* gpu,
                                    GrVkCommandBuffer* cmdBuffer,
-                                   const GrPipeline& pipeline) {
-    const GrRenderTarget& target = *pipeline.getRenderTarget();
+                                   const GrPipeline& pipeline, GrRenderTarget* rt) {
+    const GrRenderTarget& target = *rt; // pipeline.getRenderTarget();
     set_dynamic_scissor_state(gpu, cmdBuffer, pipeline, target);
     set_dynamic_viewport_state(gpu, cmdBuffer, target);
     set_dynamic_blend_constant_state(gpu, cmdBuffer, pipeline);

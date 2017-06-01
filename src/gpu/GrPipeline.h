@@ -247,15 +247,15 @@ private:
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
-    DstTextureProxy fDstTextureProxy;
-    SkIPoint fDstTextureOffset;
-    RenderTarget fRenderTarget;
-    GrScissorState fScissorState;
-    GrWindowRectsState fWindowRectsState;
+    DstTextureProxy              fDstTextureProxy;
+    SkIPoint                     fDstTextureOffset;
+    RenderTarget                 fRenderTarget;
+    GrScissorState               fScissorState;
+    GrWindowRectsState           fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
-    uint16_t fFlags;
+    uint16_t                     fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
-    FragmentProcessorArray fFragmentProcessors;
+    FragmentProcessorArray       fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
     int fNumColorProcessors;

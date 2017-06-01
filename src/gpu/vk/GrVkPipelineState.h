@@ -43,7 +43,7 @@ public:
 
     GrVkPipeline* vkPipeline() const { return fPipeline; }
 
-    void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
+    void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&, GrRenderTarget* rt);
 
     void bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 
@@ -74,7 +74,7 @@ public:
     public:
         static bool Build(Desc*,
                           const GrPrimitiveProcessor&,
-                          const GrPipeline&,
+                          const GrPipeline&, GrRenderTarget*,
                           const GrStencilSettings&,
                           GrPrimitiveType primitiveType,
                           const GrShaderCaps&);

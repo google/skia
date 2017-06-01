@@ -366,7 +366,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrRenderTarget* rt = fState->drawOpArgs().fRenderTarget;
     GrPipeline pipeline(rt, SkBlendMode::kSrc);
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->commandBuffer()->draw(pipeline, mtp, &mesh, 1,
+    fState->commandBuffer()->draw(pipeline, rt, mtp, &mesh, 1,
                                   SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 

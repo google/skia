@@ -51,11 +51,11 @@ private:
                       const GrBuffer* vertexBuffer,
                       const GrBuffer* instanceBuffer);
 
-    sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
+    sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&, GrRenderTarget*,
                                               const GrPrimitiveProcessor&,
                                               GrPrimitiveType);
 
-    void onDraw(const GrPipeline& pipeline,
+    void onDraw(const GrPipeline& pipeline, GrRenderTarget* rt,
                 const GrPrimitiveProcessor& primProc,
                 const GrMesh* mesh,
                 int meshCount,

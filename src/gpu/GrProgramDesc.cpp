@@ -163,6 +163,7 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                                                  fp.numCoordTransforms()), b);
 }
 
+// TODO: is this after the flush?
 bool GrProgramDesc::Build(GrProgramDesc* desc,
                           const GrPrimitiveProcessor& primProc,
                           bool hasPointSize,

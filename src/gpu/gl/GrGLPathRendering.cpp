@@ -144,11 +144,11 @@ void GrGLPathRendering::onStencilPath(const StencilPathArgs& args, const GrPath*
     }
 }
 
-void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
+void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline, GrRenderTarget* rt,
                                    const GrPrimitiveProcessor& primProc,
                                    const GrStencilSettings& stencilPassSettings,
                                    const GrPath* path) {
-    if (!this->gpu()->flushGLState(pipeline, primProc, false)) {
+    if (!this->gpu()->flushGLState(pipeline, rt, primProc, false)) {
         return;
     }
     const GrGLPath* glPath = static_cast<const GrGLPath*>(path);
@@ -172,7 +172,7 @@ void GrGLPathRendering::onDrawPath(const GrPipeline& pipeline,
     }
 }
 
-void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
+void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline, GrRenderTarget* rt,
                                     const GrPrimitiveProcessor& primProc,
                                     const GrStencilSettings& stencilPassSettings,
                                     const GrPathRange* pathRange, const void* indices,
@@ -180,7 +180,7 @@ void GrGLPathRendering::onDrawPaths(const GrPipeline& pipeline,
                                     PathTransformType transformType, int count) {
     SkDEBUGCODE(verify_floats(transformValues, gXformType2ComponentCount[transformType] * count));
 
-    if (!this->gpu()->flushGLState(pipeline, primProc, false)) {
+    if (!this->gpu()->flushGLState(pipeline, rt, primProc, false)) {
         return;
     }
     this->flushPathStencilSettings(stencilPassSettings);

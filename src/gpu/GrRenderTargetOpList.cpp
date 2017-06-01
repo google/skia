@@ -115,7 +115,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
-
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
 
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(flushState->gpu());
@@ -131,7 +130,6 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             // This op is a special snowflake and must occur between command buffers
             // TODO: make this go through the command buffer
             finish_command_buffer(commandBuffer.get());
-
             commandBuffer.reset();
             flushState->setCommandBuffer(commandBuffer.get());
         } else if (!commandBuffer) {
@@ -324,7 +322,6 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
 
     for (int i = 0; i < fRecordedOps.count() - 1; ++i) {
         GrOp* op = fRecordedOps[i].fOp.get();
-
         int maxCandidateIdx = SkTMin(i + kMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
         while (true) {

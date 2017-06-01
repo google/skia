@@ -47,6 +47,6 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     }
 }
 
-void GrGLSLVertexBuilder::onFinalize() {
+void GrGLSLVertexBuilder::onFinalize(GrRenderTarget*) {
     fProgramBuilder->varyingHandler()->getVertexDecls(&this->inputs(), &this->outputs());
 }
