@@ -166,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "00b01f59_585edd58",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-01T19:17:23Z",
+      "side": 1,
+      "message": "It seems like we are only using the context to get to the GrGLInterface, which I don\u0027t think we actually need here.",
+      "parentUuid": "5dd56f2a_1aecb5c9",
+      "range": {
+        "startLine": 43,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "914d5601_9cebf963",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
         "patchSetId": 4
@@ -194,6 +218,24 @@
       "writtenOn": "2017-06-01T16:56:38Z",
       "side": 1,
       "message": "Somewhere in here you need to check that GrContext was not abandoned. Currently the way to do that is to check whether getGpu returns null.",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cede347_a3fe518d",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-01T19:17:23Z",
+      "side": 1,
+      "message": "We should also check that the context\u0027s backend type is GL.",
+      "parentUuid": "b77090d2_645077b0",
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -229,6 +271,24 @@
       "side": 1,
       "message": "That is only a temporary limitation until we upgrade the NDK",
       "parentUuid": "94b9d732_306ffe0a",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7cfe418_77e0d2b3",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-01T19:17:23Z",
+      "side": 1,
+      "message": "Ok, I\u0027d still prefer not directly using GrGLInterface here. If this is Android-only code then #including the Android GL headers seems ok to me. I\u0027d like to get the EGL functions off of GrGLInterface.",
+      "parentUuid": "35c28b49_980538bb",
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
