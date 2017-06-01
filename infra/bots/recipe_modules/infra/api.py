@@ -37,7 +37,7 @@ class InfraApi(recipe_api.RecipeApi):
 
   def go_version(self):
     """Print the Go version."""
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
     env.update(self.go_env)
     with self.m.context(env=env):
       self.m.run(
@@ -55,7 +55,7 @@ class InfraApi(recipe_api.RecipeApi):
     This fails flakily sometimes, so perform multiple attempts.
     """
     self.go_version()
-    env = self.m.step.get_from_context('env', {})
+    env = self.m.context.env
     env.update(self.go_env)
     with self.m.context(env=env):
       self.m.run.with_retry(

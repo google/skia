@@ -43,7 +43,7 @@ class PDFiumFlavorUtils(default_flavor.DefaultFlavorUtils):
         gn_args.append('pdf_use_skia=true')
 
 
-      env = self.m.step.get_from_context('env', {})
+      env = self.m.context.env
       env['CHROMIUM_BUILDTOOLS_PATH'] = str(pdfium_dir.join('buildtools'))
       with self.m.context(env=env):
         self.m.run(
