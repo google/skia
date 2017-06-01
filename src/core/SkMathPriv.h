@@ -200,8 +200,4 @@ static inline size_t GrNextSizePow2(size_t n) {
     return n + 1;
 }
 
-static inline int GrNextPow2(int n) {
-    SkASSERT(n >= 0); // this impl only works for non-neg.
-    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
-}
 #endif
