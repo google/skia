@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "958a95a8_4d54f7c6",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-01T15:09:58Z",
+      "side": 1,
+      "message": "Can we rename this parameter to make it sound like a request, and not a fact? \"onlyIfFast\" maybe?",
+      "revId": "b693c6d15c50d8109c2a22e8223e16bc383b009a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "181c3203_24f32fc9",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-01T15:09:58Z",
+      "side": 1,
+      "message": "nit: 101 columns",
+      "revId": "b693c6d15c50d8109c2a22e8223e16bc383b009a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
