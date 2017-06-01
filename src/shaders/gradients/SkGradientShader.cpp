@@ -422,6 +422,8 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         return false;
     }
 
+    p->append(SkRasterPipeline::seed_shader);
+
     auto* m = alloc->makeArrayDefault<float>(9);
     if (matrix.asAffine(m)) {
         p->append(SkRasterPipeline::matrix_2x3, m);

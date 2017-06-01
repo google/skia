@@ -177,10 +177,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (shaderCtx) {
         colorPipeline->append(SkRasterPipeline::load_f32, &blitter->fShaderOutput);
     } else {
-        // If the shader's not constant, it'll need seeding with x,y.
-        if (!is_constant) {
-            colorPipeline->append(SkRasterPipeline::seed_shader);
-        }
         colorPipeline->extend(shaderPipeline);
     }
 
