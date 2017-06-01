@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ded64bd_26beac63",
+        "filename": "include/core/SkRWBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-01T15:24:36Z",
+      "side": 1,
+      "message": "Should we deprecate these?",
+      "range": {
+        "startLine": 93,
+        "startChar": 16,
+        "endLine": 93,
+        "endChar": 34
+      },
+      "revId": "625271c0739b32fbfd4a17c30fd9a755387c3935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
