@@ -24,6 +24,8 @@ namespace GrPathUtils {
                                  const SkMatrix& viewM,
                                  const SkRect& pathBounds);
 
+    bool hasMultipleSubpaths(const SkPath& path);
+
     int worstCasePointCount(const SkPath&,
                             int* subpaths,
                             SkScalar tol);
