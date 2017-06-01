@@ -247,7 +247,7 @@ def perf_steps(api):
       '-i', api.flavor.device_dirs.resource_dir,
       '--images', api.flavor.device_path_join(
           api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
-      '--svgs',  api.flavor.device_dirs.svg_dir,
+      '--skps',  api.flavor.device_dirs.skp_dir,
       '--pre_log',
       '--match', # skia:6581
       '~matrixconvolution',
@@ -339,8 +339,8 @@ TEST_BUILDERS = [
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
   'Perf-Android-Clang-PixelC-GPU-TegraX1-arm64-Release-Android',
   'Perf-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Release',
-  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Debug',
-  'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
+  'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Debug',
+  'Perf-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
   'Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release',
   'Perf-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Debug-CommandBuffer',
   'Perf-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release',

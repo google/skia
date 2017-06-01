@@ -6,7 +6,7 @@
       "\nimport os\nCHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')\nwith open(CHROMECAST_IP_FILE, 'r') as f:\n  print f.read()\n"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -30,7 +30,7 @@
       "192.168.1.2:5555"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -48,7 +48,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -65,7 +65,7 @@
       "/cache/skia/resources"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -125,7 +125,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -144,7 +144,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -162,7 +162,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -180,7 +180,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -197,7 +197,7 @@
       "/cache/skia/skps"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -235,49 +235,13 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
     "name": "push [START_DIR]/tmp/SKP_VERSION /cache/skia/SKP_VERSION"
-  },
-  {
-    "cmd": [
-      "adb",
-      "shell",
-      "rm",
-      "-r",
-      "/cache/skia/perf"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "rm /cache/skia/perf"
-  },
-  {
-    "cmd": [
-      "adb",
-      "shell",
-      "mkdir",
-      "-p",
-      "/cache/skia/perf"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "mkdir /cache/skia/perf"
   },
   {
     "cmd": [
@@ -311,12 +275,12 @@
     "cmd": [
       "adb",
       "push",
-      "[START_DIR]/out/Release/nanobench",
+      "[START_DIR]/out/Debug/nanobench",
       "/cache/skia/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -339,39 +303,17 @@
       "/cache/skia/resources",
       "--images",
       "/cache/skia/resources/color_wheel.jpg",
-      "--svgs",
-      "/cache/skia/svgs",
+      "--skps",
+      "/cache/skia/skps",
       "--pre_log",
       "--match",
       "~matrixconvolution",
       "~blur_image_filter",
       "~blur_0.01",
-      "~GM_animated-image-blurs",
-      "--outResultsFile",
-      "/cache/skia/perf/nanobench_abc123_1337000001.json",
-      "--properties",
-      "gitHash",
-      "abc123",
-      "swarming_bot_id",
-      "skia-bot-123",
-      "swarming_task_id",
-      "123456",
-      "--key",
-      "arch",
-      "arm",
-      "compiler",
-      "GCC",
-      "cpu_or_gpu",
-      "CPU",
-      "cpu_or_gpu_value",
-      "Cortex_A7",
-      "model",
-      "Chorizo",
-      "os",
-      "Chromecast"
+      "~GM_animated-image-blurs"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -382,50 +324,11 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport sys, os\npath = sys.argv[1]\nmode = int(sys.argv[2])\nif not os.path.isdir(path):\n  if os.path.exists(path):\n    print \"%s exists but is not a dir\" % path\n    sys.exit(1)\n  os.makedirs(path, mode)\n",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release/data",
-      "511"
-    ],
-    "name": "makedirs perf_dir",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys, os@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@mode = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not os.path.isdir(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if os.path.exists(path):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print \"%s exists but is not a dir\" % path@@@",
-      "@@@STEP_LOG_LINE@python.inline@    sys.exit(1)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(path, mode)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "adb",
-      "pull",
-      "/cache/skia/perf",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release/data"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "pull /cache/skia/perf [CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release/data"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
-      "[START_DIR]/out/Release"
+      "[START_DIR]/out/Debug"
     ],
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
@@ -458,7 +361,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "BUILDTYPE": "Release",
+      "BUILDTYPE": "Debug",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
