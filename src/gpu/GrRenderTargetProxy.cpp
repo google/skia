@@ -45,9 +45,9 @@ GrRenderTarget* GrRenderTargetProxy::instantiate(GrTextureProvider* texProvider)
     desc.fFlags |= GrSurfaceFlags::kRenderTarget_GrSurfaceFlag;
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = texProvider->createApproxTexture(desc);
+        fTarget = texProvider->createApproxTexture(desc, this->uniqueID());
     } else {
-        fTarget = texProvider->createTexture(desc, fBudgeted);
+        fTarget = texProvider->createTexture(desc, fBudgeted, this->uniqueID());
     }
     if (!fTarget) {
         return nullptr;
