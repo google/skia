@@ -613,22 +613,6 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
     return chosenSampleCount <= fGpu->caps()->maxSampleCount() ? chosenSampleCount : 0;
 }
 
-sk_sp<GrRenderTargetContext> GrContextPriv::makeWrappedRenderTargetContext(
-                                                               sk_sp<GrRenderTarget> rt,
-                                                               sk_sp<SkColorSpace> colorSpace,
-                                                               const SkSurfaceProps* surfaceProps) {
-    ASSERT_SINGLE_OWNER_PRIV
-
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(rt)));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
-                                                           std::move(colorSpace),
-                                                           surfaceProps);
-}
-
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
@@ -642,15 +626,13 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface
     }
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurface> surface) {
+sk_sp<GrRenderTargetContext>  GrContextPriv::makeWrappedRenderTargetContext(
+                                                                sk_sp<GrRenderTargetProxy> proxy,
+                                                                sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
+    return this->drawingManager()->makeRenderTargetContext(std::move(proxy),
+                                                           std::move(colorSpace), nullptr);
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfaceDesc& dstDesc,
@@ -827,7 +809,6 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
         fDrawingManager->makeRenderTargetContext(std::move(rtp),
                                                  std::move(colorSpace),
                                                  surfaceProps));
-
     if (!renderTargetContext) {
         return nullptr;
     }
