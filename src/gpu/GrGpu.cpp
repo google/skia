@@ -61,8 +61,8 @@ bool GrGpu::makeCopyForTextureParams(int width, int height, const GrTextureParam
     const GrCaps& caps = *this->caps();
     if (textureParams.isTiled() && !caps.npotTextureTileSupport() &&
         (!SkIsPow2(width) || !SkIsPow2(height))) {
-        copyParams->fWidth = GrNextPow2(width);
-        copyParams->fHeight = GrNextPow2(height);
+        copyParams->fWidth = GrNextPow2I(width);
+        copyParams->fHeight = GrNextPow2I(height);
         switch (textureParams.filterMode()) {
             case GrTextureParams::kNone_FilterMode:
                 copyParams->fFilter = GrTextureParams::kNone_FilterMode;

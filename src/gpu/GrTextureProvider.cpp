@@ -124,8 +124,8 @@ GrTexture* GrTextureProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
             // bin by pow2 with a reasonable min
             const int kMinSize = 16;
             GrSurfaceDesc* wdesc = desc.writable();
-            wdesc->fWidth  = SkTMax(kMinSize, GrNextPow2(desc->fWidth));
-            wdesc->fHeight = SkTMax(kMinSize, GrNextPow2(desc->fHeight));
+            wdesc->fWidth  = SkTMax(kMinSize, GrNextPow2I(desc->fWidth));
+            wdesc->fHeight = SkTMax(kMinSize, GrNextPow2I(desc->fHeight));
         }
 
         GrScratchKey key;
