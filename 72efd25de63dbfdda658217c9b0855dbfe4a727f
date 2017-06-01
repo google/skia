@@ -217,6 +217,24 @@
     },
     {
       "key": {
+        "uuid": "35c28b49_980538bb",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-01T19:02:15Z",
+      "side": 1,
+      "message": "That is only a temporary limitation until we upgrade the NDK",
+      "parentUuid": "94b9d732_306ffe0a",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c4c83eb_d5c196a6",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
         "patchSetId": 4
