@@ -69,7 +69,7 @@ int GrRenderTargetProxy::worstCaseWidth() const {
     if (SkBackingFit::kExact == fFit) {
         return fWidth;
     }
-    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fWidth));
+    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2I(fWidth));
 }
 
 int GrRenderTargetProxy::worstCaseHeight() const {
@@ -80,7 +80,7 @@ int GrRenderTargetProxy::worstCaseHeight() const {
     if (SkBackingFit::kExact == fFit) {
         return fHeight;
     }
-    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(fHeight));
+    return SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2I(fHeight));
 }
 
 size_t GrRenderTargetProxy::onUninstantiatedGpuMemorySize() const {

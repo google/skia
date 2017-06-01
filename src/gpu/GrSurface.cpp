@@ -17,8 +17,8 @@
 size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
     size_t size;
 
-    int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;
-    int height = useNextPow2 ? GrNextPow2(desc.fHeight) : desc.fHeight;
+    int width = useNextPow2 ? GrNextPow2I(desc.fWidth) : desc.fWidth;
+    int height = useNextPow2 ? GrNextPow2I(desc.fHeight) : desc.fHeight;
 
     bool isRenderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
     if (isRenderTarget) {
@@ -52,8 +52,8 @@ size_t GrSurface::ComputeSize(GrPixelConfig config,
                               int colorSamplesPerPixel,
                               bool hasMIPMaps,
                               bool useNextPow2) {
-    width = useNextPow2 ? GrNextPow2(width) : width;
-    height = useNextPow2 ? GrNextPow2(height) : height;
+    width = useNextPow2 ? GrNextPow2I(width) : width;
+    height = useNextPow2 ? GrNextPow2I(height) : height;
 
     SkASSERT(kUnknown_GrPixelConfig != config);
     size_t colorSize = (size_t)width * height * GrBytesPerPixel(config);
