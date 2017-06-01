@@ -72,6 +72,30 @@ public:
      */
     static int SetFontCacheCountLimit(int count);
 
+    /*
+     *  Returns the maximum point size for text that may be cached.
+     *
+     *  Sizes above this will be drawn directly from the font's outline.
+     *  Setting this to a large value may speed up drawing larger text (repeatedly),
+     *  but could cause the cache to purge other sizes more often.
+     *
+     *  This value is a hint to the font engine, and the actual limit may be different due to
+     *  implementation specific details.
+     */
+    static int GetFontCachePointSizeLimit();
+
+    /*
+     *  Set the maximum point size for text that may be cached, returning the previous value.
+     *
+     *  Sizes above this will be drawn directly from the font's outline.
+     *  Setting this to a large value may speed up drawing larger text (repeatedly),
+     *  but could cause the cache to purge other sizes more often.
+     *
+     *  This value is a hint to the font engine, and the actual limit may be different due to
+     *  implementation specific details.
+     */
+    static int SetFontCachePointSizeLimit(int maxPointSize);
+
     /**
      *  For debugging purposes, this will attempt to purge the font cache. It
      *  does not change the limit, but will cause subsequent font measures and
