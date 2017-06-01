@@ -56,13 +56,13 @@ private:
     void onExecute(GrOpFlushState* state) override {
         SkASSERT(!state->commandBuffer());
 
-        GrSurface* dst = fDst.get()->instantiate(state->resourceProvider());
-        GrSurface* src = fSrc.get()->instantiate(state->resourceProvider());
-        if (!dst || !src) {
+        if (!fDst.get()->instantiate(state->resourceProvider()) ||
+            !fSrc.get()->instantiate(state->resourceProvider())) {
             return;
         }
 
-        state->gpu()->copySurface(dst, src, fSrcRect, fDstPoint);
+        state->gpu()->copySurface(fDst.get()->priv().peekTexture(),
+                                  fSrc.get()->priv().peekTexture(), fSrcRect, fDstPoint);
     }
 
     // For RenderTargetContexts 'fDst' is redundant with the RenderTarget that will be passed

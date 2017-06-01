@@ -22,13 +22,7 @@ public:
     const GrTextureProxy* asTextureProxy() const override { return this; }
 
     // Actually instantiate the backing texture, if necessary
-    GrSurface* instantiate(GrResourceProvider*) override;
-    GrTexture* instantiateTexture(GrResourceProvider* resourceProvider) {
-        if (auto surf = this->instantiate(resourceProvider)) {
-            return surf->asTexture();
-        }
-        return nullptr;
-    }
+    bool instantiate(GrResourceProvider*) override;
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 

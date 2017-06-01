@@ -21,7 +21,9 @@ public:
         return fProxy->fTarget ? fProxy->fTarget->asTexture() : nullptr;
     }
 
+    // This should only be called after a successful call to instantiate
     GrRenderTarget* peekRenderTarget() const {
+        SkASSERT(fProxy->fTarget && fProxy->fTarget->asRenderTarget());
         return fProxy->fTarget ? fProxy->fTarget->asRenderTarget() : nullptr;
     }
 
