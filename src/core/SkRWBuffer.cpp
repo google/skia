@@ -9,6 +9,7 @@
 
 #include "SkAtomics.h"
 #include "SkMalloc.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
 
 // Force small chunks to be a page's worth
@@ -145,6 +146,10 @@ SkROBuffer::Iter::Iter(const SkROBuffer* buffer) {
     this->reset(buffer);
 }
 
+SkROBuffer::Iter::Iter(const sk_sp<SkROBuffer>& buffer) {
+    this->reset(buffer.get());
+}
+
 void SkROBuffer::Iter::reset(const SkROBuffer* buffer) {
     fBuffer = buffer;
     if (buffer && buffer->fHead) {
@@ -268,17 +273,15 @@ class SkROBufferStreamAsset : public SkStreamAsset {
 #endif
 
 public:
-    SkROBufferStreamAsset(const SkROBuffer* buffer) : fBuffer(SkRef(buffer)), fIter(buffer) {
+    SkROBufferStreamAsset(sk_sp<SkROBuffer> buffer) : fBuffer(std::move(buffer)), fIter(fBuffer) {
         fGlobalOffset = fLocalOffset = 0;
     }
-
-    ~SkROBufferStreamAsset() override { fBuffer->unref(); }
 
     size_t getLength() const override { return fBuffer->size(); }
 
     bool rewind() override {
         AUTO_VALIDATE
-        fIter.reset(fBuffer);
+        fIter.reset(fBuffer.get());
         fGlobalOffset = fLocalOffset = 0;
         return true;
     }
@@ -350,13 +353,16 @@ public:
 
 
 private:
-    const SkROBuffer*   fBuffer;
-    SkROBuffer::Iter    fIter;
-    size_t              fLocalOffset;
-    size_t              fGlobalOffset;
+    sk_sp<SkROBuffer> fBuffer;
+    SkROBuffer::Iter  fIter;
+    size_t            fLocalOffset;
+    size_t            fGlobalOffset;
 };
 
 SkStreamAsset* SkRWBuffer::newStreamSnapshot() const {
-    sk_sp<SkROBuffer> buffer(this->newRBufferSnapshot());
-    return new SkROBufferStreamAsset(buffer.get());
+    return new SkROBufferStreamAsset(this->makeROBufferSnapshot());
+}
+
+std::unique_ptr<SkStreamAsset> SkRWBuffer::makeStreamSnapshot() const {
+    return skstd::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot());
 }
