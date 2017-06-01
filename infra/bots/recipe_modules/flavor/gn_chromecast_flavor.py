@@ -14,6 +14,26 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
   def __init__(self, m):
     super(GNChromecastFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
+    self._user_ip = ''
+
+  @property
+  def user_ip_host(self):
+    if not self._user_ip:
+      self._user_ip = self.m.run(self.m.python.inline, 'read chromecast ip',
+                                 program="""
+      import os
+      CHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')
+      with open(CHROMECAST_IP_FILE, 'r') as f:
+        print f.read()
+      """,
+      stdout=self.m.raw_io.output(),
+      infra_step=True).stdout
+
+    return self._user_ip
+
+  @property
+  def user_ip(self):
+    return self.user_ip_host.split(':')[0]
 
   def compile(self, unused_target):
     configuration = self.m.vars.builder_cfg.get('configuration')
@@ -84,19 +104,8 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     return self._run(title, 'adb', *cmd, **kwargs)
 
   def _connect_to_remote(self):
-
-    ip_address = self.m.run(self.m.python.inline, 'read chromecast ip',
-               program="""
-    import os
-    CHROMECAST_IP_FILE = os.path.expanduser('~/chromecast.txt')
-    with open(CHROMECAST_IP_FILE, 'r') as f:
-      print f.read()
-    """,
-    stdout=self.m.raw_io.output(),
-    infra_step=True).stdout
-
-    self.m.run(self.m.step, 'adb connect %s' % ip_address, cmd=['adb',
-      'connect', ip_address], infra_step=True)
+    self.m.run(self.m.step, 'adb connect %s' % self.user_ip_host, cmd=['adb',
+      'connect', self.user_ip_host], infra_step=True)
 
   def create_clean_device_dir(self, path):
     # Note: Chromecast does not support -rf
@@ -128,3 +137,19 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
           subprocess.check_call(['adb', 'push',
                                 hp, os.path.join(device, p, f)])
     """, args=[host, device], infra_step=True)
+
+  def _ssh(self, title, *cmd, **kwargs):
+    ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
+               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+
+    return self.m.run(self.m.step, title, cmd=ssh_cmd,
+               infra_step=False, **kwargs)
+
+  def step(self, name, cmd, **kwargs):
+    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    self._adb('push %s' % cmd[0],
+              'push', app, self.m.vars.android_bin_dir)
+
+    cmd[0] = '%s%s' % (self.m.vars.android_bin_dir, cmd[0])
+    self._ssh(str(name), *cmd)
+

@@ -75,7 +75,7 @@
     "cmd": [
       "adb",
       "connect",
-      ""
+      "192.168.1.2:5555"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -84,7 +84,7 @@
       "SKIA_OUT": "[START_DIR]/out"
     },
     "infra_step": true,
-    "name": "adb connect "
+    "name": "adb connect 192.168.1.2:5555"
   },
   {
     "cmd": [
@@ -698,72 +698,22 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /cache/skia/dm --some-flag; echo $? >/cache/skia/rc",
-      "[START_DIR]/tmp/dm.sh"
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "root@192.168.1.2",
+      "/cache/skia/dm",
+      "--some-flag"
     ],
-    "infra_step": true,
-    "name": "write dm.sh"
-  },
-  {
-    "cmd": [
-      "adb",
-      "push",
-      "[START_DIR]/tmp/dm.sh",
-      "/cache/skia/"
-    ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "infra_step": true,
-    "name": "push dm.sh"
-  },
-  {
-    "cmd": [
-      "adb",
-      "logcat",
-      "-c"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "clear log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
-      "/cache/skia/",
-      "dm.sh"
-    ],
-    "name": "dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
-      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "dm"
   },
   {
     "cmd": [

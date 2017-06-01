@@ -326,11 +326,49 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /cache/skia/nanobench --config gles -i /cache/skia/resources --images /cache/skia/resources/color_wheel.jpg --svgs /cache/skia/svgs --pre_log --match ~matrixconvolution ~blur_image_filter ~blur_0.01 ~GM_animated-image-blurs --outResultsFile /cache/skia/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch arm compiler GCC cpu_or_gpu CPU cpu_or_gpu_value Cortex_A7 model Chorizo os Chromecast; echo $? >/cache/skia/rc",
-      "[START_DIR]/tmp/nanobench.sh"
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "root@192.168.1.2",
+      "/cache/skia/nanobench",
+      "--config",
+      "gles",
+      "-i",
+      "/cache/skia/resources",
+      "--images",
+      "/cache/skia/resources/color_wheel.jpg",
+      "--svgs",
+      "/cache/skia/svgs",
+      "--pre_log",
+      "--match",
+      "~matrixconvolution",
+      "~blur_image_filter",
+      "~blur_0.01",
+      "~GM_animated-image-blurs",
+      "--outResultsFile",
+      "/cache/skia/perf/nanobench_abc123_1337000001.json",
+      "--properties",
+      "gitHash",
+      "abc123",
+      "swarming_bot_id",
+      "skia-bot-123",
+      "swarming_task_id",
+      "123456",
+      "--key",
+      "arch",
+      "arm",
+      "compiler",
+      "GCC",
+      "cpu_or_gpu",
+      "CPU",
+      "cpu_or_gpu_value",
+      "Cortex_A7",
+      "model",
+      "Chorizo",
+      "os",
+      "Chromecast"
     ],
     "env": {
       "BUILDTYPE": "Release",
@@ -338,72 +376,7 @@
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
-    "infra_step": true,
-    "name": "write nanobench.sh"
-  },
-  {
-    "cmd": [
-      "adb",
-      "push",
-      "[START_DIR]/tmp/nanobench.sh",
-      "/cache/skia/"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "push nanobench.sh"
-  },
-  {
-    "cmd": [
-      "adb",
-      "logcat",
-      "-c"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "clear log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
-      "/cache/skia/",
-      "nanobench.sh"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "nanobench",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['adb', 'shell', 'sh', bin_dir + sh])@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['adb', 'shell', 'cat',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
-      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "nanobench"
   },
   {
     "cmd": [
