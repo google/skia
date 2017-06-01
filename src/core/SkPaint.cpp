@@ -12,6 +12,7 @@
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
+#include "SkGraphics.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
@@ -392,6 +393,12 @@ bool SkPaint::TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM) {
     return tooBig(matrix, MaxCacheSize2());
 }
 
+SkScalar SkPaint::MaxCacheSize2() {
+    // we have a self-imposed maximum, just for memory-usage sanity
+    const int limit = SkMin32(SkGraphics::GetFontCachePointSizeLimit(), 1024);
+    const SkScalar maxSize = SkIntToScalar(limit);
+    return maxSize * maxSize;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

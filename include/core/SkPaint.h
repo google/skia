@@ -1110,13 +1110,6 @@ private:
          *  need not match per-se.
          */
         kCanonicalTextSizeForPaths  = 64,
-
-        /*
-         *  Above this size (taking into account CTM and textSize), we never use
-         *  the cache for bits or metrics (we might overflow), so we just ask
-         *  for a caononical size and post-transform that.
-         */
-        kMaxSizeForGlyphCache       = 256,
     };
 
     static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM);
@@ -1126,11 +1119,7 @@ private:
     // have change it to kCanonicalTextSizeForPaths.
     SkScalar setupForAsPaths();
 
-    static SkScalar MaxCacheSize2() {
-        static const SkScalar kMaxSize = SkIntToScalar(kMaxSizeForGlyphCache);
-        static const SkScalar kMag2Max = kMaxSize * kMaxSize;
-        return kMag2Max;
-    }
+    static SkScalar MaxCacheSize2();
 
     friend class SkAutoGlyphCache;
     friend class SkAutoGlyphCacheNoGamma;
