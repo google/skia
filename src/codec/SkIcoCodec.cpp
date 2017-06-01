@@ -128,11 +128,18 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         bytesRead = offset;
 
         // Create a new stream for the embedded codec
-        sk_sp<SkData> data(SkData::MakeFromStream(inputStream.get(), size));
-        if (nullptr == data.get()) {
+        SkAutoFree buffer(sk_malloc_flags(size, 0));
+        if (!buffer) {
+            SkCodecPrintf("Warning: OOM trying to create embedded stream.\n");
+            break;
+        }
+
+        if (inputStream->read(buffer.get(), size) != size) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
             break;
         }
+
+        sk_sp<SkData> data(SkData::MakeFromMalloc(buffer.release(), size));
         std::unique_ptr<SkMemoryStream> embeddedStream(new SkMemoryStream(data));
         bytesRead += size;
 
