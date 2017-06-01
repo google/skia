@@ -20,6 +20,8 @@
     #include "skia.h"
 #endif
 
+#include <sstream>
+
 extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
@@ -57,6 +59,6 @@ extern void draw(SkCanvas*);
 
 // There are different implementations of create_grcontext() for EGL, Mesa,
 // and a fallback to a null context.
-extern sk_sp<GrContext> create_grcontext();
+extern sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo);
 
 #endif  // fiddle_main_DEFINED

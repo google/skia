@@ -8,6 +8,7 @@
 #include "fiddle_main.h"
 
 #include <EGL/egl.h>
+#include <GLES2/gl2.h>
 
 static const EGLint configAttribs[] = {
     EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -29,7 +30,7 @@ static const EGLint pbufferAttribs[] = {
 };
 
 // create_grcontext implementation for EGL.
-sk_sp<GrContext> create_grcontext() {
+sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
     EGLDisplay eglDpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == eglDpy) {
         return nullptr;
@@ -62,6 +63,13 @@ sk_sp<GrContext> create_grcontext() {
     if (EGL_FALSE == eglMakeCurrent(eglDpy, eglSurf, eglSurf, eglCtx)) {
         return nullptr;
     }
+
+    driverinfo << "EGL " << major << "." << minor << "\n";
+    GrGLGetStringProc getString = (GrGLGetStringProc )eglGetProcAddress("glGetString");
+    driverinfo << "GL Versionr: " << getString(GL_VERSION) << "\n";
+    driverinfo << "GL Vendor: " << getString(GL_VENDOR) << "\n";
+    driverinfo << "GL Renderer: " << getString(GL_RENDERER) << "\n";
+    driverinfo << "GL Extensions: " << getString(GL_EXTENSIONS) << "\n";
 
     auto interface = GrGLCreateNativeInterface();
     if (!interface) {

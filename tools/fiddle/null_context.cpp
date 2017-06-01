@@ -8,6 +8,7 @@
 #include "fiddle_main.h"
 
 // create_grcontext for when neither Mesa nor EGL are available.
-sk_sp<GrContext> create_grcontext() {
+sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
+    driverinfo << "(no GL driver available)";
     return nullptr;
 }

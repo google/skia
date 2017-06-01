@@ -26,6 +26,9 @@ double frame;    // A value in [0, 1] of where we are in the animation.
 // Global used by the local impl of SkDebugf.
 std::ostringstream gTextOutput;
 
+// Global to record the GL driver info via create_grcontext().
+std::ostringstream gGLDriverInfo;
+
 void SkDebugf(const char * fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -137,7 +140,7 @@ int main(int argc, char** argv) {
         rasterData.reset(encode_snapshot(rasterSurface));
     }
     if (options.gpu) {
-        auto grContext = create_grcontext();
+        auto grContext = create_grcontext(gGLDriverInfo);
         if (!grContext) {
             fputs("Unable to get GrContext.\n", stderr);
         } else {
@@ -175,14 +178,16 @@ int main(int argc, char** argv) {
 
     printf("{\n");
     if (!options.textOnly) {
-        dump_output(rasterData, "Raster", !gpuData && !pdfData && !skpData);
-        dump_output(gpuData, "Gpu", !pdfData && !skpData);
-        dump_output(pdfData, "Pdf", !skpData);
-        dump_output(skpData, "Skp");
+        dump_output(rasterData, "Raster", false);
+        dump_output(gpuData, "Gpu", false);
+        dump_output(pdfData, "Pdf", false);
+        dump_output(skpData, "Skp", false);
     } else {
         std::string textoutput = gTextOutput.str();
-        dump_output(textoutput.c_str(), textoutput.length(), "Text");
+        dump_output(textoutput.c_str(), textoutput.length(), "Text", false);
     }
+    std::string glinfo = gGLDriverInfo.str();
+    dump_output(glinfo.c_str(), glinfo.length(), "GLInfo", true);
     printf("}\n");
 
     return 0;
