@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b9fe0ba7_196b6dbe",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "51087057_bb1e39a6",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6e2932a_450fbfa1",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6aaea83_2bfaf9aa",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "c6e2932a_450fbfa1",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "c525ff72_a23da3a1",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "Right now ref counting is not needed. I thought it may be useful if we get to cache GrTextureProxy and want to control the thread that will execute ~BufferCleanupHelper. However I have not thought out how caching would work, so I removed the ref counting.",
+      "parentUuid": "1dd5103e_43569f8c",
+      "range": {
+        "startLine": 30,
+        "startChar": 35,
+        "endLine": 30,
+        "endChar": 45
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b82d25f0_db0e79ca",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
         "patchSetId": 4
@@ -70,6 +130,30 @@
       "writtenOn": "2017-06-01T13:01:37Z",
       "side": 1,
       "message": "if this object will ever live longer than the scope in which it was created (which I think it does), then yes you should take a ref.",
+      "range": {
+        "startLine": 43,
+        "startChar": 15,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd56f2a_1aecb5c9",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "I\u0027m afraid of a leak if I ref GrContext.  Any opinions from the GPU guys?  What if I store GrGLInterface instead of GrContext and place a ref on the GrGLInterface?",
+      "parentUuid": "b82d25f0_db0e79ca",
       "range": {
         "startLine": 43,
         "startChar": 15,
@@ -122,6 +206,30 @@
     },
     {
       "key": {
+        "uuid": "68dfdff1_f3a2f6b4",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "I admit I took this portion of the code and the comment from GrBackendTextureImageGenerator::onGenerateTexture :)",
+      "parentUuid": "dd10a94b_813a0ea5",
+      "range": {
+        "startLine": 198,
+        "startChar": 19,
+        "endLine": 198,
+        "endChar": 25
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70922245_9f4e8103",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
         "patchSetId": 4
@@ -139,6 +247,24 @@
     },
     {
       "key": {
+        "uuid": "88c79743_b8dbecdb",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "i added a comment section",
+      "parentUuid": "70922245_9f4e8103",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a83eae1_ddfb9a4d",
         "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
         "patchSetId": 4
@@ -153,6 +279,24 @@
       "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86bae45d_6cca0bce",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "I added \"override\", since base class dtor is virtual. Compiler with latest NDK is giving an error if a virtual dtor in a derived class is missing \"override\".",
+      "parentUuid": "4a83eae1_ddfb9a4d",
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -179,6 +323,30 @@
     },
     {
       "key": {
+        "uuid": "3e616fcc_35d7bdae",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "I could not compile locally to verify my CL with latest NDK. The base class has virtual dtor and it seems compiler is more strict to specify overrides.",
+      "parentUuid": "fb6c94ee_9aa6d9ad",
+      "range": {
+        "startLine": 22,
+        "startChar": 38,
+        "endLine": 22,
+        "endChar": 46
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55717a4a_dc3a24f5",
         "filename": "src/gpu/gl/GrGLDefines.h",
         "patchSetId": 4
@@ -202,6 +370,30 @@
     },
     {
       "key": {
+        "uuid": "8be3b089_570bde43",
+        "filename": "src/gpu/gl/GrGLDefines.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1075,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "fixed.",
+      "parentUuid": "55717a4a_dc3a24f5",
+      "range": {
+        "startLine": 1075,
+        "startChar": 36,
+        "endLine": 1075,
+        "endChar": 37
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08659f53_7e47b667",
         "filename": "tools/viewer/sk_app/android/GLWindowContext_android.cpp",
         "patchSetId": 4
@@ -213,6 +405,30 @@
       "writtenOn": "2017-06-01T13:01:37Z",
       "side": 1,
       "message": "this doesn\u0027t seem relevant to this CL.",
+      "range": {
+        "startLine": 35,
+        "startChar": 15,
+        "endLine": 35,
+        "endChar": 30
+      },
+      "revId": "72efd25de63dbfdda658217c9b0855dbfe4a727f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a2fcdbc_3a542c3d",
+        "filename": "tools/viewer/sk_app/android/GLWindowContext_android.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-01T15:59:46Z",
+      "side": 1,
+      "message": "I could not compile locally to verify my CL with latest NDK. The error I got was that \"fSurface\" is already defined in the base class.",
+      "parentUuid": "08659f53_7e47b667",
       "range": {
         "startLine": 35,
         "startChar": 15,
