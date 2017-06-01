@@ -103,7 +103,7 @@ public:
      */
     sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
 
-    static const int kMinScratchTextureSize;
+    static const uint32_t kMinScratchTextureSize;
 
     /**
      * Either finds and refs, or creates an index buffer with a repeating pattern for drawing
