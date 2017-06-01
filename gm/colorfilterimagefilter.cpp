@@ -186,17 +186,23 @@ DEF_SIMPLE_GM(colorfilterimagefilter_layer, canvas, 32, 32) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "SkGradientShader.h"
 template <typename T> class SkTRefArray : public SkTDArray<T> {
 public:
     ~SkTRefArray() { this->unrefAll(); }
 };
 
-DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 450) {
+DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     SkTArray<sk_sp<SkColorFilter>> filters;
     sk_gm_get_colorfilters(&filters);
 
     SkTRefArray<SkShader*> shaders;
     sk_gm_get_shaders(&shaders);
+
+    const SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+    *shaders.append() = SkGradientShader::MakeTwoPointConical({0, 0}, 50, {0, 0}, 150,
+                                                              colors, nullptr, 2,
+                                                              SkShader::kClamp_TileMode).release();
 
     SkPaint paint;
     SkRect r = SkRect::MakeWH(120, 120);
