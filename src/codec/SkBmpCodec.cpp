@@ -481,8 +481,13 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
 
                 // Set the image info and create a codec.
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
-                *codecOut = new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
-                        numColors, bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
+                std::unique_ptr<SkBmpStandardCodec> codec(new SkBmpStandardCodec(width, height,
+                        info, stream, bitsPerPixel, numColors, bytesPerColor, offset - bytesRead,
+                        rowOrder, isOpaque, inIco));
+                if (!codec->didCreateSrcBuffer()) {
+                    return false;
+                }
+                *codecOut = codec.release();
             }
             return true;
         }
@@ -534,8 +539,12 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     alpha = SkEncodedInfo::kOpaque_Alpha;
                 }
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-                *codecOut = new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
-                        masks.release(), rowOrder);
+                std::unique_ptr<SkBmpMaskCodec> codec(new SkBmpMaskCodec(width, height, info,
+                        stream, bitsPerPixel, masks.release(), rowOrder));
+                if (!codec->didCreateSrcBuffer()) {
+                    return false;
+                }
+                *codecOut = codec.release();
             }
             return true;
         }

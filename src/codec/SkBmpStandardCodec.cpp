@@ -25,7 +25,6 @@ SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInf
     , fBytesPerColor(bytesPerColor)
     , fOffset(offset)
     , fSwizzler(nullptr)
-    , fSrcBuffer(new uint8_t[this->srcRowBytes()])
     , fIsOpaque(isOpaque)
     , fInIco(inIco)
     , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
@@ -231,7 +230,7 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
     const int height = dstInfo.height();
     for (int y = 0; y < height; y++) {
         // Read a row of the input
-        if (this->stream()->read(fSrcBuffer.get(), this->srcRowBytes()) != this->srcRowBytes()) {
+        if (this->stream()->read(this->srcBuffer(), this->srcRowBytes()) != this->srcRowBytes()) {
             SkCodecPrintf("Warning: incomplete input stream.\n");
             return y;
         }
@@ -244,10 +243,10 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
         if (fXformOnDecode) {
             SkASSERT(this->colorXform());
             SkImageInfo xformInfo = dstInfo.makeWH(fSwizzler->swizzleWidth(), dstInfo.height());
-            fSwizzler->swizzle(this->xformBuffer(), fSrcBuffer.get());
+            fSwizzler->swizzle(this->xformBuffer(), this->srcBuffer());
             this->applyColorXform(xformInfo, dstRow, this->xformBuffer());
         } else {
-            fSwizzler->swizzle(dstRow, fSrcBuffer.get());
+            fSwizzler->swizzle(dstRow, this->srcBuffer());
         }
     }
 
@@ -321,7 +320,7 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     SkPMColor* dstPtr = (SkPMColor*) dst;
     for (int y = 0; y < dstInfo.height(); y++) {
         // The srcBuffer will at least be large enough
-        if (stream->read(fSrcBuffer.get(), fAndMaskRowBytes) != fAndMaskRowBytes) {
+        if (stream->read(this->srcBuffer(), fAndMaskRowBytes) != fAndMaskRowBytes) {
             SkCodecPrintf("Warning: incomplete AND mask for bmp-in-ico.\n");
             return;
         }
@@ -346,7 +345,7 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
             int modulus;
             SkTDivMod(srcX, 8, &quotient, &modulus);
             uint32_t shift = 7 - modulus;
-            uint64_t alphaBit = (fSrcBuffer.get()[quotient] >> shift) & 0x1;
+            uint64_t alphaBit = (this->srcBuffer()[quotient] >> shift) & 0x1;
             applyMask(dstRow, dstX, alphaBit);
             srcX += sampleX;
         }
