@@ -135,8 +135,8 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
     midRect.offset(srcOffset);
     SkIRect topRect, bottomRect;
     if (direction == Gr1DKernelEffect::kX_Direction) {
-        bounds[0] = SkIntToFloat(srcBounds->left()) / texture->width();
-        bounds[1] = SkIntToFloat(srcBounds->right()) / texture->width();
+        bounds[0] = SkIntToFloat(srcBounds->left()+0.5f) / texture->width();
+        bounds[1] = SkIntToFloat(srcBounds->right()-0.5f) / texture->width();
         topRect = SkIRect::MakeLTRB(0, 0, dstRect.right(), midRect.top());
         bottomRect = SkIRect::MakeLTRB(0, midRect.bottom(), dstRect.right(), dstRect.bottom());
         midRect.inset(radius, 0);
@@ -146,8 +146,8 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
         dstRect.fTop = midRect.top();
         dstRect.fBottom = midRect.bottom();
     } else {
-        bounds[0] = SkIntToFloat(srcBounds->top()) / texture->height();
-        bounds[1] = SkIntToFloat(srcBounds->bottom()) / texture->height();
+        bounds[0] = SkIntToFloat(srcBounds->top()+0.5f) / texture->height();
+        bounds[1] = SkIntToFloat(srcBounds->bottom()-0.5f) / texture->height();
         topRect = SkIRect::MakeLTRB(0, 0, midRect.left(), dstRect.bottom());
         bottomRect = SkIRect::MakeLTRB(midRect.right(), 0, dstRect.right(), dstRect.bottom());
         midRect.inset(0, radius);
