@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f6800f1_2b4ea97b",
+        "filename": "src/gpu/ops/GrCopySurfaceOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-01T14:54:18Z",
+      "side": 1,
+      "message": "Probably safe to just delete this.",
+      "revId": "a91514e1a441843cb50b31abccaf2b84afc283a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
