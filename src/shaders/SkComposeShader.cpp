@@ -128,24 +128,18 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
                                      SkArenaAlloc* alloc, const SkMatrix& ctm,
                                      const SkPaint& paint, const SkMatrix* localM) const {
     struct Storage {
-        float   fXY[4 * SkJumper_kMaxStride];
         float   fRGBA[4 * SkJumper_kMaxStride];
         float   fAlpha;
     };
     auto storage = alloc->make<Storage>();
 
-    // We need to save off device x,y (inputs to shader), since after calling fShaderA they
-    // will be smashed, and I'll need them again for fShaderB. store_rgba saves off 4 registers
-    // even though we only need to save r,g.
-    pipeline->append(SkRasterPipeline::store_rgba, storage->fXY);
     if (!as_SB(fShaderB)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
         return false;
     }
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
     // since fShaderB will overwrite them.
     pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
-    // Now we restore the device x,y for the next shader
-    pipeline->append(SkRasterPipeline::load_rgba, storage->fXY);
+
     if (!as_SB(fShaderA)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
         return false;
     }
