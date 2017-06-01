@@ -614,19 +614,20 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
         if (!decl) {
             return nullptr;
         }
-        for (const auto& var : decl->fVars) {
+        for (const auto& stmt : decl->fVars) {
+            VarDeclaration& vd = (VarDeclaration&) *stmt;
             if (haveRuntimeArray) {
                 fErrors.error(decl->fPosition,
                               "only the last entry in an interface block may be a runtime-sized "
                               "array");
             }
-            fields.push_back(Type::Field(var->fVar->fModifiers, var->fVar->fName,
-                                         &var->fVar->fType));
-            if (var->fValue) {
+            fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->fName,
+                                         &vd.fVar->fType));
+            if (vd.fValue) {
                 fErrors.error(decl->fPosition,
                               "initializers are not permitted on interface block fields");
             }
-            if (var->fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
+            if (vd.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
                                                 Modifiers::kOut_Flag |
                                                 Modifiers::kUniform_Flag |
                                                 Modifiers::kBuffer_Flag |
@@ -634,8 +635,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
                 fErrors.error(decl->fPosition,
                               "interface block fields may not have storage qualifiers");
             }
-            if (var->fVar->fType.kind() == Type::kArray_Kind &&
-                var->fVar->fType.columns() == -1) {
+            if (vd.fVar->fType.kind() == Type::kArray_Kind &&
+                vd.fVar->fType.columns() == -1) {
                 haveRuntimeArray = true;
             }
         }

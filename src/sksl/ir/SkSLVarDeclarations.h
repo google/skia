@@ -20,11 +20,12 @@ namespace SkSL {
  * 'int x = 2, y[3];' is a VarDeclarations statement containing two individual VarDeclaration
  * instances.
  */
-struct VarDeclaration {
+struct VarDeclaration : public Statement {
     VarDeclaration(const Variable* var,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::unique_ptr<Expression> value)
-    : fVar(var)
+    : INHERITED(var->fPosition, Statement::kVarDeclaration_Kind)
+    , fVar(var)
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
@@ -46,6 +47,8 @@ struct VarDeclaration {
     const Variable* fVar;
     std::vector<std::unique_ptr<Expression>> fSizes;
     std::unique_ptr<Expression> fValue;
+
+    typedef Statement INHERITED;
 };
 
 /**
@@ -55,14 +58,18 @@ struct VarDeclarations : public ProgramElement {
     VarDeclarations(Position position, const Type* baseType, 
                     std::vector<std::unique_ptr<VarDeclaration>> vars)
     : INHERITED(position, kVar_Kind)
-    , fBaseType(*baseType)
-    , fVars(std::move(vars)) {}
+    , fBaseType(*baseType) {
+        for (auto& var : vars) {
+            fVars.push_back(std::unique_ptr<Statement>(var.release()));
+        }
+    }
 
     String description() const override {
         if (!fVars.size()) {
             return String();
         }
-        String result = fVars[0]->fVar->fModifiers.description() + fBaseType.description() + " ";
+        String result = ((VarDeclaration&) *fVars[0]).fVar->fModifiers.description() +
+                fBaseType.description() + " ";
         String separator;
         for (const auto& var : fVars) {
             result += separator;
@@ -73,7 +80,9 @@ struct VarDeclarations : public ProgramElement {
     }
 
     const Type& fBaseType;
-    std::vector<std::unique_ptr<VarDeclaration>> fVars;
+    // this *should* be a vector of unique_ptr<VarDeclaration>, but it significantly simplifies the
+    // CFG to only have to worry about unique_ptr<Statement>
+    std::vector<std::unique_ptr<Statement>> fVars;
 
     typedef ProgramElement INHERITED;
 };
