@@ -110,7 +110,7 @@ void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f 
     filterShader.fFilter->appendStages(&pipeline, nullptr, &alloc, filterShader.isOpaque());
     SkPM4f* dst = result;
     pipeline.append(SkRasterPipeline::store_f32, &dst);
-    pipeline.run(0, count);
+    pipeline.run(0,y, count);
 }
 
 #if SK_SUPPORT_GPU

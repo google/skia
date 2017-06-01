@@ -67,10 +67,10 @@ private:
     uint64_t fMemsetColor      = 0;     // Big enough for largest dst format, F16.
 
     // Built lazily on first use.
-    std::function<void(size_t, size_t)> fBlitH,
-                                        fBlitAntiH,
-                                        fBlitMaskA8,
-                                        fBlitMaskLCD16;
+    std::function<void(size_t, size_t, size_t)> fBlitH,
+                                                fBlitAntiH,
+                                                fBlitMaskA8,
+                                                fBlitMaskLCD16;
 
     // These values are pointed to by the blit pipelines above,
     // which allows us to adjust them from call to call.
@@ -211,7 +211,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (is_constant) {
         auto constantColor = alloc->make<SkPM4f>();
         colorPipeline->append(SkRasterPipeline::store_f32, &constantColor);
-        colorPipeline->run(0,1);
+        colorPipeline->run(0,0,1);
         colorPipeline->reset();
         colorPipeline->append(SkRasterPipeline::constant_color, constantColor);
 
@@ -232,7 +232,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         p.extend(*colorPipeline);
         blitter->fDstPtr = &blitter->fMemsetColor;
         blitter->append_store(&p);
-        p.run(0,1);
+        p.run(0,0,1);
 
         blitter->fCanMemsetInBlitH = true;
     }
@@ -336,7 +336,7 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         fBlitH = p.compile();
     }
     this->maybe_shade(x,y,w);
-    fBlitH(x,w);
+    fBlitH(x,y,w);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
@@ -366,7 +366,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
             default:
                 this->maybe_shade(x,y,run);
                 fCurrentCoverage = *aa * (1/255.0f);
-                fBlitAntiH(x,run);
+                fBlitAntiH(x,y,run);
         }
         x    += run;
         runs += run;
@@ -417,11 +417,11 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
                 fMaskPtr = mask.getAddr8(x,y)-x;
-                fBlitMaskA8(x,clip.width());
+                fBlitMaskA8(x,y,clip.width());
                 break;
             case SkMask::kLCD16_Format:
                 fMaskPtr = mask.getAddrLCD16(x,y)-x;
-                fBlitMaskLCD16(x,clip.width());
+                fBlitMaskLCD16(x,y,clip.width());
                 break;
             default:
                 // TODO

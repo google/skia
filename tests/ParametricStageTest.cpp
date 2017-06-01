@@ -27,7 +27,7 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
     p.append(SkRasterPipeline::parametric_a, &fn);
     p.append(SkRasterPipeline::store_f32, &op);
 
-    p.run(0, 256/4);
+    p.run(0,0, 256/4);
 
 
     for (int i = 0; i < 256; i++) {

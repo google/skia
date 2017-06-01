@@ -27,7 +27,7 @@ DEF_TEST(SkRasterPipeline, r) {
     p.append(SkRasterPipeline::swap);
     p.append(SkRasterPipeline::srcover);
     p.append(SkRasterPipeline::store_f16, &store_ctx);
-    p.run(0,1);
+    p.run(0,0,1);
 
     // We should see half-intensity magenta.
     REPORTER_ASSERT(r, ((result >>  0) & 0xffff) == 0x3800);
@@ -39,7 +39,7 @@ DEF_TEST(SkRasterPipeline, r) {
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline_<256> p;
-    p.run(0,20);
+    p.run(0,0,20);
 }
 
 DEF_TEST(SkRasterPipeline_nonsense, r) {
@@ -47,7 +47,7 @@ DEF_TEST(SkRasterPipeline_nonsense, r) {
     // srcover() calls st->next(); this makes sure we've always got something there to call.
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::srcover);
-    p.run(0,20);
+    p.run(0,0,20);
 }
 
 DEF_TEST(SkRasterPipeline_JIT, r) {
@@ -69,7 +69,7 @@ DEF_TEST(SkRasterPipeline_JIT, r) {
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline:: load_8888, &src);
     p.append(SkRasterPipeline::store_8888, &dst);
-    p.run(15, 20);
+    p.run(15,0, 20);
 
     for (int i = 0; i < 36; i++) {
         if (i < 15 || i == 35) {
@@ -120,7 +120,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_f32, &src);
             p.append(SkRasterPipeline::store_f32, &dst);
-            p.run(0, i);
+            p.run(0,0, i);
             for (unsigned j = 0; j < i; j++) {
                 for (unsigned k = 0; k < 4; k++) {
                     if (buffer[j][k] != data[j][k]) {
@@ -152,7 +152,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_f16, &src);
             p.append(SkRasterPipeline::store_f16, &dst);
-            p.run(0, i);
+            p.run(0,0, i);
             for (unsigned j = 0; j < i; j++) {
                 REPORTER_ASSERT(r,
                                 !memcmp(&data[j][0], &buffer[j][0], sizeof(buffer[j])));
@@ -189,7 +189,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             SkRasterPipeline_<256> p;
             p.append(SkRasterPipeline::load_rgb_u16_be, &src);
             p.append(SkRasterPipeline::store_f32, &dst);
-            p.run(0, i);
+            p.run(0,0, i);
             for (unsigned j = 0; j < i; j++) {
                 for (unsigned k = 0; k < 4; k++) {
                     if (buffer[j][k] != answer[j][k]) {
