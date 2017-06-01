@@ -78,8 +78,7 @@ private:
     void*              fDstPtr          = nullptr;
     const void*        fMaskPtr         = nullptr;
     float              fCurrentCoverage = 0.0f;
-    int                fCurrentY        = 0;
-    SkJumper_DitherCtx fDitherCtx = { &fCurrentY, 0.0f };
+    float              fDitherRate      = 0.0f;
 
     std::vector<SkPM4f> fShaderBuffer;
 
@@ -180,7 +179,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     } else {
         // If the shader's not constant, it'll need seeding with x,y.
         if (!is_constant) {
-            colorPipeline->append(SkRasterPipeline::seed_shader, &blitter->fCurrentY);
+            colorPipeline->append(SkRasterPipeline::seed_shader);
         }
         colorPipeline->extend(shaderPipeline);
     }
@@ -197,13 +196,13 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (wants_dither ||
             (paint.isDither() && dst.info().colorType() == kRGB_565_SkColorType)) {
         switch (dst.info().colorType()) {
-            default:                     blitter->fDitherCtx.rate =     0.0f; break;
-            case   kRGB_565_SkColorType: blitter->fDitherCtx.rate =  1/63.0f; break;
+            default:                     blitter->fDitherRate =     0.0f; break;
+            case   kRGB_565_SkColorType: blitter->fDitherRate =  1/63.0f; break;
             case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType: blitter->fDitherCtx.rate = 1/255.0f; break;
+            case kBGRA_8888_SkColorType: blitter->fDitherRate = 1/255.0f; break;
         }
     }
-    is_constant = is_constant && (blitter->fDitherCtx.rate == 0.0f);
+    is_constant = is_constant && (blitter->fDitherRate == 0.0f);
 
     // We're logically done here.  The code between here and return blitter is all optimization.
 
@@ -263,10 +262,10 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().gammaCloseToSRGB()) {
         p->append(SkRasterPipeline::to_srgb);
     }
-    if (fDitherCtx.rate > 0.0f) {
+    if (fDitherRate > 0.0f) {
         // We dither after any sRGB transfer function to make sure our 1/255.0f is sensible
         // over the whole range.  If we did it before, 1/255.0f is too big a rate near zero.
-        p->append(SkRasterPipeline::dither, &fDitherCtx);
+        p->append(SkRasterPipeline::dither, &fDitherRate);
     }
 
     if (fDst.info().colorType() == kBGRA_8888_SkColorType) {
@@ -305,7 +304,6 @@ void SkRasterPipelineBlitter::maybe_shade(int x, int y, int w) {
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     fDstPtr = fDst.writable_addr(0,y);
-    fCurrentY = y;
 
     if (fCanMemsetInBlitH) {
         switch (fDst.shiftPerPixel()) {
@@ -323,7 +321,7 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         if (fBlend == SkBlendMode::kSrcOver
                 && fDst.info().colorType() == kRGBA_8888_SkColorType
                 && !fDst.colorSpace()
-                && fDitherCtx.rate == 0.0f) {
+                && fDitherRate == 0.0f) {
             p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
         } else {
             if (fBlend != SkBlendMode::kSrc) {
@@ -358,7 +356,6 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
     }
 
     fDstPtr = fDst.writable_addr(0,y);
-    fCurrentY = y;
     for (int16_t run = *runs; run > 0; run = *runs) {
         switch (*aa) {
             case 0x00:                       break;
@@ -411,7 +408,6 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     int x = clip.left();
     for (int y = clip.top(); y < clip.bottom(); y++) {
         fDstPtr = fDst.writable_addr(0,y);
-        fCurrentY = y;
 
         this->maybe_shade(x,y,clip.width());
         switch (mask.fFormat) {

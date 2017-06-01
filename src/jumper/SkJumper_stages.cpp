@@ -77,38 +77,40 @@ struct LazyCtx {
 //    tail == 0 ~~> work on a full kStride pixels
 //    tail != 0 ~~> work on only the first tail pixels
 // tail is always < kStride.
-using Stage = void(size_t x, void** program, K* k, size_t tail, F,F,F,F, F,F,F,F);
+//
+// We keep program the second argument, so that it's passed in rsi for load_and_inc().
+using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 
 MAYBE_MSABI
-extern "C" void WRAP(start_pipeline)(size_t x, void** program, K* k, size_t limit) {
+extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v{};
     auto start = (Stage*)load_and_inc(program);
     while (x + kStride <= limit) {
-        start(x,program,k,0,    v,v,v,v, v,v,v,v);
+        start(k,program,x,y,0,    v,v,v,v, v,v,v,v);
         x += kStride;
     }
     if (size_t tail = limit - x) {
-        start(x,program,k,tail, v,v,v,v, v,v,v,v);
+        start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
     }
 }
 
-#define STAGE(name)                                                           \
-    SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
-                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);     \
-    extern "C" void WRAP(name)(size_t x, void** program, K* k, size_t tail,   \
-                               F r, F g, F b, F a, F dr, F dg, F db, F da) {  \
-        LazyCtx ctx(program);                                                 \
-        name##_k(x,ctx,k,tail, r,g,b,a, dr,dg,db,da);                         \
-        auto next = (Stage*)load_and_inc(program);                            \
-        next(x,program,k,tail, r,g,b,a, dr,dg,db,da);                         \
-    }                                                                         \
-    SI void name##_k(size_t x, LazyCtx ctx, K* k, size_t tail,                \
+#define STAGE(name)                                                                   \
+    SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
+                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
+    extern "C" void WRAP(name)(K* k, void** program, size_t x, size_t y, size_t tail, \
+                               F r, F g, F b, F a, F dr, F dg, F db, F da) {          \
+        LazyCtx ctx(program);                                                         \
+        name##_k(k,ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                               \
+        auto next = (Stage*)load_and_inc(program);                                    \
+        next(k,program,x,y,tail, r,g,b,a, dr,dg,db,da);                               \
+    }                                                                                 \
+    SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
                      F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 
 
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
-extern "C" void WRAP(just_return)(size_t, void**, K*, F,F,F,F, F,F,F,F) {}
+extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
 
 
 // We could start defining normal Stages now.  But first, some helper functions.
@@ -242,8 +244,6 @@ SI U32 ix_and_ptr(T** ptr, const SkJumper_GatherCtx* ctx, F x, F y) {
 // Now finally, normal Stages!
 
 STAGE(seed_shader) {
-    auto y = *(const int*)ctx;
-
     // It's important for speed to explicitly cast(x) and cast(y),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
@@ -255,11 +255,11 @@ STAGE(seed_shader) {
 }
 
 STAGE(dither) {
-    auto c = (const SkJumper_DitherCtx*)ctx;
+    auto rate = *(const float*)ctx;
 
     // Get [(x,y), (x+1,y), (x+2,y), ...] loaded up in integer vectors.
     U32 X = x + unaligned_load<U32>(k->iota_U32),
-        Y = (uint32_t)*c->y;
+        Y = y;
 
     // We're doing 8x8 ordered dithering, see https://en.wikipedia.org/wiki/Ordered_dithering.
     // In this case n=8 and we're using the matrix that looks like 1/64 x [ 0 48 12 60 ... ].
@@ -278,9 +278,9 @@ STAGE(dither) {
     // like 0 and 1 unchanged after rounding.
     F dither = cast(M) * (2/128.0f) - (63/128.0f);
 
-    r += c->rate*dither;
-    g += c->rate*dither;
-    b += c->rate*dither;
+    r += rate*dither;
+    g += rate*dither;
+    b += rate*dither;
 
     r = max(0, min(r, a));
     g = max(0, min(g, a));
