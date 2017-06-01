@@ -32,6 +32,12 @@ public:
 
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
+#ifdef SK_DEBUG
+    GrSamplerParams::FilterMode filterMode() const {
+        return fTextureSampler.params().filterMode();    
+    }
+#endif
+
 protected:
     /** unfiltered, clamp mode */
     GrSingleTextureEffect(GrTexture*, sk_sp<GrColorSpaceXform>, const SkMatrix&);

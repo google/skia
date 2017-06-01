@@ -64,6 +64,8 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
 
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
 
+    SkASSERT(GrSamplerParams::kNone_FilterMode == ce.filterMode());
+
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
     for (int i = 0; i < width; i++) {
@@ -79,16 +81,22 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
             // to have a bug that caused corruption.
             const char* bounds = uniformHandler->getUniformCStr(fBoundsUni);
             const char* component = ce.direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";
-            fragBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
-                                     component, bounds, component, bounds);
+
+//            fragBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
+//                                     component, bounds, component, bounds);
+
+            // TODO: can we just clamp in both x & y all the time and do away with the two versions
+            // of the shader?
+            fragBuilder->codeAppendf("coord.%s = clamp(coord.%s, %s.x, %s.y);",
+                                     component, component, bounds, bounds);
         }
-        fragBuilder->codeAppendf("\t\t%s += ", args.fOutputColor);
+        fragBuilder->codeAppendf("%s += ", args.fOutputColor);
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
         fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
-        if (ce.useBounds()) {
-            fragBuilder->codeAppend("}");
-        }
-        fragBuilder->codeAppendf("\t\tcoord += %s;\n", imgInc);
+//        if (ce.useBounds()) {
+//            fragBuilder->codeAppend("}");
+//        }
+        fragBuilder->codeAppendf("coord += %s;", imgInc);
     }
 
     SkString modulate;

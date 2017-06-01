@@ -11,7 +11,7 @@ GrSingleTextureEffect::GrSingleTextureEffect(GrTexture* texture,
                                              sk_sp<GrColorSpaceXform> colorSpaceXform,
                                              const SkMatrix& m)
     : fCoordTransform(m, texture, GrSamplerParams::kNone_FilterMode)
-    , fTextureSampler(texture)
+    , fTextureSampler(texture, GrSamplerParams::kNone_FilterMode)
     , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->addCoordTransform(&fCoordTransform);
     this->addTextureSampler(&fTextureSampler);

@@ -85,7 +85,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI)
         kGLES_GrGLStandard == forcedGpuAPI ?
         kGLES_SkWGLContextRequest : kGLPreferCompatibilityProfile_SkWGLContextRequest;
 
-    fPbufferContext = SkWGLPbufferContext::Create(fDeviceContext, 0, contextType);
+    fPbufferContext = nullptr; // SkWGLPbufferContext::Create(fDeviceContext, 0, contextType);
 
     HDC dc;
     HGLRC glrc;
