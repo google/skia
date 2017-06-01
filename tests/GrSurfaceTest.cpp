@@ -17,7 +17,6 @@
 #include "GrTest.h"
 #include "GrTexture.h"
 #include "GrSurfacePriv.h"
-#include "SkMipMap.h"
 #include "Test.h"
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
@@ -100,16 +99,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     desc.fWidth = 64;
     desc.fHeight = 64;
 
-    // Enough space for the first mip of our largest pixel config
-    const size_t pixelBufferSize = desc.fWidth * desc.fHeight *
-                                   GrBytesPerPixel(kRGBA_float_GrPixelConfig);
-    std::unique_ptr<char[]> pixelData(new char[pixelBufferSize]);
-    memset(pixelData.get(), 0, pixelBufferSize);
-
-    // We re-use the same mip level objects (with updated pointers and rowBytes) for each config
-    const int levelCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
-    std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[levelCount]);
-
     for (GrPixelConfig config : configs) {
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
             desc.fFlags = kNone_GrSurfaceFlags;
@@ -119,18 +108,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig));
-
-            size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
-            for (int i = 0; i < levelCount; ++i) {
-                texels[i].fPixels = pixelData.get();
-                texels[i].fRowBytes = rowBytes >> i;
-            }
-            sk_sp<GrTextureProxy> proxy = resourceProvider->createMipMappedTexture(
-                desc, SkBudgeted::kNo, texels.get(), levelCount);
-            REPORTER_ASSERT(reporter, SkToBool(proxy.get()) ==
-                            (caps->isConfigTexturable(desc.fConfig) &&
-                             caps->mipMapSupport() &&
-                             !GrPixelConfigIsSint(desc.fConfig)));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
             tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
