@@ -105,6 +105,10 @@ public:
     {}
 
     static bool Supports(const SkPixmap& src) {
+        if (paint.getMaskFilter() || paint.getImageFilter()) {
+            return false;
+        }
+
         // We'd need to add a load_i8 stage.
         return src.colorType() != kIndex_8_SkColorType;
     }
