@@ -383,6 +383,7 @@ skia_core_sources = [
   "$_src/shaders/SkLightingShader.h",
   "$_src/shaders/SkLocalMatrixShader.cpp",
   "$_src/shaders/SkLocalMatrixShader.h",
+  "$_src/shaders/SkMixerShader.cpp",
   "$_src/shaders/SkPictureShader.cpp",
   "$_src/shaders/SkPictureShader.h",
   "$_src/shaders/SkShader.cpp",
