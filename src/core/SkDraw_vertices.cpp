@@ -203,6 +203,26 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         textures = nullptr;
     }
 
+    // We can simplify things for certain blendmodes. This is for speed, and SkComposeShader
+    // itself insists we don't pass kSrc or kDst to it.
+    //
+    if (colors && textures) {
+        switch (bmode) {
+            case SkBlendMode::kSrc:
+                colors = nullptr;
+                break;
+            case SkBlendMode::kDst:
+                textures = nullptr;
+                break;
+            default: break;
+        }
+    }
+
+    // we don't use the shader if there are no textures
+    if (!textures) {
+        shader = nullptr;
+    }
+
     constexpr size_t defCount = 16;
     constexpr size_t outerSize = sizeof(SkTriColorShader) +
                                  sizeof(SkComposeShader) +
