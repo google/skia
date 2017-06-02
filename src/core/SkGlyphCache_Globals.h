@@ -80,6 +80,7 @@ public:
     void internalAttachCacheToHead(SkGlyphCache*);
 
 private:
+    friend class SkGlyphCacheIterator;
     SkGlyphCache* fHead;
     size_t  fTotalMemoryUsed;
     size_t  fCacheSizeLimit;

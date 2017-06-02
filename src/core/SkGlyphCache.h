@@ -14,6 +14,7 @@
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
+#include "SkSurfaceProps.h"
 #include "SkTemplates.h"
 #include "SkTDArray.h"
 #include <memory>
@@ -21,6 +22,8 @@
 class SkTraceMemoryDump;
 
 class SkGlyphCache_Globals;
+
+class SkGlyphCacheIterator;
 
 /** \class SkGlyphCache
 
@@ -175,6 +178,7 @@ public:
 
 private:
     friend class SkGlyphCache_Globals;
+    friend class SkGlyphCacheIterator;
 
     enum MetricsType {
         kJustAdvance_MetricsType,
@@ -286,5 +290,98 @@ public:
 };
 #define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
+
+
+class SkGlyphCacheIterator {
+public:
+    SkGlyphCacheIterator(const SkPaint& paint,
+                         const SkSurfaceProps* props,
+                         uint32_t scalerContextFlags,
+                         const SkMatrix& matrix)
+        : fPaint(paint)
+        , fSurfaceProps(*props)
+        , fScalarContextFlags(scalerContextFlags)
+        , fMatrix(matrix) { }
+
+    using Positioner = std::function<SkPoint(size_t)>;
+    using Imager = std::function<void(const SkMask&)>;
+    bool ApplySubpixelXAligned(
+        const SkGlyphID* glyphs, size_t glyphCount, Positioner positioner, Imager imager) {
+
+        // It would be great to get rid of this, but a cache is needed to make this check. In the
+        // future, I would like the cache to just return a SkGlyphCacheIterator.
+        SkAutoGlyphCache cache(fPaint.detachCache(&fSurfaceProps, fScalarContextFlags, &fMatrix));
+        if (!cache->isSubpixel()
+            || cache->getScalerContext()->computeAxisAlignmentForHText() != kX_SkAxisAlignment)
+        {
+            return false;
+        }
+
+        for (size_t i = 0; i < glyphCount; i++) {
+            SkGlyphID glyphId = glyphs[i];
+            SkPoint finalPosition = positioner(i);
+            if (!SkScalarsAreFinite(finalPosition.fX, finalPosition.fY)) {
+                continue;
+            }
+
+            //{SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding), 0}
+            // Prevent glyphs from being drawn outside of or straddling the edge of device space.
+            // Comparisons written a little weirdly so that NaN coordinates are treated safely.
+            auto gt = [](float a, int b) { return !(a <= (float)b); };
+            auto lt = [](float a, int b) { return !(a >= (float)b); };
+            if (gt(finalPosition.fX, INT_MAX - (INT16_MAX + UINT16_MAX)) ||
+                lt(finalPosition.fX, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) ||
+                gt(finalPosition.fY, INT_MAX - (INT16_MAX + UINT16_MAX)) ||
+                lt(finalPosition.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)))
+            {
+                continue;
+            }
+
+            const SkGlyph& imageGlyph =
+                cache->getGlyphIDMetrics(
+                    glyphId,
+                    // FIXME: generalize to any axis alignment. See SubpixelPositionRounding
+                    //and SubpixelAlignment.
+                    SkScalarToFixed(SkScalarFraction(finalPosition.fX) + kSubpixelRounding), 0);
+
+            // FIXME: generalize.
+            finalPosition += SkPoint{kSubpixelRounding, SK_ScalarHalf};
+
+            if (imageGlyph.fWidth <= 0 || imageGlyph.fHeight <= 0) {
+                continue;
+            }
+
+            uint8_t* bits = (uint8_t*)(cache->findImage(imageGlyph));
+            if (bits == nullptr) {
+                continue;
+            }
+
+            int left = SkScalarFloorToInt(finalPosition.fX) + imageGlyph.fLeft;
+            int top  = SkScalarFloorToInt(finalPosition.fY) + imageGlyph.fTop;
+            int right   = left + imageGlyph.fWidth;
+            int bottom  = top  + imageGlyph.fHeight;
+
+            SkMask mask;
+            mask.fImage = bits;
+            mask.fBounds.set(left, top, right, bottom);
+            mask.fRowBytes = imageGlyph.rowBytes();
+            mask.fFormat = static_cast<SkMask::Format>(imageGlyph.fMaskFormat);
+
+            imager(mask);
+        }
+
+        return true;
+
+    }
+
+private:
+    static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
+    SkPaint        fPaint;
+    SkSurfaceProps fSurfaceProps;
+    uint32_t       fScalarContextFlags;
+    SkMatrix       fMatrix;
+
+
+};
 
 #endif
