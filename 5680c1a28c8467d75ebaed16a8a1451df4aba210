@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "67831857_a7a4a330",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-02T20:35:14Z",
+      "side": 1,
+      "message": "updated dox",
+      "parentUuid": "dfa3a58d_742c4ac5",
+      "range": {
+        "startLine": 35,
+        "startChar": 20,
+        "endLine": 35,
+        "endChar": 33
+      },
+      "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6ad1704d_defc1cf5",
         "filename": "src/shaders/SkComposeShader.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a732e3c_e911f9a9",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-02T20:35:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ad1704d_defc1cf5",
+      "range": {
+        "startLine": 75,
+        "startChar": 40,
+        "endLine": 75,
+        "endChar": 57
+      },
+      "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "20b480c6_14d6f131",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-02T20:35:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b0d9ab9_cd0a68f3",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 78,
+        "endChar": 46
+      },
+      "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48f8f236_903fd1de",
         "filename": "src/shaders/SkComposeShader.cpp",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2017-06-02T20:05:38Z",
       "side": 1,
       "message": "maybe also convert these to IsLegal tests.",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 5
+      },
+      "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53334f02_edaa23db",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-02T20:35:14Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "48f8f236_903fd1de",
       "range": {
         "startLine": 89,
         "startChar": 0,
@@ -108,6 +204,24 @@
       "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb0c6a14_9ca56237",
+        "filename": "src/shaders/SkComposeShader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-02T20:35:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1971becb_a58ac9b7",
+      "revId": "5680c1a28c8467d75ebaed16a8a1451df4aba210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
