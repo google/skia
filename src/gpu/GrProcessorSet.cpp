@@ -28,9 +28,6 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
         for (auto& fp : paint.fCoverageFragmentProcessors) {
             fFragmentProcessors[i++] = fp.release();
         }
-        if (paint.usesDistanceVectorField()) {
-            fFlags |= kUseDistanceVectorField_Flag;
-        }
     } else {
         SkDebugf("Insane number of color fragment processors in paint. Dropping all processors.");
         fColorFragmentProcessorCnt = 0;

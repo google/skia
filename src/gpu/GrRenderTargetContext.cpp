@@ -929,7 +929,6 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
         std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(std::move(paint),
-                                                                    paint.usesDistanceVectorField(),
                                                                     viewMatrix,
                                                                     rrect,
                                                                     stroke,

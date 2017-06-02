@@ -21,17 +21,8 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
-        if (!args.fGpImplementsDistanceVector) {
-            fragBuilder->codeAppendf("// assuming interpolant is set in vertex colors\n");
-            fragBuilder->codeAppendf("float factor = 1.0 - color.a;");
-        } else {
-            fragBuilder->codeAppendf("// using distance to edge to compute interpolant\n");
-            fragBuilder->codeAppend("float radius = color.r*256.0*64.0 + color.g*64.0;");
-            fragBuilder->codeAppend("float pad = color.b*64.0;");
-
-            fragBuilder->codeAppendf("float factor = 1.0 - clamp((%s.z - pad)/radius, 0.0, 1.0);",
-                                     fragBuilder->distanceVectorName());
-        }
+        fragBuilder->codeAppendf("// assuming interpolant is set in vertex colors\n");
+        fragBuilder->codeAppendf("float factor = 1.0 - color.a;");
         switch (mode) {
             case GrBlurredEdgeFP::kGaussian_Mode:
                 fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");

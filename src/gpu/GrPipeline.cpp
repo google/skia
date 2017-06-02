@@ -33,9 +33,6 @@ void GrPipeline::init(const InitArgs& args) {
         }
         fWindowRectsState = args.fAppliedClip->windowRectsState();
     }
-    if (args.fProcessors->usesDistanceVectorField()) {
-        fFlags |= kUsesDistanceVectorField_Flag;
-    }
     if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
         fFlags |= kStencilEnabled_Flag;
     }

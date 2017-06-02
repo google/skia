@@ -75,7 +75,6 @@ public:
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const char* distanceVectorName,
                  const char* rtAdjustName,
                  const SamplerHandle* texSamplers,
                  const TexelBufferHandle* texelBuffers,
@@ -90,7 +89,6 @@ public:
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
-            , fDistanceVectorName(distanceVectorName)
             , fRTAdjustName(rtAdjustName)
             , fTexSamplers(texSamplers)
             , fTexelBuffers(texelBuffers)
@@ -105,7 +103,6 @@ public:
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
-        const char* fDistanceVectorName;
         const char* fRTAdjustName;
         const SamplerHandle* fTexSamplers;
         const TexelBufferHandle* fTexelBuffers;

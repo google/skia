@@ -89,10 +89,6 @@ public:
      */
     virtual void maskSampleCoverage(const char* mask, bool invert = false) = 0;
 
-    /** Returns a variable name that represents a vector to the nearest edge of the shape, in source
-        space coordinates. */
-    virtual const char* distanceVectorName() const = 0;
-
     /**
      * Overrides the default precision for the entire fragment program. Processors that require
      * high precision input (eg from incoming texture samples) may use this. For calculations that
@@ -168,7 +164,6 @@ public:
     // Shared GrGLSLFragmentBuilder interface.
     bool enableFeature(GLSLFeature) override;
     virtual SkString ensureCoords2D(const GrShaderVar&) override;
-    const char* distanceVectorName() const override;
 
     // GrGLSLFPFragmentBuilder interface.
     void appendOffsetToSample(const char* sampleIdx, Coordinates) override;
@@ -239,7 +234,6 @@ private:
     bool          fHasSecondaryOutput;
     uint8_t       fUsedSampleOffsetArrays;
     bool          fHasInitializedSampleMask;
-    SkString      fDistanceVectorOutput;
     GrSLPrecision fDefaultPrecision;
 
 #ifdef SK_DEBUG
