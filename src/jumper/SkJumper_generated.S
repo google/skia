@@ -36884,4 +36884,96 @@ BALIGN16
   .byte  170                                 // stos          %al,%es:(%rdi)
   .byte  170                                 // stos          %al,%es:(%rdi)
   .byte  190,171,170,170,190                 // mov           $0xbeaaaaab,%esi
+BALIGN32
+
+HIDDEN _sk_lowp_start_pipeline_ssse3
+.globl _sk_lowp_start_pipeline_ssse3
+FUNCTION(_sk_lowp_start_pipeline_ssse3)
+_sk_lowp_start_pipeline_ssse3:
+  .byte  85                                  // push          %rbp
+  .byte  65,87                               // push          %r15
+  .byte  65,86                               // push          %r14
+  .byte  65,85                               // push          %r13
+  .byte  65,84                               // push          %r12
+  .byte  83                                  // push          %rbx
+  .byte  80                                  // push          %rax
+  .byte  77,137,198                          // mov           %r8,%r14
+  .byte  73,137,213                          // mov           %rdx,%r13
+  .byte  73,137,247                          // mov           %rsi,%r15
+  .byte  72,137,251                          // mov           %rdi,%rbx
+  .byte  72,137,206                          // mov           %rcx,%rsi
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  73,137,244                          // mov           %rsi,%r12
+  .byte  72,141,75,8                         // lea           0x8(%rbx),%rcx
+  .byte  76,57,233                           // cmp           %r13,%rcx
+  .byte  118,5                               // jbe           2d <_sk_lowp_start_pipeline_ssse3+0x2d>
+  .byte  72,137,218                          // mov           %rbx,%rdx
+  .byte  235,66                              // jmp           6f <_sk_lowp_start_pipeline_ssse3+0x6f>
+  .byte  65,184,0,0,0,0                      // mov           $0x0,%r8d
+  .byte  15,87,192                           // xorps         %xmm0,%xmm0
+  .byte  15,87,201                           // xorps         %xmm1,%xmm1
+  .byte  15,87,210                           // xorps         %xmm2,%xmm2
+  .byte  15,87,219                           // xorps         %xmm3,%xmm3
+  .byte  15,87,228                           // xorps         %xmm4,%xmm4
+  .byte  15,87,237                           // xorps         %xmm5,%xmm5
+  .byte  15,87,246                           // xorps         %xmm6,%xmm6
+  .byte  15,87,255                           // xorps         %xmm7,%xmm7
+  .byte  76,137,247                          // mov           %r14,%rdi
+  .byte  76,137,230                          // mov           %r12,%rsi
+  .byte  72,137,218                          // mov           %rbx,%rdx
+  .byte  76,137,249                          // mov           %r15,%rcx
+  .byte  72,137,197                          // mov           %rax,%rbp
+  .byte  255,213                             // callq         *%rbp
+  .byte  72,137,232                          // mov           %rbp,%rax
+  .byte  72,141,83,8                         // lea           0x8(%rbx),%rdx
+  .byte  72,131,195,16                       // add           $0x10,%rbx
+  .byte  76,57,235                           // cmp           %r13,%rbx
+  .byte  72,137,211                          // mov           %rdx,%rbx
+  .byte  118,190                             // jbe           2d <_sk_lowp_start_pipeline_ssse3+0x2d>
+  .byte  73,41,213                           // sub           %rdx,%r13
+  .byte  116,52                              // je            a8 <_sk_lowp_start_pipeline_ssse3+0xa8>
+  .byte  15,87,192                           // xorps         %xmm0,%xmm0
+  .byte  15,87,201                           // xorps         %xmm1,%xmm1
+  .byte  15,87,210                           // xorps         %xmm2,%xmm2
+  .byte  15,87,219                           // xorps         %xmm3,%xmm3
+  .byte  15,87,228                           // xorps         %xmm4,%xmm4
+  .byte  15,87,237                           // xorps         %xmm5,%xmm5
+  .byte  15,87,246                           // xorps         %xmm6,%xmm6
+  .byte  15,87,255                           // xorps         %xmm7,%xmm7
+  .byte  76,137,247                          // mov           %r14,%rdi
+  .byte  76,137,230                          // mov           %r12,%rsi
+  .byte  76,137,249                          // mov           %r15,%rcx
+  .byte  77,137,232                          // mov           %r13,%r8
+  .byte  72,131,196,8                        // add           $0x8,%rsp
+  .byte  91                                  // pop           %rbx
+  .byte  65,92                               // pop           %r12
+  .byte  65,93                               // pop           %r13
+  .byte  65,94                               // pop           %r14
+  .byte  65,95                               // pop           %r15
+  .byte  93                                  // pop           %rbp
+  .byte  255,224                             // jmpq          *%rax
+  .byte  72,131,196,8                        // add           $0x8,%rsp
+  .byte  91                                  // pop           %rbx
+  .byte  65,92                               // pop           %r12
+  .byte  65,93                               // pop           %r13
+  .byte  65,94                               // pop           %r14
+  .byte  65,95                               // pop           %r15
+  .byte  93                                  // pop           %rbp
+  .byte  195                                 // retq
+
+HIDDEN _sk_lowp_just_return_ssse3
+.globl _sk_lowp_just_return_ssse3
+FUNCTION(_sk_lowp_just_return_ssse3)
+_sk_lowp_just_return_ssse3:
+  .byte  195                                 // retq
+
+HIDDEN _sk_lowp_swap_rb_ssse3
+.globl _sk_lowp_swap_rb_ssse3
+FUNCTION(_sk_lowp_swap_rb_ssse3)
+_sk_lowp_swap_rb_ssse3:
+  .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
+  .byte  72,173                              // lods          %ds:(%rsi),%rax
+  .byte  15,40,194                           // movaps        %xmm2,%xmm0
+  .byte  65,15,40,208                        // movaps        %xmm8,%xmm2
+  .byte  255,224                             // jmpq          *%rax
 #endif

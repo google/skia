@@ -26262,5 +26262,107 @@ ALIGN 16
   DB  170                                 ; stos          %al,%es:(%rdi)
   DB  170                                 ; stos          %al,%es:(%rdi)
   DB  190,171,170,170,190                 ; mov           $0xbeaaaaab,%esi
+ALIGN 32
+
+PUBLIC _sk_lowp_start_pipeline_ssse3
+_sk_lowp_start_pipeline_ssse3 LABEL PROC
+  DB  65,87                               ; push          %r15
+  DB  65,86                               ; push          %r14
+  DB  65,85                               ; push          %r13
+  DB  65,84                               ; push          %r12
+  DB  86                                  ; push          %rsi
+  DB  87                                  ; push          %rdi
+  DB  85                                  ; push          %rbp
+  DB  83                                  ; push          %rbx
+  DB  72,129,236,168,0,0,0                ; sub           $0xa8,%rsp
+  DB  68,15,41,188,36,144,0,0,0           ; movaps        %xmm15,0x90(%rsp)
+  DB  68,15,41,180,36,128,0,0,0           ; movaps        %xmm14,0x80(%rsp)
+  DB  68,15,41,108,36,112                 ; movaps        %xmm13,0x70(%rsp)
+  DB  68,15,41,100,36,96                  ; movaps        %xmm12,0x60(%rsp)
+  DB  68,15,41,92,36,80                   ; movaps        %xmm11,0x50(%rsp)
+  DB  68,15,41,84,36,64                   ; movaps        %xmm10,0x40(%rsp)
+  DB  68,15,41,76,36,48                   ; movaps        %xmm9,0x30(%rsp)
+  DB  68,15,41,68,36,32                   ; movaps        %xmm8,0x20(%rsp)
+  DB  15,41,124,36,16                     ; movaps        %xmm7,0x10(%rsp)
+  DB  15,41,52,36                         ; movaps        %xmm6,(%rsp)
+  DB  76,137,195                          ; mov           %r8,%rbx
+  DB  73,137,214                          ; mov           %rdx,%r14
+  DB  72,137,205                          ; mov           %rcx,%rbp
+  DB  76,139,188,36,16,1,0,0              ; mov           0x110(%rsp),%r15
+  DB  76,137,206                          ; mov           %r9,%rsi
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  73,137,196                          ; mov           %rax,%r12
+  DB  73,137,245                          ; mov           %rsi,%r13
+  DB  72,141,69,8                         ; lea           0x8(%rbp),%rax
+  DB  72,57,216                           ; cmp           %rbx,%rax
+  DB  118,5                               ; jbe           7c <_sk_lowp_start_pipeline_ssse3+0x7c>
+  DB  72,137,234                          ; mov           %rbp,%rdx
+  DB  235,61                              ; jmp           b9 <_sk_lowp_start_pipeline_ssse3+0xb9>
+  DB  65,184,0,0,0,0                      ; mov           $0x0,%r8d
+  DB  15,87,192                           ; xorps         %xmm0,%xmm0
+  DB  15,87,201                           ; xorps         %xmm1,%xmm1
+  DB  15,87,210                           ; xorps         %xmm2,%xmm2
+  DB  15,87,219                           ; xorps         %xmm3,%xmm3
+  DB  15,87,228                           ; xorps         %xmm4,%xmm4
+  DB  15,87,237                           ; xorps         %xmm5,%xmm5
+  DB  15,87,246                           ; xorps         %xmm6,%xmm6
+  DB  15,87,255                           ; xorps         %xmm7,%xmm7
+  DB  76,137,255                          ; mov           %r15,%rdi
+  DB  76,137,238                          ; mov           %r13,%rsi
+  DB  72,137,234                          ; mov           %rbp,%rdx
+  DB  76,137,241                          ; mov           %r14,%rcx
+  DB  65,255,212                          ; callq         *%r12
+  DB  72,141,85,8                         ; lea           0x8(%rbp),%rdx
+  DB  72,131,197,16                       ; add           $0x10,%rbp
+  DB  72,57,221                           ; cmp           %rbx,%rbp
+  DB  72,137,213                          ; mov           %rdx,%rbp
+  DB  118,195                             ; jbe           7c <_sk_lowp_start_pipeline_ssse3+0x7c>
+  DB  72,41,211                           ; sub           %rdx,%rbx
+  DB  116,39                              ; je            e5 <_sk_lowp_start_pipeline_ssse3+0xe5>
+  DB  15,87,192                           ; xorps         %xmm0,%xmm0
+  DB  15,87,201                           ; xorps         %xmm1,%xmm1
+  DB  15,87,210                           ; xorps         %xmm2,%xmm2
+  DB  15,87,219                           ; xorps         %xmm3,%xmm3
+  DB  15,87,228                           ; xorps         %xmm4,%xmm4
+  DB  15,87,237                           ; xorps         %xmm5,%xmm5
+  DB  15,87,246                           ; xorps         %xmm6,%xmm6
+  DB  15,87,255                           ; xorps         %xmm7,%xmm7
+  DB  76,137,255                          ; mov           %r15,%rdi
+  DB  76,137,238                          ; mov           %r13,%rsi
+  DB  76,137,241                          ; mov           %r14,%rcx
+  DB  73,137,216                          ; mov           %rbx,%r8
+  DB  65,255,212                          ; callq         *%r12
+  DB  15,40,52,36                         ; movaps        (%rsp),%xmm6
+  DB  15,40,124,36,16                     ; movaps        0x10(%rsp),%xmm7
+  DB  68,15,40,68,36,32                   ; movaps        0x20(%rsp),%xmm8
+  DB  68,15,40,76,36,48                   ; movaps        0x30(%rsp),%xmm9
+  DB  68,15,40,84,36,64                   ; movaps        0x40(%rsp),%xmm10
+  DB  68,15,40,92,36,80                   ; movaps        0x50(%rsp),%xmm11
+  DB  68,15,40,100,36,96                  ; movaps        0x60(%rsp),%xmm12
+  DB  68,15,40,108,36,112                 ; movaps        0x70(%rsp),%xmm13
+  DB  68,15,40,180,36,128,0,0,0           ; movaps        0x80(%rsp),%xmm14
+  DB  68,15,40,188,36,144,0,0,0           ; movaps        0x90(%rsp),%xmm15
+  DB  72,129,196,168,0,0,0                ; add           $0xa8,%rsp
+  DB  91                                  ; pop           %rbx
+  DB  93                                  ; pop           %rbp
+  DB  95                                  ; pop           %rdi
+  DB  94                                  ; pop           %rsi
+  DB  65,92                               ; pop           %r12
+  DB  65,93                               ; pop           %r13
+  DB  65,94                               ; pop           %r14
+  DB  65,95                               ; pop           %r15
+  DB  195                                 ; retq
+
+PUBLIC _sk_lowp_just_return_ssse3
+_sk_lowp_just_return_ssse3 LABEL PROC
+  DB  195                                 ; retq
+
+PUBLIC _sk_lowp_swap_rb_ssse3
+_sk_lowp_swap_rb_ssse3 LABEL PROC
+  DB  68,15,40,192                        ; movaps        %xmm0,%xmm8
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  15,40,194                           ; movaps        %xmm2,%xmm0
+  DB  65,15,40,208                        ; movaps        %xmm8,%xmm2
+  DB  255,224                             ; jmpq          *%rax
 ENDIF
 END
