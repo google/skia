@@ -187,7 +187,6 @@ gm_sources = [
   "$_gm/lighting.cpp",
   "$_gm/lightingshader.cpp",
   "$_gm/lightingshader2.cpp",
-  "$_gm/lightingshaderbevel.cpp",
   "$_gm/linepaths.cpp",
   "$_gm/localmatriximagefilter.cpp",
   "$_gm/localmatriximageshader.cpp",

@@ -9,7 +9,6 @@
 
 #include "SkArenaAlloc.h"
 #include "SkNormalSource.h"
-#include "SkNormalSourcePriv.h"
 #include "SkPoint3.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -24,30 +23,24 @@ public:
         this->initClassID<NormalFlatFP>();
     }
 
-    class GLSLNormalFlatFP : public GLSLNormalFP {
+    class GLSLNormalFlatFP : public GrGLSLFragmentProcessor {
     public:
         GLSLNormalFlatFP() {}
 
-        void onEmitCode(EmitArgs& args) override {
+        void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             fragBuilder->codeAppendf("%s = vec4(0, 0, 1, 0);", args.fOutputColor);
         }
 
-        static void GenKey(const GrProcessor& proc, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-            b->add32(0x0);
-        }
-
-    protected:
-        void setNormalData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override {}
+    private:
+        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override {}
     };
 
     const char* name() const override { return "NormalFlatFP"; }
 
 private:
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLNormalFlatFP::GenKey(*this, caps, b);
-    }
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
     GrColor4f constantOutputForConstantInput(GrColor4f) const override {
         return GrColor4f(0, 0, 1, 0);

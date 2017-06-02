@@ -76,17 +76,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     this->nameExpression(outputColor, "outputColor");
     this->nameExpression(outputCoverage, "outputCoverage");
 
-    const char* distanceVectorName = nullptr;
-    if (this->fPipeline.usesDistanceVectorField() && proc.implementsDistanceVector()) {
-        // Each individual user (FP) of the distance vector must be able to handle having this
-        // variable be undeclared. There is no single default value that will yield a reasonable
-        // result for all users.
-        distanceVectorName = fFS.distanceVectorName();
-        fFS.codeAppend( "// Normalized vector to the closest geometric edge (in device space)\n");
-        fFS.codeAppend( "// Distance to the edge encoded in the z-component\n");
-        fFS.codeAppendf("vec4 %s;", distanceVectorName);
-    }
-
     SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
     GrShaderFlags rtAdjustVisibility = kVertex_GrShaderFlag;
     if (proc.willUseGeoShader()) {
@@ -124,7 +113,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            proc,
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
-                                           distanceVectorName,
                                            rtAdjustName,
                                            texSamplers.begin(),
                                            texelBuffers.begin(),
@@ -199,8 +187,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor&
                                            coords,
                                            textureSamplers,
                                            texelBuffers,
-                                           imageStorages,
-                                           this->primitiveProcessor().implementsDistanceVector());
+                                           imageStorages);
 
     fragProc->emitCode(args);
 

@@ -124,10 +124,6 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
     return coords2D;
 }
 
-const char* GrGLSLFragmentShaderBuilder::distanceVectorName() const {
-    return "fsDistanceVector";
-}
-
 void GrGLSLFragmentShaderBuilder::appendOffsetToSample(const char* sampleIdx, Coordinates coords) {
     SkASSERT(fProgramBuilder->header().fSamplePatternKey);
     SkDEBUGCODE(fUsedProcessorFeatures |= GrProcessor::kSampleLocations_RequiredFeature);

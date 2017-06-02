@@ -46,9 +46,6 @@ private:
     GrBlurredEdgeFP(Mode mode)
         : INHERITED(kNone_OptimizationFlags)
         , fMode(mode) {
-        // enable output of distance information for shape
-        this->setWillUseDistanceVectorField();
-
         this->initClassID<GrBlurredEdgeFP>();
     }
 
