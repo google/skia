@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "185960f6_7a794f18",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-02T21:04:33Z",
+      "side": 0,
+      "message": "I think this was a bug if we were fudging the left over, but not clipping the width?",
+      "range": {
+        "startLine": 496,
+        "startChar": 31,
+        "endLine": 496,
+        "endChar": 43
+      },
+      "revId": "e23bffd65b379aeeb6bb614de81369c130623e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

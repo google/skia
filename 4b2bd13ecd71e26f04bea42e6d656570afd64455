@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67230953_c0502436",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-02T21:04:33Z",
+      "side": 1,
+      "message": "Why does the debug layer complain if we don\u0027t set the scissor state when scissor is disabled?",
+      "range": {
+        "startLine": 500,
+        "startChar": 44,
+        "endLine": 500,
+        "endChar": 49
+      },
+      "revId": "4b2bd13ecd71e26f04bea42e6d656570afd64455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
