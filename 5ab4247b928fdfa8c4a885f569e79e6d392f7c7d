@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14619a15_9c076d3b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1599,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T10:53:34Z",
+      "side": 1,
+      "message": "Just wondering if we should give this a wider name, like \"isX86PowerVR\"",
+      "range": {
+        "startLine": 1599,
+        "startChar": 8,
+        "endLine": 1599,
+        "endChar": 21
+      },
+      "revId": "5ab4247b928fdfa8c4a885f569e79e6d392f7c7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
