@@ -16,7 +16,7 @@
 #include <functional>
 #include <vector>
 
-struct SkJumper_Engine;
+struct SkJumper_constants;
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -149,13 +149,15 @@ public:
     bool empty() const { return fStages == nullptr; }
 
 private:
+    using StartPipelineFn = void(size_t,size_t,size_t,void**,const SkJumper_constants*);
+
     struct StageList {
         StageList* prev;
         StockStage stage;
         void*      ctx;
     };
 
-    void build_pipeline(const SkJumper_Engine&, void**) const;
+    StartPipelineFn* build_pipeline(void**) const;
     void unchecked_append(StockStage, void*);
 
     SkArenaAlloc* fAlloc;

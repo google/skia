@@ -205,3 +205,31 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         }
     }
 }
+
+DEF_TEST(SkRasterPipeline_lowp, r) {
+    uint32_t rgba[64];
+    for (int i = 0; i < 64; i++) {
+        rgba[i] = (4*i+0) << 0
+                | (4*i+1) << 8
+                | (4*i+2) << 16
+                | (4*i+3) << 24;
+    }
+
+    void* ptr = rgba;
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_8888,  &ptr);
+    p.append(SkRasterPipeline::swap_rb);
+    p.append(SkRasterPipeline::store_8888, &ptr);
+    p.run(0,0,64);
+
+    for (int i = 0; i < 64; i++) {
+        uint32_t want = (4*i+0) << 16
+                      | (4*i+1) << 8
+                      | (4*i+2) << 0
+                      | (4*i+3) << 24;
+        if (rgba[i] != want) {
+            ERRORF(r, "got %08x, want %08x\n", rgba[i], want);
+        }
+    }
+}
