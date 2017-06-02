@@ -155,7 +155,7 @@ private:
         void*      ctx;
     };
 
-    static void BuildPipeline(const StageList*, const SkJumper_Engine&, void**);
+    void build_pipeline(const SkJumper_Engine&, void**) const;
     void unchecked_append(StockStage, void*);
 
     SkArenaAlloc* fAlloc;
