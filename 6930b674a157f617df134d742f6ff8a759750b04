@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9ff14e4_e3afceb9",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T11:01:14Z",
+      "side": 1,
+      "message": "Should this be MakeFromAHardwareBuffer to match the name of the struct?",
+      "range": {
+        "startLine": 244,
+        "startChar": 26,
+        "endLine": 244,
+        "endChar": 48
+      },
+      "revId": "6930b674a157f617df134d742f6ff8a759750b04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce806573_c4d92132",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T11:01:14Z",
+      "side": 1,
+      "message": "Since we\u0027re not implementing Vulkan now we\u0027d be better off not setting kRenderTarget....",
+      "range": {
+        "startLine": 176,
+        "startChar": 58,
+        "endLine": 177,
+        "endChar": 61
+      },
+      "revId": "6930b674a157f617df134d742f6ff8a759750b04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39669d83_a955d9a2",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T11:01:14Z",
+      "side": 1,
+      "message": "... here.",
+      "range": {
+        "startLine": 184,
+        "startChar": 22,
+        "endLine": 184,
+        "endChar": 49
+      },
+      "revId": "6930b674a157f617df134d742f6ff8a759750b04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da3e94b1_6647f952",
+        "filename": "src/gpu/GrAndroidBufferImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T11:01:14Z",
+      "side": 1,
+      "message": "Similarly, should this be GrAHardwareBufferImageGenerator?",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 35
+      },
+      "revId": "6930b674a157f617df134d742f6ff8a759750b04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6347eedb_780a580c",
+        "filename": "src/gpu/GrBackendTextureImageGenerator.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T11:01:14Z",
+      "side": 1,
+      "message": "I\u0027ve been meaning to make this change for several weeks :)",
+      "range": {
+        "startLine": 22,
+        "startChar": 38,
+        "endLine": 22,
+        "endChar": 46
+      },
+      "revId": "6930b674a157f617df134d742f6ff8a759750b04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
