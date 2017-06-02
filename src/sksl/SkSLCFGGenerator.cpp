@@ -476,6 +476,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
                 cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind,
                                                              false, nullptr, &stmt });
             }
+            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
+                                                         nullptr, s });
             break;
         }
         case Statement::kDiscard_Kind:
