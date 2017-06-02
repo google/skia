@@ -46,6 +46,29 @@
       "revId": "4b2bd13ecd71e26f04bea42e6d656570afd64455",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8df041c6_726a1c2a",
+        "filename": "tests/GrPipelineDynamicStateTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-02T21:39:01Z",
+      "side": 1,
+      "message": "haven\u0027t looked at this closely, but the failures might be caused by N32Premul defaulting to BGRA on some platforms on you set RGBA on the context above. May just want to use normal Make and set RGBA directly.",
+      "range": {
+        "startLine": 200,
+        "startChar": 38,
+        "endLine": 200,
+        "endChar": 50
+      },
+      "revId": "4b2bd13ecd71e26f04bea42e6d656570afd64455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
