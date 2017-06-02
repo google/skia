@@ -34,6 +34,7 @@ tool_shared_libs = [
     'libdng_sdk',
     'libpiex',
     'libcutils',
+    'libnativewindow',
 ]
 
 # The ordering here is important: libsfntly needs to come after libskia.
@@ -132,6 +133,7 @@ cc_library {
         "libvulkan",
         "libz",
         "libcutils",
+        "libnativewindow",
     ],
     static_libs: [
         "libarect",

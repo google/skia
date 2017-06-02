@@ -32,7 +32,7 @@ private:
 
     EGLDisplay fDisplay;
     EGLContext fEGLContext;
-    EGLSurface fSurface;
+    EGLSurface fSurfaceAndroid;
 
     // For setDisplayParams and resize which call onInitializeContext with null platformData
     ANativeWindow* fNativeWindow = nullptr;
@@ -45,7 +45,7 @@ GLWindowContext_android::GLWindowContext_android(ANativeWindow* window,
     : INHERITED(params)
     , fDisplay(EGL_NO_DISPLAY)
     , fEGLContext(EGL_NO_CONTEXT)
-    , fSurface(EGL_NO_SURFACE)
+    , fSurfaceAndroid(EGL_NO_SURFACE)
     , fNativeWindow(window) {
 
     // any config code here (particularly for msaa)?
@@ -113,14 +113,14 @@ void GLWindowContext_android::onInitializeContext() {
         windowAttribs = srgbWindowAttribs;
     }
 
-    fSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, windowAttribs);
-    if (EGL_NO_SURFACE == fSurface && windowAttribs) {
+    fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, windowAttribs);
+    if (EGL_NO_SURFACE == fSurfaceAndroid && windowAttribs) {
         // Try again without sRGB
-        fSurface = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, nullptr);
+        fSurfaceAndroid = eglCreateWindowSurface(fDisplay, surfaceConfig, fNativeWindow, nullptr);
     }
-    SkASSERT(EGL_NO_SURFACE != fSurface);
+    SkASSERT(EGL_NO_SURFACE != fSurfaceAndroid);
 
-    SkAssertResult(eglMakeCurrent(fDisplay, fSurface, fSurface, fEGLContext));
+    SkAssertResult(eglMakeCurrent(fDisplay, fSurfaceAndroid, fSurfaceAndroid, fEGLContext));
     // GLWindowContext::initializeContext will call GrGLCreateNativeInterface so we
     // won't call it here.
 
@@ -134,19 +134,19 @@ void GLWindowContext_android::onInitializeContext() {
 }
 
 void GLWindowContext_android::onDestroyContext() {
-    if (!fDisplay || !fEGLContext || !fSurface) {
+    if (!fDisplay || !fEGLContext || !fSurfaceAndroid) {
         return;
     }
     eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    SkAssertResult(eglDestroySurface(fDisplay, fSurface));
+    SkAssertResult(eglDestroySurface(fDisplay, fSurfaceAndroid));
     SkAssertResult(eglDestroyContext(fDisplay, fEGLContext));
     fEGLContext = EGL_NO_CONTEXT;
-    fSurface = EGL_NO_SURFACE;
+    fSurfaceAndroid = EGL_NO_SURFACE;
 }
 
 void GLWindowContext_android::onSwapBuffers() {
-    if (fDisplay && fEGLContext && fSurface) {
-        eglSwapBuffers(fDisplay, fSurface);
+    if (fDisplay && fEGLContext && fSurfaceAndroid) {
+        eglSwapBuffers(fDisplay, fSurfaceAndroid);
     }
 }
 

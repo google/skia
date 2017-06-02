@@ -29,6 +29,10 @@ class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+struct AHardwareBuffer;
+#endif
+
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or
@@ -231,6 +235,16 @@ public:
     static sk_sp<SkImage> MakeFromPicture(sk_sp<SkPicture>, const SkISize& dimensions,
                                           const SkMatrix*, const SkPaint*, BitDepth,
                                           sk_sp<SkColorSpace>);
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    /**
+     *  Create a new image from the an Android hardware buffer.
+     *  The new image takes a reference on the buffer.
+     */
+    static sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer*,
+                                                 SkAlphaType = kPremul_SkAlphaType,
+                                                 sk_sp<SkColorSpace> = nullptr);
+#endif
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 

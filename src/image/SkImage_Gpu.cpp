@@ -12,6 +12,9 @@
 #include "SkAutoPixmapStorage.h"
 #include "GrBackendSurface.h"
 #include "GrBackendTextureImageGenerator.h"
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#include "GrAHardwareBufferImageGenerator.h"
+#endif
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -501,6 +504,14 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
                                                     std::move(texColorSpace));
     return SkImage::MakeFromGenerator(std::move(gen));
 }
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
+                                               sk_sp<SkColorSpace> cs) {
+    auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, cs);
+    return SkImage::MakeFromGenerator(std::move(gen));
+}
+#endif
 
 sk_sp<SkImage> SkImage::makeNonTextureImage() const {
     if (!this->isTextureBacked()) {
