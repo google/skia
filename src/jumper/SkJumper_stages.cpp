@@ -20,41 +20,6 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 // You can use most constants in this file, but in a few rare exceptions we read from this struct.
 using K = const SkJumper_constants;
 
-
-// Let's start first with the mechanisms we use to build Stages.
-
-// Our program is an array of void*, either
-//   - 1 void* per stage with no context pointer, the next stage;
-//   - 2 void* per stage with a context pointer, first the context pointer, then the next stage.
-
-// load_and_inc() steps the program forward by 1 void*, returning that pointer.
-SI void* load_and_inc(void**& program) {
-#if defined(__GNUC__) && defined(__x86_64__)
-    // If program is in %rsi (we try to make this likely) then this is a single instruction.
-    void* rax;
-    asm("lodsq" : "=a"(rax), "+S"(program));  // Write-only %rax, read-write %rsi.
-    return rax;
-#else
-    // On ARM *program++ compiles into pretty ideal code without any handholding.
-    return *program++;
-#endif
-}
-
-// LazyCtx doesn't do anything unless you call operator T*(), encapsulating the logic
-// from above that stages without a context pointer are represented by just 1 void*.
-struct LazyCtx {
-    void*   ptr;
-    void**& program;
-
-    explicit LazyCtx(void**& p) : ptr(nullptr), program(p) {}
-
-    template <typename T>
-    operator T*() {
-        if (!ptr) { ptr = load_and_inc(program); }
-        return (T*)ptr;
-    }
-};
-
 // A little wrapper macro to name Stages differently depending on the instruction set.
 // That lets us link together several options.
 #if !defined(JUMPER)
