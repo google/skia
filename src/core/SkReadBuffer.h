@@ -72,6 +72,7 @@ public:
         kXfermodeToBlendMode_Version       = 50,
         kXfermodeToBlendMode2_Version      = 51,
         kTextBlobImplicitRunCount_Version  = 52,
+        kComposeShaderCanLerp_Version      = 54,
     };
 
     /**
