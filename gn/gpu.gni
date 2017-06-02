@@ -50,6 +50,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrBackendSurface.cpp",
   "$_src/gpu/GrBackendTextureImageGenerator.cpp",
   "$_src/gpu/GrBackendTextureImageGenerator.h",
+  "$_src/gpu/GrAHardwareBufferImageGenerator.cpp",
+  "$_src/gpu/GrAHardwareBufferImageGenerator.h",
   "$_src/gpu/GrBitmapTextureMaker.cpp",
   "$_src/gpu/GrBitmapTextureMaker.h",
   "$_src/gpu/GrBlend.cpp",
