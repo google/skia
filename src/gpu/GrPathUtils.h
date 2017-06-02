@@ -24,6 +24,8 @@ namespace GrPathUtils {
                                  const SkMatrix& viewM,
                                  const SkRect& pathBounds);
 
+    bool hasMultipleSubpaths(const SkPath& path);
+
     int worstCasePointCount(const SkPath&,
                             int* subpaths,
                             SkScalar tol);
@@ -165,5 +167,8 @@ namespace GrPathUtils {
     // This value was chosen to approximate the supersampling accuracy of the raster path (16
     // samples, or one quarter pixel).
     static const SkScalar kDefaultTolerance = SkDoubleToScalar(0.25);
+
+    // We guarantee that no quad or cubic will ever produce more than this many points
+    static const int kMaxPointsPerCurve = 1 << 10;
 };
 #endif
