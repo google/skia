@@ -34,6 +34,11 @@ protected:
         // which will write data we don't care to serialize or decode.
     }
 
+    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, const SkMatrix&,
+                        const SkPaint&, const SkMatrix*) const override {
+        return false;
+    }
+
 private:
     typedef SkShaderBase INHERITED;
 };
