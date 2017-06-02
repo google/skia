@@ -262,10 +262,12 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
         }
         case BasicBlock::Node::kStatement_Kind: {
             const Statement* stmt = (Statement*) node.statement()->get();
-            if (stmt->fKind == Statement::kVarDeclaration_Kind) {
-                VarDeclaration& vd = (VarDeclaration&) *stmt;
-                if (vd.fValue) {
-                    (*definitions)[vd.fVar] = &vd.fValue;
+            if (stmt->fKind == Statement::kVarDeclarations_Kind) {
+                VarDeclarationsStatement* vd = (VarDeclarationsStatement*) stmt;
+                for (const auto& decl : vd->fDeclaration->fVars) {
+                    if (decl->fValue) {
+                        (*definitions)[decl->fVar] = &decl->fValue;
+                    }
                 }
             }
             break;
@@ -322,7 +324,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
                 if (s->fKind == Statement::kVarDeclarations_Kind) {
                     const VarDeclarationsStatement* vd = (const VarDeclarationsStatement*) s;
                     for (const auto& decl : vd->fDeclaration->fVars) {
-                        result[((VarDeclaration&) *decl).fVar] = nullptr;
+                        result[decl->fVar] = nullptr;
                     }
                 }
             }
@@ -844,19 +846,27 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                                  bool* outNeedsRescan) {
     Statement* stmt = (*iter)->statement()->get();
     switch (stmt->fKind) {
-        case Statement::kVarDeclaration_Kind: {
-            const auto& varDecl = (VarDeclaration&) *stmt;
-            if (varDecl.fVar->dead() &&
-                (!varDecl.fValue ||
-                 !varDecl.fValue->hasSideEffects())) {
-                if (varDecl.fValue) {
-                    ASSERT((*iter)->statement()->get() == stmt);
-                    if (!b.tryRemoveExpressionBefore(iter, varDecl.fValue.get())) {
-                        *outNeedsRescan = true;
+        case Statement::kVarDeclarations_Kind: {
+            VarDeclarations& vd = *((VarDeclarationsStatement&) *stmt).fDeclaration;
+            for (auto varIter = vd.fVars.begin(); varIter != vd.fVars.end(); ) {
+                const auto& varDecl = **varIter;
+                if (varDecl.fVar->dead() &&
+                    (!varDecl.fValue ||
+                     !varDecl.fValue->hasSideEffects())) {
+                    if (varDecl.fValue) {
+                        ASSERT((*iter)->statement()->get() == stmt);
+                        if (!b.tryRemoveExpressionBefore(iter, varDecl.fValue.get())) {
+                            *outNeedsRescan = true;
+                        }
                     }
+                    varIter = vd.fVars.erase(varIter);
+                    *outUpdated = true;
+                } else {
+                    ++varIter;
                 }
+            }
+            if (vd.fVars.size() == 0) {
                 (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
-                *outUpdated = true;
             }
             break;
         }
