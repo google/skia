@@ -70,7 +70,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fMaxWindowRectangles = 0;
 
     fSuppressPrints = options.fSuppressPrints;
-    fImmediateFlush = options.fImmediateMode;
     fWireframeMode = options.fWireframeMode;
     fBufferMapThreshold = options.fBufferMapThreshold;
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
