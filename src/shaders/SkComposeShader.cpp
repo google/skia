@@ -31,33 +31,69 @@ sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader>
     return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode));
 }
 
+sk_sp<SkShader> SkShader::MakeMixer(sk_sp<SkShader> a, sk_sp<SkShader> b, float t) {
+    if (!a || !b || SkScalarIsNaN(t)) {
+        return nullptr;
+    }
+    if (t <= 0) {
+        return a;
+    } else if (t >= 1) {
+        return b;
+    } else {
+        return sk_sp<SkShader>(new SkComposeShader(std::move(a), std::move(b), t));
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
+ *  based on the buffer's version, we may be in 1 of 3 states:
+ *
+ *  1. we wrote an xfermode
+ *  2. we wrote a blendmode
+ *  3. we wrote a lerp and a blendmode
+ */
 sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> shaderA(buffer.readShader());
     sk_sp<SkShader> shaderB(buffer.readShader());
+    float lerp = 0;
     SkBlendMode mode;
+
     if (buffer.isVersionLT(SkReadBuffer::kXfermodeToBlendMode2_Version)) {
         sk_sp<SkXfermode> xfer = buffer.readXfermode();
         mode = xfer ? xfer->blend() : SkBlendMode::kSrcOver;
+    } else if (buffer.isVersionLT(SkReadBuffer::kComposeShaderCanLerp_Version)) {
+        mode = (SkBlendMode)buffer.read32();
     } else {
+        lerp = buffer.readScalar();
         mode = (SkBlendMode)buffer.read32();
     }
     if (!shaderA || !shaderB) {
         return nullptr;
     }
-    return sk_make_sp<SkComposeShader>(std::move(shaderA), std::move(shaderB), mode);
+
+    if (IsLegalMode(mode)) {
+        return SkShader::MakeComposeShader(std::move(shaderA), std::move(shaderB), mode);
+    } else if (IsLegalLerp(lerp)) {
+        return SkShader::MakeMixer(std::move(shaderA), std::move(shaderB), lerp);
+    }
+    return nullptr; // bad values in buffer
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fShaderA.get());
     buffer.writeFlattenable(fShaderB.get());
+    buffer.writeScalar(fLerpT);
     buffer.write32((int)fMode);
 }
 
 SkShaderBase::Context* SkComposeShader::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
+    if (this->isLerp()) {
+        return nullptr; // we only support stages for lerp
+    }
+
     // we preconcat our localMatrix (if any) with the device matrix
     // before calling our sub-shaders
     SkMatrix tmpM;
@@ -83,8 +119,13 @@ SkShaderBase::Context* SkComposeShader::onMakeContext(
 }
 
 sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
-                                       xformer->apply(fShaderB.get()), fMode);
+    if (this->isMode()) {
+        return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
+                                           xformer->apply(fShaderB.get()), fMode);
+    } else {
+        return SkShader::MakeMixer(xformer->apply(fShaderA.get()),
+                                   xformer->apply(fShaderB.get()), fLerpT);
+    }
 }
 
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(
@@ -95,6 +136,10 @@ SkComposeShader::ComposeShaderContext::ComposeShaderContext(
     , fShaderContextB(contextB) {}
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
+    if (this->isLerp()) {
+        return false;
+    }
+
     if (rec) {
         rec->fShaderA   = fShaderA.get();
         rec->fShaderB   = fShaderB.get();
@@ -104,7 +149,11 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 }
 
 bool SkComposeShader::isRasterPipelineOnly() const {
-    return as_SB(fShaderA)->isRasterPipelineOnly() || as_SB(fShaderB)->isRasterPipelineOnly();
+    if (this->isLerp()) {
+        return true;
+    } else {
+        return as_SB(fShaderA)->isRasterPipelineOnly() || as_SB(fShaderB)->isRasterPipelineOnly();
+    }
 }
 
 bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
@@ -126,17 +175,21 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     if (!as_SB(fShaderA)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
         return false;
     }
-    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
+    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...
     pipeline->append(SkRasterPipeline::move_src_dst);
     pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
 
-    // Idea: should time this, and see if it helps to have custom versions of the overflow modes
-    //       that do their own clamping, avoiding the overhead of an extra stage.
-    SkBlendMode_AppendStages(fMode, pipeline);
-    if (SkBlendMode_CanOverflow(fMode)) {
-        pipeline->append(SkRasterPipeline::clamp_a);
+    if (this->isMode()) {
+        // Idea: should time this, and see if it helps to have custom versions of the overflow modes
+        //       that do their own clamping, avoiding the overhead of an extra stage.
+        SkBlendMode_AppendStages(fMode, pipeline);
+        if (SkBlendMode_CanOverflow(fMode)) {
+            pipeline->append(SkRasterPipeline::clamp_a);
+        }
+    } else {
+        pipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
     }
     return true;
 }
@@ -146,6 +199,8 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
 #define TMP_COLOR_COUNT     64
 
 void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor result[], int count) {
+    SkASSERT(static_cast<const SkComposeShader&>(fShader).isMode());
+
     auto* shaderContextA = fShaderContextA;
     auto* shaderContextB = fShaderContextB;
     SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
@@ -206,6 +261,8 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
 }
 
 void SkComposeShader::ComposeShaderContext::shadeSpan4f(int x, int y, SkPM4f result[], int count) {
+    SkASSERT(static_cast<const SkComposeShader&>(fShader).isMode());
+
     auto* shaderContextA = fShaderContextA;
     auto* shaderContextB = fShaderContextB;
     SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
@@ -277,8 +334,11 @@ void SkComposeShader::toString(SkString* str) const {
     as_SB(fShaderA)->toString(str);
     str->append(" ShaderB: ");
     as_SB(fShaderB)->toString(str);
-    if (SkBlendMode::kSrcOver != fMode) {
-        str->appendf(" Xfermode: %s", SkXfermode::ModeName(fMode));
+
+    if (this->isMode()) {
+        str->appendf(" mode: %s", SkXfermode::ModeName(fMode));
+    } else {
+        str->appendf(" lerpT: %g", fLerpT);
     }
 
     this->INHERITED::toString(str);

@@ -212,6 +212,16 @@ public:
 
     static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode);
 
+    /**
+     *  Return a shader that returns a weighted average of its two input shaders, clamping t
+     *  to be within [0...1].
+     *
+     *  result = a * (1 - t) + b * t
+     *
+     *  Returns nullptr if a or b is null, or if t is not NaN.
+     */
+    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> a, sk_sp<SkShader> b, float t);
+
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
      *  If the bitmap cannot be used (e.g. has no pixels, or its dimensions
