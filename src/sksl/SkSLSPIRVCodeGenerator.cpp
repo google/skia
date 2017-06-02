@@ -2603,7 +2603,10 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl,
                                          OutputStream& out) {
     for (size_t i = 0; i < decl.fVars.size(); i++) {
-        const VarDeclaration& varDecl = *decl.fVars[i];
+        if (decl.fVars[i]->fKind == Statement::kNop_Kind) {
+            continue;
+        }
+        const VarDeclaration& varDecl = (VarDeclaration&) *decl.fVars[i];
         const Variable* var = varDecl.fVar;
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
@@ -2665,8 +2668,12 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
 }
 
 void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, OutputStream& out) {
-    for (const auto& varDecl : decl.fVars) {
-        const Variable* var = varDecl->fVar;
+    for (const auto& stmt : decl.fVars) {
+        if (stmt->fKind == Statement::kNop_Kind) {
+            continue;
+        }
+        VarDeclaration& varDecl = (VarDeclaration&) *stmt;
+        const Variable* var = varDecl.fVar;
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
         // in the OpenGL backend.
         ASSERT(!(var->fModifiers.fFlags & (Modifiers::kReadOnly_Flag |
@@ -2679,8 +2686,8 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
         SpvId type = this->getPointerType(var->fType, SpvStorageClassFunction);
         this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
         this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
-        if (varDecl->fValue) {
-            SpvId value = this->writeExpression(*varDecl->fValue, out);
+        if (varDecl.fValue) {
+            SpvId value = this->writeExpression(*varDecl.fValue, out);
             this->writeInstruction(SpvOpStore, id, value, out);
         }
     }

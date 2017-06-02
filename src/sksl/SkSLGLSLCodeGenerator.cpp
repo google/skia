@@ -619,26 +619,33 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
-    this->writeModifiers(decl.fVars[0]->fVar->fModifiers, global);
-    this->writeType(decl.fBaseType);
-    String separator(" ");
-    for (const auto& var : decl.fVars) {
-        ASSERT(var->fVar->fModifiers == decl.fVars[0]->fVar->fModifiers);
-        this->write(separator);
-        separator = String(", ");
-        this->write(var->fVar->fName);
-        for (const auto& size : var->fSizes) {
+    bool wroteType = false;
+    for (const auto& stmt : decl.fVars) {
+        if (stmt->fKind == Statement::kNop_Kind) {
+            continue;
+        }
+        VarDeclaration& var = (VarDeclaration&) *stmt;
+        if (wroteType) {
+            this->write(", ");
+        } else {
+            this->writeModifiers(var.fVar->fModifiers, global);
+            this->writeType(decl.fBaseType);
+            this->write(" ");
+            wroteType = true;
+        }
+        this->write(var.fVar->fName);
+        for (const auto& size : var.fSizes) {
             this->write("[");
             if (size) {
                 this->writeExpression(*size, kTopLevel_Precedence);
             }
             this->write("]");
         }
-        if (var->fValue) {
+        if (var.fValue) {
             this->write(" = ");
-            this->writeExpression(*var->fValue, kTopLevel_Precedence);
+            this->writeExpression(*var.fValue, kTopLevel_Precedence);
         }
-        if (!fFoundImageDecl && var->fVar->fType == *fContext.fImage2D_Type) {
+        if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
             if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
                 fHeader.writeText("#extension ");
                 fHeader.writeText(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
@@ -647,7 +654,9 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             fFoundImageDecl = true;
         }
     }
-    this->write(";");
+    if (wroteType) {
+        this->write(";");
+    }
 }
 
 void GLSLCodeGenerator::writeStatement(const Statement& s) {
@@ -829,7 +838,8 @@ bool GLSLCodeGenerator::generateCode() {
             case ProgramElement::kVar_Kind: {
                 VarDeclarations& decl = (VarDeclarations&) *e;
                 if (decl.fVars.size() > 0) {
-                    int builtin = decl.fVars[0]->fVar->fModifiers.fLayout.fBuiltin;
+                    int builtin =
+                               ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
                     if (builtin == -1) {
                         // normal var
                         this->writeVarDeclarations(decl, true);
