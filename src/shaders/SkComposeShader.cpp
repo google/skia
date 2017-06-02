@@ -33,23 +33,6 @@ sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader>
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkAutoAlphaRestore {
-public:
-    SkAutoAlphaRestore(SkPaint* paint, uint8_t newAlpha) {
-        fAlpha = paint->getAlpha();
-        fPaint = paint;
-        paint->setAlpha(newAlpha);
-    }
-
-    ~SkAutoAlphaRestore() {
-        fPaint->setAlpha(fAlpha);
-    }
-private:
-    SkPaint*    fPaint;
-    uint8_t     fAlpha;
-};
-#define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
-
 sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> shaderA(buffer.readShader());
     sk_sp<SkShader> shaderB(buffer.readShader());
