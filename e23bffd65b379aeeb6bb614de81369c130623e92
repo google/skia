@@ -22,6 +22,30 @@
       "revId": "e23bffd65b379aeeb6bb614de81369c130623e92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64850b1b_aec117db",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-02T21:34:02Z",
+      "side": 0,
+      "message": "Yeah looks like it was, but I doubt we often have a negative scissor offset so probably never hit this?",
+      "parentUuid": "185960f6_7a794f18",
+      "range": {
+        "startLine": 496,
+        "startChar": 31,
+        "endLine": 496,
+        "endChar": 43
+      },
+      "revId": "e23bffd65b379aeeb6bb614de81369c130623e92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
