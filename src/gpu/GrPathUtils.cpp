@@ -156,6 +156,22 @@ uint32_t GrPathUtils::generateCubicPoints(const SkPoint& p0,
     return a + b;
 }
 
+bool GrPathUtils::hasMultipleSubpaths(const SkPath& path) {
+    bool first = true;
+
+    SkPath::Iter iter(path, false);
+    SkPath::Verb verb;
+
+    SkPoint pts[4];
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        if (SkPath::kMove_Verb == verb && !first) {
+            return true;
+        }
+        first = false;
+    }
+    return false;
+}
+
 int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths, SkScalar tol) {
     // You should have called scaleToleranceToSrc, which guarantees this
     SkASSERT(tol >= gMinCurveTol);
