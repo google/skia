@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a38b2ae_8f1e7c38",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-02T16:39:16Z",
+      "side": 1,
+      "message": "Don\u0027t need this now either.",
+      "revId": "5b4f37239e0b493269f97ac454b51e1fd42c5425",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
