@@ -205,3 +205,23 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         }
     }
 }
+
+DEF_TEST(SkRasterPipeline_lowp, r) {
+    uint32_t rgba[256];
+    for (int i = 0; i < 256; i++) {
+        rgba[i] = i;
+    }
+
+    void* ptr = rgba;
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_8888,  &ptr);
+    p.append(SkRasterPipeline::store_8888, &ptr);
+    p.run(0,0,256);
+
+    for (int i = 0; i < 256; i++) {
+        if (rgba[i] != (uint32_t)i) {
+            ERRORF(r, "got %08x, want %08x\n", rgba[i], (uint32_t)i);
+        }
+    }
+}

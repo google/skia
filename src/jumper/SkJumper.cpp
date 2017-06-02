@@ -29,6 +29,7 @@ static K kConstants = {
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
+using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
 #if defined(__APPLE__)
@@ -43,29 +44,31 @@ extern "C" {
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
-    void ASM(start_pipeline,aarch64)(size_t,size_t,size_t, void**, K*);
+    StartPipelineFn ASM(start_pipeline,aarch64);
     StageFn ASM(just_return,aarch64);
     #define M(st) StageFn ASM(st,aarch64);
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
 #elif defined(__arm__)
-    void ASM(start_pipeline,vfp4)(size_t,size_t,size_t, void**, K*);
+    StartPipelineFn ASM(start_pipeline,vfp4);
     StageFn ASM(just_return,vfp4);
     #define M(st) StageFn ASM(st,vfp4);
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
 #elif defined(__x86_64__) || defined(_M_X64)
-    void ASM(start_pipeline,hsw  )(size_t,size_t,size_t, void**, K*);
-    void ASM(start_pipeline,avx  )(size_t,size_t,size_t, void**, K*);
-    void ASM(start_pipeline,sse41)(size_t,size_t,size_t, void**, K*);
-    void ASM(start_pipeline,sse2 )(size_t,size_t,size_t, void**, K*);
+    StartPipelineFn ASM(start_pipeline,hsw       ),
+                    ASM(start_pipeline,avx       ),
+                    ASM(start_pipeline,sse41     ),
+                    ASM(start_pipeline,sse2      ),
+                    ASM(start_pipeline,ssse3_lowp);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
             ASM(just_return,sse41),
-            ASM(just_return,sse2);
+            ASM(just_return,sse2),
+            ASM(just_return,ssse3_lowp);
 
     #define M(st) StageFn ASM(st,hsw);
         SK_RASTER_PIPELINE_STAGES(M)
@@ -79,10 +82,14 @@ extern "C" {
     #define M(st) StageFn ASM(st,sse2);
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
+
+    StageFn ASM(load_8888,  ssse3_lowp),
+            ASM(store_8888, ssse3_lowp),
+            ASM(swap_rb,    ssse3_lowp);
 #endif
 
     // Portable, single-pixel stages.
-    void sk_start_pipeline(size_t,size_t,size_t, void**, K*);
+    StartPipelineFn sk_start_pipeline;
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
         SK_RASTER_PIPELINE_STAGES(M)
@@ -170,43 +177,72 @@ static SkJumper_Engine choose_engine() {
     return kPortable;
 }
 
-void SkRasterPipeline::build_pipeline(const SkJumper_Engine& engine, void** ip) const {
-    const StageList* st = fStages;
+StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
+#if defined(__x86_64__) || defined(_M_X64)
+    if (SkCpu::Supports(SkCpu::SSSE3)) {
+        void** reset_point = ip;
+
+        *--ip = (void*)ASM(just_return,ssse3_lowp);
+        for (const StageList* st = fStages; st; st = st->prev) {
+            StageFn* fn = nullptr;
+            switch (st->stage) {
+                case SkRasterPipeline::load_8888:  fn = ASM(load_8888, ssse3_lowp); break;
+                case SkRasterPipeline::store_8888: fn = ASM(store_8888,ssse3_lowp); break;
+                case SkRasterPipeline::swap_rb:    fn = ASM(swap_rb,   ssse3_lowp); break;
+                default:
+                    //SkDebugf("can't %d\n", st->stage);
+                    ip = reset_point;
+            }
+            if (ip == reset_point) {
+                break;
+            }
+            if (st->ctx) {
+                *--ip = st->ctx;
+            }
+            *--ip = (void*)fn;
+        }
+
+        if (ip != reset_point) {
+            return ASM(start_pipeline,ssse3_lowp);
+        }
+    }
+#endif
+    gChooseEngineOnce([]{ gEngine = choose_engine(); });
+
     // We're building the pipeline backwards, so we start with the final stage just_return.
-    *--ip = (void*)engine.just_return;
+    *--ip = (void*)gEngine.just_return;
 
     // Still going backwards, each stage's context pointer then its StageFn.
-    for (; st; st = st->prev) {
+    for (const StageList* st = fStages; st; st = st->prev) {
         if (st->ctx) {
             *--ip = st->ctx;
         }
-        *--ip = (void*)engine.stages[st->stage];
+        *--ip = (void*)gEngine.stages[st->stage];
     }
+    return gEngine.start_pipeline;
 }
 
 void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
     if (this->empty()) {
         return;
     }
-    gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
-    this->build_pipeline(gEngine, program.get() + fSlotsNeeded);
-    gEngine.start_pipeline(x,y,x+n, program.get(), &kConstants);
+    auto start_pipeline = this->build_pipeline(program.get() + fSlotsNeeded);
+    start_pipeline(x,y,x+n, program.get(), &kConstants);
 }
 
 std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     if (this->empty()) {
         return [](size_t, size_t, size_t) {};
     }
-    gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
     void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
-    this->build_pipeline(gEngine, program + fSlotsNeeded);
+    auto start_pipeline = this->build_pipeline(program + fSlotsNeeded);
 
     return [=](size_t x, size_t y, size_t n) {
-        gEngine.start_pipeline(x,y,x+n, program, &kConstants);
+        start_pipeline(x,y,x+n, program, &kConstants);
     };
 }
