@@ -480,7 +480,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 SkASSERT(!inIco || nullptr != stream->getMemoryBase());
 
                 // Set the image info and create a codec.
-                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
+                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent,
+                        kXformSrcColorFormat);
                 *codecOut = new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
                         numColors, bytesPerColor, offset - bytesRead, rowOrder, isOpaque, inIco);
             }
@@ -533,7 +534,8 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     color = SkEncodedInfo::kBGR_Color;
                     alpha = SkEncodedInfo::kOpaque_Alpha;
                 }
-                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
+                const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8,
+                        kXformSrcColorFormat);
                 *codecOut = new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
                         masks.release(), rowOrder);
             }
@@ -562,7 +564,7 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // opaque or that we will be able to represent it with a palette.
                 // For that reason, we always indicate that we are kBGRA.
                 const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
-                        SkEncodedInfo::kBinary_Alpha, 8);
+                        SkEncodedInfo::kBinary_Alpha, 8, kXformSrcColorFormat);
                 *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
                         bytesPerColor, offset - bytesRead, rowOrder);
             }
@@ -643,16 +645,4 @@ bool SkBmpCodec::skipRows(int count) {
 
 bool SkBmpCodec::onSkipScanlines(int count) {
     return this->skipRows(count);
-}
-
-void SkBmpCodec::applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const {
-    SkColorSpaceXform* xform = this->colorXform();
-    if (xform) {
-        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
-        const SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                         this->getInfo().alphaType());
-        SkAssertResult(xform->apply(dstFormat, dst, srcFormat, src, dstInfo.width(),
-                                    alphaType));
-    }
 }

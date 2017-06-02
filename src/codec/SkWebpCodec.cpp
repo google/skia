@@ -144,7 +144,8 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
             return nullptr;
     }
 
-    SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
+    SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8,
+                                             SkColorSpaceXform::kBGRA_8888_ColorFormat);
     SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
                                             streamDeleter.release(), demux.release(),
                                             std::move(data));
@@ -612,10 +613,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     const auto dstCT = dstInfo.colorType();
     if (this->colorXform()) {
-        const auto dstColorFormat = select_xform_format(dstInfo.colorType());
-        const auto srcColorFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
-        SkASSERT(select_xform_format(webpDst.colorType()) == srcColorFormat);
-
         uint32_t* xformSrc = (uint32_t*) config.output.u.RGBA.rgba;
         SkBitmap tmp;
         void* xformDst;
@@ -628,8 +625,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformDst = dst;
         }
         for (int y = 0; y < rowsDecoded; y++) {
-            SkAssertResult(this->colorXform()->apply(dstColorFormat, xformDst,
-                    srcColorFormat, xformSrc, scaledWidth, xformAlphaType));
+            this->applyColorXform(xformDst, xformSrc, scaledWidth, xformAlphaType);
             if (blendWithPrevFrame) {
                 blend_line(dstCT, &dst, dstCT, &xformDst, needsSrgbToLinear, xformAlphaType,
                         scaledWidth);

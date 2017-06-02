@@ -166,8 +166,9 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream) {
     if (!read_header(stream, &size)) {
         return nullptr;
     }
+    // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
     SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kGray_Color,
-            SkEncodedInfo::kOpaque_Alpha, 1);
+            SkEncodedInfo::kOpaque_Alpha, 1, SkColorSpaceXform::ColorFormat());
     return new SkWbmpCodec(size.width(), size.height(), info, streamDeleter.release());
 }
 
