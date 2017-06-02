@@ -621,9 +621,6 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
     ASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
     for (const auto& stmt : decl.fVars) {
-        if (stmt->fKind == Statement::kNop_Kind) {
-            continue;
-        }
         VarDeclaration& var = (VarDeclaration&) *stmt;
         if (wroteType) {
             this->write(", ");
@@ -838,6 +835,7 @@ bool GLSLCodeGenerator::generateCode() {
             case ProgramElement::kVar_Kind: {
                 VarDeclarations& decl = (VarDeclarations&) *e;
                 if (decl.fVars.size() > 0) {
+                    ASSERT(decl.fVars[0]->fKind == Statement::kVarDeclaration_Kind);
                     int builtin =
                                ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
                     if (builtin == -1) {
