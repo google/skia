@@ -8,6 +8,7 @@
 #ifndef SkEncodedInfo_DEFINED
 #define SkEncodedInfo_DEFINED
 
+#include "SkColorSpaceXform.h"
 #include "SkImageInfo.h"
 
 class SkColorSpace;
@@ -67,7 +68,8 @@ public:
         kYCCK_Color,
     };
 
-    static SkEncodedInfo Make(Color color, Alpha alpha, int bitsPerComponent) {
+    static SkEncodedInfo Make(Color color, Alpha alpha, int bitsPerComponent,
+                              SkColorSpaceXform::ColorFormat format) {
         SkASSERT(1 == bitsPerComponent ||
                  2 == bitsPerComponent ||
                  4 == bitsPerComponent ||
@@ -110,7 +112,7 @@ public:
                 break;
         }
 
-        return SkEncodedInfo(color, alpha, bitsPerComponent);
+        return SkEncodedInfo(color, alpha, bitsPerComponent, format);
     }
 
     /*
@@ -183,17 +185,25 @@ public:
         }
     }
 
+    /**
+     * The appropriate ColorFormat to use as a src when using an SkColorSpaceXform.
+     */
+    SkColorSpaceXform::ColorFormat srcFormat() const { return fSrcFormat; }
+
 private:
 
-    SkEncodedInfo(Color color, Alpha alpha, uint8_t bitsPerComponent)
+    SkEncodedInfo(Color color, Alpha alpha, uint8_t bitsPerComponent,
+                  SkColorSpaceXform::ColorFormat format)
         : fColor(color)
         , fAlpha(alpha)
         , fBitsPerComponent(bitsPerComponent)
+        , fSrcFormat(format)
     {}
 
-    Color   fColor;
-    Alpha   fAlpha;
-    uint8_t fBitsPerComponent;
+    Color                           fColor;
+    Alpha                           fAlpha;
+    uint8_t                         fBitsPerComponent;
+    SkColorSpaceXform::ColorFormat  fSrcFormat;
 };
 
 #endif
