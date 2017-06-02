@@ -13,6 +13,8 @@
 #include "SkSurface.h"
 #include "SkSurfacePriv.h"
 
+#include "GrBackendSemaphore.h"
+
 class SkSurface_Base : public SkSurface {
 public:
     SkSurface_Base(int width, int height, const SkSurfaceProps*);
@@ -78,7 +80,26 @@ public:
     /**
      * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
      */
-    virtual void onPrepareForExternalIO() {}
+    virtual void onFlush() {}
+
+#if SK_SUPPORT_GPU
+#include "GrBackendSemaphore.h"
+    /**
+     * Issue any pending surface IO to the current backend 3D API and resolve any surface MSAA.
+     * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
+     * gpu, and it returns an array of GrBackendSemaphores with the signaled semaphores.
+     */
+    virtual std::unique_ptr<GrBackendSemaphore[]> onFlushAndSignalSemaphores(int numSemaphores) {
+        return nullptr;
+    }
+#endif
+
+    /**
+     * Caused the current backend 3D API to wait on the passed in semaphores before executing new
+     * commands on the gpu. Any previously submitting commands will not be blocked by these
+     * semaphores.
+     */
+    virtual void onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {}
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();

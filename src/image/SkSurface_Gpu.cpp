@@ -166,8 +166,16 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTargetContext()->discard();
 }
 
-void SkSurface_Gpu::onPrepareForExternalIO() {
+void SkSurface_Gpu::onFlush() {
     fDevice->flush();
+}
+
+std::unique_ptr<GrBackendSemaphore[]> SkSurface_Gpu::onFlushAndSignalSemaphores(int numSemaphores) {
+    return fDevice->flushAndSignalSemaphores(numSemaphores);
+}
+
+void SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+    fDevice->wait(numSemaphores, waitSemaphores);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

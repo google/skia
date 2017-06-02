@@ -184,7 +184,21 @@ bool SkSurface::getRenderTargetHandle(GrBackendObject* obj, BackendHandleAccess 
 }
 
 void SkSurface::prepareForExternalIO() {
-  asSB(this)->onPrepareForExternalIO();
+    this->flush();
+}
+
+void SkSurface::flush() {
+    asSB(this)->onFlush();
+}
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrBackendSemaphore[]> SkSurface::flushAndSignalSemaphores(int numSemaphores) {
+    return asSB(this)->onFlushAndSignalSemaphores(numSemaphores);
+}
+#endif
+
+void SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+    asSB(this)->onWait(numSemaphores, waitSemaphores);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
