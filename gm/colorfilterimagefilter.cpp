@@ -223,3 +223,30 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
         canvas->translate(0, 150);
     }
 }
+
+DEF_SIMPLE_GM(mixershader, canvas, 910, 460) {
+    SkTRefArray<SkShader*> shaders;
+    sk_gm_get_shaders(&shaders);
+
+    const SkColor colors[] = { 0xFF000000, 0xFFFFFFFF };
+    sk_sp<SkShader> shaderB = SkGradientShader::MakeRadial({60, 60}, 55,
+                                                           colors, nullptr, 2,
+                                                           SkShader::kClamp_TileMode);
+
+    SkPaint paint;
+    SkRect r = SkRect::MakeWH(120, 120);
+
+    canvas->translate(20, 20);
+    for (int y = 0; y < shaders.count(); ++y) {
+        canvas->save();
+        const int count = 6;
+        for (int x = 0; x < count; ++x) {
+            const float t = x * 1.0f / (count - 1);
+            paint.setShader(SkShader::MakeMixer(sk_ref_sp(shaders[y]), shaderB, t));
+            canvas->drawRect(r, paint);
+            canvas->translate(150, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, 150);
+    }
+}
