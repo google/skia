@@ -1571,14 +1571,16 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_BGRA;
         fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_BGRA8;
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
-            // The APPLE extension doesn't make this renderable.
-            fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
-            if (version < GR_GL_VER(3,0) && !ctxInfo.hasExtension("GL_EXT_texture_storage")) {
-                // On ES2 the internal format of a BGRA texture is RGBA with the APPLE extension.
-                // Though, that seems to not be the case if the texture storage extension is
-                // present. The specs don't exactly make that clear.
-                fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fBaseInternalFormat = GR_GL_RGBA;
-                fConfigTable[kBGRA_8888_GrPixelConfig].fFormats.fSizedInternalFormat = GR_GL_RGBA8;
+            // This APPLE extension introduces complexity on ES2. It leaves the internal format
+            // as RGBA, but allows BGRA as the external format. From testing, it appears that the
+            // driver remembers the external format when the texture is created (with TexImage).
+            // If you then try to upload data in the other swizzle (with TexSubImage), it fails.
+            // We could work around this, but it adds even more state tracking to code that is
+            // already too tricky. Instead, we opt not to support BGRA on ES2 with this extension.
+            // This also side-steps some ambiguous interactions with the texture storage extension.
+            if (version >= GR_GL_VER(3,0)) {
+                // The APPLE extension doesn't make this renderable.
+                fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
             }
         } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
             fConfigTable[kBGRA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
@@ -1590,8 +1592,21 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             }
         }
     }
-    if (texStorageSupported) {
-        fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
+
+    bool isX86PowerVR = false;
+#if defined(SK_CPU_X86)
+    if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
+        isX86PowerVR = true;
+    }
+#endif
+
+    // Adreno 3xx, 4xx, 5xx, and NexusPlayer all fail if we try to use TexStorage with BGRA
+    if (texStorageSupported &&
+        kAdreno3xx_GrGLRenderer != ctxInfo.renderer() &&
+        kAdreno4xx_GrGLRenderer != ctxInfo.renderer() &&
+        kAdreno5xx_GrGLRenderer != ctxInfo.renderer() &&
+        !isX86PowerVR) {
+            fConfigTable[kBGRA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kBGRA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
 
@@ -1612,13 +1627,11 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     } else {
         fSRGBSupport = ctxInfo.version() >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_EXT_sRGB");
-#if defined(SK_CPU_X86)
-        if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
-            // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
-            // blacklist that device (and any others that might be sharing the same driver).
+        // NexusPlayer has strange bugs with sRGB (skbug.com/4148). This is a targeted fix to
+        // blacklist that device (and any others that might be sharing the same driver).
+        if (isX86PowerVR) {
             fSRGBSupport = false;
         }
-#endif
         // ES through 3.1 requires EXT_srgb_write_control to support toggling
         // sRGB writing for destinations.
         // See https://bug.skia.org/5329 for Adreno4xx issue.
@@ -1642,6 +1655,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fSRGBSupport = false;
     }
 
+    // ES2 Command Buffer has several TexStorage restrictions. It appears to fail for any format
+    // not explicitly allowed by GL_EXT_texture_storage, particularly those from other extensions.
+    bool isCommandBufferES2 = kChromium_GrGLDriver == ctxInfo.driver() && version < GR_GL_VER(3, 0);
+
     uint32_t srgbRenderFlags = allRenderFlags;
     // MacPro devices with AMD cards fail to create MSAA sRGB render buffers
 #if defined(SK_BUILD_FOR_MAC)
@@ -1662,7 +1679,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag |
                                                          srgbRenderFlags;
     }
-    if (texStorageSupported) {
+    // ES2 Command Buffer does not allow TexStorage with SRGB8_ALPHA8_EXT
+    if (texStorageSupported && !isCommandBufferES2) {
         fConfigTable[kSRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
     fConfigTable[kSRGBA_8888_GrPixelConfig].fSwizzle = GrSwizzle::RGBA();
@@ -1789,7 +1807,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= allRenderFlags;
     }
-    if (texStorageSupported) {
+    // ES2 Command Buffer does not allow TexStorage with R8_EXT (so Alpha_8 and Gray_8)
+    if (texStorageSupported && !isCommandBufferES2) {
         fConfigTable[kAlpha_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 
@@ -1822,7 +1841,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kGray_8_GrPixelConfig].fFlags |= allRenderFlags;
     }
 #endif
-    if (texStorageSupported) {
+    if (texStorageSupported && !isCommandBufferES2) {
         fConfigTable[kGray_8_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
     }
 

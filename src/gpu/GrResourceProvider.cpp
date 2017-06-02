@@ -65,7 +65,7 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
             return false;
         }
     }
-    if (levelCount > 1 && GrPixelConfigIsSint(desc.fConfig)) {
+    if (levelCount > 1 && (GrPixelConfigIsSint(desc.fConfig) || !caps.mipMapSupport())) {
         return false;
     }
     return true;
