@@ -241,6 +241,7 @@ gm_sources = [
   "$_gm/rrects.cpp",
   "$_gm/samplerstress.cpp",
   "$_gm/scaledstrokes.cpp",
+  "$_gm/sdf.cpp",
   "$_gm/shaderbounds.cpp",
   "$_gm/shadertext.cpp",
   "$_gm/shadertext2.cpp",
