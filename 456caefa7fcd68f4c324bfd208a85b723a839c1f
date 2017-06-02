@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8107302_4d95217d",
+        "filename": "src/shaders/SkMixerShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-02T12:24:54Z",
+      "side": 1,
+      "message": "Might want to update this a little?",
+      "range": {
+        "startLine": 82,
+        "startChar": 79,
+        "endLine": 82,
+        "endChar": 91
+      },
+      "revId": "456caefa7fcd68f4c324bfd208a85b723a839c1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
