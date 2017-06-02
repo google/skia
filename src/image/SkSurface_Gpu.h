@@ -26,7 +26,9 @@ public:
     sk_sp<SkImage> onNewImageSnapshot() override;
     void onCopyOnWrite(ContentChangeMode) override;
     void onDiscard() override;
-    void onPrepareForExternalIO() override;
+    void onFlush() override;
+    std::unique_ptr<GrBackendSemaphore[]> onFlushAndSignalSemaphores(int numSemaphores) override;
+    void onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
