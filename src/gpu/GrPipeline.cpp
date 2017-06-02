@@ -112,15 +112,19 @@ void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
     }
 }
 
-GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
-        : fRenderTarget(rt)
-        , fScissorState()
-        , fWindowRectsState()
-        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-        , fFlags()
-        , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
-        , fFragmentProcessors()
-        , fNumColorProcessors(0) {}
+GrPipeline::GrPipeline(GrRenderTarget* rt, ScissorState scissorState, SkBlendMode blendmode)
+    : fRenderTarget(rt)
+    , fScissorState()
+    , fWindowRectsState()
+    , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+    , fFlags()
+    , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
+    , fFragmentProcessors()
+    , fNumColorProcessors(0) {
+    if (ScissorState::kEnabled == scissorState) {
+        fScissorState.set({0, 0, 0, 0}); // caller will use the DynamicState struct.
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

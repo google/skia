@@ -364,9 +364,9 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 
 void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrRenderTarget* rt = fState->drawOpArgs().fRenderTarget;
-    GrPipeline pipeline(rt, SkBlendMode::kSrc);
+    GrPipeline pipeline(rt, GrPipeline::ScissorState::kDisabled, SkBlendMode::kSrc);
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->commandBuffer()->draw(pipeline, mtp, &mesh, 1,
+    fState->commandBuffer()->draw(pipeline, mtp, &mesh, nullptr, 1,
                                   SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 

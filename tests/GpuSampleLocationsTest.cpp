@@ -91,10 +91,6 @@ public:
     virtual ~TestSampleLocationsInterface() {}
 };
 
-static sk_sp<GrPipeline> construct_dummy_pipeline(GrRenderTargetContext* dc) {
-    return sk_sp<GrPipeline>(new GrPipeline(dc->accessRenderTarget(), SkBlendMode::kSrcOver));
-}
-
 void assert_equal(skiatest::Reporter* reporter, const SamplePattern& pattern,
                   const GrGpu::MultisampleSpecs& specs, bool flipY) {
     GrAlwaysAssert(specs.fSampleLocations);
@@ -137,10 +133,12 @@ void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInter
         for (int i = 0; i < numTestPatterns; ++i) {
             testInterface->overrideSamplePattern(kTestPatterns[i]);
             for (GrRenderTargetContext* dc : {bottomUps[i].get(), topDowns[i].get()}) {
-                sk_sp<GrPipeline> dummyPipeline = construct_dummy_pipeline(dc);
+                GrPipeline dummyPipeline(dc->accessRenderTarget(),
+                                         GrPipeline::ScissorState::kDisabled,
+                                         SkBlendMode::kSrcOver);
                 GrRenderTarget* rt = dc->accessRenderTarget();
                 assert_equal(reporter, kTestPatterns[i],
-                             rt->renderTargetPriv().getMultisampleSpecs(*dummyPipeline),
+                             rt->renderTargetPriv().getMultisampleSpecs(dummyPipeline),
                              kBottomLeft_GrSurfaceOrigin == rt->origin());
             }
         }
