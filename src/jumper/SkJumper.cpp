@@ -170,8 +170,8 @@ static SkJumper_Engine choose_engine() {
     return kPortable;
 }
 
-void SkRasterPipeline::BuildPipeline(const StageList* st,
-                                     const SkJumper_Engine& engine, void** ip) {
+void SkRasterPipeline::build_pipeline(const SkJumper_Engine& engine, void** ip) const {
+    const StageList* st = fStages;
     // We're building the pipeline backwards, so we start with the final stage just_return.
     *--ip = (void*)engine.just_return;
 
@@ -193,7 +193,7 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
-    BuildPipeline(fStages, gEngine, program.get() + fSlotsNeeded);
+    this->build_pipeline(gEngine, program.get() + fSlotsNeeded);
     gEngine.start_pipeline(x,y,x+n, program.get(), &kConstants);
 }
 
@@ -204,7 +204,7 @@ std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
     void** program = fAlloc->makeArray<void*>(fSlotsNeeded);
-    BuildPipeline(fStages, gEngine, program + fSlotsNeeded);
+    this->build_pipeline(gEngine, program + fSlotsNeeded);
 
     return [=](size_t x, size_t y, size_t n) {
         gEngine.start_pipeline(x,y,x+n, program, &kConstants);
