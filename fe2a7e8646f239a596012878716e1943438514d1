@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acdae5a5_595eebb6",
+        "filename": "src/gpu/GrProcessorAnalysis.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T19:48:37Z",
+      "side": 1,
+      "message": "The old implementation was actually trying to implement this new contract, but had a bug. I fixed the bug and made the comment reflect the real intended contract.",
+      "range": {
+        "startLine": 120,
+        "startChar": 37,
+        "endLine": 121,
+        "endChar": 77
+      },
+      "revId": "fe2a7e8646f239a596012878716e1943438514d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8957c4e_c75d958a",
+        "filename": "src/gpu/GrProcessorAnalysis.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-02T19:48:37Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 128,
+        "startChar": 64,
+        "endLine": 130,
+        "endChar": 23
+      },
+      "revId": "fe2a7e8646f239a596012878716e1943438514d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
