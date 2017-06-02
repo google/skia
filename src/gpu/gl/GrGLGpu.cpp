@@ -2444,6 +2444,7 @@ GrGLenum gPrimitiveType2GLMode[] = {
 void GrGLGpu::draw(const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
                    const GrMesh meshes[],
+                   const GrPipeline::DynamicState dynamicStates[],
                    int meshCount) {
     this->handleDirtyContext();
 
@@ -2461,6 +2462,14 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
     for (int i = 0; i < meshCount; ++i) {
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
             this->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        }
+
+        if (dynamicStates) {
+            if (pipeline.getScissorState().enabled()) {
+                GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+                this->flushScissor(dynamicStates[i].fScissorRect,
+                                   glRT->getViewport(), glRT->origin());
+            }
         }
 
         meshes[i].sendToGpu(primProc, this);

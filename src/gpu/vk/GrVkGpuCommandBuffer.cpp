@@ -468,7 +468,8 @@ void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
 sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
                                                                const GrPipeline& pipeline,
                                                                const GrPrimitiveProcessor& primProc,
-                                                               GrPrimitiveType primitiveType) {
+                                                               GrPrimitiveType primitiveType,
+                                                               bool hasDynamicState) {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     SkASSERT(cbInfo.fRenderPass);
 
@@ -492,7 +493,18 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 
     pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
 
-    GrVkPipeline::SetDynamicState(fGpu, cbInfo.currentCmdBuf(), pipeline);
+    GrRenderTarget* rt = pipeline.getRenderTarget();
+
+    if (!pipeline.getScissorState().enabled()) {
+        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), rt,
+                                                 SkIRect::MakeWH(rt->width(), rt->height()));
+    } else if (!hasDynamicState) {
+        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), rt,
+                                                 pipeline.getScissorState().rect());
+    }
+    GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
+    GrVkPipeline::SetDynamicBlendConstantState(fGpu, cbInfo.currentCmdBuf(), rt->config(),
+                                               pipeline.getXferProcessor());
 
     return pipelineState;
 }
@@ -533,7 +545,8 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
 
 void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                                   const GrPrimitiveProcessor& primProc,
-                                  const GrMesh* meshes,
+                                  const GrMesh meshes[],
+                                  const GrPipeline::DynamicState dynamicStates[],
                                   int meshCount,
                                   const SkRect& bounds) {
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.getRenderTarget());
@@ -557,10 +570,13 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
     GrPrimitiveType primitiveType = meshes[0].primitiveType();
     sk_sp<GrVkPipelineState> pipelineState = this->prepareDrawState(pipeline,
                                                                     primProc,
-                                                                    primitiveType);
+                                                                    primitiveType,
+                                                                    SkToBool(dynamicStates));
     if (!pipelineState) {
         return;
     }
+
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
@@ -573,9 +589,17 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
             primitiveType = mesh.primitiveType();
             pipelineState = this->prepareDrawState(pipeline,
                                                    primProc,
-                                                   primitiveType);
+                                                   primitiveType,
+                                                   SkToBool(dynamicStates));
             if (!pipelineState) {
                 return;
+            }
+        }
+
+        if (dynamicStates) {
+            if (pipeline.getScissorState().enabled()) {
+                GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
+                                                         target, dynamicStates[i].fScissorRect);
             }
         }
 
@@ -583,7 +607,6 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         mesh.sendToGpu(primProc, this);
     }
 
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     cbInfo.fBounds.join(bounds);
     cbInfo.fIsEmpty = false;
 
