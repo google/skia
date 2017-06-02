@@ -90,9 +90,6 @@ public:
      */
     void append(const void* buffer, size_t length, size_t reserve = 0);
 
-    SkROBuffer* newRBufferSnapshot() const;
-    SkStreamAsset* newStreamSnapshot() const;
-
     sk_sp<SkROBuffer> makeROBufferSnapshot() const {
         return sk_sp<SkROBuffer>(new SkROBuffer(fHead, fTotalUsed, fTail));
     }
