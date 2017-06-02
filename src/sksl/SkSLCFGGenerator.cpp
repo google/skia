@@ -465,13 +465,17 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::kVarDeclarations_Kind: {
             VarDeclarationsStatement& decls = ((VarDeclarationsStatement&) **s);
-            for (auto& vd : decls.fDeclaration->fVars) {
-                if (vd->fValue) {
-                    this->addExpression(cfg, &vd->fValue, true);
+            for (auto& stmt : decls.fDeclaration->fVars) {
+                if (stmt->fKind == Statement::kNop_Kind) {
+                    continue;
                 }
+                VarDeclaration& vd = (VarDeclaration&) *stmt;
+                if (vd.fValue) {
+                    this->addExpression(cfg, &vd.fValue, true);
+                }
+                cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind,
+                                                             false, nullptr, &stmt });
             }
-            cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
-                                                         nullptr, s });
             break;
         }
         case Statement::kDiscard_Kind:
