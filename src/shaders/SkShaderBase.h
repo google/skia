@@ -204,6 +204,7 @@ public:
 
     virtual bool isRasterPipelineOnly() const { return false; }
 
+    // If this returns false, then we draw nothing (do not fall back to shader context)
     bool appendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                       const SkMatrix& ctm, const SkPaint&, const SkMatrix* localM=nullptr) const;
 
@@ -247,6 +248,7 @@ protected:
         return sk_ref_sp(const_cast<SkShaderBase*>(this));
     }
 
+    // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                                 const SkMatrix&, const SkPaint&, const SkMatrix* localM) const;
 
