@@ -62,8 +62,6 @@ public:
     void flushIfNecessary() {
         if (fContext->getResourceCache()->requestsFlush()) {
             this->internalFlush(nullptr, GrResourceCache::kCacheRequested);
-        } else if (fIsImmediateMode) {
-            this->internalFlush(nullptr, GrResourceCache::kImmediateMode);
         }
     }
 
@@ -77,7 +75,7 @@ public:
 private:
     GrDrawingManager(GrContext* context,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
-                     bool isImmediateMode, GrSingleOwner* singleOwner)
+                     GrSingleOwner* singleOwner)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fSingleOwner(singleOwner)
@@ -86,8 +84,7 @@ private:
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushState(context->getGpu(), context->resourceProvider())
-        , fFlushing(false)
-        , fIsImmediateMode(isImmediateMode) {
+        , fFlushing(false) {
     }
 
     void abandon();
@@ -121,8 +118,6 @@ private:
 
     GrOpFlushState                    fFlushState;
     bool                              fFlushing;
-
-    bool                              fIsImmediateMode;
 
     SkTArray<GrOnFlushCallbackObject*> fOnFlushCBObjects;
 

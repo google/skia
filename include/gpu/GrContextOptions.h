@@ -36,10 +36,6 @@ struct GrContextOptions {
     /** some gpus have problems with partial writes of the rendertarget */
     bool fUseDrawInsteadOfPartialRenderTargetWrite = false;
 
-    /** The GrContext operates in immediate mode. It will issue all draws to the backend API
-        immediately. Intended to ease debugging. */
-    bool fImmediateMode = false;
-
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
     bool fUseShaderSwizzling = false;

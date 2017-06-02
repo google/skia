@@ -684,8 +684,6 @@ uint32_t GrResourceCache::getNextTimestamp() {
 
 void GrResourceCache::notifyFlushOccurred(FlushType type) {
     switch (type) {
-        case FlushType::kImmediateMode:
-            break;
         case FlushType::kCacheRequested:
             SkASSERT(fRequestFlush);
             fRequestFlush = false;

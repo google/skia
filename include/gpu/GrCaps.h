@@ -165,8 +165,6 @@ public:
 
     bool suppressPrints() const { return fSuppressPrints; }
 
-    bool immediateFlush() const { return fImmediateFlush; }
-
     size_t bufferMapThreshold() const {
         SkASSERT(fBufferMapThreshold >= 0);
         return fBufferMapThreshold;
@@ -261,7 +259,6 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
 
     bool fSuppressPrints : 1;
-    bool fImmediateFlush : 1;
     bool fWireframeMode  : 1;
 
     typedef SkRefCnt INHERITED;

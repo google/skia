@@ -191,7 +191,6 @@ public:
 
     enum FlushType {
         kExternal,
-        kImmediateMode,
         kCacheRequested,
     };
     void notifyFlushOccurred(FlushType);

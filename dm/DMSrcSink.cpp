@@ -1307,12 +1307,10 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
     , fColorSpace(std::move(colorSpace))
     , fThreaded(threaded) {}
 
-DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
-    grOptions.fImmediateMode = FLAGS_imm;
 
     src.modifyGrContextOptions(&grOptions);
 
