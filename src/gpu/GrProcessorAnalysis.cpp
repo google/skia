@@ -27,14 +27,17 @@ void GrColorFragmentProcessorAnalysis::analyzeProcessors(
             // processors.
             fAllProcessorsCompatibleWithCoverageAsAlpha = true;
             fUsesLocalCoords = false;
-        } else if (fIsOpaque && !fp->preservesOpaqueInput()) {
-            fIsOpaque = false;
-        }
-        if (fAllProcessorsCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
-            fAllProcessorsCompatibleWithCoverageAsAlpha = false;
-        }
-        if (fp->usesLocalCoords()) {
-            fUsesLocalCoords = true;
+        } else {
+            if (fIsOpaque && !fp->preservesOpaqueInput()) {
+                fIsOpaque = false;
+            }
+            if (fAllProcessorsCompatibleWithCoverageAsAlpha &&
+                !fp->compatibleWithCoverageAsAlpha()) {
+                fAllProcessorsCompatibleWithCoverageAsAlpha = false;
+            }
+            if (fp->usesLocalCoords()) {
+                fUsesLocalCoords = true;
+            }
         }
         ++fTotalProcessorsVisited;
     }

@@ -117,16 +117,17 @@ public:
 
     /**
      * Are all the fragment processors compatible with conflating coverage with color prior to the
-     * the first fragment processor. This result does not consider processors that should be
-     * eliminated as indicated by initialProcessorsToEliminate().
+     * the first fragment processor. This result assumes that processors that should be eliminated
+     * as indicated by initialProcessorsToEliminate() are in fact eliminated.
      */
     bool allProcessorsCompatibleWithCoverageAsAlpha() const {
         return fAllProcessorsCompatibleWithCoverageAsAlpha;
     }
 
     /**
-     * Do any of the fragment processors require local coords. This result does not consider
-     * processors that should be eliminated as indicated by initialProcessorsToEliminate().
+     * Do any of the fragment processors require local coords. This result assumes that
+     * processors that should be eliminated as indicated by initialProcessorsToEliminate() are in
+     * fact eliminated.
      */
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
