@@ -27,10 +27,6 @@ bool SkColorFilter::asColorMode(SkColor*, SkBlendMode*) const {
     return false;
 }
 
-bool SkColorFilter::asColorMatrix(SkScalar matrix[20]) const {
-    return false;
-}
-
 bool SkColorFilter::asComponentTable(SkBitmap*) const {
     return false;
 }
