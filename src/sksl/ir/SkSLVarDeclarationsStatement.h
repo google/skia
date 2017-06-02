@@ -31,7 +31,7 @@ struct VarDeclarationsStatement : public Statement {
     }
 
     String description() const override {
-        return fDeclaration->description();
+        return fDeclaration->description() + ";";
     }
 
     std::shared_ptr<VarDeclarations> fDeclaration;
