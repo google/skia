@@ -330,6 +330,10 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
         if (0 == strncmp(rendererString, kMaliTStr, SK_ARRAY_COUNT(kMaliTStr) - 1)) {
             return kMaliT_GrGLRenderer;
         }
+        static const char kANGLEStr[] = "ANGLE";
+        if (0 == strncmp(rendererString, kANGLEStr, SK_ARRAY_COUNT(kANGLEStr) - 1)) {
+            return kANGLE_GrGLRenderer;
+        }
     }
     return kOther_GrGLRenderer;
 }
