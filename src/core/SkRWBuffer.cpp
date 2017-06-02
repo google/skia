@@ -245,10 +245,6 @@ void SkRWBuffer::validate() const {
 }
 #endif
 
-SkROBuffer* SkRWBuffer::newRBufferSnapshot() const {
-    return new SkROBuffer(fHead, fTotalUsed, fTail);
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkROBufferStreamAsset : public SkStreamAsset {
@@ -358,10 +354,6 @@ private:
     size_t            fLocalOffset;
     size_t            fGlobalOffset;
 };
-
-SkStreamAsset* SkRWBuffer::newStreamSnapshot() const {
-    return new SkROBufferStreamAsset(this->makeROBufferSnapshot());
-}
 
 std::unique_ptr<SkStreamAsset> SkRWBuffer::makeStreamSnapshot() const {
     return skstd::make_unique<SkROBufferStreamAsset>(this->makeROBufferSnapshot());
