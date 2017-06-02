@@ -621,24 +621,22 @@ void Viewer::setupCurrentSlide(int previousSlide) {
     fDefaultMatrix.reset();
     fDefaultMatrixInv.reset();
 
-    if (fWindow->supportsContentRect() && fWindow->scaleContentToFit()) {
-        const SkRect contentRect = fWindow->getContentRect();
-        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-        const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
-        if (contentRect.width() > 0 && contentRect.height() > 0) {
-            fDefaultMatrix.setRectToRect(slideBounds, contentRect, SkMatrix::kStart_ScaleToFit);
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+
+    // Start with a matrix that scales the slide to the available screen space
+    if (fWindow->scaleContentToFit()) {
+        if (windowRect.width() > 0 && windowRect.height() > 0) {
+            fDefaultMatrix.setRectToRect(slideBounds, windowRect, SkMatrix::kStart_ScaleToFit);
             SkAssertResult(fDefaultMatrix.invert(&fDefaultMatrixInv));
         }
     }
 
-    if (fWindow->supportsContentRect()) {
-        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-        SkRect windowRect = fWindow->getContentRect();
-        fDefaultMatrixInv.mapRect(&windowRect);
-        fGesture.setTransLimit(SkRect::MakeWH(SkIntToScalar(slideSize.width()), 
-                                              SkIntToScalar(slideSize.height())),
-                               windowRect);
-    }
+    // Prevent the user from dragging content so far outside the window they can't find it again
+    SkRect mappedWindowRect = windowRect;
+    fDefaultMatrixInv.mapRect(&mappedWindowRect);
+    fGesture.setTransLimit(slideBounds, mappedWindowRect);
 
     this->updateTitle();
     this->updateUIState();
@@ -736,12 +734,6 @@ void Viewer::setColorMode(ColorMode colorMode) {
 
 void Viewer::drawSlide(SkCanvas* canvas) {
     SkAutoCanvasRestore autorestore(canvas, false);
-
-    if (fWindow->supportsContentRect()) {
-        SkRect contentRect = fWindow->getContentRect();
-        canvas->clipRect(contentRect);
-        canvas->translate(contentRect.fLeft, contentRect.fTop);
-    }
 
     // By default, we render directly into the window's surface/canvas
     SkCanvas* slideCanvas = canvas;
@@ -907,12 +899,6 @@ void Viewer::drawStats(SkCanvas* canvas) {
                                    SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
     SkPaint paint;
     canvas->save();
-
-    if (fWindow->supportsContentRect()) {
-        SkRect contentRect = fWindow->getContentRect();
-        canvas->clipRect(contentRect);
-        canvas->translate(contentRect.fLeft, contentRect.fTop);
-    }
 
     canvas->clipRect(rect);
     paint.setColor(SK_ColorBLACK);

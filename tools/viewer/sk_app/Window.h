@@ -38,8 +38,6 @@ public:
     void inval();
 
     virtual bool scaleContentToFit() const { return false; }
-    virtual bool supportsContentRect() const { return false; }
-    virtual SkRect getContentRect() { return SkRect::MakeEmpty(); }
 
     enum BackendType {
         kNativeGL_BackendType,
