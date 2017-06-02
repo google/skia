@@ -226,3 +226,93 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
   canvas->drawPath(path, p);
 }
+
+struct data {
+   const char* name;
+   char super;
+   int yn[10];
+};
+
+const data dataSet[] = {
+{ "arcTo sweep",    '1', {1,  3, 1, 0, 0, 0, 0, 1, 0, 0 }},
+{ "drawArc",         0,  {1, -1, 1, 1, 1, 1, 1, 0, 0, 0 }},
+{ "addArc",          0,  {1,  1, 1, 4, 0, 1, 1, 1, 0, 0 }},
+{ "arcTo tangents", '4', {0,  0, 0, 0, 0, 0, 0, 1, 1, 0 }},
+{ "arcTo radii",    '5', {1,  0, 1, 0, 0, 0, 0, 1, 1, 0 }},
+{ "conicTo",         0,  {1,  1, 0, 0, 0, 0, 0, 1, 1, 1 }}
+};
+
+#define __degree_symbol__ "\xC2" "\xB0"
+
+const char* headers[] = {
+    "Oval part",
+    "force moveTo",
+    "can draw 180" __degree_symbol__,
+    "can draw 360" __degree_symbol__,
+    "can draw greater than 360" __degree_symbol__,
+    "ignored if radius is zero",
+    "ignored if sweep is zero",
+    "requires Path",
+    "describes rotation",
+    "describes perspective",
+};
+
+const char* yna[] = {
+     "n/a",
+     "no",
+     "yes"
+};
+
+DEF_SIMPLE_GM(arcTable, canvas, 560, 285) {
+    canvas->clear(SK_ColorWHITE);
+    SkPaint lp;
+    lp.setAntiAlias(true);
+    SkPaint tp(lp);
+    SkPaint sp(tp);
+    SkPaint bp(tp);
+    bp.setFakeBoldText(true);
+    sp.setTextSize(10);
+    lp.setColor(SK_ColorGRAY);
+    canvas->translate(0, 24);
+    const int colX = 100;
+    const int colY = 100;
+    const int colW = 35;
+    const int headerL = 100;
+    const int rowH = 25;
+    const int rowL = 350;
+
+    for (unsigned col = 0; col <= SK_ARRAY_COUNT(headers); ++col) {
+       canvas->drawLine(colX + col * colW, colY, colX + col * colW, 250, lp);
+       if (0 == col) {
+          continue;
+       }
+       canvas->drawLine(colX + col * colW, colY, 200 + col * colW, 0, lp);
+       SkPath path;
+       path.moveTo(97 + col * colW, 103);
+       path.lineTo(224 + col * colW, -24);
+       canvas->drawTextOnPathHV(headers[col -1], strlen(headers[col -1]), path, 0, -9, bp);
+    }
+    for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {
+        if (0 == row) {
+            canvas->drawLine(colX, colY, 450, 100, lp);
+        } else {
+            canvas->drawLine(5, colX + row * rowH, 450, 100 + row * rowH, lp);
+        }
+        if (row == SK_ARRAY_COUNT(dataSet)) {
+            break;
+        }
+        canvas->drawString(dataSet[row].name, 5, 117 + row * 25, bp);
+        if (dataSet[row].super) {
+            SkScalar width = bp.measureText(dataSet[row].name, strlen(dataSet[row].name));
+            canvas->drawText(&dataSet[row].super, 1, 8 + width, 112 + row * rowH, sp);
+        }
+        for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {
+            int val = dataSet[row].yn[col];
+            canvas->drawString(yna[SkTMin(2, val + 1)], 105 + col * colW, 117 + row * rowH, tp);
+            if (val > 1) {
+                char supe = '0' + val - 1;
+                canvas->drawText(&supe, 1, 125 + col * colW, 112 + row * rowH, sp);
+            }
+        }
+    }
+}
