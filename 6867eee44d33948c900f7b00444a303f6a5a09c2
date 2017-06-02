@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62907013_03c08cf8",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-02T21:22:10Z",
+      "side": 0,
+      "message": "This preserves the old behavior, but this was wrong - we should be using the alpha of the frame, like we do in SkWebpCodec. (But maybe it doesn\u0027t matter because the colors are either opaque or transparent black?)",
+      "range": {
+        "startLine": 524,
+        "startChar": 8,
+        "endLine": 525,
+        "endChar": 91
+      },
+      "revId": "6867eee44d33948c900f7b00444a303f6a5a09c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00486107_120a25da",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1043,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-02T21:22:10Z",
+      "side": 0,
+      "message": "Unlike the others, this SkAlphaType was computed once per image decode. We could replicate that in SkCodec if we want to.",
+      "range": {
+        "startLine": 1043,
+        "startChar": 12,
+        "endLine": 1043,
+        "endChar": 48
+      },
+      "revId": "6867eee44d33948c900f7b00444a303f6a5a09c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

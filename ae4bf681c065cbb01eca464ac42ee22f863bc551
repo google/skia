@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5336cbc_ec3b0fc2",
+        "filename": "include/codec/SkEncodedInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-02T21:22:10Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure this was the best place to put this. As I point out in the commit message, this doesn\u0027t quite match the encoded src, but it does make some things simpler.\n\nSome alternatives that might be less simple:\n- add another parameter to every SkCodec constructor, and store it in SkCodec\n- add a virtual method to SkCodec (Hmm - should the EncodedFormat be on the EncodedInfo, too? That would remove the virtual from getEncodedFormat. And it seems more appropriate than this one.)",
+      "range": {
+        "startLine": 191,
+        "startChar": 4,
+        "endLine": 191,
+        "endChar": 71
+      },
+      "revId": "ae4bf681c065cbb01eca464ac42ee22f863bc551",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb330112_47219404",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-02T21:22:10Z",
+      "side": 1,
+      "message": "This should be exactly the same as the old method in SkCodecPriv.h. I consolidated the calls here, so no need to have it anywhere else.",
+      "range": {
+        "startLine": 477,
+        "startChar": 45,
+        "endLine": 477,
+        "endChar": 67
+      },
+      "revId": "ae4bf681c065cbb01eca464ac42ee22f863bc551",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
