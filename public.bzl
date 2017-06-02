@@ -239,8 +239,6 @@ BASE_SRCS_IOS = struct(
         "src/codec/*Png*",
         "src/codec/*Raw*.cpp",
         "src/opts/*mips*",
-        "src/opts/*NEON*",
-        "src/opts/*neon*",
         "src/opts/*SSE2*",
         "src/opts/*SSSE3*",
         "src/opts/*ssse3*",
@@ -249,7 +247,7 @@ BASE_SRCS_IOS = struct(
         "src/opts/*avx*",
         "src/opts/*hsw*",
         "src/opts/*x86*",
-        "src/opts/SkBlitMask_opts_arm*.cpp",
+        "src/opts/SkBlitMask_opts_arm.cpp",
         "src/opts/SkBlitRow_opts_arm*.cpp",
         "src/ports/*CG*",
         "src/ports/*FontConfig*",
@@ -649,9 +647,7 @@ DEFINES_ANDROID = [
 
 DEFINES_IOS = [
     "SK_BUILD_FOR_IOS",
-    "SK_BUILD_NO_OPTS",
     "SK_HAS_JPEG_LIBRARY",
-    "SKNX_NO_SIMD",
 ]
 
 DEFINES_ALL = [
