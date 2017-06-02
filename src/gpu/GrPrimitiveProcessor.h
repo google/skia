@@ -114,10 +114,6 @@ public:
         return 0.0;
     }
 
-    /* Sub-class should override and return true if this primitive processor implements the distance
-     * vector field, a field of vectors to the nearest point in the edge of the shape.  */
-    virtual bool implementsDistanceVector() const { return false; }
-
 protected:
     /**
      * Subclasses call these from their constructor to register vertex and instance attributes.

@@ -33,7 +33,6 @@ public:
                                                 const GrShaderCaps*);
 
     static std::unique_ptr<GrDrawOp> MakeRRectOp(GrPaint&&,
-                                                 bool needsDistance,
                                                  const SkMatrix&,
                                                  const SkRRect&,
                                                  const SkStrokeRec&,

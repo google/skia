@@ -31,11 +31,7 @@ inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(const GrPaint& paint,
                                                       const SkRect& rect,
                                                       const SkRect& croppedRect,
                                                       const SkRect& devRect) {
-    if (!paint.usesDistanceVectorField()) {
-        return GrAAFillRectOp::Make(paint.getColor(), viewMatrix, croppedRect, devRect);
-    } else {
-        return GrAnalyticRectOp::Make(paint.getColor(), viewMatrix, rect, croppedRect, devRect);
-    }
+    return GrAAFillRectOp::Make(paint.getColor(), viewMatrix, croppedRect, devRect);
 }
 
 inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(GrColor color,

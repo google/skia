@@ -59,8 +59,7 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                        coordVars,
                        textureSamplers,
                        texelBuffers,
-                       imageStorages,
-                       args.fGpImplementsDistanceVector);
+                       imageStorages);
     this->childProcessor(childIndex)->emitCode(childArgs);
     fragBuilder->codeAppend("}\n");
 

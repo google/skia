@@ -22,7 +22,6 @@ samples_sources = [
   "$_samplecode/SampleAnimBlur.cpp",
   "$_samplecode/SampleArc.cpp",
   "$_samplecode/SampleAtlas.cpp",
-  "$_samplecode/SampleBevel.cpp",
   "$_samplecode/SampleBigBlur.cpp",
   "$_samplecode/SampleBigGradient.cpp",
   "$_samplecode/SampleBitmapRect.cpp",

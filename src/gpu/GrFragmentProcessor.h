@@ -114,11 +114,6 @@ public:
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
 
-    /** Does this FP need a vector to the nearest edge? */
-    bool usesDistanceVectorField() const {
-        return SkToBool(fFlags & kUsesDistanceVectorField_Flag);
-    }
-
     /**
      * A GrDrawOp may premultiply its antialiasing coverage into its GrGeometryProcessor's color
      * output under the following scenario:
@@ -295,12 +290,6 @@ protected:
      */
     int registerChildProcessor(sk_sp<GrFragmentProcessor> child);
 
-    /**
-     * Sub-classes should call this in their constructors if they need access to a distance
-     * vector field to the nearest edge
-     */
-    void setWillUseDistanceVectorField() { fFlags |= kUsesDistanceVectorField_Flag; }
-
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
     void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
@@ -334,7 +323,6 @@ private:
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
         kUsesLocalCoords_Flag = kFirstPrivateFlag,
-        kUsesDistanceVectorField_Flag = kFirstPrivateFlag << 1,
     };
 
     mutable uint32_t fFlags = 0;

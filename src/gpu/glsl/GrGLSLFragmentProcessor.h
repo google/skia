@@ -105,9 +105,6 @@ public:
         @param imageStorages     Contains one entry for each ImageStorageAccess of the GrProcessor.
                                  These can be passed to the builder to emit image loads and stores
                                  in the generated code.
-        @param gpImplementsDistanceVector
-                                 Does the GrGeometryProcessor implement the feature where it
-                                 provides a vector to the nearest edge of the shape being rendered.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -119,19 +116,17 @@ public:
                  const TransformedCoordVars& transformedCoordVars,
                  const TextureSamplers& textureSamplers,
                  const TexelBuffers& texelBuffers,
-                 const ImageStorages& imageStorages,
-                 bool gpImplementsDistanceVector)
-            : fFragBuilder(fragBuilder)
-            , fUniformHandler(uniformHandler)
-            , fShaderCaps(caps)
-            , fFp(fp)
-            , fOutputColor(outputColor)
-            , fInputColor(inputColor)
-            , fTransformedCoords(transformedCoordVars)
-            , fTexSamplers(textureSamplers)
-            , fTexelBuffers(texelBuffers)
-            , fImageStorages(imageStorages)
-            , fGpImplementsDistanceVector(gpImplementsDistanceVector) {}
+                 const ImageStorages& imageStorages)
+                : fFragBuilder(fragBuilder)
+                , fUniformHandler(uniformHandler)
+                , fShaderCaps(caps)
+                , fFp(fp)
+                , fOutputColor(outputColor)
+                , fInputColor(inputColor)
+                , fTransformedCoords(transformedCoordVars)
+                , fTexSamplers(textureSamplers)
+                , fTexelBuffers(texelBuffers)
+                , fImageStorages(imageStorages) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -142,7 +137,6 @@ public:
         const TextureSamplers& fTexSamplers;
         const TexelBuffers& fTexelBuffers;
         const ImageStorages& fImageStorages;
-        bool fGpImplementsDistanceVector;
     };
 
     virtual void emitCode(EmitArgs&) = 0;

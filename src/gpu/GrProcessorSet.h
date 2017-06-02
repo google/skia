@@ -52,8 +52,6 @@ public:
         return sk_ref_sp(fXP.fProcessor);
     }
 
-    bool usesDistanceVectorField() const { return SkToBool(fFlags & kUseDistanceVectorField_Flag); }
-
     /** Comparisons are only legal on finalized processor sets. */
     bool operator==(const GrProcessorSet& that) const;
     bool operator!=(const GrProcessorSet& that) const { return !(*this == that); }
@@ -143,7 +141,7 @@ private:
     // This absurdly large limit allows Analysis and this to pack fields together.
     static constexpr int kMaxColorProcessors = UINT8_MAX;
 
-    enum Flags : uint16_t { kUseDistanceVectorField_Flag = 0x1, kFinalized_Flag = 0x2 };
+    enum Flags : uint16_t { kFinalized_Flag = 0x1 };
 
     union XP {
         XP(const GrXPFactory* factory) : fFactory(factory) {}

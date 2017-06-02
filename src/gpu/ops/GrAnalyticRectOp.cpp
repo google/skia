@@ -60,8 +60,6 @@ public:
         fInWidthHeight = &this->addVertexAttrib("inWidthHeight", kVec2f_GrVertexAttribType);
     }
 
-    bool implementsDistanceVector() const override { return true; }
-
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inRectEdge() const { return fInRectEdge; }
@@ -141,46 +139,17 @@ public:
             fragBuilder->codeAppendf("float perpDot = abs(offset.x * %s.w - offset.y * %s.z);",
                                      rectEdgeVary.fsIn(), rectEdgeVary.fsIn());
 
-            if (args.fDistanceVectorName) {
-                fragBuilder->codeAppendf("float widthDistance = %s.x - perpDot;",
-                                         widthHeightVary.fsIn());
-            }
-
             fragBuilder->codeAppendf(
                     "float coverage = scaleW*clamp((%s.x-perpDot)/spanW, 0.0, 1.0);",
                     widthHeightVary.fsIn());
             // Compute the coverage for the rect's height and merge with the width
             fragBuilder->codeAppendf("perpDot = abs(dot(offset, %s.zw));", rectEdgeVary.fsIn());
 
-            if (args.fDistanceVectorName) {
-                fragBuilder->codeAppendf("float heightDistance = %s.y - perpDot;",
-                                         widthHeightVary.fsIn());
-            }
-
             fragBuilder->codeAppendf(
                     "coverage = coverage*scaleH*clamp((%s.y-perpDot)/spanH, 0.0, 1.0);",
                     widthHeightVary.fsIn());
 
             fragBuilder->codeAppendf("%s = vec4(coverage);", args.fOutputCoverage);
-
-            if (args.fDistanceVectorName) {
-                fragBuilder->codeAppend("// Calculating distance vector\n");
-                fragBuilder->codeAppend("vec2 dvAxis;");
-                fragBuilder->codeAppend("float dvLength;");
-
-                fragBuilder->codeAppend("if (heightDistance < widthDistance) {");
-                fragBuilder->codeAppendf("    dvAxis = %s.zw;", rectEdgeVary.fsIn());
-                fragBuilder->codeAppend("     dvLength = heightDistance;");
-                fragBuilder->codeAppend("} else {");
-                fragBuilder->codeAppendf("    dvAxis = vec2(-%s.w, %s.z);", rectEdgeVary.fsIn(),
-                                         rectEdgeVary.fsIn());
-                fragBuilder->codeAppend("     dvLength = widthDistance;");
-                fragBuilder->codeAppend("}");
-
-                fragBuilder->codeAppend("float dvSign = sign(dot(offset, dvAxis));");
-                fragBuilder->codeAppendf("%s = vec4(dvSign * dvAxis, dvLength, 0.0);",
-                                         args.fDistanceVectorName);
-            }
         }
 
         static void GenKey(const GrGeometryProcessor& gp,

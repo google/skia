@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkNormalBevelSource.h"
 #include "SkNormalFlatSource.h"
 #include "SkNormalMapSource.h"
 #include "SkNormalSource.h"
@@ -18,7 +17,6 @@ SkNormalSource::~SkNormalSource() {}
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkNormalSource)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNormalMapSourceImpl)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNormalFlatSourceImpl)
-SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNormalBevelSourceImpl)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ////////////////////////////////////////////////////////////////////////////

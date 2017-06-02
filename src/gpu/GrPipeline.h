@@ -212,9 +212,6 @@ public:
     bool getAllowSRGBInputs() const {
         return SkToBool(fFlags & kAllowSRGBInputs_Flag);
     }
-    bool usesDistanceVectorField() const {
-        return SkToBool(fFlags & kUsesDistanceVectorField_Flag);
-    }
     bool hasStencilClip() const {
         return SkToBool(fFlags & kHasStencilClip_Flag);
     }
@@ -236,10 +233,9 @@ private:
 
     /** This is a continuation of the public "Flags" enum. */
     enum PrivateFlags {
-        kUsesDistanceVectorField_Flag = 0x10,
-        kHasStencilClip_Flag = 0x20,
-        kStencilEnabled_Flag = 0x40,
-        kIsBad_Flag = 0x80,
+        kHasStencilClip_Flag = 0x10,
+        kStencilEnabled_Flag = 0x20,
+        kIsBad_Flag = 0x40,
     };
 
     using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;

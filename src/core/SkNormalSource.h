@@ -68,54 +68,6 @@ public:
     */
     static sk_sp<SkNormalSource> MakeFlat();
 
-    /** This enum specifies the shape of the bevel. All bevels output <0, 0, 1> as the surface
-     *  normal for any point more than 'width' away from any edge.
-     *
-     *  Mathematical details:
-     *  For the purpose of describing the shape of the bevel, we define 'w' to be the given width of
-     *  the bevel, and 'h' to be the given height. We will assume the shape is rotated such that the
-     *  point being shaded as well as the closest point in the shape's edge to that point are in the
-     *  x-axis, and the shape is translated so that the aforementioned point in the edge is at
-     *  coordinates (w, 0, 0) and the end of the bevel is at (0, 0, h).
-     *
-     */
-    enum class BevelType {
-        /* This bevel simulates a surface that is slanted from the shape's edges inwards, linearly.
-         *
-         * Mathematical details:
-         * This bevel follows a straight line from (w, 0, 0) to (0, 0, h).
-         */
-        kLinear,
-        /* This bevel simulates a surface that rounds off at the shape's edges, smoothly becoming
-         * perpendicular to the x-y plane.
-         *
-         * Mathematical details:
-         * This bevel follows the only quadratic bezier curve whose start point is at (w, 0, 0),
-         * control point is at (w, 0, h), and end point is at (0, 0, h).
-         */
-        kRoundedOut,
-        /* This bevel simulates a surface that sharply becomes perpendicular to the x-y plane when
-         * at 'width' units from the nearest edge, and then rounds off towards the shape's
-         * edge, smoothly becoming parallel to the x-y plane.
-         *
-         * Mathematical details:
-         * This bevel follows the only quadratic bezier curve whose start point is at (w, 0, 0),
-         * control point is at (0, 0, 0), and end point is at (0, 0, h).
-         */
-        kRoundedIn
-    };
-
-    /** Returns a normal source that generates a bevel for the shape being drawn. Currently this is
-        not implemented on CPU rendering. On GPU this currently only works for anti-aliased circles
-        and rectangles.
-
-        @param  type   the type of bevel to add.
-        @param  width  the width of the bevel, in source space. Must be positive.
-        @param  height the height of the plateau, in source space. Can be positive, negative,
-                       or zero. A negative height means the simulated bevels slope downwards.
-    */
-    static sk_sp<SkNormalSource> MakeBevel(BevelType, SkScalar width, SkScalar height);
-
     SK_DEFINE_FLATTENABLE_TYPE(SkNormalSource)
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
