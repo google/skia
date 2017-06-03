@@ -42,6 +42,8 @@
 
 using namespace sk_app;
 
+void drawTurtle(SkCanvas* canvas);
+
 using GpuPathRenderers = GrContextOptions::GpuPathRenderers;
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
 
@@ -845,6 +847,8 @@ void Viewer::onPaint(SkCanvas* canvas) {
     }
     fCommands.drawHelp(canvas);
 
+    drawTurtle(canvas);
+
     drawImGui(canvas);
 
     // Update the FPS
@@ -1472,4 +1476,268 @@ bool Viewer::onChar(SkUnichar c, uint32_t modifiers) {
     }
 
     return fCommands.onChar(c, modifiers);
+}
+
+// ! TURTLE !
+
+struct Turtle {
+    Turtle(SkScalar x, SkScalar y, bool measure = false, SkScalar distanceLimit = 1E9f) {
+        this->reset(x, y, measure, distanceLimit);
+    }
+
+    void reset(SkScalar x, SkScalar y, bool measure = false, SkScalar distanceLimit = 1E9f) {
+        fX = x;
+        fY = y;
+        fH = 0;
+        fPen = true;
+        fPaint.reset();
+        fPaint.setAntiAlias(true);
+        fPaint.setStyle(SkPaint::kStroke_Style);
+        fStack.reset();
+        fMeasure = measure;
+        fDistanceTraveled = 0;
+        fDistanceLimit = distanceLimit;
+    }
+
+    void push(SkScalar value) {
+        fStack.push(value);
+    }
+
+    SkScalar pop() {
+        SkScalar value = fStack.top();
+        fStack.pop();
+        return value;
+    }
+
+    int popInt() {
+        return SkScalarRoundToInt(this->pop());
+    }
+
+    SkScalar fX;
+    SkScalar fY;
+    SkScalar fH;
+    bool fPen;
+    SkPaint fPaint;
+
+    SkTDArray<SkScalar> fStack;
+
+    bool fMeasure;
+    SkScalar fDistanceTraveled;
+    SkScalar fDistanceLimit;
+};
+
+#define NEED_STACK do { if (t.fStack.isEmpty()) { return nullptr; } } while(false)
+#define NEED_STACK_N(N) do { if (t.fStack.count() < N) { return nullptr; } } while(false)
+
+struct TurtleStackBinaryOp {
+    char fChar;
+    std::function<SkScalar(SkScalar, SkScalar)> fFunc;
+};
+
+TurtleStackBinaryOp gBinaryOps[] = {
+    { '+',  [](SkScalar a, SkScalar b) { return a + b; } },
+    { '-',  [](SkScalar a, SkScalar b) { return a - b; } },
+    { '*',  [](SkScalar a, SkScalar b) { return a * b; } },
+    { '/',  [](SkScalar a, SkScalar b) { return a / b; } },
+
+    { '<',  [](SkScalar a, SkScalar b) { return a < b ? 1 : 0; } },
+    { '>',  [](SkScalar a, SkScalar b) { return a > b ? 1 : 0; } },
+    { '=',  [](SkScalar a, SkScalar b) { return a == b ? 1 : 0; } },
+
+    { '^',  [](SkScalar a, SkScalar b) { return powf(a, b); } },
+};
+
+const char* eval(SkCanvas* canvas, Turtle& t, const char* s, char e) {
+    while (*s && *s != e) {
+        // First, see if this is recognizable as a number. Handles the case for unary '-'
+        char* endPtr;
+        float v = strtof(s, &endPtr);
+        if (endPtr != s) {
+            t.push(v);
+            s = endPtr;
+            continue;
+        }
+
+        // Next opcode:
+        char c = *s++;
+
+        // Check for all the binary ops
+        for (const auto& op : gBinaryOps) {
+            if (op.fChar == c) {
+                NEED_STACK_N(2);
+                SkScalar a = t.pop();
+                SkScalar b = t.pop();
+                t.push(op.fFunc(b, a));
+                break;
+            }
+        }
+
+        // Otherwise, check for opcodes and evaluate
+        switch (c) {
+            // Unary negation
+            case '~': {
+                NEED_STACK;
+                t.push(-t.pop());
+                break;
+            }
+            // Pen control
+            case 'c': {
+                SkColor color = t.fPaint.getColor();
+                t.push(SkColorGetR(color) / 255.0f);
+                t.push(SkColorGetG(color) / 255.0f);
+                t.push(SkColorGetB(color) / 255.0f);
+                t.push(SkColorGetA(color) / 255.0f);
+                break;
+            }
+            case 'C': {
+                NEED_STACK_N(4);
+                uint32_t a = SkTPin<uint32_t>((uint32_t)(t.pop() * 255.0f + 0.5f), 0, 255);
+                uint32_t b = SkTPin<uint32_t>((uint32_t)(t.pop() * 255.0f + 0.5f), 0, 255);
+                uint32_t g = SkTPin<uint32_t>((uint32_t)(t.pop() * 255.0f + 0.5f), 0, 255);
+                uint32_t r = SkTPin<uint32_t>((uint32_t)(t.pop() * 255.0f + 0.5f), 0, 255);
+                t.fPaint.setColor(SkColorSetARGB(a, r, g, b));
+                break;
+            }
+            case 'p': {
+                t.push(t.fPen ? 1 : 0);
+                break;
+            }
+            case 'P': {
+                NEED_STACK;
+                t.fPen = SkToBool(t.popInt());
+                break;
+            }
+            case 'w': {
+                t.push(t.fPaint.getStrokeWidth());
+                break;
+            }
+            case 'W': {
+                NEED_STACK;
+                t.fPaint.setStrokeWidth(t.pop());
+                break;
+            }
+            // Stack control:
+            case 'x': {
+                NEED_STACK;
+                t.pop();
+                break;
+            }
+            case 'X': {
+                NEED_STACK;
+                int n = SkTMax(0, t.popInt());
+                NEED_STACK_N(n);
+                while (n-- > 0) {
+                    t.pop();
+                }
+                break;
+            }
+            case 'k': {
+                NEED_STACK;
+                SkScalar x = t.pop();
+                t.push(x);
+                t.push(x);
+                break;
+            }
+            case 'K': {
+                int n = SkTMax(0, t.popInt());
+                NEED_STACK_N(n);
+                for (int i = 0; i < n; ++i) {
+                    t.fStack.push(t.fStack[t.fStack.count() - n]);
+                }
+                break;
+            }
+            case 's': {
+                NEED_STACK_N(2);
+                SkScalar a = t.pop();
+                SkScalar b = t.pop();
+                t.push(a);
+                t.push(b);
+                break;
+            }
+            case 'S': {
+                break;
+            }
+            // Drawing primitives:
+            case 'o': {
+                NEED_STACK;
+                float r = t.pop();
+                if (!t.fMeasure && t.fPen) {
+                    canvas->drawCircle(t.fX, t.fY, r, t.fPaint);
+                }
+                break;
+            }
+            case 'f': {
+                NEED_STACK;
+                float d = t.pop();
+                t.fDistanceTraveled += d;
+                if (!t.fMeasure) {
+                    d = SkTMin(t.fDistanceLimit, d);
+                    t.fDistanceLimit -= d;
+                }
+                float r = t.fH * 0.01745329f;
+                auto s = sinf(r), c = cosf(r);
+                float nx = t.fX + s * d, ny = t.fY - c * d;
+                if (!t.fMeasure && t.fPen) {
+                    canvas->drawLine(t.fX, t.fY, nx, ny, t.fPaint);
+                }
+                t.fX = nx; t.fY = ny;
+                break;
+            }
+            // Rotate
+            case 'r': {
+                NEED_STACK;
+                t.fH += t.pop();
+                break;
+            }
+
+/*            {
+                int c = atoi(s);
+                while (*s >= '0' && *s <= '9') { ++s; }
+                auto n = s + 1;
+                for (int i = 0; i < c; ++i) {
+                    n = eval(canvas, t, s + 1, *s);
+                }
+                s = n;
+            }*/
+        }
+    }
+    return s + 1;
+}
+
+void drawTurtle(SkCanvas* canvas) {
+    canvas->clear(SK_ColorWHITE);
+
+    bool showTurtleWindow = true;
+    if (ImGui::Begin("Turtle", &showTurtleWindow, ImVec2(200, 200))) {
+        const int kTurtleCmdsLength = 1024;
+        static char turtleCmds[kTurtleCmdsLength] = "";
+        ImGui::Text("Commands:");
+        ImGui::PushItemWidth(-1.0f);
+        ImGui::InputTextMultiline("", turtleCmds, kTurtleCmdsLength);
+        ImGui::PopItemWidth();
+
+        Turtle t(200, 200, true);
+        if (eval(canvas, t, turtleCmds, 0)) {
+            t.reset(200, 200, false, t.fDistanceTraveled);
+            eval(canvas, t, turtleCmds, 0);
+        }
+
+        // And stack...
+        for (int i = 0; i < t.fStack.count(); ++i) {
+            ImGui::Text("%f", t.fStack[i]);
+        }
+
+        // Draw Turtle!
+        canvas->save();
+        canvas->translate(t.fX, t.fY);
+        canvas->rotate(t.fH);
+        SkPaint paint;
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawLine(-10, 0, 10, 0, paint);
+        canvas->drawLine(10, 0, 0, -30, paint);
+        canvas->drawLine(0, -30, -10, 0, paint);
+        canvas->restore();
+    }
+
+    ImGui::End();
 }
