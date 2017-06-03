@@ -911,19 +911,6 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     SkBlitter*  blitter = nullptr;
     switch (device.colorType()) {
-        case kAlpha_8_SkColorType:
-            SkASSERT(!drawCoverage);  // Handled above.
-            if (shader) {
-                blitter = alloc->make<SkA8_Shader_Blitter>(device, *paint, shaderContext);
-            } else {
-                blitter = alloc->make<SkA8_Blitter>(device, *paint);
-            }
-            break;
-
-        case kRGB_565_SkColorType:
-            blitter = SkBlitter_ChooseD565(device, *paint, shaderContext, alloc);
-            break;
-
         case kN32_SkColorType:
             // sRGB and general color spaces are handled via raster pipeline.
             SkASSERT(!device.colorSpace());
@@ -939,12 +926,9 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             }
             break;
 
-        case kRGBA_F16_SkColorType:
-            // F16 is handled via raster pipeline.
-            SkASSERT(false);
-            break;
-
         default:
+            // should have been handled via raster pipeline.
+            SkASSERT(false);
             break;
     }
 

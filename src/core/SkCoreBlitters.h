@@ -62,45 +62,6 @@ public:
     const SkPixmap* justAnOpaqueColor(uint32_t*) override;
 };
 
-class SkA8_Blitter : public SkRasterBlitter {
-public:
-    SkA8_Blitter(const SkPixmap& device, const SkPaint& paint);
-    void blitH(int x, int y, int width) override;
-    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
-    void blitV(int x, int y, int height, SkAlpha alpha) override;
-    void blitRect(int x, int y, int width, int height) override;
-    void blitMask(const SkMask&, const SkIRect&) override;
-    const SkPixmap* justAnOpaqueColor(uint32_t*) override;
-
-private:
-    unsigned fSrcA;
-
-    // illegal
-    SkA8_Blitter& operator=(const SkA8_Blitter&);
-
-    typedef SkRasterBlitter INHERITED;
-};
-
-class SkA8_Shader_Blitter : public SkShaderBlitter {
-public:
-    SkA8_Shader_Blitter(const SkPixmap& device, const SkPaint& paint,
-                        SkShaderBase::Context* shaderContext);
-    ~SkA8_Shader_Blitter() override;
-    void blitH(int x, int y, int width) override;
-    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
-    void blitMask(const SkMask&, const SkIRect&) override;
-
-private:
-    SkXfermode* fXfermode;
-    SkPMColor*  fBuffer;
-    uint8_t*    fAAExpand;
-
-    // illegal
-    SkA8_Shader_Blitter& operator=(const SkA8_Shader_Blitter&);
-
-    typedef SkShaderBlitter INHERITED;
-};
-
 ////////////////////////////////////////////////////////////////
 
 class SkARGB32_Blitter : public SkRasterBlitter {
@@ -177,24 +138,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/*  These return the correct subclass of blitter for their device config.
-
-    Currently, they make the following assumptions about the state of the
-    paint:
-
-    1. If there is an xfermode, there will also be a shader
-    2. If there is a colorfilter, there will be a shader that itself handles
-       calling the filter, so the blitter can always ignore the colorfilter obj
-
-    These pre-conditions must be handled by the caller, in our case
-    SkBlitter::Choose(...)
- */
-
-SkBlitter* SkBlitter_ChooseD565(const SkPixmap& device, const SkPaint& paint,
-                                SkShaderBase::Context* shaderContext,
-                                SkArenaAlloc* allocator);
-
 
 // Neither of these ever returns nullptr, but this first factory may return a SkNullBlitter.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm,
