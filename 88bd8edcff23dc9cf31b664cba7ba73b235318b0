@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e552f671_ad742897",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-03T01:53:28Z",
+      "side": 0,
+      "message": "Here, content rect is again irrelevant. The key feature of this code is scaling the slide to the window, so leave that behavior intact (but only on Android).",
+      "revId": "88bd8edcff23dc9cf31b664cba7ba73b235318b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1c4f678_ff0ec557",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-03T01:53:28Z",
+      "side": 0,
+      "message": "This code was using the content rect, but even if we just use the window rect, the intent of it still stands: don\u0027t let the user scroll things way off-screen. Now that mouse input can also drive fGesture, there\u0027s no reason not to enable this behavior all the time.",
+      "revId": "88bd8edcff23dc9cf31b664cba7ba73b235318b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2db1501b_a78b0f3a",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-03T01:53:28Z",
+      "side": 0,
+      "message": "This wasn\u0027t really doing anything.",
+      "revId": "88bd8edcff23dc9cf31b664cba7ba73b235318b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfc9ad13_bbe7e78a",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-03T01:53:28Z",
+      "side": 0,
+      "message": "... neither was this.",
+      "revId": "88bd8edcff23dc9cf31b664cba7ba73b235318b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e25e9b_e6f4cf0e",
+        "filename": "tools/viewer/sk_app/android/surface_glue_android.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-03T01:53:28Z",
+      "side": 0,
+      "message": "Note: The content rect was always the same as the window dimensions.",
+      "revId": "88bd8edcff23dc9cf31b664cba7ba73b235318b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
