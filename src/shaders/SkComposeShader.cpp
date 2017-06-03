@@ -55,44 +55,10 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((int)fMode);
 }
 
-SkShaderBase::Context* SkComposeShader::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
-{
-    // we preconcat our localMatrix (if any) with the device matrix
-    // before calling our sub-shaders
-    SkMatrix tmpM;
-    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
-
-    // Our sub-shaders need to see opaque, so by combining them we don't double-alphatize the
-    // result. ComposeShader itself will respect the alpha, and post-apply it after calling the
-    // sub-shaders.
-    SkPaint opaquePaint(*rec.fPaint);
-    opaquePaint.setAlpha(0xFF);
-
-    ContextRec newRec(rec);
-    newRec.fMatrix = &tmpM;
-    newRec.fPaint = &opaquePaint;
-
-    SkShaderBase::Context* contextA = as_SB(fShaderA)->makeContext(newRec, alloc);
-    SkShaderBase::Context* contextB = as_SB(fShaderB)->makeContext(newRec, alloc);
-    if (!contextA || !contextB) {
-        return nullptr;
-    }
-
-    return alloc->make<ComposeShaderContext>(*this, rec, contextA, contextB);
-}
-
 sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
                                        xformer->apply(fShaderB.get()), fMode);
 }
-
-SkComposeShader::ComposeShaderContext::ComposeShaderContext(
-        const SkComposeShader& shader, const ContextRec& rec,
-        SkShaderBase::Context* contextA, SkShaderBase::Context* contextB)
-    : INHERITED(shader, rec)
-    , fShaderContextA(contextA)
-    , fShaderContextB(contextB) {}
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {
@@ -104,7 +70,7 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
 }
 
 bool SkComposeShader::isRasterPipelineOnly() const {
-    return as_SB(fShaderA)->isRasterPipelineOnly() || as_SB(fShaderB)->isRasterPipelineOnly();
+    return true;
 }
 
 bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
@@ -139,100 +105,6 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
         pipeline->append(SkRasterPipeline::clamp_a);
     }
     return true;
-}
-
-// larger is better (fewer times we have to loop), but we shouldn't
-// take up too much stack-space (each element is 4 bytes)
-#define TMP_COLOR_COUNT     64
-
-void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor result[], int count) {
-    auto* shaderContextA = fShaderContextA;
-    auto* shaderContextB = fShaderContextB;
-    SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
-    unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
-
-    SkPMColor   tmp[TMP_COLOR_COUNT];
-
-    SkXfermode* xfer = SkXfermode::Peek(mode);
-    if (nullptr == xfer) {   // implied SRC_OVER
-        // TODO: when we have a good test-case, should use SkBlitRow::Proc32
-        // for these loops
-        do {
-            int n = count;
-            if (n > TMP_COLOR_COUNT) {
-                n = TMP_COLOR_COUNT;
-            }
-
-            shaderContextA->shadeSpan(x, y, result, n);
-            shaderContextB->shadeSpan(x, y, tmp, n);
-
-            if (256 == scale) {
-                for (int i = 0; i < n; i++) {
-                    result[i] = SkPMSrcOver(tmp[i], result[i]);
-                }
-            } else {
-                for (int i = 0; i < n; i++) {
-                    result[i] = SkAlphaMulQ(SkPMSrcOver(tmp[i], result[i]),
-                                            scale);
-                }
-            }
-
-            result += n;
-            x += n;
-            count -= n;
-        } while (count > 0);
-    } else {    // use mode for the composition
-        do {
-            int n = count;
-            if (n > TMP_COLOR_COUNT) {
-                n = TMP_COLOR_COUNT;
-            }
-
-            shaderContextA->shadeSpan(x, y, result, n);
-            shaderContextB->shadeSpan(x, y, tmp, n);
-            xfer->xfer32(result, tmp, n, nullptr);
-
-            if (256 != scale) {
-                for (int i = 0; i < n; i++) {
-                    result[i] = SkAlphaMulQ(result[i], scale);
-                }
-            }
-
-            result += n;
-            x += n;
-            count -= n;
-        } while (count > 0);
-    }
-}
-
-void SkComposeShader::ComposeShaderContext::shadeSpan4f(int x, int y, SkPM4f result[], int count) {
-    auto* shaderContextA = fShaderContextA;
-    auto* shaderContextB = fShaderContextB;
-    SkBlendMode        mode = static_cast<const SkComposeShader&>(fShader).fMode;
-    unsigned           alpha = this->getPaintAlpha();
-    Sk4f               scale(alpha * (1.0f / 255));
-
-    SkPM4f  tmp[TMP_COLOR_COUNT];
-
-    SkXfermodeProc4f xfer = SkXfermode::GetProc4f(mode);
-    do {
-        int n = SkTMin(count, TMP_COLOR_COUNT);
-
-        shaderContextA->shadeSpan4f(x, y, result, n);
-        shaderContextB->shadeSpan4f(x, y, tmp, n);
-        if (255 == alpha) {
-            for (int i = 0; i < n; ++i) {
-                result[i] = xfer(tmp[i], result[i]);
-            }
-        } else {
-            for (int i = 0; i < n; ++i) {
-                (xfer(tmp[i], result[i]).to4f() * scale).store(result + i);
-            }
-        }
-        result += n;
-        x += n;
-        count -= n;
-    } while (count > 0);
 }
 
 #if SK_SUPPORT_GPU
