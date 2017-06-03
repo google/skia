@@ -201,10 +201,11 @@ private:
     // V51: more SkXfermode -> SkBlendMode
     // V52: Remove SkTextBlob::fRunCount
     // V53: SaveLayerRec clip mask
+    // V54: ComposeShader can use a Mode or a Lerp
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 35;     // Produced by Chrome M39.
-    static const uint32_t CURRENT_PICTURE_VERSION = 53;
+    static const uint32_t CURRENT_PICTURE_VERSION = 54;
 
     static_assert(MIN_PICTURE_VERSION <= 41,
                   "Remove kFontFileName and related code from SkFontDescriptor.cpp.");

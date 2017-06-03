@@ -247,7 +247,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
             matrix43 = triShader->getMatrix43();
             if (shader) {
                 shader = outerAlloc.make<SkComposeShader>(sk_ref_sp(triShader), sk_ref_sp(shader),
-                                                          bmode);
+                                                          bmode, 1);
             } else {
                 shader = triShader;
             }
