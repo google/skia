@@ -87,10 +87,7 @@ private:
     SkColorSpacePrimaries  fColorSpacePrimaries;
 
     // transform data
-    SkScalar               fZoomCenterX;
-    SkScalar               fZoomCenterY;
     SkScalar               fZoomLevel;
-    SkScalar               fZoomScale;
 
     sk_app::CommandSet     fCommands;
 
