@@ -178,7 +178,7 @@ static SkJumper_Engine choose_engine() {
 }
 
 StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
-#if defined(__x86_64__) || defined(_M_X64)
+#if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
     if (SkCpu::Supports(SkCpu::SSSE3)) {
         void** reset_point = ip;
 
