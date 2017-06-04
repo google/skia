@@ -345,7 +345,7 @@ public:
             : fBounds(bounds)
             , fPaint(paint)
             , fBackdrop(backdrop)
-            , fClipMask(std::move(clipMask))
+            , fClipMask(clipMask)
             , fClipMatrix(clipMatrix)
             , fSaveLayerFlags(saveLayerFlags)
         {}
