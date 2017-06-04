@@ -121,14 +121,13 @@ SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
     U16 lo = unaligned_load<U16>((const uint32_t*)&rgba + 0),
         hi = unaligned_load<U16>((const uint32_t*)&rgba + 4);
 
-    U16 _0415 = _mm_unpacklo_epi8(lo, hi),       // r0 r4 g0 g4 b0 b4 a0 a4  r1 r5 g1 g5 b1 b5 a1 a5
-        _2637 = _mm_unpackhi_epi8(lo, hi);
+    // Shuffle so that the 4 bytes of each color channel are contiguous...
+    lo = _mm_shuffle_epi8(lo, _mm_setr_epi8(0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15));
+    hi = _mm_shuffle_epi8(hi, _mm_setr_epi8(0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15));
 
-    U16 even = _mm_unpacklo_epi8(_0415, _2637),  // r0 r2 r4 r6 g0 g2 g4 g6  b0 b2 b4 b6 a0 a2 a4 a6
-         odd = _mm_unpackhi_epi8(_0415, _2637);
-
-    U16 rg = _mm_unpacklo_epi8(even, odd),  // r0 r1 r2 r3 r4 r5 r6 r7  g0 g1 g2 g3 g4 g5 g6 g7
-        ba = _mm_unpackhi_epi8(even, odd);
+    // ...then get all 8 bytes of each color channel together into a single register.
+    U16 rg = _mm_unpacklo_epi32(lo,hi),
+        ba = _mm_unpackhi_epi32(lo,hi);
 
     // Unpack as 16-bit values into the high half of each 16-bit lane, to get a free *256.
     U16 R = _mm_unpacklo_epi8(U16(0), rg),
