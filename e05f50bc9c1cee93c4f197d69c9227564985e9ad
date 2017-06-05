@@ -22,6 +22,30 @@
       "revId": "e05f50bc9c1cee93c4f197d69c9227564985e9ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1316073_74ca393e",
+        "filename": "include/codec/SkEncodedInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-05T17:47:53Z",
+      "side": 1,
+      "message": "I moved the field to SkCodec. PTAL",
+      "parentUuid": "487d9897_0fd2060c",
+      "range": {
+        "startLine": 72,
+        "startChar": 30,
+        "endLine": 72,
+        "endChar": 67
+      },
+      "revId": "e05f50bc9c1cee93c4f197d69c9227564985e9ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
