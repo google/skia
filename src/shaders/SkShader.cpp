@@ -9,6 +9,7 @@
 #include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
+#include "SkColorSpaceXformer.h"
 #include "SkEmptyShader.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
@@ -94,6 +95,35 @@ SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaA
         return nullptr;
     }
     return this->onMakeContext(rec, alloc);
+}
+
+SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
+                                                              SkArenaAlloc* alloc) const {
+
+    SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
+
+    auto* shader = this;
+    sk_sp<SkShader> xformedShader;
+
+    ContextRec noCSRec(rec);
+    if (rec.fDstColorSpace) {
+        // We need to transform the shader into the dst color space.
+        xformedShader = SkColorSpaceXformer::Make(sk_ref_sp(rec.fDstColorSpace))->apply(shader);
+        shader = as_SB(xformedShader.get());
+
+        // We're handling CS conversion here, no need for
+        // the shader to do anything special downstream.
+        noCSRec.fDstColorSpace = nullptr;
+    }
+
+    auto* ctx = shader->onMakeBurstPipelineContext(noCSRec, alloc);
+
+    if (ctx && xformedShader) {
+        // If we allocated a new shader, we must also extend its lifetime.
+        alloc->make<sk_sp<SkShader>>(std::move(xformedShader));
+    }
+
+    return ctx;
 }
 
 SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)
