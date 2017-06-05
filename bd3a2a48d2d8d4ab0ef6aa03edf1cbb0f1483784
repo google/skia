@@ -22,6 +22,30 @@
       "revId": "bd3a2a48d2d8d4ab0ef6aa03edf1cbb0f1483784",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bd3d90e_cb45fa7d",
+        "filename": "include/views/SkTouchGesture.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-05T15:02:04Z",
+      "side": 1,
+      "message": "Nope, just Viewer. (And I\u0027m sure that we\u0027re on the verge of deleting SampleApp, right?) ;)",
+      "parentUuid": "9cd96718_5625ff13",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "bd3a2a48d2d8d4ab0ef6aa03edf1cbb0f1483784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
