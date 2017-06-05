@@ -70,10 +70,10 @@ private:
 #endif
 };
 
-GrPathRange* GrPathRendering::createGlyphs(const SkTypeface* typeface,
-                                           const SkScalerContextEffects& effects,
-                                           const SkDescriptor* desc,
-                                           const GrStyle& style) {
+sk_sp<GrPathRange> GrPathRendering::createGlyphs(const SkTypeface* typeface,
+                                                 const SkScalerContextEffects& effects,
+                                                 const SkDescriptor* desc,
+                                                 const GrStyle& style) {
     if (nullptr == typeface) {
         typeface = SkTypeface::GetDefaultTypeface();
         SkASSERT(nullptr != typeface);
