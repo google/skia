@@ -39,6 +39,7 @@ SI F operator-(F x, F y) { return x.vec - y.vec; }
 SI F operator*(F x, F y) { return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec)); }
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI F inv(F v) { return 1.0f - v; }
+SI F lerp(F from, F to, F t) { return to*t + from*inv(t); }
 
 SI F operator<<(F x, int bits) { return x.vec << bits; }
 SI F operator>>(F x, int bits) { return x.vec >> bits; }
@@ -144,6 +145,12 @@ SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
     *b = _mm_mulhi_epu16(B, U16(32897));
     *a = _mm_mulhi_epu16(A, U16(32897));
 }
+SI F from_byte(U8 bytes) {
+    // See from_8888() just above.
+    U16 hi = _mm_unpacklo_epi8(U16(0), widen_cast<__m128i>(bytes));
+    return (F)_mm_mulhi_epu16(hi, U16(32897));
+}
+
 SI U32 to_8888(F r, F g, F b, F a) {
     // We want to interlace and pack these values from [0,32768] to [0,255].
     // Luckily the simplest possible thing works great: >>7, then saturate.
@@ -180,6 +187,59 @@ STAGE(load_8888) {
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
     store(ptr, to_8888(r,g,b,a), tail);
+}
+
+STAGE(srcover_rgba_8888) {
+    auto ptr = *(uint32_t**)ctx + x;
+
+    from_8888(load<U32>(ptr, tail), &dr,&dg,&db,&da);
+
+    r = mad(dr, inv(a), r);
+    g = mad(dg, inv(a), g);
+    b = mad(db, inv(a), b);
+    a = mad(da, inv(a), a);
+
+    store(ptr, to_8888(r,g,b,a), tail);
+}
+
+STAGE(scale_1_float) {
+    float c = *(const float*)ctx;
+
+    r = r * c;
+    g = g * c;
+    b = b * c;
+    a = a * c;
+}
+STAGE(scale_u8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    U8 scales = load<U8>(ptr, tail);
+    F c = from_byte(scales);
+
+    r = r * c;
+    g = g * c;
+    b = b * c;
+    a = a * c;
+}
+
+STAGE(lerp_1_float) {
+    float c = *(const float*)ctx;
+
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
+}
+STAGE(lerp_u8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    U8 scales = load<U8>(ptr, tail);
+    F c = from_byte(scales);
+
+    r = lerp(dr, r, c);
+    g = lerp(dg, g, c);
+    b = lerp(db, b, c);
+    a = lerp(da, a, c);
 }
 
 STAGE(swap_rb) {

@@ -31,7 +31,7 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
 
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
-    #if 0
+    #if 1
         #include <atomic>
 
         #define M(st) #st,
@@ -70,14 +70,19 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
 #endif
 
 // Some stages have low-precision (~15 bit) versions from SkJumper_stages_lowp.cpp.
-#define LOWP_STAGES(M)  \
-    M(constant_color)   \
-    M(load_8888)        \
-    M(store_8888)       \
-    M(swap_rb)          \
-    M(swap)             \
-    M(move_src_dst)     \
-    M(move_dst_src)     \
+#define LOWP_STAGES(M)   \
+    M(constant_color)    \
+    M(load_8888)         \
+    M(store_8888)        \
+    M(srcover_rgba_8888) \
+    M(lerp_1_float)      \
+    M(lerp_u8)           \
+    M(scale_1_float)     \
+    M(scale_u8)          \
+    M(swap_rb)           \
+    M(swap)              \
+    M(move_src_dst)      \
+    M(move_dst_src)      \
     M(srcover)
 
 extern "C" {
