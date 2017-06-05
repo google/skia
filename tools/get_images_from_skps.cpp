@@ -23,7 +23,7 @@
 #include <iostream>
 #include <map>
 
-DEFINE_string2(skps, s, "skps", "A path to a directory of skps.");
+DEFINE_string2(skps, s, "skps", "A path to a directory of skps or a single skp.");
 DEFINE_string2(out, o, "img-out", "A path to an output directory.");
 DEFINE_bool(testDecode, false, "Indicates if we want to test that the images decode successfully.");
 DEFINE_bool(writeImages, true,
@@ -142,6 +142,14 @@ struct Sniffer : public SkPixelSerializer {
     SkData* onEncode(const SkPixmap&) override { return nullptr; }
 };
 
+static void get_images_from_file(const SkString& file) {
+    auto stream = SkStream::MakeFromFile(file.c_str());
+    sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream.get()));
+
+    SkDynamicMemoryWStream scratch;
+    Sniffer sniff(file.c_str());
+    picture->serialize(&scratch, &sniff);
+}
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage(
@@ -152,7 +160,7 @@ int main(int argc, char** argv) {
     const char* inputs = FLAGS_skps[0];
     gOutputDir = FLAGS_out[0];
 
-    if (!sk_isdir(inputs) || !sk_isdir(gOutputDir)) {
+    if (!sk_isdir(gOutputDir)) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
@@ -163,15 +171,13 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    SkOSFile::Iter iter(inputs, "skp");
-    for (SkString file; iter.next(&file); ) {
-        std::unique_ptr<SkStream> stream =
-                SkStream::MakeFromFile(SkOSPath::Join(inputs, file.c_str()).c_str());
-        sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream.get()));
-
-        SkDynamicMemoryWStream scratch;
-        Sniffer sniff(file.c_str());
-        picture->serialize(&scratch, &sniff);
+    if (sk_isdir(inputs)) {
+        SkOSFile::Iter iter(inputs, "skp");
+        for (SkString file; iter.next(&file); ) {
+            get_images_from_file(SkOSPath::Join(inputs, file.c_str()));
+        }
+    } else {
+        get_images_from_file(SkString(inputs));
     }
     /**
      JSON results are written out in the following format:
