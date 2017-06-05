@@ -36,9 +36,10 @@ public:
         , fColorPipeline(alloc)
     {}
 
-    void blitH    (int x, int y, int w)                            override;
-    void blitAntiH(int x, int y, const SkAlpha[], const int16_t[]) override;
-    void blitMask (const SkMask&, const SkIRect& clip)             override;
+    void blitH     (int x, int y, int w)                            override;
+    void blitAntiH (int x, int y, const SkAlpha[], const int16_t[]) override;
+    void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1)               override;
+    void blitMask  (const SkMask&, const SkIRect& clip)             override;
 
     // TODO: The default implementations of the other blits look fine,
     // but some of them like blitV could probably benefit from custom
@@ -314,6 +315,19 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         runs += run;
         aa   += run;
     }
+}
+
+void SkRasterPipelineBlitter::blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) {
+    SkIRect clip = {x,y, x+2,y+1};
+    uint8_t coverage[] = { (uint8_t)a0, (uint8_t)a1 };
+
+    SkMask mask;
+    mask.fImage    = coverage;
+    mask.fBounds   = clip;
+    mask.fRowBytes = 2;
+    mask.fFormat   = SkMask::kA8_Format;
+
+    this->blitMask(mask, clip);
 }
 
 void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
