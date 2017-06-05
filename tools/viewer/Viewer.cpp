@@ -250,10 +250,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
-    , fZoomCenterX(0.0f)
-    , fZoomCenterY(0.0f)
     , fZoomLevel(0.0f)
-    , fZoomScale(SK_Scalar1)
 {
     static SkTaskGroup::Enabler kTaskGroupEnabler;
     SkGraphics::Init();
@@ -619,26 +616,20 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
     fGesture.reset();
     fDefaultMatrix.reset();
-    fDefaultMatrixInv.reset();
 
-    if (fWindow->supportsContentRect() && fWindow->scaleContentToFit()) {
-        const SkRect contentRect = fWindow->getContentRect();
-        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-        const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
-        if (contentRect.width() > 0 && contentRect.height() > 0) {
-            fDefaultMatrix.setRectToRect(slideBounds, contentRect, SkMatrix::kStart_ScaleToFit);
-            SkAssertResult(fDefaultMatrix.invert(&fDefaultMatrixInv));
+    const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
+    const SkRect slideBounds = SkRect::MakeIWH(slideSize.width(), slideSize.height());
+    const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
+
+    // Start with a matrix that scales the slide to the available screen space
+    if (fWindow->scaleContentToFit()) {
+        if (windowRect.width() > 0 && windowRect.height() > 0) {
+            fDefaultMatrix.setRectToRect(slideBounds, windowRect, SkMatrix::kStart_ScaleToFit);
         }
     }
 
-    if (fWindow->supportsContentRect()) {
-        const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
-        SkRect windowRect = fWindow->getContentRect();
-        fDefaultMatrixInv.mapRect(&windowRect);
-        fGesture.setTransLimit(SkRect::MakeWH(SkIntToScalar(slideSize.width()), 
-                                              SkIntToScalar(slideSize.height())),
-                               windowRect);
-    }
+    // Prevent the user from dragging content so far outside the window they can't find it again
+    fGesture.setTransLimit(slideBounds, windowRect, fDefaultMatrix);
 
     this->updateTitle();
     this->updateUIState();
@@ -653,35 +644,18 @@ void Viewer::setupCurrentSlide(int previousSlide) {
 
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
-    if (fZoomLevel > 0) {
-        fZoomLevel = SkMinScalar(fZoomLevel, MAX_ZOOM_LEVEL);
-        fZoomScale = fZoomLevel + SK_Scalar1;
-    } else if (fZoomLevel < 0) {
-        fZoomLevel = SkMaxScalar(fZoomLevel, MIN_ZOOM_LEVEL);
-        fZoomScale = SK_Scalar1 / (SK_Scalar1 - fZoomLevel);
-    } else {
-        fZoomScale = SK_Scalar1;
-    }
+    fZoomLevel = SkScalarPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
 }
 
 SkMatrix Viewer::computeMatrix() {
     SkMatrix m;
-    m.reset();
 
-    if (fZoomLevel) {
-        SkPoint center;
-        //m = this->getLocalMatrix();//.invert(&m);
-        m.mapXY(fZoomCenterX, fZoomCenterY, &center);
-        SkScalar cx = center.fX;
-        SkScalar cy = center.fY;
-
-        m.setTranslate(-cx, -cy);
-        m.postScale(fZoomScale, fZoomScale);
-        m.postTranslate(cx, cy);
-    }
-
-    m.preConcat(fGesture.localM());
+    SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
+                                          : SK_Scalar1 + fZoomLevel;
+    m = fGesture.localM();
     m.preConcat(fGesture.globalM());
+    m.preConcat(fDefaultMatrix);
+    m.preScale(zoomScale, zoomScale);
 
     return m;
 }
@@ -737,12 +711,6 @@ void Viewer::setColorMode(ColorMode colorMode) {
 void Viewer::drawSlide(SkCanvas* canvas) {
     SkAutoCanvasRestore autorestore(canvas, false);
 
-    if (fWindow->supportsContentRect()) {
-        SkRect contentRect = fWindow->getContentRect();
-        canvas->clipRect(contentRect);
-        canvas->translate(contentRect.fLeft, contentRect.fTop);
-    }
-
     // By default, we render directly into the window's surface/canvas
     SkCanvas* slideCanvas = canvas;
     fLastImage.reset();
@@ -785,7 +753,6 @@ void Viewer::drawSlide(SkCanvas* canvas) {
 
     int count = slideCanvas->save();
     slideCanvas->clear(SK_ColorWHITE);
-    slideCanvas->concat(fDefaultMatrix);
     slideCanvas->concat(computeMatrix());
     // Time the painting logic of the slide
     double startTime = SkTime::GetMSecs();
@@ -853,18 +820,17 @@ void Viewer::onPaint(SkCanvas* canvas) {
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
     void* castedOwner = reinterpret_cast<void*>(owner);
-    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
     switch (state) {
         case Window::kUp_InputState: {
             fGesture.touchEnd(castedOwner);
             break;
         }
         case Window::kDown_InputState: {
-            fGesture.touchBegin(castedOwner, touchPoint.fX, touchPoint.fY);
+            fGesture.touchBegin(castedOwner, x, y);
             break;
         }
         case Window::kMove_InputState: {
-            fGesture.touchMoved(castedOwner, touchPoint.fX, touchPoint.fY);
+            fGesture.touchMoved(castedOwner, x, y);
             break;
         }
     }
@@ -873,19 +839,17 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
 }
 
 bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifiers) {
-
-    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
     switch (state) {
         case Window::kUp_InputState: {
             fGesture.touchEnd(nullptr);
             break;
         }
         case Window::kDown_InputState: {
-            fGesture.touchBegin(nullptr, touchPoint.fX, touchPoint.fY);
+            fGesture.touchBegin(nullptr, x, y);
             break;
         }
         case Window::kMove_InputState: {
-            fGesture.touchMoved(nullptr, touchPoint.fX, touchPoint.fY);
+            fGesture.touchMoved(nullptr, x, y);
             break;
         }
     }
@@ -907,12 +871,6 @@ void Viewer::drawStats(SkCanvas* canvas) {
                                    SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
     SkPaint paint;
     canvas->save();
-
-    if (fWindow->supportsContentRect()) {
-        SkRect contentRect = fWindow->getContentRect();
-        canvas->clipRect(contentRect);
-        canvas->translate(contentRect.fLeft, contentRect.fTop);
-    }
 
     canvas->clipRect(rect);
     paint.setColor(SK_ColorBLACK);
