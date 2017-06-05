@@ -149,7 +149,7 @@ public:
     bool empty() const { return fStages == nullptr; }
 
 private:
-    using StartPipelineFn = void(size_t,size_t,size_t,void**,const SkJumper_constants*);
+    using StartPipelineFn = size_t(size_t,size_t,size_t,void**,const SkJumper_constants*);
 
     struct StageList {
         StageList* prev;

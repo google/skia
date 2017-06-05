@@ -29,7 +29,7 @@ static K kConstants = {
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
-using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
+using StartPipelineFn = size_t(size_t,size_t,size_t,void**,K*);
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
 #if defined(__APPLE__)
@@ -102,9 +102,9 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 
 // Engines comprise everything we need to run SkRasterPipelines.
 struct SkJumper_Engine {
-    StageFn* stages[kNumStages];
-    void (*start_pipeline)(size_t,size_t,size_t, void**, K*);
-    StageFn* just_return;
+    StageFn*         stages[kNumStages];
+    StartPipelineFn* start_pipeline;
+    StageFn*         just_return;
 };
 
 // We'll default to this portable engine, but try to choose a better one at runtime.
