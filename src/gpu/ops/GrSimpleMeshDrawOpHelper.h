@@ -41,7 +41,8 @@ public:
             , fPipelineFlags(args.fSRGBFlags)
             , fAAType((int)aaType)
             , fRequiresDstTexture(false)
-            , fUsesLocalCoords(false) {
+            , fUsesLocalCoords(false)
+            , fCompatibleWithAlphaAsCoveage(false) {
         SkASSERT(!stencilSettings);
         SkDEBUGCODE(fDidAnalysis = false);
         if (GrAATypeIsHW(aaType)) {
@@ -80,7 +81,10 @@ public:
                 }
             }
         }
-        return fPipelineFlags == that.fPipelineFlags && fAAType == that.fAAType;
+        bool result = fPipelineFlags == that.fPipelineFlags && fAAType == that.fAAType;
+        SkASSERT(!result || fCompatibleWithAlphaAsCoveage == that.fCompatibleWithAlphaAsCoveage);
+        SkASSERT(!result || fUsesLocalCoords == that.fUsesLocalCoords);
+        return result;
     }
 
     bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
@@ -98,6 +102,7 @@ public:
                     fProcessors->finalize(*color, coverage, clip, isMixedSamples, caps, color);
             fRequiresDstTexture = analysis.requiresDstTexture();
             fUsesLocalCoords = analysis.usesLocalCoords();
+            fCompatibleWithAlphaAsCoveage = analysis.isCompatibleWithCoverageAsAlpha();
             return analysis.requiresDstTexture();
         } else {
             fUsesLocalCoords = GrProcessorSet::EmptySetAnalysis().usesLocalCoords();
@@ -109,6 +114,8 @@ public:
         SkASSERT(fDidAnalysis);
         return fUsesLocalCoords;
     }
+
+    bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoveage; }
 
     GrPipeline* makePipeline(GrMeshDrawOp::Target* target) const {
         return target->allocPipeline(this->pipelineInitArgs(target));
@@ -149,6 +156,7 @@ private:
     unsigned fAAType : 2;
     unsigned fRequiresDstTexture : 1;
     unsigned fUsesLocalCoords : 1;
+    unsigned fCompatibleWithAlphaAsCoveage : 1;
     SkDEBUGCODE(unsigned fDidAnalysis : 1;)
 };
 
