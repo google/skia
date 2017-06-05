@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db8c4fcb_2434de31",
+        "filename": "src/shaders/gradients/SkLinearGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-05T19:30:13Z",
+      "side": 1,
+      "message": "Do we win this way on both evenly-spaced and positioned gradients?",
+      "revId": "8c0f44b8cdec0a143b28028466b7aa71daf41caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
