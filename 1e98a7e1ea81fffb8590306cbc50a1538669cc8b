@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "87ff7a65_1da7221c",
+        "filename": "src/gpu/text/GrStencilAndCoverTextContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-05T17:41:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0615192_ed05eb10",
+      "range": {
+        "startLine": 533,
+        "startChar": 0,
+        "endLine": 533,
+        "endChar": 4
+      },
+      "revId": "1e98a7e1ea81fffb8590306cbc50a1538669cc8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa4e53f2_186ceeab",
         "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "1e98a7e1ea81fffb8590306cbc50a1538669cc8b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ec2d359_1be8d547",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-05T17:41:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa4e53f2_186ceeab",
+      "range": {
+        "startLine": 21,
+        "startChar": 56,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "1e98a7e1ea81fffb8590306cbc50a1538669cc8b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
