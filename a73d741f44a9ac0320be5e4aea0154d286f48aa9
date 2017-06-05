@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee5b787e_ab5551a4",
+        "filename": "src/core/SkColorSpaceXformImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-05T20:03:53Z",
+      "side": 1,
+      "message": "wow, that seems wacky -- same ID but different colors?",
+      "range": {
+        "startLine": 18,
+        "startChar": 22,
+        "endLine": 18,
+        "endChar": 28
+      },
+      "revId": "a73d741f44a9ac0320be5e4aea0154d286f48aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
