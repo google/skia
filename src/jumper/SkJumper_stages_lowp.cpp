@@ -39,6 +39,7 @@ SI F operator-(F x, F y) { return x.vec - y.vec; }
 SI F operator*(F x, F y) { return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec)); }
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI F inv(F v) { return 1.0f - v; }
+SI F two(F v) { return v + v; }
 SI F lerp(F from, F to, F t) { return to*t + from*inv(t); }
 
 SI F operator<<(F x, int bits) { return x.vec << bits; }
@@ -283,6 +284,20 @@ STAGE(move_dst_src) {
     }                                          \
     SI F name##_channel(F s, F d, F sa, F da)
 
-BLEND_MODE(srcover) { return mad(d, inv(sa), s); }
+BLEND_MODE(clear)    { return 0.0f; }
+BLEND_MODE(srcatop)  { return s*da + d*inv(sa); }
+BLEND_MODE(dstatop)  { return d*sa + s*inv(da); }
+BLEND_MODE(srcin)    { return s * da; }
+BLEND_MODE(dstin)    { return d * sa; }
+BLEND_MODE(srcout)   { return s * inv(da); }
+BLEND_MODE(dstout)   { return d * inv(sa); }
+BLEND_MODE(srcover)  { return mad(d, inv(sa), s); }
+BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
+
+BLEND_MODE(modulate) { return s*d; }
+BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
+BLEND_MODE(plus_)    { return s + d; }
+BLEND_MODE(screen)   { return s + inv(s)*d; }
+BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 
 #undef BLEND_MODE

@@ -31,7 +31,7 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
 
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
-    #if 0
+    #if 1
         #include <atomic>
 
         #define M(st) #st,
@@ -83,7 +83,20 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(swap)              \
     M(move_src_dst)      \
     M(move_dst_src)      \
-    M(srcover)
+    M(clear)             \
+    M(srcatop)           \
+    M(dstatop)           \
+    M(srcin)             \
+    M(dstin)             \
+    M(srcout)            \
+    M(dstout)            \
+    M(srcover)           \
+    M(dstover)           \
+    M(modulate)          \
+    M(multiply)          \
+    M(plus_)             \
+    M(screen)            \
+    M(xor_)
 
 extern "C" {
 
@@ -232,6 +245,7 @@ StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
             #define M(st) case SkRasterPipeline::st: fn = ASM(st, ssse3_lowp); break;
                 LOWP_STAGES(M)
             #undef M
+                case SkRasterPipeline::clamp_0: continue;  // clamp_0 is a no-op in lowp.
                 default:
                     log_missing(st->stage);
                     ip = reset_point;
