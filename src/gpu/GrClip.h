@@ -90,12 +90,16 @@ public:
      */
     template <typename TRect>
     constexpr static bool IsOutsideClip(const TRect& outerClipBounds, const SkRect& queryBounds) {
-        return outerClipBounds.fRight - outerClipBounds.fLeft <= kBoundsTolerance ||
-               outerClipBounds.fBottom - outerClipBounds.fTop <= kBoundsTolerance ||
-               outerClipBounds.fLeft >= queryBounds.fRight - kBoundsTolerance ||
-               outerClipBounds.fTop >= queryBounds.fBottom - kBoundsTolerance ||
-               outerClipBounds.fRight <= queryBounds.fLeft + kBoundsTolerance ||
-               outerClipBounds.fBottom <= queryBounds.fTop + kBoundsTolerance;
+        return
+            // Is the clip so small that it is effectively empty?
+            outerClipBounds.fRight - outerClipBounds.fLeft <= kBoundsTolerance ||
+            outerClipBounds.fBottom - outerClipBounds.fTop <= kBoundsTolerance ||
+
+            // Are the query bounds effectively outside the clip?
+            outerClipBounds.fLeft >= queryBounds.fRight - kBoundsTolerance ||
+            outerClipBounds.fTop >= queryBounds.fBottom - kBoundsTolerance ||
+            outerClipBounds.fRight <= queryBounds.fLeft + kBoundsTolerance ||
+            outerClipBounds.fBottom <= queryBounds.fTop + kBoundsTolerance;
     }
 
     /**
