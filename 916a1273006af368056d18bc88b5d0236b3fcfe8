@@ -22,6 +22,30 @@
       "revId": "916a1273006af368056d18bc88b5d0236b3fcfe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e64437a0_16fd091e",
+        "filename": "src/jumper/SkJumper_stages_lowp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-05T19:24:07Z",
+      "side": 1,
+      "message": "Yep.  This way the constants are mostly the same across both stage precisions.",
+      "parentUuid": "81f4cef0_17af99bc",
+      "range": {
+        "startLine": 287,
+        "startChar": 31,
+        "endLine": 287,
+        "endChar": 32
+      },
+      "revId": "916a1273006af368056d18bc88b5d0236b3fcfe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
