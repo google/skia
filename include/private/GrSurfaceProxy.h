@@ -244,7 +244,7 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
-    virtual GrSurface* instantiate(GrResourceProvider* resourceProvider) = 0;
+    virtual bool instantiate(GrResourceProvider* resourceProvider) = 0;
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
@@ -347,9 +347,9 @@ protected:
         return this->internalHasPendingWrite();
     }
 
-    GrSurface* instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                               GrSurfaceFlags flags, bool isMipMapped,
-                               SkDestinationSurfaceColorMode mipColorMode);
+    bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
+                         GrSurfaceFlags flags, bool isMipMapped,
+                         SkDestinationSurfaceColorMode mipColorMode);
 
     // For wrapped resources, 'fConfig', 'fWidth', 'fHeight', and 'fOrigin; will always be filled in
     // from the wrapped resource.

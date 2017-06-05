@@ -36,7 +36,11 @@ public:
         return fProxy.get();
     }
     GrTexture* peekTexture() const override {
-        return fProxy->instantiateTexture(fContext->resourceProvider());
+        if (!fProxy->instantiate(fContext->resourceProvider())) {
+            return nullptr;
+        }
+
+        return fProxy->priv().peekTexture();
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
         return fProxy;
