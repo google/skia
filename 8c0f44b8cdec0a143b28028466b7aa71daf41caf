@@ -16,6 +16,24 @@
       "revId": "8c0f44b8cdec0a143b28028466b7aa71daf41caf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97caa4f1_f2de93cf",
+        "filename": "src/shaders/gradients/SkLinearGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-05T20:05:19Z",
+      "side": 1,
+      "message": "Yeah, looks like the hicolor bench doesn\u0027t use positions.  Interestingly, this also beats the 2pt-positioned bench and is pretty close to the unpositioned 2pt fastpath:\n\nBefore:\n\n    452.76  \tgradient_linear_clamp_pos\tsrgb\n    294.19  \tgradient_linear_clamp_pos\tf16\n    399.90 ?\tgradient_linear_clamp\tsrgb\n    209.96 !\tgradient_linear_clamp\tf16\n\nAfter (forcing burst mode on):\n\n    404.05  \tgradient_linear_clamp_pos\tsrgb\n    242.84  \tgradient_linear_clamp_pos\tf16\n    395.75  \tgradient_linear_clamp\tsrgb\n    234.54  \tgradient_linear_clamp\tf16",
+      "parentUuid": "db8c4fcb_2434de31",
+      "revId": "8c0f44b8cdec0a143b28028466b7aa71daf41caf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
