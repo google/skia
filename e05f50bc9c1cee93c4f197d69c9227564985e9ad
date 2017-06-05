@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "487d9897_0fd2060c",
+        "filename": "include/codec/SkEncodedInfo.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-05T14:22:04Z",
+      "side": 1,
+      "message": "I intended SkEncodedInfo to be a more informative replacement for SkImageInfo, which makes me feel like this doesn\u0027t fit here.  Maybe it\u0027s a better fit on SkCodec?\n\nFWIW, SkEncodedInfo never really caught on outside of SkCodec - so this is basically an info struct that might as well be private?\n\nI guess I would suggest making SkEncodedInfo private and/or moving this field to SkCodec.",
+      "range": {
+        "startLine": 72,
+        "startChar": 30,
+        "endLine": 72,
+        "endChar": 67
+      },
+      "revId": "e05f50bc9c1cee93c4f197d69c9227564985e9ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
