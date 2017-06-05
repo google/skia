@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a39ec3a_1544b3fb",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-05T13:20:52Z",
+      "side": 1,
+      "message": "I\u0027m wondering if this could/should be part of PathGeoBuilder. The main point of concern is that there has to be agreement about how the path is iterated since different iterator configurations may disagree about how many move-tos there are (I think anyway).",
+      "range": {
+        "startLine": 158,
+        "startChar": 4,
+        "endLine": 158,
+        "endChar": 37
+      },
+      "revId": "c63ce4a9000446c85f48b961f6e6a69c5f043bf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
