@@ -24,6 +24,7 @@ DEF_TEST(BadImage, reporter) {
         "ico_fuzz1.ico",
         "skbug3442.webp",
         "skbug3429.webp",
+        "b38116746.ico",
     };
 
     const char* badImagesFolder = "invalid_images";
