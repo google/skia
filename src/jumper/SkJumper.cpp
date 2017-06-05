@@ -26,6 +26,37 @@ static K kConstants = {
     {0,1,2,3,4,5,6,7},
 };
 
+#define M(st) +1
+static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
+#undef M
+
+#if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+    #if 0
+        #include <atomic>
+
+        #define M(st) #st,
+        static const char* kStageNames[] = { SK_RASTER_PIPELINE_STAGES(M) };
+        #undef M
+
+        static std::atomic<int> gMissingStageCounters[kNumStages];
+
+        static void log_missing(SkRasterPipeline::StockStage st) {
+            static SkOnce once;
+            once([] { atexit([] {
+                for (int i = 0; i < kNumStages; i++) {
+                    if (int count = gMissingStageCounters[i].load()) {
+                        SkDebugf("%7d\t%s\n", count, kStageNames[i]);
+                    }
+                }
+            }); });
+
+            gMissingStageCounters[st]++;
+        }
+    #else
+        static void log_missing(SkRasterPipeline::StockStage) {}
+    #endif
+#endif
+
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
@@ -37,6 +68,17 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
 #else
     #define ASM(name, suffix) _sk_##name##_##suffix
 #endif
+
+// Some stages have low-precision (~15 bit) versions from SkJumper_stages_lowp.cpp.
+#define LOWP_STAGES(M)  \
+    M(constant_color)   \
+    M(load_8888)        \
+    M(store_8888)       \
+    M(swap_rb)          \
+    M(swap)             \
+    M(move_src_dst)     \
+    M(move_dst_src)     \
+    M(srcover)
 
 extern "C" {
 
@@ -83,11 +125,9 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
-    StageFn ASM(load_8888,    ssse3_lowp),
-            ASM(store_8888,   ssse3_lowp),
-            ASM(swap_rb,      ssse3_lowp),
-            ASM(move_src_dst, ssse3_lowp),
-            ASM(srcover,      ssse3_lowp);
+    #define M(st) StageFn ASM(st,ssse3_lowp);
+        LOWP_STAGES(M)
+    #undef M
 #endif
 
     // Portable, single-pixel stages.
@@ -97,10 +137,6 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 }
-
-#define M(st) +1
-static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
-#undef M
 
 // Engines comprise everything we need to run SkRasterPipelines.
 struct SkJumper_Engine {
@@ -188,13 +224,11 @@ StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
         for (const StageList* st = fStages; st; st = st->prev) {
             StageFn* fn = nullptr;
             switch (st->stage) {
-                case SkRasterPipeline::load_8888:    fn = ASM(load_8888,    ssse3_lowp); break;
-                case SkRasterPipeline::store_8888:   fn = ASM(store_8888,   ssse3_lowp); break;
-                case SkRasterPipeline::swap_rb:      fn = ASM(swap_rb,      ssse3_lowp); break;
-                case SkRasterPipeline::move_src_dst: fn = ASM(move_src_dst, ssse3_lowp); break;
-                case SkRasterPipeline::srcover:      fn = ASM(srcover,      ssse3_lowp); break;
+            #define M(st) case SkRasterPipeline::st: fn = ASM(st, ssse3_lowp); break;
+                LOWP_STAGES(M)
+            #undef M
                 default:
-                    //SkDebugf("can't %d\n", st->stage);
+                    log_missing(st->stage);
                     ip = reset_point;
             }
             if (ip == reset_point) {
