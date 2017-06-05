@@ -59,7 +59,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     if (SkBackingFit::kApprox == fFit) {
-        fTarget = resourceProvider->createApproxTexture(desc, fFlags);
+        fTarget = resourceProvider->createApproxTexture(desc, fFlags).release();
     } else {
         fTarget = resourceProvider->createTexture(desc, fBudgeted, fFlags).release();
     }
@@ -172,7 +172,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     sk_sp<GrTexture> tex;
 
     if (SkBackingFit::kApprox == fit) {
-        tex.reset(resourceProvider->createApproxTexture(copyDesc, flags));
+        tex = resourceProvider->createApproxTexture(copyDesc, flags);
     } else {
         tex = resourceProvider->createTexture(copyDesc, budgeted, flags);
     }

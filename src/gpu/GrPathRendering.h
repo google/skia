@@ -81,30 +81,27 @@ public:
 
     /**
      * Creates a new gpu path, based on the specified path and stroke and returns it.
-     * The caller owns a ref on the returned path which must be balanced by a call to unref.
      *
      * @param SkPath    the geometry.
      * @param GrStyle   the style applied to the path. Styles with non-dash path effects are not
      *                  allowed.
      * @return a new GPU path object.
      */
-    virtual GrPath* createPath(const SkPath&, const GrStyle&) = 0;
+    virtual sk_sp<GrPath> createPath(const SkPath&, const GrStyle&) = 0;
 
     /**
-     * Creates a range of gpu paths with a common style. The caller owns a ref on the
-     * returned path range which must be balanced by a call to unref.
+     * Creates a range of gpu paths with a common style.
      *
      * @param PathGenerator class that generates SkPath objects for each path in the range.
      * @param GrStyle   the common style applied to each path in the range. Styles with non-dash
      *                  path effects are not allowed.
      * @return a new path range.
      */
-    virtual GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStyle&) = 0;
+    virtual sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*, const GrStyle&) = 0;
 
     /**
      * Creates a range of glyph paths, indexed by glyph id. The glyphs will have an
-     * inverted y-direction in order to match the raw font path data. The caller owns
-     * a ref on the returned path range which must be balanced by a call to unref.
+     * inverted y-direction in order to match the raw font path data.
      *
      * @param SkTypeface   Typeface that defines the glyphs.
      *                     If null, the default typeface will be used.
@@ -129,8 +126,8 @@ public:
      *
      * @return a new path range populated with glyphs.
      */
-    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                              const SkDescriptor*, const GrStyle&);
+    sk_sp<GrPathRange> createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
+                                    const SkDescriptor*, const GrStyle&);
 
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {

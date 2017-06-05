@@ -126,8 +126,8 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
     return true;
 }
 
-GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
-                                const SkTArray<GrMipLevel>& texels) {
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
+                                      const SkTArray<GrMipLevel>& texels) {
     GrSurfaceDesc desc = origDesc;
 
     const GrCaps* caps = this->caps();
@@ -148,7 +148,7 @@ GrTexture* GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budget
     }
 
     this->handleDirtyContext();
-    GrTexture* tex = this->onCreateTexture(desc, budgeted, texels);
+    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels);
     if (tex) {
         if (!caps->reuseScratchTextures() && !isRT) {
             tex->resourcePriv().removeScratchKey();

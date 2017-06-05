@@ -12,6 +12,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "GrPath.h"
 #include "GrPathRendering.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetPriv.h"
@@ -198,11 +199,11 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, Sk
         return tex;
     }
 
-    tex.reset(fGpu->createTexture(desc, budgeted));
-    return tex;
+    return fGpu->createTexture(desc, budgeted);
 }
 
-GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, uint32_t flags) {
+sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc,
+                                                         uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(0 == flags || kNoPendingIO_Flag == flags);
 
@@ -217,7 +218,8 @@ GrTexture* GrResourceProvider::createApproxTexture(const GrSurfaceDesc& desc, ui
     return this->refScratchTexture(desc, flags);
 }
 
-GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc, uint32_t flags) {
+sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc,
+                                                       uint32_t flags) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
     SkASSERT(validate_desc(inDesc, *fCaps));
@@ -250,7 +252,7 @@ GrTexture* GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDesc, ui
                                                                    scratchFlags);
         if (resource) {
             GrSurface* surface = static_cast<GrSurface*>(resource);
-            return surface->asTexture();
+            return sk_sp<GrTexture>(surface->asTexture());
         }
     }
 
@@ -379,21 +381,21 @@ const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
     return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
 
-GrPath* GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
+sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createPath(path, style);
 }
 
-GrPathRange* GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
-                                                 const GrStyle& style) {
+sk_sp<GrPathRange> GrResourceProvider::createPathRange(GrPathRange::PathGenerator* gen,
+                                                       const GrStyle& style) {
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createPathRange(gen, style);
 }
 
-GrPathRange* GrResourceProvider::createGlyphs(const SkTypeface* tf,
-                                              const SkScalerContextEffects& effects,
-                                              const SkDescriptor* desc,
-                                              const GrStyle& style) {
+sk_sp<GrPathRange> GrResourceProvider::createGlyphs(const SkTypeface* tf,
+                                                    const SkScalerContextEffects& effects,
+                                                    const SkDescriptor* desc,
+                                                    const GrStyle& style) {
 
     SkASSERT(this->gpu()->pathRendering());
     return this->gpu()->pathRendering()->createGlyphs(tf, effects, desc, style);

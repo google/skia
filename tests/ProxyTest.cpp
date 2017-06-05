@@ -137,7 +137,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex.reset(provider->createApproxTexture(desc, 0));
+                                    tex = provider->createApproxTexture(desc, 0);
                                 } else {
                                     tex = provider->createTexture(desc, budgeted);
                                 }
@@ -170,7 +170,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
-                                    tex.reset(provider->createApproxTexture(desc, 0));
+                                    tex = provider->createApproxTexture(desc, 0);
                                 } else {
                                     tex = provider->createTexture(desc, budgeted);
                                 }

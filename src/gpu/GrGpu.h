@@ -105,19 +105,20 @@ public:
      *                    uninitialized.
      * @return    The texture object if successful, otherwise nullptr.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                             const SkTArray<GrMipLevel>& texels);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                   const SkTArray<GrMipLevel>& texels);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
         return this->createTexture(desc, budgeted, SkTArray<GrMipLevel>());
     }
 
     /** Simplified createTexture() interface for when there is only a base level */
-    GrTexture* createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted, const void* level0Data,
-                             size_t rowBytes) {
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                   const void* level0Data,
+                                   size_t rowBytes) {
         SkASSERT(level0Data);
         GrMipLevel level = { level0Data, rowBytes };
         SkSTArray<1, GrMipLevel> array;
@@ -546,9 +547,9 @@ private:
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
-    virtual GrTexture* onCreateTexture(const GrSurfaceDesc& desc,
-                                       SkBudgeted budgeted,
-                                       const SkTArray<GrMipLevel>& texels) = 0;
+    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
+                                             SkBudgeted budgeted,
+                                             const SkTArray<GrMipLevel>& texels) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                                   GrSurfaceOrigin,

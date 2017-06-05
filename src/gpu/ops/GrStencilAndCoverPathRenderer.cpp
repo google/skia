@@ -59,7 +59,7 @@ static GrPath* get_gr_path(GrResourceProvider* resourceProvider, const GrShape& 
     if (!path) {
         SkPath skPath;
         shape.asPath(&skPath);
-        path.reset(resourceProvider->createPath(skPath, shape.style()));
+        path = resourceProvider->createPath(skPath, shape.style());
         if (!isVolatile) {
             resourceProvider->assignUniqueKeyToResource(key, path.get());
         }

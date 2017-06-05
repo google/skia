@@ -1281,7 +1281,7 @@ FAILED:
 }
 
 // good to set a break-point here to know when createTexture fails
-static GrTexture* return_null_texture() {
+static sk_sp<GrTexture> return_null_texture() {
 //    SkDEBUGFAIL("null texture");
     return nullptr;
 }
@@ -1318,9 +1318,9 @@ static void set_initial_texture_params(const GrGLInterface* interface,
                                         initialTexParams->fWrapT));
 }
 
-GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
-                                    SkBudgeted budgeted,
-                                    const SkTArray<GrMipLevel>& origTexels) {
+sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                          SkBudgeted budgeted,
+                                          const SkTArray<GrMipLevel>& origTexels) {
     // We fail if the MSAA was requested and is not available.
     if (GrGLCaps::kNone_MSFBOType == this->glCaps().msFBOType() && desc.fSampleCnt) {
         //SkDebugf("MSAA RT requested but not supported on this platform.");
@@ -1361,7 +1361,7 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         wasMipMapDataProvided = true;
     }
 
-    GrGLTexture* tex;
+    sk_sp<GrGLTexture> tex;
     if (isRenderTarget) {
         // unbind the texture from the texture unit before binding it to the frame buffer
         GL_CALL(BindTexture(idDesc.fInfo.fTarget, 0));
@@ -1371,10 +1371,10 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             GL_CALL(DeleteTextures(1, &idDesc.fInfo.fID));
             return return_null_texture();
         }
-        tex = new GrGLTextureRenderTarget(this, budgeted, desc, idDesc, rtIDDesc,
-                                          wasMipMapDataProvided);
+        tex = sk_make_sp<GrGLTextureRenderTarget>(this, budgeted, desc, idDesc, rtIDDesc,
+                                                  wasMipMapDataProvided);
     } else {
-        tex = new GrGLTexture(this, budgeted, desc, idDesc, wasMipMapDataProvided);
+        tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, wasMipMapDataProvided);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
@@ -1389,14 +1389,15 @@ GrTexture* GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         } else {
             SkASSERT(!GrPixelConfigIsSint(desc.fConfig));
             GrGLIRect viewport;
-            this->bindSurfaceFBOForPixelOps(tex, GR_GL_FRAMEBUFFER, &viewport, kDst_TempFBOTarget);
+            this->bindSurfaceFBOForPixelOps(tex.get(), GR_GL_FRAMEBUFFER, &viewport,
+                                            kDst_TempFBOTarget);
             this->disableScissor();
             this->disableWindowRectangles();
             GL_CALL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
             fHWWriteToColor = kYes_TriState;
             GL_CALL(ClearColor(0, 0, 0, 0));
             GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
-            this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex);
+            this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, tex.get());
             fHWBoundRenderTargetUniqueID.makeInvalid();
         }
     }
@@ -2034,7 +2035,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         desc.fWidth = desc.fHeight = 16;
         if (this->glCaps().isConfigRenderable(rtConfig, false)) {
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            temp.reset(this->createTexture(desc, SkBudgeted::kNo));
+            temp = this->createTexture(desc, SkBudgeted::kNo);
             if (!temp) {
                 return false;
             }
@@ -2042,7 +2043,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
             this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
             return true;
         } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
-            temp.reset(this->createTexture(desc, SkBudgeted::kNo));
+            temp = this->createTexture(desc, SkBudgeted::kNo);
             if (!temp) {
                 return false;
             }
