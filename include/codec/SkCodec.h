@@ -10,6 +10,7 @@
 
 #include "../private/SkTemplates.h"
 #include "SkColor.h"
+#include "SkColorSpaceXform.h"
 #include "SkEncodedImageFormat.h"
 #include "SkEncodedInfo.h"
 #include "SkImageInfo.h"
@@ -415,10 +416,10 @@ public:
      *  @return Enum representing success or reason for failure.
      */
     Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
-            const SkCodec::Options*, SkPMColor* ctable, int* ctableCount);
+            const Options*, SkPMColor* ctable, int* ctableCount);
 
     Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
-            const SkCodec::Options* options) {
+            const Options* options) {
         return this->startIncrementalDecode(dstInfo, dst, rowBytes, options, nullptr, nullptr);
     }
 
@@ -483,7 +484,7 @@ public:
      *      decoding the palette.
      *  @return Enum representing success or reason for failure.
      */
-    Result startScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options* options,
+    Result startScanlineDecode(const SkImageInfo& dstInfo, const Options* options,
             SkPMColor ctable[], int* ctableCount);
 
     /**
@@ -678,12 +679,15 @@ public:
     }
 
 protected:
+    using XformFormat = SkColorSpaceXform::ColorFormat;
+
     /**
      *  Takes ownership of SkStream*
      */
     SkCodec(int width,
             int height,
             const SkEncodedInfo&,
+            XformFormat srcFormat,
             SkStream*,
             sk_sp<SkColorSpace>,
             Origin = kTopLeft_Origin);
@@ -694,6 +698,7 @@ protected:
      */
     SkCodec(const SkEncodedInfo&,
             const SkImageInfo&,
+            XformFormat srcFormat,
             SkStream*,
             Origin = kTopLeft_Origin);
 
@@ -805,7 +810,7 @@ protected:
 
     const SkImageInfo& dstInfo() const { return fDstInfo; }
 
-    const SkCodec::Options& options() const { return fOptions; }
+    const Options& options() const { return fOptions; }
 
     /**
      *  Returns the number of scanlines that have been decoded so far.
@@ -819,7 +824,11 @@ protected:
 
     bool initializeColorXform(const SkImageInfo& dstInfo,
                               SkTransferFunctionBehavior premulBehavior);
+    void applyColorXform(void* dst, const void* src, int count, SkAlphaType) const;
+    void applyColorXform(void* dst, const void* src, int count) const;
+
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
+    bool xformOnDecode() const { return fXformOnDecode; }
 
     virtual int onGetFrameCount() {
         return 1;
@@ -838,13 +847,16 @@ protected:
 private:
     const SkEncodedInfo                fEncodedInfo;
     const SkImageInfo                  fSrcInfo;
+    const XformFormat                  fSrcXformFormat;
     std::unique_ptr<SkStream>          fStream;
     bool                               fNeedsRewind;
     const Origin                       fOrigin;
 
     SkImageInfo                        fDstInfo;
-    SkCodec::Options                   fOptions;
+    Options                            fOptions;
+    XformFormat                        fDstXformFormat; // Based on fDstInfo.
     std::unique_ptr<SkColorSpaceXform> fColorXform;
+    bool                               fXformOnDecode;
 
     // Only meaningful during scanline decodes.
     int                                fCurrScanline;
@@ -868,13 +880,13 @@ private:
     }
 
     // Methods for scanline decoding.
-    virtual SkCodec::Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
-            const SkCodec::Options& /*options*/, SkPMColor* /*ctable*/, int* /*ctableCount*/) {
+    virtual Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
+            const Options& /*options*/, SkPMColor* /*ctable*/, int* /*ctableCount*/) {
         return kUnimplemented;
     }
 
     virtual Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
-            const SkCodec::Options&, SkPMColor*, int*) {
+            const Options&, SkPMColor*, int*) {
         return kUnimplemented;
     }
 

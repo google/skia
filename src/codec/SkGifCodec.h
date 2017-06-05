@@ -151,7 +151,6 @@ private:
     // the background, in which case it is set once and left alone.
     int                                 fRowsDecoded;
     std::unique_ptr<uint32_t[]>         fXformBuffer;
-    bool                                fXformOnDecode;
 
     typedef SkCodec INHERITED;
 };

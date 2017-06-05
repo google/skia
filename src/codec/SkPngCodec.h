@@ -114,8 +114,6 @@ private:
     virtual Result decode(int* rowsDecoded) = 0;
 
     XformMode                      fXformMode;
-    SkColorSpaceXform::ColorFormat fXformColorFormat;
-    SkAlphaType                    fXformAlphaType;
     int                            fXformWidth;
 
     size_t                         fIdatLength;

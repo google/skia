@@ -107,7 +107,9 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
 }
 
 SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
+    // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
+    : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(),
+                stream, SkColorSpace::MakeSRGB())
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
     , fColorTable(nullptr)

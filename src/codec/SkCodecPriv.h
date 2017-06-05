@@ -323,11 +323,6 @@ static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaTy
     return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
 
-static inline bool apply_xform_on_decode(SkColorType dstColorType, SkEncodedInfo::Color srcColor) {
-    // We will apply the color xform when reading the color table unless F16 is requested.
-    return SkEncodedInfo::kPalette_Color != srcColor || kRGBA_F16_SkColorType == dstColorType;
-}
-
 /*
  * Alpha Type Conversions
  * - kOpaque to kOpaque, kUnpremul, kPremul is valid
@@ -362,25 +357,6 @@ static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo
                    kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
         default:
             return false;
-    }
-}
-
-static inline SkColorSpaceXform::ColorFormat select_xform_format_ct(SkColorType colorType) {
-    switch (colorType) {
-        case kRGBA_8888_SkColorType:
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
-        case kBGRA_8888_SkColorType:
-            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
-        case kRGB_565_SkColorType:
-        case kIndex_8_SkColorType:
-#ifdef SK_PMCOLOR_IS_RGBA
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
-#else
-            return SkColorSpaceXform::kBGRA_8888_ColorFormat;
-#endif
-        default:
-            SkASSERT(false);
-            return SkColorSpaceXform::kRGBA_8888_ColorFormat;
     }
 }
 

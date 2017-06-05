@@ -296,15 +296,8 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo, int* ctableCount) 
         }
     }
 
-    if (this->colorXform() &&
-            !apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color())) {
-        const SkColorSpaceXform::ColorFormat dstFormat =
-                select_xform_format_ct(dstInfo.colorType());
-        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
-        const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                              this->getInfo().alphaType());
-        SkAssertResult(this->colorXform()->apply(dstFormat, colorTable, srcFormat, colorTable,
-                       numColors, xformAlphaType));
+    if (this->colorXform() && !this->xformOnDecode()) {
+        this->applyColorXform(colorTable, colorTable, numColors);
     }
 
     // Pad the color table with the last color in the table (or black) in the case that
@@ -476,20 +469,16 @@ static SkColorSpaceXform::ColorFormat png_select_xform_format(const SkEncodedInf
 }
 
 void SkPngCodec::applyXformRow(void* dst, const void* src) {
-    const SkColorSpaceXform::ColorFormat srcColorFormat =
-            png_select_xform_format(this->getEncodedInfo());
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
             fSwizzler->swizzle(dst, (const uint8_t*) src);
             break;
         case kColorOnly_XformMode:
-            SkAssertResult(this->colorXform()->apply(fXformColorFormat, dst, srcColorFormat, src,
-                    fXformWidth, fXformAlphaType));
+            this->applyColorXform(dst, src, fXformWidth);
             break;
         case kSwizzleColor_XformMode:
             fSwizzler->swizzle(fColorXformSrcRow, (const uint8_t*) src);
-            SkAssertResult(this->colorXform()->apply(fXformColorFormat, dst, srcColorFormat,
-                    fColorXformSrcRow, fXformWidth, fXformAlphaType));
+            this->applyColorXform(dst, fColorXformSrcRow, fXformWidth);
             break;
     }
 }
@@ -958,7 +947,7 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
 SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
                        SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
                        void* info_ptr, int bitDepth)
-    : INHERITED(encodedInfo, imageInfo, stream)
+    : INHERITED(encodedInfo, imageInfo, png_select_xform_format(encodedInfo), stream)
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
@@ -1039,15 +1028,9 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
 void SkPngCodec::initializeXformParams() {
     switch (fXformMode) {
         case kColorOnly_XformMode:
-            fXformColorFormat = select_xform_format(this->dstInfo().colorType());
-            fXformAlphaType = select_xform_alpha(this->dstInfo().alphaType(),
-                                                 this->getInfo().alphaType());
             fXformWidth = this->dstInfo().width();
             break;
         case kSwizzleColor_XformMode:
-            fXformColorFormat = select_xform_format(this->dstInfo().colorType());
-            fXformAlphaType = select_xform_alpha(this->dstInfo().alphaType(),
-                                                 this->getInfo().alphaType());
             fXformWidth = this->swizzler()->swizzleWidth();
             break;
         default:
@@ -1060,9 +1043,7 @@ void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& o
     SkImageInfo swizzlerInfo = dstInfo;
     Options swizzlerOptions = options;
     fXformMode = kSwizzleOnly_XformMode;
-    if (this->colorXform() &&
-        apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color()))
-    {
+    if (this->colorXform() && this->xformOnDecode()) {
         swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
         if (kPremul_SkAlphaType == dstInfo.alphaType()) {
             swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
