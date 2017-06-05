@@ -22,6 +22,30 @@
       "revId": "a73d741f44a9ac0320be5e4aea0154d286f48aa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "349014fa_29516e5a",
+        "filename": "src/core/SkColorSpaceXformImageGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-05T20:15:07Z",
+      "side": 1,
+      "message": "Yes this is wacky.  It is to preserve Android\u0027s kNeverCopyPixels behavior.\n\nWhen Android calls drawBitmap(), we wrap it in an SkImage and draw.  In the case that we need a color xform, we wrap it in a SkCSXImage and draw.  In order to avoid repeating the upload+colorxform step every time we draw, we want the gen id on the image to always match the bitmap.\n\nThis requires a guarantee: when Android draws these pixels, they are always drawn with the same color space.\n\nThis complexity will go away when Android just uses SkImages.\n\n----------------\n\nMaybe I should just make this weird gen id hackery available from the private constructor?  Or I can remove it altogether from this CL, and we can consider it on its own with changes to the Android API.",
+      "parentUuid": "ee5b787e_ab5551a4",
+      "range": {
+        "startLine": 18,
+        "startChar": 22,
+        "endLine": 18,
+        "endChar": 28
+      },
+      "revId": "a73d741f44a9ac0320be5e4aea0154d286f48aa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
