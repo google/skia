@@ -183,9 +183,14 @@ public:
     // copy methods
 
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY) const;
+                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const {
         return this->readPixels(dstInfo, dstPixels, dstRowBytes, 0, 0);
+    }
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
+                    int srcY) const {
+        return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
+                                SkTransferFunctionBehavior::kRespect);
     }
     bool readPixels(const SkPixmap& dst, int srcX, int srcY) const {
         return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
