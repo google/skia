@@ -348,17 +348,21 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
 sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target,
                                                 SkColorType targetColorType,
                                                 SkTransferFunctionBehavior premulBehavior) const {
-    SkImageInfo dstInfo = fBitmap.info().makeColorType(targetColorType).makeColorSpace(target);
-    SkBitmap dst;
-    dst.allocPixels(dstInfo);
-
     SkPixmap src;
     SkAssertResult(fBitmap.peekPixels(&src));
 
     // Treat nullptr srcs as sRGB.
     if (!src.colorSpace()) {
+        if (target->isSRGB()) {
+            return sk_ref_sp(const_cast<SkImage*>((SkImage*)this));
+        }
+
         src.setColorSpace(SkColorSpace::MakeSRGB());
     }
+
+    SkImageInfo dstInfo = fBitmap.info().makeColorType(targetColorType).makeColorSpace(target);
+    SkBitmap dst;
+    dst.allocPixels(dstInfo);
 
     SkAssertResult(dst.writePixels(src, 0, 0, premulBehavior));
     dst.setImmutable();
