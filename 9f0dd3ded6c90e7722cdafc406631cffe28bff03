@@ -16,6 +16,24 @@
       "revId": "9f0dd3ded6c90e7722cdafc406631cffe28bff03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b316535_c7e7510d",
+        "filename": "tools/gpu/gl/angle/GLTestContext_angle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-05T15:11:24Z",
+      "side": 1,
+      "message": "ANGLE only seems to report the underlying interface so the Direct3D interfaces don\u0027t say OpenGL and the OpenGL interfaces don\u0027t mention Direct3D.",
+      "parentUuid": "6dc9e5a7_18de757d",
+      "revId": "9f0dd3ded6c90e7722cdafc406631cffe28bff03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
