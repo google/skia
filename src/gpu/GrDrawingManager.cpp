@@ -283,6 +283,15 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                                                   GrPathRendererChain::DrawType drawType,
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
+    if (!fSoftwarePathRenderer) {
+        fSoftwarePathRenderer =
+                new GrSoftwarePathRenderer(fContext->resourceProvider(),
+                                           fOptionsForPathRendererChain.fAllowPathMaskCaching);
+    }
+    if (fSoftwarePathRenderer->canDrawPath(args)) {
+        return fSoftwarePathRenderer;
+    }
+
     if (!fPathRendererChain) {
         fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
     }
