@@ -420,12 +420,6 @@ def dm_flags(bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
-  if 'Vulkan' in bot and 'Adreno' in bot:
-    # skia:5777
-    match.extend(['~XfermodeImageFilterCroppedInput',
-                  '~GrTextureStripAtlasFlush',
-                  '~CopySurface'])
-
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.extend(['~hardstop_gradient', # skia:6037
                   '~gradients_dup_color_stops',  # skia:6037
