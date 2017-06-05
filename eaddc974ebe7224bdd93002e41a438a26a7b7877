@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c51d9f9a_01bfd66e",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-05T16:41:39Z",
+      "side": 1,
+      "message": "Done. Now we have a scoped execution using a member function.",
+      "parentUuid": "3100b7cc_ce492039",
+      "range": {
+        "startLine": 36,
+        "startChar": 9,
+        "endLine": 36,
+        "endChar": 20
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d12812cd_3fea2e7e",
         "filename": "src/core/SkThreadedBMPDevice.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2017-05-25T20:40:41Z",
       "side": 1,
       "message": "Can\u0027t this be SkTArray\u003cstd::mutex\u003e?",
+      "range": {
+        "startLine": 65,
+        "startChar": 13,
+        "endLine": 65,
+        "endChar": 17
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ebc81f5_d55e6b9e",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-05T16:41:39Z",
+      "side": 1,
+      "message": "There seems no easy way to initialize SkTArray without triggering move or copy constructors (which std::mutex doesn\u0027t support). I\u0027m using std::vector instead so I don\u0027t have to use pointers.",
+      "parentUuid": "d12812cd_3fea2e7e",
       "range": {
         "startLine": 65,
         "startChar": 13,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7381bcd6_e552f0e6",
+        "filename": "src/core/SkThreadedBMPDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-05T16:41:39Z",
+      "side": 1,
+      "message": "I\u0027ve made all fIsFinishing load/store use std::memory_order_relaxed. I think that\u0027s sufficient (no additional small class seems to be needed)",
+      "parentUuid": "08f65374_d1b6d362",
+      "range": {
+        "startLine": 85,
+        "startChar": 16,
+        "endLine": 85,
+        "endChar": 28
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1a62589e_43a6db5c",
         "filename": "src/core/SkThreadedBMPDevice.h",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2017-05-25T20:40:41Z",
       "side": 1,
       "message": "Can you make the class an interface with no state or shared implementation.",
+      "range": {
+        "startLine": 18,
+        "startChar": 6,
+        "endLine": 18,
+        "endChar": 24
+      },
+      "revId": "eaddc974ebe7224bdd93002e41a438a26a7b7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e1c8c0d_6549eff2",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-05T16:41:39Z",
+      "side": 1,
+      "message": "Sure. I also created a Base class for some shared logic and data structures. The most important new change might be the TileScheduleData memory layout which is specified by each scheduler. That memory is intended to be thread local and we use alignas to avoid false sharing.",
+      "parentUuid": "1a62589e_43a6db5c",
       "range": {
         "startLine": 18,
         "startChar": 6,
