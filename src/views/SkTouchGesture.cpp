@@ -331,10 +331,12 @@ bool SkTouchGesture::handleDblTap(float x, float y) {
     return found;
 }
 
-void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect) {
+void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect,
+                                   const SkMatrix& preTouchMatrix) {
     fIsTransLimited = true;
     fContentRect = contentRect;
     fWindowRect = windowRect;
+    fPreTouchM = preTouchMatrix;
 }
 
 void SkTouchGesture::limitTrans() {
@@ -343,6 +345,7 @@ void SkTouchGesture::limitTrans() {
     }
 
     SkRect scaledContent = fContentRect;
+    fPreTouchM.mapRect(&scaledContent);
     fGlobalM.mapRect(&scaledContent);
     const SkScalar ZERO = 0;
 
