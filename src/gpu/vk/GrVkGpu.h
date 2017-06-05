@@ -173,8 +173,8 @@ private:
 
     void destroyResources();
 
-    GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                               const SkTArray<GrMipLevel>&) override;
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                     const SkTArray<GrMipLevel>&) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrSurfaceOrigin,

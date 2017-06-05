@@ -679,8 +679,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                    const SkTArray<GrMipLevel>& texels) {
+sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                          const SkTArray<GrMipLevel>& texels) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -724,7 +724,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    GrVkTexture* tex;
+    sk_sp<GrVkTexture> tex;
     if (renderTarget) {
         tex = GrVkTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted, desc,
                                                                     imageDesc);
@@ -738,7 +738,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
 
     if (!texels.empty()) {
         SkASSERT(texels.begin()->fPixels);
-        if (!this->uploadTexDataOptimal(tex, 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
+        if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                         texels)) {
             tex->unref();
             return nullptr;
@@ -756,7 +756,7 @@ GrTexture* GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budget
         range.levelCount = 1;
         tex->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
-        this->currentCommandBuffer()->clearColorImage(this, tex, &zeroClearColor, 1, &range);
+        this->currentCommandBuffer()->clearColorImage(this, tex.get(), &zeroClearColor, 1, &range);
     }
     return tex;
 }
