@@ -45,7 +45,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     bool iior;
     stack.getBounds(&stackBounds, &stackBoundsType, &iior);
 
-    if (stackBounds.isEmpty() || GrClip::IsOutsideClip(stackBounds, queryBounds)) {
+    if (GrClip::IsOutsideClip(stackBounds, queryBounds)) {
         bool insideOut = SkClipStack::kInsideOut_BoundsType == stackBoundsType;
         fInitialState = insideOut ? InitialState::kAllIn : InitialState::kAllOut;
         return;
@@ -72,7 +72,10 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         SkRect tightBounds;
         SkAssertResult(tightBounds.intersect(stackBounds, queryBounds));
         fIBounds = GrClip::GetPixelIBounds(tightBounds);
-        SkASSERT(!fIBounds.isEmpty()); // Empty should have been blocked by IsOutsideClip above.
+        if (fIBounds.isEmpty()) {
+            fInitialState = InitialState::kAllOut;
+            return;
+        }
         fHasIBounds = true;
 
         // Implement the clip with an AA rect element.
@@ -92,7 +95,10 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
     }
 
     fIBounds = GrClip::GetPixelIBounds(tighterQuery);
-    SkASSERT(!fIBounds.isEmpty()); // Empty should have been blocked by IsOutsideClip above.
+    if (fIBounds.isEmpty()) {
+        fInitialState = InitialState::kAllOut;
+        return;
+    }
     fHasIBounds = true;
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
