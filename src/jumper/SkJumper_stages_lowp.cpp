@@ -28,7 +28,7 @@ struct F {
     U16 vec;
 
     F() = default;
-    F(uint16_t bits) : vec(bits) {}
+    F(float f) : vec((uint16_t)(f * 0x8000)) {}
 
     F(U16 v) : vec(v) {}
     operator U16() const { return vec; }
@@ -38,6 +38,7 @@ SI F operator+(F x, F y) { return x.vec + y.vec; }
 SI F operator-(F x, F y) { return x.vec - y.vec; }
 SI F operator*(F x, F y) { return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec)); }
 SI F mad(F f, F m, F a) { return f*m+a; }
+SI F inv(F v) { return 1.0f - v; }
 
 SI F operator<<(F x, int bits) { return x.vec << bits; }
 SI F operator>>(F x, int bits) { return x.vec >> bits; }
@@ -178,3 +179,25 @@ STAGE(swap_rb) {
     r = b;
     b = tmp;
 }
+
+STAGE(move_src_dst) {
+    dr = r;
+    dg = g;
+    db = b;
+    da = a;
+}
+
+// Most blend modes apply the same logic to each channel.
+#define BLEND_MODE(name)                       \
+    SI F name##_channel(F s, F d, F sa, F da); \
+    STAGE(name) {                              \
+        r = name##_channel(r,dr,a,da);         \
+        g = name##_channel(g,dg,a,da);         \
+        b = name##_channel(b,db,a,da);         \
+        a = name##_channel(a,da,a,da);         \
+    }                                          \
+    SI F name##_channel(F s, F d, F sa, F da)
+
+BLEND_MODE(srcover) { return mad(d, inv(sa), s); }
+
+#undef BLEND_MODE

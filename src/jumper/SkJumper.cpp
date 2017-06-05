@@ -83,9 +83,11 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
-    StageFn ASM(load_8888,  ssse3_lowp),
-            ASM(store_8888, ssse3_lowp),
-            ASM(swap_rb,    ssse3_lowp);
+    StageFn ASM(load_8888,    ssse3_lowp),
+            ASM(store_8888,   ssse3_lowp),
+            ASM(swap_rb,      ssse3_lowp),
+            ASM(move_src_dst, ssse3_lowp),
+            ASM(srcover,      ssse3_lowp);
 #endif
 
     // Portable, single-pixel stages.
@@ -186,9 +188,11 @@ StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
         for (const StageList* st = fStages; st; st = st->prev) {
             StageFn* fn = nullptr;
             switch (st->stage) {
-                case SkRasterPipeline::load_8888:  fn = ASM(load_8888, ssse3_lowp); break;
-                case SkRasterPipeline::store_8888: fn = ASM(store_8888,ssse3_lowp); break;
-                case SkRasterPipeline::swap_rb:    fn = ASM(swap_rb,   ssse3_lowp); break;
+                case SkRasterPipeline::load_8888:    fn = ASM(load_8888,    ssse3_lowp); break;
+                case SkRasterPipeline::store_8888:   fn = ASM(store_8888,   ssse3_lowp); break;
+                case SkRasterPipeline::swap_rb:      fn = ASM(swap_rb,      ssse3_lowp); break;
+                case SkRasterPipeline::move_src_dst: fn = ASM(move_src_dst, ssse3_lowp); break;
+                case SkRasterPipeline::srcover:      fn = ASM(srcover,      ssse3_lowp); break;
                 default:
                     //SkDebugf("can't %d\n", st->stage);
                     ip = reset_point;

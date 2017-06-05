@@ -26366,7 +26366,7 @@ _sk_load_8888_ssse3_lowp LABEL PROC
   DB  117,113                             ; jne           1b7 <_sk_load_8888_ssse3_lowp+0x7b>
   DB  69,15,16,76,147,16                  ; movups        0x10(%r11,%rdx,4),%xmm9
   DB  69,15,16,4,147                      ; movups        (%r11,%rdx,4),%xmm8
-  DB  102,15,111,5,55,2,0,0               ; movdqa        0x237(%rip),%xmm0        # 390 <_sk_swap_rb_ssse3_lowp+0x14>
+  DB  102,15,111,5,167,2,0,0              ; movdqa        0x2a7(%rip),%xmm0        # 400 <_sk_srcover_ssse3_lowp+0x65>
   DB  102,68,15,56,0,192                  ; pshufb        %xmm0,%xmm8
   DB  102,68,15,56,0,200                  ; pshufb        %xmm0,%xmm9
   DB  102,65,15,111,208                   ; movdqa        %xmm8,%xmm2
@@ -26380,7 +26380,7 @@ _sk_load_8888_ssse3_lowp LABEL PROC
   DB  102,15,239,210                      ; pxor          %xmm2,%xmm2
   DB  102,65,15,96,208                    ; punpcklbw     %xmm8,%xmm2
   DB  102,65,15,104,216                   ; punpckhbw     %xmm8,%xmm3
-  DB  102,68,15,111,5,1,2,0,0             ; movdqa        0x201(%rip),%xmm8        # 3a0 <_sk_swap_rb_ssse3_lowp+0x24>
+  DB  102,68,15,111,5,113,2,0,0           ; movdqa        0x271(%rip),%xmm8        # 410 <_sk_srcover_ssse3_lowp+0x75>
   DB  102,65,15,228,192                   ; pmulhuw       %xmm8,%xmm0
   DB  102,65,15,228,200                   ; pmulhuw       %xmm8,%xmm1
   DB  102,65,15,228,208                   ; pmulhuw       %xmm8,%xmm2
@@ -26518,6 +26518,37 @@ _sk_swap_rb_ssse3_lowp LABEL PROC
   DB  65,15,40,208                        ; movaps        %xmm8,%xmm2
   DB  255,224                             ; jmpq          *%rax
 
+PUBLIC _sk_move_src_dst_ssse3_lowp
+_sk_move_src_dst_ssse3_lowp LABEL PROC
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  15,40,224                           ; movaps        %xmm0,%xmm4
+  DB  15,40,233                           ; movaps        %xmm1,%xmm5
+  DB  15,40,242                           ; movaps        %xmm2,%xmm6
+  DB  15,40,251                           ; movaps        %xmm3,%xmm7
+  DB  255,224                             ; jmpq          *%rax
+
+PUBLIC _sk_srcover_ssse3_lowp
+_sk_srcover_ssse3_lowp LABEL PROC
+  DB  102,68,15,111,5,124,0,0,0           ; movdqa        0x7c(%rip),%xmm8        # 420 <_sk_srcover_ssse3_lowp+0x85>
+  DB  102,68,15,249,195                   ; psubw         %xmm3,%xmm8
+  DB  102,68,15,111,204                   ; movdqa        %xmm4,%xmm9
+  DB  102,69,15,56,11,200                 ; pmulhrsw      %xmm8,%xmm9
+  DB  102,69,15,56,29,201                 ; pabsw         %xmm9,%xmm9
+  DB  102,65,15,253,193                   ; paddw         %xmm9,%xmm0
+  DB  102,68,15,111,205                   ; movdqa        %xmm5,%xmm9
+  DB  102,69,15,56,11,200                 ; pmulhrsw      %xmm8,%xmm9
+  DB  102,69,15,56,29,201                 ; pabsw         %xmm9,%xmm9
+  DB  102,65,15,253,201                   ; paddw         %xmm9,%xmm1
+  DB  102,68,15,111,206                   ; movdqa        %xmm6,%xmm9
+  DB  102,69,15,56,11,200                 ; pmulhrsw      %xmm8,%xmm9
+  DB  102,69,15,56,29,201                 ; pabsw         %xmm9,%xmm9
+  DB  102,65,15,253,209                   ; paddw         %xmm9,%xmm2
+  DB  102,68,15,56,11,199                 ; pmulhrsw      %xmm7,%xmm8
+  DB  102,69,15,56,29,192                 ; pabsw         %xmm8,%xmm8
+  DB  102,65,15,253,216                   ; paddw         %xmm8,%xmm3
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  255,224                             ; jmpq          *%rax
+
 ALIGN 16
   DB  0,4,8                               ; add           %al,(%rax,%rcx,1)
   DB  12,1                                ; or            $0x1,%al
@@ -26526,11 +26557,8 @@ ALIGN 16
   DB  3,7                                 ; add           (%rdi),%eax
   DB  11,15                               ; or            (%rdi),%ecx
   DB  129,128,129,128,129,128,129,128,129,128; addl          $0x80818081,-0x7f7e7f7f(%rax)
-  DB  129                                 ; .byte         0x81
-  DB  128                                 ; .byte         0x80
-  DB  129                                 ; .byte         0x81
-  DB  128                                 ; .byte         0x80
-  DB  129                                 ; .byte         0x81
-  DB  128                                 ; .byte         0x80
+  DB  129,128,129,128,129,128,0,128,0,128 ; addl          $0x80008000,-0x7f7e7f7f(%rax)
+  DB  0,128,0,128,0,128                   ; add           %al,-0x7fff8000(%rax)
+  DB  0,128,0,128,0,128                   ; add           %al,-0x7fff8000(%rax)
 ENDIF
 END
