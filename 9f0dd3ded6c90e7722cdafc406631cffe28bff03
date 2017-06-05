@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dc9e5a7_18de757d",
+        "filename": "tools/gpu/gl/angle/GLTestContext_angle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-05T15:01:45Z",
+      "side": 1,
+      "message": "It doesn\u0027t always have OpenGL in the string, does it? Probably not, but thought it was worth asking.",
+      "revId": "9f0dd3ded6c90e7722cdafc406631cffe28bff03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
