@@ -64,10 +64,9 @@ public:
      * Finds a texture that approximately matches the descriptor. Will be at least as large in width
      * and height as desc specifies. If desc specifies that the texture should be a render target
      * then result will be a render target. Format and sample count will always match the request.
-     * The contents of the texture are undefined. The caller owns a ref on the returned texture and
-     * must balance with a call to unref.
+     * The contents of the texture are undefined.
      */
-    GrTexture* createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
+    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
 
     /** Create an exact fit texture with no initial data to upload.
      */
@@ -148,10 +147,10 @@ public:
      * Factories for GrPath and GrPathRange objects. It's an error to call these if path rendering
      * is not supported.
      */
-    GrPath* createPath(const SkPath&, const GrStyle&);
-    GrPathRange* createPathRange(GrPathRange::PathGenerator*, const GrStyle&);
-    GrPathRange* createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
-                              const SkDescriptor*, const GrStyle&);
+    sk_sp<GrPath> createPath(const SkPath&, const GrStyle&);
+    sk_sp<GrPathRange> createPathRange(GrPathRange::PathGenerator*, const GrStyle&);
+    sk_sp<GrPathRange> createGlyphs(const SkTypeface*, const SkScalerContextEffects&,
+                                    const SkDescriptor*, const GrStyle&);
 
     /** These flags govern which scratch resources we are allowed to return */
     enum Flags {
@@ -249,7 +248,7 @@ private:
         this->assignUniqueKeyToResource(key, texture);
     }
 
-    GrTexture* refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
