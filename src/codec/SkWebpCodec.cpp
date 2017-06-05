@@ -612,10 +612,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     const auto dstCT = dstInfo.colorType();
     if (this->colorXform()) {
-        const auto dstColorFormat = select_xform_format(dstInfo.colorType());
-        const auto srcColorFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
-        SkASSERT(select_xform_format(webpDst.colorType()) == srcColorFormat);
-
         uint32_t* xformSrc = (uint32_t*) config.output.u.RGBA.rgba;
         SkBitmap tmp;
         void* xformDst;
@@ -628,8 +624,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformDst = dst;
         }
         for (int y = 0; y < rowsDecoded; y++) {
-            SkAssertResult(this->colorXform()->apply(dstColorFormat, xformDst,
-                    srcColorFormat, xformSrc, scaledWidth, xformAlphaType));
+            this->applyColorXform(xformDst, xformSrc, scaledWidth, xformAlphaType);
             if (blendWithPrevFrame) {
                 blend_line(dstCT, &dst, dstCT, &xformDst, needsSrgbToLinear, xformAlphaType,
                         scaledWidth);
@@ -656,7 +651,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
                          sk_sp<SkColorSpace> colorSpace, SkStream* stream, WebPDemuxer* demux,
                          sk_sp<SkData> data)
-    : INHERITED(width, height, info, stream, std::move(colorSpace))
+    : INHERITED(width, height, info, SkColorSpaceXform::kBGRA_8888_ColorFormat, stream,
+                std::move(colorSpace))
     , fDemux(demux)
     , fData(std::move(data))
     , fFailed(false)
