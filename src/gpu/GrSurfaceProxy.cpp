@@ -40,11 +40,11 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkASSERT(!fLastOpList);
 }
 
-GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                           GrSurfaceFlags flags, bool isMipMapped,
-                                           SkDestinationSurfaceColorMode mipColorMode) {
+bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
+                                     GrSurfaceFlags flags, bool isMipMapped,
+                                     SkDestinationSurfaceColorMode mipColorMode) {
     if (fTarget) {
-        return fTarget;
+        return true;
     }
     GrSurfaceDesc desc;
     desc.fConfig = fConfig;
@@ -64,7 +64,7 @@ GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider,
         fTarget = resourceProvider->createTexture(desc, fBudgeted, fFlags).release();
     }
     if (!fTarget) {
-        return nullptr;
+        return false;
     }
 
     fTarget->asTexture()->texturePriv().setMipColorMode(mipColorMode);
@@ -76,7 +76,7 @@ GrSurface* GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider,
     }
 #endif
 
-    return fTarget;
+    return true;
 }
 
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {

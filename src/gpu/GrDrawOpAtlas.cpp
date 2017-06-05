@@ -207,10 +207,10 @@ inline bool GrDrawOpAtlas::updatePlot(GrDrawOp::Target* target, AtlasID* id, Plo
 
         // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
         // Once it is deferred more care must be taken upon instantiation failure.
-        GrTexture* texture = fProxy->instantiateTexture(fContext->resourceProvider());
-        if (!texture) {
+        if (!fProxy->instantiate(fContext->resourceProvider())) {
             return false;
         }
+        GrTexture* texture = fProxy->priv().peekTexture();
 
         GrDrawOpUploadToken lastUploadToken = target->addAsapUpload(
             [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {
@@ -286,10 +286,10 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
     // MDB TODO: this is currently fine since the atlas' proxy is always pre-instantiated.
     // Once it is deferred more care must be taken upon instantiation failure.
-    GrTexture* texture = fProxy->instantiateTexture(fContext->resourceProvider());
-    if (!texture) {
+    if (!fProxy->instantiate(fContext->resourceProvider())) {
         return false;
     }
+    GrTexture* texture = fProxy->priv().peekTexture();
 
     GrDrawOpUploadToken lastUploadToken = target->addInlineUpload(
         [plotsp, texture] (GrDrawOp::WritePixelsFn& writePixels) {

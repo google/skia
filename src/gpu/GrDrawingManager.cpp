@@ -208,10 +208,11 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
         this->flush(proxy);
     }
 
-    GrSurface* surface = proxy->instantiate(fContext->resourceProvider());
-    if (!surface) {
+    if (!proxy->instantiate(fContext->resourceProvider())) {
         return;
     }
+
+    GrSurface* surface = proxy->priv().peekSurface();
 
     if (fContext->getGpu() && surface->asRenderTarget()) {
         fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget());
@@ -327,12 +328,12 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
     if (useDIF && fContext->caps()->shaderCaps()->pathRenderingSupport() &&
         GrFSAAType::kNone != rtp->fsaaType()) {
         // TODO: defer stencil buffer attachment for PathRenderingDrawContext
-        sk_sp<GrRenderTarget> rt(
-                sk_ref_sp(rtp->instantiateRenderTarget(fContext->resourceProvider())));
-        if (!rt) {
+        if (!rtp->instantiate(fContext->resourceProvider())) {
             return nullptr;
         }
-        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt.get());
+        GrRenderTarget* rt = rtp->priv().peekRenderTarget();
+
+        GrStencilAttachment* sb = fContext->resourceProvider()->attachStencilAttachment(rt);
         if (sb) {
             return sk_sp<GrRenderTargetContext>(new GrPathRenderingRenderTargetContext(
                                                         fContext, this, std::move(rtp),

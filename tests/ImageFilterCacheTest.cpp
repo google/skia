@@ -206,10 +206,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
         return;
     }
 
-    GrTexture* tex = srcProxy->instantiateTexture(context->resourceProvider());
-    if (!tex) {
+    if (!srcProxy->instantiate(context->resourceProvider())) {
         return;
     }
+    GrTexture* tex = srcProxy->priv().peekTexture();
 
     GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                                                kFullSize,
