@@ -45,7 +45,7 @@ SI F operator>>(F x, int bits) { return x.vec >> bits; }
 using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 
 MAYBE_MSABI
-extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
+extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v{};
     auto start = (Stage*)load_and_inc(program);
     while (x + kStride <= limit) {
@@ -55,6 +55,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** pr
     if (size_t tail = limit - x) {
         start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
     }
+    return limit;
 }
 extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
 

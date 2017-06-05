@@ -777,7 +777,7 @@ SkShaderBase::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageIn
 }
 
 bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint) {
-#if defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
+#if 0 || defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
     return true;
 #else
     // By policy we choose not to handle legacy 8888 with SkRasterPipelineBlitter.

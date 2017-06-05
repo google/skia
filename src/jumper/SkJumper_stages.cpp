@@ -47,7 +47,7 @@ using K = const SkJumper_constants;
 using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 
 MAYBE_MSABI
-extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
+extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v{};
     auto start = (Stage*)load_and_inc(program);
     while (x + kStride <= limit) {
@@ -57,6 +57,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** pr
     if (size_t tail = limit - x) {
         start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
     }
+    return limit;
 }
 
 #define STAGE(name)                                                                   \
