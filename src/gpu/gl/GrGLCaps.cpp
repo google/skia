@@ -1800,11 +1800,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
             GR_GL_ALPHA;
         fConfigTable[kAlpha_8_GrPixelConfig].fSwizzle = GrSwizzle::AAAA();
     }
-    if ((this->textureRedSupport() &&
-                (ctxInfo.renderer() != kANGLE_GrGLRenderer || kGLES_GrGLStandard != standard)) ||
+    if (this->textureRedSupport() ||
         (kStandard_MSFBOType == this->msFBOType() && ctxInfo.renderer() != kOSMesa_GrGLRenderer)) {
-        // ES2 ANGLE seems to disallow single channel renderability (despite advertising the
-        // "GL_EXT_texture_rg" extension.
         // OpenGL 3.0+ (and GL_ARB_framebuffer_object) supports ALPHA8 as renderable.
         // However, osmesa fails if it is used even when GL_ARB_framebuffer_object is present.
         // Core profile removes ALPHA8 support, but we should have chosen R8 in that case.
