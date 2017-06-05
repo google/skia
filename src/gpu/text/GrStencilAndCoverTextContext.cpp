@@ -527,11 +527,13 @@ void GrStencilAndCoverTextContext::TextRun::setPosText(const char text[], size_t
     fFallbackTextBlob = fallback.makeIfNeeded(&fFallbackGlyphCount);
 }
 
-GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(
+sk_sp<GrPathRange> GrStencilAndCoverTextContext::TextRun::createGlyphs(
                                                     GrResourceProvider* resourceProvider) const {
-    GrPathRange* glyphs = static_cast<GrPathRange*>(
-            resourceProvider->findAndRefResourceByUniqueKey(fGlyphPathsKey));
-    if (nullptr == glyphs) {
+    sk_sp<GrPathRange> glyphs;
+
+    glyphs.reset(static_cast<GrPathRange*>(
+            resourceProvider->findAndRefResourceByUniqueKey(fGlyphPathsKey)));
+    if (!glyphs) {
         if (fUsingRawGlyphPaths) {
             SkScalerContextEffects noeffects;
             glyphs = resourceProvider->createGlyphs(fFont.getTypeface(), noeffects,
@@ -543,7 +545,7 @@ GrPathRange* GrStencilAndCoverTextContext::TextRun::createGlyphs(
                                                     &cache->getDescriptor(),
                                                     fStyle);
         }
-        resourceProvider->assignUniqueKeyToResource(fGlyphPathsKey, glyphs);
+        resourceProvider->assignUniqueKeyToResource(fGlyphPathsKey, glyphs.get());
     }
     return glyphs;
 }
