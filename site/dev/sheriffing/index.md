@@ -29,7 +29,7 @@ Below is a brief summary of what the sheriff does for each task:
 
 <a name="skia_tree"></a>
 ### Skia tree
-* Understand the [buildbots infrastructure](https://skia.org/dev/testing/buildbot).
+* Understand the [testing infrastructure](https://skia.org/dev/testing/automated_testing).
 * Start watching the [status page](https://status.skia.org) for bot breakages.
 * Track down people responsible for breakages and revert broken changes if there is no easy fix. You can use [blamer](#blamer) to help track down such changes.
 * Close and open the [tree](http://skia-tree-status.appspot.com).
