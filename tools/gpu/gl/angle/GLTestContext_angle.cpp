@@ -229,7 +229,7 @@ std::unique_ptr<sk_gpu_test::GLTestContext> ANGLEGLContext::makeNew() const {
 
 void ANGLEGLContext::destroyGLContext() {
     if (fDisplay) {
-        eglMakeCurrent(fDisplay, 0, 0, 0);
+        eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
         if (fContext) {
             eglDestroyContext(fDisplay, fContext);
@@ -241,8 +241,10 @@ void ANGLEGLContext::destroyGLContext() {
             fSurface = EGL_NO_SURFACE;
         }
 
-        //TODO should we close the display?
-        fDisplay = EGL_NO_DISPLAY;
+        if (EGL_NO_DISPLAY != fDisplay) {
+            eglTerminate(fDisplay);
+            fDisplay = EGL_NO_DISPLAY;
+        }
     }
 }
 
