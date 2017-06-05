@@ -819,7 +819,11 @@ protected:
 
     bool initializeColorXform(const SkImageInfo& dstInfo,
                               SkTransferFunctionBehavior premulBehavior);
+    void applyColorXform(void* dst, const void* src, int count, SkAlphaType) const;
+    void applyColorXform(void* dst, const void* src, int count) const;
+
     SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
+    bool xformOnDecode() const { return fXformOnDecode; }
 
     virtual int onGetFrameCount() {
         return 1;
@@ -844,7 +848,9 @@ private:
 
     SkImageInfo                        fDstInfo;
     SkCodec::Options                   fOptions;
+    SkColorSpaceXform::ColorFormat     fDstXformFormat; // Based on fDstInfo.
     std::unique_ptr<SkColorSpaceXform> fColorXform;
+    bool                               fXformOnDecode;
 
     // Only meaningful during scanline decodes.
     int                                fCurrScanline;

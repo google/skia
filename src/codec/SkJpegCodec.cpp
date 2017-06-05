@@ -220,7 +220,8 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMg
         }
 
         // Create image info object and the codec
-        SkEncodedInfo info = SkEncodedInfo::Make(color, SkEncodedInfo::kOpaque_Alpha, 8);
+        SkEncodedInfo info = SkEncodedInfo::Make(color, SkEncodedInfo::kOpaque_Alpha, 8,
+                SkColorSpaceXform::kRGBA_8888_ColorFormat);
 
         Origin orientation = get_exif_orientation(decoderMgr->dinfo());
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
@@ -529,9 +530,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (this->colorXform()) {
-            SkAssertResult(this->colorXform()->apply(select_xform_format(dstInfo.colorType()), dst,
-                    SkColorSpaceXform::kRGBA_8888_ColorFormat, swizzleDst, dstWidth,
-                    kOpaque_SkAlphaType));
+            this->applyColorXform(dst, swizzleDst, dstWidth, kOpaque_SkAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
@@ -642,7 +641,8 @@ void SkJpegCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& 
     if (needsCMYKToRGB) {
         swizzlerInfo = SkEncodedInfo::Make(SkEncodedInfo::kInvertedCMYK_Color,
                                            swizzlerInfo.alpha(),
-                                           swizzlerInfo.bitsPerComponent());
+                                           swizzlerInfo.bitsPerComponent(),
+                                           swizzlerInfo.srcFormat());
     }
 
     Options swizzlerOptions = options;
