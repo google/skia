@@ -106,7 +106,6 @@ protected:
             const SkCodec::Options& options, SkPMColor inputColorPtr[],
             int* inputColorCount);
 
-    void applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const;
     uint32_t* xformBuffer() const { return fXformBuffer.get(); }
     void resetXformBuffer(int count) { fXformBuffer.reset(new uint32_t[count]); }
 
@@ -115,6 +114,7 @@ protected:
      * than RGBA.
      */
     static const SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
+    static const auto kXformSrcColorFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
 
 private:
 

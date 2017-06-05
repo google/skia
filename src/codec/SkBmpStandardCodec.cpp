@@ -28,7 +28,6 @@ SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInf
     , fIsOpaque(isOpaque)
     , fInIco(inIco)
     , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->getInfo().width(), 1)) : 0)
-    , fXformOnDecode(false)
 {}
 
 /*
@@ -123,13 +122,8 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
             colorTable[i] = SkPackARGB32NoCheck(0xFF, 0, 0, 0);
         }
 
-        if (this->colorXform() && !fXformOnDecode) {
-            SkColorSpaceXform::ColorFormat dstFormat = select_xform_format_ct(dstColorType);
-            SkColorSpaceXform::ColorFormat srcFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
-            SkAlphaType xformAlphaType = select_xform_alpha(dstAlphaType,
-                                                            this->getInfo().alphaType());
-            SkAssertResult(this->colorXform()->apply(dstFormat, colorTable, srcFormat, colorTable,
-                                                     maxColors, xformAlphaType));
+        if (this->colorXform() && !this->xformOnDecode()) {
+            this->applyColorXform(colorTable, colorTable, maxColors);
         }
 
         // Set the color table
@@ -198,12 +192,8 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
 
 SkCodec::Result SkBmpStandardCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    fXformOnDecode = false;
-    if (this->colorXform()) {
-        fXformOnDecode = apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
-        if (fXformOnDecode) {
-            this->resetXformBuffer(dstInfo.width());
-        }
+    if (this->xformOnDecode()) {
+        this->resetXformBuffer(dstInfo.width());
     }
 
     // Create the color table if necessary and prepare the stream for decode
@@ -240,11 +230,10 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
 
         void* dstRow = SkTAddOffset<void>(dst, row * dstRowBytes);
 
-        if (fXformOnDecode) {
+        if (this->xformOnDecode()) {
             SkASSERT(this->colorXform());
-            SkImageInfo xformInfo = dstInfo.makeWH(fSwizzler->swizzleWidth(), dstInfo.height());
             fSwizzler->swizzle(this->xformBuffer(), this->srcBuffer());
-            this->applyColorXform(xformInfo, dstRow, this->xformBuffer());
+            this->applyColorXform(dstRow, this->xformBuffer(), fSwizzler->swizzleWidth());
         } else {
             fSwizzler->swizzle(dstRow, this->srcBuffer());
         }

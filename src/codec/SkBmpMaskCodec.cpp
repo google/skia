@@ -94,9 +94,8 @@ int SkBmpMaskCodec::decodeRows(const SkImageInfo& dstInfo,
         void* dstRow = SkTAddOffset<void>(dst, row * dstRowBytes);
 
         if (this->colorXform()) {
-            SkImageInfo xformInfo = dstInfo.makeWH(fMaskSwizzler->swizzleWidth(), dstInfo.height());
             fMaskSwizzler->swizzle(this->xformBuffer(), srcRow);
-            this->applyColorXform(xformInfo, dstRow, this->xformBuffer());
+            this->applyColorXform(dstRow, this->xformBuffer(), fMaskSwizzler->swizzleWidth());
         } else {
             fMaskSwizzler->swizzle(dstRow, srcRow);
         }

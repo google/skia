@@ -602,7 +602,7 @@ SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, stream, SkColorSpace::MakeSRGB())
+    : INHERITED(width, height, info, kXformSrcColorFormat, stream, SkColorSpace::MakeSRGB())
     , fBitsPerPixel(bitsPerPixel)
     , fRowOrder(rowOrder)
     , fSrcRowBytes(SkAlign4(compute_row_bytes(width, fBitsPerPixel)))
@@ -652,16 +652,4 @@ bool SkBmpCodec::skipRows(int count) {
 
 bool SkBmpCodec::onSkipScanlines(int count) {
     return this->skipRows(count);
-}
-
-void SkBmpCodec::applyColorXform(const SkImageInfo& dstInfo, void* dst, void* src) const {
-    SkColorSpaceXform* xform = this->colorXform();
-    if (xform) {
-        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
-        const SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                         this->getInfo().alphaType());
-        SkAssertResult(xform->apply(dstFormat, dst, srcFormat, src, dstInfo.width(),
-                                    alphaType));
-    }
 }

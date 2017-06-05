@@ -95,7 +95,6 @@ private:
     const bool                  fIsOpaque;
     const bool                  fInIco;
     const size_t                fAndMaskRowBytes; // only used for fInIco decodes
-    bool                        fXformOnDecode;
 
     typedef SkBmpBaseCodec INHERITED;
 };
