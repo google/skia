@@ -1094,8 +1094,8 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 void SampleWindow::draw(SkCanvas* canvas) {
     std::unique_ptr<SkThreadedBMPDevice> tDev;
     std::unique_ptr<SkCanvas> tCanvas;
-    if (fThreads > 0) {
-        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fThreads));
+    if (fTiles > 0 && fDeviceType == kRaster_DeviceType) {
+        tDev.reset(new SkThreadedBMPDevice(this->getBitmap(), fTiles, fThreads));
         tCanvas.reset(new SkCanvas(tDev.get()));
         canvas = tCanvas.get();
     }
@@ -1860,11 +1860,21 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             break;
         case '+':
-            gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
+            gSampleWindow->setTiles(gSampleWindow->getTiles() + 1);
             this->inval(nullptr);
             this->updateTitle();
             break;
         case '-':
+            gSampleWindow->setTiles(SkTMax(0, gSampleWindow->getTiles() - 1));
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '>':
+            gSampleWindow->setThreads(gSampleWindow->getThreads() + 1);
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
+        case '<':
             gSampleWindow->setThreads(SkTMax(0, gSampleWindow->getThreads() - 1));
             this->inval(nullptr);
             this->updateTitle();
@@ -2242,8 +2252,8 @@ void SampleWindow::updateTitle() {
 
     title.prepend(gDeviceTypePrefix[fDeviceType]);
 
-    if (gSampleWindow->getThreads()) {
-        title.prependf("[T%d] ", gSampleWindow->getThreads());
+    if (gSampleWindow->getTiles()) {
+        title.prependf("[T%d/%d] ", gSampleWindow->getTiles(), gSampleWindow->getThreads());
     }
 
     if (gSkUseAnalyticAA) {
