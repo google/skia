@@ -46,8 +46,12 @@ using K = const SkJumper_constants;
 // We keep program the second argument, so that it's passed in rsi for load_and_inc().
 using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 
+#if defined(JUMPER) && defined(__AVX__)
+    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
+    __attribute__((disable_tail_calls))
+#endif
 MAYBE_MSABI
-extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
+extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v{};
     auto start = (Stage*)load_and_inc(program);
     while (x + kStride <= limit) {
@@ -57,7 +61,6 @@ extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** 
     if (size_t tail = limit - x) {
         start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
     }
-    return limit;
 }
 
 #define STAGE(name)                                                                   \

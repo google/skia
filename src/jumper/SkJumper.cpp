@@ -29,7 +29,7 @@ static K kConstants = {
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
-using StartPipelineFn = size_t(size_t,size_t,size_t,void**,K*);
+using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
 #if defined(__APPLE__)
