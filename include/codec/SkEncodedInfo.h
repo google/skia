@@ -191,9 +191,9 @@ private:
         , fBitsPerComponent(bitsPerComponent)
     {}
 
-    Color   fColor;
-    Alpha   fAlpha;
-    uint8_t fBitsPerComponent;
+    Color                           fColor;
+    Alpha                           fAlpha;
+    uint8_t                         fBitsPerComponent;
 };
 
 #endif

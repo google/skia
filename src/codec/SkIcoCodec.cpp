@@ -185,7 +185,8 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
                        SkTArray<std::unique_ptr<SkCodec>, true>* codecs,
                        sk_sp<SkColorSpace> colorSpace)
-    : INHERITED(width, height, info, nullptr, std::move(colorSpace))
+    : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(), nullptr,
+                std::move(colorSpace))
     , fEmbeddedCodecs(codecs)
     , fCurrScanlineCodec(nullptr)
     , fCurrIncrementalCodec(nullptr)
