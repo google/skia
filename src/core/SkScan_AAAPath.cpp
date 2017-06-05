@@ -349,13 +349,44 @@ protected:
     inline void flush() {
         if (fCurrY >= fTop) {
             SkASSERT(fCurrentRun < fRunsToBuffer);
-            for (int x = 0; fRuns.fRuns[x]; x += fRuns.fRuns[x]) {
+            int pendingX = 0;
+            int x;
+            for (x = 0; fRuns.fRuns[x]; x += fRuns.fRuns[x]) {
                 // It seems that blitting 255 or 0 is much faster than blitting 254 or 1
                 fRuns.fAlpha[x] = snapAlpha(fRuns.fAlpha[x]);
+
+                if (fRuns.fRuns[x] > 1) {
+                    if (pendingX < x) {
+                        SkMask mask;
+                        SkIRect ir = SkIRect::MakeXYWH(fLeft + pendingX, fCurrY, x - pendingX, 1);
+                        mask.fImage = fRuns.fAlpha + pendingX;
+                        mask.fBounds = ir;
+                        mask.fRowBytes = x - pendingX;
+                        mask.fFormat = SkMask::kA8_Format;
+                        fRealBlitter->blitMask(mask, ir);
+                    }
+                    pendingX = x + fRuns.fRuns[x];
+
+                    int t = fRuns.fRuns[x + fRuns.fRuns[x]];
+                    fRuns.fRuns[x + fRuns.fRuns[x]] = 0;
+                    fRealBlitter->blitAntiH(fLeft + x, fCurrY, fRuns.fAlpha + x, fRuns.fRuns + x);
+                    fRuns.fRuns[x + fRuns.fRuns[x]] = t;
+                }
             }
+
+            if (pendingX < x) {
+                SkMask mask;
+                SkIRect ir = SkIRect::MakeXYWH(fLeft + pendingX, fCurrY, x - pendingX, 1);
+                mask.fImage = fRuns.fAlpha + pendingX;
+                mask.fBounds = ir;
+                mask.fRowBytes = x - pendingX;
+                mask.fFormat = SkMask::kA8_Format;
+                fRealBlitter->blitMask(mask, ir);
+            }
+
             if (!fRuns.empty()) {
                 // SkDEBUGCODE(fRuns.dump();)
-                fRealBlitter->blitAntiH(fLeft, fCurrY, fRuns.fAlpha, fRuns.fRuns);
+                // fRealBlitter->blitAntiH(fLeft, fCurrY, fRuns.fAlpha, fRuns.fRuns);
                 this->advanceRuns();
                 fOffsetX = 0;
             }
@@ -785,8 +816,16 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter, int y,
         }
     } else {
         if (fullAlpha == 0xFF && !noRealBlitter) {
+            SkMask mask;
+            SkIRect ir = SkIRect::MakeXYWH(L, y, len, 1);
+            mask.fImage = alphas;
+            mask.fBounds = ir;
+            mask.fRowBytes = len;
+            mask.fFormat = SkMask::kA8_Format;
+
             // Real blitter is faster than RunBasedAdditiveBlitter
-            blitter->getRealBlitter()->blitAntiH(L, y, alphas, runs);
+            // blitter->getRealBlitter()->blitAntiH(L, y, alphas, runs);
+            blitter->getRealBlitter()->blitMask(mask, ir);
         } else {
             blitter->blitAntiH(L, y, alphas, len);
         }
