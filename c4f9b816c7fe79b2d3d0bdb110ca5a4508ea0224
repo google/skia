@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71265039_1b5f22fb",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-05T15:20:00Z",
+      "side": 1,
+      "message": "Could we add more color to this, mentioning why we like the zeroupper dude? ref a bug?",
+      "range": {
+        "startLine": 50,
+        "startChar": 10,
+        "endLine": 50,
+        "endChar": 16
+      },
+      "revId": "c4f9b816c7fe79b2d3d0bdb110ca5a4508ea0224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
