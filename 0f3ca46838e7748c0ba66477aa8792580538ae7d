@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78f871df_3efb73a3",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-06-05T17:35:05Z",
+      "side": 1,
+      "message": "... no more draw calls will ...",
+      "range": {
+        "startLine": 24,
+        "startChar": 39,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "0f3ca46838e7748c0ba66477aa8792580538ae7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2247be17_61c22e05",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-06-05T17:35:05Z",
+      "side": 1,
+      "message": "false",
+      "range": {
+        "startLine": 30,
+        "startChar": 52,
+        "endLine": 30,
+        "endChar": 57
+      },
+      "revId": "0f3ca46838e7748c0ba66477aa8792580538ae7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
