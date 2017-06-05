@@ -420,11 +420,9 @@ def dm_flags(bot):
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
 
-  if 'Vulkan' in bot and 'Adreno' in bot:
-    # skia:5777
-    match.extend(['~XfermodeImageFilterCroppedInput',
-                  '~GrTextureStripAtlasFlush',
-                  '~CopySurface'])
+  if 'Vulkan' in bot and 'Adreno530' in bot:
+      # skia:5777
+      match.extend(['~CopySurface'])
 
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.extend(['~hardstop_gradient', # skia:6037
@@ -746,6 +744,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
   'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan',
+  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android',
   'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
