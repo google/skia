@@ -51,6 +51,9 @@ private:
     void maybe_clamp  (SkRasterPipeline*) const;
     void append_store (SkRasterPipeline*) const;
 
+    // If we have an SkShader::Context, use it to fill our shader buffer.
+    void maybe_shade(int x, int y, int w);
+
     SkPixmap               fDst;
     SkBlendMode            fBlend;
     SkArenaAlloc*          fAlloc;
@@ -72,6 +75,10 @@ private:
     const void*        fMaskPtr         = nullptr;
     float              fCurrentCoverage = 0.0f;
     float              fDitherRate      = 0.0f;
+
+    SkShaderBase::Context* fShaderCtx   = nullptr;
+    void*              fShaderOutput    = nullptr;
+    std::vector<SkPM4f> fShaderBuffer;
 
     typedef SkBlitter INHERITED;
 };
@@ -102,6 +109,13 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 
     bool is_opaque    = shader->isOpaque() && paintColor->a() == 1.0f;
     bool is_constant  = shader->isConstant();
+
+#if 0
+    if (shader->useSpanProc(&fSpan, alloc, ctm, paint)) {
+        shaderPipeline.append(SkRasterPipeline::load_f32, &blitter->fShaderOutput);
+
+    }
+#endif
     if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
         if (paintColor->a() != 1.0f) {
             shaderPipeline.append(SkRasterPipeline::scale_1_float, &paintColor->fVec[SkPM4f::A]);
@@ -250,6 +264,17 @@ void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
     }
 }
 
+void SkRasterPipelineBlitter::maybe_shade(int x, int y, int w) {
+    if (fShaderCtx) {
+        if (w > SkToInt(fShaderBuffer.size())) {
+            fShaderBuffer.resize(w);
+        }
+        fShaderCtx->shadeSpan4f(x,y, fShaderBuffer.data(), w);
+        // We'll be reading from fShaderOutput + x.
+        fShaderOutput = fShaderBuffer.data() - x;
+    }
+}
+
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     fDstPtr = fDst.writable_addr(0,y);
 
@@ -281,6 +306,7 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         }
         fBlitH = p.compile();
     }
+    this->maybe_shade(x,y,w);
     fBlitH(x,y,w);
 }
 
@@ -308,6 +334,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
             case 0x00:                       break;
             case 0xff: this->blitH(x,y,run); break;
             default:
+                this->maybe_shade(x,y,run);
                 fCurrentCoverage = *aa * (1/255.0f);
                 fBlitAntiH(x,y,run);
         }
@@ -368,6 +395,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     for (int y = clip.top(); y < clip.bottom(); y++) {
         fDstPtr = fDst.writable_addr(0,y);
 
+        this->maybe_shade(x,y,clip.width());
         switch (mask.fFormat) {
             case SkMask::kA8_Format:
                 fMaskPtr = mask.getAddr8(x,y)-x;
