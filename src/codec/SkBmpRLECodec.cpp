@@ -331,7 +331,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
     int decodedHeight = this->decodeRLE(decodeInfo, decodeDst, decodeRowBytes);
     if (this->colorXform() && decodeDst) {
         for (int y = 0; y < decodedHeight; y++) {
-            this->applyColorXform(dstInfo, dst, decodeDst);
+            this->applyColorXform(dst, decodeDst, dstInfo.width());
             decodeDst = SkTAddOffset<void>(decodeDst, decodeRowBytes);
             dst = SkTAddOffset<void>(dst, dstRowBytes);
         }

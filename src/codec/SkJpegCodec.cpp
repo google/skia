@@ -281,7 +281,8 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, sk_sp<SkColorSpace> defaul
 
 SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
         JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : INHERITED(width, height, info, stream, std::move(colorSpace), origin)
+    : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat, stream,
+                std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzleSrcRow(nullptr)
@@ -529,9 +530,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (this->colorXform()) {
-            SkAssertResult(this->colorXform()->apply(select_xform_format(dstInfo.colorType()), dst,
-                    SkColorSpaceXform::kRGBA_8888_ColorFormat, swizzleDst, dstWidth,
-                    kOpaque_SkAlphaType));
+            this->applyColorXform(dst, swizzleDst, dstWidth, kOpaque_SkAlphaType);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 

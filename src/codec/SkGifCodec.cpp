@@ -117,7 +117,7 @@ bool SkGifCodec::onRewind() {
 
 SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
                        SkGifImageReader* reader)
-    : INHERITED(encodedInfo, imageInfo, nullptr)
+    : INHERITED(encodedInfo, imageInfo, SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr)
     , fReader(reader)
     , fTmpBuffer(nullptr)
     , fSwizzler(nullptr)
@@ -176,16 +176,9 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
         // This is possible for an empty frame. Create a dummy with one value (transparent).
         SkPMColor color = SK_ColorTRANSPARENT;
         fCurrColorTable.reset(new SkColorTable(&color, 1));
-    } else if (this->colorXform() && !fXformOnDecode) {
+    } else if (this->colorXform() && !this->xformOnDecode()) {
         SkPMColor dstColors[256];
-        const SkColorSpaceXform::ColorFormat dstFormat =
-                select_xform_format_ct(dstInfo.colorType());
-        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
-        const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                              this->getInfo().alphaType());
-        SkAssertResult(this->colorXform()->apply(dstFormat, dstColors, srcFormat,
-                                                 currColorTable->readColors(),
-                                                 currColorTable->count(), xformAlphaType));
+        this->applyColorXform(dstColors, currColorTable->readColors(), currColorTable->count());
         fCurrColorTable.reset(new SkColorTable(dstColors, currColorTable->count()));
     } else {
         fCurrColorTable = std::move(currColorTable);
@@ -202,13 +195,9 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
     }
 
-    fXformOnDecode = false;
-    if (this->colorXform()) {
-        fXformOnDecode = apply_xform_on_decode(dstInfo.colorType(), this->getEncodedInfo().color());
-        if (fXformOnDecode) {
-            fXformBuffer.reset(new uint32_t[dstInfo.width()]);
-            sk_bzero(fXformBuffer.get(), dstInfo.width() * sizeof(uint32_t));
-        }
+    if (this->xformOnDecode()) {
+        fXformBuffer.reset(new uint32_t[dstInfo.width()]);
+        sk_bzero(fXformBuffer.get(), dstInfo.width() * sizeof(uint32_t));
     }
 
     if (opts.fSubset) {
@@ -516,16 +505,12 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
 }
 
 void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint8_t* src) const {
-    if (this->colorXform() && fXformOnDecode) {
+    if (this->xformOnDecode()) {
+        SkASSERT(this->colorXform());
         fSwizzler->swizzle(fXformBuffer.get(), src);
 
-        const SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-        const SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(kXformSrcColorType);
-        const SkAlphaType xformAlphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                              this->getInfo().alphaType());
         const int xformWidth = get_scaled_dimension(dstInfo.width(), fSwizzler->sampleX());
-        SkAssertResult(this->colorXform()->apply(dstFormat, dst, srcFormat, fXformBuffer.get(),
-                                                 xformWidth, xformAlphaType));
+        this->applyColorXform(dst, fXformBuffer.get(), xformWidth);
     } else {
         fSwizzler->swizzle(dst, src);
     }
