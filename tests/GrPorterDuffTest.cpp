@@ -873,14 +873,15 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(!xpi.fBlendInfo.fWriteColor);
                 break;
             case SkBlendMode::kSrcOver:
-                TEST_ASSERT(xpi.fCanCombineOverlappedStencilAndCover);
+                // We don't specialize opaque src-over. See note in GrPorterDuffXferProcessor.cpp
+                TEST_ASSERT(!xpi.fCanCombineOverlappedStencilAndCover);
                 TEST_ASSERT(!xpi.fIgnoresInputColor);
-                TEST_ASSERT(!xpi.fCompatibleWithCoverageAsAlpha);
+                TEST_ASSERT(xpi.fCompatibleWithCoverageAsAlpha);
                 TEST_ASSERT(kModulate_OutputType == xpi.fPrimaryOutputType);
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
                 TEST_ASSERT(kAdd_GrBlendEquation == xpi.fBlendInfo.fEquation);
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fSrcBlend);
-                TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
+                TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
             case SkBlendMode::kDstOver:
