@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9cd96718_5625ff13",
+        "filename": "include/views/SkTouchGesture.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-05T14:36:52Z",
+      "side": 1,
+      "message": "SampleApp doesn\u0027t use this?",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "bd3a2a48d2d8d4ab0ef6aa03edf1cbb0f1483784",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
