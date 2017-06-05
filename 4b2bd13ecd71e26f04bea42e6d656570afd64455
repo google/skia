@@ -69,6 +69,30 @@
       "revId": "4b2bd13ecd71e26f04bea42e6d656570afd64455",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9620c8a_b8d5cc38",
+        "filename": "tests/GrPipelineDynamicStateTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-05T13:25:01Z",
+      "side": 1,
+      "message": "Yes, for GPU tests avoid N32 and be explicit. RGBA is supported everywhere, BGRA sometimes.",
+      "parentUuid": "8df041c6_726a1c2a",
+      "range": {
+        "startLine": 200,
+        "startChar": 38,
+        "endLine": 200,
+        "endChar": 50
+      },
+      "revId": "4b2bd13ecd71e26f04bea42e6d656570afd64455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
