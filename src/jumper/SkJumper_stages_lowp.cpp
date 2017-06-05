@@ -170,6 +170,11 @@ SI U32 to_8888(F r, F g, F b, F a) {
     memcpy((uint32_t*)&px + 4, &hi, sizeof(hi));
     return px;
 }
+SI U8 to_byte(F v) {
+    // See to_8888() just above.
+    U16 packed = _mm_packus_epi16(v>>7, v>>7);  // Doesn't really matter what we pack on top.
+    return unaligned_load<U8>(&packed);
+}
 
 // Stages!
 
@@ -181,6 +186,19 @@ STAGE(constant_color) {
     a = rgba[3];
 }
 
+STAGE(set_rgb) {
+    auto rgb = (const float*)ctx;
+    r = rgb[0];
+    g = rgb[1];
+    b = rgb[2];
+}
+
+STAGE(premul) {
+    r = r * a;
+    g = g * a;
+    b = b * a;
+}
+
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load<U32>(ptr, tail), &r,&g,&b,&a);
@@ -188,6 +206,22 @@ STAGE(load_8888) {
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
     store(ptr, to_8888(r,g,b,a), tail);
+}
+
+STAGE(load_a8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    r = g = b = 0.0f;
+    a = from_byte(load<U8>(ptr, tail));
+}
+STAGE(store_a8) {
+    auto ptr = *(uint8_t**)ctx + x;
+    store(ptr, to_byte(a), tail);
+}
+
+STAGE(load_g8) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    r = g = b = from_byte(load<U8>(ptr, tail));
+    a = 1.0f;
 }
 
 STAGE(srcover_rgba_8888) {
