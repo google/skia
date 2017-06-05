@@ -472,8 +472,6 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAConvexPathOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFillRectOp);
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFillRectOpLocalMatrix);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp)
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAHairlineOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
@@ -487,6 +485,7 @@ LEGACY_MESH_DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(TextBlobOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(VerticesOp);
 
+DRAW_OP_TEST_EXTERN(AAFillRectOp)
 DRAW_OP_TEST_EXTERN(CircleOp)
 DRAW_OP_TEST_EXTERN(DIEllipseOp);
 DRAW_OP_TEST_EXTERN(EllipseOp);
@@ -498,8 +497,6 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     using MakeTestLegacyMeshDrawOpFn = std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom*, GrContext*);
     static constexpr MakeTestLegacyMeshDrawOpFn* gLegacyFactories[] = {
         DRAW_OP_TEST_ENTRY(AAConvexPathOp),
-        DRAW_OP_TEST_ENTRY(AAFillRectOp),
-        DRAW_OP_TEST_ENTRY(AAFillRectOpLocalMatrix),
         DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
         DRAW_OP_TEST_ENTRY(AAHairlineOp),
         DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
@@ -516,6 +513,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
 
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
+        DRAW_OP_TEST_ENTRY(AAFillRectOp),
         DRAW_OP_TEST_ENTRY(CircleOp),
         DRAW_OP_TEST_ENTRY(DIEllipseOp),
         DRAW_OP_TEST_ENTRY(EllipseOp),

@@ -26,7 +26,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor color,
         if (devOutside.isEmpty()) {
             return nullptr;
         }
-        return GrAAFillRectOp::Make(color, viewMatrix, devOutside, devOutside);
+        return nullptr;  // GrAAFillRectOp::Make(color, viewMatrix, devOutside, devOutside);
     }
 
     return GrAAStrokeRectOp::MakeFillBetweenRects(color, viewMatrix, devOutside, devInside);
