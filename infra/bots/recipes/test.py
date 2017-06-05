@@ -427,9 +427,7 @@ def dm_flags(bot):
                   '~CopySurface'])
 
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
-    match.extend(['~hardstop_gradient', # skia:6037
-                  '~gradients_dup_color_stops',  # skia:6037
-                  '~gradients_no_texture$', # skia:6132
+    match.extend(['~gradients_no_texture$', # skia:6132
                   '~tilemodes', # skia:6132
                   '~shadertext$', # skia:6132
                   '~bitmapfilters', # skia:6132
