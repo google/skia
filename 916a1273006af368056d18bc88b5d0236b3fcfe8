@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81f4cef0_17af99bc",
+        "filename": "src/jumper/SkJumper_stages_lowp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-05T19:22:32Z",
+      "side": 1,
+      "message": "the float here is confusing, since we\u0027re in fixed-point. I presume this is to trigger a converter from float-\u003efixed_point.",
+      "range": {
+        "startLine": 287,
+        "startChar": 31,
+        "endLine": 287,
+        "endChar": 32
+      },
+      "revId": "916a1273006af368056d18bc88b5d0236b3fcfe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
