@@ -697,11 +697,10 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         return kInvalidConversion;
     }
 
-    static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
     SkImageInfo swizzlerInfo = dstInfo;
     std::unique_ptr<uint32_t[]> xformBuffer = nullptr;
     if (this->colorXform()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
+        swizzlerInfo = swizzlerInfo.makeColorType(kRGBA_8888_SkColorType);
         xformBuffer.reset(new uint32_t[dstInfo.width()]);
     }
 
@@ -751,12 +750,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         if (this->colorXform()) {
             swizzler->swizzle(xformBuffer.get(), &srcRow[0]);
 
-            const SkColorSpaceXform::ColorFormat srcFormat =
-                    select_xform_format(kXformSrcColorType);
-            const SkColorSpaceXform::ColorFormat dstFormat =
-                    select_xform_format(dstInfo.colorType());
-            this->colorXform()->apply(dstFormat, dstRow, srcFormat, xformBuffer.get(),
-                                      dstInfo.width(), kOpaque_SkAlphaType);
+            this->applyColorXform(dstRow, xformBuffer.get(), dstInfo.width(), kOpaque_SkAlphaType);
             dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
         } else {
             swizzler->swizzle(dstRow, &srcRow[0]);
@@ -807,6 +801,7 @@ bool SkRawCodec::onDimensionsSupported(const SkISize& dim) {
 SkRawCodec::~SkRawCodec() {}
 
 SkRawCodec::SkRawCodec(SkDngImage* dngImage)
-    : INHERITED(dngImage->width(), dngImage->height(), dngImage->getEncodedInfo(), nullptr,
+    : INHERITED(dngImage->width(), dngImage->height(), dngImage->getEncodedInfo(),
+                SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr,
                 SkColorSpace::MakeSRGB())
     , fDngImage(dngImage) {}
