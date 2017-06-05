@@ -165,6 +165,14 @@ SI U32 to_8888(F r, F g, F b, F a) {
 
 // Stages!
 
+STAGE(constant_color) {
+    auto rgba = (const float*)ctx;
+    r = rgba[0];
+    g = rgba[1];
+    b = rgba[2];
+    a = rgba[3];
+}
+
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load<U32>(ptr, tail), &r,&g,&b,&a);
@@ -180,11 +188,28 @@ STAGE(swap_rb) {
     b = tmp;
 }
 
+STAGE(swap) {
+    auto swap = [](F& v, F& dv) {
+        auto tmp = v;
+        v = dv;
+        dv = tmp;
+    };
+    swap(r, dr);
+    swap(g, dg);
+    swap(b, db);
+    swap(a, da);
+}
 STAGE(move_src_dst) {
     dr = r;
     dg = g;
     db = b;
     da = a;
+}
+STAGE(move_dst_src) {
+    r = dr;
+    g = dg;
+    b = db;
+    a = da;
 }
 
 // Most blend modes apply the same logic to each channel.
