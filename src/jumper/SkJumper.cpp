@@ -179,7 +179,34 @@ static const SkJumper_Engine kPortable = {
 static SkJumper_Engine gEngine = kPortable;
 static SkOnce gChooseEngineOnce;
 
+#if !defined(SK_BUILD_FOR_WIN32)
+    #include <signal.h>
+
+    static std::atomic<bool> gStifleSegv{false};
+    static void (*gPrevSegvHandler)(int) = nullptr;
+
+    static void segv_handler(int sig) {
+        SkASSERT(sig == SIGSEGV);
+        if (gStifleSegv.load(std::memory_order_relaxed)) {
+            return;
+        }
+        signal(SIGSEGV, gPrevSegvHandler);
+        raise(SIGSEGV);
+    }
+
+    struct AutoStifleSegv {
+        AutoStifleSegv() { gStifleSegv.store(true,  std::memory_order_relaxed); }
+       ~AutoStifleSegv() { gStifleSegv.store(false, std::memory_order_relaxed); }
+    };
+#else
+    struct AutoStifleSegv {};
+#endif
+
 static SkJumper_Engine choose_engine() {
+#if !defined(SK_BUILD_FOR_WIN32)
+    gPrevSegvHandler = signal(SIGSEGV, segv_handler);
+#endif
+
 #if __has_feature(memory_sanitizer)
     // We'll just run portable code.
 
@@ -293,6 +320,7 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t n) const {
     SkAutoSTMalloc<64, void*> program(fSlotsNeeded);
 
     auto start_pipeline = this->build_pipeline(program.get() + fSlotsNeeded);
+    AutoStifleSegv stifle;
     start_pipeline(x,y,x+n, program.get(), &kConstants);
 }
 
@@ -305,6 +333,7 @@ std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
     auto start_pipeline = this->build_pipeline(program + fSlotsNeeded);
 
     return [=](size_t x, size_t y, size_t n) {
+        AutoStifleSegv stifle;
         start_pipeline(x,y,x+n, program, &kConstants);
     };
 }
