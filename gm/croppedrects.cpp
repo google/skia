@@ -88,8 +88,9 @@ private:
             paint.setStrokeWidth(2 * kSrcImageClip.height());
             paint.setShader(fSrcImageShader);
             paint.setFilterQuality(kNone_SkFilterQuality);
-            canvas->translate(-90, 263);
+            canvas->translate(23, 301);
             canvas->scale(300 / kSrcImageClip.width(), 100 / kSrcImageClip.height());
+            canvas->translate(-kSrcImageClip.left(), -kSrcImageClip.top());
             canvas->clipRect(kSrcImageClip);
             canvas->drawPath(path, paint);
         }
