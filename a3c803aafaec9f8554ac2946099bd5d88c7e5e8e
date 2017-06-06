@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "491dd41c_8390f851",
+        "filename": "src/core/SkCpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7235
+      },
+      "writtenOn": "2017-06-06T15:50:20Z",
+      "side": 1,
+      "message": "Thanks.  This should fix us.\n\nAre you concerned that at some point in the future asm/hwcap.h could get included and thus HWCAP_CRC32 would be defined.  If that happens, this would be a compiler error (same in the next block too).\n\nYou could #undef it just in case if you are concerned.\n\nI\u0027m fine either way, just mentioning this potential issue.",
+      "revId": "a3c803aafaec9f8554ac2946099bd5d88c7e5e8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
