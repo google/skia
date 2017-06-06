@@ -1045,41 +1045,85 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         int                                                   fExpectedScaleFactor;
         bool                                                  fExpectation;
     } testCases[] = {
-        { create_image,          {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, true },
-        { create_codec_image,    {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, true },
-        { create_data_image,     {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, true },
-        { create_picture_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
-        { [context] { return create_gpu_image(context); },
-          {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
-        // Create a texture image in a another GrContext.
-        { [testContext, otherContextInfo] {
-            otherContextInfo.testContext()->makeCurrent();
-            sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
-            testContext->makeCurrent();
-            return otherContextImage;
-          }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
-        // Create an image that is too large to upload.
-        { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
-        // Create an image that is too large, but is scaled to an acceptable size.
-        { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
-        // Create an image with multiple low filter qualities, make sure we round up.
-        { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 4},
-                        {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
-        // Create an image with multiple prescale levels, make sure we chose the minimum scale.
-        { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
-                        {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
+            {create_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             true},
+            {create_codec_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             true},
+            {create_data_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             true},
+            {create_picture_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             false},
+            {[context] { return create_gpu_image(context); },
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             false},
+            // Create a texture image in a another GrContext.
+            {[testContext, otherContextInfo] {
+                 otherContextInfo.testContext()->makeCurrent();
+                 sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
+                 testContext->makeCurrent();
+                 return otherContextImage;
+             },
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             false},
+            // Create an image that is too large to upload.
+            {createLarge,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+             kNone_SkFilterQuality,
+             1,
+             false},
+            // Create an image that is too large, but is scaled to an acceptable size.
+            {createLarge,
+             {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+             kMedium_SkFilterQuality,
+             16,
+             true},
+            // Create an image with multiple low filter qualities, make sure we round up.
+            {createLarge,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 4},
+              {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+             kMedium_SkFilterQuality,
+             16,
+             true},
+            // Create an image with multiple prescale levels, make sure we chose the minimum scale.
+            {createLarge,
+             {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
+              {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
+             kMedium_SkFilterQuality,
+             16,
+             true},
+            // Create a images which are decoded to a 4444 backing.
+            {create_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0, kARGB_4444_SkColorType}},
+             kNone_SkFilterQuality,
+             1,
+             true},
+            {create_codec_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0, kARGB_4444_SkColorType}},
+             kNone_SkFilterQuality,
+             1,
+             true},
+            {create_data_image,
+             {{SkMatrix::I(), kNone_SkFilterQuality, 0, kARGB_4444_SkColorType}},
+             kNone_SkFilterQuality,
+             1,
+             true},
     };
-
 
     for (auto testCase : testCases) {
         sk_sp<SkImage> image(testCase.fImageFactory());
