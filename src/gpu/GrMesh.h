@@ -140,7 +140,7 @@ inline void GrMesh::setIndexed(const GrBuffer* indexBuffer, int indexCount, int 
     SkASSERT(indexBuffer);
     SkASSERT(indexCount >= 1);
     SkASSERT(baseIndex >= 0);
-    SkASSERT(maxIndexValue > minIndexValue);
+    SkASSERT(maxIndexValue >= minIndexValue);
     fIndexBuffer.reset(indexBuffer);
     fInstanceBuffer.reset(nullptr);
     fIndexData.fIndexCount = indexCount;
