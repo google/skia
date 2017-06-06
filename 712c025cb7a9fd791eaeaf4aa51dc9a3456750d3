@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de4d9f93_41d54f70",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-06T18:23:49Z",
+      "side": 1,
+      "message": "I think it\u0027ll make more sense long term if we instead remove this line...",
+      "revId": "712c025cb7a9fd791eaeaf4aa51dc9a3456750d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbd138b9_5737123c",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-06T18:23:49Z",
+      "side": 1,
+      "message": "... and this one ...",
+      "revId": "712c025cb7a9fd791eaeaf4aa51dc9a3456750d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18b04874_708d35f5",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-06T18:23:49Z",
+      "side": 1,
+      "message": "... and this one.",
+      "revId": "712c025cb7a9fd791eaeaf4aa51dc9a3456750d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "612c65c2_dd6239d1",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-06T18:23:49Z",
+      "side": 1,
+      "message": "That way we won\u0027t need to add this back here.",
+      "revId": "712c025cb7a9fd791eaeaf4aa51dc9a3456750d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
