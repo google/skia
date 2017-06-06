@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c02fa306_f32678b7",
+        "filename": "src/shaders/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-06T00:17:51Z",
+      "side": 1,
+      "message": "I think we can always use the burst mode",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 19
+      },
+      "revId": "2246086da3c0275e0008ec68908737ae274156ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
