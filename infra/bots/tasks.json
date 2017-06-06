@@ -4465,6 +4465,18 @@
       "priority": 0.8
     },
     "Housekeeper-PerCommit-BundleRecipes": {
+      "cipd_packages": [
+        {
+          "name": "infra/git/${platform}",
+          "path": "git",
+          "version": "version:2.13.0.chromium9"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "git",
+          "version": "git_revision:a78b5f3658c0578a017db48df97d20ac09822bcd"
+        }
+      ],
       "dimensions": [
         "cpu:x86-64-avx2",
         "gpu:none",

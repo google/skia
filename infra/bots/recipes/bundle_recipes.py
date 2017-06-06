@@ -7,6 +7,7 @@
 
 
 DEPS = [
+  'env',
   'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -19,15 +20,25 @@ def RunSteps(api):
   bundle_dir = api.properties['swarm_out_dir'] + '/recipe_bundle'
   skia_dir = api.path['start_dir'].join('skia')
   recipes_py = api.path['start_dir'].join('skia', 'infra', 'bots', 'recipes.py')
-  with api.context(cwd=skia_dir):
-    api.step('git init', infra_step=True,
-             cmd=['git', 'init'])
-    api.step('git add', infra_step=True,
-             cmd=['git', 'add', '.'])
-    api.step('git commit', infra_step=True,
-             cmd=['git', 'commit', '-m', 'commit recipes'])
-    api.step('Bundle Recipes', infra_step=True,
-             cmd=['python', recipes_py, 'bundle', '--destination', bundle_dir])
+  git_dir = api.path['start_dir'].join('git')
+  git_bin = git_dir.join('bin')
+  env = {'PATH': '%s:%s:%%(PATH)s' % (git_dir, git_bin)}
+  with api.env(env):
+    with api.context(cwd=skia_dir):
+      api.step('ls', infra_step=True, cmd=['ls', '-alh', git_dir.join('bin')])
+      api.step('git init', infra_step=True,
+               cmd=['git', 'init'])
+      api.step('git add', infra_step=True,
+               cmd=['git', 'add', '.'])
+      api.step('git commit', infra_step=True,
+               cmd=['git', 'commit', '-m', 'commit recipes'])
+      api.step('git status', infra_step=True,
+               cmd=[git_dir.join('git'), 'status'])
+      api.step('which git', infra_step=True, cmd=['which', 'git'])
+      api.step('git version', infra_step=True, cmd=['git', '--version'])
+      api.step('Bundle Recipes', infra_step=True,
+               cmd=['python', recipes_py, 'bundle',
+                    '--destination', bundle_dir])
 
 
 def GenTests(api):
