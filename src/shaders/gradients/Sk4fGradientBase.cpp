@@ -30,8 +30,8 @@ public:
         SkASSERT(shader.fColorCount > 0);
     }
 
-    void iterate(std::function<void(const SkColor4f&, const SkColor4f&,
-                                    SkScalar, SkScalar)> func) const {
+    void iterate(const std::function<void(const SkColor4f&, const SkColor4f&,
+                                          SkScalar, SkScalar)>& func) const {
         if (!fShader.fOrigPos) {
             this->iterateImplicitPos(func);
             return;
@@ -63,8 +63,8 @@ public:
     }
 
 private:
-    void iterateImplicitPos(std::function<void(const SkColor4f&, const SkColor4f&,
-                                               SkScalar, SkScalar)> func) const {
+    void iterateImplicitPos(const std::function<void(const SkColor4f&, const SkColor4f&,
+                                                     SkScalar, SkScalar)>& func) const {
         // When clients don't provide explicit color stop positions (fPos == nullptr),
         // the color stops are distributed evenly across the unit interval
         // (implicit positioning).
