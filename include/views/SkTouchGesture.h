@@ -39,6 +39,7 @@ public:
 
     bool isActive() { return fFlinger.isActive(); }
     void stop() { fFlinger.stop(); }
+    bool isBeingTouched() { return kEmpty_State != fState; }
 
     const SkMatrix& localM();
     const SkMatrix& globalM() const { return fGlobalM; }
