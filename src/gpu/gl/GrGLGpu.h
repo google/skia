@@ -101,7 +101,8 @@ public:
     // on GrGLGpuCommandBuffer.
     void draw(const GrPipeline&,
               const GrPrimitiveProcessor&,
-              const GrMesh*,
+              const GrMesh[],
+              const GrPipeline::DynamicState[],
               int meshCount);
 
 

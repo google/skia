@@ -9,6 +9,7 @@
 #define GrGpuCommandBuffer_DEFINED
 
 #include "GrColor.h"
+#include "GrPipeline.h"
 #include "ops/GrDrawOp.h"
 
 class GrOpFlushState;
@@ -69,6 +70,7 @@ public:
     bool draw(const GrPipeline&,
               const GrPrimitiveProcessor&,
               const GrMesh[],
+              const GrPipeline::DynamicState[],
               int meshCount,
               const SkRect& bounds);
 
@@ -99,7 +101,8 @@ private:
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onDraw(const GrPipeline&,
                         const GrPrimitiveProcessor&,
-                        const GrMesh*,
+                        const GrMesh[],
+                        const GrPipeline::DynamicState[],
                         int meshCount,
                         const SkRect& bounds) = 0;
 
