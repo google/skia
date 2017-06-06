@@ -255,16 +255,14 @@ int SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
             // crib code from gpu path utils that finds t values where loop self-intersects
             // use it to find mid of t values which should be a friendly place to chop
             SkASSERT(d[0] < 0);
-            SkScalar tempSqrt = SkScalarSqrt(-d[0]);
-            SkScalar ls = d[2] - tempSqrt;
-            SkScalar lt = 2.f * d[1];
-            SkScalar ms = d[2] + tempSqrt;
-            SkScalar mt = 2.f * d[1];
-            if (roughly_between(0, ls, lt) && roughly_between(0, ms, mt)) {
-                ls = ls / lt;
-                ms = ms / mt;
-                SkASSERT(roughly_between(0, ls, 1) && roughly_between(0, ms, 1));
-                t[0] = (ls + ms) / 2;
+            const SkScalar q = d[2] + SkScalarCopySign(SkScalarSqrt(-d[0]), d[2]);
+            const SkScalar td = q;
+            const SkScalar sd = 2 * d[1];
+            const SkScalar te = 2 * (d[2] * d[2] - d[3] * d[1]);
+            const SkScalar se = d[1] * q;
+            if (roughly_between(0, td, sd) && roughly_between(0, te, se)) {
+                SkASSERT(roughly_between(0, td / sd, 1) && roughly_between(0, te / se, 1));
+                t[0] = (td * se + te * sd) / (2 * sd * se);
                 SkASSERT(roughly_between(0, *t, 1));
                 return (int) (t[0] > 0 && t[0] < 1);
             }
