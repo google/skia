@@ -16,6 +16,24 @@
       "revId": "a3c803aafaec9f8554ac2946099bd5d88c7e5e8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adc81dbc_47e7ef41",
+        "filename": "src/core/SkCpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-06T15:55:18Z",
+      "side": 1,
+      "message": "Not too worried, no, but thanks for pointing this out.  Given that it\u0027d be a nice big red compile-time error, I\u0027m happy to leave tomorrow\u0027s problem to tomorrow.  I don\u0027t anticipate asm/hwcap.h ever being included except explicitly through our own doing.",
+      "parentUuid": "491dd41c_8390f851",
+      "revId": "a3c803aafaec9f8554ac2946099bd5d88c7e5e8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
