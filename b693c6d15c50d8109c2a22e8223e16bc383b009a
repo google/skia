@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7dbd7f01_fb0744ca",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-06T20:18:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "267196be_38d0ce63",
+      "revId": "b693c6d15c50d8109c2a22e8223e16bc383b009a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "181c3203_24f32fc9",
         "filename": "src/gpu/GrTextureMaker.cpp",
         "patchSetId": 1
@@ -51,6 +69,24 @@
       "revId": "b693c6d15c50d8109c2a22e8223e16bc383b009a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ba78c69_e2f0329f",
+        "filename": "src/gpu/GrTextureMaker.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-06T20:18:13Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "181c3203_24f32fc9",
+      "revId": "b693c6d15c50d8109c2a22e8223e16bc383b009a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
