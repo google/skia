@@ -35,7 +35,7 @@ SkColorSpaceXformImageGenerator::SkColorSpaceXformImageGenerator(const SkBitmap&
                                                                  sk_sp<SkColorSpace> dst)
     : INHERITED(src.info().makeColorSpace(dst), kNeedNewImageUniqueID)
     , fSrc(src)
-    , fDst(dst)
+    , fDst(std::move(dst))
 {}
 
 bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
