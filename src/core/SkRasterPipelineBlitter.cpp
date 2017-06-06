@@ -56,6 +56,7 @@ private:
     SkArenaAlloc*          fAlloc;
     SkRasterPipeline       fColorPipeline;
 
+    bool     fBlendWasSrcOver = false;
     // We may be able to specialize blitH() into a memset.
     bool     fCanMemsetInBlitH = false;
     uint64_t fMemsetColor      = 0;     // Big enough for largest dst format, F16.
@@ -179,6 +180,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     // We can strength-reduce SrcOver into Src when opaque.
     if (is_opaque && blitter->fBlend == SkBlendMode::kSrcOver) {
         blitter->fBlend = SkBlendMode::kSrc;
+        blitter->fBlendWasSrcOver = true;
     }
 
     // When we're drawing a constant color in Src mode, we can sometimes just memset.
@@ -339,7 +341,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend == SkBlendMode::kSrcOver) {
+        if (fBlendWasSrcOver || SkBlendMode_SupportsCoverageAsAlpha(fBlend)) {
             p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
             this->append_load_d(&p);
             this->append_blend(&p);
