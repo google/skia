@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBlendModePriv.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
@@ -954,36 +955,36 @@ template <Sk4f (blend)(const Sk4f&, const Sk4f&)> SkPM4f proc_4f(const SkPM4f& s
 }
 
 const ProcCoeff gProcCoeffs[] = {
-    { clear_modeproc,       proc_4f<clear_4f>,      SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
-    { src_modeproc,         proc_4f<src_4f>,        SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
-    { dst_modeproc,         proc_4f<dst_4f>,        SkXfermode::kZero_Coeff,    SkXfermode::kOne_Coeff  },
-    { srcover_modeproc,     proc_4f<srcover_4f>,    SkXfermode::kOne_Coeff,     SkXfermode::kISA_Coeff  },
-    { dstover_modeproc,     proc_4f<dstover_4f>,    SkXfermode::kIDA_Coeff,     SkXfermode::kOne_Coeff  },
-    { srcin_modeproc,       proc_4f<srcin_4f>,      SkXfermode::kDA_Coeff,      SkXfermode::kZero_Coeff },
-    { dstin_modeproc,       proc_4f<dstin_4f>,      SkXfermode::kZero_Coeff,    SkXfermode::kSA_Coeff   },
-    { srcout_modeproc,      proc_4f<srcout_4f>,     SkXfermode::kIDA_Coeff,     SkXfermode::kZero_Coeff },
-    { dstout_modeproc,      proc_4f<dstout_4f>,     SkXfermode::kZero_Coeff,    SkXfermode::kISA_Coeff  },
-    { srcatop_modeproc,     proc_4f<srcatop_4f>,    SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff  },
-    { dstatop_modeproc,     proc_4f<dstatop_4f>,    SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff   },
-    { xor_modeproc,         proc_4f<xor_4f>,        SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff  },
+    { clear_modeproc,       proc_4f<clear_4f>       },
+    { src_modeproc,         proc_4f<src_4f>         },
+    { dst_modeproc,         proc_4f<dst_4f>         },
+    { srcover_modeproc,     proc_4f<srcover_4f>     },
+    { dstover_modeproc,     proc_4f<dstover_4f>     },
+    { srcin_modeproc,       proc_4f<srcin_4f>       },
+    { dstin_modeproc,       proc_4f<dstin_4f>       },
+    { srcout_modeproc,      proc_4f<srcout_4f>      },
+    { dstout_modeproc,      proc_4f<dstout_4f>      },
+    { srcatop_modeproc,     proc_4f<srcatop_4f>     },
+    { dstatop_modeproc,     proc_4f<dstatop_4f>     },
+    { xor_modeproc,         proc_4f<xor_4f>         },
 
-    { plus_modeproc,        proc_4f<plus_4f>,       SkXfermode::kOne_Coeff,     SkXfermode::kOne_Coeff  },
-    { modulate_modeproc,    proc_4f<modulate_4f>,   SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff   },
-    { screen_modeproc,      proc_4f<screen_4f>,     SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff  },
-    { overlay_modeproc,     proc_4f<overlay_4f>,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { darken_modeproc,      proc_4f<darken_4f>,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { lighten_modeproc,     proc_4f<lighten_4f>,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colordodge_modeproc,  proc_4f<colordodge_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { colorburn_modeproc,   proc_4f<colorburn_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hardlight_modeproc,   proc_4f<hardlight_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { softlight_modeproc,   proc_4f<softlight_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { difference_modeproc,  proc_4f<difference_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { exclusion_modeproc,   proc_4f<exclusion_4f>,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { multiply_modeproc,    proc_4f<multiply_4f>,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { hue_modeproc,         proc_4f<hue_4f>,        CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { saturation_modeproc,  proc_4f<saturation_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { color_modeproc,       proc_4f<color_4f>,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
-    { luminosity_modeproc,  proc_4f<luminosity_4f>, CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { plus_modeproc,        proc_4f<plus_4f>        },
+    { modulate_modeproc,    proc_4f<modulate_4f>    },
+    { screen_modeproc,      proc_4f<screen_4f>      },
+    { overlay_modeproc,     proc_4f<overlay_4f>     },
+    { darken_modeproc,      proc_4f<darken_4f>      },
+    { lighten_modeproc,     proc_4f<lighten_4f>     },
+    { colordodge_modeproc,  proc_4f<colordodge_4f>  },
+    { colorburn_modeproc,   proc_4f<colorburn_4f>   },
+    { hardlight_modeproc,   proc_4f<hardlight_4f>   },
+    { softlight_modeproc,   proc_4f<softlight_4f>   },
+    { difference_modeproc,  proc_4f<difference_4f>  },
+    { exclusion_modeproc,   proc_4f<exclusion_4f>   },
+    { multiply_modeproc,    proc_4f<multiply_4f>    },
+    { hue_modeproc,         proc_4f<hue_4f>         },
+    { saturation_modeproc,  proc_4f<saturation_4f>  },
+    { color_modeproc,       proc_4f<color_4f>       },
+    { luminosity_modeproc,  proc_4f<luminosity_4f>  },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1069,44 +1070,11 @@ bool SkProcCoeffXfermode::asMode(Mode* mode) const {
 }
 
 bool SkProcCoeffXfermode::supportsCoverageAsAlpha() const {
-    if (CANNOT_USE_COEFF == fSrcCoeff) {
-        return false;
-    }
-
-    switch (fDstCoeff) {
-        case SkXfermode::kOne_Coeff:
-        case SkXfermode::kISA_Coeff:
-        case SkXfermode::kISC_Coeff:
-            return true;
-        default:
-            return false;
-    }
+    return SkBlendMode_SupportsCoverageAsAlpha(fMode);
 }
 
 bool SkProcCoeffXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
-    if (CANNOT_USE_COEFF == fSrcCoeff) {
-        return false;
-    }
-
-    if (SkXfermode::kDA_Coeff == fSrcCoeff || SkXfermode::kDC_Coeff == fSrcCoeff ||
-        SkXfermode::kIDA_Coeff == fSrcCoeff || SkXfermode::kIDC_Coeff == fSrcCoeff) {
-        return false;
-    }
-
-    switch (fDstCoeff) {
-        case SkXfermode::kZero_Coeff:
-            return true;
-        case SkXfermode::kISA_Coeff:
-            return SkXfermode::kOpaque_SrcColorOpacity == opacityType;
-        case SkXfermode::kSA_Coeff:
-            return SkXfermode::kTransparentBlack_SrcColorOpacity == opacityType ||
-                   SkXfermode::kTransparentAlpha_SrcColorOpacity == opacityType;
-        case SkXfermode::kSC_Coeff:
-            return SkXfermode::kTransparentBlack_SrcColorOpacity == opacityType;
-        default:
-            return false;
-    }
-
+    return SkXfermode::IsOpaque(fMode, opacityType);
 }
 
 void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
@@ -1145,7 +1113,7 @@ sk_sp<GrFragmentProcessor> SkProcCoeffXfermode::makeFragmentProcessorForImageFil
 }
 
 const GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
-    if (CANNOT_USE_COEFF != fSrcCoeff) {
+    if (SkBlendMode_AsCoeff(fMode, nullptr, nullptr)) {
         const GrXPFactory* result(GrPorterDuffXPFactory::Get(fMode));
         SkASSERT(result);
         return result;
@@ -1179,24 +1147,6 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
 
     str->append("mode: ");
     str->append(ModeName(fMode));
-
-    static const char* gCoeffStrings[kCoeffCount] = {
-        "Zero", "One", "SC", "ISC", "DC", "IDC", "SA", "ISA", "DA", "IDA"
-    };
-
-    str->append(" src: ");
-    if (CANNOT_USE_COEFF == fSrcCoeff) {
-        str->append("can't use");
-    } else {
-        str->append(gCoeffStrings[fSrcCoeff]);
-    }
-
-    str->append(" dst: ");
-    if (CANNOT_USE_COEFF == fDstCoeff) {
-        str->append("can't use");
-    } else {
-        str->append(gCoeffStrings[fDstCoeff]);
-    }
 }
 #endif
 
@@ -1246,30 +1196,6 @@ SkXfermodeProc4f SkXfermode::GetProc4f(SkBlendMode mode) {
     return proc;
 }
 
-bool SkXfermode::ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst) {
-    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
-
-    if ((unsigned)mode >= (unsigned)kModeCount) {
-        // illegal mode parameter
-        return false;
-    }
-
-    const ProcCoeff& rec = gProcCoeffs[mode];
-
-    if (CANNOT_USE_COEFF == rec.fSC) {
-        return false;
-    }
-
-    SkASSERT(CANNOT_USE_COEFF != rec.fDC);
-    if (src) {
-        *src = rec.fSC;
-    }
-    if (dst) {
-        *dst = rec.fDC;
-    }
-    return true;
-}
-
 bool SkXfermode::AsMode(const SkXfermode* xfer, Mode* mode) {
     if (nullptr == xfer) {
         if (mode) {
@@ -1313,44 +1239,31 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
-    switch (mode) {
-        case SkBlendMode::kDst:
-        case SkBlendMode::kSrcOver:
-        case SkBlendMode::kDstOver:
-        case SkBlendMode::kDstOut:
-        case SkBlendMode::kSrcATop:
-        case SkBlendMode::kXor:
-        case SkBlendMode::kPlus:
-            return true;
-        default:
-            break;
-    }
-    return false;
-}
-
 bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
-    const ProcCoeff rec = gProcCoeffs[(int)mode];
+    SkBlendModeCoeff src, dst;
+    if (!SkBlendMode_AsCoeff(mode, &src, &dst)) {
+        return false;
+    }
 
-    switch (rec.fSC) {
-        case kDA_Coeff:
-        case kDC_Coeff:
-        case kIDA_Coeff:
-        case kIDC_Coeff:
+    switch (src) {
+        case SkBlendModeCoeff::kDA:
+        case SkBlendModeCoeff::kDC:
+        case SkBlendModeCoeff::kIDA:
+        case SkBlendModeCoeff::kIDC:
             return false;
         default:
             break;
     }
 
-    switch (rec.fDC) {
-        case kZero_Coeff:
+    switch (dst) {
+        case SkBlendModeCoeff::kZero:
             return true;
-        case kISA_Coeff:
+        case SkBlendModeCoeff::kISA:
             return kOpaque_SrcColorOpacity == opacityType;
-        case kSA_Coeff:
+        case SkBlendModeCoeff::kSA:
             return kTransparentBlack_SrcColorOpacity == opacityType ||
             kTransparentAlpha_SrcColorOpacity == opacityType;
-        case kSC_Coeff:
+        case SkBlendModeCoeff::kSC:
             return kTransparentBlack_SrcColorOpacity == opacityType;
         default:
             return false;
@@ -1360,8 +1273,7 @@ bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
 
 #if SK_SUPPORT_GPU
 const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
-    const ProcCoeff rec = gProcCoeffs[(int)mode];
-    if (CANNOT_USE_COEFF != rec.fSC) {
+    if (SkBlendMode_AsCoeff(mode, nullptr, nullptr)) {
         const GrXPFactory* result = GrPorterDuffXPFactory::Get(mode);
         SkASSERT(result);
         return result;
@@ -1372,42 +1284,3 @@ const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode mode) {
 }
 #endif
 
-bool SkBlendMode_CanOverflow(SkBlendMode mode) { return mode == SkBlendMode::kPlus; }
-
-void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
-    auto stage = SkRasterPipeline::srcover;
-    switch (mode) {
-        case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
-        case SkBlendMode::kSrc:      return;  // This stage is a no-op.
-        case SkBlendMode::kDst:      stage = SkRasterPipeline::move_dst_src; break;
-        case SkBlendMode::kSrcOver:  stage = SkRasterPipeline::srcover; break;
-        case SkBlendMode::kDstOver:  stage = SkRasterPipeline::dstover; break;
-        case SkBlendMode::kSrcIn:    stage = SkRasterPipeline::srcin; break;
-        case SkBlendMode::kDstIn:    stage = SkRasterPipeline::dstin; break;
-        case SkBlendMode::kSrcOut:   stage = SkRasterPipeline::srcout; break;
-        case SkBlendMode::kDstOut:   stage = SkRasterPipeline::dstout; break;
-        case SkBlendMode::kSrcATop:  stage = SkRasterPipeline::srcatop; break;
-        case SkBlendMode::kDstATop:  stage = SkRasterPipeline::dstatop; break;
-        case SkBlendMode::kXor:      stage = SkRasterPipeline::xor_; break;
-        case SkBlendMode::kPlus:     stage = SkRasterPipeline::plus_; break;
-        case SkBlendMode::kModulate: stage = SkRasterPipeline::modulate; break;
-
-        case SkBlendMode::kScreen:     stage = SkRasterPipeline::screen; break;
-        case SkBlendMode::kOverlay:    stage = SkRasterPipeline::overlay; break;
-        case SkBlendMode::kDarken:     stage = SkRasterPipeline::darken; break;
-        case SkBlendMode::kLighten:    stage = SkRasterPipeline::lighten; break;
-        case SkBlendMode::kColorDodge: stage = SkRasterPipeline::colordodge; break;
-        case SkBlendMode::kColorBurn:  stage = SkRasterPipeline::colorburn; break;
-        case SkBlendMode::kHardLight:  stage = SkRasterPipeline::hardlight; break;
-        case SkBlendMode::kSoftLight:  stage = SkRasterPipeline::softlight; break;
-        case SkBlendMode::kDifference: stage = SkRasterPipeline::difference; break;
-        case SkBlendMode::kExclusion:  stage = SkRasterPipeline::exclusion; break;
-        case SkBlendMode::kMultiply:   stage = SkRasterPipeline::multiply; break;
-
-        case SkBlendMode::kHue:        stage = SkRasterPipeline::hue; break;
-        case SkBlendMode::kSaturation: stage = SkRasterPipeline::saturation; break;
-        case SkBlendMode::kColor:      stage = SkRasterPipeline::color; break;
-        case SkBlendMode::kLuminosity: stage = SkRasterPipeline::luminosity; break;
-    }
-    p->append(stage);
-}

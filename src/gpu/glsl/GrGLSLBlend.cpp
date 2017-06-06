@@ -7,7 +7,7 @@
 
 #include "GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkXfermodePriv.h"
+#include "SkBlendModePriv.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //  Advanced (non-coeff) blend helpers
@@ -370,10 +370,10 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
 //  Porter-Duff blend helper
 //////////////////////////////////////////////////////////////////////////////
 
-static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkXfermode::Coeff coeff,
+static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkBlendModeCoeff coeff,
                                    const char* colorName, const char* srcColorName,
                                    const char* dstColorName, bool hasPrevious) {
-    if (SkXfermode::kZero_Coeff == coeff) {
+    if (SkBlendModeCoeff::kZero == coeff) {
         return hasPrevious;
     } else {
         if (hasPrevious) {
@@ -381,30 +381,30 @@ static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkXfermode:
         }
         fsBuilder->codeAppendf("%s", colorName);
         switch (coeff) {
-            case SkXfermode::kOne_Coeff:
+            case SkBlendModeCoeff::kOne:
                 break;
-            case SkXfermode::kSC_Coeff:
+            case SkBlendModeCoeff::kSC:
                 fsBuilder->codeAppendf(" * %s", srcColorName);
                 break;
-            case SkXfermode::kISC_Coeff:
+            case SkBlendModeCoeff::kISC:
                 fsBuilder->codeAppendf(" * (vec4(1.0) - %s)", srcColorName);
                 break;
-            case SkXfermode::kDC_Coeff:
+            case SkBlendModeCoeff::kDC:
                 fsBuilder->codeAppendf(" * %s", dstColorName);
                 break;
-            case SkXfermode::kIDC_Coeff:
+            case SkBlendModeCoeff::kIDC:
                 fsBuilder->codeAppendf(" * (vec4(1.0) - %s)", dstColorName);
                 break;
-            case SkXfermode::kSA_Coeff:
+            case SkBlendModeCoeff::kSA:
                 fsBuilder->codeAppendf(" * %s.a", srcColorName);
                 break;
-            case SkXfermode::kISA_Coeff:
+            case SkBlendModeCoeff::kISA:
                 fsBuilder->codeAppendf(" * (1.0 - %s.a)", srcColorName);
                 break;
-            case SkXfermode::kDA_Coeff:
+            case SkBlendModeCoeff::kDA:
                 fsBuilder->codeAppendf(" * %s.a", dstColorName);
                 break;
-            case SkXfermode::kIDA_Coeff:
+            case SkBlendModeCoeff::kIDA:
                 fsBuilder->codeAppendf(" * (1.0 - %s.a)", dstColorName);
                 break;
             default:
@@ -420,8 +420,8 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
                              const char* dstColor, const char* outColor,
                              SkBlendMode mode) {
 
-    SkXfermode::Coeff srcCoeff, dstCoeff;
-    if (SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff)) {
+    SkBlendModeCoeff srcCoeff, dstCoeff;
+    if (SkBlendMode_AsCoeff(mode, &srcCoeff, &dstCoeff)) {
         // The only coeff mode that can go out of range is plus.
         bool clamp = mode == SkBlendMode::kPlus;
 
@@ -448,37 +448,37 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
 void GrGLSLBlend::AppendRegionOp(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
                                  const char* dstColor, const char* outColor,
                                  SkRegion::Op regionOp) {
-    SkXfermode::Coeff srcCoeff, dstCoeff;
+    SkBlendModeCoeff srcCoeff, dstCoeff;
     switch (regionOp) {
         case SkRegion::kReplace_Op:
-            srcCoeff = SkXfermode::kOne_Coeff;
-            dstCoeff = SkXfermode::kZero_Coeff;
+            srcCoeff = SkBlendModeCoeff::kOne;
+            dstCoeff = SkBlendModeCoeff::kZero;
             break;
         case SkRegion::kIntersect_Op:
-            srcCoeff = SkXfermode::kDC_Coeff;
-            dstCoeff = SkXfermode::kZero_Coeff;
+            srcCoeff = SkBlendModeCoeff::kDC;
+            dstCoeff = SkBlendModeCoeff::kZero;
             break;
         case SkRegion::kUnion_Op:
-            srcCoeff = SkXfermode::kOne_Coeff;
-            dstCoeff = SkXfermode::kISC_Coeff;
+            srcCoeff = SkBlendModeCoeff::kOne;
+            dstCoeff = SkBlendModeCoeff::kISC;
             break;
         case SkRegion::kXOR_Op:
-            srcCoeff = SkXfermode::kIDC_Coeff;
-            dstCoeff = SkXfermode::kISC_Coeff;
+            srcCoeff = SkBlendModeCoeff::kIDC;
+            dstCoeff = SkBlendModeCoeff::kISC;
             break;
         case SkRegion::kDifference_Op:
-            srcCoeff = SkXfermode::kZero_Coeff;
-            dstCoeff = SkXfermode::kISC_Coeff;
+            srcCoeff = SkBlendModeCoeff::kZero;
+            dstCoeff = SkBlendModeCoeff::kISC;
             break;
         case SkRegion::kReverseDifference_Op:
-            srcCoeff = SkXfermode::kIDC_Coeff;
-            dstCoeff = SkXfermode::kZero_Coeff;
+            srcCoeff = SkBlendModeCoeff::kIDC;
+            dstCoeff = SkBlendModeCoeff::kZero;
             break;
         default:
             SkFAIL("Unsupported Op");
             // We should never get here but to make compiler happy
-            srcCoeff = SkXfermode::kZero_Coeff;
-            dstCoeff = SkXfermode::kZero_Coeff;
+            srcCoeff = SkBlendModeCoeff::kZero;
+            dstCoeff = SkBlendModeCoeff::kZero;
     }
     fsBuilder->codeAppendf("%s = ", outColor);
     // append src blend
