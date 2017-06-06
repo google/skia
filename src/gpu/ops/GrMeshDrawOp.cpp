@@ -74,7 +74,8 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
         const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
         SkASSERT(draw.fPipeline->getRenderTarget() == state->drawOpArgs().fRenderTarget);
         state->commandBuffer()->draw(*draw.fPipeline, *draw.fGeometryProcessor.get(),
-                                     fMeshes.begin() + currMeshIdx, draw.fMeshCnt, this->bounds());
+                                     fMeshes.begin() + currMeshIdx, nullptr, draw.fMeshCnt,
+                                     this->bounds());
         currMeshIdx += draw.fMeshCnt;
         state->flushToken();
     }

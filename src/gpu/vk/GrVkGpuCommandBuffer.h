@@ -53,11 +53,13 @@ private:
 
     sk_sp<GrVkPipelineState> prepareDrawState(const GrPipeline&,
                                               const GrPrimitiveProcessor&,
-                                              GrPrimitiveType);
+                                              GrPrimitiveType,
+                                              bool hasDynamicState);
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,
-                const GrMesh* mesh,
+                const GrMesh mesh[],
+                const GrPipeline::DynamicState[],
                 int meshCount,
                 const SkRect& bounds) override;
 
