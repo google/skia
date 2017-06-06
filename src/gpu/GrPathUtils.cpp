@@ -10,6 +10,7 @@
 #include "GrTypes.h"
 #include "SkGeometry.h"
 #include "SkMathPriv.h"
+#include <cmath>
 
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
 static const SkScalar gMinCurveTol = 0.0001f;
@@ -224,7 +225,7 @@ void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
     double y2 = qPts[2].fY;
     double det = x0*y1 - y0*x1 + x2*y0 - y2*x0 + x1*y2 - y1*x2;
 
-    if (!sk_float_isfinite(det)
+    if (!std::isfinite(det)
         || SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
@@ -648,24 +649,10 @@ static int calc_inverse_transpose_power_basis_matrix(const SkPoint pts[4], SkMat
     return skipRow;
 }
 
-static void negate_kl(SkMatrix* klm) {
-    // We could use klm->postScale(-1, -1), but it ends up doing a full matrix multiply.
-    for (int i = 0; i < 6; ++i) {
-        (*klm)[i] = -(*klm)[i];
-    }
-}
-
-static void calc_serp_klm(const SkPoint pts[4], const SkScalar d[4], SkMatrix* klm) {
+static void calc_serp_klm(const SkPoint pts[4], SkScalar tl, SkScalar sl, SkScalar tm, SkScalar sm,
+                          SkMatrix* klm) {
     SkMatrix CIT;
     int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
-
-    SkASSERT(d[0] >= 0);
-    const SkScalar root = SkScalarSqrt(3 * d[0]);
-
-    const SkScalar tl = 3 * d[2] + root;
-    const SkScalar sl = 6 * d[1];
-    const SkScalar tm = 3 * d[2] - root;
-    const SkScalar sm = 6 * d[1];
 
     SkMatrix klmCoeffs;
     int col = 0;
@@ -694,17 +681,10 @@ static void calc_serp_klm(const SkPoint pts[4], const SkScalar d[4], SkMatrix* k
     klmCoeffs[8] = tm * tm * tm;
 
     klm->setConcat(klmCoeffs, CIT);
-
-    // If d1 > 0 we need to flip the orientation of our curve
-    // This is done by negating the k and l values
-    // We want negative distance values to be on the inside
-    if (d[1] > 0) {
-        negate_kl(klm);
-    }
 }
 
-static void calc_loop_klm(const SkPoint pts[4], SkScalar d1, SkScalar td, SkScalar sd,
-                          SkScalar te, SkScalar se, SkMatrix* klm) {
+static void calc_loop_klm(const SkPoint pts[4], SkScalar td, SkScalar sd, SkScalar te, SkScalar se,
+                          SkMatrix* klm) {
     SkMatrix CIT;
     int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
 
@@ -738,24 +718,12 @@ static void calc_loop_klm(const SkPoint pts[4], SkScalar d1, SkScalar td, SkScal
     klmCoeffs[8] = te * te * td;
 
     klm->setConcat(klmCoeffs, CIT);
-
-    // For the general loop curve, we flip the orientation in the same pattern as the serp case
-    // above. Thus we only check d1. Technically we should check the value of the hessian as well
-    // cause we care about the sign of d1*Hessian. However, the Hessian is always negative outside
-    // the loop section and positive inside. We take care of the flipping for the loop sections
-    // later on.
-    if (d1 > 0) {
-        negate_kl(klm);
-    }
 }
 
 // For the case when we have a cusp at a parameter value of infinity (discr == 0, d1 == 0).
-static void calc_inf_cusp_klm(const SkPoint pts[4], SkScalar d2, SkScalar d3, SkMatrix* klm) {
+static void calc_inf_cusp_klm(const SkPoint pts[4], SkScalar tn, SkScalar sn, SkMatrix* klm) {
     SkMatrix CIT;
     int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
-
-    const SkScalar tn = d3;
-    const SkScalar sn = 3 * d2;
 
     SkMatrix klmCoeffs;
     int col = 0;
@@ -814,7 +782,7 @@ static void calc_quadratic_klm(const SkPoint pts[4], SkScalar d3, SkMatrix* klm)
     // If d3 > 0 we need to flip the orientation of our curve
     // This is done by negating the k and l values
     if (d3 > 0) {
-        negate_kl(klm);
+        klm->postScale(-1, -1);
     }
 }
 
@@ -846,11 +814,11 @@ int GrPathUtils::chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[1
     int chop_count = 0;
     if (SkCubicType::kLoop == cType) {
         SkASSERT(d[0] < 0);
-        const SkScalar tempSqrt = SkScalarSqrt(-d[0]);
-        td = d[2] + tempSqrt;
-        sd = 2.f * d[1];
-        te = d[2] - tempSqrt;
-        se = 2.f * d[1];
+        const SkScalar q = d[2] + std::copysign(std::sqrt(-d[0]), d[2]);
+        td = q;
+        sd = 2 * d[1];
+        te = 2 * (d[2] * d[2] - d[3] * d[1]);
+        se = d[1] * q;
 
         t1 = td / sd;
         t2 = te / se;
@@ -895,16 +863,38 @@ int GrPathUtils::chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[1
 
     if (klm) {
         switch (cType) {
-            case SkCubicType::kSerpentine:
-            case SkCubicType::kLocalCusp:
-                calc_serp_klm(src, d, klm);
+            case SkCubicType::kSerpentine: {
+                SkASSERT(d[0] >= 0);
+                const SkScalar q = 3 * d[2] + std::copysign(std::sqrt(3 * d[0]), d[2]);
+                const SkScalar tl = q;
+                const SkScalar sl = 6 * d[1];
+                const SkScalar tm = 2 * d[3];
+                const SkScalar sm = q;
+                // This copysign/abs business orients the implicit function so positive values are
+                // always on the "left" side of the curve.
+                calc_serp_klm(src, tl, sl, -std::copysign(tm, tm * sm), -std::abs(sm), klm);
                 break;
+            }
+            case SkCubicType::kLocalCusp: {
+                SkASSERT(0 == d[0]);
+                const SkScalar t = d[2];
+                const SkScalar s = 2 * d[1];
+                // This copysign/abs business orients the implicit function so positive values are
+                // always on the "left" side of the curve.
+                calc_serp_klm(src, t, s, -std::copysign(t, t * s), -std::abs(s), klm);
+                break;
+            }
             case SkCubicType::kLoop:
-                calc_loop_klm(src, d[1], td, sd, te, se, klm);
+                // This copysign/abs business orients the implicit function so positive values are
+                // always on the "left" side of the curve.
+                calc_loop_klm(src, td, sd, -std::copysign(te, te * se), -std::abs(se), klm);
                 break;
-            case SkCubicType::kInfiniteCusp:
-                calc_inf_cusp_klm(src, d[2], d[3], klm);
+            case SkCubicType::kInfiniteCusp: {
+                const SkScalar tn = d[3];
+                const SkScalar sn = 3 * d[2];
+                calc_inf_cusp_klm(src, tn, sn, klm);
                 break;
+            }
             case SkCubicType::kQuadratic:
                 calc_quadratic_klm(src, d[3], klm);
                 break;
