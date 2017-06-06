@@ -37,8 +37,8 @@ struct Sk4fGradientInterval {
 
 class Sk4fGradientIntervalBuffer {
 public:
-    void init(const SkColor colors[], const SkScalar pos[], int count,
-              SkShader::TileMode tileMode, bool premulColors, SkScalar alpha, bool reverse);
+    void init(const SkGradientShaderBase&, SkColorSpace* dstCS, SkShader::TileMode tileMode,
+              bool premulColors, SkScalar alpha, bool reverse);
 
     const Sk4fGradientInterval* find(SkScalar t) const;
     const Sk4fGradientInterval* findNext(SkScalar t, const Sk4fGradientInterval* prev,

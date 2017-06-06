@@ -202,6 +202,8 @@ public:
 
     uint32_t getGradFlags() const { return fGradFlags; }
 
+    SkColor4f getXformedColor(size_t index, SkColorSpace*) const;
+
 protected:
     struct Rec {
         SkFixed     fPos;   // 0...1

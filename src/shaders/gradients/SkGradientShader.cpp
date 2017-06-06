@@ -449,8 +449,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
 
     const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
     auto prepareColor = [premulGrad, dstCS, this](int i) {
-        SkColor4f c = dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
-                            : SkColor4f_from_SkColor(fOrigColors[i], nullptr);
+        SkColor4f c = this->getXformedColor(i, dstCS);
         return premulGrad ? c.premul()
                           : SkPM4f::From4f(Sk4f::Load(&c));
     };
@@ -868,6 +867,11 @@ sk_sp<SkGradientShaderBase::GradientShaderCache> SkGradientShaderBase::refCache(
     // Otherwise, the pointer may have been overwritten on a different thread before the object's
     // ref count was incremented.
     return fCache;
+}
+
+SkColor4f SkGradientShaderBase::getXformedColor(size_t i, SkColorSpace* dstCS) const {
+    return dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
+                 : SkColor4f_from_SkColor(fOrigColors[i], nullptr);
 }
 
 SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
