@@ -109,9 +109,6 @@ public:
                                                              bool invertedFill,
                                                              bool* drawDirectToClip);
 
-    /** Gets the user stencil settings to directly set the clip bit. */
-    static const GrUserStencilSettings* SetClipBitSettings(bool setToInside);
-
 private:
     // Internal flag for backends to optionally mark their tracked stencil state as invalid.
     enum { kInvalid_PrivateFlag = (kLast_StencilFlag << 1) };

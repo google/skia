@@ -220,7 +220,7 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     for (size_t i = 0; i < SK_ARRAY_COUNT(fMipmapPrograms); ++i) {
         fMipmapPrograms[i].fProgram = 0;
     }
-    fStencilClipClearProgram = 0;
+    fWireRectProgram.fProgram = 0;
 
     SkASSERT(ctx);
     fCaps.reset(SkRef(ctx->caps()));
@@ -277,7 +277,7 @@ GrGLGpu::~GrGLGpu() {
     fPathRendering.reset();
     fCopyProgramArrayBuffer.reset();
     fMipmapProgramArrayBuffer.reset();
-    fStencilClipClearArrayBuffer.reset();
+    fWireRectArrayBuffer.reset();
 
     if (0 != fHWProgramID) {
         // detach the current program so there is no confusion on OpenGL's part
@@ -307,8 +307,8 @@ GrGLGpu::~GrGLGpu() {
         }
     }
 
-    if (0 != fStencilClipClearProgram) {
-        GL_CALL(DeleteProgram(fStencilClipClearProgram));
+    if (0 != fWireRectProgram.fProgram) {
+        GL_CALL(DeleteProgram(fWireRectProgram.fProgram));
     }
 
     delete fProgramCache;
@@ -339,8 +339,8 @@ void GrGLGpu::disconnect(DisconnectType type) {
                 GL_CALL(DeleteProgram(fMipmapPrograms[i].fProgram));
             }
         }
-        if (fStencilClipClearProgram) {
-            GL_CALL(DeleteProgram(fStencilClipClearProgram));
+        if (fWireRectProgram.fProgram) {
+            GL_CALL(DeleteProgram(fWireRectProgram.fProgram));
         }
     } else {
         if (fProgramCache) {
@@ -363,8 +363,8 @@ void GrGLGpu::disconnect(DisconnectType type) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(fMipmapPrograms); ++i) {
         fMipmapPrograms[i].fProgram = 0;
     }
-    fStencilClipClearProgram = 0;
-    fStencilClipClearArrayBuffer.reset();
+    fWireRectProgram.fProgram = 0;
+    fWireRectArrayBuffer.reset();
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);
     }
@@ -1942,11 +1942,6 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
                                GrRenderTarget* target) {
     SkASSERT(target);
     this->handleDirtyContext();
-
-    if (this->glCaps().useDrawToClearStencilClip()) {
-        this->clearStencilClipAsDraw(clip, insideStencilMask, target);
-        return;
-    }
 
     GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
     // this should only be called internally when we know we have a
@@ -3616,43 +3611,64 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     return true;
 }
 
-bool GrGLGpu::createStencilClipClearProgram() {
-    if (!fStencilClipClearArrayBuffer) {
-        static const GrGLfloat vdata[] = {-1, -1, 1, -1, -1, 1, 1, 1};
-        fStencilClipClearArrayBuffer.reset(GrGLBuffer::Create(
-                this, sizeof(vdata), kVertex_GrBufferType, kStatic_GrAccessPattern, vdata));
-        if (!fStencilClipClearArrayBuffer) {
+bool GrGLGpu::createWireRectProgram() {
+    if (!fWireRectArrayBuffer) {
+        static const GrGLfloat vdata[] = {
+            0, 0,
+            0, 1,
+            1, 1,
+            1, 0
+        };
+        fWireRectArrayBuffer.reset(GrGLBuffer::Create(this, sizeof(vdata), kVertex_GrBufferType,
+                                                      kStatic_GrAccessPattern, vdata));
+        if (!fWireRectArrayBuffer) {
             return false;
         }
     }
 
-    SkASSERT(!fStencilClipClearProgram);
-    GL_CALL_RET(fStencilClipClearProgram, CreateProgram());
-    if (!fStencilClipClearProgram) {
+    SkASSERT(!fWireRectProgram.fProgram);
+    GL_CALL_RET(fWireRectProgram.fProgram, CreateProgram());
+    if (!fWireRectProgram.fProgram) {
         return false;
     }
 
+    GrShaderVar uColor("u_color", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
+    GrShaderVar uRect("u_rect", kVec4f_GrSLType, GrShaderVar::kUniform_TypeModifier);
     GrShaderVar aVertex("a_vertex", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
     const char* version = this->caps()->shaderCaps()->versionDeclString();
 
+    // The rect uniform specifies the rectangle in NDC space as a vec4 (left,top,right,bottom). The
+    // program is used with a vbo containing the unit square. Vertices are computed from the rect
+    // uniform using the 4 vbo vertices.
     SkString vshaderTxt(version);
     aVertex.appendDecl(this->caps()->shaderCaps(), &vshaderTxt);
     vshaderTxt.append(";");
+    uRect.appendDecl(this->caps()->shaderCaps(), &vshaderTxt);
+    vshaderTxt.append(";");
     vshaderTxt.append(
-            "// Stencil Clip Clear Program VS\n"
-            "void main() {"
-            "  gl_Position = vec4(a_vertex.x, a_vertex.y, 0, 1);"
-            "}");
+        "// Wire Rect Program VS\n"
+        "void main() {"
+        "  gl_Position.x = u_rect.x + a_vertex.x * (u_rect.z - u_rect.x);"
+        "  gl_Position.y = u_rect.y + a_vertex.y * (u_rect.w - u_rect.y);"
+        "  gl_Position.zw = vec2(0, 1);"
+        "}"
+    );
+
+    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString fshaderTxt(version);
     GrGLSLAppendDefaultFloatPrecisionDeclaration(kMedium_GrSLPrecision,
                                                  *this->caps()->shaderCaps(),
                                                  &fshaderTxt);
+    uColor.appendDecl(this->caps()->shaderCaps(), &fshaderTxt);
+    fshaderTxt.append(";");
     fshaderTxt.appendf(
-            "// Stencil Clip Clear Program FS\n"
-            "void main() {"
-            "  sk_FragColor = vec4(0);"
-            "}");
+        "// Write Rect Program FS\n"
+        "void main() {"
+        "  sk_FragColor = %s;"
+        "}",
+        uColor.c_str()
+    );
 
     const char* str;
     GrGLint length;
@@ -3662,21 +3678,25 @@ bool GrGLGpu::createStencilClipClearProgram() {
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
     SkSL::Program::Inputs inputs;
-    GrGLuint vshader =
-            GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram, GR_GL_VERTEX_SHADER,
-                                       &str, &length, 1, &fStats, settings, &inputs);
+    GrGLuint vshader = GrGLCompileAndAttachShader(*fGLContext, fWireRectProgram.fProgram,
+                                                  GR_GL_VERTEX_SHADER, &str, &length, 1,
+                                                  &fStats, settings, &inputs);
     SkASSERT(inputs.isEmpty());
 
     str = fshaderTxt.c_str();
     length = SkToInt(fshaderTxt.size());
-    GrGLuint fshader =
-            GrGLCompileAndAttachShader(*fGLContext, fStencilClipClearProgram, GR_GL_FRAGMENT_SHADER,
-                                       &str, &length, 1, &fStats, settings, &inputs);
+    GrGLuint fshader = GrGLCompileAndAttachShader(*fGLContext, fWireRectProgram.fProgram,
+                                                  GR_GL_FRAGMENT_SHADER, &str, &length, 1,
+                                                  &fStats, settings, &inputs);
     SkASSERT(inputs.isEmpty());
 
-    GL_CALL(LinkProgram(fStencilClipClearProgram));
+    GL_CALL(LinkProgram(fWireRectProgram.fProgram));
 
-    GL_CALL(BindAttribLocation(fStencilClipClearProgram, 0, "a_vertex"));
+    GL_CALL_RET(fWireRectProgram.fColorUniform,
+                GetUniformLocation(fWireRectProgram.fProgram, "u_color"));
+    GL_CALL_RET(fWireRectProgram.fRectUniform,
+                GetUniformLocation(fWireRectProgram.fProgram, "u_rect"));
+    GL_CALL(BindAttribLocation(fWireRectProgram.fProgram, 0, "a_vertex"));
 
     GL_CALL(DeleteShader(vshader));
     GL_CALL(DeleteShader(fshader));
@@ -3684,46 +3704,71 @@ bool GrGLGpu::createStencilClipClearProgram() {
     return true;
 }
 
-void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencilMask,
-                                     GrRenderTarget* rt) {
+void GrGLGpu::drawDebugWireRect(GrRenderTarget* rt, const SkIRect& rect, GrColor color) {
     // TODO: This should swizzle the output to match dst's config, though it is a debugging
     // visualization.
 
     this->handleDirtyContext();
-    if (!fStencilClipClearProgram) {
-        if (!this->createStencilClipClearProgram()) {
-            SkDebugf("Failed to create stencil clip clear program.\n");
+    if (!fWireRectProgram.fProgram) {
+        if (!this->createWireRectProgram()) {
+            SkDebugf("Failed to create wire rect program.\n");
             return;
         }
     }
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
-    this->flushRenderTarget(glRT, nullptr);
+    int w = rt->width();
+    int h = rt->height();
 
-    GL_CALL(UseProgram(fStencilClipClearProgram));
-    fHWProgramID = fStencilClipClearProgram;
+    // Compute the edges of the rectangle (top,left,right,bottom) in NDC space. Must consider
+    // whether the render target is flipped or not.
+    GrGLfloat edges[4];
+    edges[0] = SkIntToScalar(rect.fLeft) + 0.5f;
+    edges[2] = SkIntToScalar(rect.fRight) - 0.5f;
+    if (kBottomLeft_GrSurfaceOrigin == rt->origin()) {
+        edges[1] = h - (SkIntToScalar(rect.fTop) + 0.5f);
+        edges[3] = h - (SkIntToScalar(rect.fBottom) - 0.5f);
+    } else {
+        edges[1] = SkIntToScalar(rect.fTop) + 0.5f;
+        edges[3] = SkIntToScalar(rect.fBottom) - 0.5f;
+    }
+    edges[0] = 2 * edges[0] / w - 1.0f;
+    edges[1] = 2 * edges[1] / h - 1.0f;
+    edges[2] = 2 * edges[2] / w - 1.0f;
+    edges[3] = 2 * edges[3] / h - 1.0f;
+
+    GrGLfloat channels[4];
+    static const GrGLfloat scale255 = 1.f / 255.f;
+    channels[0] = GrColorUnpackR(color) * scale255;
+    channels[1] = GrColorUnpackG(color) * scale255;
+    channels[2] = GrColorUnpackB(color) * scale255;
+    channels[3] = GrColorUnpackA(color) * scale255;
+
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
+    this->flushRenderTarget(glRT, &rect);
+
+    GL_CALL(UseProgram(fWireRectProgram.fProgram));
+    fHWProgramID = fWireRectProgram.fProgram;
 
     fHWVertexArrayState.setVertexArrayID(this, 0);
 
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
     attribs->enableVertexArrays(this, 1);
-    attribs->set(this, 0, fStencilClipClearArrayBuffer.get(), kVec2f_GrVertexAttribType,
+    attribs->set(this, 0, fWireRectArrayBuffer.get(), kVec2f_GrVertexAttribType,
                  2 * sizeof(GrGLfloat), 0);
+
+    GL_CALL(Uniform4fv(fWireRectProgram.fRectUniform, 1, edges));
+    GL_CALL(Uniform4fv(fWireRectProgram.fColorUniform, 1, channels));
 
     GrXferProcessor::BlendInfo blendInfo;
     blendInfo.reset();
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
-    this->flushColorWrite(false);
+    this->flushColorWrite(true);
     this->flushHWAAState(glRT, false, false);
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
-    this->flushWindowRectangles(clip.windowRectsState(), glRT);
-    GrStencilAttachment* sb = rt->renderTargetPriv().getStencilAttachment();
-    // This should only be called internally when we know we have a stencil buffer.
-    SkASSERT(sb);
-    GrStencilSettings settings = GrStencilSettings(
-            *GrStencilSettings::SetClipBitSettings(insideStencilMask), false, sb->bits());
-    this->flushStencil(settings);
-    GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
+    this->disableScissor();
+    this->disableWindowRectangles();
+    this->disableStencil();
+
+    GL_CALL(DrawArrays(GR_GL_LINE_LOOP, 0, 4));
 }
 
 
