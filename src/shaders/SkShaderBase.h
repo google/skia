@@ -148,6 +148,15 @@ public:
      */
     Context* makeContext(const ContextRec&, SkArenaAlloc*) const;
 
+    /**
+     * Shaders may opt-in for burst mode, if they can operate
+     * significantly more efficiently in that mode.
+     *
+     * Burst mode is prioritized in SkRasterPipelineBlitter over
+     * regular (appendStages) pipeline operation.
+     */
+    Context* makeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const;
+
 #if SK_SUPPORT_GPU
     struct AsFPArgs {
         AsFPArgs() {}
@@ -237,6 +246,13 @@ protected:
      * @return pointer to context owned by the arena allocator.
      */
     virtual Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const {
+        return nullptr;
+    }
+
+    /**
+     * Overriden by shaders which prefer burst mode.
+     */
+    virtual Context* onMakeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const {
         return nullptr;
     }
 

@@ -83,6 +83,16 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
            : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
 }
 
+SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
+    const ContextRec& rec, SkArenaAlloc* alloc) const {
+
+    // TODO: refine heuristic.
+    if (fColorCount <= 8) {
+        return nullptr;
+    }
+    return CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec);
+}
+
 bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                    SkMatrix* matrix,
                                                    SkRasterPipeline* p) const {

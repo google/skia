@@ -67,6 +67,7 @@ protected:
     SkLinearGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    Context* onMakeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const override;
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
