@@ -29,8 +29,8 @@ void skjpeg_err_exit(j_common_ptr cinfo);
 /*
  * Source handling struct for that allows libjpeg to use our stream object
  */
-struct skjpeg_buffered_source_mgr : jpeg_source_mgr {
-    skjpeg_buffered_source_mgr(SkStream* stream);
+struct skjpeg_source_mgr : jpeg_source_mgr {
+    skjpeg_source_mgr(SkStream* stream);
 
     SkStream* fStream; // unowned
     enum {
@@ -39,13 +39,6 @@ struct skjpeg_buffered_source_mgr : jpeg_source_mgr {
         kBufferSize = 1024
     };
     uint8_t fBuffer[kBufferSize];
-};
-
-/*
- * source for memory backed streams with a valid length
- */
-struct skjpeg_mem_source_mgr : jpeg_source_mgr {
-    skjpeg_mem_source_mgr(SkStream* stream);
 };
 
 #endif
