@@ -9,6 +9,7 @@
 #include "SkAtomics.h"
 #include "SkBitmapProcShader.h"
 #include "SkColorShader.h"
+#include "SkColorSpaceXformer.h"
 #include "SkEmptyShader.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
@@ -94,6 +95,14 @@ SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaA
         return nullptr;
     }
     return this->onMakeContext(rec, alloc);
+}
+
+SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
+                                                              SkArenaAlloc* alloc) const {
+
+    SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
+
+    return this->onMakeBurstPipelineContext(rec, alloc);
 }
 
 SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)
