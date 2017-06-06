@@ -98,6 +98,8 @@ public:
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
             const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
 
+    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override {}
+
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,
                           bool byRegion,
