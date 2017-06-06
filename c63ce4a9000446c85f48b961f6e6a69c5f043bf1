@@ -22,6 +22,30 @@
       "revId": "c63ce4a9000446c85f48b961f6e6a69c5f043bf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b22acec2_388ba055",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-06T20:52:01Z",
+      "side": 1,
+      "message": "Done. (Yes, depending on whether or not degenerates are merged. Safer to make it clear that this uses the same iteration logic as the rest of the builder code).",
+      "parentUuid": "4a39ec3a_1544b3fb",
+      "range": {
+        "startLine": 158,
+        "startChar": 4,
+        "endLine": 158,
+        "endChar": 37
+      },
+      "revId": "c63ce4a9000446c85f48b961f6e6a69c5f043bf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
