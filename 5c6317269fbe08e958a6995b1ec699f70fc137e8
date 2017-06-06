@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a97b2920_9ce7d9c1",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-06T19:10:21Z",
+      "side": 1,
+      "message": "o",
+      "range": {
+        "startLine": 59,
+        "startChar": 70,
+        "endLine": 59,
+        "endChar": 71
+      },
+      "revId": "5c6317269fbe08e958a6995b1ec699f70fc137e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
