@@ -62,6 +62,18 @@ var (
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
 
+	// Git 2.13.
+	cipdGit1 = &specs.CipdPackage{
+		Name:    fmt.Sprintf("infra/git/${platform}"),
+		Path:    "git",
+		Version: fmt.Sprintf("version:2.13.0.chromium9"),
+	}
+	cipdGit2 = &specs.CipdPackage{
+		Name:    fmt.Sprintf("infra/tools/git/${platform}"),
+		Path:    "git",
+		Version: fmt.Sprintf("git_revision:a78b5f3658c0578a017db48df97d20ac09822bcd"),
+	}
+
 	// Flags.
 	androidMapFile        = flag.String("android_map", "", "JSON file containing a mapping of human-friendly Android device names to a pair of {device_type, device_os}.")
 	builderNameSchemaFile = flag.String("builder_name_schema", "", "Path to the builder_name_schema.json file. If not specified, uses infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json from this repo.")
@@ -236,7 +248,7 @@ func swarmDimensions(parts map[string]string) []string {
 // bundleRecipes generates the task to bundle and isolate the recipes.
 func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
+		CipdPackages: []*specs.CipdPackage{cipdGit1, cipdGit2},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "bundle_recipes",

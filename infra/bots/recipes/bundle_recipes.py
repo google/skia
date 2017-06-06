@@ -19,7 +19,10 @@ def RunSteps(api):
   bundle_dir = api.properties['swarm_out_dir'] + '/recipe_bundle'
   skia_dir = api.path['start_dir'].join('skia')
   recipes_py = api.path['start_dir'].join('skia', 'infra', 'bots', 'recipes.py')
-  with api.context(cwd=skia_dir):
+  git_dir = api.path['start_dir'].join('git')
+  git_bin = git_dir.join('bin')
+  env = {'PATH': '%s:%s:%%(PATH)s' % (git_dir, git_bin)}
+  with api.context(cwd=skia_dir, env=env):
     api.step('git init', infra_step=True,
              cmd=['git', 'init'])
     api.step('git add', infra_step=True,
