@@ -571,7 +571,12 @@ public:
      *  - If the src pixels are not available.
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY) const;
+                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY) const {
+        return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
+                SkTransferFunctionBehavior::kRespect);
+    }
     bool readPixels(const SkPixmap& dst, int srcX, int srcY) const;
     bool readPixels(const SkPixmap& dst) const {
         return this->readPixels(dst, 0, 0);
@@ -589,6 +594,7 @@ public:
     bool writePixels(const SkPixmap& src) {
         return this->writePixels(src, 0, 0);
     }
+    bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
 
 #ifdef SK_BUILD_FOR_ANDROID
     bool hasHardwareMipMap() const {
@@ -683,9 +689,6 @@ private:
     SkImageInfo         fInfo;
     uint32_t            fRowBytes;
     uint8_t             fFlags;
-
-    friend class SkImage_Raster;
-    bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
 
     /*  Unreference any pixelrefs or colortables
     */
