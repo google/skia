@@ -17,23 +17,22 @@
 #include "SkPathEffect.h"
 #include "SkPicture.h"
 #include "SkRasterizer.h"
-#include "SkReadBuffer.h"
 #include "SkReader32.h"
 #include "SkRefCnt.h"
-#include "SkShaderBase.h"
-#include "SkTHash.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermodePriv.h"
+#include "../private/SkTHash.h"
 
 class SkBitmap;
 class SkImage;
 class SkInflator;
+class SkShader;
+class SkXfermode;
 
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_MAC)
     #define DEBUG_NON_DETERMINISTIC_ASSERT
 #endif
 
-class SkReadBuffer {
+class SK_API SkReadBuffer {
 public:
     SkReadBuffer();
     SkReadBuffer(const void* data, size_t size);
@@ -150,8 +149,8 @@ public:
     sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilter>(); }
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
-    sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
-    sk_sp<SkXfermode> readXfermode() { return this->readFlattenable<SkXfermode>(); }
+    sk_sp<SkShader> readShader();
+    sk_sp<SkXfermode> readXfermode();
 
     // binary data and arrays
     virtual bool readByteArray(void* value, size_t size);
@@ -210,10 +209,10 @@ public:
     // which calls SkImage::MakeFromEncoded()
     void setImageDeserializer(SkImageDeserializer* factory);
 
-    // Default impelementations don't check anything.
+    // Default implementations don't check anything.
     virtual bool validate(bool isValid) { return isValid; }
     virtual bool isValid() const { return true; }
-    virtual bool validateAvailable(size_t size) { return true; }
+    virtual bool validateAvailable(size_t) { return true; }
     bool validateIndex(int index, int count) {
         return this->validate(index >= 0 && index < count);
     }
@@ -222,7 +221,7 @@ public:
     void setInflator(SkInflator* inf) { fInflator = inf; }
 
 //    sk_sp<SkImage> inflateImage();
-    
+
 protected:
     /**
      *  Allows subclass to check if we are using factories for expansion

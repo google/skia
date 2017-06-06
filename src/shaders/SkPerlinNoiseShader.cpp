@@ -13,7 +13,7 @@
 #include "SkMakeUnique.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkShader.h"
+#include "SkShaderBase.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
 

@@ -12,8 +12,10 @@
 #include "SkImageGenerator.h"
 #include "SkMakeUnique.h"
 #include "SkReadBuffer.h"
+#include "SkShaderBase.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkXfermodePriv.h"
 
 namespace {
 
@@ -179,6 +181,14 @@ void SkReadBuffer::readRegion(SkRegion* region) {
 
 void SkReadBuffer::readPath(SkPath* path) {
     fReader.readPath(path);
+}
+
+sk_sp<SkShader> SkReadBuffer::readShader() {
+    return this->readFlattenable<SkShaderBase>();
+}
+
+sk_sp<SkXfermode> SkReadBuffer::readXfermode() {
+    return this->readFlattenable<SkXfermode>();
 }
 
 bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {

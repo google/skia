@@ -20,6 +20,7 @@
 #include "SkPictureShader.h"
 #include "SkRecordedDrawable.h"
 #include "SkShaderBase.h"
+#include "SkXfermodePriv.h"
 
 /*
  *  Registers all of the required effects subclasses for picture deserialization.

@@ -25,6 +25,7 @@
 #include "SkWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
+#include "SkXfermodePriv.h"
 #include "sk_tool_utils.h"
 #include "Test.h"
 
