@@ -20,7 +20,7 @@ constexpr int MAX_CACHE_LINE = 64;
 class TiledDrawSchedulerBase : public TiledDrawScheduler {
 public:
     TiledDrawSchedulerBase(int tiles, WorkFunc work)
-            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fWork(work) {}
+            : fTileCnt(tiles), fIsFinishing(false), fDrawCnt(0), fWork(std::move(work)) {}
 
     void signal() override {
         fDrawCnt++;
@@ -39,7 +39,7 @@ protected:
 class TiledDrawSchedulerBySpinning : public TiledDrawSchedulerBase {
 public:
     TiledDrawSchedulerBySpinning(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, work), fScheduleData(tiles) {}
+            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
 
     void signal() final { this->TiledDrawSchedulerBase::signal(); }
     void finish() final { this->TiledDrawSchedulerBase::finish(); }
@@ -72,7 +72,7 @@ private:
 class TiledDrawSchedulerFlexible : public TiledDrawSchedulerBase {
 public:
     TiledDrawSchedulerFlexible(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, work), fScheduleData(tiles) {}
+            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
 
     void signal() final { this->TiledDrawSchedulerBase::signal(); }
     void finish() final { this->TiledDrawSchedulerBase::finish(); }
@@ -120,7 +120,7 @@ private:
 class TiledDrawSchedulerBySemaphores : public TiledDrawSchedulerBase {
 public:
     TiledDrawSchedulerBySemaphores(int tiles, WorkFunc work)
-            : TiledDrawSchedulerBase(tiles, work), fScheduleData(tiles) {}
+            : TiledDrawSchedulerBase(tiles, std::move(work)), fScheduleData(tiles) {}
 
 
     void signal() final {
