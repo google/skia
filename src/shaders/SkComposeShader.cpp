@@ -15,6 +15,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
+#include "SkXfermodePriv.h"
 #include "../jumper/SkJumper.h"
 
 sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
