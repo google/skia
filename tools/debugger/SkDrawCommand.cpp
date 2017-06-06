@@ -46,6 +46,7 @@
 #define SKDEBUGCANVAS_ATTRIBUTE_TEXT              "text"
 #define SKDEBUGCANVAS_ATTRIBUTE_COLOR             "color"
 #define SKDEBUGCANVAS_ATTRIBUTE_ALPHA             "alpha"
+#define SKDEBUGCANVAS_ATTRIBUTE_BLENDMODE         "blendMode"
 #define SKDEBUGCANVAS_ATTRIBUTE_STYLE             "style"
 #define SKDEBUGCANVAS_ATTRIBUTE_STROKEWIDTH       "strokeWidth"
 #define SKDEBUGCANVAS_ATTRIBUTE_STROKEMITER       "strokeMiter"
@@ -421,6 +422,68 @@ void render_drrect(SkCanvas* canvas, const SkRRect& outer, const SkRRect& inner)
 
     canvas->drawDRRect(outer, inner, p);
     canvas->restore();
+}
+
+static const char* const gBlendModeMap[] = {
+    "clear",
+    "src",
+    "dst",
+    "srcOver",
+    "dstOver",
+    "srcIn",
+    "dstIn",
+    "srcOut",
+    "dstOut",
+    "srcATop",
+    "dstATop",
+    "xor",
+    "plus",
+    "modulate",
+
+    "screen",
+
+    "overlay",
+    "darken",
+    "lighten",
+    "colorDodge",
+    "colorBurn",
+    "hardLight",
+    "softLight",
+    "difference",
+    "exclusion",
+    "multiply",
+
+    "hue",
+    "saturation",
+    "color",
+    "luminosity",
+};
+
+static_assert(SK_ARRAY_COUNT(gBlendModeMap) == static_cast<size_t>(SkBlendMode::kLastMode) + 1,
+              "blendMode mismatch");
+static_assert(SK_ARRAY_COUNT(gBlendModeMap) == static_cast<size_t>(SkBlendMode::kLuminosity) + 1,
+              "blendMode mismatch");
+
+void apply_paint_blend_mode(const SkPaint& paint, Json::Value* target) {
+    const auto mode = paint.getBlendMode();
+    if (mode != SkBlendMode::kSrcOver) {
+        SkASSERT(static_cast<size_t>(mode) < SK_ARRAY_COUNT(gBlendModeMap));
+        (*target)[SKDEBUGCANVAS_ATTRIBUTE_BLENDMODE] =
+            Json::Value(gBlendModeMap[static_cast<size_t>(mode)]);
+    }
+}
+
+void extract_json_paint_blend_mode(Json::Value& jsonPaint, SkPaint* target) {
+    if (jsonPaint.isMember(SKDEBUGCANVAS_ATTRIBUTE_BLENDMODE)) {
+        const char* mode = jsonPaint[SKDEBUGCANVAS_ATTRIBUTE_BLENDMODE].asCString();
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gBlendModeMap); ++i) {
+            if (!strcmp(mode, gBlendModeMap[i])) {
+                target->setBlendMode(static_cast<SkBlendMode>(i));
+                break;
+            }
+        }
+    }
 }
 
 };
@@ -1166,6 +1229,7 @@ Json::Value SkDrawCommand::MakeJsonPaint(const SkPaint& paint, UrlDataManager& u
     apply_paint_hinting(paint, &result);
     apply_paint_color(paint, &result);
     apply_paint_style(paint, &result);
+    apply_paint_blend_mode(paint, &result);
     apply_paint_cap(paint, &result);
     apply_paint_join(paint, &result);
     apply_paint_filterquality(paint, &result);
@@ -1522,6 +1586,7 @@ static void extract_json_paint(Json::Value& paint, UrlDataManager& urlDataManage
     extract_json_paint_imagefilter(paint, urlDataManager, result);
     extract_json_paint_typeface(paint, urlDataManager, result);
     extract_json_paint_style(paint, result);
+    extract_json_paint_blend_mode(paint, result);
     extract_json_paint_strokewidth(paint, result);
     extract_json_paint_strokemiter(paint, result);
     extract_json_paint_strokejoin(paint, result);
