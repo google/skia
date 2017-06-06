@@ -10,6 +10,7 @@
 
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
+#include "SkXfermodePriv.h"
 
 struct ProcCoeff {
     SkXfermodeProc      fProc;

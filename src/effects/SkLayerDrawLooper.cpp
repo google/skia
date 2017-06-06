@@ -16,6 +16,7 @@
 #include "SkString.h"
 #include "SkStringUtils.h"
 #include "SkUnPreMultiply.h"
+#include "SkXfermodePriv.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPaintBits = 0;                     // ignore our paint fields
