@@ -159,6 +159,20 @@ void test_star(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
+// Exercise a case where the intersection is below a bottom edge.
+void test_twist(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    path.moveTo(                 0.5,                    6);
+    path.lineTo(5.8070392608642578125, 6.4612660408020019531);
+    path.lineTo(-2.9186885356903076172, 2.811046600341796875);
+    path.lineTo(0.49999994039535522461, -1.4124038219451904297);
+    canvas->translate(420, 220);
+    canvas->scale(10, 10);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
 // Stairstep with repeated vert (intersection)
 void test_stairstep(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
@@ -409,6 +423,7 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     test_fast_forward(canvas, paint);
     test_hole(canvas, paint);
     test_star(canvas, paint);
+    test_twist(canvas, paint);
     test_inversion_repeat_vertex(canvas, paint);
     test_stairstep(canvas, paint);
     test_stairstep2(canvas, paint);
