@@ -55,6 +55,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
+    fUseDrawToClearStencilClip = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
@@ -511,6 +512,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
         fUseDrawInsteadOfPartialRenderTargetWrite = true;
+        fUseDrawToClearStencilClip = true;
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
