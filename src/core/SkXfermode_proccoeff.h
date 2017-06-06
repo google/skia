@@ -32,10 +32,6 @@ public:
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                 const SkAlpha aa[]) const override;
-    void xfer16(uint16_t dst[], const SkPMColor src[], int count,
-                const SkAlpha aa[]) const override;
-    void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
-                const SkAlpha aa[]) const override;
 
     bool asMode(Mode* mode) const override;
 

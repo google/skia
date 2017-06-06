@@ -38,10 +38,6 @@ class SK_API SkXfermode : public SkFlattenable {
 public:
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const;
-    virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const;
-    virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const;
 
     /** Enum of possible coefficients to describe some xfermodes
      */
