@@ -68,6 +68,11 @@ public:
         return flags;
     }
 
+    enum ScissorState : bool {
+        kEnabled = true,
+        kDisabled = false
+    };
+
     struct InitArgs {
         uint32_t fFlags = 0;
         const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
@@ -80,16 +85,26 @@ public:
     };
 
     /**
+     *  Graphics state that can change dynamically without creating a new pipeline.
+     **/
+    struct DynamicState {
+        // Overrides the scissor rectangle (if scissor is enabled in the pipeline).
+        // TODO: eventually this should be the only way to specify a scissor rectangle, as is the
+        // case with the simple constructor.
+        SkIRect fScissorRect;
+    };
+
+    /**
      * A Default constructed pipeline is unusable until init() is called.
      **/
     GrPipeline() = default;
 
     /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
-     * must be "Porter Duff" (<= kLastCoeffMode). This pipeline is initialized without requiring
-     * a call to init().
+     * must be "Porter Duff" (<= kLastCoeffMode). If using ScissorState::kEnabled, the caller must
+     * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrRenderTarget*, SkBlendMode);
+    GrPipeline(GrRenderTarget*, ScissorState, SkBlendMode);
 
     GrPipeline(const InitArgs& args) { this->init(args); }
 

@@ -481,78 +481,60 @@ void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
     GR_VK_CALL(gpu->vkInterface(), DestroyPipeline(gpu->device(), fPipeline, nullptr));
 }
 
-static void set_dynamic_scissor_state(GrVkGpu* gpu,
-                                      GrVkCommandBuffer* cmdBuffer,
-                                      const GrPipeline& pipeline,
-                                      const GrRenderTarget& target) {
-    // We always use one scissor and if it is disabled we just make it the size of the RT
-    const GrScissorState& scissorState = pipeline.getScissorState();
-    VkRect2D scissor;
-    if (scissorState.enabled() &&
-        !scissorState.rect().contains(0, 0, target.width(), target.height())) {
-        // This all assumes the scissorState has previously been clipped to the device space render
-        // target.
-        scissor.offset.x = SkTMax(scissorState.rect().fLeft, 0);
-        scissor.extent.width = scissorState.rect().width();
-        if (kTopLeft_GrSurfaceOrigin == target.origin()) {
-            scissor.offset.y = scissorState.rect().fTop;
-        } else {
-            SkASSERT(kBottomLeft_GrSurfaceOrigin == target.origin());
-            scissor.offset.y = target.height() - scissorState.rect().fBottom;
-        }
-        scissor.offset.y = SkTMax(scissor.offset.y, 0);
-        scissor.extent.height = scissorState.rect().height();
-
-        SkASSERT(scissor.offset.x >= 0);
-        SkASSERT(scissor.offset.y >= 0);
-    } else {
-        scissor.extent.width = target.width();
-        scissor.extent.height = target.height();
-        scissor.offset.x = 0;
-        scissor.offset.y = 0;
+void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
+                                              GrVkCommandBuffer* cmdBuffer,
+                                              const GrRenderTarget* renderTarget,
+                                              SkIRect scissorRect) {
+    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
+        scissorRect.setEmpty();
     }
+
+    VkRect2D scissor;
+    scissor.offset.x = scissorRect.fLeft;
+    scissor.extent.width = scissorRect.width();
+    if (kTopLeft_GrSurfaceOrigin == renderTarget->origin()) {
+        scissor.offset.y = scissorRect.fTop;
+    } else {
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == renderTarget->origin());
+        scissor.offset.y = renderTarget->height() - scissorRect.fBottom;
+    }
+    scissor.extent.height = scissorRect.height();
+
+    SkASSERT(scissor.offset.x >= 0);
+    SkASSERT(scissor.offset.y >= 0);
     cmdBuffer->setScissor(gpu, 0, 1, &scissor);
 }
 
-static void set_dynamic_viewport_state(GrVkGpu* gpu,
-                                       GrVkCommandBuffer* cmdBuffer,
-                                       const GrRenderTarget& target) {
+void GrVkPipeline::SetDynamicViewportState(GrVkGpu* gpu,
+                                           GrVkCommandBuffer* cmdBuffer,
+                                           const GrRenderTarget* renderTarget) {
     // We always use one viewport the size of the RT
     VkViewport viewport;
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = SkIntToScalar(target.width());
-    viewport.height = SkIntToScalar(target.height());
+    viewport.width = SkIntToScalar(renderTarget->width());
+    viewport.height = SkIntToScalar(renderTarget->height());
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     cmdBuffer->setViewport(gpu, 0, 1, &viewport);
 }
 
-static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
-                                             GrVkCommandBuffer* cmdBuffer,
-                                             const GrPipeline& pipeline) {
+void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
+                                                GrVkCommandBuffer* cmdBuffer,
+                                                GrPixelConfig pixelConfig,
+                                                const GrXferProcessor& xferProcessor) {
     GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
+    xferProcessor.getBlendInfo(&blendInfo);
     GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
         // Swizzle the blend to match what the shader will output.
-        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(
-                pipeline.getRenderTarget()->config());
+        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(pixelConfig);
         GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
         GrColorToRGBAFloat(blendConst, floatColors);
     } else {
         memset(floatColors, 0, 4 * sizeof(float));
     }
     cmdBuffer->setBlendConstants(gpu, floatColors);
-}
-
-void GrVkPipeline::SetDynamicState(GrVkGpu* gpu,
-                                   GrVkCommandBuffer* cmdBuffer,
-                                   const GrPipeline& pipeline) {
-    const GrRenderTarget& target = *pipeline.getRenderTarget();
-    set_dynamic_scissor_state(gpu, cmdBuffer, pipeline, target);
-    set_dynamic_viewport_state(gpu, cmdBuffer, target);
-    set_dynamic_blend_constant_state(gpu, cmdBuffer, pipeline);
 }

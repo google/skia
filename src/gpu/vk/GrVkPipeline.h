@@ -16,10 +16,13 @@
 
 class GrPipeline;
 class GrPrimitiveProcessor;
+class GrRenderTarget;
+class GrXferProcessor;
 class GrStencilSettings;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkRenderPass;
+struct SkIRect;
 
 class GrVkPipeline : public GrVkResource {
 public:
@@ -36,7 +39,11 @@ public:
 
     VkPipeline pipeline() const { return fPipeline; }
 
-    static void SetDynamicState(GrVkGpu*, GrVkCommandBuffer*, const GrPipeline&);
+    static void SetDynamicScissorRectState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*,
+                                           SkIRect);
+    static void SetDynamicViewportState(GrVkGpu*, GrVkCommandBuffer*, const GrRenderTarget*);
+    static void SetDynamicBlendConstantState(GrVkGpu*, GrVkCommandBuffer*, GrPixelConfig,
+                                             const GrXferProcessor&);
 
 #ifdef SK_TRACE_VK_RESOURCES
     void dumpInfo() const override {
