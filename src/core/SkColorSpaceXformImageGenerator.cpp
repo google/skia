@@ -7,6 +7,54 @@
 
 #include "SkColorSpaceXformImageGenerator.h"
 
+#include <mutex>
+
+// We will cache and reuse the unique id for this generator.  A better solution is to just
+// cache the actual SkImage object.  When this is possible in the Android framework, we should
+// delete this code.
+class IdCache {
+public:
+    struct Entry {
+        sk_sp<SkColorSpace> fColorSpace;
+        uint32_t            fSrcId;
+        uint32_t            fDstId;
+    };
+
+    static uint32_t Find(uint32_t srcId, SkColorSpace* colorSpace) {
+        fMutex.lock();
+        for (int i = 0; i < kNumCachedEntries; i++) {
+            if (fIdCache[i].fColorSpace.get() == colorSpace && fIdCache[i].fSrcId == srcId) {
+                uint32_t result = fIdCache[i].fDstId;
+                fMutex.unlock();
+                return result;
+            }
+        }
+
+        fMutex.unlock();
+        return 0;
+    }
+
+    static void Set(uint32_t srcId, sk_sp<SkColorSpace> colorSpace, uint32_t dstId) {
+        fMutex.lock();
+        fIdCache[fNextIndex].fColorSpace = std::move(colorSpace);
+        fIdCache[fNextIndex].fSrcId = srcId;
+        fIdCache[fNextIndex].fDstId = dstId;
+        fNextIndex = (fNextIndex + 1) % kNumCachedEntries;
+        fMutex.unlock();
+    }
+
+private:
+    static std::mutex    fMutex;
+
+    static constexpr int kNumCachedEntries = 8;
+    static Entry         fIdCache[kNumCachedEntries];
+    static int           fNextIndex;
+};
+
+IdCache::Entry IdCache::fIdCache[IdCache::kNumCachedEntries] = {{ nullptr, 0, 0 }};
+int IdCache::fNextIndex = 0;
+std::mutex IdCache::fMutex;
+
 std::unique_ptr<SkImageGenerator> SkColorSpaceXformImageGenerator::Make(
         const SkBitmap& src, sk_sp<SkColorSpace> dst, SkCopyPixelsMode mode) {
     if (!dst) {
@@ -26,17 +74,22 @@ std::unique_ptr<SkImageGenerator> SkColorSpaceXformImageGenerator::Make(
         srcPtr = &copy;
     }
 
-
+    uint32_t id = IdCache::Find(srcPtr->getGenerationID(), dst.get());
     return std::unique_ptr<SkImageGenerator>(
-            new SkColorSpaceXformImageGenerator(*srcPtr, std::move(dst)));
+            new SkColorSpaceXformImageGenerator(*srcPtr, std::move(dst), id));
 }
 
 SkColorSpaceXformImageGenerator::SkColorSpaceXformImageGenerator(const SkBitmap& src,
-                                                                 sk_sp<SkColorSpace> dst)
-    : INHERITED(src.info().makeColorSpace(dst), kNeedNewImageUniqueID)
+                                                                 sk_sp<SkColorSpace> dst,
+                                                                 uint32_t id)
+    : INHERITED(src.info().makeColorSpace(dst), id)
     , fSrc(src)
     , fDst(dst)
-{}
+{
+    if (kNeedNewImageUniqueID == id) {
+        IdCache::Set(src.getGenerationID(), dst, this->uniqueID());
+    }
+}
 
 bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
                                                   size_t rowBytes, const Options& opts) {
