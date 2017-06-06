@@ -152,6 +152,7 @@ private:
     friend class SkImage_Gpu;
     friend class SkImage_Lazy;
     friend class SkSpecialImage_Gpu;
+    friend void write_pixels_with_id(SkBitmap*, const SkPixmap&, uint32_t);
     friend void SkBitmapCache_setImmutableWithID(SkPixelRef*, uint32_t);
 
     typedef SkRefCnt INHERITED;

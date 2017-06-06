@@ -30,20 +30,22 @@ sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkShader::TileMode, SkSh
  *  if it needs to make a deep-copy of the pixels.
  *
  *  The bitmap's pixelref will be shared if either the bitmap is marked as
- *  immutable, or CopyPixelsMode allows it. Shared pixel refs are also
- *  locked when kLocked_SharedPixelRefMode is specified.
- *
- *  Passing kLocked_SharedPixelRefMode allows the image's peekPixels() method
- *  to succeed, but it will force any lazy decodes/generators to execute if
- *  they exist on the pixelref.
- *
- *  It is illegal to call this with a texture-backed bitmap.
+ *  immutable, or CopyPixelsMode allows it.
  *
  *  If the bitmap's colortype cannot be converted into a corresponding
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
  *  nullptr.
+ *
+ *  If a color space is specified, the bitmap should be transformed into that
+ *  color space before drawing.  This will typically be a lazy transformation.
+ *  If the CopyPixelsMode allows it, the transformed pixels will share the
+ *  same unique id as the original.  This is safe because the caller must
+ *  guarantee that these particular pixels will only ever be drawn in the
+ *  specified color space.
  */
 extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsMode);
+extern sk_sp<SkImage> SkMakeImageFromRasterBitmapWithColorSpace(const SkBitmap&, SkCopyPixelsMode,
+        sk_sp<SkColorSpace>);
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This
 // may be called to see if the surface and the image share the same pixelref,
