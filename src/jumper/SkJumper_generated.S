@@ -36825,19 +36825,19 @@ _sk_set_rgb_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,15,16,21,10,18,0,0              // movss         0x120a(%rip),%xmm2        # 1300 <_sk_xor__ssse3_lowp+0x203>
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
-  .byte  243,15,89,194                       // mulss         %xmm2,%xmm0
-  .byte  243,68,15,44,200                    // cvttss2si     %xmm0,%r9d
+  .byte  243,15,88,194                       // addss         %xmm2,%xmm0
+  .byte  102,65,15,126,193                   // movd          %xmm0,%r9d
   .byte  102,65,15,110,193                   // movd          %r9d,%xmm0
   .byte  242,15,112,192,0                    // pshuflw       $0x0,%xmm0,%xmm0
   .byte  102,15,112,192,80                   // pshufd        $0x50,%xmm0,%xmm0
   .byte  243,15,16,72,4                      // movss         0x4(%rax),%xmm1
-  .byte  243,15,89,202                       // mulss         %xmm2,%xmm1
-  .byte  243,68,15,44,201                    // cvttss2si     %xmm1,%r9d
+  .byte  243,15,88,202                       // addss         %xmm2,%xmm1
+  .byte  102,65,15,126,201                   // movd          %xmm1,%r9d
   .byte  102,65,15,110,201                   // movd          %r9d,%xmm1
   .byte  242,15,112,201,0                    // pshuflw       $0x0,%xmm1,%xmm1
   .byte  102,15,112,201,80                   // pshufd        $0x50,%xmm1,%xmm1
-  .byte  243,15,89,80,8                      // mulss         0x8(%rax),%xmm2
-  .byte  243,15,44,194                       // cvttss2si     %xmm2,%eax
+  .byte  243,15,88,80,8                      // addss         0x8(%rax),%xmm2
+  .byte  102,15,126,208                      // movd          %xmm2,%eax
   .byte  102,15,110,208                      // movd          %eax,%xmm2
   .byte  242,15,112,210,0                    // pshuflw       $0x0,%xmm2,%xmm2
   .byte  102,15,112,210,80                   // pshufd        $0x50,%xmm2,%xmm2
@@ -37374,8 +37374,8 @@ FUNCTION(_sk_scale_1_float_ssse3_lowp)
 _sk_scale_1_float_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
-  .byte  243,68,15,89,5,40,10,0,0            // mulss         0xa28(%rip),%xmm8        # 1304 <_sk_xor__ssse3_lowp+0x207>
-  .byte  243,65,15,44,192                    // cvttss2si     %xmm8,%eax
+  .byte  243,68,15,88,5,40,10,0,0            // addss         0xa28(%rip),%xmm8        # 1304 <_sk_xor__ssse3_lowp+0x207>
+  .byte  102,68,15,126,192                   // movd          %xmm8,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
   .byte  242,69,15,112,192,0                 // pshuflw       $0x0,%xmm8,%xmm8
   .byte  102,69,15,112,192,80                // pshufd        $0x50,%xmm8,%xmm8
@@ -37463,8 +37463,8 @@ FUNCTION(_sk_lerp_1_float_ssse3_lowp)
 _sk_lerp_1_float_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
-  .byte  243,68,15,89,5,224,8,0,0            // mulss         0x8e0(%rip),%xmm8        # 1308 <_sk_xor__ssse3_lowp+0x20b>
-  .byte  243,65,15,44,192                    // cvttss2si     %xmm8,%eax
+  .byte  243,68,15,88,5,224,8,0,0            // addss         0x8e0(%rip),%xmm8        # 1308 <_sk_xor__ssse3_lowp+0x20b>
+  .byte  102,68,15,126,192                   // movd          %xmm8,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
   .byte  242,69,15,112,192,0                 // pshuflw       $0x0,%xmm8,%xmm8
   .byte  102,69,15,112,192,80                // pshufd        $0x50,%xmm8,%xmm8
@@ -38025,9 +38025,8 @@ BALIGN16
 
 BALIGN4
   .byte  0,0                                 // add           %al,(%rax)
-  .byte  0,71,0                              // add           %al,0x0(%rdi)
-  .byte  0,0                                 // add           %al,(%rax)
-  .byte  71,0,0                              // rex.RXB       add %r8b,(%r8)
-  .byte  0                                   // .byte         0x0
-  .byte  71                                  // rex.RXB
+  .byte  128,67,0,0                          // addb          $0x0,0x0(%rbx)
+  .byte  128,67,0,0                          // addb          $0x0,0x0(%rbx)
+  .byte  128                                 // .byte         0x80
+  .byte  67                                  // rex.XB
 #endif

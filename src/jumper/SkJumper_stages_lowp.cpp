@@ -28,7 +28,11 @@ struct F {
     U16 vec;
 
     F() = default;
-    F(float f) : vec((uint16_t)(f * 0x8000)) {}
+    F(float f) {
+        // After adding 256.0f, the SkFixed15 value is the bottom two bytes of the float.
+        f += 256.0f;
+        vec = unaligned_load<uint16_t>(&f);
+    }
 
     F(U16 v) : vec(v) {}
     operator U16() const { return vec; }
