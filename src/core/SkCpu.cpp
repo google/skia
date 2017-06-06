@@ -74,23 +74,25 @@
         return features;
     }
 
-#elif defined(SK_CPU_ARM64) && __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
-    #include <asm/hwcap.h>
+#elif defined(SK_CPU_ARM64) && __has_include(<sys/auxv.h>)
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
+        const uint32_t HWCAP_CRC32 = (1<<7);
+
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
         if (hwcaps & HWCAP_CRC32) { features |= SkCpu::CRC32; }
         return features;
     }
 
-#elif defined(SK_CPU_ARM32) && __has_include(<asm/hwcap.h>) && __has_include(<sys/auxv.h>)
-    // asm/hwcap.h and sys/auxv.h won't be present on NDK builds before API v21.
-    #include <asm/hwcap.h>
+#elif defined(SK_CPU_ARM32) && __has_include(<sys/auxv.h>)
+    // sys/auxv.h won't be present on NDK builds before API v21.
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
+        const uint32_t HWCAP_VFPv4 = (1<<16);
+
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
         if (hwcaps & HWCAP_VFPv4) { features |= SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
