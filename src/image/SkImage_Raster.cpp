@@ -10,9 +10,11 @@
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXform_Base.h"
+#include "SkColorSpaceXformImageGenerator.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
@@ -301,25 +303,45 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
-    bool hasColorTable = false;
-    if (kIndex_8_SkColorType == bm.colorType()) {
-        hasColorTable = bm.getColorTable() != nullptr;
+sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
+        SkPixmap pmap;
+        SkAssertResult(bm.peekPixels(&pmap));
+        return SkImage::MakeRasterCopy(pmap);
     }
 
-    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), hasColorTable, nullptr)) {
+    return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+}
+
+sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+    if (!SkImageInfoIsValidAllowNumericalCS(bm.info()) || !bm.getPixels() ||
+            bm.rowBytes() < bm.info().minRowBytes()) {
         return nullptr;
     }
 
-    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
-        SkPixmap pmap;
-        if (bm.getPixels() && bm.peekPixels(&pmap)) {
-            return SkImage::MakeRasterCopy(pmap);
-        }
-    } else {
-        return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+    return SkMakeImageFromRasterBitmapPriv(bm, cpm);
+}
+
+sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> dstCS, uint32_t id) {
+    if (!SkImageInfoIsValidAllowNumericalCS(bm.info()) || !bm.getPixels() ||
+            bm.rowBytes() < bm.info().minRowBytes() || !dstCS) {
+        return nullptr;
     }
-    return sk_sp<SkImage>();
+
+    sk_sp<SkColorSpace> srcCS = bm.info().refColorSpace();
+    if (!srcCS) {
+        // Treat nullptr as sRGB.
+        srcCS = SkColorSpace::MakeSRGB();
+    }
+
+    // For the Android use case, this is very likely to be true.
+    if (SkColorSpace::Equals(srcCS.get(), dstCS.get())) {
+        SkASSERT(0 == id || bm.getGenerationID() == id);
+        return SkMakeImageFromRasterBitmapPriv(bm, kNever_SkCopyPixelsMode);
+    }
+
+    return SkImage::MakeFromGenerator(SkColorSpaceXformImageGenerator::Make(
+            bm, dstCS, kNever_SkCopyPixelsMode, id));
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
