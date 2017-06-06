@@ -48,6 +48,7 @@ skia_core_sources = [
   "$_src/core/SkBitmapProvider.h",
   "$_src/core/SkBitmapScaler.h",
   "$_src/core/SkBitmapScaler.cpp",
+  "$_src/core/SkBlendMode.cpp",
   "$_src/core/SkBlitBWMaskTemplate.h",
   "$_src/core/SkBlitMask.h",
   "$_src/core/SkBlitMask_D32.cpp",

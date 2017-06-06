@@ -39,23 +39,6 @@ public:
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const;
 
-    /** Enum of possible coefficients to describe some xfermodes
-     */
-    enum Coeff {
-        kZero_Coeff,    /** 0 */
-        kOne_Coeff,     /** 1 */
-        kSC_Coeff,      /** src color */
-        kISC_Coeff,     /** inverse src color (i.e. 1 - sc) */
-        kDC_Coeff,      /** dst color */
-        kIDC_Coeff,     /** inverse dst color (i.e. 1 - dc) */
-        kSA_Coeff,      /** src alpha */
-        kISA_Coeff,     /** inverse src alpha (i.e. 1 - sa) */
-        kDA_Coeff,      /** dst alpha */
-        kIDA_Coeff,     /** inverse dst alpha (i.e. 1 - da) */
-
-        kCoeffCount
-    };
-
     /** List of predefined xfermodes.
         The algebra for the modes uses the following symbols:
         Sa, Sc  - source alpha and color
@@ -63,9 +46,6 @@ public:
         [a, c] - Resulting (alpha, color) values
         For these equations, the colors are in premultiplied state.
         If no xfermode is specified, kSrcOver is assumed.
-        The modes are ordered by those that can be expressed as a pair of Coeffs, followed by those
-        that aren't Coeffs but have separable r,g,b computations, and finally
-        those that are not separable.
      */
     enum Mode {
         kClear_Mode,    //!< [0, 0]
@@ -174,17 +154,6 @@ public:
 
     static SkXfermodeProc GetProc(SkBlendMode);
     static SkXfermodeProc4f GetProc4f(SkBlendMode);
-
-    /**
-     *  If the specified mode can be represented by a pair of Coeff, then return
-     *  true and set (if not NULL) the corresponding coeffs. If the mode is
-     *  not representable as a pair of Coeffs, return false and ignore the
-     *  src and dst parameters.
-     */
-    static bool ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst);
-    static bool ModeAsCoeff(SkBlendMode mode, Coeff* src, Coeff* dst) {
-        return ModeAsCoeff((Mode)mode, src, dst);
-    }
 
     /**
      * Returns whether or not the xfer mode can support treating coverage as alpha
