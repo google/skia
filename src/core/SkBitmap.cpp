@@ -512,12 +512,12 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
-                          int x, int y) const {
+                          int x, int y, SkTransferFunctionBehavior behavior) const {
     SkPixmap src;
     if (!this->peekPixels(&src)) {
         return false;
     }
-    return src.readPixels(requestedDstInfo, dstPixels, dstRB, x, y);
+    return src.readPixels(requestedDstInfo, dstPixels, dstRB, x, y, behavior);
 }
 
 bool SkBitmap::readPixels(const SkPixmap& dst, int srcX, int srcY) const {
