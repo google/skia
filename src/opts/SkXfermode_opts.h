@@ -229,39 +229,6 @@ public:
         }
     }
 
-    void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
-        SkPMColor dst32[4];
-        while (n >= 4) {
-            dst32[0] = SkPixel16ToPixel32(dst[0]);
-            dst32[1] = SkPixel16ToPixel32(dst[1]);
-            dst32[2] = SkPixel16ToPixel32(dst[2]);
-            dst32[3] = SkPixel16ToPixel32(dst[3]);
-
-            this->xfer32(dst32, src, 4, aa);
-
-            dst[0] = SkPixel32ToPixel16(dst32[0]);
-            dst[1] = SkPixel32ToPixel16(dst32[1]);
-            dst[2] = SkPixel32ToPixel16(dst32[2]);
-            dst[3] = SkPixel32ToPixel16(dst32[3]);
-
-            dst += 4;
-            src += 4;
-            aa  += aa ? 4 : 0;
-            n -= 4;
-        }
-        while (n) {
-            SkPMColor dst32 = SkPixel16ToPixel32(*dst);
-            this->xfer32(&dst32, src, 1, aa);
-            *dst = SkPixel32ToPixel16(dst32);
-
-            dst += 1;
-            src += 1;
-            aa  += aa ? 1 : 0;
-            n   -= 1;
-        }
-    }
-
 private:
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -275,14 +242,6 @@ public:
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
             dst[i] = Xfer32_1(dst[i], src[i], aa ? aa+i : nullptr);
-        }
-    }
-
-    void xfer16(uint16_t dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
-        for (int i = 0; i < n; i++) {
-            SkPMColor dst32 = SkPixel16ToPixel32(dst[i]);
-            dst32 = Xfer32_1(dst32, src[i], aa ? aa+i : nullptr);
-            dst[i] = SkPixel32ToPixel16(dst32);
         }
     }
 

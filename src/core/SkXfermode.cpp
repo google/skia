@@ -1038,57 +1038,6 @@ void SkXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-void SkXfermode::xfer16(uint16_t* dst,
-                        const SkPMColor* SK_RESTRICT src, int count,
-                        const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    if (nullptr == aa) {
-        for (int i = count - 1; i >= 0; --i) {
-            SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
-            dst[i] = SkPixel32ToPixel16_ToU16(this->xferColor(src[i], dstC));
-        }
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0 != a) {
-                SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
-                SkPMColor C = this->xferColor(src[i], dstC);
-                if (0xFF != a) {
-                    C = SkFourByteInterp(C, dstC, a);
-                }
-                dst[i] = SkPixel32ToPixel16_ToU16(C);
-            }
-        }
-    }
-}
-
-void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
-                        const SkPMColor src[], int count,
-                        const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    if (nullptr == aa) {
-        for (int i = count - 1; i >= 0; --i) {
-            SkPMColor res = this->xferColor(src[i], (dst[i] << SK_A32_SHIFT));
-            dst[i] = SkToU8(SkGetPackedA32(res));
-        }
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0 != a) {
-                SkAlpha dstA = dst[i];
-                unsigned A = SkGetPackedA32(this->xferColor(src[i],
-                                            (SkPMColor)(dstA << SK_A32_SHIFT)));
-                if (0xFF != a) {
-                    A = SkAlphaBlend(A, dstA, SkAlpha255To256(a));
-                }
-                dst[i] = SkToU8(A);
-            }
-        }
-    }
-}
-
 bool SkXfermode::supportsCoverageAsAlpha() const {
     return false;
 }
@@ -1182,65 +1131,6 @@ void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                         C = SkFourByteInterp(C, dstC, a);
                     }
                     dst[i] = C;
-                }
-            }
-        }
-    }
-}
-
-void SkProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
-                                 const SkPMColor* SK_RESTRICT src, int count,
-                                 const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    SkXfermodeProc proc = fProc;
-
-    if (proc) {
-        if (nullptr == aa) {
-            for (int i = count - 1; i >= 0; --i) {
-                SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
-                dst[i] = SkPixel32ToPixel16_ToU16(proc(src[i], dstC));
-            }
-        } else {
-            for (int i = count - 1; i >= 0; --i) {
-                unsigned a = aa[i];
-                if (0 != a) {
-                    SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
-                    SkPMColor C = proc(src[i], dstC);
-                    if (0xFF != a) {
-                        C = SkFourByteInterp(C, dstC, a);
-                    }
-                    dst[i] = SkPixel32ToPixel16_ToU16(C);
-                }
-            }
-        }
-    }
-}
-
-void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
-                                 const SkPMColor* SK_RESTRICT src, int count,
-                                 const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    SkXfermodeProc proc = fProc;
-
-    if (proc) {
-        if (nullptr == aa) {
-            for (int i = count - 1; i >= 0; --i) {
-                SkPMColor res = proc(src[i], dst[i] << SK_A32_SHIFT);
-                dst[i] = SkToU8(SkGetPackedA32(res));
-            }
-        } else {
-            for (int i = count - 1; i >= 0; --i) {
-                unsigned a = aa[i];
-                if (0 != a) {
-                    SkAlpha dstA = dst[i];
-                    SkPMColor res = proc(src[i], dstA << SK_A32_SHIFT);
-                    unsigned A = SkGetPackedA32(res);
-                    if (0xFF != a) {
-                        A = SkAlphaBlend(A, dstA, SkAlpha255To256(a));
-                    }
-                    dst[i] = SkToU8(A);
                 }
             }
         }
