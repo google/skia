@@ -387,6 +387,8 @@ SKIA_OS_IOS = "IOS"
 
 SKIA_CPU_UNSPECIFIED = "UNSPECIFIED"
 
+SKIA_CPU_ARM = "ARM"
+
 SKIA_CPU_PPC = "PPC"
 
 def skia_srcs(os=SKIA_OS_UNIX, cpu=SKIA_CPU_UNSPECIFIED):
@@ -403,7 +405,7 @@ def skia_srcs(os=SKIA_OS_UNIX, cpu=SKIA_CPU_UNSPECIFIED):
   elif os == SKIA_OS_UNIX:
     if cpu == SKIA_CPU_UNSPECIFIED:
       srcs = srcs + ["src/opts/opts_check_x86.cpp"] + skia_glob(BASE_SRCS_UNIX)
-    elif cpu == SKIA_CPU_PPC:
+    elif cpu == SKIA_CPU_PPC or cpu == SKIA_CPU_ARM:
       srcs = srcs + skia_glob(BASE_SRCS_UNIX)
     else:
       fail("cpu must be one of SKIA_CPU_*")
