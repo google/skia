@@ -455,6 +455,20 @@ GrUserStencilSettings const* const* GrStencilSettings::GetClipPasses(SkRegion::O
     return gUserToClipTable[invertedFill][op];
 }
 
+static constexpr GrUserStencilSettings gZeroStencilClipBit(
+    GrUserStencilSettings::StaticInit<
+        0x0000,
+        GrUserStencilTest::kAlways,
+        0xffff,
+        GrUserStencilOp::kZeroClipBit,
+        GrUserStencilOp::kZeroClipBit,
+        0x0000>()
+);
+
+const GrUserStencilSettings* GrStencilSettings::SetClipBitSettings(bool setToInside) {
+    return setToInside ? &gReplaceClip : &gZeroStencilClipBit;
+}
+
 void GrStencilSettings::genKey(GrProcessorKeyBuilder* b) const {
     b->add32(fFlags);
     if (this->isDisabled()) {
