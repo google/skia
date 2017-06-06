@@ -90,7 +90,7 @@ extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F
 
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
-#if defined(JUMPER)
+#if defined(JUMPER) && defined(WIN)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
@@ -131,7 +131,7 @@ SI void store(T* dst, V v, size_t tail) {
 
 // This doesn't look strictly necessary, but without it Clang would generate load() using
 // compiler-generated constants that we can't support.  This version doesn't need constants.
-#if defined(JUMPER) && defined(__AVX__)
+#if defined(JUMPER) && defined(__AVX__) && defined(WIN)
     template <>
     inline U8 load(const uint8_t* src, size_t tail) {
         if (__builtin_expect(tail, 0)) {
@@ -165,10 +165,12 @@ SI void store(T* dst, V v, size_t tail) {
 
     template <>
     inline U32 load(const uint32_t* src, size_t tail) {
+    #if defined(WIN)
         __builtin_assume(tail < kStride);
         if (__builtin_expect(tail, 0)) {
             return (U32)_mm256_maskload_ps((const float*)src, mask(tail));
         }
+    #endif
         return unaligned_load<U32>(src);
     }
 
