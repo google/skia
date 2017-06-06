@@ -179,11 +179,11 @@ SI U8 to_byte(F v) {
 // Stages!
 
 STAGE(constant_color) {
-    auto rgba = (const float*)ctx;
-    r = rgba[0];
-    g = rgba[1];
-    b = rgba[2];
-    a = rgba[3];
+    __m128i rgba = _mm_cvtps_epi32(_mm_loadu_ps((const float*)ctx) * _mm_set1_ps(32768.0f));
+    r = _mm_shuffle_epi8(rgba, _mm_set1_epi16(0x0100));
+    g = _mm_shuffle_epi8(rgba, _mm_set1_epi16(0x0504));
+    b = _mm_shuffle_epi8(rgba, _mm_set1_epi16(0x0908));
+    a = _mm_shuffle_epi8(rgba, _mm_set1_epi16(0x0d0c));
 }
 
 STAGE(set_rgb) {
