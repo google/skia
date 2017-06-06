@@ -11,6 +11,8 @@
 #include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 
+#include <mutex>
+
 class SkColorSpaceXformImageGenerator : public SkImageGenerator {
 public:
 
@@ -27,10 +29,12 @@ protected:
 #endif
 
 private:
+    static std::mutex   fMutex;
+
     SkBitmap            fSrc;
     sk_sp<SkColorSpace> fDst;
 
-    SkColorSpaceXformImageGenerator(const SkBitmap& src, sk_sp<SkColorSpace> dst);
+    SkColorSpaceXformImageGenerator(const SkBitmap& src, sk_sp<SkColorSpace> dst, uint32_t id);
 
     friend class SkImageGenerator;
 
