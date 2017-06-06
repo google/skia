@@ -26244,19 +26244,19 @@ _sk_set_rgb_ssse3_lowp LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  243,15,16,21,25,18,0,0              ; movss         0x1219(%rip),%xmm2        # 13b0 <_sk_xor__ssse3_lowp+0x203>
   DB  243,15,16,0                         ; movss         (%rax),%xmm0
-  DB  243,15,89,194                       ; mulss         %xmm2,%xmm0
-  DB  243,68,15,44,200                    ; cvttss2si     %xmm0,%r9d
+  DB  243,15,88,194                       ; addss         %xmm2,%xmm0
+  DB  102,65,15,126,193                   ; movd          %xmm0,%r9d
   DB  102,65,15,110,193                   ; movd          %r9d,%xmm0
   DB  242,15,112,192,0                    ; pshuflw       $0x0,%xmm0,%xmm0
   DB  102,15,112,192,80                   ; pshufd        $0x50,%xmm0,%xmm0
   DB  243,15,16,72,4                      ; movss         0x4(%rax),%xmm1
-  DB  243,15,89,202                       ; mulss         %xmm2,%xmm1
-  DB  243,68,15,44,201                    ; cvttss2si     %xmm1,%r9d
+  DB  243,15,88,202                       ; addss         %xmm2,%xmm1
+  DB  102,65,15,126,201                   ; movd          %xmm1,%r9d
   DB  102,65,15,110,201                   ; movd          %r9d,%xmm1
   DB  242,15,112,201,0                    ; pshuflw       $0x0,%xmm1,%xmm1
   DB  102,15,112,201,80                   ; pshufd        $0x50,%xmm1,%xmm1
-  DB  243,15,89,80,8                      ; mulss         0x8(%rax),%xmm2
-  DB  243,15,44,194                       ; cvttss2si     %xmm2,%eax
+  DB  243,15,88,80,8                      ; addss         0x8(%rax),%xmm2
+  DB  102,15,126,208                      ; movd          %xmm2,%eax
   DB  102,15,110,208                      ; movd          %eax,%xmm2
   DB  242,15,112,210,0                    ; pshuflw       $0x0,%xmm2,%xmm2
   DB  102,15,112,210,80                   ; pshufd        $0x50,%xmm2,%xmm2
@@ -26783,8 +26783,8 @@ PUBLIC _sk_scale_1_float_ssse3_lowp
 _sk_scale_1_float_ssse3_lowp LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  243,68,15,16,0                      ; movss         (%rax),%xmm8
-  DB  243,68,15,89,5,48,10,0,0            ; mulss         0xa30(%rip),%xmm8        # 13b4 <_sk_xor__ssse3_lowp+0x207>
-  DB  243,65,15,44,192                    ; cvttss2si     %xmm8,%eax
+  DB  243,68,15,88,5,48,10,0,0            ; addss         0xa30(%rip),%xmm8        # 13b4 <_sk_xor__ssse3_lowp+0x207>
+  DB  102,68,15,126,192                   ; movd          %xmm8,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  242,69,15,112,192,0                 ; pshuflw       $0x0,%xmm8,%xmm8
   DB  102,69,15,112,192,80                ; pshufd        $0x50,%xmm8,%xmm8
@@ -26875,8 +26875,8 @@ PUBLIC _sk_lerp_1_float_ssse3_lowp
 _sk_lerp_1_float_ssse3_lowp LABEL PROC
   DB  72,173                              ; lods          %ds:(%rsi),%rax
   DB  243,68,15,16,0                      ; movss         (%rax),%xmm8
-  DB  243,68,15,89,5,228,8,0,0            ; mulss         0x8e4(%rip),%xmm8        # 13b8 <_sk_xor__ssse3_lowp+0x20b>
-  DB  243,65,15,44,192                    ; cvttss2si     %xmm8,%eax
+  DB  243,68,15,88,5,228,8,0,0            ; addss         0x8e4(%rip),%xmm8        # 13b8 <_sk_xor__ssse3_lowp+0x20b>
+  DB  102,68,15,126,192                   ; movd          %xmm8,%eax
   DB  102,68,15,110,192                   ; movd          %eax,%xmm8
   DB  242,69,15,112,192,0                 ; pshuflw       $0x0,%xmm8,%xmm8
   DB  102,69,15,112,192,80                ; pshufd        $0x50,%xmm8,%xmm8
@@ -27401,10 +27401,9 @@ ALIGN 16
 
 ALIGN 4
   DB  0,0                                 ; add           %al,(%rax)
-  DB  0,71,0                              ; add           %al,0x0(%rdi)
-  DB  0,0                                 ; add           %al,(%rax)
-  DB  71,0,0                              ; rex.RXB       add %r8b,(%r8)
-  DB  0                                   ; .byte         0x0
-  DB  71                                  ; rex.RXB
+  DB  128,67,0,0                          ; addb          $0x0,0x0(%rbx)
+  DB  128,67,0,0                          ; addb          $0x0,0x0(%rbx)
+  DB  128                                 ; .byte         0x80
+  DB  67                                  ; rex.XB
 ENDIF
 END
