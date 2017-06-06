@@ -162,8 +162,6 @@ public:
 
     void resetShaderCacheForTesting() const override;
 
-    void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) override;
-
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -296,6 +294,7 @@ private:
                                       const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
     bool generateMipmap(GrGLTexture* texture, bool gammaCorrect);
+    void clearStencilClipAsDraw(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
@@ -348,11 +347,6 @@ private:
 
     void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*);
     void disableWindowRectangles();
-
-    void initFSAASupport();
-
-    // determines valid stencil formats
-    void initStencilFormats();
 
     // sets a texture unit to use for texture operations other than binding a texture to a program.
     // ensures that such operations don't negatively interact with tracking bound textures.
@@ -407,7 +401,7 @@ private:
 
     bool createCopyProgram(GrTexture* srcTexture);
     bool createMipmapProgram(int progIdx);
-    bool createWireRectProgram();
+    bool createStencilClipClearProgram();
 
     // GL program-related state
     ProgramCache*               fProgramCache;
@@ -620,12 +614,8 @@ private:
     }                                       fMipmapPrograms[4];
     sk_sp<GrGLBuffer>                       fMipmapProgramArrayBuffer;
 
-    struct {
-        GrGLuint    fProgram;
-        GrGLint     fColorUniform;
-        GrGLint     fRectUniform;
-    }                                       fWireRectProgram;
-    sk_sp<GrGLBuffer>                       fWireRectArrayBuffer;
+    GrGLuint                                fStencilClipClearProgram;
+    sk_sp<GrGLBuffer>                       fStencilClipClearArrayBuffer;
 
     static int TextureToCopyProgramIdx(GrTexture* texture) {
         switch (texture->texturePriv().samplerType()) {

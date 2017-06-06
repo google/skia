@@ -479,9 +479,6 @@ public:
     // clears target's entire stencil buffer to 0
     virtual void clearStencil(GrRenderTarget* target) = 0;
 
-    // draws an outline rectangle for debugging/visualization purposes.
-    virtual void drawDebugWireRect(GrRenderTarget*, const SkIRect&, GrColor) = 0;
-
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerParams. This variation is called when the caller will create a new texture using the
     // resource provider from a non-texture src (cpu-backed image, ...).
