@@ -154,6 +154,13 @@ DEF_SIMPLE_GM(deferred_texture_image_low, canvas, 512 + 512 + 30, 512 + 20) {
     DrawDeferredTextureImageData(canvas, &params);
 }
 
+DEF_SIMPLE_GM(deferred_texture_image_low_dithered, canvas, 512 + 512 + 30, 512 + 20) {
+    auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
+                                                           kLow_SkFilterQuality, 0,
+                                                           kARGB_4444_SkColorType);
+    DrawDeferredTextureImageData(canvas, &params);
+}
+
 DEF_SIMPLE_GM(deferred_texture_image_medium_encoded, canvas, 512 + 512 + 30, 1110) {
     sk_sp<SkImage> encodedImage = GetResourceAsImage("mandrill_512.png");
     if (!encodedImage) {
