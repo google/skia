@@ -819,6 +819,9 @@ void Viewer::onPaint(SkCanvas* canvas) {
 }
 
 bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y) {
+    if (GestureDevice::kMouse == fGestureDevice) {
+        return false;
+    }
     void* castedOwner = reinterpret_cast<void*>(owner);
     switch (state) {
         case Window::kUp_InputState: {
@@ -834,11 +837,15 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
             break;
         }
     }
+    fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kTouch : GestureDevice::kNone;
     fWindow->inval();
     return true;
 }
 
 bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifiers) {
+    if (GestureDevice::kTouch == fGestureDevice) {
+        return false;
+    }
     switch (state) {
         case Window::kUp_InputState: {
             fGesture.touchEnd(nullptr);
@@ -853,6 +860,7 @@ bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifi
             break;
         }
     }
+    fGestureDevice = fGesture.isBeingTouched() ? GestureDevice::kMouse : GestureDevice::kNone;
     fWindow->inval();
     return true;
 }
