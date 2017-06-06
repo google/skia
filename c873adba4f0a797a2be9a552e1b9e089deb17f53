@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f2bb3d5_8891b55e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1955,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-06T06:39:32Z",
+      "side": 1,
+      "message": "Was this intended to change as part of this CL?",
+      "range": {
+        "startLine": 1955,
+        "startChar": 5,
+        "endLine": 1955,
+        "endChar": 0
+      },
+      "revId": "c873adba4f0a797a2be9a552e1b9e089deb17f53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c1cd299_6efc1c2f",
+        "filename": "src/gpu/gl/GrGLGpu.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-06T06:39:32Z",
+      "side": 1,
+      "message": "Maybe some day we can ask Ethan for sk_VertexID to always work and then we could do this without a buffer.",
+      "range": {
+        "startLine": 618,
+        "startChar": 44,
+        "endLine": 618,
+        "endChar": 72
+      },
+      "revId": "c873adba4f0a797a2be9a552e1b9e089deb17f53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
