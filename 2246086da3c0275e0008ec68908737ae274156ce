@@ -22,6 +22,30 @@
       "revId": "2246086da3c0275e0008ec68908737ae274156ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80112a94_b622e7c1",
+        "filename": "src/shaders/gradients/SkLinearGradient.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-06T16:44:32Z",
+      "side": 1,
+      "message": "We could, although I think the 2pt stage is slightly faster.  Maybe land for always, and then remeasure and add heuristic (I suspect burst for \u003e 2 is the sweet-spot).",
+      "parentUuid": "c02fa306_f32678b7",
+      "range": {
+        "startLine": 90,
+        "startChar": 8,
+        "endLine": 90,
+        "endChar": 19
+      },
+      "revId": "2246086da3c0275e0008ec68908737ae274156ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
