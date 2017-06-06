@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8279e630_d91b8817",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-06T21:05:00Z",
+      "side": 1,
+      "message": "This is the interesting function to look at.  The other changes are a refactor.",
+      "range": {
+        "startLine": 325,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 100
+      },
+      "revId": "29c560019b50495e296fbfbfc68546e7558a65bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
