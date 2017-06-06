@@ -24,6 +24,12 @@ class SkMatrix;
 class SkPaint;
 class SkPicture;
 
+enum class TexGenType {
+    kNone,           //image generator does not implement onGenerateTexture
+    kCheap,          //onGenerateTexture is implemented and it is fast (does not render offscreen)
+    kExpensive,      //onGenerateTexture is implemented and it is relatively slow
+};
+
 class SK_API SkImageGenerator : public SkNoncopyable {
 public:
     /**
@@ -176,7 +182,7 @@ protected:
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo&, void*[3] /*planes*/) { return false; }
 
 #if SK_SUPPORT_GPU
-    virtual bool onCanGenerateTexture() const { return false; }
+    virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
                                                     const SkIPoint&);   // returns nullptr
 #endif

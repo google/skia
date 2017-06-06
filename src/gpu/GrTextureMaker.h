@@ -9,6 +9,7 @@
 #define GrTextureMaker_DEFINED
 
 #include "GrTextureProducer.h"
+#include "SkImageCacherator.h"
 
 /**
  * Base class for sources that start out as something other than a texture (encoded image,
@@ -44,9 +45,13 @@ protected:
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
      *  caching of the original if desired.
+     *  If "onlyIfFast" argument equals CheapTexGenOnly::kYes and the texture is not trivial to
+     *  construct then refOriginalTextureProxy should return nullptr (for example if texture is made
+     *  by drawing into a render target).
      */
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                          SkColorSpace* dstColorSpace) = 0;
+                                                          SkColorSpace* dstColorSpace,
+                                                          CheapTexGenOnly onlyIfFast) = 0;
 
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
