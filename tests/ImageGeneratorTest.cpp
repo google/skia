@@ -109,3 +109,35 @@ DEF_TEST(PictureImageGenerator, reporter) {
         REPORTER_ASSERT(reporter, success == rec.fExpectSuccess);
     }
 }
+
+#include "SkImagePriv.h"
+
+DEF_TEST(ColorXformGenerator, r) {
+    SkBitmap a, b, c, d;
+    SkImageInfo info = SkImageInfo::MakeS32(1, 1, kPremul_SkAlphaType);
+    a.allocPixels(info);
+    b.allocPixels(info.makeColorSpace(nullptr));
+    c.allocPixels(info.makeColorSpace(SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                            SkColorSpace::kRec2020_Gamut)));
+    d.allocPixels(info.makeColorSpace(SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                            SkColorSpace::kAdobeRGB_Gamut)));
+    a.eraseColor(0);
+    b.eraseColor(1);
+    c.eraseColor(2);
+    d.eraseColor(3);
+
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+    sk_sp<SkImage> a0 = SkMakeImageFromRasterBitmapWithColorSpace(a, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> b0 = SkMakeImageFromRasterBitmapWithColorSpace(b, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> c0 = SkMakeImageFromRasterBitmapWithColorSpace(c, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> d0 = SkMakeImageFromRasterBitmapWithColorSpace(d, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> a1 = SkMakeImageFromRasterBitmapWithColorSpace(a, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> b1 = SkMakeImageFromRasterBitmapWithColorSpace(b, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> c1 = SkMakeImageFromRasterBitmapWithColorSpace(c, srgb, kNever_SkCopyPixelsMode);
+    sk_sp<SkImage> d1 = SkMakeImageFromRasterBitmapWithColorSpace(d, srgb, kNever_SkCopyPixelsMode);
+
+    REPORTER_ASSERT(r, a0->uniqueID() == a1->uniqueID());
+    REPORTER_ASSERT(r, b0->uniqueID() == b1->uniqueID());
+    REPORTER_ASSERT(r, c0->uniqueID() == c1->uniqueID());
+    REPORTER_ASSERT(r, d0->uniqueID() == d1->uniqueID());
+}
