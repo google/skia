@@ -123,6 +123,22 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
+// This somewhat-experimental load handles any jagged tail by backing up to 8-byte alignment,
+// loading 8 bytes, then shifting off the extraneous low bytes it loaded because it backed up.
+// N.B. High lanes will contain bytes from past where the load nominally ends.
+template <>
+inline U8 load(const uint8_t* src, size_t tail) {
+    if (__builtin_expect(tail, 0)) {
+        uintptr_t base = (uintptr_t)src;
+        uintptr_t mask = 0x7;
+        auto back_up = (const uint8_t*)(base & ~mask);
+        auto v = unaligned_load<uint64_t>(back_up);
+        v >>= 8*(base & mask);
+        return unaligned_load<U8>(&v);
+    }
+    return unaligned_load<U8>(src);
+}
+
 SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
     // Split the 8 pixels into low and high halves, and reinterpret as vectors of 16-bit values.
     U16 lo = unaligned_load<U16>((const uint32_t*)&rgba + 0),
