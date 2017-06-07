@@ -9,7 +9,7 @@
 #define SkPath_DEFINED
 
 #include "SkMatrix.h"
-#include "SkPathRef.h"
+#include "../private/SkPathRef.h"
 
 class SkAutoPathBoundsUpdate;
 class SkRRect;
