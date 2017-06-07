@@ -9,7 +9,6 @@
 #include "SkColorPriv.h"
 #include "SkColorShader.h"
 #include "SkGradientShader.h"
-#include "SkLinearGradient.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
@@ -446,13 +445,22 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
         },
     };
 
-    static const uint32_t gForceFlags[] = { 0, SkLinearGradient::kForce4fContext_PrivateFlag };
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+    SkColorSpace* colorSpaces[] = {
+        nullptr,     // hits the legacy gradient impl
+        srgb.get(),  // triggers 4f/raster-pipeline
+    };
 
-    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
-    SkCanvas* canvas = surface->getCanvas();
     SkPaint paint;
 
-    for (auto forceFlags : gForceFlags) {
+    for (auto colorSpace : colorSpaces) {
+
+        sk_sp<SkSurface> surface = SkSurface::MakeRaster(SkImageInfo::Make(100, 100,
+                                                                           kN32_SkColorType,
+                                                                           kPremul_SkAlphaType,
+                                                                           sk_ref_sp(colorSpace)));
+        SkCanvas* canvas = surface->getCanvas();
+
         for (const auto& config : gConfigs) {
             SkAutoCanvasRestore acr(canvas, false);
             SkTLazy<SkMatrix> localMatrix;
@@ -466,7 +474,7 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
                                                          config.fPos,
                                                          config.fCount,
                                                          config.fTileMode,
-                                                         config.fFlags | forceFlags,
+                                                         config.fFlags,
                                                          localMatrix.getMaybeNull()));
             if (config.fGlobalMatrix) {
                 SkMatrix m;
