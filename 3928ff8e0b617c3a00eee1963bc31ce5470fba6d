@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fc0f059_37bf3eab",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-07T22:59:27Z",
+      "side": 0,
+      "message": "need this kIndex8 change in the same CL?",
+      "range": {
+        "startLine": 310,
+        "startChar": 61,
+        "endLine": 310,
+        "endChar": 74
+      },
+      "revId": "3928ff8e0b617c3a00eee1963bc31ce5470fba6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

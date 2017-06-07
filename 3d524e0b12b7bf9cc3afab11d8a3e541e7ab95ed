@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "164fe534_3fc7dab5",
+        "filename": "tests/ImageGeneratorTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-07T22:59:27Z",
+      "side": 1,
+      "message": "Maybe a comment for each assert, explaining why?\n\na: no colorspace is interpreted as srgb, and the maker sees srgb-\u003esrgb as a no-op?\nb: explicit id\nc: explicit id\nd: maker sees adobe-\u003esrgb as not a no-op, so we get a new id\n?",
+      "range": {
+        "startLine": 135,
+        "startChar": 26,
+        "endLine": 135,
+        "endChar": 27
+      },
+      "revId": "3d524e0b12b7bf9cc3afab11d8a3e541e7ab95ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
