@@ -173,6 +173,16 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
         *outDriver = kIntel_GrGLDriver;
     }
+
+    if (kQualcomm_GrGLVendor == vendor) {
+        *outDriver = kQualcomm_GrGLDriver;
+        int n = sscanf(versionString, "OpenGL ES %d.%d V@%d.%d", &major, &minor, &driverMajor,
+                       &driverMinor);
+        if (4 == n) {
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor);
+        }
+        return;
+    }
 }
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {

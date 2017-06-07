@@ -68,6 +68,7 @@ enum GrGLDriver {
     kNVIDIA_GrGLDriver,
     kIntel_GrGLDriver,
     kANGLE_GrGLDriver,
+    kQualcomm_GrGLDriver,
     kUnknown_GrGLDriver
 };
 
