@@ -7,6 +7,8 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkCodecAnimation.h"
+#include "SkCodecAnimationPriv.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkRasterPipeline.h"
@@ -253,8 +255,8 @@ int SkWebpCodec::onGetFrameCount() {
         Frame* frame = fFrameHolder.appendNewFrame(iter.has_alpha);
         frame->setXYWH(iter.x_offset, iter.y_offset, iter.width, iter.height);
         frame->setDisposalMethod(iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND ?
-                SkCodecAnimation::RestoreBGColor_DisposalMethod :
-                SkCodecAnimation::Keep_DisposalMethod);
+                SkCodecAnimation::DisposalMethod::kRestoreBGColor :
+                SkCodecAnimation::DisposalMethod::kKeep);
         frame->setDuration(iter.duration);
         if (WEBP_MUX_BLEND != iter.blend_method) {
             frame->setBlend(SkCodecAnimation::Blend::kBG);
@@ -437,9 +439,12 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
         }
     } else {
-        if (!options.fHasPriorFrame) {
+        // FIXME: Share with GIF
+        // FIXME: Support frames other than the required frame
+        if (options.fPriorFrame != requiredFrame) {
             Options prevFrameOpts(options);
             prevFrameOpts.fFrameIndex = requiredFrame;
+            prevFrameOpts.fPriorFrame = kNone;
             const auto result = this->getPixels(dstInfo, dst, rowBytes, &prevFrameOpts,
                                                 nullptr, nullptr);
             switch (result) {
@@ -454,7 +459,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
         // Dispose bg color
         const Frame* priorFrame = fFrameHolder.frame(requiredFrame);
-        if (priorFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
+        if (priorFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
             // FIXME: If we add support for scaling/subsets, this rectangle needs to be adjusted.
             const auto priorRect = priorFrame->frameRect();
             const auto info = dstInfo.makeWH(priorRect.width(), priorRect.height());

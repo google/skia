@@ -57,7 +57,7 @@ DEF_TEST(Codec_565, r) {
 
     SkCodec::Options options;
     options.fFrameIndex = 1;
-    options.fHasPriorFrame = false;
+    options.fPriorFrame = SkCodec::kNone;
 
     const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(),
                                          &options, nullptr, nullptr);
@@ -66,8 +66,11 @@ DEF_TEST(Codec_565, r) {
 
 
 DEF_TEST(Codec_frames, r) {
-    #define kOpaque     kOpaque_SkAlphaType
-    #define kUnpremul   kUnpremul_SkAlphaType
+    #define kOpaque         kOpaque_SkAlphaType
+    #define kUnpremul       kUnpremul_SkAlphaType
+    #define kKeep           SkCodecAnimation::DisposalMethod::kKeep
+    #define kRestoreBG      SkCodecAnimation::DisposalMethod::kRestoreBGColor
+    #define kRestorePrev    SkCodecAnimation::DisposalMethod::kRestorePrevious
     static const struct {
         const char*              fName;
         int                      fFrameCount;
@@ -80,6 +83,7 @@ DEF_TEST(Codec_frames, r) {
         // otherwise.
         std::vector<int>         fDurations;
         int                      fRepetitionCount;
+        std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
     } gRecs[] = {
         { "alphabetAnim.gif", 13,
             { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
@@ -87,7 +91,10 @@ DEF_TEST(Codec_frames, r) {
             { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
               kUnpremul, kUnpremul, kUnpremul, kOpaque, kOpaque, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
-            0 },
+            0,
+            { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
+              kRestoreBG, kKeep, kRestoreBG, kRestoreBG, kKeep, kKeep,
+              kRestoreBG, kKeep } },
         { "randPixelsAnim2.gif", 4,
             // required frames
             { 0, 0, 1 },
@@ -96,7 +103,8 @@ DEF_TEST(Codec_frames, r) {
             // durations
             { 0, 1000, 170, 40 },
             // repetition count
-            0 },
+            0,
+            { kKeep, kKeep, kRestorePrev, kKeep } },
         { "randPixelsAnim.gif", 13,
             // required frames
             { SkCodec::kNone, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
@@ -105,33 +113,43 @@ DEF_TEST(Codec_frames, r) {
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
-            0 },
-        { "box.gif", 1, {}, {}, {}, 0 },
-        { "color_wheel.gif", 1, {}, {}, {}, 0 },
+            0,
+            { kKeep, kKeep, kKeep, kKeep, kRestoreBG, kRestoreBG, kRestoreBG,
+              kRestoreBG, kRestorePrev, kRestoreBG, kRestorePrev, kRestorePrev,
+              kRestorePrev,  } },
+        { "box.gif", 1, {}, {}, {}, 0, { kKeep } },
+        { "color_wheel.gif", 1, {}, {}, {}, 0, { kKeep } },
         { "test640x479.gif", 4, { 0, 1, 2 },
                 { kOpaque, kOpaque, kOpaque },
                 { 200, 200, 200, 200 },
-                SkCodec::kRepetitionCountInfinite },
-        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5 },
+                SkCodec::kRepetitionCountInfinite,
+                { kKeep, kKeep, kKeep, kKeep } },
+        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5,
+                { kKeep, kKeep } },
 
-        { "arrow.png",  1, {}, {}, {}, 0 },
-        { "google_chrome.ico", 1, {}, {}, {}, 0 },
-        { "brickwork-texture.jpg", 1, {}, {}, {}, 0 },
+        { "arrow.png",  1, {}, {}, {}, 0, {} },
+        { "google_chrome.ico", 1, {}, {}, {}, 0, {} },
+        { "brickwork-texture.jpg", 1, {}, {}, {}, 0, {} },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "dng_with_preview.dng", 1, {}, {}, {}, 0 },
+        { "dng_with_preview.dng", 1, {}, {}, {}, 0, {} },
 #endif
-        { "mandrill.wbmp", 1, {}, {}, {}, 0 },
-        { "randPixels.bmp", 1, {}, {}, {}, 0 },
-        { "yellow_rose.webp", 1, {}, {}, {}, 0 },
-        { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
-            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite },
+        { "mandrill.wbmp", 1, {}, {}, {}, 0, {} },
+        { "randPixels.bmp", 1, {}, {}, {}, 0, {} },
+        { "yellow_rose.webp", 1, {}, {}, {}, 0, {} },
+        { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque, kOpaque },
+            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite,
+            { kKeep, kKeep, kKeep } },
         { "blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
                                4, 4 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
-            { 525, 500, 525, 437, 609, 729, 444 }, 7 },
+            { 525, 500, 525, 437, 609, 729, 444 }, 7,
+            { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
     };
     #undef kOpaque
     #undef kUnpremul
+    #undef kKeep
+    #undef kRestorePrev
+    #undef kRestoreBG
 
     for (const auto& rec : gRecs) {
         sk_sp<SkData> data(GetResourceAsData(rec.fName));
@@ -270,58 +288,54 @@ DEF_TEST(Codec_frames, r) {
             std::vector<SkBitmap> cachedFrames(frameCount);
             const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
 
-            auto decode = [&](SkBitmap* bm, bool cached, int index) {
-                auto decodeInfo = info;
-                if (index > 0) {
-                    decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
-                }
-                bm->allocPixels(decodeInfo);
-                if (cached) {
+            auto decode = [&](SkBitmap* bm, int index, int cachedIndex) {
+                bm->allocPixels(info);
+                if (cachedIndex != SkCodec::kNone) {
                     // First copy the pixels from the cached frame
-                    const int requiredFrame = frameInfos[index].fRequiredFrame;
-                    if (requiredFrame != SkCodec::kNone) {
-                        const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
-                                cachedFrames[requiredFrame]);
-                        REPORTER_ASSERT(r, success);
-                    }
+                    const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
+                            cachedFrames[cachedIndex]);
+                    REPORTER_ASSERT(r, success);
                 }
                 SkCodec::Options opts;
                 opts.fFrameIndex = index;
-                opts.fHasPriorFrame = cached;
-                const auto result = codec->getPixels(decodeInfo, bm->getPixels(), bm->rowBytes(),
-                                                     &opts, nullptr, nullptr);
-                if (result != SkCodec::kSuccess) {
-                    ERRORF(r, "Failed to decode frame %i from %s when %scached, error %i",
-                           index, rec.fName, (cached ? "" : "not "), result);
-                }
-                return result == SkCodec::kSuccess;
+                opts.fPriorFrame = cachedIndex;
+                auto result = codec->getPixels(info, bm->getPixels(), bm->rowBytes(),
+                                               &opts, nullptr, nullptr);
+                REPORTER_ASSERT(r, result == SkCodec::kSuccess);
             };
 
             for (int i = 0; i < frameCount; i++) {
                 SkBitmap& cachedFrame = cachedFrames[i];
-                if (!decode(&cachedFrame, true, i)) {
+                decode(&cachedFrame, i, SkCodec::kNone);
+                const auto reqFrame = frameInfos[i].fRequiredFrame;
+                if (reqFrame == SkCodec::kNone) {
+                    // Nothing to compare against.
                     continue;
                 }
-                SkBitmap uncachedFrame;
-                if (!decode(&uncachedFrame, false, i)) {
-                    continue;
-                }
+                for (int j = reqFrame; j < i; j++) {
+                    if (frameInfos[j].fDisposalMethod == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
+                        continue;
+                    }
+                    SkBitmap uncachedFrame;
+                    decode(&uncachedFrame, i, j);
 
-                // Now verify they're equal.
-                const size_t rowLen = info.bytesPerPixel() * info.width();
-                for (int y = 0; y < info.height(); y++) {
-                    const void* cachedAddr = cachedFrame.getAddr(0, y);
-                    SkASSERT(cachedAddr != nullptr);
-                    const void* uncachedAddr = uncachedFrame.getAddr(0, y);
-                    SkASSERT(uncachedAddr != nullptr);
-                    const bool lineMatches = memcmp(cachedAddr, uncachedAddr, rowLen) == 0;
-                    if (!lineMatches) {
-                        SkString name = SkStringPrintf("cached_%i", i);
-                        write_bm(name.c_str(), cachedFrame);
-                        name = SkStringPrintf("uncached_%i", i);
-                        write_bm(name.c_str(), uncachedFrame);
-                        ERRORF(r, "%s's frame %i is different depending on caching!", rec.fName, i);
-                        break;
+                    // Now verify they're equal.
+                    const size_t rowLen = info.bytesPerPixel() * info.width();
+                    for (int y = 0; y < info.height(); y++) {
+                        const void* cachedAddr = cachedFrame.getAddr(0, y);
+                        SkASSERT(cachedAddr != nullptr);
+                        const void* uncachedAddr = uncachedFrame.getAddr(0, y);
+                        SkASSERT(uncachedAddr != nullptr);
+                        const bool lineMatches = memcmp(cachedAddr, uncachedAddr, rowLen) == 0;
+                        if (!lineMatches) {
+                            SkString name = SkStringPrintf("cached_%i", i);
+                            write_bm(name.c_str(), cachedFrame);
+                            name = SkStringPrintf("uncached_%i", i);
+                            write_bm(name.c_str(), uncachedFrame);
+                            ERRORF(r, "%s's frame %i is different depending on caching, "
+                                      "starting from %i!", rec.fName, i, j);
+                            break;
+                        }
                     }
                 }
             }
