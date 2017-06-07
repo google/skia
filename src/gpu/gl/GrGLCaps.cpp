@@ -512,7 +512,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
         fUseDrawInsteadOfPartialRenderTargetWrite = true;
-        fUseDrawToClearStencilClip = true;
+        // This is known to be fixed sometime between driver 145.0 and 219.0
+        if (ctxInfo.driver() == kQualcomm_GrGLDriver &&
+            ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0)) {
+            fUseDrawToClearStencilClip = true;
+        }
     }
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
