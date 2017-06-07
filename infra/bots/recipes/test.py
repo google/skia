@@ -40,6 +40,10 @@ def dm_flags(bot):
   if 'Test' in bot and 'DISCARDABLE' in bot:
     args.extend('--threads 0'.split(' '))
 
+  # Run ios tests single threaded.
+  if 'iOS' in bot:
+    args.extend('-j 0'.split(' '))
+
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
   configs = ['8888', 'srgb', 'pdf']
