@@ -161,6 +161,24 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         return;
     }
 
+#ifdef SK_DEBUG
+    // Verify that the interface we requested was actuall returned to us
+    const GrGLubyte* rendererUByte;
+    GR_GL_CALL_RET(gl.get(), rendererUByte, GetString(GR_GL_RENDERER));
+    const char* renderer = reinterpret_cast<const char*>(rendererUByte);
+    switch (type) {
+    case ANGLEBackend::kD3D9:
+        SkASSERT(strstr(renderer, "Direct3D9"));
+        break;
+    case ANGLEBackend::kD3D11:
+        SkASSERT(strstr(renderer, "Direct3D11"));
+        break;
+    case ANGLEBackend::kOpenGL:
+        SkASSERT(strstr(renderer, "OpenGL"));
+        break;
+    }
+#endif
+
     this->init(gl.release());
 }
 
@@ -229,7 +247,7 @@ std::unique_ptr<sk_gpu_test::GLTestContext> ANGLEGLContext::makeNew() const {
 
 void ANGLEGLContext::destroyGLContext() {
     if (fDisplay) {
-        eglMakeCurrent(fDisplay, 0, 0, 0);
+        eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
         if (fContext) {
             eglDestroyContext(fDisplay, fContext);
@@ -241,8 +259,10 @@ void ANGLEGLContext::destroyGLContext() {
             fSurface = EGL_NO_SURFACE;
         }
 
-        //TODO should we close the display?
-        fDisplay = EGL_NO_DISPLAY;
+        if (EGL_NO_DISPLAY != fDisplay) {
+            eglTerminate(fDisplay);
+            fDisplay = EGL_NO_DISPLAY;
+        }
     }
 }
 
