@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7245d0c_8effc2fd",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-07T14:32:43Z",
+      "side": 1,
+      "message": "Is it better to change \"is non-zero\" to \"is not kNeedNewImageUniqueID\" (in the unlikely case that someone changes the value of kNeedNewImageUniqueID)?",
+      "revId": "4c6fb825c0560abed6632c837d282315f62b6f74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a495211_2cd3344f",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-07T14:32:43Z",
+      "side": 1,
+      "message": "I\u0027m curious why SkImage_Raster::ValidArgs call is replaced with this manual condition check?",
+      "revId": "4c6fb825c0560abed6632c837d282315f62b6f74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
