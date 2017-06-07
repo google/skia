@@ -58,7 +58,7 @@ enum GrGLRenderer {
     kIntel6xxx_GrGLRenderer,
     /** T-6xx, T-7xx, or T-8xx */
     kMaliT_GrGLRenderer,
-    kANGLE_GrGLRenderer,
+    kANGLE_D3D9_GrGLRenderer,
     kOther_GrGLRenderer
 };
 
