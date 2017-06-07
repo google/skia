@@ -21,6 +21,9 @@ protected:
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
 
+    void onDrawImage(const SkImage*, SkScalar, SkScalar, const SkPaint*) override;
+    void onDrawBitmap(const SkBitmap&, SkScalar, SkScalar, const SkPaint*) override;
+
     void onDrawBitmapNine(const SkBitmap&, const SkIRect&, const SkRect&,
                           const SkPaint*) override;
 
