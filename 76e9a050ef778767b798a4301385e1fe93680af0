@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "d958f567_a1e2a577",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-07T20:04:29Z",
+      "side": 1,
+      "message": "Yes!",
+      "parentUuid": "76eef656_5ff2884b",
+      "range": {
+        "startLine": 115,
+        "startChar": 19,
+        "endLine": 115,
+        "endChar": 32
+      },
+      "revId": "76e9a050ef778767b798a4301385e1fe93680af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47ae575e_2f52758d",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 1
@@ -59,6 +83,30 @@
       "writtenOn": "2017-04-04T16:05:26Z",
       "side": 1,
       "message": "I think this block predates highPrecision. Should we support F16 from a Gray image, which would allow us to remove this block?",
+      "range": {
+        "startLine": 137,
+        "startChar": 66,
+        "endLine": 138,
+        "endChar": 67
+      },
+      "revId": "76e9a050ef778767b798a4301385e1fe93680af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04cc42e4_13579880",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-07T20:04:29Z",
+      "side": 1,
+      "message": "Yes, we should.",
+      "parentUuid": "47ae575e_2f52758d",
       "range": {
         "startLine": 137,
         "startChar": 66,
