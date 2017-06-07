@@ -26,32 +26,33 @@ public:
 
     GrBackend backend() const { return fBackend; }
 
-    GrContext* grContext() const { return fGrContext; }
+    GrContext* grContext() const { return fGrContext.get(); }
 
-    TestContext* testContext() const { return fTestContext; }
+    TestContext* testContext() const { return fTestContext.get(); }
 
     GLTestContext* glContext() const {
         SkASSERT(kOpenGL_GrBackend == fBackend);
-        return static_cast<GLTestContext*>(fTestContext);
+        return static_cast<GLTestContext*>(fTestContext.get());
     }
 
 #ifdef SK_VULKAN
     VkTestContext* vkContext() const {
         SkASSERT(kVulkan_GrBackend == fBackend);
-        return static_cast<VkTestContext*>(fTestContext);
+        return static_cast<VkTestContext*>(fTestContext.get());
     }
 #endif
 
 private:
-    ContextInfo(GrBackend backend, TestContext* testContext, GrContext* grContext)
-            : fBackend(backend)
-            , fTestContext(testContext)
-            , fGrContext(grContext) {}
+    ContextInfo(GrBackend backend, sk_sp<TestContext> testContext, sk_sp<GrContext> grContext)
+        : fBackend(backend)
+        , fTestContext(testContext)
+        , fGrContext(grContext) {
+    }
 
-    GrBackend       fBackend = kOpenGL_GrBackend;
+    GrBackend          fBackend = kOpenGL_GrBackend;
     // Valid until the factory destroys it via abandonContexts() or destroyContexts().
-    TestContext*    fTestContext = nullptr;
-    GrContext*      fGrContext = nullptr;
+    sk_sp<TestContext> fTestContext;
+    sk_sp<GrContext>   fGrContext;
 
     friend class GrContextFactory;
 };
@@ -141,12 +142,15 @@ public:
      */
     ContextInfo getSharedContextInfo(GrContext* shareContext, uint32_t shareIndex = 0);
 
+#if 0
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
     GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone) {
         return this->getContextInfo(type, overrides).grContext();
     }
+#endif
+
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
@@ -154,15 +158,15 @@ private:
                                        GrContext* shareContext, uint32_t shareIndex);
 
     struct Context {
-        ContextType       fType;
-        ContextOverrides  fOverrides;
-        GrBackend         fBackend;
-        TestContext*      fTestContext;
-        GrContext*        fGrContext;
-        GrContext*        fShareContext;
-        uint32_t          fShareIndex;
+        ContextType        fType;
+        ContextOverrides   fOverrides;
+        GrBackend          fBackend;
+        sk_sp<TestContext> fTestContext;
+        sk_sp<GrContext>   fGrContext;
+        GrContext*         fShareContext;
+        uint32_t           fShareIndex;
 
-        bool            fAbandoned;
+        bool               fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
