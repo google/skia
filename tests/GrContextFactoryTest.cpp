@@ -22,8 +22,10 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
     // Test that if NVPR is possible, caps are in sync.
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
-        GrContext* context = testFactory.get(ctxType,
+        ContextInfo ctxInfo = testFactory.getContextInfo(
+                                           ctxType,
                                            GrContextFactory::ContextOverrides::kRequireNVPRSupport);
+        GrContext* context = ctxInfo.grContext();
         if (!context) {
             continue;
         }
@@ -39,8 +41,10 @@ DEF_GPUTEST(GrContextFactory_NoPathRenderingIfNVPRDisabled, reporter, /*factory*
     GrContextFactory testFactory;
     for (int i = 0; i <= GrContextFactory::kLastContextType; ++i) {
         GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType)i;
-        GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kDisableNVPR);
+        ContextInfo ctxInfo = testFactory.getContextInfo(
+                                           ctxType,
+                                           GrContextFactory::ContextOverrides::kDisableNVPR);
+        GrContext* context = ctxInfo.grContext();
         if (context) {
             REPORTER_ASSERT(
                 reporter,
@@ -57,13 +61,21 @@ DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, /*factory*/) {
     // Test that if sRGB is requested, caps are in sync.
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
-        GrContext* context =
-            testFactory.get(ctxType, GrContextFactory::ContextOverrides::kRequireSRGBSupport);
 
-        if (context) {
-            REPORTER_ASSERT(reporter, context->caps()->srgbSupport());
-        } else {
-            context = testFactory.get(ctxType);
+        {
+            ContextInfo ctxInfo = testFactory.getContextInfo(
+                                          ctxType,
+                                          GrContextFactory::ContextOverrides::kRequireSRGBSupport);
+            GrContext* context = ctxInfo.grContext();
+            if (context) {
+                REPORTER_ASSERT(reporter, context->caps()->srgbSupport());
+                continue;
+            }
+        }
+
+        {
+            ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
+            GrContext* context = ctxInfo.grContext();
             if (context) {
                 REPORTER_ASSERT(reporter, !context->caps()->srgbSupport());
             }

@@ -13,6 +13,8 @@
 #include "GrTypes.h"
 #include "../private/SkTemplates.h"
 
+#include "SkRefCnt.h"
+
 namespace sk_gpu_test {
 
 class GpuTimer;
@@ -21,7 +23,7 @@ class GpuTimer;
  * An offscreen 3D context. This class is intended for Skia's internal testing needs and not
  * for general use.
  */
-class TestContext : public SkNoncopyable {
+class TestContext : public SkRefCnt {
 public:
     virtual ~TestContext();
 
@@ -100,7 +102,7 @@ private:
     PlatformFence fFrameFences[kMaxFrameLag - 1];
     int fCurrentFenceIdx;
 
-    typedef SkNoncopyable INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 }  // namespace sk_gpu_test
 #endif
