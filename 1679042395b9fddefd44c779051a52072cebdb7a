@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ba71dbc_6ab15110",
+        "filename": "tools/viewer/Viewer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T13:47:33Z",
+      "side": 1,
+      "message": "Does this get initialized somewhere?",
+      "range": {
+        "startLine": 101,
+        "startChar": 27,
+        "endLine": 101,
+        "endChar": 41
+      },
+      "revId": "1679042395b9fddefd44c779051a52072cebdb7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
