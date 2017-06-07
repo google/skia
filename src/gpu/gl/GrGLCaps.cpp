@@ -1038,9 +1038,16 @@ void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrG
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
         } else if (fUsesMixedSamples) {
             fMSFBOType = kMixedSamples_MSFBOType;
-        } else if (ctxInfo.version() >= GR_GL_VER(3,0) ||
-                   ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = kStandard_MSFBOType;
+        } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+            if (kANGLE_D3D9_GrGLRenderer == ctxInfo.renderer()) {
+                // GL_CHROMIUM_framebuffer_multisample doesn't guarantee kA8 renderability
+                // for D3D9 ES2 ANGLE
+                fMSFBOType = kEXT_MSFBOType;
+            } else {
+                fMSFBOType = kStandard_MSFBOType;
+            }
         } else if (ctxInfo.hasExtension("GL_ANGLE_framebuffer_multisample")) {
             fMSFBOType = kEXT_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_APPLE_framebuffer_multisample")) {
