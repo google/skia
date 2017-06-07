@@ -41,7 +41,7 @@ class SkThreadedBMPDevice : public SkBitmapDevice {
 public:
     // When threads = 0, we make fThreadCnt = fTileCnt
     SkThreadedBMPDevice(const SkBitmap& bitmap, int tiles, int threads = 0);
-    ~SkThreadedBMPDevice() { finishThreads(); }
+    ~SkThreadedBMPDevice() override { finishThreads(); }
 
 protected:
     void drawPaint(const SkPaint& paint) override;
