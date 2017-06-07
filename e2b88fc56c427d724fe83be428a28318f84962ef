@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0e1b27f_8f7516f7",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T17:16:26Z",
+      "side": 1,
+      "message": "Could we share this with the implementation in SkShadowUtils?\n\nAlso, is there an explanation of how this tonal alpha gets computed?",
+      "revId": "e2b88fc56c427d724fe83be428a28318f84962ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
