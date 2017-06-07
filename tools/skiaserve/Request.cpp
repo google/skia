@@ -130,17 +130,34 @@ sk_sp<SkData> Request::writeOutSkp() {
 
 GrContext* Request::getContext() {
 #if SK_SUPPORT_GPU
-    GrContext* result = fContextFactory->get(GrContextFactory::kGL_ContextType,
-                                             GrContextFactory::ContextOverrides::kNone);
-    if (!result) {
-        result = fContextFactory->get(GrContextFactory::kGLES_ContextType,
-                                      GrContextFactory::ContextOverrides::kNone);
+    {
+        sk_gpu_test::ContextInfo ctxInfo = fContextFactory->getContextInfo(
+                                                    GrContextFactory::kGL_ContextType,
+                                                    GrContextFactory::ContextOverrides::kNone);
+        if (ctxInfo.grContext()) {
+            return ctxInfo.grContext();
+        }
     }
-    if (!result) {
-        result = fContextFactory->get(GrContextFactory::kMESA_ContextType,
-                                      GrContextFactory::ContextOverrides::kNone);
+
+    {
+        sk_gpu_test::ContextInfo ctxInfo = fContextFactory->getContextInfo(
+                                                    GrContextFactory::kGLES_ContextType,
+                                                    GrContextFactory::ContextOverrides::kNone);
+        if (ctxInfo.grContext()) {
+            return ctxInfo.grContext();
+        }
     }
-    return result;
+
+    {
+        sk_gpu_test::ContextInfo ctxInfo = fContextFactory->getContextInfo(
+                                                    GrContextFactory::kMESA_ContextType,
+                                                    GrContextFactory::ContextOverrides::kNone);
+        if (ctxInfo.grContext()) {
+            return ctxInfo.grContext();
+        }
+    }
+
+    return nullptr;
 #else
     return nullptr;
 #endif

@@ -168,25 +168,25 @@ bool Target::capturePixels(SkBitmap* bmp) {
 
 #if SK_SUPPORT_GPU
 struct GPUTarget : public Target {
-    explicit GPUTarget(const Config& c) : Target(c), context(nullptr) { }
-    TestContext* context;
+    explicit GPUTarget(const Config& c) : Target(c) { }
+    sk_gpu_test::ContextInfo fContext;
 
     void setup() override {
-        this->context->makeCurrent();
+        fContext.testContext()->makeCurrent();
         // Make sure we're done with whatever came before.
-        this->context->finish();
+        fContext.testContext()->finish();
     }
     void endTiming() override {
-        if (this->context) {
-            this->context->waitOnSyncOrSwap();
+        if (fContext.testContext()) {
+            fContext.testContext()->waitOnSyncOrSwap();
         }
     }
     void fence() override {
-        this->context->finish();
+        fContext.testContext()->finish();
     }
 
     bool needsFrameTiming(int* maxFrameLag) const override {
-        if (!this->context->getMaxGpuFrameLag(maxFrameLag)) {
+        if (!fContext.testContext()->getMaxGpuFrameLag(maxFrameLag)) {
             // Frame lag is unknown.
             *maxFrameLag = FLAGS_gpuFrameLag;
         }
@@ -196,16 +196,14 @@ struct GPUTarget : public Target {
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
         SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
-        this->surface = SkSurface::MakeRenderTarget(gGrFactory->get(this->config.ctxType,
-                                                                    this->config.ctxOverrides),
-                                                         SkBudgeted::kNo, info,
-                                                         this->config.samples, &props);
-        this->context = gGrFactory->getContextInfo(this->config.ctxType,
-                                                   this->config.ctxOverrides).testContext();
+        fContext = gGrFactory->getContextInfo(this->config.ctxType, this->config.ctxOverrides);
+        this->surface = SkSurface::MakeRenderTarget(fContext.grContext(),
+                                                    SkBudgeted::kNo, info,
+                                                    this->config.samples, &props);
         if (!this->surface.get()) {
             return false;
         }
-        if (!this->context->fenceSyncSupport()) {
+        if (!fContext.testContext()->fenceSyncSupport()) {
             SkDebugf("WARNING: GL context for config \"%s\" does not support fence sync. "
                      "Timings might not be accurate.\n", this->config.name.c_str());
         }
@@ -213,9 +211,9 @@ struct GPUTarget : public Target {
     }
     void fillOptions(ResultsWriter* log) override {
         const GrGLubyte* version;
-        if (this->context->backend() == kOpenGL_GrBackend) {
+        if (fContext.testContext()->backend() == kOpenGL_GrBackend) {
             const GrGLInterface* gl =
-                    reinterpret_cast<const GrGLInterface*>(this->context->backendContext());
+                    reinterpret_cast<const GrGLInterface*>(fContext.testContext()->backendContext());
             GR_GL_CALL_RET(gl, version, GetString(GR_GL_VERSION));
             log->configOption("GL_VERSION", (const char*)(version));
 
@@ -417,7 +415,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         const auto ctxOverrides = gpuConfig->getContextOverrides();
         const auto sampleCount = gpuConfig->getSamples();
 
-        if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOverrides)) {
+        sk_gpu_test::ContextInfo ctxInfo = gGrFactory->getContextInfo(ctxType, ctxOverrides);
+        const GrContext* ctx = ctxInfo.grContext();
+
+        if (ctx) {
             const auto maxSampleCount = ctx->caps()->maxSampleCount();
             if (sampleCount > ctx->caps()->maxSampleCount()) {
                 SkDebugf("Configuration sample count %d exceeds maximum %d.\n",
@@ -1344,8 +1345,10 @@ int main(int argc, char** argv) {
 
 #if SK_SUPPORT_GPU
             if (FLAGS_gpuStats && Benchmark::kGPU_Backend == configs[i].backend) {
-                GrContext* context = gGrFactory->get(configs[i].ctxType,
-                                                     configs[i].ctxOverrides);
+                sk_gpu_test::ContextInfo ctxInfo = gGrFactory->getContextInfo(
+                                                             configs[i].ctxType,
+                                                             configs[i].ctxOverrides);
+                GrContext* context = ctxInfo.grContext();
                 context->printCacheStats();
                 context->printGpuStats();
             }
