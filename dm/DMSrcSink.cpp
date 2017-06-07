@@ -504,9 +504,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         && priorFramePixels.get()) {
                     // Copy into pixels
                     memcpy(pixels.get(), priorFramePixels.get(), safeSize);
-                    options.fHasPriorFrame = true;
+                    options.fPriorFrame = reqFrame;
                 } else {
-                    options.fHasPriorFrame = false;
+                    options.fPriorFrame = SkCodec::kNone;
                 }
                 SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
                                                           rowBytes, &options,

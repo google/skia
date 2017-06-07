@@ -616,11 +616,11 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
             case 4:
                 // Some specs say that disposal method 3 is "overwrite previous", others that setting
                 // the third bit of the field (i.e. method 4) is. We map both to the same value.
-                currentFrame->setDisposalMethod(SkCodecAnimation::RestorePrevious_DisposalMethod);
+                currentFrame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kRestorePrevious);
                 break;
             default:
                 // Other values use the default.
-                currentFrame->setDisposalMethod(SkCodecAnimation::Keep_DisposalMethod);
+                currentFrame->setDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep);
                 break;
             }
             currentFrame->setDuration(GETINT16(currentComponent + 1) * 10);
@@ -903,7 +903,7 @@ static bool independent(const SkFrame& frame) {
 }
 
 static bool restore_bg(const SkFrame& frame) {
-    return frame.getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod;
+    return frame.getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor;
 }
 
 bool SkGIFFrameContext::onReportsAlpha() const {
@@ -935,7 +935,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     }
 
     const SkFrame* prevFrame = this->getFrame(i-1);
-    while (prevFrame->getDisposalMethod() == SkCodecAnimation::RestorePrevious_DisposalMethod) {
+    while (prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
         const int prevId = prevFrame->frameId();
         if (0 == prevId) {
             frame->setHasAlpha(true);
@@ -992,7 +992,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
         return;
     }
 
-    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::Keep_DisposalMethod);
+    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kKeep);
     frame->setRequiredFrame(prevFrame->frameId());
     frame->setHasAlpha(prevFrame->hasAlpha() || (reportsAlpha && !blendWithPrevFrame));
 }
