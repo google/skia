@@ -105,39 +105,19 @@ SkAndroidCodec* SkAndroidCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader
 }
 
 SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {
-    // The legacy GIF and WBMP decoders always decode to kIndex_8_SkColorType.
-    // We will maintain this behavior when we can.
-    const SkColorType suggestedColorType = this->getInfo().colorType();
-    switch ((SkEncodedImageFormat) this->getEncodedFormat()) {
-        case SkEncodedImageFormat::kGIF:
-            if (suggestedColorType == kIndex_8_SkColorType) {
-                return kIndex_8_SkColorType;
-            }
-            break;
-        case SkEncodedImageFormat::kWBMP:
-            return kIndex_8_SkColorType;
-        default:
-            break;
-    }
-
     bool highPrecision = fCodec->getEncodedInfo().bitsPerComponent() > 8;
     switch (requestedColorType) {
         case kARGB_4444_SkColorType:
             return kN32_SkColorType;
         case kN32_SkColorType:
-            // F16 is the Android default for high precision images.
-            return highPrecision ? kRGBA_F16_SkColorType : kN32_SkColorType;
         case kIndex_8_SkColorType:
-            if (kIndex_8_SkColorType == suggestedColorType) {
-                return kIndex_8_SkColorType;
-            }
             break;
         case kAlpha_8_SkColorType:
             // Fall through to kGray_8.  Before kGray_8_SkColorType existed,
             // we allowed clients to request kAlpha_8 when they wanted a
             // grayscale decode.
         case kGray_8_SkColorType:
-            if (kGray_8_SkColorType == suggestedColorType) {
+            if (kGray_8_SkColorType == this->getInfo().colorType()) {
                 return kGray_8_SkColorType;
             }
             break;
@@ -152,14 +132,8 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
             break;
     }
 
-    // Android has limited support for kGray_8 (using kAlpha_8).  We will not
-    // use kGray_8 for Android unless they specifically ask for it.
-    if (kGray_8_SkColorType == suggestedColorType) {
-        return kN32_SkColorType;
-    }
-
-    // |suggestedColorType| may be kN32_SkColorType or kIndex_8_SkColorType.
-    return highPrecision ? kRGBA_F16_SkColorType : suggestedColorType;
+    // F16 is the Android default for high precision images.
+    return highPrecision ? kRGBA_F16_SkColorType : kN32_SkColorType;
 }
 
 SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
