@@ -144,6 +144,7 @@ protected:
         if (fUseAlt) {
             flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
         }
+
         SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
                                   lightPos, lightWidth,
                                   ambientAlpha, spotAlpha, SK_ColorBLACK, flags);
