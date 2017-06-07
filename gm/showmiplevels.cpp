@@ -201,7 +201,10 @@ protected:
         canvas->translate(4, 4);
         for (const auto& bm : fBM) {
             this->drawSet(canvas, bm);
-            canvas->translate(0, bm.height() * 0.85f);
+            // round so we always produce an integral translate, so the GOLD tool won't show
+            // unimportant diffs if this is drawn on a GPU with different rounding rules
+            // since we draw the bitmaps using nearest-neighbor
+            canvas->translate(0, SkScalarRoundToScalar(bm.height() * 0.85f));
         }
     }
 
