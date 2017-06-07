@@ -1049,7 +1049,9 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     GrContextOptions opts;
     opts.fSuppressDualSourceBlending = true;
     sk_gpu_test::GrContextFactory mockFactory(opts);
-    GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType);
+    sk_gpu_test::ContextInfo ctxInfo = mockFactory.getContextInfo(
+                            sk_gpu_test::GrContextFactory::kNullGL_ContextType);
+    GrContext* ctx = ctxInfo.grContext();
     if (!ctx) {
         SkFAIL("Failed to create null context without ARB_blend_func_extended.");
         return;
