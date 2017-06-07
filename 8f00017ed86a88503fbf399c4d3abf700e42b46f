@@ -46,6 +46,30 @@
       "revId": "8f00017ed86a88503fbf399c4d3abf700e42b46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb296384_b229fce7",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-07T18:21:21Z",
+      "side": 1,
+      "message": "Ah okay, I somehow missed this was just one of multiple ctors. This is fine then.",
+      "parentUuid": "174c0df1_235d218d",
+      "range": {
+        "startLine": 104,
+        "startChar": 50,
+        "endLine": 105,
+        "endChar": 67
+      },
+      "revId": "8f00017ed86a88503fbf399c4d3abf700e42b46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
