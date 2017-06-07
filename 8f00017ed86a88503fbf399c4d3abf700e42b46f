@@ -22,6 +22,30 @@
       "revId": "8f00017ed86a88503fbf399c4d3abf700e42b46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "174c0df1_235d218d",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-07T16:43:09Z",
+      "side": 1,
+      "message": "It\u0027s is true if you use *this* constructor. Do you think I should reword the comment?",
+      "parentUuid": "8d4ce001_be29410a",
+      "range": {
+        "startLine": 104,
+        "startChar": 50,
+        "endLine": 105,
+        "endChar": 67
+      },
+      "revId": "8f00017ed86a88503fbf399c4d3abf700e42b46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
