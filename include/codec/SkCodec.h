@@ -9,6 +9,7 @@
 #define SkCodec_DEFINED
 
 #include "../private/SkTemplates.h"
+#include "SkCodecAnimation.h"
 #include "SkColor.h"
 #include "SkColorSpaceXform.h"
 #include "SkEncodedImageFormat.h"
@@ -249,7 +250,7 @@ public:
             : fZeroInitialized(kNo_ZeroInitialized)
             , fSubset(nullptr)
             , fFrameIndex(0)
-            , fHasPriorFrame(false)
+            , fPriorFrame(kNone)
             , fPremulBehavior(SkTransferFunctionBehavior::kRespect)
         {}
 
@@ -281,23 +282,19 @@ public:
         int                        fFrameIndex;
 
         /**
-         *  If true, the dst already contains the prior frame.
+         *  If not kNone, the dst already contains the prior frame at this index.
          *
          *  Only meaningful for multi-frame images.
          *
          *  If fFrameIndex needs to be blended with a prior frame (as reported by
          *  getFrameInfo[fFrameIndex].fRequiredFrame), the client can set this to
-         *  either true or false:
+         *  any non-kRestorePrevious frame in [fRequiredFrame, fFrameIndex) to
+         *  indicate that that frame is already in the dst. Options.fZeroInitialized
+         *  is ignored in this case.
          *
-         *  true means that the prior frame is already in the dst, and this
-         *  codec only needs to decode fFrameIndex and blend it with the dst.
-         *  Options.fZeroInitialized is ignored in this case.
-         *
-         *  false means that the dst does not contain the prior frame, so this
-         *  codec needs to first decode the prior frame (which in turn may need
-         *  to decode its prior frame).
+         *  If set to kNone, the codec will decode any necessary required frame(s) first.
          */
-        bool                       fHasPriorFrame;
+        int                        fPriorFrame;
 
         /**
          *  Indicates whether we should do a linear premultiply or a legacy premultiply.
@@ -613,7 +610,11 @@ public:
     struct FrameInfo {
         /**
          *  The frame that this frame needs to be blended with, or
-         *  kNone.
+         *  kNone if this frame is independent.
+         *
+         *  Note that this is the *earliest* frame that can be used
+         *  for blending. Any frame from [fRequiredFrame, i) can be
+         *  used, unless its fDisposalMethod is kRestorePrevious.
          */
         int fRequiredFrame;
 
@@ -635,6 +636,11 @@ public:
          *  color index-based frame has a color with alpha but does not use it.
          */
         SkAlphaType fAlphaType;
+
+        /**
+         *  How this frame should be modified before decoding the next one.
+         */
+        SkCodecAnimation::DisposalMethod fDisposalMethod;
     };
 
     /**

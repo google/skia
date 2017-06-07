@@ -53,7 +53,6 @@ private:
 
             SkCodec::Options opts;
             opts.fFrameIndex = frameIndex;
-            opts.fHasPriorFrame = false;
             const int requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
             if (requiredFrame != SkCodec::kNone) {
                 SkASSERT(requiredFrame >= 0
@@ -62,7 +61,7 @@ private:
                 // For simplicity, do not try to cache old frames
                 if (requiredBitmap.getPixels() &&
                         sk_tool_utils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
-                    opts.fHasPriorFrame = true;
+                    opts.fPriorFrame = requiredFrame;
                 }
             }
 

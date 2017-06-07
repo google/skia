@@ -7,6 +7,8 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkCodecAnimation.h"
+#include "SkCodecAnimationPriv.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkRasterPipeline.h"
@@ -253,8 +255,8 @@ int SkWebpCodec::onGetFrameCount() {
         Frame* frame = fFrameHolder.appendNewFrame(iter.has_alpha);
         frame->setXYWH(iter.x_offset, iter.y_offset, iter.width, iter.height);
         frame->setDisposalMethod(iter.dispose_method == WEBP_MUX_DISPOSE_BACKGROUND ?
-                SkCodecAnimation::RestoreBGColor_DisposalMethod :
-                SkCodecAnimation::Keep_DisposalMethod);
+                SkCodecAnimation::DisposalMethod::kRestoreBGColor :
+                SkCodecAnimation::DisposalMethod::kKeep);
         frame->setDuration(iter.duration);
         if (WEBP_MUX_BLEND != iter.blend_method) {
             frame->setBlend(SkCodecAnimation::Blend::kBG);
@@ -292,6 +294,7 @@ bool SkWebpCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
         // animated image.
         frameInfo->fFullyReceived = true;
         frameInfo->fAlphaType = alpha_type(frame->hasAlpha());
+        frameInfo->fDisposalMethod = frame->getDisposalMethod();
     }
 
     return true;
@@ -437,9 +440,15 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
         }
     } else {
-        if (!options.fHasPriorFrame) {
+        // FIXME: Share with GIF
+        if (options.fPriorFrame != kNone) {
+            if (options.fPriorFrame < requiredFrame || options.fPriorFrame >= index) {
+                return kInvalidParameters;
+            }
+        } else {
             Options prevFrameOpts(options);
             prevFrameOpts.fFrameIndex = requiredFrame;
+            prevFrameOpts.fPriorFrame = kNone;
             const auto result = this->getPixels(dstInfo, dst, rowBytes, &prevFrameOpts,
                                                 nullptr, nullptr);
             switch (result) {
@@ -452,16 +461,20 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             }
         }
 
-        // Dispose bg color
-        const Frame* priorFrame = fFrameHolder.frame(requiredFrame);
-        if (priorFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
-            // FIXME: If we add support for scaling/subsets, this rectangle needs to be adjusted.
-            const auto priorRect = priorFrame->frameRect();
-            const auto info = dstInfo.makeWH(priorRect.width(), priorRect.height());
-            const size_t bpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
-            const size_t offset = priorRect.x() * bpp + priorRect.y() * rowBytes;
-            auto* eraseDst = SkTAddOffset<void>(dst, offset);
-            SkSampler::Fill(info, eraseDst, rowBytes, 0, kNo_ZeroInitialized);
+        if (options.fPriorFrame == requiredFrame || options.fPriorFrame == kNone) {
+            // Dispose bg color
+            const Frame* priorFrame = fFrameHolder.frame(requiredFrame);
+            if (priorFrame->getDisposalMethod()
+                    == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
+                // FIXME: If we add support for scaling/subsets, this rectangle needs to be
+                // adjusted.
+                const auto priorRect = priorFrame->frameRect();
+                const auto info = dstInfo.makeWH(priorRect.width(), priorRect.height());
+                const size_t bpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
+                const size_t offset = priorRect.x() * bpp + priorRect.y() * rowBytes;
+                auto* eraseDst = SkTAddOffset<void>(dst, offset);
+                SkSampler::Fill(info, eraseDst, rowBytes, 0, kNo_ZeroInitialized);
+            }
         }
     }
 

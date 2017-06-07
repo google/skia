@@ -1514,7 +1514,8 @@ DEF_TEST(Codec_InvalidAnimated, r) {
     SkCodec::Options opts;
     for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
         opts.fFrameIndex = i;
-        opts.fHasPriorFrame = frameInfos[i].fRequiredFrame == i - 1;
+        const auto reqFrame = frameInfos[i].fRequiredFrame;
+        opts.fPriorFrame = reqFrame == i - 1 ? reqFrame : SkCodec::kNone;
         auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &opts);
         if (result != SkCodec::kSuccess) {
             ERRORF(r, "Failed to start decoding frame %i (out of %i) with error %i\n", i,

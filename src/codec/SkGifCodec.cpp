@@ -153,6 +153,7 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
         frameInfo->fFullyReceived = frameContext->isComplete();
         frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
                                                          : kOpaque_SkAlphaType;
+        frameInfo->fDisposalMethod = frameContext->getDisposalMethod();
     }
     return true;
 }
@@ -398,11 +399,24 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             }
         } else {
             // Not independent
-            if (!opts.fHasPriorFrame) {
+            // FIXME: Share this code with WEBP
+            const int reqFrame = frameContext->getRequiredFrame();
+            if (opts.fPriorFrame != kNone) {
+                if (opts.fPriorFrame < reqFrame || opts.fPriorFrame >= frameIndex) {
+                    // Alternatively, we could correct this to kNone.
+                    return kInvalidParameters;
+                }
+                const auto* prevFrame = fReader->frameContext(opts.fPriorFrame);
+                if (prevFrame->getDisposalMethod()
+                        == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
+                    // Similarly, this could be corrected to kNone.
+                    return kInvalidParameters;
+                }
+            } else {
                 // Decode that frame into pixels.
                 Options prevFrameOpts(opts);
                 prevFrameOpts.fFrameIndex = frameContext->getRequiredFrame();
-                prevFrameOpts.fHasPriorFrame = false;
+                prevFrameOpts.fPriorFrame = kNone;
                 // The prior frame may have a different color table, so update it and the
                 // swizzler.
                 this->initializeColorTable(dstInfo, prevFrameOpts.fFrameIndex);
@@ -424,24 +438,33 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                 this->initializeColorTable(dstInfo, frameIndex);
                 this->initializeSwizzler(dstInfo, frameIndex);
             }
-            const auto* prevFrame = fReader->frameContext(frameContext->getRequiredFrame());
-            if (prevFrame->getDisposalMethod() == SkCodecAnimation::RestoreBGColor_DisposalMethod) {
-                SkIRect prevRect = prevFrame->frameRect();
-                if (prevRect.intersect(this->getInfo().bounds())) {
-                    // Do the divide ourselves for left and top, since we do not want
-                    // get_scaled_dimension to upgrade 0 to 1. (This is similar to SkSampledCodec's
-                    // sampling of the subset.)
-                    auto left = prevRect.fLeft / fSwizzler->sampleX();
-                    auto top = prevRect.fTop / fSwizzler->sampleY();
-                    void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
-                            + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
-                    auto width = get_scaled_dimension(prevRect.width(), fSwizzler->sampleX());
-                    auto height = get_scaled_dimension(prevRect.height(), fSwizzler->sampleY());
-                    // fSwizzler->fill() would fill to the scaled width of the frame, but we want to
-                    // fill to the scaled with of the width of the PRIOR frame, so we do all the
-                    // scaling ourselves and call the static version.
-                    SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst,
-                                    fDstRowBytes, this->getFillValue(dstInfo), kNo_ZeroInitialized);
+
+            // If the required frame is RestoreBG, we need to erase it. If a frame after the
+            // required frame is provided, there is no need to erase, since it will be covered
+            // anyway.
+            if (opts.fPriorFrame == reqFrame || opts.fPriorFrame == kNone) {
+                const auto* prevFrame = fReader->frameContext(reqFrame);
+                if (prevFrame->getDisposalMethod()
+                        == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
+                    SkIRect prevRect = prevFrame->frameRect();
+                    if (prevRect.intersect(this->getInfo().bounds())) {
+                        // Do the divide ourselves for left and top, since we do not want
+                        // get_scaled_dimension to upgrade 0 to 1. (This is similar to
+                        // SkSampledCodec's sampling of the subset.)
+                        const auto sampleX = fSwizzler->sampleX();
+                        const auto sampleY = fSwizzler->sampleY();
+                        auto left = prevRect.fLeft / sampleX;
+                        auto top = prevRect.fTop / sampleY;
+                        void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
+                                + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
+                        auto width = get_scaled_dimension(prevRect.width(), sampleX);
+                        auto height = get_scaled_dimension(prevRect.height(), sampleY);
+                        // fSwizzler->fill() would fill to the scaled width of the frame, but we
+                        // want to fill to the scaled with of the width of the PRIOR frame, so we
+                        // do all the scaling ourselves and call the static version.
+                        SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst, fDstRowBytes,
+                                        this->getFillValue(dstInfo), kNo_ZeroInitialized);
+                    }
                 }
             }
             filledBackground = true;
