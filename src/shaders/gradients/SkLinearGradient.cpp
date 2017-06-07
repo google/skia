@@ -86,11 +86,9 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
 SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const {
 
-    // TODO: refine heuristic.
-    if (fColorCount <= 8) {
-        return nullptr;
-    }
-    return CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec);
+    // Raster pipeline has a 2-stop specialization faster than our burst.
+    return fColorCount > 2 ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
+                           : nullptr;
 }
 
 bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
