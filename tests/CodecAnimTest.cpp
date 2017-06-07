@@ -123,10 +123,10 @@ DEF_TEST(Codec_frames, r) {
         { "mandrill.wbmp", 1, {}, {}, {}, 0 },
         { "randPixels.bmp", 1, {}, {}, {}, 0 },
         { "yellow_rose.webp", 1, {}, {}, {}, 0 },
-        { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque, kOpaque },
+        { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
             { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite },
         { "blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
-                               3, 3 },
+                               4, 4 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
             { 525, 500, 525, 437, 609, 729, 444 }, 7 },
     };
@@ -162,14 +162,22 @@ DEF_TEST(Codec_frames, r) {
         const int expected = rec.fFrameCount;
         if (rec.fRequiredFrames.size() + 1 != static_cast<size_t>(expected)) {
             ERRORF(r, "'%s' has wrong number entries in fRequiredFrames; expected: %i\tactual: %i",
-                   rec.fName, expected, rec.fRequiredFrames.size() + 1);
+                   rec.fName, expected - 1, rec.fRequiredFrames.size());
             continue;
         }
 
-        if (rec.fDurations.size() != static_cast<size_t>(expected)) {
-            ERRORF(r, "'%s' has wrong number entries in fDurations; expected: %i\tactual: %i",
-                   rec.fName, expected, rec.fDurations.size());
-            continue;
+        if (expected > 1) {
+            if (rec.fDurations.size() != static_cast<size_t>(expected)) {
+                ERRORF(r, "'%s' has wrong number entries in fDurations; expected: %i\tactual: %i",
+                       rec.fName, expected, rec.fDurations.size());
+                continue;
+            }
+
+            if (rec.fAlphaTypes.size() + 1 != static_cast<size_t>(expected)) {
+                ERRORF(r, "'%s' has wrong number entries in fAlphaTypes; expected: %i\tactual: %i",
+                       rec.fName, expected - 1, rec.fAlphaTypes.size());
+                continue;
+            }
         }
 
         enum class TestMode {
@@ -250,7 +258,7 @@ DEF_TEST(Codec_frames, r) {
 
             if (TestMode::kIndividual == mode) {
                 // No need to test decoding twice.
-                return;
+                continue;
             }
 
             // Compare decoding in two ways:
@@ -260,10 +268,14 @@ DEF_TEST(Codec_frames, r) {
             //    all the way back to a key-frame. (in a local variable uncachedFrame)
             // The two should look the same.
             std::vector<SkBitmap> cachedFrames(frameCount);
-            const auto& info = codec->getInfo().makeColorType(kN32_SkColorType);
+            const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
 
             auto decode = [&](SkBitmap* bm, bool cached, int index) {
-                bm->allocPixels(info);
+                auto decodeInfo = info;
+                if (index > 0) {
+                    decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
+                }
+                bm->allocPixels(decodeInfo);
                 if (cached) {
                     // First copy the pixels from the cached frame
                     const int requiredFrame = frameInfos[index].fRequiredFrame;
@@ -276,16 +288,24 @@ DEF_TEST(Codec_frames, r) {
                 SkCodec::Options opts;
                 opts.fFrameIndex = index;
                 opts.fHasPriorFrame = cached;
-                auto result = codec->getPixels(info, bm->getPixels(), bm->rowBytes(),
-                                               &opts, nullptr, nullptr);
-                REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+                const auto result = codec->getPixels(decodeInfo, bm->getPixels(), bm->rowBytes(),
+                                                     &opts, nullptr, nullptr);
+                if (result != SkCodec::kSuccess) {
+                    ERRORF(r, "Failed to decode frame %i from %s when %scached, error %i",
+                           index, rec.fName, (cached ? "" : "not "), result);
+                }
+                return result == SkCodec::kSuccess;
             };
 
             for (int i = 0; i < frameCount; i++) {
                 SkBitmap& cachedFrame = cachedFrames[i];
-                decode(&cachedFrame, true, i);
+                if (!decode(&cachedFrame, true, i)) {
+                    continue;
+                }
                 SkBitmap uncachedFrame;
-                decode(&uncachedFrame, false, i);
+                if (!decode(&uncachedFrame, false, i)) {
+                    continue;
+                }
 
                 // Now verify they're equal.
                 const size_t rowLen = info.bytesPerPixel() * info.width();
