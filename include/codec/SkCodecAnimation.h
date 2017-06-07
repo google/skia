@@ -8,11 +8,7 @@
 #ifndef SkCodecAnimation_DEFINED
 #define SkCodecAnimation_DEFINED
 
-#include "SkCodec.h"
-#include "SkRect.h"
-
-class SkCodecAnimation {
-public:
+namespace SkCodecAnimation {
     /**
      *  This specifies how the next frame is based on this frame.
      *
@@ -20,20 +16,20 @@ public:
      *
      *  The numbers correspond to values in a GIF.
      */
-    enum DisposalMethod {
+    enum class DisposalMethod {
         /**
          *  The next frame should be drawn on top of this one.
          *
          *  In a GIF, a value of 0 (not specified) is also treated as Keep.
          */
-        Keep_DisposalMethod             = 1,
+        kKeep               = 1,
 
         /**
          *  Similar to Keep, except the area inside this frame's rectangle
          *  should be cleared to the BackGround color (transparent) before
          *  drawing the next frame.
          */
-        RestoreBGColor_DisposalMethod   = 2,
+        kRestoreBGColor     = 2,
 
         /**
          *  The next frame should be drawn on top of the previous frame - i.e.
@@ -41,29 +37,7 @@ public:
          *
          *  In a GIF, a value of 4 is also treated as RestorePrevious.
          */
-        RestorePrevious_DisposalMethod  = 3,
+        kRestorePrevious    = 3,
     };
-
-    /**
-     * How to blend the current frame.
-     */
-    enum class Blend {
-        /**
-         *  Blend with the prior frame. This is the typical case, supported
-         *  by all animated image types.
-         */
-        kPriorFrame,
-
-        /**
-         *  Do not blend.
-         *
-         *  This frames pixels overwrite previous pixels "blending" with
-         *  the background color of transparent.
-         */
-        kBG,
-    };
-
-private:
-    SkCodecAnimation();
 };
 #endif // SkCodecAnimation_DEFINED
