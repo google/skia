@@ -209,10 +209,8 @@ void SkTouchGesture::touchMoved(void* owner, float x, float y) {
 
     int index = this->findRec(owner);
     if (index < 0) {
-        // not found, so I guess we should add it...
-        SkDebugf("---- add missing begin\n");
-        this->appendNewRec(owner, x, y);
-        index = fTouches.count() - 1;
+        SkDebugf("---- ignoring move without begin\n");
+        return;
     }
 
     Rec& rec = fTouches[index];
@@ -220,7 +218,7 @@ void SkTouchGesture::touchMoved(void* owner, float x, float y) {
     // not sure how valuable this is
     if (fTouches.count() == 2) {
         if (close_enough_for_jitter(rec.fLastX, rec.fLastY, x, y)) {
-//            SkDebugf("--- drop touchMove, withing jitter tolerance %g %g\n", rec.fLastX - x, rec.fLastY - y);
+//            SkDebugf("--- drop touchMove, within jitter tolerance %g %g\n", rec.fLastX - x, rec.fLastY - y);
             return;
         }
     }

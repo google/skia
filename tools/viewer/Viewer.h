@@ -91,7 +91,14 @@ private:
 
     sk_app::CommandSet     fCommands;
 
+    enum class GestureDevice {
+        kNone,
+        kTouch,
+        kMouse,
+    };
+
     SkTouchGesture         fGesture;
+    GestureDevice          fGestureDevice;
 
     // identity unless the window initially scales the content to fit the screen.
     SkMatrix               fDefaultMatrix;
