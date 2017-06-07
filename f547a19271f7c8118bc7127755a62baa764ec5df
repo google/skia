@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4a90aaf_f6a11e25",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T17:47:53Z",
+      "side": 1,
+      "message": "I think we would normally nest this in SkImageGenerator rather than have it top-level.",
+      "revId": "f547a19271f7c8118bc7127755a62baa764ec5df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35dd9b18_a07f49e5",
+        "filename": "src/core/SkImageCacherator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T17:47:53Z",
+      "side": 1,
+      "message": "Similar, I\u0027d nest this.  Also, maybe TexGenType { kCheap, kAny }?",
+      "revId": "f547a19271f7c8118bc7127755a62baa764ec5df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
