@@ -43,8 +43,7 @@ static bool use_4f_context(const SkShaderBase::ContextRec& rec, uint32_t flags) 
 #ifdef FORCE_4F_CONTEXT
     return true;
 #else
-    return rec.fPreferredDstType == SkShaderBase::ContextRec::kPM4f_DstType
-        || SkToBool(flags & SkLinearGradient::kForce4fContext_PrivateFlag);
+    return rec.fPreferredDstType == SkShaderBase::ContextRec::kPM4f_DstType;
 #endif
 }
 

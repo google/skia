@@ -26,11 +26,6 @@ struct Sk4fStorage {
 
 class SkLinearGradient : public SkGradientShaderBase {
 public:
-    enum {
-        // Temp flag for testing the 4f impl.
-        kForce4fContext_PrivateFlag     = 1 << 7,
-    };
-
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
     class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
