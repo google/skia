@@ -163,6 +163,7 @@ int SkGifCodec::onGetRepetitionCount() {
 }
 
 static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
+static const SkAlphaType kXformAlphaType    = kUnpremul_SkAlphaType;
 
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex) {
     SkColorType colorTableColorType = dstInfo.colorType();
@@ -178,7 +179,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
         fCurrColorTable.reset(new SkColorTable(&color, 1));
     } else if (this->colorXform() && !this->xformOnDecode()) {
         SkPMColor dstColors[256];
-        this->applyColorXform(dstColors, currColorTable->readColors(), currColorTable->count());
+        this->applyColorXform(dstColors, currColorTable->readColors(), currColorTable->count(),
+                              kXformAlphaType);
         fCurrColorTable.reset(new SkColorTable(dstColors, currColorTable->count()));
     } else {
         fCurrColorTable = std::move(currColorTable);
@@ -188,18 +190,6 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
 
 SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
         int* inputColorCount, const Options& opts) {
-    // Check for valid input parameters
-    if (!conversion_possible(dstInfo, this->getInfo()) ||
-        !this->initializeColorXform(dstInfo, opts.fPremulBehavior))
-    {
-        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
-    }
-
-    if (this->xformOnDecode()) {
-        fXformBuffer.reset(new uint32_t[dstInfo.width()]);
-        sk_bzero(fXformBuffer.get(), dstInfo.width() * sizeof(uint32_t));
-    }
-
     if (opts.fSubset) {
         return gif_error("Subsets not supported.\n", kUnimplemented);
     }
@@ -244,11 +234,25 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         return gif_error("frame index out of range!\n", kIncompleteInput);
     }
 
-    if (!fReader->frameContext(frameIndex)->reachedStartOfData()) {
+    const auto* frame = fReader->frameContext(frameIndex);
+    if (!frame->reachedStartOfData()) {
         // We have parsed enough to know that there is a color map, but cannot
         // parse the map itself yet. Exit now, so we do not build an incorrect
         // table.
         return gif_error("color map not available yet\n", kIncompleteInput);
+    }
+
+    const auto at = frame->hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
+    const auto srcInfo = this->getInfo().makeAlphaType(at);
+    if (!conversion_possible(dstInfo, srcInfo) ||
+        !this->initializeColorXform(dstInfo, opts.fPremulBehavior))
+    {
+        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
+    }
+
+    if (this->xformOnDecode()) {
+        fXformBuffer.reset(new uint32_t[dstInfo.width()]);
+        sk_bzero(fXformBuffer.get(), dstInfo.width() * sizeof(uint32_t));
     }
 
     fTmpBuffer.reset(new uint8_t[dstInfo.minRowBytes()]);
@@ -510,7 +514,7 @@ void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint
         fSwizzler->swizzle(fXformBuffer.get(), src);
 
         const int xformWidth = get_scaled_dimension(dstInfo.width(), fSwizzler->sampleX());
-        this->applyColorXform(dst, fXformBuffer.get(), xformWidth);
+        this->applyColorXform(dst, fXformBuffer.get(), xformWidth, kXformAlphaType);
     } else {
         fSwizzler->swizzle(dst, src);
     }
