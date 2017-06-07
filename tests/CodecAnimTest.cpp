@@ -57,37 +57,53 @@ DEF_TEST(Codec_565, r) {
 
     SkCodec::Options options;
     options.fFrameIndex = 1;
-    options.fHasPriorFrame = false;
+    options.fPriorFrame = SkCodec::kNone;
 
     const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(),
                                          &options, nullptr, nullptr);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
 
+static bool restore_previous(const SkCodec::FrameInfo& info) {
+    return info.fDisposalMethod == SkCodecAnimation::DisposalMethod::kRestorePrevious;
+}
 
 DEF_TEST(Codec_frames, r) {
-    #define kOpaque     kOpaque_SkAlphaType
-    #define kUnpremul   kUnpremul_SkAlphaType
+    #define kOpaque         kOpaque_SkAlphaType
+    #define kUnpremul       kUnpremul_SkAlphaType
+    #define kKeep           SkCodecAnimation::DisposalMethod::kKeep
+    #define kRestoreBG      SkCodecAnimation::DisposalMethod::kRestoreBGColor
+    #define kRestorePrev    SkCodecAnimation::DisposalMethod::kRestorePrevious
     static const struct {
-        const char*              fName;
-        int                      fFrameCount;
+        const char*                                   fName;
+        int                                           fFrameCount;
         // One less than fFramecount, since the first frame is always
         // independent.
-        std::vector<int>         fRequiredFrames;
+        std::vector<int>                              fRequiredFrames;
         // Same, since the first frame should match getInfo.
-        std::vector<SkAlphaType> fAlphaTypes;
+        std::vector<SkAlphaType>                      fAlphaTypes;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
-        std::vector<int>         fDurations;
-        int                      fRepetitionCount;
+        std::vector<int>                              fDurations;
+        int                                           fRepetitionCount;
+        std::vector<SkCodecAnimation::DisposalMethod> fDisposalMethods;
     } gRecs[] = {
+        { "required.gif", 7,
+            { 0, 1, 1, SkCodec::kNone, 4, 4 },
+            { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
+            { 100, 100, 100, 100, 100, 100, 100 },
+            0,
+            { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
         { "alphabetAnim.gif", 13,
             { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
               SkCodec::kNone, SkCodec::kNone, 10, 11 },
             { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
               kUnpremul, kUnpremul, kUnpremul, kOpaque, kOpaque, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
-            0 },
+            0,
+            { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
+              kRestoreBG, kKeep, kRestoreBG, kRestoreBG, kKeep, kKeep,
+              kRestoreBG, kKeep } },
         { "randPixelsAnim2.gif", 4,
             // required frames
             { 0, 0, 1 },
@@ -96,7 +112,8 @@ DEF_TEST(Codec_frames, r) {
             // durations
             { 0, 1000, 170, 40 },
             // repetition count
-            0 },
+            0,
+            { kKeep, kKeep, kRestorePrev, kKeep } },
         { "randPixelsAnim.gif", 13,
             // required frames
             { SkCodec::kNone, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
@@ -105,33 +122,49 @@ DEF_TEST(Codec_frames, r) {
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
-            0 },
-        { "box.gif", 1, {}, {}, {}, 0 },
-        { "color_wheel.gif", 1, {}, {}, {}, 0 },
+            0,
+            { kKeep, kKeep, kKeep, kKeep, kRestoreBG, kRestoreBG, kRestoreBG,
+              kRestoreBG, kRestorePrev, kRestoreBG, kRestorePrev, kRestorePrev,
+              kRestorePrev,  } },
+        { "box.gif", 1, {}, {}, {}, 0, { kKeep } },
+        { "color_wheel.gif", 1, {}, {}, {}, 0, { kKeep } },
         { "test640x479.gif", 4, { 0, 1, 2 },
                 { kOpaque, kOpaque, kOpaque },
                 { 200, 200, 200, 200 },
-                SkCodec::kRepetitionCountInfinite },
-        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5 },
+                SkCodec::kRepetitionCountInfinite,
+                { kKeep, kKeep, kKeep, kKeep } },
+        { "colorTables.gif", 2, { 0 }, { kOpaque }, { 1000, 1000 }, 5,
+                { kKeep, kKeep } },
 
-        { "arrow.png",  1, {}, {}, {}, 0 },
-        { "google_chrome.ico", 1, {}, {}, {}, 0 },
-        { "brickwork-texture.jpg", 1, {}, {}, {}, 0 },
+        { "arrow.png",  1, {}, {}, {}, 0, {} },
+        { "google_chrome.ico", 1, {}, {}, {}, 0, {} },
+        { "brickwork-texture.jpg", 1, {}, {}, {}, 0, {} },
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
-        { "dng_with_preview.dng", 1, {}, {}, {}, 0 },
+        { "dng_with_preview.dng", 1, {}, {}, {}, 0, {} },
 #endif
-        { "mandrill.wbmp", 1, {}, {}, {}, 0 },
-        { "randPixels.bmp", 1, {}, {}, {}, 0 },
-        { "yellow_rose.webp", 1, {}, {}, {}, 0 },
+        { "mandrill.wbmp", 1, {}, {}, {}, 0, {} },
+        { "randPixels.bmp", 1, {}, {}, {}, 0, {} },
+        { "yellow_rose.webp", 1, {}, {}, {}, 0, {} },
         { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
-            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite },
+            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite,
+            { kKeep, kKeep, kKeep } },
         { "blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
                                4, 4 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
-            { 525, 500, 525, 437, 609, 729, 444 }, 7 },
+            { 525, 500, 525, 437, 609, 729, 444 }, 7,
+            { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
+        { "required.webp", 7,
+            { 0, 1, 1, SkCodec::kNone, 4, 4 },
+            { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
+            { 100, 100, 100, 100, 100, 100, 100 },
+            1,
+            { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
     };
     #undef kOpaque
     #undef kUnpremul
+    #undef kKeep
+    #undef kRestorePrev
+    #undef kRestoreBG
 
     for (const auto& rec : gRecs) {
         sk_sp<SkData> data(GetResourceAsData(rec.fName));
@@ -176,6 +209,13 @@ DEF_TEST(Codec_frames, r) {
             if (rec.fAlphaTypes.size() + 1 != static_cast<size_t>(expected)) {
                 ERRORF(r, "'%s' has wrong number entries in fAlphaTypes; expected: %i\tactual: %i",
                        rec.fName, expected - 1, rec.fAlphaTypes.size());
+                continue;
+            }
+
+            if (rec.fDisposalMethods.size() != static_cast<size_t>(expected)) {
+                ERRORF(r, "'%s' has wrong number entries in fDisposalMethods; "
+                       "expected %i\tactual: %i",
+                       rec.fName, expected, rec.fDisposalMethods.size());
                 continue;
             }
         }
@@ -254,6 +294,8 @@ DEF_TEST(Codec_frames, r) {
                     ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
                            rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
                 }
+
+                REPORTER_ASSERT(r, frameInfo.fDisposalMethod == rec.fDisposalMethods[i]);
             }
 
             if (TestMode::kIndividual == mode) {
@@ -261,67 +303,84 @@ DEF_TEST(Codec_frames, r) {
                 continue;
             }
 
-            // Compare decoding in two ways:
-            // 1. Provide the frame that a frame depends on, so the codec just has to blend.
-            //    (in the array cachedFrames)
-            // 2. Do not provide the frame that a frame depends on, so the codec has to decode
-            //    all the way back to a key-frame. (in a local variable uncachedFrame)
-            // The two should look the same.
+            // Compare decoding in multiple ways:
+            // - Start from scratch for each frame. |codec| will have to decode the required frame
+            //   (and any it depends on) to decode. This is stored in |cachedFrames|.
+            // - Provide the frame that a frame depends on, so |codec| just has to blend.
+            // - Provide a frame after the required frame, which will be covered up by the newest
+            //   frame.
+            // All should look the same.
             std::vector<SkBitmap> cachedFrames(frameCount);
             const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
 
-            auto decode = [&](SkBitmap* bm, bool cached, int index) {
+            auto decode = [&](SkBitmap* bm, int index, int cachedIndex) {
                 auto decodeInfo = info;
                 if (index > 0) {
                     decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
                 }
                 bm->allocPixels(decodeInfo);
-                if (cached) {
+                if (cachedIndex != SkCodec::kNone) {
                     // First copy the pixels from the cached frame
-                    const int requiredFrame = frameInfos[index].fRequiredFrame;
-                    if (requiredFrame != SkCodec::kNone) {
-                        const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
-                                cachedFrames[requiredFrame]);
-                        REPORTER_ASSERT(r, success);
-                    }
+                    const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
+                            cachedFrames[cachedIndex]);
+                    REPORTER_ASSERT(r, success);
                 }
                 SkCodec::Options opts;
                 opts.fFrameIndex = index;
-                opts.fHasPriorFrame = cached;
+                opts.fPriorFrame = cachedIndex;
                 const auto result = codec->getPixels(decodeInfo, bm->getPixels(), bm->rowBytes(),
                                                      &opts, nullptr, nullptr);
+                if (cachedIndex != SkCodec::kNone && restore_previous(frameInfos[cachedIndex])) {
+                    if (result == SkCodec::kInvalidParameters) {
+                        return true;
+                    }
+                    ERRORF(r, "Using a kRestorePrevious frame as fPriorFrame should fail");
+                    return false;
+                }
                 if (result != SkCodec::kSuccess) {
-                    ERRORF(r, "Failed to decode frame %i from %s when %scached, error %i",
-                           index, rec.fName, (cached ? "" : "not "), result);
+                    ERRORF(r, "Failed to decode frame %i from %s when providing prior frame %i, "
+                              "error %i", index, rec.fName, cachedIndex, result);
                 }
                 return result == SkCodec::kSuccess;
             };
 
             for (int i = 0; i < frameCount; i++) {
                 SkBitmap& cachedFrame = cachedFrames[i];
-                if (!decode(&cachedFrame, true, i)) {
+                if (!decode(&cachedFrame, i, SkCodec::kNone)) {
                     continue;
                 }
-                SkBitmap uncachedFrame;
-                if (!decode(&uncachedFrame, false, i)) {
+                const auto reqFrame = frameInfos[i].fRequiredFrame;
+                if (reqFrame == SkCodec::kNone) {
+                    // Nothing to compare against.
                     continue;
                 }
+                for (int j = reqFrame; j < i; j++) {
+                    SkBitmap frame;
+                    if (restore_previous(frameInfos[j])) {
+                        (void) decode(&frame, i, j);
+                        continue;
+                    }
+                    if (!decode(&frame, i, j)) {
+                        continue;
+                    }
 
-                // Now verify they're equal.
-                const size_t rowLen = info.bytesPerPixel() * info.width();
-                for (int y = 0; y < info.height(); y++) {
-                    const void* cachedAddr = cachedFrame.getAddr(0, y);
-                    SkASSERT(cachedAddr != nullptr);
-                    const void* uncachedAddr = uncachedFrame.getAddr(0, y);
-                    SkASSERT(uncachedAddr != nullptr);
-                    const bool lineMatches = memcmp(cachedAddr, uncachedAddr, rowLen) == 0;
-                    if (!lineMatches) {
-                        SkString name = SkStringPrintf("cached_%i", i);
-                        write_bm(name.c_str(), cachedFrame);
-                        name = SkStringPrintf("uncached_%i", i);
-                        write_bm(name.c_str(), uncachedFrame);
-                        ERRORF(r, "%s's frame %i is different depending on caching!", rec.fName, i);
-                        break;
+                    // Now verify they're equal.
+                    const size_t rowLen = info.bytesPerPixel() * info.width();
+                    for (int y = 0; y < info.height(); y++) {
+                        const void* cachedAddr = cachedFrame.getAddr(0, y);
+                        SkASSERT(cachedAddr != nullptr);
+                        const void* addr = frame.getAddr(0, y);
+                        SkASSERT(addr != nullptr);
+                        const bool lineMatches = memcmp(cachedAddr, addr, rowLen) == 0;
+                        if (!lineMatches) {
+                            SkString name = SkStringPrintf("cached_%i", i);
+                            write_bm(name.c_str(), cachedFrame);
+                            name = SkStringPrintf("frame_%i", i);
+                            write_bm(name.c_str(), frame);
+                            ERRORF(r, "%s's frame %i is different (starting from line %i) when "
+                                      "providing prior frame %i!", rec.fName, i, y, j);
+                            break;
+                        }
                     }
                 }
             }
