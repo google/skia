@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3315d26_0e9e13df",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-07T20:12:21Z",
+      "side": 1,
+      "message": "To be fair, this will still support decoding to Index8. I think this should say something along the lines of\n\nDo not return Index8 from SkAndroidCodec::computeOutputColorType",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 38
+      },
+      "revId": "f639eb73fd8781d1a547d2e3298a795b09c85adb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
