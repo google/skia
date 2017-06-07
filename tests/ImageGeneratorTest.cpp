@@ -109,3 +109,31 @@ DEF_TEST(PictureImageGenerator, reporter) {
         REPORTER_ASSERT(reporter, success == rec.fExpectSuccess);
     }
 }
+
+#include "SkImagePriv.h"
+
+DEF_TEST(ColorXformGenerator, r) {
+    SkBitmap a, b, c, d;
+    SkImageInfo info = SkImageInfo::MakeS32(1, 1, kPremul_SkAlphaType);
+    a.allocPixels(info);
+    b.allocPixels(info.makeColorSpace(nullptr));
+    c.allocPixels(info.makeColorSpace(SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                            SkColorSpace::kRec2020_Gamut)));
+    d.allocPixels(info.makeColorSpace(SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                            SkColorSpace::kAdobeRGB_Gamut)));
+    a.eraseColor(0);
+    b.eraseColor(1);
+    c.eraseColor(2);
+    d.eraseColor(3);
+
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+    sk_sp<SkImage> ia = SkMakeImageInColorSpace(a, srgb, 0);
+    sk_sp<SkImage> ib = SkMakeImageInColorSpace(b, srgb, b.getGenerationID());
+    sk_sp<SkImage> ic = SkMakeImageInColorSpace(c, srgb, c.getGenerationID());
+    sk_sp<SkImage> id = SkMakeImageInColorSpace(d, srgb, 0);
+
+    REPORTER_ASSERT(r, ia->uniqueID() == a.getGenerationID());
+    REPORTER_ASSERT(r, ib->uniqueID() == b.getGenerationID());
+    REPORTER_ASSERT(r, ic->uniqueID() == c.getGenerationID());
+    REPORTER_ASSERT(r, id->uniqueID() != d.getGenerationID());
+}

@@ -30,10 +30,11 @@ private:
     SkBitmap            fSrc;
     sk_sp<SkColorSpace> fDst;
 
-    SkColorSpaceXformImageGenerator(const SkBitmap& src, sk_sp<SkColorSpace> dst);
+    static std::unique_ptr<SkImageGenerator> Make(
+            const SkBitmap& src, sk_sp<SkColorSpace> dst, SkCopyPixelsMode, uint32_t id);
+    SkColorSpaceXformImageGenerator(const SkBitmap& src, sk_sp<SkColorSpace> dst, uint32_t id);
 
-    friend class SkImageGenerator;
-
+    friend sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap&, sk_sp<SkColorSpace>, uint32_t);
     typedef SkImageGenerator INHERITED;
 };
 
