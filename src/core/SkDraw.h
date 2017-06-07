@@ -84,7 +84,9 @@ public:
      */
     void drawPathCoverage(const SkPath& src, const SkPaint& paint,
                           SkBlitter* customBlitter = NULL) const {
-        this->drawPath(src, paint, NULL, false, true, customBlitter);
+        bool isHairline = paint.getStyle() == SkPaint::kStroke_Style &&
+                          paint.getStrokeWidth() > 0;
+        this->drawPath(src, paint, NULL, false, !isHairline, customBlitter);
     }
 
     /** Helper function that creates a mask from a path and an optional maskfilter.
