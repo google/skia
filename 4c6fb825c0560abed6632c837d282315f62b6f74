@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8f1554d0_c546e534",
+        "filename": "src/core/SkImagePriv.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-07T14:45:00Z",
+      "side": 1,
+      "message": "I agree that is better.  kNeedNewImageUniqueId is protected on SkImageGenerator, so I can\u0027t actually use it here (which is why I\u0027m using zero).\n\nI didn\u0027t want to expose it just for this use, but it is something that I thought about.",
+      "parentUuid": "b7245d0c_8effc2fd",
+      "revId": "4c6fb825c0560abed6632c837d282315f62b6f74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6a495211_2cd3344f",
         "filename": "src/image/SkImage_Raster.cpp",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-07T14:32:43Z",
       "side": 1,
       "message": "I\u0027m curious why SkImage_Raster::ValidArgs call is replaced with this manual condition check?",
+      "revId": "4c6fb825c0560abed6632c837d282315f62b6f74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ccbe895_3644491c",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-07T14:45:00Z",
+      "side": 1,
+      "message": "Maybe should have been a separate CL, but I decided to include this refactor...\n\nSkImageInfoIsValid() contains a stricter set of checks than SkImage_Raster::ValidArgs()...  I\u0027d like to migrate all of the SkImage_Raster::ValidArgs callers to the newer validation API.\n\nI added the checks for rowBytes and pixels since those aren\u0027t included in SkImageInfoIsValid().",
+      "parentUuid": "6a495211_2cd3344f",
       "revId": "4c6fb825c0560abed6632c837d282315f62b6f74",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
