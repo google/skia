@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b66cd18a_4d34f162",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T15:16:27Z",
+      "side": 1,
+      "message": "Is this right? Is GL_ALPHA8 is ever renderable on ES?",
+      "range": {
+        "startLine": 1054,
+        "startChar": 16,
+        "endLine": 1054,
+        "endChar": 43
+      },
+      "revId": "a3b54618055e8377d709c448f6d40c6995bf0dff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07057a02_a06fba8b",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T15:16:27Z",
+      "side": 1,
+      "message": "Should we check core profile here?",
+      "revId": "a3b54618055e8377d709c448f6d40c6995bf0dff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d524e5b2_e87e8ce4",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-07T15:16:27Z",
+      "side": 1,
+      "message": "Should we make this about GL_ALPHA8 rather than kAlpha_8 (which may map to either GL_ALPHA8 or GL_R8)?",
+      "revId": "a3b54618055e8377d709c448f6d40c6995bf0dff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
