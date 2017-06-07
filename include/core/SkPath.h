@@ -10,12 +10,8 @@
 
 #include "SkMatrix.h"
 #include "SkPathRef.h"
-#include "SkRefCnt.h"
 
-class SkReader32;
-class SkWriter32;
 class SkAutoPathBoundsUpdate;
-class SkString;
 class SkRRect;
 class SkWStream;
 
