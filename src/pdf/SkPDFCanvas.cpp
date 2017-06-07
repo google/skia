@@ -54,6 +54,35 @@ void SkPDFCanvas::onDrawImageNine(const SkImage* image,
     }
 }
 
+void SkPDFCanvas::onDrawImage(const SkImage* image,
+                              SkScalar x,
+                              SkScalar y,
+                              const SkPaint* paint) {
+    SkASSERT(image);
+    if (paint && paint->getMaskFilter()) {
+        SkPaint paintCopy(*paint);
+        SkMatrix m = SkMatrix::MakeTrans(x, y);
+        paintCopy.setShader(image->makeShader(&m));
+        this->drawRect(SkRect::MakeXYWH(x, y, image->width(), image->height()), paintCopy);
+        return;
+    }
+    this->SkCanvas::onDrawImage(image, x, y, paint);
+}
+
+void SkPDFCanvas::onDrawBitmap(const SkBitmap& bitmap,
+                              SkScalar x,
+                              SkScalar y,
+                              const SkPaint* paint) {
+    if (paint && paint->getMaskFilter()) {
+        if (sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap)) {
+            this->onDrawImage(img.get(), x, y, paint);
+        }
+        return;
+    }
+    this->SkCanvas::onDrawBitmap(bitmap, x, y, paint);
+}
+
+
 static bool is_integer(SkScalar x) {
     return x == SkScalarTruncToScalar(x);
 }
