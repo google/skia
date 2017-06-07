@@ -660,7 +660,8 @@
   },
   {
     "cmd": [
-      "idevice-app-runner",
+      "idevice-app-runner-standard",
+      "-d",
       "-s",
       "com.google.dm",
       "--args",
@@ -706,6 +707,8 @@
       "dm",
       "--nocpu",
       "--randomProcessorTest",
+      "-j",
+      "0",
       "--config",
       "8888",
       "srgb",
