@@ -8,7 +8,6 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkGradientShader.h"
-#include "SkLinearGradient.h"
 
 namespace skiagm {
 
@@ -798,7 +797,6 @@ private:
     uint32_t fFlags;
 };
 DEF_GM( return new LinearGradientTinyGM(0); )
-DEF_GM( return new LinearGradientTinyGM(SkLinearGradient::kForce4fContext_PrivateFlag, "_4f"); )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -891,7 +889,7 @@ DEF_SIMPLE_GM(gradients_dup_color_stops, canvas, 704, 564) {
     }
 }
 
-static void draw_many_stops(SkCanvas* canvas, uint32_t flags) {
+static void draw_many_stops(SkCanvas* canvas) {
     const unsigned kStopCount = 200;
     const SkPoint pts[] = { {50, 50}, {450, 465}};
 
@@ -908,34 +906,26 @@ static void draw_many_stops(SkCanvas* canvas, uint32_t flags) {
 
     SkPaint p;
     p.setShader(SkGradientShader::MakeLinear(
-        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode, flags, nullptr));
+        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
 
     canvas->drawRect(SkRect::MakeXYWH(0, 0, 500, 500), p);
 }
 
 DEF_SIMPLE_GM(gradient_many_stops, canvas, 500, 500) {
-    draw_many_stops(canvas, 0);
+    draw_many_stops(canvas);
 }
 
-DEF_SIMPLE_GM(gradient_many_stops_4f, canvas, 500, 500) {
-    draw_many_stops(canvas, SkLinearGradient::kForce4fContext_PrivateFlag);
-}
-
-static void draw_subpixel_gradient(SkCanvas* canvas, uint32_t flags) {
+static void draw_subpixel_gradient(SkCanvas* canvas) {
     const SkPoint pts[] = { {50, 50}, {50.1f, 50.1f}};
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkPaint p;
     p.setShader(SkGradientShader::MakeLinear(
-        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kRepeat_TileMode, flags, nullptr));
+        pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kRepeat_TileMode));
     canvas->drawRect(SkRect::MakeXYWH(0, 0, 500, 500), p);
 }
 
 DEF_SIMPLE_GM(gradient_subpixel, canvas, 500, 500) {
-    draw_subpixel_gradient(canvas, 0);
-}
-
-DEF_SIMPLE_GM(gradient_subpixel_4f, canvas, 500, 500) {
-    draw_subpixel_gradient(canvas, SkLinearGradient::kForce4fContext_PrivateFlag);
+    draw_subpixel_gradient(canvas);
 }
 
 #include "SkPictureRecorder.h"
