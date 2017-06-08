@@ -1,0 +1,30 @@
+[submodule "third_party/externals/dng_sdk"]
+	path = third_party/externals/dng_sdk
+	url = https://android.googlesource.com/platform/external/dng_sdk.git
+[submodule "third_party/externals/expat"]
+	path = third_party/externals/expat
+	url = https://android.googlesource.com/platform/external/expat.git
+[submodule "third_party/externals/harfbuzz"]
+	path = third_party/externals/harfbuzz
+	url = https://skia.googlesource.com/third_party/harfbuzz.git
+[submodule "third_party/externals/jsoncpp"]
+	path = third_party/externals/jsoncpp
+	url = https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git
+[submodule "third_party/externals/libjpeg-turbo"]
+	path = third_party/externals/libjpeg-turbo
+	url = https://skia.googlesource.com/third_party/libjpeg-turbo.git
+[submodule "third_party/externals/libwebp"]
+	path = third_party/externals/libwebp
+	url = https://chromium.googlesource.com/webm/libwebp.git
+[submodule "third_party/externals/piex"]
+	path = third_party/externals/piex
+	url = https://android.googlesource.com/platform/external/piex.git
+[submodule "third_party/externals/spirv-headers"]
+	path = third_party/externals/spirv-headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "third_party/externals/spirv-tools"]
+	path = third_party/externals/spirv-tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git
+[submodule "third_party/externals/zlib"]
+	path = third_party/externals/zlib
+	url = https://chromium.googlesource.com/chromium/src/third_party/zlib
