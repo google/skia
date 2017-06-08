@@ -135,13 +135,9 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
-            for(int edgeType = 0; edgeType < kGrProcessorEdgeTypeCnt; ++edgeType) {
-                sk_sp<GrGeometryProcessor> gp;
-                GrPrimitiveEdgeType et = (GrPrimitiveEdgeType)edgeType;
-                gp = GrCubicEffect::Make(color, SkMatrix::I(), et, *context->caps());
-                if (!gp) {
-                    continue;
-                }
+            for(GrPrimitiveEdgeType edgeType : {kFillBW_GrProcessorEdgeType,
+                                                kFillAA_GrProcessorEdgeType,
+                                                kHairlineAA_GrProcessorEdgeType}) {
                 SkScalar x = col * w;
                 SkScalar y = row * h;
                 SkPoint controlPts[] = {
@@ -193,13 +189,16 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
-                    SkScalar sign = 1.0f;
-                    if (c == loopIndex && cnt != 3) {
-                        sign = -1.0f;
+                    bool flipKL = (c == loopIndex && cnt != 3);
+                    sk_sp<GrGeometryProcessor> gp = GrCubicEffect::Make(color, SkMatrix::I(), klm,
+                                                                        flipKL, edgeType,
+                                                                        *context->caps());
+                    if (!gp) {
+                        break;
                     }
 
                     std::unique_ptr<GrLegacyMeshDrawOp> op =
-                            BezierCubicOrConicTestOp::Make(gp, bounds, color, klm, sign);
+                            BezierCubicOrConicTestOp::Make(std::move(gp), bounds, color, klm, 1);
 
                     renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
                             std::move(grPaint), GrAAType::kNone, std::move(op));
