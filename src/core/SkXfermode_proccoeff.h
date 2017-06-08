@@ -8,8 +8,7 @@
 #ifndef SkXfermode_proccoeff_DEFINED
 #define SkXfermode_proccoeff_DEFINED
 
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
+#include "SkXfermodePriv.h"
 
 struct ProcCoeff {
     SkXfermodeProc      fProc;
@@ -28,11 +27,7 @@ public:
     void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                 const SkAlpha aa[]) const override;
 
-    bool asMode(Mode* mode) const override;
-
-    bool supportsCoverageAsAlpha() const override;
-
-    bool isOpaque(SkXfermode::SrcColorOpacity opacityType) const override;
+    bool asMode(SkBlendMode* mode) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(

@@ -989,7 +989,7 @@ const ProcCoeff gProcCoeffs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkXfermode::asMode(Mode* mode) const {
+bool SkXfermode::asMode(SkBlendMode* mode) const {
     return false;
 }
 
@@ -1010,43 +1010,6 @@ const GrXPFactory* SkXfermode::asXPFactory() const {
 }
 #endif
 
-SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) const{
-    // no-op. subclasses should override this
-    return dst;
-}
-
-void SkXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
-                        const SkPMColor* SK_RESTRICT src, int count,
-                        const SkAlpha* SK_RESTRICT aa) const {
-    SkASSERT(dst && src && count >= 0);
-
-    if (nullptr == aa) {
-        for (int i = count - 1; i >= 0; --i) {
-            dst[i] = this->xferColor(src[i], dst[i]);
-        }
-    } else {
-        for (int i = count - 1; i >= 0; --i) {
-            unsigned a = aa[i];
-            if (0 != a) {
-                SkPMColor dstC = dst[i];
-                SkPMColor C = this->xferColor(src[i], dstC);
-                if (0xFF != a) {
-                    C = SkFourByteInterp(C, dstC, a);
-                }
-                dst[i] = C;
-            }
-        }
-    }
-}
-
-bool SkXfermode::supportsCoverageAsAlpha() const {
-    return false;
-}
-
-bool SkXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1055,26 +1018,18 @@ sk_sp<SkFlattenable> SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
     if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcCoeffs))) {
         return nullptr;
     }
-    return SkXfermode::Make((SkXfermode::Mode)mode32);
+    return SkXfermode::Make((SkBlendMode)mode32);
 }
 
 void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
     buffer.write32((int)fMode);
 }
 
-bool SkProcCoeffXfermode::asMode(Mode* mode) const {
+bool SkProcCoeffXfermode::asMode(SkBlendMode* mode) const {
     if (mode) {
-        *mode = (Mode)fMode;
+        *mode = fMode;
     }
     return true;
-}
-
-bool SkProcCoeffXfermode::supportsCoverageAsAlpha() const {
-    return SkBlendMode_SupportsCoverageAsAlpha(fMode);
-}
-
-bool SkProcCoeffXfermode::isOpaque(SkXfermode::SrcColorOpacity opacityType) const {
-    return SkXfermode::IsOpaque(fMode, opacityType);
 }
 
 void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
@@ -1124,8 +1079,8 @@ const GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
 }
 #endif
 
-const char* SkXfermode::ModeName(Mode mode) {
-    SkASSERT((unsigned) mode <= (unsigned)kLastMode);
+const char* SkBlendMode_Name(SkBlendMode mode) {
+    SkASSERT((unsigned) mode <= (unsigned)SkBlendMode::kLastMode);
     const char* gModeStrings[] = {
         "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn",
         "SrcOut", "DstOut", "SrcATop", "DstATop", "Xor", "Plus",
@@ -1133,12 +1088,8 @@ const char* SkXfermode::ModeName(Mode mode) {
         "ColorBurn", "HardLight", "SoftLight", "Difference", "Exclusion",
         "Multiply", "Hue", "Saturation", "Color",  "Luminosity"
     };
-    return gModeStrings[mode];
-    static_assert(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, "mode_count");
-}
-
-const char* SkBlendMode_Name(SkBlendMode mode) {
-    return SkXfermode::ModeName((SkXfermode::Mode)mode);
+    return gModeStrings[(int)mode];
+    static_assert(SK_ARRAY_COUNT(gModeStrings) == (size_t)SkBlendMode::kLastMode + 1, "mode_count");
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -1146,7 +1097,7 @@ void SkProcCoeffXfermode::toString(SkString* str) const {
     str->append("SkProcCoeffXfermode: ");
 
     str->append("mode: ");
-    str->append(ModeName(fMode));
+    str->append(SkBlendMode_Name(fMode));
 }
 #endif
 
@@ -1182,7 +1133,7 @@ sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
 
 SkXfermodeProc SkXfermode::GetProc(SkBlendMode mode) {
     SkXfermodeProc  proc = nullptr;
-    if ((unsigned)mode < kModeCount) {
+    if ((unsigned)mode <= (unsigned)SkBlendMode::kLastMode) {
         proc = gProcCoeffs[(unsigned)mode].fProc;
     }
     return proc;
@@ -1190,47 +1141,10 @@ SkXfermodeProc SkXfermode::GetProc(SkBlendMode mode) {
 
 SkXfermodeProc4f SkXfermode::GetProc4f(SkBlendMode mode) {
     SkXfermodeProc4f  proc = nullptr;
-    if ((unsigned)mode < kModeCount) {
+    if ((unsigned)mode <= (unsigned)SkBlendMode::kLastMode) {
         proc = gProcCoeffs[(unsigned)mode].fProc4f;
     }
     return proc;
-}
-
-bool SkXfermode::AsMode(const SkXfermode* xfer, Mode* mode) {
-    if (nullptr == xfer) {
-        if (mode) {
-            *mode = kSrcOver_Mode;
-        }
-        return true;
-    }
-    return xfer->asMode(mode);
-}
-
-bool SkXfermode::IsMode(const SkXfermode* xfer, Mode mode) {
-    // if xfer==null then the mode is srcover
-    Mode m = kSrcOver_Mode;
-    if (xfer && !xfer->asMode(&m)) {
-        return false;
-    }
-    return mode == m;
-}
-
-bool SkXfermode::SupportsCoverageAsAlpha(const SkXfermode* xfer) {
-    // if xfer is nullptr we treat it as srcOver which always supports coverageAsAlpha
-    if (!xfer) {
-        return true;
-    }
-
-    return xfer->supportsCoverageAsAlpha();
-}
-
-bool SkXfermode::IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType) {
-    // if xfer is nullptr we treat it as srcOver which is opaque if our src is opaque
-    if (!xfer) {
-        return SkXfermode::kOpaque_SrcColorOpacity == opacityType;
-    }
-
-    return xfer->isOpaque(opacityType);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)

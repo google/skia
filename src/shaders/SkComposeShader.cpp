@@ -150,7 +150,7 @@ void SkComposeShader::toString(SkString* str) const {
     str->append(" ShaderB: ");
     as_SB(fShaderB)->toString(str);
     if (SkBlendMode::kSrcOver != fMode) {
-        str->appendf(" Xfermode: %s", SkXfermode::ModeName(fMode));
+        str->appendf(" Xfermode: %s", SkBlendMode_Name(fMode));
     }
 
     this->INHERITED::toString(str);
