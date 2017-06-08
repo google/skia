@@ -73,21 +73,21 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
  */
 SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
-    if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
+    if (!reader->Parse(SkGifImageReader::SkGIFSizeQuery)) {
         // Fatal error occurred.
         return nullptr;
     }
 
     // If no images are in the data, or the first header is not yet defined, we cannot
     // create a codec. In either case, the width and height are not yet known.
-    if (0 == reader->imagesCount() || !reader->frameContext(0)->isHeaderDefined()) {
+    if (0 == reader->ImagesCount() || !reader->FrameContext(0)->IsHeaderDefined()) {
         return nullptr;
     }
 
     // isHeaderDefined() will not return true if the screen size is empty.
     SkASSERT(reader->screenHeight() > 0 && reader->screenWidth() > 0);
 
-    const auto alpha = reader->firstFrameHasAlpha() ? SkEncodedInfo::kBinary_Alpha
+    const auto alpha = reader->FirstFrameHasAlpha() ? SkEncodedInfo::kBinary_Alpha
                                                     : SkEncodedInfo::kOpaque_Alpha;
     // Use kPalette since Gifs are encoded with a color table.
     // FIXME: Gifs can actually be encoded with 4-bits per pixel. Using 8 works, but we could skip
@@ -96,12 +96,12 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
 
     // Although the encodedInfo is always kPalette_Color, it is possible that kIndex_8 is
     // unsupported if the frame is subset and there is no transparent pixel.
-    const auto colorType = reader->firstFrameSupportsIndex8() ? kIndex_8_SkColorType
+    const auto colorType = reader->FirstFrameSupportsIndex8() ? kIndex_8_SkColorType
                                                               : kN32_SkColorType;
     // The choice of unpremul versus premul is arbitrary, since all colors are either fully
     // opaque or fully transparent (i.e. kBinary), but we stored the transparent colors as all
     // zeroes, which is arguably premultiplied.
-    const auto alphaType = reader->firstFrameHasAlpha() ? kUnpremul_SkAlphaType
+    const auto alphaType = reader->FirstFrameHasAlpha() ? kUnpremul_SkAlphaType
                                                         : kOpaque_SkAlphaType;
 
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
@@ -111,7 +111,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
 }
 
 bool SkGifCodec::onRewind() {
-    fReader->clearDecodeState();
+    fReader->ClearDecodeState();
     return true;
 }
 
@@ -129,20 +129,20 @@ SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imag
     , fDstRowBytes(0)
     , fRowsDecoded(0)
 {
-    reader->setClient(this);
+    reader->SetClient(this);
 }
 
 int SkGifCodec::onGetFrameCount() {
-    fReader->parse(SkGifImageReader::SkGIFFrameCountQuery);
-    return fReader->imagesCount();
+    fReader->Parse(SkGifImageReader::SkGIFFrameCountQuery);
+    return fReader->ImagesCount();
 }
 
 bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
-    if (i >= fReader->imagesCount()) {
+    if (i >= fReader->ImagesCount()) {
         return false;
     }
 
-    const SkGIFFrameContext* frameContext = fReader->frameContext(i);
+    const SkGIFFrameContext* frameContext = fReader->FrameContext(i);
     if (!frameContext->reachedStartOfData()) {
         return false;
     }
@@ -150,7 +150,7 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
     if (frameInfo) {
         frameInfo->fDuration = frameContext->getDuration();
         frameInfo->fRequiredFrame = frameContext->getRequiredFrame();
-        frameInfo->fFullyReceived = frameContext->isComplete();
+        frameInfo->fFullyReceived = frameContext->IsComplete();
         frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
                                                          : kOpaque_SkAlphaType;
         frameInfo->fDisposalMethod = frameContext->getDisposalMethod();
@@ -159,8 +159,8 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
 }
 
 int SkGifCodec::onGetRepetitionCount() {
-    fReader->parse(SkGifImageReader::SkGIFLoopCountQuery);
-    return fReader->loopCount();
+    fReader->Parse(SkGifImageReader::SkGIFLoopCountQuery);
+    return fReader->LoopCount();
 }
 
 static const SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
@@ -172,7 +172,7 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
         colorTableColorType = kXformSrcColorType;
     }
 
-    sk_sp<SkColorTable> currColorTable = fReader->getColorTable(colorTableColorType, frameIndex);
+    sk_sp<SkColorTable> currColorTable = fReader->GetColorTable(colorTableColorType, frameIndex);
     fCurrColorTableIsReal = currColorTable;
     if (!fCurrColorTableIsReal) {
         // This is possible for an empty frame. Create a dummy with one value (transparent).
@@ -229,13 +229,13 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
         }
     }
 
-    fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
+    fReader->Parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
 
-    if (frameIndex >= fReader->imagesCount()) {
+    if (frameIndex >= fReader->ImagesCount()) {
         return gif_error("frame index out of range!\n", kIncompleteInput);
     }
 
-    const auto* frame = fReader->frameContext(frameIndex);
+    const auto* frame = fReader->FrameContext(frameIndex);
     if (!frame->reachedStartOfData()) {
         // We have parsed enough to know that there is a color map, but cannot
         // parse the map itself yet. Exit now, so we do not build an incorrect
@@ -271,7 +271,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
 }
 
 void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex) {
-    const SkGIFFrameContext* frame = fReader->frameContext(frameIndex);
+    const SkGIFFrameContext* frame = fReader->FrameContext(frameIndex);
     // This is only called by prepareToDecode, which ensures frameIndex is in range.
     SkASSERT(frame);
 
@@ -359,7 +359,7 @@ SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
     // It is possible the client has appended more data. Parse, if needed.
     const auto& options = this->options();
     const int frameIndex = options.fFrameIndex;
-    fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
+    fReader->Parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
 
     const bool firstCallToIncrementalDecode = fFirstCallToIncrementalDecode;
     fFirstCallToIncrementalDecode = false;
@@ -369,8 +369,8 @@ SkCodec::Result SkGifCodec::onIncrementalDecode(int* rowsDecoded) {
 SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, int* rowsDecoded) {
     const SkImageInfo& dstInfo = this->dstInfo();
     const int frameIndex = opts.fFrameIndex;
-    SkASSERT(frameIndex < fReader->imagesCount());
-    const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
+    SkASSERT(frameIndex < fReader->ImagesCount());
+    const SkGIFFrameContext* frameContext = fReader->FrameContext(frameIndex);
     if (firstAttempt) {
         // rowsDecoded reports how many rows have been initialized, so a layer above
         // can fill the rest. In some cases, we fill the background before decoding
@@ -387,7 +387,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             // - There is no color table for this frame. In that case will not
             //   draw anything, so we need to fill.
             if (frameContext->frameRect() != this->getInfo().bounds()
-                    || frameContext->interlaced() || !fCurrColorTableIsReal) {
+                    || frameContext->Interlaced() || !fCurrColorTableIsReal) {
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
                 const int scaledHeight = get_scaled_dimension(dstInfo.height(),
@@ -406,7 +406,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                     // Alternatively, we could correct this to kNone.
                     return kInvalidParameters;
                 }
-                const auto* prevFrame = fReader->frameContext(opts.fPriorFrame);
+                const auto* prevFrame = fReader->FrameContext(opts.fPriorFrame);
                 if (prevFrame->getDisposalMethod()
                         == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
                     // Similarly, this could be corrected to kNone.
@@ -443,7 +443,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
             // required frame is provided, there is no need to erase, since it will be covered
             // anyway.
             if (opts.fPriorFrame == reqFrame || opts.fPriorFrame == kNone) {
-                const auto* prevFrame = fReader->frameContext(reqFrame);
+                const auto* prevFrame = fReader->FrameContext(reqFrame);
                 if (prevFrame->getDisposalMethod()
                         == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
                     SkIRect prevRect = prevFrame->frameRect();
@@ -495,7 +495,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
     // FIXME: Ensure that we do not attempt to continue decoding if the method returns false and
     // more data is supplied.
     bool frameDecoded = false;
-    if (!fReader->decode(frameIndex, &frameDecoded) || !frameDecoded) {
+    if (!fReader->Decode(frameIndex, &frameDecoded) || !frameDecoded) {
         if (rowsDecoded) {
             *rowsDecoded = fRowsDecoded;
         }
@@ -515,7 +515,7 @@ uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
         // compatibity on Android, so we are using the color table for the first frame.
         SkASSERT(this->options().fFrameIndex == 0);
         // Use the transparent index for the first frame.
-        const int transPixel = fReader->frameContext(0)->transparentPixel();
+        const int transPixel = fReader->FrameContext(0)->TransparentPixel();
         if (transPixel >= 0 && transPixel < fCurrColorTable->count()) {
             return transPixel;
         }
@@ -546,7 +546,7 @@ void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint
 bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                                 int rowNumber, int repeatCount, bool writeTransparentPixels)
 {
-    const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
+    const SkGIFFrameContext* frameContext = fReader->FrameContext(frameIndex);
     // The pixel data and coordinates supplied to us are relative to the frame's
     // origin within the entire image size, i.e.
     // (frameContext->xOffset, frameContext->yOffset). There is no guarantee
