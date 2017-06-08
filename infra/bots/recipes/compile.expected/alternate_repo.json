@@ -52,6 +52,8 @@
       "{\"got_revision\": \"other_repo\"}",
       "--git-cache-dir",
       "[CUSTOM_C:\\_B_CACHE]",
+      "--cleanup-dir",
+      "[CLEANUP]/bot_update",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
