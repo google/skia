@@ -175,6 +175,25 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
     int zlibLevel = SkTMin(SkTMax(0, options.fZLibLevel), 9);
     SkASSERT(zlibLevel == options.fZLibLevel);
     png_set_compression_level(fPngPtr, zlibLevel);
+
+    // Set comments in tEXt chunk
+    auto& comments = options.fComments;
+    std::vector<png_text> png_texts(comments.size());
+    for(size_t i = 0; i < comments.size(); ++i) {
+        if (comments[i].fKey.length() <= 79) {
+            // It seems safe to convert png_const_charp to png_charp for key/text,
+            // and we don't have to provide text_length and other fields as we're providing
+            // 0-terminated c_str with PNG_TEXT_COMPRESSION_NONE (no compression, no itxt).
+            png_texts[i].compression = PNG_TEXT_COMPRESSION_NONE;
+            png_texts[i].key = (png_charp)comments[i].fKey.c_str();
+            png_texts[i].text = (png_charp)comments[i].fText.c_str();
+        } else {
+            SkDebugf("PNG tEXt keyword should be no longer than 79.");
+            return false;
+        }
+    }
+    png_set_text(fPngPtr, fInfoPtr, png_texts.data(), comments.size());
+
     return true;
 }
 

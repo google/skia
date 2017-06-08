@@ -179,7 +179,7 @@ DEF_TEST(Encode_PngOptions, r) {
         return;
     }
 
-    SkDynamicMemoryWStream dst0, dst1, dst2;
+    SkDynamicMemoryWStream dst0, dst1, dst2, dst3, dst4;
     SkPngEncoder::Options options;
     success = SkPngEncoder::Encode(&dst0, src, options);
     REPORTER_ASSERT(r, success);
@@ -191,6 +191,19 @@ DEF_TEST(Encode_PngOptions, r) {
     options.fZLibLevel = 3;
     success = SkPngEncoder::Encode(&dst2, src, options);
     REPORTER_ASSERT(r, success);
+
+    #include <string>
+    options.fComments.push_back({"key", "text"});
+    options.fComments.push_back({"test", "something"});
+    options.fComments.push_back({"have some", "spaces in both"});
+    std::string longKey(79, 'x');
+    options.fComments.push_back({longKey, ""});
+    success = SkPngEncoder::Encode(&dst3, src, options);
+    REPORTER_ASSERT(r, success);
+
+    options.fComments.push_back({longKey + "x", ""});
+    success = SkPngEncoder::Encode(&dst4, src, options);
+    REPORTER_ASSERT(r, !success);
 
     sk_sp<SkData> data0 = dst0.detachAsData();
     sk_sp<SkData> data1 = dst1.detachAsData();
