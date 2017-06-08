@@ -283,19 +283,6 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     }
 }
 
-static void TestXfermodeSerialization(skiatest::Reporter* reporter) {
-    for (size_t i = 0; i <= SkXfermode::kLastMode; ++i) {
-        if (i == SkXfermode::kSrcOver_Mode) {
-            // skip SrcOver, as it is allowed to return nullptr from Create()
-            continue;
-        }
-        auto mode(SkXfermode::Make(static_cast<SkXfermode::Mode>(i)));
-        REPORTER_ASSERT(reporter, mode);
-        sk_sp<SkXfermode> copy(
-            TestFlattenableSerialization<SkXfermode>(mode.get(), true, reporter));
-    }
-}
-
 static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     uint8_t table[256];
     for (int i = 0; i < 256; ++i) {
@@ -459,11 +446,6 @@ DEF_TEST(Serialization, reporter) {
     {
         SkRegion region;
         TestObjectSerialization(&region, reporter);
-    }
-
-    // Test xfermode serialization
-    {
-        TestXfermodeSerialization(reporter);
     }
 
     // Test color filter serialization

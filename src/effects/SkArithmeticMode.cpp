@@ -71,10 +71,10 @@ sk_sp<SkXfermode> SkArithmeticMode::Make(SkScalar k1, SkScalar k2, SkScalar k3, 
                                          bool enforcePMColor) {
     if (SkScalarNearlyZero(k1) && SkScalarNearlyEqual(k2, SK_Scalar1) &&
         SkScalarNearlyZero(k3) && SkScalarNearlyZero(k4)) {
-        return SkXfermode::Make(SkXfermode::kSrc_Mode);
+        return SkXfermode::Make(SkBlendMode::kSrc);
     } else if (SkScalarNearlyZero(k1) && SkScalarNearlyZero(k2) &&
                SkScalarNearlyEqual(k3, SK_Scalar1) && SkScalarNearlyZero(k4)) {
-        return SkXfermode::Make(SkXfermode::kDst_Mode);
+        return SkXfermode::Make(SkBlendMode::kDst);
     }
     return sk_make_sp<SkArithmeticMode_scalar>(k1, k2, k3, k4, enforcePMColor);
 }

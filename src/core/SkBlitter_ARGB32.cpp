@@ -352,12 +352,9 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
             fShadeDirectlyIntoDevice = true;
         }
     } else {
-        SkXfermode::Mode mode;
-        if (fXfermode->asMode(&mode)) {
-            if (SkXfermode::kSrc_Mode == mode) {
-                fShadeDirectlyIntoDevice = true;
-                fProc32Blend = blend_srcmode;
-            }
+        if (SkBlendMode::kSrc == paint.getBlendMode()) {
+            fShadeDirectlyIntoDevice = true;
+            fProc32Blend = blend_srcmode;
         }
     }
 
