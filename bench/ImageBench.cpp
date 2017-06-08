@@ -30,13 +30,14 @@ protected:
     //
     void onPerCanvasPreDraw(SkCanvas* canvas) override {
         // create an Image reflecting the canvas (gpu or cpu)
-        SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
+        SkImageInfo info = canvas->imageInfo().makeWH(100, 100);
         auto surface(canvas->makeSurface(info));
         canvas->drawColor(SK_ColorRED);
         fImage = surface->makeImageSnapshot();
 
         // create a cpu-backed Surface
-        fRasterSurface = SkSurface::MakeRaster(info);
+        SkImageInfo n32Info = SkImageInfo::MakeN32Premul(100, 100);
+        fRasterSurface = SkSurface::MakeRaster(n32Info);
     }
 
     void onPerCanvasPostDraw(SkCanvas*) override {
