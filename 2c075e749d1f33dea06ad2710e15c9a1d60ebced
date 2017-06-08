@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "80308c9e_ae4e5ce3",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-08T14:30:46Z",
+      "side": 1,
+      "message": "Yes. Color space is handled like that (for the same reason). There\u0027s no way for us to honor multiple conflicting requests.",
+      "parentUuid": "fccac2e0_342b51dc",
+      "range": {
+        "startLine": 685,
+        "startChar": 34,
+        "endLine": 685,
+        "endChar": 52
+      },
+      "revId": "2c075e749d1f33dea06ad2710e15c9a1d60ebced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "75bfd333_22415ae2",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 5
@@ -36,6 +60,24 @@
       "writtenOn": "2017-06-08T14:21:39Z",
       "side": 1,
       "message": "The bot failure we were getting is that here serialized def. tex. image data winds up having a srgb color space. Previously at line 685 we assigned a color type of 4444. When the unit test creates a new SkImage from the DTID and attempts to read it back we get an assert  because readPixels on a GPU image with 4444 + color space is not supported.",
+      "revId": "2c075e749d1f33dea06ad2710e15c9a1d60ebced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8d48557_406c52c3",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-08T14:30:46Z",
+      "side": 1,
+      "message": "I think we can short-circuit this in either location (here, or in the subsequent factory). Basically, if the color type is 4444 or 565, drop the color space. We don\u0027t really support that right now (and probably never will), so just use nullptr?\n\nI think it\u0027s simpler in the factory, although that means we\u0027re still paying to serialize the color space that we\u0027re not going to use. (Although sRGB is serialized in a very compact form, so not a huge cost).",
+      "parentUuid": "75bfd333_22415ae2",
       "revId": "2c075e749d1f33dea06ad2710e15c9a1d60ebced",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
