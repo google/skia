@@ -175,6 +175,28 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
     int zlibLevel = SkTMin(SkTMax(0, options.fZLibLevel), 9);
     SkASSERT(zlibLevel == options.fZLibLevel);
     png_set_compression_level(fPngPtr, zlibLevel);
+
+#ifdef PNG_TEXT_SUPPORTED
+    // Set comments in tEXt chunk
+    auto& comments = options.comments;
+    std::vector<png_text> png_texts(comments.size());
+    for(size_t i = 0; i < comments.size(); ++i) {
+        // PNG tEXt keyword can only be 79 characters long. We should be able to assert
+        // length <= 79, but we are asserting length < 79 to exactly match Chromium's
+        // legacy behaviour.
+        SkASSERT(comments[i].key.length() < 79);
+
+        // The following key/text setting scheme is copied from DM.cpp:
+        // It seems safe to convert png_const_charp to png_charp for key/text,
+        // and we don't have to provide text_length and other fields as we're providing
+        // 0-terminated c_str with PNG_TEXT_COMPRESSION_NONE (no compression, no itxt).
+        png_texts[i].compression = PNG_TEXT_COMPRESSION_NONE;
+        png_texts[i].key = (png_charp)comments[i].key.c_str();
+        png_texts[i].text = (png_charp)comments[i].text.c_str();
+    }
+    png_set_text(fPngPtr, fInfoPtr, png_texts.data(), comments.size());
+#endif
+
     return true;
 }
 
