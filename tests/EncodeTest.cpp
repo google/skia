@@ -16,6 +16,12 @@
 #include "SkStream.h"
 #include "SkWebpEncoder.h"
 
+#include "png.h"
+
+#include <algorithm>
+#include <string>
+#include <vector>
+
 static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& src) {
     switch (format) {
         case SkEncodedImageFormat::kJPEG:
@@ -165,6 +171,59 @@ DEF_TEST(Encode_JpegDownsample, r) {
     REPORTER_ASSERT(r, almost_equals(bm1, bm2, 60));
 }
 
+static void testPngComments(const SkPixmap& src, SkPngEncoder::Options& options,
+        skiatest::Reporter* r) {
+    options.fComments.clear();
+    options.fComments.push_back({SkString("key"), SkString("text")});
+    options.fComments.push_back({SkString("test"), SkString("something")});
+    options.fComments.push_back({SkString("have some"), SkString("spaces in both")});
+    std::string longKey(PNG_KEYWORD_MAX_LENGTH, 'x');
+#ifdef SK_DEBUG
+    options.fComments.push_back({SkString(longKey.c_str()), SkString("")});
+#else
+    // We call SkDEBUGFAILF it the key is too long so we'll only test this in release mode.
+    std::string tooLong = longKey + "x";
+    options.fComments.push_back({SkString(tooLong.c_str()), SkString("")});
+#endif
+
+    SkDynamicMemoryWStream dst;
+    bool success = SkPngEncoder::Encode(&dst, src, options);
+    REPORTER_ASSERT(r, success);
+
+    std::vector<char> output(dst.bytesWritten());
+    dst.copyTo(output.data());
+
+    // Each chunk is of the form length (4 bytes), chunk type (tEXt), data,
+    // checksum (4 bytes).  Make sure we find all of them in the encoded
+    // results.
+    const char kExpected1[] =
+        "\x00\x00\x00\x08tEXtkey\x00text\x9e\xe7\x66\x51";
+    const char kExpected2[] =
+        "\x00\x00\x00\x0etEXttest\x00something\x29\xba\xef\xac";
+    const char kExpected3[] =
+        "\x00\x00\x00\x18tEXthave some\x00spaces in both\x8d\x69\x34\x2d";
+    std::string longKeyRecord = "tEXt" + longKey; // A snippet of our long key comment
+    std::string tooLongRecord = "tExt" + longKey + "x"; // A snippet whose key is too long
+
+    auto search1 = std::search(output.begin(), output.end(),
+            kExpected1, kExpected1 + sizeof(kExpected1));
+    auto search2 = std::search(output.begin(), output.end(),
+            kExpected2, kExpected2 + sizeof(kExpected2));
+    auto search3 = std::search(output.begin(), output.end(),
+            kExpected3, kExpected3 + sizeof(kExpected3));
+    auto search4 = std::search(output.begin(), output.end(),
+            longKeyRecord.begin(), longKeyRecord.end());
+    auto search5 = std::search(output.begin(), output.end(),
+            tooLongRecord.begin(), tooLongRecord.end());
+
+    REPORTER_ASSERT(r, search1 != output.end());
+    REPORTER_ASSERT(r, search2 != output.end());
+    REPORTER_ASSERT(r, search3 != output.end());
+    REPORTER_ASSERT(r, search4 != output.end());
+    REPORTER_ASSERT(r, search5 == output.end());
+    // Comments test ends
+}
+
 DEF_TEST(Encode_PngOptions, r) {
     SkBitmap bitmap;
     bool success = GetResourceAsBitmap("mandrill_128.png", &bitmap);
@@ -191,6 +250,8 @@ DEF_TEST(Encode_PngOptions, r) {
     options.fZLibLevel = 3;
     success = SkPngEncoder::Encode(&dst2, src, options);
     REPORTER_ASSERT(r, success);
+
+    testPngComments(src, options, r);
 
     sk_sp<SkData> data0 = dst0.detachAsData();
     sk_sp<SkData> data1 = dst1.detachAsData();
