@@ -669,6 +669,8 @@ DEFINES_ALL = [
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Temporarily Disable analytic AA for Google3
     "SK_NO_ANALYTIC_AA",
+    # Experiment to diagnose image diffs in Google3
+    "SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES",
 ]
 
 ################################################################################
