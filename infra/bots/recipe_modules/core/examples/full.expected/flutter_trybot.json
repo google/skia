@@ -52,6 +52,8 @@
       "{\"got_flutter_revision\": \"src/flutter\", \"got_revision\": \"src/third_party/skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
+      "--cleanup-dir",
+      "[CLEANUP]/bot_update",
       "--gerrit_repo",
       "https://skia.googlesource.com/skia.git",
       "--gerrit_ref",

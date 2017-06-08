@@ -52,6 +52,8 @@
       "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
+      "--cleanup-dir",
+      "[CLEANUP]/bot_update",
       "--gerrit_repo",
       "https://skia.googlesource.com/skia.git",
       "--gerrit_ref",
