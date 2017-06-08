@@ -27,7 +27,7 @@ protected:
     bool onIsValid(GrContext*) const override { return true; }
 
 #if SK_SUPPORT_GPU
-    bool onCanGenerateTexture() const override { return true; }
+    TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
                                             const SkIPoint&) override;
 #endif

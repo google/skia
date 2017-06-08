@@ -24,6 +24,9 @@ protected:
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&,
                                             const SkIPoint&) override;
+    TexGenType onCanGenerateTexture() const override {
+        return TexGenType::kExpensive;
+    }
 #endif
 
 private:

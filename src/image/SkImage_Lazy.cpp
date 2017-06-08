@@ -109,7 +109,8 @@ public:
                                            const GrUniqueKey& key,
                                            SkImage::CachingHint,
                                            bool willBeMipped,
-                                           SkColorSpace* dstColorSpace) override;
+                                           SkColorSpace* dstColorSpace,
+                                           GrTextureMaker::AllowedTexGenType genType) override;
 
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even
@@ -563,7 +564,7 @@ bool SkImage_Lazy::onIsValid(GrContext* context) const {
 bool SkImage_Lazy::onCanLazyGenerateOnGPU() const {
 #if SK_SUPPORT_GPU
     ScopedGenerator generator(fSharedGenerator);
-    return generator->onCanGenerateTexture();
+    return SkImageGenerator::TexGenType::kNone != generator->onCanGenerateTexture();
 #else
     return false;
 #endif
@@ -687,7 +688,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                                                      const GrUniqueKey& origKey,
                                                      SkImage::CachingHint chint,
                                                      bool willBeMipped,
-                                                     SkColorSpace* dstColorSpace) {
+                                                     SkColorSpace* dstColorSpace,
+                                                     GrTextureMaker::AllowedTexGenType genType) {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -726,6 +728,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     // 2. Ask the generator to natively create one
     {
         ScopedGenerator generator(fSharedGenerator);
+        if (GrTextureMaker::AllowedTexGenType::kCheap == genType &&
+                SkImageGenerator::TexGenType::kCheap != generator->onCanGenerateTexture()) {
+            return nullptr;
+        }
         if (sk_sp<GrTextureProxy> proxy = generator->generateTexture(ctx, cacheInfo, fOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);

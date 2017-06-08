@@ -28,7 +28,12 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 }
 
 sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
-                                                                    SkColorSpace* dstColorSpace) {
+                                                                    SkColorSpace* dstColorSpace,
+                                                                    AllowedTexGenType onlyIfFast) {
+    if (AllowedTexGenType::kCheap == onlyIfFast) {
+        return nullptr;
+    }
+
     sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
