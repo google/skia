@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3da4ffc_855bc135",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-08T13:05:05Z",
+      "side": 1,
+      "message": "what does this mean? Should probably be explicit with what you\u0027ll set them to here.",
+      "range": {
+        "startLine": 177,
+        "startChar": 81,
+        "endLine": 178,
+        "endChar": 12
+      },
+      "revId": "0d1529d098cfc971127aeb5d58c8e6baead24b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a305248_865a627b",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-08T13:05:05Z",
+      "side": 1,
+      "message": "Is there an easy thing we can cache to check to see if we need to set the matrix again?",
+      "range": {
+        "startLine": 508,
+        "startChar": 0,
+        "endLine": 511,
+        "endChar": 53
+      },
+      "revId": "0d1529d098cfc971127aeb5d58c8e6baead24b27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
