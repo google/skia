@@ -59,7 +59,7 @@ public:
         // These expose the paint's color run through its color filter (if any). This is only valid
         // when drawing grayscale/lcd glyph masks and not when drawing color glyphs.
         GrColor filteredPremulColor() const { return fFilteredPremulColor; }
-        GrColor filteredUnpremulColor() const { return fFilteredUnpremulColor; }
+        SkColor luminanceColor() const { return fPaint->computeLuminanceColor(); }
 
         const SkPaint& skPaint() const { return *fPaint; }
         operator const SkPaint&() const { return this->skPaint(); }
@@ -80,7 +80,6 @@ public:
         // This is the paint's color run through its color filter, if present. This color should
         // be used except when rendering bitmap text, in which case the bitmap must be filtered in
         // the fragment shader.
-        GrColor fFilteredUnpremulColor;
         GrColor fFilteredPremulColor;
     };
 
@@ -98,7 +97,6 @@ public:
             fDstColorSpace = fOriginalPaint->dstColorSpace();
             fColorXformFromSRGB = fOriginalPaint->colorXformFromSRGB();
             fFilteredPremulColor = fOriginalPaint->filteredPremulColor();
-            fFilteredUnpremulColor = fOriginalPaint->filteredUnpremulColor();
         }
 
         bool modifyForRun(const SkTextBlobRunIterator&);
