@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2610ebae_c844cd26",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-08T19:29:41Z",
+      "side": 1,
+      "message": "The repro notes (and the condition you\u0027re applying below) make it seem like this *broke* sometime around 127?",
+      "revId": "ffadaf70ad4b56316629429d670392ce0707a9ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
