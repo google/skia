@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22bac949_410661d0",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "nit: One more space indent :)",
+      "range": {
+        "startLine": 66,
+        "startChar": 10,
+        "endLine": 66,
+        "endChar": 11
+      },
+      "revId": "f918b665c253c5a795dee795e63076ceead7c01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8df511c0_b111c91e",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "nit: Seems unnecessary to say?  Maybe other clients will want to use this?",
+      "range": {
+        "startLine": 67,
+        "startChar": 11,
+        "endLine": 67,
+        "endChar": 40
+      },
+      "revId": "f918b665c253c5a795dee795e63076ceead7c01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ec0efe2_2414de05",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "nit: fKey, fValue",
+      "range": {
+        "startLine": 70,
+        "startChar": 24,
+        "endLine": 70,
+        "endChar": 27
+      },
+      "revId": "f918b665c253c5a795dee795e63076ceead7c01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ccbf7b2_abe60652",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "Maybe add docs for this field?  Ex: If size of fComments is non-zero, these comments will be embedded in the tEXT chunk of the png.\n\nnit: fComments",
+      "range": {
+        "startLine": 74,
+        "startChar": 29,
+        "endLine": 74,
+        "endChar": 37
+      },
+      "revId": "f918b665c253c5a795dee795e63076ceead7c01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

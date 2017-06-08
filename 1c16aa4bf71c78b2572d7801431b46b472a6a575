@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20e40e42_38d3b6db",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "Let\u0027s remove this (unless you need it to stage the change).  Our typical approach is to force our clients the compile all of the libpng features that we need.  I\u0027m fairly certain you\u0027ll be fine on Chrome and Android.",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 25
+      },
+      "revId": "1c16aa4bf71c78b2572d7801431b46b472a6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e060c04c_6977be71",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "Let\u0027s use \"\u003c\u003d\" if that\u0027s what is correct.  No need to exactly match Chrome if we can be better.",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 28
+      },
+      "revId": "1c16aa4bf71c78b2572d7801431b46b472a6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4aa0b6fa_77b964dd",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "In addition to asserting, can we also skip writing this comment?  The concern is having a bad behavior for clients that don\u0027t compile in debug mode.",
+      "range": {
+        "startLine": 187,
+        "startChar": 8,
+        "endLine": 187,
+        "endChar": 48
+      },
+      "revId": "1c16aa4bf71c78b2572d7801431b46b472a6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09aa50bb_da8b8a22",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T17:58:08Z",
+      "side": 1,
+      "message": "nit: Not sure this is relevant.",
+      "range": {
+        "startLine": 189,
+        "startChar": 8,
+        "endLine": 189,
+        "endChar": 71
+      },
+      "revId": "1c16aa4bf71c78b2572d7801431b46b472a6a575",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
