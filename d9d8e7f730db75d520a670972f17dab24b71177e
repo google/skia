@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e60121a_58321df9",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-08T20:15:54Z",
+      "side": 1,
+      "message": "// link to bug?",
+      "revId": "d9d8e7f730db75d520a670972f17dab24b71177e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
