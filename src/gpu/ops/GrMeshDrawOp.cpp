@@ -30,7 +30,8 @@ void* GrMeshDrawOp::PatternHelper::init(Target* target, size_t vertexStride,
     void* vertices =
             target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
     if (!vertices) {
-        SkDebugf("Vertices could not be allocated for instanced rendering.");
+        SkDebugf("Vertices could not be allocated for patterned rendering %d %d.",
+                 vertexStride, vertexCount);
         return nullptr;
     }
     SkASSERT(vertexBuffer);

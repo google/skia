@@ -859,7 +859,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
             GrContextFactory::ContextType contextType = gpuConfig->getContextType();
             GrContextFactory::ContextOverrides contextOverrides = gpuConfig->getContextOverrides();
             GrContextFactory testFactory(grCtxOptions);
-            if (!testFactory.get(contextType, contextOverrides)) {
+            ContextInfo ctxInfo = testFactory.getContextInfo(contextType, contextOverrides);
+            if (!ctxInfo.grContext()) {
                 info("WARNING: can not create GPU context for config '%s'. "
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
@@ -1511,6 +1512,10 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
 
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
+            continue;
+        }
+
         // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
         // desktop since tests do not account for not fixing http://skbug.com/2809
         if (contextType == GrContextFactory::kGL_ContextType ||
@@ -1519,19 +1524,21 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
-        ContextInfo ctxInfo = factory->getContextInfo(contextType,
-                                                  GrContextFactory::ContextOverrides::kDisableNVPR);
-        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
-            continue;
-        }
+
         ReporterContext ctx(reporter, SkString(ContextTypeName(contextType)));
-        if (ctxInfo.grContext()) {
-            (*test)(reporter, ctxInfo);
+        {
+            ContextInfo ctxInfo = factory->getContextInfo(contextType,
+                                          GrContextFactory::ContextOverrides::kDisableNVPR);
+            if (ctxInfo.grContext()) {
+                (*test)(reporter, ctxInfo);
+            }
         }
-        ctxInfo = factory->getContextInfo(contextType,
+        {
+            ContextInfo ctxInfo = factory->getContextInfo(contextType,
                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
-        if (ctxInfo.grContext()) {
-            (*test)(reporter, ctxInfo);
+            if (ctxInfo.grContext()) {
+                (*test)(reporter, ctxInfo);
+            }
         }
     }
 #endif
