@@ -109,3 +109,40 @@ DEF_TEST(PictureImageGenerator, reporter) {
         REPORTER_ASSERT(reporter, success == rec.fExpectSuccess);
     }
 }
+
+#include "SkImagePriv.h"
+
+DEF_TEST(ColorXformGenerator, r) {
+    SkBitmap a, b, c, d;
+    SkImageInfo info = SkImageInfo::MakeS32(1, 1, kPremul_SkAlphaType);
+    a.allocPixels(info);
+    b.allocPixels(info.makeColorSpace(nullptr));
+    c.allocPixels(info.makeColorSpace(SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                            SkColorSpace::kRec2020_Gamut)));
+    d.allocPixels(info.makeColorSpace(SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                                            SkColorSpace::kAdobeRGB_Gamut)));
+    a.eraseColor(0);
+    b.eraseColor(1);
+    c.eraseColor(2);
+    d.eraseColor(3);
+
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
+    sk_sp<SkImage> ia = SkMakeImageInColorSpace(a, srgb, 0);
+    sk_sp<SkImage> ib = SkMakeImageInColorSpace(b, srgb, b.getGenerationID());
+    sk_sp<SkImage> ic = SkMakeImageInColorSpace(c, srgb, c.getGenerationID());
+    sk_sp<SkImage> id = SkMakeImageInColorSpace(d, srgb, 0);
+
+    // Equal because sRGB->sRGB is a no-op.
+    REPORTER_ASSERT(r, ia->uniqueID() == a.getGenerationID());
+
+    // Equal because nullptr->sRGB is a no-op (nullptr is treated as sRGB), and because
+    // we pass the explicit id that we want.  In the no-op case, the implementation
+    // actually asserts that if we pass an id, it must match the id on the bitmap.
+    REPORTER_ASSERT(r, ib->uniqueID() == b.getGenerationID());
+
+    // Equal because we pass in an explicit id.
+    REPORTER_ASSERT(r, ic->uniqueID() == c.getGenerationID());
+
+    // Not equal because sRGB->Adobe is not a no-op and we do not pass an explicit id.
+    REPORTER_ASSERT(r, id->uniqueID() != d.getGenerationID());
+}

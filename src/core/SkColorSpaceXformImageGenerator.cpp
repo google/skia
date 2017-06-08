@@ -9,6 +9,11 @@
 
 std::unique_ptr<SkImageGenerator> SkColorSpaceXformImageGenerator::Make(
         const SkBitmap& src, sk_sp<SkColorSpace> dst, SkCopyPixelsMode mode) {
+    return SkColorSpaceXformImageGenerator::Make(src, dst, mode, kNeedNewImageUniqueID);
+}
+
+std::unique_ptr<SkImageGenerator> SkColorSpaceXformImageGenerator::Make(
+        const SkBitmap& src, sk_sp<SkColorSpace> dst, SkCopyPixelsMode mode, uint32_t id) {
     if (!dst) {
         return nullptr;
     }
@@ -26,14 +31,14 @@ std::unique_ptr<SkImageGenerator> SkColorSpaceXformImageGenerator::Make(
         srcPtr = &copy;
     }
 
-
     return std::unique_ptr<SkImageGenerator>(
-            new SkColorSpaceXformImageGenerator(*srcPtr, std::move(dst)));
+            new SkColorSpaceXformImageGenerator(*srcPtr, std::move(dst), id));
 }
 
 SkColorSpaceXformImageGenerator::SkColorSpaceXformImageGenerator(const SkBitmap& src,
-                                                                 sk_sp<SkColorSpace> dst)
-    : INHERITED(src.info().makeColorSpace(dst), kNeedNewImageUniqueID)
+                                                                 sk_sp<SkColorSpace> dst,
+                                                                 uint32_t id)
+    : INHERITED(src.info().makeColorSpace(dst), id)
     , fSrc(src)
     , fDst(std::move(dst))
 {}
