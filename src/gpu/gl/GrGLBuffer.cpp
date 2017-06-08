@@ -7,6 +7,7 @@
 
 #include "GrGLBuffer.h"
 #include "GrGLGpu.h"
+#include "GrGpuResourcePriv.h"
 #include "SkTraceMemoryDump.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glGpu()->glInterface(), X)
@@ -86,12 +87,12 @@ inline static GrGLenum gr_to_gl_access_pattern(GrBufferType bufferType,
 
 GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
                        GrAccessPattern accessPattern, const void* data)
-    : INHERITED(gpu, size, intendedType, accessPattern),
-      fIntendedType(intendedType),
-      fBufferID(0),
-      fUsage(gr_to_gl_access_pattern(intendedType, accessPattern)),
-      fGLSizeInBytes(0),
-      fHasAttachedToTexture(false) {
+    : INHERITED(gpu, size, intendedType, accessPattern)
+    , fIntendedType(intendedType)
+    , fBufferID(0)
+    , fUsage(gr_to_gl_access_pattern(intendedType, accessPattern))
+    , fGLSizeInBytes(0)
+    , fHasAttachedToTexture(false) {
     GL_CALL(GenBuffers(1, &fBufferID));
     if (fBufferID) {
         GrGLenum target = gpu->bindBuffer(fIntendedType, this);
@@ -110,6 +111,9 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
     }
     VALIDATE();
     this->registerWithCache(SkBudgeted::kYes);
+    if (!fBufferID) {
+        this->resourcePriv().removeScratchKey();
+    }
 }
 
 inline GrGLGpu* GrGLBuffer::glGpu() const {
@@ -147,6 +151,7 @@ void GrGLBuffer::onAbandon() {
 }
 
 void GrGLBuffer::onMap() {
+    SkASSERT(fBufferID);
     if (this->wasDestroyed()) {
         return;
     }
@@ -201,6 +206,7 @@ void GrGLBuffer::onMap() {
 }
 
 void GrGLBuffer::onUnmap() {
+    SkASSERT(fBufferID);
     if (this->wasDestroyed()) {
         return;
     }
@@ -231,6 +237,7 @@ void GrGLBuffer::onUnmap() {
 }
 
 bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
+    SkASSERT(fBufferID);
     if (this->wasDestroyed()) {
         return false;
     }
