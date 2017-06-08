@@ -10,6 +10,9 @@
 
 #include "SkEncoder.h"
 
+#include <string>
+#include <vector>
+
 class SkPngEncoderMgr;
 class SkWStream;
 
@@ -58,6 +61,21 @@ public:
          *  function and unpremultiply the input as is.
          */
         SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
+
+        /**
+         *  Represents a comment in the tEXt ancillary chunk of the png.
+         *  This is used by Chromium gfx.
+         */
+        struct Comment {
+            std::string fKey;
+            std::string fText;
+        };
+
+        /**
+         *  If size of fComments is non-zero, these comments will be embedded
+         *  in the tEXt chunk of the png.
+         */
+        std::vector<Comment> fComments;
     };
 
     /**
