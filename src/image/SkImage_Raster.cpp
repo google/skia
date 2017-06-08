@@ -13,6 +13,7 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkData.h"
+#include "SkImageInfoPriv.h"
 #include "SkImagePriv.h"
 #include "SkPixelRef.h"
 #include "SkSurface.h"
@@ -301,25 +302,23 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
-    bool hasColorTable = false;
-    if (kIndex_8_SkColorType == bm.colorType()) {
-        hasColorTable = bm.getColorTable() != nullptr;
+sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
+        SkPixmap pmap;
+        SkAssertResult(bm.peekPixels(&pmap));
+        return SkImage::MakeRasterCopy(pmap);
     }
 
-    if (!SkImage_Raster::ValidArgs(bm.info(), bm.rowBytes(), hasColorTable, nullptr)) {
+    return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
+}
+
+sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+    if (!SkImageInfoIsValidAllowNumericalCS(bm.info()) || !bm.getPixels() ||
+            bm.rowBytes() < bm.info().minRowBytes()) {
         return nullptr;
     }
 
-    if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
-        SkPixmap pmap;
-        if (bm.getPixels() && bm.peekPixels(&pmap)) {
-            return SkImage::MakeRasterCopy(pmap);
-        }
-    } else {
-        return sk_make_sp<SkImage_Raster>(bm, kNever_SkCopyPixelsMode == cpm);
-    }
-    return sk_sp<SkImage>();
+    return SkMakeImageFromRasterBitmapPriv(bm, cpm);
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
