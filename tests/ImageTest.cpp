@@ -447,18 +447,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
 }
 
 GrContextFactory::ContextType pick_second_context_type(const sk_gpu_test::ContextInfo& info) {
-    switch (info.backend()) {
-        case kOpenGL_GrBackend:
-#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_UNIX) || defined (SK_BUILD_FOR_MAC)
-            return GrContextFactory::kGL_ContextType;
-#else
-            return GrContextFactory::kGLES_ContextType;
-#endif
-        case kVulkan_GrBackend:
-            return GrContextFactory::kVulkan_ContextType;
-    }
-    SkFAIL("Unknown backend type.");
-    return GrContextFactory::kGL_ContextType;
+    return info.type();
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextInfo) {
@@ -857,6 +846,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_MakeCrossContextRelease, reporter, ctxInfo) {
+    if (ctxInfo.type() >= GrContextFactory::kANGLE_D3D9_ES2_ContextType &&
+        ctxInfo.type() <= GrContextFactory::kANGLE_GL_ES3_ContextType) {
+        // This test currently doesn't work with ANGLE
+        return;
+    }
+
     GrContext* ctx = ctxInfo.grContext();
 
     // If we don't have proper support for this feature, the factory will fallback to returning
@@ -1025,6 +1020,12 @@ static void check_images_same(skiatest::Reporter* reporter, const SkImage* a, co
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
+    if (ctxInfo.type() >= GrContextFactory::kANGLE_D3D9_ES2_ContextType &&
+        ctxInfo.type() <= GrContextFactory::kANGLE_GL_ES3_ContextType) {
+        // This test currently doesn't work with ANGLE
+        return;
+    }
+
     GrContext* context = ctxInfo.grContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
@@ -1135,6 +1136,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             }
             sk_free(buffer);
         }
+        context->flush();
     }
 }
 #endif
