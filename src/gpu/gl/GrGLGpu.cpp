@@ -448,6 +448,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     fHWActiveTextureUnitIdx = -1; // invalid
+    fLastPrimitiveType = static_cast<GrPrimitiveType>(-1);
 
     if (resetBits & kTextureBinding_GrGLBackendState) {
         for (int s = 0; s < fHWBoundTextureUniqueIDs.count(); ++s) {
@@ -2491,7 +2492,10 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveType primitiveType,
                             const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
     const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
-
+    if (this->glCaps().requiresFlushToDrawLinesAfterNonLines() &&
+        GrIsPrimTypeLines(primitiveType) && !GrIsPrimTypeLines(fLastPrimitiveType)) {
+        GL_CALL(Flush());
+    }
     if (this->glCaps().drawArraysBaseVertexIsBroken()) {
         this->setupGeometry(primProc, nullptr, vertexBuffer, baseVertex, nullptr, 0);
         GL_CALL(DrawArrays(glPrimType, 0, vertexCount));
@@ -2499,6 +2503,7 @@ void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveTyp
         this->setupGeometry(primProc, nullptr, vertexBuffer, 0, nullptr, 0);
         GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
     }
+    fLastPrimitiveType = primitiveType;
     fStats.incNumDraws();
 }
 
@@ -2507,6 +2512,10 @@ void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
                                    int indexCount, int baseIndex, uint16_t minIndexValue,
                                    uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
                                    int baseVertex) {
+    if (this->glCaps().requiresFlushToDrawLinesAfterNonLines() &&
+        GrIsPrimTypeLines(primitiveType) && !GrIsPrimTypeLines(fLastPrimitiveType)) {
+        GL_CALL(Flush());
+    }
     const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     GrGLvoid* const indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                       sizeof(uint16_t) * baseIndex);
@@ -2519,6 +2528,7 @@ void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
     } else {
         GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices));
     }
+    fLastPrimitiveType = primitiveType;
     fStats.incNumDraws();
 }
 
@@ -2527,9 +2537,14 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPri
                                      int vertexCount, int baseVertex,
                                      const GrBuffer* instanceBuffer, int instanceCount,
                                      int baseInstance) {
+    if (this->glCaps().requiresFlushToDrawLinesAfterNonLines() &&
+        GrIsPrimTypeLines(primitiveType) && !GrIsPrimTypeLines(fLastPrimitiveType)) {
+        GL_CALL(Flush());
+    }
     const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     this->setupGeometry(primProc, nullptr, vertexBuffer, 0, instanceBuffer, baseInstance);
     GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount, instanceCount));
+    fLastPrimitiveType = primitiveType;
     fStats.incNumDraws();
 }
 
@@ -2539,6 +2554,10 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
                                             int baseIndex, const GrBuffer* vertexBuffer,
                                             int baseVertex, const GrBuffer* instanceBuffer,
                                             int instanceCount, int baseInstance) {
+    if (this->glCaps().requiresFlushToDrawLinesAfterNonLines() &&
+        GrIsPrimTypeLines(primitiveType) && !GrIsPrimTypeLines(fLastPrimitiveType)) {
+        GL_CALL(Flush());
+    }
     const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                 sizeof(uint16_t) * baseIndex);
@@ -2546,6 +2565,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
                         instanceBuffer, baseInstance);
     GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, indices,
                                   instanceCount));
+    fLastPrimitiveType = primitiveType;
     fStats.incNumDraws();
 }
 
@@ -2658,6 +2678,7 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
     } else if (fHWStencilSettings != stencilSettings) {
         if (kYes_TriState != fHWStencilTestEnabled) {
             GL_CALL(Enable(GR_GL_STENCIL_TEST));
+
             fHWStencilTestEnabled = kYes_TriState;
         }
         if (stencilSettings.isTwoSided()) {
@@ -2679,6 +2700,7 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings) {
 void GrGLGpu::disableStencil() {
     if (kNo_TriState != fHWStencilTestEnabled) {
         GL_CALL(Disable(GR_GL_STENCIL_TEST));
+
         fHWStencilTestEnabled = kNo_TriState;
         fHWStencilSettings.invalidate();
     }
@@ -2758,6 +2780,7 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
 
     if (kYes_TriState != fHWBlendState.fEnabled) {
         GL_CALL(Enable(GR_GL_BLEND));
+
         fHWBlendState.fEnabled = kYes_TriState;
     }
 

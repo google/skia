@@ -641,6 +641,7 @@ private:
     }
 
     float                                   fHWMinSampleShading;
+    GrPrimitiveType                         fLastPrimitiveType;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.
