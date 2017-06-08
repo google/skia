@@ -56,7 +56,6 @@ public:
         kImageFilterUniqueID_Version       = 31,
         kRemoveAndroidPaintOpts_Version    = 32,
         kFlattenCreateProc_Version         = 33,
-        */
         kRemoveColorTableAlpha_Version     = 36,
         kDropShadowMode_Version            = 37,
         kPictureImageFilterResolution_Version = 38,
@@ -71,6 +70,7 @@ public:
         kGradientShaderFloatColor_Version  = 49,
         kXfermodeToBlendMode_Version       = 50,
         kXfermodeToBlendMode2_Version      = 51,
+         */
         kTextBlobImplicitRunCount_Version  = 52,
     };
 
