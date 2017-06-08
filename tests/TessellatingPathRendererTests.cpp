@@ -314,6 +314,19 @@ static SkPath create_path_19() {
     return path;
 }
 
+// From clusterfuzz-testcase-minimized-6735316361936896
+// FIXME: [add description here]
+
+static SkPath create_path_20() {
+    SkPath path;
+    path.moveTo(           2822128.5,  235.026336669921875);
+    path.lineTo(          2819349.25, 235.3623504638671875);
+    path.lineTo(          -340558688, 23.83478546142578125);
+    path.lineTo(          -340558752, 25.510419845581054688);
+    path.lineTo(          -340558720, 27.18605804443359375);
+    return path;
+}
+
 static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
@@ -390,5 +403,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
     test_path(ctx, rtc.get(), create_path_18());
     test_path(ctx, rtc.get(), create_path_19());
+    test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
 }
 #endif

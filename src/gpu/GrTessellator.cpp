@@ -1006,6 +1006,9 @@ void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current, 
 
 void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c,
                 SkArenaAlloc& alloc) {
+    if (v == edge->fTop || v == edge->fBottom) {
+        return;
+    }
     LOG("splitting edge (%g -> %g) at vertex %g (%g, %g)\n",
         edge->fTop->fID, edge->fBottom->fID,
         v->fID, v->fPoint.fX, v->fPoint.fY);
@@ -1073,7 +1076,7 @@ uint8_t max_edge_alpha(Edge* a, Edge* b) {
 }
 
 bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
-                            Comparator& c, SkArenaAlloc& alloc) {
+                            VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!edge || !other) {
         return false;
     }
@@ -1085,25 +1088,20 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
         Vertex* top = *current;
         // If the intersection point is above the current vertex, rewind to the vertex above the
         // intersection.
-        while (c.sweep_lt(p, top->fPoint) && top->fPrev) {
+        while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        rewind(activeEdges, current, top, c);
         if (p == edge->fTop->fPoint) {
-            split_edge(other, edge->fTop, activeEdges, current, c, alloc);
             v = edge->fTop;
         } else if (p == edge->fBottom->fPoint) {
-            split_edge(other, edge->fBottom, activeEdges, current, c, alloc);
             v = edge->fBottom;
         } else if (p == other->fTop->fPoint) {
-            split_edge(edge, other->fTop, activeEdges, current, c, alloc);
             v = other->fTop;
         } else if (p == other->fBottom->fPoint) {
-            split_edge(edge, other->fBottom, activeEdges, current, c, alloc);
             v = other->fBottom;
         } else {
             Vertex* prevV = top;
-            Vertex* nextV = top->fNext;
+            Vertex* nextV = top ? top->fNext : mesh->fHead;
             while (nextV && c.sweep_lt(nextV->fPoint, p)) {
                 prevV = nextV;
                 nextV = nextV->fNext;
@@ -1115,22 +1113,20 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
             } else {
                 v = alloc.make<Vertex>(p, alpha);
 #if LOGGING_ENABLED
-                float prevID = prevV ? prevV->fID : 0.0f;
-                float nextID = nextV ? nextV->fID : prevV->fID + 1.0f;
-                v->fID = (prevID + nextID) * 0.5f;
+                if (!prevV) {
+                    v->fID = mesh->fHead - 1.0f;
+                } else if (!nextV) {
+                    v->fID = mesh->fTail + 1.0f;
+                } else {
+                    v->fID = (prevV->fID + nextV->fID) * 0.5f;
+                }
 #endif
-                v->fPrev = prevV;
-                v->fNext = nextV;
-                if (prevV) {
-                    prevV->fNext = v;
-                }
-                if (nextV) {
-                    nextV->fPrev = v;
-                }
+                mesh->insert(v, prevV, nextV);
             }
-            split_edge(edge, v, activeEdges, current, c, alloc);
-            split_edge(other, v, activeEdges, current, c, alloc);
         }
+        rewind(activeEdges, current, top ? top : v, c);
+        split_edge(edge, v, activeEdges, current, c, alloc);
+        split_edge(other, v, activeEdges, current, c, alloc);
         v->fAlpha = SkTMax(v->fAlpha, alpha);
         return true;
     }
@@ -1265,10 +1261,10 @@ void merge_sort(VertexList* vertices) {
 
 // Stage 4: Simplify the mesh by inserting new vertices at intersecting edges.
 
-void simplify(const VertexList& vertices, Comparator& c, SkArenaAlloc& alloc) {
+void simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     LOG("simplifying complex polygons\n");
     EdgeList activeEdges;
-    for (Vertex* v = vertices.fHead; v != nullptr; v = v->fNext) {
+    for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
         if (!v->fFirstEdgeAbove && !v->fFirstEdgeBelow) {
             continue;
         }
@@ -1289,12 +1285,12 @@ void simplify(const VertexList& vertices, Comparator& c, SkArenaAlloc& alloc) {
             v->fRightEnclosingEdge = rightEnclosingEdge;
             if (v->fFirstEdgeBelow) {
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
-                    if (check_for_intersection(edge, leftEnclosingEdge, &activeEdges, &v, c,
+                    if (check_for_intersection(edge, leftEnclosingEdge, &activeEdges, &v, mesh, c,
                                                alloc)) {
                         restartChecks = true;
                         break;
                     }
-                    if (check_for_intersection(edge, rightEnclosingEdge, &activeEdges, &v, c,
+                    if (check_for_intersection(edge, rightEnclosingEdge, &activeEdges, &v, mesh, c,
                                                alloc)) {
                         restartChecks = true;
                         break;
@@ -1302,7 +1298,7 @@ void simplify(const VertexList& vertices, Comparator& c, SkArenaAlloc& alloc) {
                 }
             } else {
                 if (check_for_intersection(leftEnclosingEdge, rightEnclosingEdge,
-                                           &activeEdges, &v, c, alloc)) {
+                                           &activeEdges, &v, mesh, c, alloc)) {
                     restartChecks = true;
                 }
 
@@ -1729,7 +1725,7 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
     contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
     sort_mesh(&mesh, c, alloc);
     merge_coincident_vertices(&mesh, c, alloc);
-    simplify(mesh, c, alloc);
+    simplify(&mesh, c, alloc);
     if (antialias) {
         VertexList innerMesh;
         extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
@@ -1741,7 +1737,7 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPath::FillType f
             connect_partners(outerMesh, c, alloc);
             sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
             merge_coincident_vertices(&aaMesh, c, alloc);
-            simplify(aaMesh, c, alloc);
+            simplify(&aaMesh, c, alloc);
             outerMesh->fHead = outerMesh->fTail = nullptr;
             return tessellate(aaMesh, alloc);
         } else {
