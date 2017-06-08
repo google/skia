@@ -67,85 +67,43 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
-    if (buffer.isVersionLT(SkReadBuffer::kGradientShaderFloatColor_Version)) {
-        fCount = buffer.getArrayCount();
-        if (fCount > kStorageCount) {
-            size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
-            fDynamicStorage.reset(allocSize);
-            fColors = (SkColor4f*)fDynamicStorage.get();
-            fPos = (SkScalar*)(fColors + fCount);
-        } else {
-            fColors = fColorStorage;
-            fPos = fPosStorage;
-        }
+    // New gradient format. Includes floating point color, color space, densely packed flags
+    uint32_t flags = buffer.readUInt();
 
-        // Old gradients serialized SkColor. Read that to a temporary location, then convert.
-        SkSTArray<2, SkColor, true> colors;
-        colors.resize_back(fCount);
-        if (!buffer.readColorArray(colors.begin(), fCount)) {
-            return false;
-        }
-        for (int i = 0; i < fCount; ++i) {
-            mutableColors()[i] = SkColor4f::FromColor(colors[i]);
-        }
+    fTileMode = (SkShader::TileMode)((flags >> kTileModeShift_GSF) & kTileModeMask_GSF);
+    fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
 
-        if (buffer.readBool()) {
-            if (!buffer.readScalarArray(const_cast<SkScalar*>(fPos), fCount)) {
-                return false;
-            }
-        } else {
-            fPos = nullptr;
-        }
-
+    fCount = buffer.getArrayCount();
+    if (fCount > kStorageCount) {
+        size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
+        fDynamicStorage.reset(allocSize);
+        fColors = (SkColor4f*)fDynamicStorage.get();
+        fPos = (SkScalar*)(fColors + fCount);
+    } else {
+        fColors = fColorStorage;
+        fPos = fPosStorage;
+    }
+    if (!buffer.readColor4fArray(mutableColors(), fCount)) {
+        return false;
+    }
+    if (SkToBool(flags & kHasColorSpace_GSF)) {
+        sk_sp<SkData> data = buffer.readByteArrayAsData();
+        fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
+    } else {
         fColorSpace = nullptr;
-        fTileMode = (SkShader::TileMode)buffer.read32();
-        fGradFlags = buffer.read32();
-
-        if (buffer.readBool()) {
-            fLocalMatrix = &fLocalMatrixStorage;
-            buffer.readMatrix(&fLocalMatrixStorage);
-        } else {
-            fLocalMatrix = nullptr;
+    }
+    if (SkToBool(flags & kHasPosition_GSF)) {
+        if (!buffer.readScalarArray(mutablePos(), fCount)) {
+            return false;
         }
     } else {
-        // New gradient format. Includes floating point color, color space, densely packed flags
-        uint32_t flags = buffer.readUInt();
-
-        fTileMode = (SkShader::TileMode)((flags >> kTileModeShift_GSF) & kTileModeMask_GSF);
-        fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
-
-        fCount = buffer.getArrayCount();
-        if (fCount > kStorageCount) {
-            size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
-            fDynamicStorage.reset(allocSize);
-            fColors = (SkColor4f*)fDynamicStorage.get();
-            fPos = (SkScalar*)(fColors + fCount);
-        } else {
-            fColors = fColorStorage;
-            fPos = fPosStorage;
-        }
-        if (!buffer.readColor4fArray(mutableColors(), fCount)) {
-            return false;
-        }
-        if (SkToBool(flags & kHasColorSpace_GSF)) {
-            sk_sp<SkData> data = buffer.readByteArrayAsData();
-            fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
-        } else {
-            fColorSpace = nullptr;
-        }
-        if (SkToBool(flags & kHasPosition_GSF)) {
-            if (!buffer.readScalarArray(mutablePos(), fCount)) {
-                return false;
-            }
-        } else {
-            fPos = nullptr;
-        }
-        if (SkToBool(flags & kHasLocalMatrix_GSF)) {
-            fLocalMatrix = &fLocalMatrixStorage;
-            buffer.readMatrix(&fLocalMatrixStorage);
-        } else {
-            fLocalMatrix = nullptr;
-        }
+        fPos = nullptr;
+    }
+    if (SkToBool(flags & kHasLocalMatrix_GSF)) {
+        fLocalMatrix = &fLocalMatrixStorage;
+        buffer.readMatrix(&fLocalMatrixStorage);
+    } else {
+        fLocalMatrix = nullptr;
     }
     return buffer.isValid();
 }

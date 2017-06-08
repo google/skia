@@ -140,10 +140,6 @@ bool SkImageFilter::Common::unflatten(SkReadBuffer& buffer, int expectedCount) {
 
     uint32_t flags = buffer.readUInt();
     fCropRect = CropRect(rect, flags);
-    if (buffer.isVersionLT(SkReadBuffer::kImageFilterNoUniqueID_Version)) {
-
-        (void) buffer.readUInt();
-    }
     return buffer.isValid();
 }
 

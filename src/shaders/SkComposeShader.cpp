@@ -36,13 +36,8 @@ sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader>
 sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> shaderA(buffer.readShader());
     sk_sp<SkShader> shaderB(buffer.readShader());
-    SkBlendMode mode;
-    if (buffer.isVersionLT(SkReadBuffer::kXfermodeToBlendMode2_Version)) {
-        sk_sp<SkXfermode> xfer = buffer.readXfermode();
-        mode = xfer ? xfer->blend() : SkBlendMode::kSrcOver;
-    } else {
-        mode = (SkBlendMode)buffer.read32();
-    }
+    SkBlendMode mode = (SkBlendMode)buffer.read32();
+
     if (!shaderA || !shaderB) {
         return nullptr;
     }
