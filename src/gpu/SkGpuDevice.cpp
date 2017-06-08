@@ -296,33 +296,6 @@ static const GrPrimitiveType gPointMode2PrimitiveType[] = {
     kLineStrip_GrPrimitiveType
 };
 
-static inline bool is_int(float x) { return x == (float) sk_float_round2int(x); }
-
-// suppress antialiasing on axis-aligned integer-coordinate lines
-static bool needs_antialiasing(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
-                               const SkMatrix& matrix) {
-    if (mode == SkCanvas::PointMode::kPoints_PointMode) {
-        return false;
-    }
-    if (count == 2) {
-        // We do not antialias horizontal or vertical lines along pixel centers, even when the ends
-        // of the line do not fully cover the first and last pixel of the line, which is slightly
-        // wrong.
-        if (!matrix.isScaleTranslate()) {
-            return true;
-        }
-        if (pts[0].fX == pts[1].fX) {
-            SkScalar x = matrix.getScaleX() * pts[0].fX + matrix.getTranslateX();
-            return !is_int(x + 0.5f);
-        }
-        if (pts[0].fY == pts[1].fY) {
-            SkScalar y = matrix.getScaleY() * pts[0].fY + matrix.getTranslateY();
-            return !is_int(y + 0.5f);
-        }
-    }
-    return true;
-}
-
 void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
                              size_t count, const SkPoint pts[], const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -356,9 +329,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
                                        SkScalarNearlyEqual(scales[1], 1.f));
     // we only handle non-antialiased hairlines and paints without path effects or mask filters,
     // else we let the SkDraw call our drawPath()
-    if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() ||
-        (paint.isAntiAlias() && needs_antialiasing(mode, count, pts, this->ctm())))
-    {
+    if (!isHairline || paint.getPathEffect() || paint.getMaskFilter() || paint.isAntiAlias()) {
         SkRasterClip rc(this->devClipBounds());
         SkDraw draw;
         draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(this->width(), this->height()), nullptr, 0);
