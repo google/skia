@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13edebf4_6faa710e",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-08T20:06:06Z",
+      "side": 1,
+      "message": "Why not use SkString?",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 13,
+        "endChar": 16
+      },
+      "revId": "c09d7e6569c5a9dc6690ea43e58a25dd841863d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f16c3f41_7c36cd91",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-08T20:06:06Z",
+      "side": 1,
+      "message": "Specify that this has to be shorter than PNG_KEYWORD_MAX_LENGTH?",
+      "range": {
+        "startLine": 70,
+        "startChar": 24,
+        "endLine": 70,
+        "endChar": 28
+      },
+      "revId": "c09d7e6569c5a9dc6690ea43e58a25dd841863d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b26923cc_adefb67c",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-08T20:06:06Z",
+      "side": 1,
+      "message": "nit: Don\u0027t we usually put a space between \"for\" and \"(\"?",
+      "range": {
+        "startLine": 182,
+        "startChar": 4,
+        "endLine": 182,
+        "endChar": 14
+      },
+      "revId": "c09d7e6569c5a9dc6690ea43e58a25dd841863d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af50f89e_20ff72a3",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-08T20:06:06Z",
+      "side": 1,
+      "message": "Alternatively, should we clip to PNG_KEYWORD_MAX_LENGTH (and maybe assert, too)?",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 191,
+        "endChar": 98
+      },
+      "revId": "c09d7e6569c5a9dc6690ea43e58a25dd841863d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cb76d52_8c9fb148",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-08T20:06:06Z",
+      "side": 1,
+      "message": "Why not put this inside its own method/DEF_TEST?",
+      "range": {
+        "startLine": 201,
+        "startChar": 7,
+        "endLine": 201,
+        "endChar": 15
+      },
+      "revId": "c09d7e6569c5a9dc6690ea43e58a25dd841863d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
