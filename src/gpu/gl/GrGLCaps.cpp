@@ -439,6 +439,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     }
 
+    // We found that the Galaxy J5 with an Adreno 306 running 6.0.1 has a bug where
+    // GL_INVALID_OPERATION thrown by glDrawArrays when using a buffer that was mapped. The same bug
+    // did not reproduce on a Nexus7 2013 with a 320 running Android M with driver 127.0. It's
+    // unclear whether this really affects a wide range of devices.
+    if (ctxInfo.renderer() == kAdreno3xx_GrGLRenderer && ctxInfo.driver() == kQualcomm_GrGLDriver &&
+        ctxInfo.driverVersion() > GR_GL_DRIVER_VER(127, 0)) {
+        fMapBufferType = kNone_MapBufferType;
+        fMapBufferFlags = kNone_MapFlags;
+    }
+
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object")) {
             fTransferBufferType = kPBO_TransferBufferType;
