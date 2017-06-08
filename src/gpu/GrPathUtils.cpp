@@ -8,7 +8,6 @@
 #include "GrPathUtils.h"
 
 #include "GrTypes.h"
-#include "SkGeometry.h"
 #include "SkMathPriv.h"
 
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
@@ -687,8 +686,8 @@ static void calc_loop_klm(const SkPoint pts[4], SkScalar td, SkScalar sd, SkScal
     SkMatrix CIT;
     int skipCol = calc_inverse_transpose_power_basis_matrix(pts, &CIT);
 
-    const SkScalar tesd = te * sd;
     const SkScalar tdse = td * se;
+    const SkScalar tesd = te * sd;
 
     SkMatrix klmCoeffs;
     int col = 0;
@@ -799,108 +798,55 @@ static void calc_line_klm(const SkPoint pts[4], SkMatrix* klm) {
                 -nx, -ny, k);
 }
 
+SkCubicType GrPathUtils::getCubicKLM(const SkPoint src[4], SkMatrix* klm, SkScalar t[2],
+                                     SkScalar s[2]) {
+    SkScalar d[4];
+    SkCubicType type = SkClassifyCubic(src, t, s, d);
+    switch (type) {
+        case SkCubicType::kSerpentine:
+            calc_serp_klm(src, t[0], s[0], t[1], s[1], klm);
+            break;
+        case SkCubicType::kLoop:
+            calc_loop_klm(src, t[0], s[0], t[1], s[1], klm);
+            break;
+        case SkCubicType::kLocalCusp:
+            calc_serp_klm(src, t[0], s[0], t[1], s[1], klm);
+            break;
+        case SkCubicType::kCuspAtInfinity:
+            calc_inf_cusp_klm(src, t[0], s[0], klm);
+            break;
+        case SkCubicType::kQuadratic:
+            calc_quadratic_klm(src, d[3], klm);
+            break;
+        case SkCubicType::kLineOrPoint:
+            calc_line_klm(src, klm);
+            break;
+    }
+
+    return type;
+}
+
 int GrPathUtils::chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10], SkMatrix* klm,
                                              int* loopIndex) {
-    // Variables to store the two parametric values at the loop double point.
-    SkScalar t1 = 0, t2 = 0;
+    SkSTArray<2, SkScalar> chops;
+    *loopIndex = -1;
 
-    // Homogeneous parametric values at the loop double point.
-    SkScalar td, sd, te, se;
+    SkScalar t[2], s[2];
+    if (SkCubicType::kLoop == GrPathUtils::getCubicKLM(src, klm, t, s)) {
+        t[0] /= s[0];
+        t[1] /= s[1];
+        SkASSERT(t[0] <= t[1]); // Technically t0 != t1 in a loop, but there may be FP error.
 
-    SkScalar d[4];
-    SkCubicType cType = SkClassifyCubic(src, d);
-
-    int chop_count = 0;
-    if (SkCubicType::kLoop == cType) {
-        SkASSERT(d[0] < 0);
-        const SkScalar q = d[2] + SkScalarCopySign(SkScalarSqrt(-d[0]), d[2]);
-        td = q;
-        sd = 2 * d[1];
-        te = 2 * (d[2] * d[2] - d[3] * d[1]);
-        se = d[1] * q;
-
-        t1 = td / sd;
-        t2 = te / se;
-        // need to have t values sorted since this is what is expected by SkChopCubicAt
-        if (t1 > t2) {
-            SkTSwap(t1, t2);
-        }
-
-        SkScalar chop_ts[2];
-        if (t1 > 0.f && t1 < 1.f) {
-            chop_ts[chop_count++] = t1;
-        }
-        if (t2 > 0.f && t2 < 1.f) {
-            chop_ts[chop_count++] = t2;
-        }
-        if(dst) {
-            SkChopCubicAt(src, dst, chop_ts, chop_count);
-        }
-    } else {
-        if (dst) {
-            memcpy(dst, src, sizeof(SkPoint) * 4);
-        }
-    }
-
-    if (loopIndex) {
-        if (2 == chop_count) {
+        if (t[0] > 0 && t[0] < 1) {
+            chops.push_back(t[0]);
             *loopIndex = 1;
-        } else if (1 == chop_count) {
-            if (t1 < 0.f) {
-                *loopIndex = 0;
-            } else {
-                *loopIndex = 1;
-            }
-        } else {
-            if (t1 < 0.f && t2 > 1.f) {
-                *loopIndex = 0;
-            } else {
-                *loopIndex = -1;
-            }
+        }
+        if (t[1] > 0 && t[1] < 1) {
+            chops.push_back(t[1]);
+            *loopIndex = chops.count() - 1;
         }
     }
 
-    if (klm) {
-        switch (cType) {
-            case SkCubicType::kSerpentine: {
-                SkASSERT(d[0] >= 0);
-                const SkScalar q = 3 * d[2] + SkScalarCopySign(SkScalarSqrt(3 * d[0]), d[2]);
-                const SkScalar tl = q;
-                const SkScalar sl = 6 * d[1];
-                const SkScalar tm = 2 * d[3];
-                const SkScalar sm = q;
-                // This copysign/abs business orients the implicit function so positive values are
-                // always on the "left" side of the curve.
-                calc_serp_klm(src, tl, sl, -SkScalarCopySign(tm, tm * sm), -SkScalarAbs(sm), klm);
-                break;
-            }
-            case SkCubicType::kLocalCusp: {
-                SkASSERT(0 == d[0]);
-                const SkScalar t = d[2];
-                const SkScalar s = 2 * d[1];
-                // This copysign/abs business orients the implicit function so positive values are
-                // always on the "left" side of the curve.
-                calc_serp_klm(src, t, s, -SkScalarCopySign(t, t * s), -SkScalarAbs(s), klm);
-                break;
-            }
-            case SkCubicType::kLoop:
-                // This copysign/abs business orients the implicit function so positive values are
-                // always on the "left" side of the curve.
-                calc_loop_klm(src, td, sd, -SkScalarCopySign(te, te * se), -SkScalarAbs(se), klm);
-                break;
-            case SkCubicType::kInfiniteCusp: {
-                const SkScalar tn = d[3];
-                const SkScalar sn = 3 * d[2];
-                calc_inf_cusp_klm(src, tn, sn, klm);
-                break;
-            }
-            case SkCubicType::kQuadratic:
-                calc_quadratic_klm(src, d[3], klm);
-                break;
-            case SkCubicType::kLineOrPoint:
-                calc_line_klm(src, klm);
-                break;
-        };
-    }
-    return chop_count + 1;
+    SkChopCubicAt(src, dst, chops.begin(), chops.count());
+    return chops.count() + 1;
 }

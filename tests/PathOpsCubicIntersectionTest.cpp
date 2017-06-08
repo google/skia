@@ -646,8 +646,7 @@ static void selfOneOff(skiatest::Reporter* reporter, int index) {
         c[i] = cubic.fPts[i].asSkPoint();
     }
     SkScalar loopT[3];
-    SkScalar d[4];
-    SkCubicType cubicType = SkClassifyCubic(c, d);
+    SkCubicType cubicType = SkClassifyCubic(c);
     int breaks = SkDCubic::ComplexBreak(c, loopT);
     SkASSERT(breaks < 2);
     if (breaks && cubicType == SkCubicType::kLoop) {

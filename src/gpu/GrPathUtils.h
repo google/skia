@@ -8,6 +8,7 @@
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
+#include "SkGeometry.h"
 #include "SkRect.h"
 #include "SkPathPriv.h"
 #include "SkTArray.h"
@@ -123,20 +124,11 @@ namespace GrPathUtils {
                                                 SkPathPriv::FirstDirection dir,
                                                 SkTArray<SkPoint, true>* quads);
 
-    // Chops the cubic bezier passed in by src, at the double point (intersection point)
-    // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
-    // the double point: t1 and t2. We chop the cubic at these values if they are between 0 and 1.
-    // Return value:
-    // Value of 3: t1 and t2 are both between (0,1), and dst will contain the three cubics,
-    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not nullptr
-    // Value of 2: Only one of t1 and t2 are between (0,1), and dst will contain the two cubics,
-    //             dst[0..3] and dst[3..6] if dst is not nullptr
-    // Value of 1: Neither t1 nor t2 are between (0,1), and dst will contain the one original cubic,
-    //             dst[0..3] if dst is not nullptr
+    // Computes the KLM linear functionals for the cubic implicit form. The "right" side of the
+    // curve (when facing in the direction of increasing parameter values) will be the area that
+    // satisfies:
     //
-    // Optional KLM Calculation:
-    // The function can also return the KLM linear functionals for the cubic implicit form of
-    // k^3 - lm. This can be shared by all chopped cubics.
+    //     k^3 < l*m
     //
     // Output:
     //
@@ -146,18 +138,39 @@ namespace GrPathUtils {
     //          | ..L.. | * | y |  ==  | l |
     //          | ..M.. |   | 1 |      | m |
     //
+    // NOTE: the KLM lines are calculated in the same space as the input control points. If you
+    // transform the points the lines will also need to be transformed. This can be done by mapping
+    // the lines with the inverse-transpose of the matrix used to map the points.
+    //
+    // t[],s[]: These are set to the two homogeneous parameter values at which points the lines L&M
+    // intersect with K (See SkClassifyCubic).
+    //
+    // Returns the cubic's classification.
+    SkCubicType getCubicKLM(const SkPoint src[4], SkMatrix* klm, SkScalar t[2], SkScalar s[2]);
+
+    // Chops the cubic bezier passed in by src, at the double point (intersection point)
+    // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
+    // the double point: t1 and t2. We chop the cubic at these values if they are between 0 and 1.
+    // Return value:
+    // Value of 3: t1 and t2 are both between (0,1), and dst will contain the three cubics,
+    //             dst[0..3], dst[3..6], and dst[6..9] if dst is not nullptr
+    // Value of 2: Only one of t1 and t2 are between (0,1), and dst will contain the two cubics,
+    //             dst[0..3] and dst[3..6] if dst is not nullptr
+    // Value of 1: Neither t1 nor t2 are between (0,1), and dst will contain the one original cubic,
+    //             src[0..3]
+    //
+    // Output:
+    //
+    // klm: Holds the linear functionals K,L,M as row vectors. (See getCubicKLM().)
+    //
     // loopIndex: This value will tell the caller which of the chopped sections (if any) are the
     //            actual loop. A value of -1 means there is no loop section. The caller can then use
     //            this value to decide how/if they want to flip the orientation of this section.
     //            The flip should be done by negating the k and l values as follows:
     //
-    //                KLM.postScale(-1, -1)
-    //
-    // Notice that the KLM lines are calculated in the same space as the input control points.
-    // If you transform the points the lines will also need to be transformed. This can be done
-    // by mapping the lines with the inverse-transpose of the matrix used to map the points.
-    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10] = nullptr,
-                                    SkMatrix* klm = nullptr, int* loopIndex = nullptr);
+    //            KLM.postScale(-1, -1)
+    int chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[10], SkMatrix* klm,
+                                    int* loopIndex);
 
     // When tessellating curved paths into linear segments, this defines the maximum distance
     // in screen space which a segment may deviate from the mathmatically correct value.

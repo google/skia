@@ -225,24 +225,30 @@ class GrCubicEffect : public GrGeometryProcessor {
 public:
     static sk_sp<GrGeometryProcessor> Make(GrColor color,
                                            const SkMatrix& viewMatrix,
+                                           const SkMatrix& klm,
+                                           bool flipKL,
                                            const GrPrimitiveEdgeType edgeType,
                                            const GrCaps& caps) {
+        // Map KLM to something that operates in device space.
+        SkMatrix devKLM;
+        if (!viewMatrix.invert(&devKLM)) {
+            return nullptr;
+        }
+        devKLM.postConcat(klm);
+        if (flipKL) {
+            devKLM.postScale(-1, -1);
+        }
+
         switch (edgeType) {
             case kFillAA_GrProcessorEdgeType:
-                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return nullptr;
-                }
                 return sk_sp<GrGeometryProcessor>(
-                    new GrCubicEffect(color, viewMatrix, kFillAA_GrProcessorEdgeType));
+                    new GrCubicEffect(color, viewMatrix, devKLM, kFillAA_GrProcessorEdgeType));
             case kHairlineAA_GrProcessorEdgeType:
-                if (!caps.shaderCaps()->shaderDerivativeSupport()) {
-                    return nullptr;
-                }
                 return sk_sp<GrGeometryProcessor>(
-                    new GrCubicEffect(color, viewMatrix, kHairlineAA_GrProcessorEdgeType));
+                    new GrCubicEffect(color, viewMatrix, devKLM, kHairlineAA_GrProcessorEdgeType));
             case kFillBW_GrProcessorEdgeType:
                 return sk_sp<GrGeometryProcessor>(
-                    new GrCubicEffect(color, viewMatrix, kFillBW_GrProcessorEdgeType));
+                    new GrCubicEffect(color, viewMatrix, devKLM, kFillBW_GrProcessorEdgeType));
             default:
                 return nullptr;
         }
@@ -253,26 +259,27 @@ public:
     const char* name() const override { return "Cubic"; }
 
     inline const Attribute* inPosition() const { return fInPosition; }
-    inline const Attribute* inCubicCoeffs() const { return fInCubicCoeffs; }
     inline bool isAntiAliased() const { return GrProcessorEdgeTypeIsAA(fEdgeType); }
     inline bool isFilled() const { return GrProcessorEdgeTypeIsFill(fEdgeType); }
     inline GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
     GrColor color() const { return fColor; }
     bool colorIgnored() const { return GrColor_ILLEGAL == fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
+    const SkMatrix& devKLMMatrix() const { return fDevKLMMatrix; }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrCubicEffect(GrColor, const SkMatrix& viewMatrix, GrPrimitiveEdgeType);
+    GrCubicEffect(GrColor, const SkMatrix& viewMatrix, const SkMatrix& devKLMMatrix,
+                  GrPrimitiveEdgeType);
 
     GrColor             fColor;
     SkMatrix            fViewMatrix;
+    SkMatrix            fDevKLMMatrix;
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
-    const Attribute*    fInCubicCoeffs;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
