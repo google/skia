@@ -71,21 +71,11 @@ sk_sp<SkFlattenable> SkPictureImageFilter::CreateProc(SkReadBuffer& buffer) {
         }
     }
     buffer.readRect(&cropRect);
-    PictureResolution pictureResolution;
-    if (buffer.isVersionLT(SkReadBuffer::kPictureImageFilterResolution_Version)) {
-        pictureResolution = kDeviceSpace_PictureResolution;
-    } else {
-        pictureResolution = (PictureResolution)buffer.readInt();
-    }
+    PictureResolution pictureResolution = (PictureResolution)buffer.readInt();
 
     if (kLocalSpace_PictureResolution == pictureResolution) {
         //filterLevel is only serialized if pictureResolution is LocalSpace
-        SkFilterQuality filterQuality;
-        if (buffer.isVersionLT(SkReadBuffer::kPictureImageFilterLevel_Version)) {
-            filterQuality = kLow_SkFilterQuality;
-        } else {
-            filterQuality = (SkFilterQuality)buffer.readInt();
-        }
+        SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
         return MakeForLocalSpace(picture, cropRect, filterQuality);
     }
     return Make(picture, cropRect);

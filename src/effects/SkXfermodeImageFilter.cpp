@@ -85,21 +85,9 @@ SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(SkBlendMode mode,
 {}
 
 static int unflatten_blendmode(SkReadBuffer& buffer, SkArithmeticParams* arith) {
-    if (buffer.isVersionLT(SkReadBuffer::kXfermodeToBlendMode_Version)) {
-        sk_sp<SkXfermode> xfer = buffer.readXfermode();
-        if (xfer) {
-            if (xfer->isArithmetic(arith)) {
-                return -1;
-            }
-            return (int)xfer->blend();
-        } else {
-            return (int)SkBlendMode::kSrcOver;
-        }
-    } else {
-        uint32_t mode = buffer.read32();
-        (void)buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode);
-        return mode;
-    }
+    uint32_t mode = buffer.read32();
+    (void)buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode);
+    return mode;
 }
 
 sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {

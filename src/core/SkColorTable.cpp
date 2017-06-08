@@ -92,10 +92,6 @@ void SkColorTable::writeToBuffer(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkColorTable> SkColorTable::Create(SkReadBuffer& buffer) {
-    if (buffer.isVersionLT(SkReadBuffer::kRemoveColorTableAlpha_Version)) {
-        /*fAlphaType = */buffer.readUInt();
-    }
-
     const int count = buffer.getArrayCount();
     if (0 == count) {
         return sk_sp<SkColorTable>(new SkColorTable(nullptr, 0));

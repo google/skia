@@ -14,12 +14,7 @@
 #include "SkReadBuffer.h"
 
 sk_sp<SkFlattenable> SkBitmapSourceDeserializer::CreateProc(SkReadBuffer& buffer) {
-    SkFilterQuality filterQuality;
-    if (buffer.isVersionLT(SkReadBuffer::kBitmapSourceFilterQuality_Version)) {
-        filterQuality = kHigh_SkFilterQuality;
-    } else {
-        filterQuality = (SkFilterQuality)buffer.readInt();
-    }
+    SkFilterQuality filterQuality = (SkFilterQuality)buffer.readInt();
     SkRect src, dst;
     buffer.readRect(&src);
     buffer.readRect(&dst);
