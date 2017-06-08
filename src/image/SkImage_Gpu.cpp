@@ -597,6 +597,17 @@ private:
                offsetof(DeferredTextureImage, member), \
                sizeof(DeferredTextureImage::member));
 
+static bool SupportsColorSpace(ColorType& colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
+            return true;
+        default:
+            return false;
+    }
+}
+
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
                                             int paramCnt, void* buffer,
@@ -610,6 +621,12 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         return 0;
     }
     if (as_IB(this)->onCanLazyGenerateOnGPU()) {
+        return 0;
+    }
+
+    bool supportsColorSpace = SupportsColorSpace(params[0].fColorType);
+    // Quick reject if the user requests a color space with a color type that does not support one.
+    if (dstColorSpace && !supportsColorSpace) {
         return 0;
     }
 
@@ -735,10 +752,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkColorSpaceTransferFn fn;
     if (info.colorSpace()) {
         SkASSERT(dstColorSpace);
+        SkASSERT(supportsColorSpace);
         colorSpaceOffset = size;
         colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
         size += colorSpaceSize;
-    } else if (this->colorSpace() && this->colorSpace()->isNumericalTransferFn(&fn)) {
+    } else if (supportsColorSpace && this->colorSpace() && this->colorSpace()->isNumericalTransferFn(&fn)) {
         // In legacy mode, preserve the color space tag on the SkImage.  This is only
         // supported if the color space has a parametric transfer function.
         SkASSERT(!dstColorSpace);
@@ -762,6 +780,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
     if (proxy.fCaps->srgbSupport() && SkToBool(dstColorSpace) &&
         info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()) {
+        SkASSERT(supportsColorSpace);
         colorMode = SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
     }
 
