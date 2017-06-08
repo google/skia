@@ -179,7 +179,7 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
     // to regenerate the blob on any color change
     // We use the grPaint to get any color filter effects
     if (fKey.fCanonicalColor == SK_ColorTRANSPARENT &&
-        fFilteredPaintColor != paint.filteredUnpremulColor()) {
+        fLuminanceColor != paint.luminanceColor()) {
         return true;
     }
 
@@ -266,10 +266,10 @@ inline std::unique_ptr<GrLegacyMeshDrawOp> GrAtlasTextBlob::makeOp(
 
     std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
-        GrColor filteredColor = paint.filteredUnpremulColor();
+        SkColor luminanceColor = paint.luminanceColor();
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         op = GrAtlasTextOp::MakeDistanceField(glyphCount, cache, distanceAdjustTable,
-                                              useGammaCorrectDistanceTable, filteredColor,
+                                              useGammaCorrectDistanceTable, luminanceColor,
                                               info.hasUseLCDText(), useBGR);
     } else {
         op = GrAtlasTextOp::MakeBitmap(format, glyphCount, cache);

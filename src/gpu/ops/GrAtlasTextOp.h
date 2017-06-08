@@ -55,7 +55,7 @@ public:
         }
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
-        op->fFilteredColor = 0;
+        op->fLuminanceColor = 0;
         op->fFontCache = fontCache;
         op->fUseBGR = false;
         return op;
@@ -64,14 +64,14 @@ public:
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
-            bool useGammaCorrectDistanceTable, GrColor filteredColor, bool isLCD, bool useBGR) {
+            bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
         op->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
         op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
         op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
-        op->fFilteredColor = filteredColor;
+        op->fLuminanceColor = luminanceColor;
         op->fUseBGR = useBGR;
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
@@ -148,9 +148,8 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
     // TODO just use class params
-    // TODO trying to figure out why lcd is so whack
     sk_sp<GrGeometryProcessor> setupDfProcessor(GrResourceProvider*,
-                                                const SkMatrix& viewMatrix, GrColor filteredColor,
+                                                const SkMatrix& viewMatrix, SkColor luminanceColor,
                                                 GrColor color, sk_sp<GrTextureProxy> proxy) const;
 
     GrColor fColor;
@@ -175,7 +174,7 @@ private:
 
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
-    GrColor fFilteredColor;
+    SkColor fLuminanceColor;
     bool fUseGammaCorrectDistanceTable;
 
     friend class GrBlobRegenHelper;  // Needs to trigger flushes

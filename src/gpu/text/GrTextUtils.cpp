@@ -60,14 +60,12 @@ void GrTextUtils::Paint::initFilteredColor() {
                 fPaint->getColorFilter()->filterColor4f(filteredColor.toSkColor4f()));
         }
         fFilteredPremulColor = filteredColor.premul().toGrColor();
-        fFilteredUnpremulColor = filteredColor.toGrColor();
     } else {
         SkColor filteredSkColor = fPaint->getColor();
         if (fPaint->getColorFilter()) {
             filteredSkColor = fPaint->getColorFilter()->filterColor(filteredSkColor);
         }
         fFilteredPremulColor = SkColorToPremulGrColor(filteredSkColor);
-        fFilteredUnpremulColor = SkColorToUnpremulGrColor(filteredSkColor);
     }
 }
 
