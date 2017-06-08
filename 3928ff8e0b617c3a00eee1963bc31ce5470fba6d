@@ -22,6 +22,30 @@
       "revId": "3928ff8e0b617c3a00eee1963bc31ce5470fba6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81e56295_840a7611",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T13:39:23Z",
+      "side": 0,
+      "message": "I\u0027m just using a different (stricter) function to validate the info.  Though we are losing color table validation, which I think is not a big deal, given its deprecation.\n\nI\u0027ll move this and the F16-nullptr change to a different CL.  Since those are unrelated to this and dependent on each other.",
+      "parentUuid": "6fc0f059_37bf3eab",
+      "range": {
+        "startLine": 310,
+        "startChar": 61,
+        "endLine": 310,
+        "endChar": 74
+      },
+      "revId": "3928ff8e0b617c3a00eee1963bc31ce5470fba6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
