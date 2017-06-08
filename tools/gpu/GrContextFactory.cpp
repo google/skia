@@ -54,12 +54,12 @@ void GrContextFactory::destroyContexts() {
         if (context.fTestContext) {
             context.fTestContext->makeCurrent();
         }
-        if (!context.fGrContext->unique()) {
+        if (context.fGrContext && !context.fGrContext->unique()) {
             context.fGrContext->releaseResourcesAndAbandonContext();
-            context.fAbandoned = true;
         }
-        context.fGrContext->unref();
-        delete context.fTestContext;
+        context.fAbandoned = true;
+        context.fGrContext = nullptr;
+        context.fTestContext = nullptr;
     }
     fContexts.reset();
 }
@@ -70,11 +70,13 @@ void GrContextFactory::abandonContexts() {
             if (context.fTestContext) {
                 context.fTestContext->makeCurrent();
                 context.fTestContext->testAbandon();
-                delete(context.fTestContext);
-                context.fTestContext = nullptr;
             }
-            context.fGrContext->abandonContext();
+            if (context.fGrContext) {
+                context.fGrContext->abandonContext();
+            }
             context.fAbandoned = true;
+            context.fGrContext = nullptr;
+            context.fTestContext = nullptr;
         }
     }
 }
@@ -85,12 +87,12 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
             if (context.fTestContext) {
                 context.fTestContext->makeCurrent();
             }
-            context.fGrContext->releaseResourcesAndAbandonContext();
-            context.fAbandoned = true;
-            if (context.fTestContext) {
-                delete context.fTestContext;
-                context.fTestContext = nullptr;
+            if (context.fGrContext) {
+                context.fGrContext->releaseResourcesAndAbandonContext();
             }
+            context.fAbandoned = true;
+            context.fGrContext = nullptr;
+            context.fTestContext = nullptr;
         }
     }
 }
@@ -128,10 +130,12 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         SkASSERT(masterContext && masterContext->fType == type);
     }
 
-    std::unique_ptr<TestContext> testCtx;
+    sk_sp<TestContext> testCtx;
     GrBackendContext backendContext = 0;
     sk_sp<const GrGLInterface> glInterface;
     GrBackend backend = ContextTypeBackend(type);
+    bool cacheContext = true;
+
     switch (backend) {
         case kOpenGL_GrBackend: {
             GLTestContext* glShareContext = masterContext
@@ -148,22 +152,27 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 case kANGLE_D3D9_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D9, ANGLEContextVersion::kES2,
                                                  glShareContext).release();
+                    cacheContext = false;
                     break;
                 case kANGLE_D3D11_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES2,
                                                  glShareContext).release();
+                    cacheContext = false;
                     break;
                 case kANGLE_D3D11_ES3_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kD3D11, ANGLEContextVersion::kES3,
                                                  glShareContext).release();
+                    cacheContext = false;
                     break;
                 case kANGLE_GL_ES2_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES2,
                                                  glShareContext).release();
+                    cacheContext = false;
                     break;
                 case kANGLE_GL_ES3_ContextType:
                     glCtx = MakeANGLETestContext(ANGLEBackend::kOpenGL, ANGLEContextVersion::kES3,
                                                  glShareContext).release();
+                    cacheContext = false;
                     break;
 #endif
 #ifndef SK_NO_COMMAND_BUFFER

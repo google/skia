@@ -1310,25 +1310,28 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
+#if SK_SUPPORT_GPU
     GrContextOptions grOptions;
 
     src.modifyGrContextOptions(&grOptions);
 
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
-    const SkImageInfo info =
-        SkImageInfo::Make(size.width(), size.height(), fColorType,
-                          kPremul_SkAlphaType, fColorSpace);
-#if SK_SUPPORT_GPU
-    GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
+    const SkImageInfo info = SkImageInfo::Make(size.width(), size.height(), fColorType,
+                                               kPremul_SkAlphaType, fColorSpace);
+
+    sk_gpu_test::ContextInfo ctxInfo = factory.getContextInfo(fContextType, fContextOverrides);
+    GrContext* context = ctxInfo.grContext();
+
     const int maxDimension = context->caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
-#endif
 
-    auto surface(
-        NewGpuSurface(&factory, fContextType, fContextOverrides, info, fSampleCount, fUseDIText));
+    uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    auto surface = SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kNo,
+                                               info, fSampleCount, &props);
     if (!surface) {
         return "Could not create a surface.";
     }
@@ -1353,6 +1356,9 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         factory.releaseResourcesAndAbandonContexts();
     }
     return "";
+#else
+    return "GPU Support disabled";
+#endif
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

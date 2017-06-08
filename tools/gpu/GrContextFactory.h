@@ -116,15 +116,15 @@ private:
                                        GrContext* shareContext, uint32_t shareIndex);
 
     struct Context {
-        ContextType       fType;
-        ContextOverrides  fOverrides;
-        GrBackend         fBackend;
-        TestContext*      fTestContext;
-        GrContext*        fGrContext;
-        GrContext*        fShareContext;
-        uint32_t          fShareIndex;
+        ContextType        fType;
+        ContextOverrides   fOverrides;
+        GrBackend          fBackend;
+        TestContext*       fTestContext;
+        GrContext*         fGrContext;
+        GrContext*         fShareContext;
+        uint32_t           fShareIndex;
 
-        bool            fAbandoned;
+        bool               fAbandoned;
     };
     SkTArray<Context, true>         fContexts;
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
