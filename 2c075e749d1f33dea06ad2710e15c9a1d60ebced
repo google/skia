@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fccac2e0_342b51dc",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-08T14:21:39Z",
+      "side": 1,
+      "message": "I should have caught this the first time, but params is an array. Should we take color type as a separate parameter to getDeferredTextureImageData rather than as a field on DeferredTextureImageUsageParams? This is not directly related to the failure.",
+      "range": {
+        "startLine": 685,
+        "startChar": 34,
+        "endLine": 685,
+        "endChar": 52
+      },
+      "revId": "2c075e749d1f33dea06ad2710e15c9a1d60ebced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75bfd333_22415ae2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-08T14:21:39Z",
+      "side": 1,
+      "message": "The bot failure we were getting is that here serialized def. tex. image data winds up having a srgb color space. Previously at line 685 we assigned a color type of 4444. When the unit test creates a new SkImage from the DTID and attempts to read it back we get an assert  because readPixels on a GPU image with 4444 + color space is not supported.",
+      "revId": "2c075e749d1f33dea06ad2710e15c9a1d60ebced",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
