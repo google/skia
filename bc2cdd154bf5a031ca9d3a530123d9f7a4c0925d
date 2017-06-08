@@ -16,6 +16,24 @@
       "revId": "bc2cdd154bf5a031ca9d3a530123d9f7a4c0925d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02a2a8ba_9fdb49ec",
+        "filename": "src/shaders/SkPictureShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-08T16:46:42Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "6042c807_71e851dc",
+      "revId": "bc2cdd154bf5a031ca9d3a530123d9f7a4c0925d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
