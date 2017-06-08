@@ -30,6 +30,7 @@ static K kConstants = {
 static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
 
+#ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
     #if 0
         #include <atomic>
@@ -55,6 +56,7 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
     #else
         static void log_missing(SkRasterPipeline::StockStage) {}
     #endif
+#endif
 #endif
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
@@ -239,6 +241,7 @@ static SkJumper_Engine choose_engine() {
 }
 
 StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
+#ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
     if (SkCpu::Supports(SkCpu::SSSE3)) {
         void** reset_point = ip;
@@ -268,6 +271,7 @@ StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
             return ASM(start_pipeline,ssse3_lowp);
         }
     }
+#endif
 #endif
     gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
