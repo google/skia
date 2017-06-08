@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -96,7 +95,17 @@ private:
     void*                       fSurface;
     ANGLEBackend                fType;
     ANGLEContextVersion         fVersion;
+
+#ifdef SK_BUILD_FOR_WIN
+    HWND                        fWindow;
+    HDC                         fDeviceContext;
+    static ATOM                 gWC;
+#endif
 };
+
+#ifdef SK_BUILD_FOR_WIN
+ATOM ANGLEGLContext::gWC = 0;
+#endif
 
 ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
                                ANGLEGLContext* shareContext)
@@ -105,6 +114,47 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     , fSurface(EGL_NO_SURFACE)
     , fType(type)
     , fVersion(version) {
+#ifdef SK_BUILD_FOR_WIN
+    fWindow = nullptr;
+    fDeviceContext = nullptr;
+
+    HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(nullptr);
+
+    if (!gWC) {
+        WNDCLASS wc;
+        wc.cbClsExtra = 0;
+        wc.cbWndExtra = 0;
+        wc.hbrBackground = nullptr;
+        wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+        wc.hInstance = hInstance;
+        wc.lpfnWndProc = (WNDPROC) DefWindowProc;
+        wc.lpszClassName = TEXT("ANGLE-win");
+        wc.lpszMenuName = nullptr;
+        wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+
+        gWC = RegisterClass(&wc);
+        if (!gWC) {
+            SkDebugf("Could not register window class.\n");
+            return;
+        }
+    }
+    if (!(fWindow = CreateWindow(TEXT("ANGLE-win"),
+                                    TEXT("The Invisible Man"),
+                                    WS_OVERLAPPEDWINDOW,
+                                    0, 0, 1, 1,
+                                    nullptr, nullptr,
+                                    hInstance, nullptr))) {
+        SkDebugf("Could not create window.\n");
+        return;
+    }
+
+    if (!(fDeviceContext = GetDC(fWindow))) {
+        SkDebugf("Could not get device context.\n");
+        this->destroyGLContext();
+        return;
+    }
+#endif
 
     EGLint numConfigs;
     static const EGLint configAttribs[] = {
@@ -117,7 +167,11 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         EGL_NONE
     };
 
+#ifdef SK_BUILD_FOR_WIN
+    fDisplay = get_angle_egl_display(fDeviceContext, type);
+#else
     fDisplay = get_angle_egl_display(EGL_DEFAULT_DISPLAY, type);
+#endif
     if (EGL_NO_DISPLAY == fDisplay) {
         SkDebugf("Could not create EGL display!");
         return;
@@ -125,10 +179,18 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 
     EGLint majorVersion;
     EGLint minorVersion;
-    eglInitialize(fDisplay, &majorVersion, &minorVersion);
+    if (!eglInitialize(fDisplay, &majorVersion, &minorVersion)) {
+        SkDebugf("Could not initialize display!");
+        this->destroyGLContext();
+        return;
+    }
 
     EGLConfig surfaceConfig;
-    eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs);
+    if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
+        SkDebugf("Could not create choose config!");
+        this->destroyGLContext();
+        return;
+    }
 
     int versionNum = ANGLEContextVersion::kES2 == version ? 2 : 3;
     const EGLint contextAttribs[] = {
@@ -137,7 +199,11 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
     };
     EGLContext eglShareContext = shareContext ? shareContext->fContext : nullptr;
     fContext = eglCreateContext(fDisplay, surfaceConfig, eglShareContext, contextAttribs);
-
+    if (EGL_NO_CONTEXT == fContext) {
+        SkDebugf("Could not create context!");
+        this->destroyGLContext();
+        return;
+    }
 
     static const EGLint surfaceAttribs[] = {
         EGL_WIDTH, 1,
@@ -147,7 +213,11 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
 
     fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, surfaceAttribs);
 
-    eglMakeCurrent(fDisplay, fSurface, fSurface, fContext);
+    if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
+        SkDebugf("Could not set the context.");
+        this->destroyGLContext();
+        return;
+    }
 
     sk_sp<const GrGLInterface> gl(sk_gpu_test::CreateANGLEGLInterface());
     if (nullptr == gl.get()) {
@@ -160,6 +230,24 @@ ANGLEGLContext::ANGLEGLContext(ANGLEBackend type, ANGLEContextVersion version,
         this->destroyGLContext();
         return;
     }
+
+#ifdef SK_DEBUG
+    // Verify that the interface we requested was actually returned to us
+    const GrGLubyte* rendererUByte;
+    GR_GL_CALL_RET(gl.get(), rendererUByte, GetString(GR_GL_RENDERER));
+    const char* renderer = reinterpret_cast<const char*>(rendererUByte);
+    switch (type) {
+    case ANGLEBackend::kD3D9:
+        SkASSERT(strstr(renderer, "Direct3D9"));
+        break;
+    case ANGLEBackend::kD3D11:
+        SkASSERT(strstr(renderer, "Direct3D11"));
+        break;
+    case ANGLEBackend::kOpenGL:
+        SkASSERT(strstr(renderer, "OpenGL"));
+        break;
+    }
+#endif
 
     this->init(gl.release());
 }
@@ -228,27 +316,39 @@ std::unique_ptr<sk_gpu_test::GLTestContext> ANGLEGLContext::makeNew() const {
 }
 
 void ANGLEGLContext::destroyGLContext() {
-    if (fDisplay) {
-        eglMakeCurrent(fDisplay, 0, 0, 0);
+    if (EGL_NO_DISPLAY != fDisplay) {
+        eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
-        if (fContext) {
+        if (EGL_NO_CONTEXT != fContext) {
             eglDestroyContext(fDisplay, fContext);
             fContext = EGL_NO_CONTEXT;
         }
 
-        if (fSurface) {
+        if (EGL_NO_SURFACE != fSurface) {
             eglDestroySurface(fDisplay, fSurface);
             fSurface = EGL_NO_SURFACE;
         }
 
-        //TODO should we close the display?
+        eglTerminate(fDisplay);
         fDisplay = EGL_NO_DISPLAY;
     }
+
+#ifdef SK_BUILD_FOR_WIN
+    if (fWindow) {
+        if (fDeviceContext) {
+            ReleaseDC(fWindow, fDeviceContext);
+            fDeviceContext = 0;
+        }
+
+        DestroyWindow(fWindow);
+        fWindow = 0;
+    }
+#endif
 }
 
 void ANGLEGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-        SkDebugf("Could not set the context.\n");
+        SkDebugf("Could not set the context 0x%x.\n", eglGetError());
     }
 }
 
