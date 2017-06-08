@@ -657,7 +657,8 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkAutoPixmapStorage pixmap;
     SkImageInfo info;
     size_t pixelSize = 0;
-    if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable()) {
+    if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable() &&
+        pixmap.info().colorType() == params[0].fColorType) {
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
         if (!dstColorSpace) {
@@ -680,24 +681,35 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                 info = info.makeColorSpace(nullptr);
             }
         }
-        if (kIndex_8_SkColorType == info.colorType()) {
-            // Force Index8 to be N32 instead. Index8 is unsupported in Ganesh.
-            info = info.makeColorType(kN32_SkColorType);
-        }
+        // Force color type to be the requested type.
+        info = info.makeColorType(params->fColorType);
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
-            pixmap.alloc(info);
+            // Always decode to N32 and convert to the requested type if necessary.
+            SkImageInfo decodeInfo = info.makeColorType(kN32_SkColorType);
+            SkAutoPixmapStorage decodePixmap;
+            decodePixmap.alloc(decodeInfo);
+
             if (isScaled) {
-                if (!this->scalePixels(pixmap, scaleFilterQuality,
+                if (!this->scalePixels(decodePixmap, scaleFilterQuality,
                                        SkImage::kDisallow_CachingHint)) {
                     return 0;
                 }
             } else {
-                if (!this->readPixels(pixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
+                if (!this->readPixels(decodePixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
                     return 0;
                 }
             }
-            SkASSERT(!pixmap.ctable());
+            SkASSERT(!decodePixmap.ctable());
+
+            if (decodeInfo.colorType() != info.colorType()) {
+                pixmap.alloc(info);
+                // Convert and copy the decoded pixmap to the target pixmap.
+                decodePixmap.readPixels(pixmap.info(), pixmap.writable_addr(), pixmap.rowBytes(), 0,
+                                        0);
+            } else {
+                pixmap = std::move(decodePixmap);
+            }
         }
     }
     int mipMapLevelCount = 1;

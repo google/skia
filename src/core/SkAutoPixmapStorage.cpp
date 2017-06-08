@@ -14,6 +14,16 @@ SkAutoPixmapStorage::~SkAutoPixmapStorage() {
     this->freeStorage();
 }
 
+SkAutoPixmapStorage& SkAutoPixmapStorage::operator=(SkAutoPixmapStorage&& other) {
+    this->fStorage = other.fStorage;
+    this->INHERITED::reset(other.info(), this->fStorage, other.rowBytes(), other.ctable());
+
+    other.fStorage = nullptr;
+    other.INHERITED::reset();
+
+    return *this;
+}
+
 size_t SkAutoPixmapStorage::AllocSize(const SkImageInfo& info, size_t* rowBytes) {
     size_t rb = info.minRowBytes();
     if (rowBytes) {
