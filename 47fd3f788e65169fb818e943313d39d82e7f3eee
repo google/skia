@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aaf581ff_95b17342",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T18:34:53Z",
+      "side": 1,
+      "message": "nit: Can this be some sort of constant?  Ex: kMaxCommentKeySize",
+      "range": {
+        "startLine": 183,
+        "startChar": 41,
+        "endLine": 183,
+        "endChar": 43
+      },
+      "revId": "47fd3f788e65169fb818e943313d39d82e7f3eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a29b3181_e72b40c6",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T18:34:53Z",
+      "side": 1,
+      "message": "I don\u0027t think we should fail to encode because of a bad comment.  I liked the assert - I just thought that maybe we should also skip the comment (for release mode).",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 25
+      },
+      "revId": "47fd3f788e65169fb818e943313d39d82e7f3eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08d737c6_8b8714d3",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T18:34:53Z",
+      "side": 1,
+      "message": "nit: Seems weird to me to have an include in the body of a function.  But I\u0027m not sure what the style guide says so I\u0027m fine either way.",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 195,
+        "endChar": 21
+      },
+      "revId": "47fd3f788e65169fb818e943313d39d82e7f3eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97e484d5_edc35c35",
+        "filename": "tests/EncodeTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-08T18:34:53Z",
+      "side": 1,
+      "message": "Similar to the gfx unit tests, can we scan the encoded data to make sure it contains our embedded strings?",
+      "range": {
+        "startLine": 201,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 56
+      },
+      "revId": "47fd3f788e65169fb818e943313d39d82e7f3eee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
