@@ -5504,7 +5504,7 @@
         "os:Android",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -5538,7 +5538,7 @@
         "os:Android",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -5572,7 +5572,7 @@
         "os:Android",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -6976,7 +6976,7 @@
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -9873,7 +9873,7 @@
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -10065,7 +10065,7 @@
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -10257,7 +10257,7 @@
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -11585,7 +11585,7 @@
         "os:Android",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -11653,7 +11653,7 @@
         "os:Android",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -11687,7 +11687,7 @@
         "os:Android",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -13164,7 +13164,7 @@
         "os:Ubuntu-14.04",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -16230,7 +16230,7 @@
         "os:Windows-2008ServerR2-SP1",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -16518,7 +16518,7 @@
         "os:Windows-7-SP1",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
@@ -16806,7 +16806,7 @@
         "os:Windows-8.1-SP0",
         "pool:Skia"
       ],
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
       "expiration_ns": 72000000000000,
       "extra_args": [
         "--workdir",
