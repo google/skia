@@ -128,6 +128,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     glCtx0->makeCurrent();
     externalTexture.fTarget = GR_GL_TEXTURE_EXTERNAL;
     externalTexture.fID = glCtx0->eglImageToExternalTexture(image);
+    if (0 == externalTexture.fID) {
+        ERRORF(reporter, "Error converting EGL Image back to texture");
+        cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, backendTexture1, image);
+        return;
+    }
 
     // Wrap this texture ID in a GrTexture
     GrBackendTexture backendTex(kSize, kSize, kRGBA_8888_GrPixelConfig, externalTexture);
