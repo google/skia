@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f20e7171_027236f1",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-08T18:55:37Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "c4a90aaf_f6a11e25",
+      "revId": "f547a19271f7c8118bc7127755a62baa764ec5df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35dd9b18_a07f49e5",
         "filename": "src/core/SkImageCacherator.h",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "f547a19271f7c8118bc7127755a62baa764ec5df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b2be6d0_3364c2c9",
+        "filename": "src/core/SkImageCacherator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-08T18:55:37Z",
+      "side": 1,
+      "message": "Renamed to AllowedTexGenType and nested the enum in GrTextureMaker.",
+      "parentUuid": "35dd9b18_a07f49e5",
+      "revId": "f547a19271f7c8118bc7127755a62baa764ec5df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
