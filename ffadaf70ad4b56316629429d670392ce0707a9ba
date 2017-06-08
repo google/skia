@@ -16,6 +16,24 @@
       "revId": "ffadaf70ad4b56316629429d670392ce0707a9ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e6e1f53_8f8bdb4a",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-08T20:12:06Z",
+      "side": 1,
+      "message": "I updated the comment. It reproduces on 104 (N7), 127 (N7), and 140 (J5). However on the N5 with 127 it does not repro. So I\u0027m not sure if it\u0027s the fact that the N5 is an Adreno 330 rather than a 306 or 320 or if it is a different branch of 127 that has a fix.",
+      "parentUuid": "2610ebae_c844cd26",
+      "revId": "ffadaf70ad4b56316629429d670392ce0707a9ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
