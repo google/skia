@@ -95,6 +95,10 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
     }
 }
 
+GrContext* GrContextFactory::get(ContextType type, ContextOverrides overrides) {
+    return this->getContextInfo(type, overrides).grContext();
+}
+
 ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOverrides overrides,
                                                      GrContext* shareContext, uint32_t shareIndex) {
     // (shareIndex != 0) -> (shareContext != nullptr)
@@ -108,7 +112,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             context.fShareIndex == shareIndex &&
             !context.fAbandoned) {
             context.fTestContext->makeCurrent();
-            return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
+            return ContextInfo(context.fType, context.fTestContext, context.fGrContext);
         }
     }
 
@@ -263,7 +267,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     context.fAbandoned = false;
     context.fShareContext = shareContext;
     context.fShareIndex = shareIndex;
-    return ContextInfo(context.fBackend, context.fTestContext, context.fGrContext);
+    return ContextInfo(context.fType, context.fTestContext, context.fGrContext);
 }
 
 ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides overrides) {

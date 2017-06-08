@@ -18,43 +18,7 @@
 struct GrVkBackendContext;
 
 namespace sk_gpu_test {
-
-class ContextInfo {
-public:
-    ContextInfo() = default;
-    ContextInfo& operator=(const ContextInfo&) = default;
-
-    GrBackend backend() const { return fBackend; }
-
-    GrContext* grContext() const { return fGrContext; }
-
-    TestContext* testContext() const { return fTestContext; }
-
-    GLTestContext* glContext() const {
-        SkASSERT(kOpenGL_GrBackend == fBackend);
-        return static_cast<GLTestContext*>(fTestContext);
-    }
-
-#ifdef SK_VULKAN
-    VkTestContext* vkContext() const {
-        SkASSERT(kVulkan_GrBackend == fBackend);
-        return static_cast<VkTestContext*>(fTestContext);
-    }
-#endif
-
-private:
-    ContextInfo(GrBackend backend, TestContext* testContext, GrContext* grContext)
-            : fBackend(backend)
-            , fTestContext(testContext)
-            , fGrContext(grContext) {}
-
-    GrBackend       fBackend = kOpenGL_GrBackend;
-    // Valid until the factory destroys it via abandonContexts() or destroyContexts().
-    TestContext*    fTestContext = nullptr;
-    GrContext*      fGrContext = nullptr;
-
-    friend class GrContextFactory;
-};
+class ContextInfo;
 
 /**
  * This is a simple class that is useful in test apps that use different
@@ -144,9 +108,7 @@ public:
     /**
      * Get a GrContext initialized with a type of GL context. It also makes the GL context current.
      */
-    GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone) {
-        return this->getContextInfo(type, overrides).grContext();
-    }
+    GrContext* get(ContextType type, ContextOverrides overrides = ContextOverrides::kNone);
     const GrContextOptions& getGlobalOptions() const { return fGlobalOptions; }
 
 private:
@@ -168,6 +130,48 @@ private:
     std::unique_ptr<GLTestContext>  fSentinelGLContext;
     const GrContextOptions          fGlobalOptions;
 };
+
+class ContextInfo {
+public:
+    ContextInfo() = default;
+    ContextInfo& operator=(const ContextInfo&) = default;
+
+    GrContextFactory::ContextType type() const { return fType; }
+    GrBackend backend() const { return GrContextFactory::ContextTypeBackend(fType); }
+
+    GrContext* grContext() const { return fGrContext; }
+
+    TestContext* testContext() const { return fTestContext; }
+
+    GLTestContext* glContext() const {
+        SkASSERT(kOpenGL_GrBackend == this->backend());
+        return static_cast<GLTestContext*>(fTestContext);
+    }
+
+#ifdef SK_VULKAN
+    VkTestContext* vkContext() const {
+        SkASSERT(kVulkan_GrBackend == this->backend());
+        return static_cast<VkTestContext*>(fTestContext);
+    }
+#endif
+
+private:
+    ContextInfo(GrContextFactory::ContextType type,
+                TestContext* testContext,
+                GrContext* grContext)
+        : fType(type)
+        , fTestContext(testContext)
+        , fGrContext(grContext) {
+    }
+
+    GrContextFactory::ContextType fType = GrContextFactory::kGL_ContextType;
+    // Valid until the factory destroys it via abandonContexts() or destroyContexts().
+    TestContext*    fTestContext = nullptr;
+    GrContext*      fGrContext = nullptr;
+
+    friend class GrContextFactory;
+};
+
 }  // namespace sk_gpu_test
 
 GR_MAKE_BITFIELD_CLASS_OPS(sk_gpu_test::GrContextFactory::ContextOverrides);
