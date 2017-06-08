@@ -531,38 +531,6 @@ int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
     return count + 1;
 }
 
-// See "Resolution Independent Curve Rendering using Programmable Graphics Hardware"
-// https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
-// discr(I) = 3*d2^2 - 4*d1*d3
-// Classification:
-// d1 != 0, discr(I) > 0        Serpentine
-// d1 != 0, discr(I) < 0        Loop
-// d1 != 0, discr(I) = 0        Cusp (with inflection at infinity)
-// d1 = 0, d2 != 0              Cusp (with cusp at infinity)
-// d1 = d2 = 0, d3 != 0         Quadratic
-// d1 = d2 = d3 = 0             Line or Point
-static SkCubicType classify_cubic(SkScalar d[4]) {
-    if (!SkScalarNearlyZero(d[1])) {
-        d[0] = 3 * d[2] * d[2] - 4 * d[1] * d[3];
-        if (d[0] > 0) {
-            return SkCubicType::kSerpentine;
-        } else if (d[0] < 0) {
-            return SkCubicType::kLoop;
-        } else {
-            SkASSERT(0 == d[0]); // Detect NaN.
-            return SkCubicType::kLocalCusp;
-        }
-    } else {
-        if (!SkScalarNearlyZero(d[2])) {
-            return SkCubicType::kInfiniteCusp;
-        } else if (!SkScalarNearlyZero(d[3])) {
-            return SkCubicType::kQuadratic;
-        } else {
-            return SkCubicType::kLineOrPoint;
-        }
-    }
-}
-
 // Assumes the third component of points is 1.
 // Calcs p0 . (p1 x p2)
 static SkScalar calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
@@ -586,26 +554,118 @@ static void calc_cubic_inflection_func(const SkPoint p[4], SkScalar d[4]) {
     SkScalar a2 = calc_dot_cross_cubic(p[1], p[0], p[3]);
     SkScalar a3 = calc_dot_cross_cubic(p[2], p[1], p[0]);
 
-    // need to scale a's or values in later calculations will grow to high
-    SkScalar max = SkScalarAbs(a1);
-    max = SkMaxScalar(max, SkScalarAbs(a2));
-    max = SkMaxScalar(max, SkScalarAbs(a3));
-    if (0 != max) {
-        max = 1.f/max;
-        a1 = a1 * max;
-        a2 = a2 * max;
-        a3 = a3 * max;
-    }
-
     d[3] = 3.f * a3;
     d[2] = d[3] - a2;
     d[1] = d[2] - a2 + a1;
     d[0] = 0;
 }
 
-SkCubicType SkClassifyCubic(const SkPoint src[4], SkScalar d[4]) {
-    calc_cubic_inflection_func(src, d);
-    return classify_cubic(d);
+static void normalize_t_s(float t[], float s[], int count) {
+    // Keep the exponents at or below zero to avoid overflow down the road.
+    for (int i = 0; i < count; ++i) {
+        SkASSERT(0 != s[i]);
+        union { float value; int32_t bits; } tt, ss, norm;
+        tt.value = t[i];
+        ss.value = s[i];
+        int32_t expT = ((tt.bits >> 23) & 0xff) - 127,
+                expS = ((ss.bits >> 23) & 0xff) - 127;
+        int32_t expNorm = -SkTMax(expT, expS) + 127;
+        SkASSERT(expNorm > 0 && expNorm < 255); // ensure we have a valid non-zero exponent.
+        norm.bits = expNorm << 23;
+        t[i] *= norm.value;
+        s[i] *= norm.value;
+    }
+}
+
+static void sort_and_orient_t_s(SkScalar t[2], SkScalar s[2]) {
+    // This copysign/abs business orients the implicit function so positive values are always on the
+    // "left" side of the curve.
+    t[1] = -SkScalarCopySign(t[1], t[1] * s[1]);
+    s[1] = -SkScalarAbs(s[1]);
+
+    // Ensure t[0]/s[0] <= t[1]/s[1] (s[1] is negative from above).
+    if (SkScalarCopySign(s[1], s[0]) * t[0] > -SkScalarAbs(s[0]) * t[1]) {
+        std::swap(t[0], t[1]);
+        std::swap(s[0], s[1]);
+    }
+}
+
+// See "Resolution Independent Curve Rendering using Programmable Graphics Hardware"
+// https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+// discr(I) = 3*d2^2 - 4*d1*d3
+// Classification:
+// d1 != 0, discr(I) > 0        Serpentine
+// d1 != 0, discr(I) < 0        Loop
+// d1 != 0, discr(I) = 0        Cusp (with inflection at infinity)
+// d1 = 0, d2 != 0              Cusp (with cusp at infinity)
+// d1 = d2 = 0, d3 != 0         Quadratic
+// d1 = d2 = d3 = 0             Line or Point
+static SkCubicType classify_cubic(const SkScalar d[4], SkScalar t[2], SkScalar s[2]) {
+    SkScalar tolerance = SkTMax(SkScalarAbs(d[1]), SkScalarAbs(d[2]));
+    tolerance = SkTMax(tolerance, SkScalarAbs(d[3]));
+    tolerance = tolerance * 1e-5;
+    if (!SkScalarNearlyZero(d[1], tolerance)) {
+        const SkScalar discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
+        if (discr > 0) {
+            if (t && s) {
+                const SkScalar q = 3 * d[2] + SkScalarCopySign(SkScalarSqrt(3 * discr), d[2]);
+                t[0] = q;
+                s[0] = 6 * d[1];
+                t[1] = 2 * d[3];
+                s[1] = q;
+                normalize_t_s(t, s, 2);
+                sort_and_orient_t_s(t, s);
+            }
+            return SkCubicType::kSerpentine;
+        } else if (discr < 0) {
+            if (t && s) {
+                const SkScalar q = d[2] + SkScalarCopySign(SkScalarSqrt(-discr), d[2]);
+                t[0] = q;
+                s[0] = 2 * d[1];
+                t[1] = 2 * (d[2] * d[2] - d[3] * d[1]);
+                s[1] = d[1] * q;
+                normalize_t_s(t, s, 2);
+                sort_and_orient_t_s(t, s);
+            }
+            return SkCubicType::kLoop;
+        } else {
+            SkASSERT(0 == discr); // Detect NaN.
+            if (t && s) {
+                t[0] = d[2];
+                s[0] = 2 * d[1];
+                normalize_t_s(t, s, 1);
+                t[1] = t[0];
+                s[1] = s[0];
+                sort_and_orient_t_s(t, s);
+            }
+            return SkCubicType::kLocalCusp;
+        }
+    } else {
+        if (!SkScalarNearlyZero(d[2], tolerance)) {
+            if (t && s) {
+                t[0] = d[3];
+                s[0] = 3 * d[2];
+                normalize_t_s(t, s, 1);
+                t[1] = 1;
+                s[1] = 0; // infinity
+            }
+            return SkCubicType::kCuspAtInfinity;
+        } else {
+            if (t && s) {
+                t[0] = t[1] = 1;
+                s[0] = s[1] = 0; // infinity
+            }
+            return !SkScalarNearlyZero(d[3], tolerance) ? SkCubicType::kQuadratic
+                                                        : SkCubicType::kLineOrPoint;
+        }
+    }
+}
+
+SkCubicType SkClassifyCubic(const SkPoint src[4], SkScalar t[2], SkScalar s[2], SkScalar d[4]) {
+    SkScalar localD[4];
+    SkScalar* dd = d ? d : localD;
+    calc_cubic_inflection_func(src, dd);
+    return classify_cubic(dd, t, s);
 }
 
 template <typename T> void bubble_sort(T array[], int count) {
