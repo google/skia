@@ -581,6 +581,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.CipdPackages = append(s.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		s.ExecutionTimeout = 9 * time.Hour
+	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
+		// skia:6737
+		s.ExecutionTimeout = 6 * time.Hour
 	}
 	b.MustAddTask(name, s)
 
@@ -668,6 +671,9 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		s.CipdPackages = append(s.CipdPackages, b.MustGetCipdPackageFromAsset("valgrind"))
 	} else if strings.Contains(parts["extra_config"], "MSAN") {
 		s.ExecutionTimeout = 9 * time.Hour
+	} else if parts["arch"] == "x86" && parts["configuration"] == "Debug" {
+		// skia:6737
+		s.ExecutionTimeout = 6 * time.Hour
 	}
 	b.MustAddTask(name, s)
 
