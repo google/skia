@@ -137,18 +137,12 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkPicture> picture;
 
     if (buffer.isCrossProcess() && SkPicture::PictureIOSecurityPrecautionsEnabled()) {
-        if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version)) {
-            // Older code blindly serialized pictures.  We don't trust them.
-            buffer.validate(false);
-            return nullptr;
-        }
         // Newer code won't serialize pictures in disallow-cross-process-picture mode.
         // Assert that they didn't serialize anything except a false here.
         buffer.validate(!buffer.readBool());
     } else {
-        // Old code always serialized the picture.  New code writes a 'true' first if it did.
-        if (buffer.isVersionLT(SkReadBuffer::kPictureShaderHasPictureBool_Version) ||
-            buffer.readBool()) {
+        bool didSerialize = buffer.readBool();
+        if (didSerialize) {
             picture = SkPicture::MakeFromBuffer(buffer);
         }
     }
