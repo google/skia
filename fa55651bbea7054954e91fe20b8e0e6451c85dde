@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "502ed220_f3e807cf",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-08T15:15:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f6dca9f_3cc9e6ef",
+      "revId": "fa55651bbea7054954e91fe20b8e0e6451c85dde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "279a3b0d_2b82ac6e",
         "filename": "src/gpu/text/GrTextUtils.h",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-08T14:51:47Z",
       "side": 1,
       "message": "I had not noticed computeLuminanceColor before. That\u0027s going to be wrong with sRGB enabled, or in other color spaces. I don\u0027t know if you really want to tackle that problem, but I think cLC and justAColor need to take a destination color space, work in linear if it\u0027s present, and possibly do gamut xform as well.\n\nhttps://skia-review.googlesource.com/c/16486/ is the CL where I changed most of the code to use the GrColors that had gone through paint conversion (where color spaces have already been applied).",
+      "revId": "fa55651bbea7054954e91fe20b8e0e6451c85dde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04e924e5_a01ecf49",
+        "filename": "src/gpu/text/GrTextUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-08T15:15:33Z",
+      "side": 1,
+      "message": "If sRGB is enabled then we don\u0027t apply any fake gamma (or more accurately, we use a gamma of 1), so I don\u0027t think it would affect anything if luminance color is wrong.",
+      "parentUuid": "279a3b0d_2b82ac6e",
       "revId": "fa55651bbea7054954e91fe20b8e0e6451c85dde",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
