@@ -16,6 +16,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "SkGr.h"
@@ -434,6 +435,10 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType) {
+        return;
+    }
+
     GrContext* context = ctxInfo.grContext();
 
     SkBitmap bmp = make_src_bitmap();
