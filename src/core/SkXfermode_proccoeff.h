@@ -30,10 +30,6 @@ public:
 
     bool asMode(Mode* mode) const override;
 
-    bool supportsCoverageAsAlpha() const override;
-
-    bool isOpaque(SkXfermode::SrcColorOpacity opacityType) const override;
-
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
                                                         sk_sp<GrFragmentProcessor>) const override;

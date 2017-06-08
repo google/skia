@@ -88,48 +88,15 @@ public:
     };
 
     /**
-     * Gets the name of the Mode as a string.
-     */
-    static const char* ModeName(Mode);
-    static const char* ModeName(SkBlendMode mode) {
-        return ModeName(Mode(mode));
-    }
-
-    /**
      *  If the xfermode is one of the modes in the Mode enum, then asMode()
      *  returns true and sets (if not null) mode accordingly. Otherwise it
      *  returns false and ignores the mode parameter.
      */
     virtual bool asMode(Mode* mode) const;
 
-    /**
-     *  The same as calling xfermode->asMode(mode), except that this also checks
-     *  if the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
-     */
-    static bool AsMode(const SkXfermode*, Mode* mode);
-    static bool AsMode(const sk_sp<SkXfermode>& xfer, Mode* mode) {
-        return AsMode(xfer.get(), mode);
-    }
-
-    /**
-     *  Returns true if the xfermode claims to be the specified Mode. This works
-     *  correctly even if the xfermode is NULL (which equates to kSrcOver.) Thus
-     *  you can say this without checking for a null...
-     *
-     *  If (SkXfermode::IsMode(paint.getXfermode(),
-     *                         SkXfermode::kDstOver_Mode)) {
-     *      ...
-     *  }
-     */
-    static bool IsMode(const SkXfermode* xfer, Mode mode);
-    static bool IsMode(const sk_sp<SkXfermode>& xfer, Mode mode) {
-        return IsMode(xfer.get(), mode);
-    }
-
     /** Return an SkXfermode object for the specified mode.
      */
     static sk_sp<SkXfermode> Make(SkBlendMode);
-    static sk_sp<SkXfermode> Make(Mode m) { return Make((SkBlendMode)m); }
 
     /**
      *  Skia maintains global xfermode objects corresponding to each BlendMode. This returns a
@@ -155,20 +122,6 @@ public:
     static SkXfermodeProc GetProc(SkBlendMode);
     static SkXfermodeProc4f GetProc4f(SkBlendMode);
 
-    /**
-     * Returns whether or not the xfer mode can support treating coverage as alpha
-     */
-    virtual bool supportsCoverageAsAlpha() const;
-
-    /**
-     *  The same as calling xfermode->supportsCoverageAsAlpha(), except that this also checks if
-     *  the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
-     */
-    static bool SupportsCoverageAsAlpha(const SkXfermode* xfer);
-    static bool SupportsCoverageAsAlpha(const sk_sp<SkXfermode>& xfer) {
-        return SupportsCoverageAsAlpha(xfer.get());
-    }
-
     enum SrcColorOpacity {
         // The src color is known to be opaque (alpha == 255)
         kOpaque_SrcColorOpacity = 0,
@@ -180,21 +133,6 @@ public:
         kUnknown_SrcColorOpacity = 3
     };
 
-    /**
-     * Returns whether or not the result of the draw with the xfer mode will be opaque or not. The
-     * input to this call is an enum describing known information about the opacity of the src color
-     * that will be given to the xfer mode.
-     */
-    virtual bool isOpaque(SrcColorOpacity opacityType) const;
-
-    /**
-     *  The same as calling xfermode->isOpaque(...), except that this also checks if
-     *  the xfermode is NULL, and if so, treats it as kSrcOver_Mode.
-     */
-    static bool IsOpaque(const SkXfermode* xfer, SrcColorOpacity opacityType);
-    static bool IsOpaque(const sk_sp<SkXfermode>& xfer, SrcColorOpacity opacityType) {
-        return IsOpaque(xfer.get(), opacityType);
-    }
     static bool IsOpaque(SkBlendMode, SrcColorOpacity);
 
 #if SK_SUPPORT_GPU
