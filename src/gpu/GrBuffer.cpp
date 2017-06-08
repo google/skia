@@ -25,22 +25,22 @@ GrBuffer* GrBuffer::CreateCPUBacked(GrGpu* gpu, size_t sizeInBytes, GrBufferType
 }
 
 GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, void* cpuData)
-    : INHERITED(gpu),
-      fMapPtr(nullptr),
-      fSizeInBytes(sizeInBytes),
-      fAccessPattern(kDynamic_GrAccessPattern),
-      fCPUData(cpuData),
-      fIntendedType(type) {
+    : INHERITED(gpu)
+    , fMapPtr(nullptr)
+    , fSizeInBytes(sizeInBytes)
+    , fAccessPattern(kDynamic_GrAccessPattern)
+    , fCPUData(cpuData)
+    , fIntendedType(type) {
     this->registerWithCache(SkBudgeted::kNo);
 }
 
 GrBuffer::GrBuffer(GrGpu* gpu, size_t sizeInBytes, GrBufferType type, GrAccessPattern pattern)
-    : INHERITED(gpu),
-      fMapPtr(nullptr),
-      fSizeInBytes(sizeInBytes),
-      fAccessPattern(pattern),
-      fCPUData(nullptr),
-      fIntendedType(type) {
+    : INHERITED(gpu)
+    , fMapPtr(nullptr)
+    , fSizeInBytes(sizeInBytes)
+    , fAccessPattern(pattern)
+    , fCPUData(nullptr)
+    , fIntendedType(type) {
     // Subclass registers with cache.
 }
 
