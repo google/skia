@@ -447,18 +447,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(c, reporter, ctxInfo) {
 }
 
 GrContextFactory::ContextType pick_second_context_type(const sk_gpu_test::ContextInfo& info) {
-    switch (info.backend()) {
-        case kOpenGL_GrBackend:
-#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_UNIX) || defined (SK_BUILD_FOR_MAC)
-            return GrContextFactory::kGL_ContextType;
-#else
-            return GrContextFactory::kGLES_ContextType;
-#endif
-        case kVulkan_GrBackend:
-            return GrContextFactory::kVulkan_ContextType;
-    }
-    SkFAIL("Unknown backend type.");
-    return GrContextFactory::kGL_ContextType;
+    return info.type();
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextInfo) {
@@ -1135,6 +1124,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             }
             sk_free(buffer);
         }
+        context->flush();
     }
 }
 #endif
