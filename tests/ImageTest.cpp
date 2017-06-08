@@ -1078,13 +1078,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
                         {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
           kMedium_SkFilterQuality, 16, true},
-        // Create a images which are decoded to a 4444 backing.
-        { create_image,       {{SkMatrix::I(), kNone_SkFilterQuality, 0,kARGB_4444_SkColorType}},
-          kNone_SkFilterQuality, 1, true },
-        { create_codec_image, {{SkMatrix::I(), kNone_SkFilterQuality, 0, kARGB_4444_SkColorType}},
-          kNone_SkFilterQuality, 1, true },
-        { create_data_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0, kARGB_4444_SkColorType}},
-          kNone_SkFilterQuality, 1, true },
     };
 
 
