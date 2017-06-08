@@ -1342,8 +1342,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output",
@@ -1365,8 +1365,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (2)",
@@ -1488,8 +1488,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (3)",
@@ -1511,8 +1511,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (4)",
@@ -1634,8 +1634,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (5)",
@@ -1657,8 +1657,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (6)",
@@ -1780,8 +1780,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (7)",
@@ -1803,8 +1803,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (8)",
@@ -1926,8 +1926,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (9)",
@@ -1949,8 +1949,8 @@
       "gs://skia-perf/ct/10k/2012/05/14/12/"
     ],
     "env": {
-      "AWS_CREDENTIAL_FILE": null,
-      "BOTO_CONFIG": null
+      "AWS_CREDENTIAL_FILE": "",
+      "BOTO_CONFIG": ""
     },
     "infra_step": true,
     "name": "gsutil upload json output (10)",
