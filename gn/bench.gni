@@ -125,7 +125,5 @@ bench_sources = [
   "$_bench/VertBench.cpp",
   "$_bench/WritePixelsBench.cpp",
   "$_bench/WriterBench.cpp",
-  "$_bench/Xfer4fBench.cpp",
-  "$_bench/XferF16Bench.cpp",
   "$_bench/XfermodeBench.cpp",
 ]
