@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3d62c96b_6e53fd48",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T18:36:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0e8c4758_8482b233",
+      "revId": "c0a5a330435b8f701f2a9b61e86165ce96ca82f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e4678fae_d1799783",
         "filename": "src/core/SkBlendMode.cpp",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2017-06-09T18:30:02Z",
       "side": 1,
       "message": "Is this not a no-op?",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 19
+      },
+      "revId": "c0a5a330435b8f701f2a9b61e86165ce96ca82f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "187898da_d8c75346",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T18:36:59Z",
+      "side": 1,
+      "message": "Ah, I didn\u0027t know if dst_ctx was changed by the call on line 122. If not I can remove this.",
+      "parentUuid": "e4678fae_d1799783",
       "range": {
         "startLine": 130,
         "startChar": 4,
