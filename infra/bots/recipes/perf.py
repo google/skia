@@ -128,7 +128,8 @@ def nanobench_flags(bot):
     match.append('~tile_image_filter_tiled_64')  # skia:6082
   if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
     match.append('~native_image_to_raster_surface')  # skia:6401
-  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+  if ('Vulkan' in bot and ('IntelIris540' in bot or 'IntelIris640' in bot) and
+      'Win' in bot):
     # skia:6398
     match.append('~GM_varied_text_clipped_lcd')
     match.append('~GM_varied_text_ignorable_clip_lcd')
