@@ -16,8 +16,6 @@
 #include "SkImageInfo.h"   // for SkAlphaType
 
 class GrContext;
-class GrSurfaceProxy;
-class GrTexture;
 class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
