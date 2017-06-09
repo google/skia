@@ -1139,14 +1139,6 @@ SkXfermodeProc SkXfermode::GetProc(SkBlendMode mode) {
     return proc;
 }
 
-SkXfermodeProc4f SkXfermode::GetProc4f(SkBlendMode mode) {
-    SkXfermodeProc4f  proc = nullptr;
-    if ((unsigned)mode <= (unsigned)SkBlendMode::kLastMode) {
-        proc = gProcCoeffs[(unsigned)mode].fProc4f;
-    }
-    return proc;
-}
-
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
