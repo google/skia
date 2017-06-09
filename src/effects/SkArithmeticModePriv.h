@@ -13,11 +13,6 @@
 
 class SkXfermode;
 
-struct SkArithmeticParams {
-    float fK[4];
-    bool fEnforcePMColor;
-};
-
 // This only exists to unflatten instances that were serialized into old pictures as part of
 // SkXfermodeImageFilter before the advent of SkBlendMode.
 class SK_API SkArithmeticMode {

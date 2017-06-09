@@ -29,16 +29,6 @@ public:
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
-    // This is used to extract the arithmetic params into an SkArithmeticImageFilter. Afterwards,
-    // this object is destroyed and arithemtic blending is implemented directly in the image filter.
-    bool isArithmetic(SkArithmeticParams* params) const override {
-        if (params) {
-            memcpy(params->fK, fK, 4 * sizeof(float));
-            params->fEnforcePMColor = fEnforcePMColor;
-        }
-        return true;
-    }
-
 private:
     void flatten(SkWriteBuffer& buffer) const override { SkFAIL("This shouild never be called."); }
 
