@@ -17,54 +17,68 @@
 #include "SkString.h"
 #include "../jumper/SkJumper.h"
 
-sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                            SkBlendMode mode) {
-    if (!src || !dst) {
+sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode mode,
+                                      float lerpT) {
+    if (!src || !dst || SkScalarIsNaN(lerpT)) {
         return nullptr;
     }
-    if (SkBlendMode::kSrc == mode) {
-        return src;
-    }
-    if (SkBlendMode::kDst == mode) {
+    lerpT = SkScalarPin(lerpT, 0, 1);
+
+    if (lerpT == 0) {
         return dst;
+    } else if (lerpT == 1) {
+        if (mode == SkBlendMode::kSrc) {
+            return src;
+        }
+        if (mode == SkBlendMode::kDst) {
+            return dst;
+        }
     }
-    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode));
+    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode, lerpT));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
-    sk_sp<SkShader> shaderA(buffer.readShader());
-    sk_sp<SkShader> shaderB(buffer.readShader());
-    SkBlendMode mode = (SkBlendMode)buffer.read32();
+    sk_sp<SkShader> dst(buffer.readShader());
+    sk_sp<SkShader> src(buffer.readShader());
+    unsigned        mode = buffer.read32();
 
-    if (!shaderA || !shaderB) {
+    float lerp = 1;
+    if (!buffer.isVersionLT(SkReadBuffer::kComposeShaderCanLerp_Version)) {
+        lerp = buffer.readScalar();
+    }
+
+    // check for valid mode before we cast to the enum type
+    if (mode > (unsigned)SkBlendMode::kLastMode) {
         return nullptr;
     }
-    return sk_make_sp<SkComposeShader>(std::move(shaderA), std::move(shaderB), mode);
+
+    return MakeCompose(std::move(src), std::move(dst), static_cast<SkBlendMode>(mode), lerp);
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fShaderA.get());
     buffer.writeFlattenable(fShaderB.get());
     buffer.write32((int)fMode);
+    buffer.writeScalar(fLerpT);
 }
 
 sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
-                                       xformer->apply(fShaderB.get()), fMode);
+    return MakeCompose(xformer->apply(fShaderA.get()), xformer->apply(fShaderB.get()),
+                       fMode, fLerpT);
 }
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
+    if (!this->isJustMode()) {
+        return false;
+    }
+
     if (rec) {
         rec->fShaderA   = fShaderA.get();
         rec->fShaderB   = fShaderB.get();
         rec->fBlendMode = fMode;
     }
-    return true;
-}
-
-bool SkComposeShader::isRasterPipelineOnly() const {
     return true;
 }
 
@@ -87,17 +101,22 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     if (!as_SB(fShaderA)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
         return false;
     }
-    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
+    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...
     pipeline->append(SkRasterPipeline::move_src_dst);
     pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
 
-    // Idea: should time this, and see if it helps to have custom versions of the overflow modes
-    //       that do their own clamping, avoiding the overhead of an extra stage.
-    SkBlendMode_AppendStages(fMode, pipeline);
-    if (SkBlendMode_CanOverflow(fMode)) {
-        pipeline->append(SkRasterPipeline::clamp_a);
+    if (!this->isJustLerp()) {
+        // Idea: should time this, and see if it helps to have custom versions of the overflow modes
+        //       that do their own clamping, avoiding the overhead of an extra stage.
+        SkBlendMode_AppendStages(fMode, pipeline);
+        if (SkBlendMode_CanOverflow(fMode)) {
+            pipeline->append(SkRasterPipeline::clamp_a);
+        }
+    }
+    if (!this->isJustMode()) {
+        pipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
     }
     return true;
 }
@@ -144,9 +163,8 @@ void SkComposeShader::toString(SkString* str) const {
     as_SB(fShaderA)->toString(str);
     str->append(" ShaderB: ");
     as_SB(fShaderB)->toString(str);
-    if (SkBlendMode::kSrcOver != fMode) {
-        str->appendf(" Xfermode: %s", SkBlendMode_Name(fMode));
-    }
+    str->appendf(" mode: %s", SkBlendMode_Name(fMode));
+    str->appendf(" lerpT: %g", fLerpT);
 
     this->INHERITED::toString(str);
 
