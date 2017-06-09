@@ -9,6 +9,7 @@
 #define SkPngEncoder_DEFINED
 
 #include "SkEncoder.h"
+#include "SkDataTable.h"
 
 class SkPngEncoderMgr;
 class SkWStream;
@@ -58,6 +59,13 @@ public:
          *  function and unpremultiply the input as is.
          */
         SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
+
+        /**
+         *  Represents comments in the tEXt ancillary chunk of the png.
+         *  The 2i-th entry is the keyword for the i-th comment,
+         *  and the (2i + 1)-th entry is the text for the i-th comment.
+         */
+        sk_sp<SkDataTable> fComments;
     };
 
     /**
