@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1416184_63356ba4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-09T17:27:26Z",
+      "side": 1,
+      "message": "Should this be a standalone param to getDeferredTextureImageData like dstColorSpace? Otherwise we could have disagreement among the params array,.",
+      "range": {
+        "startLine": 702,
+        "startChar": 33,
+        "endLine": 702,
+        "endChar": 52
+      },
+      "revId": "1e9b2e14d86506dc4b1841069cca18aacfb280ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
