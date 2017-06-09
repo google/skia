@@ -204,3 +204,54 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ES2BlendWithNoTexture, reporter, ctxInfo) 
     }
 }
 #endif
+
+#include "SkBlendModePriv.h"
+#include "SkXfermodePriv.h"
+
+static bool nearly_equal(SkPM4f a, SkPM4f b) {
+    const float tol = 1.0f / 1024;
+    for (int i = 0; i < 4; ++i) {
+        if (!SkScalarNearlyEqual(a.fVec[i], b.fVec[i], tol)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+DEF_TEST(Blend_4f, r) {
+    for (int m = 0; m <= (int)SkBlendMode::kLastMode; m++) {
+        SkBlendMode mode = (SkBlendMode)m;
+        SkXfermodeProc4f proc = SkXfermode::GetProc4f(mode);
+
+        SkRandom rand;
+        constexpr int N = 100;
+        for (int i = 0; i < N; ++i) {
+            float sa = rand.nextF();
+            float da = rand.nextF();
+            SkPM4f src = {{ rand.nextF() * sa, rand.nextF() * sa, rand.nextF() * sa, sa }};
+            SkPM4f dst = {{ rand.nextF() * da, rand.nextF() * da, rand.nextF() * da, da }};
+
+            SkPM4f res0 = proc(src, dst);
+            SkPM4f res1 = SkBlendMode_Apply(mode, src, dst);
+
+            if (!nearly_equal(res0, res1)) {
+                SkDebugf("mode %s\n", SkBlendMode_Name(mode));
+#if 0
+                SkDebugf("src{ %g %g %g %g } dst{ %g %g %g %g }\n",
+                         src.r(), src.g(), src.b(), src.a(),
+                         dst.r(), dst.g(), dst.b(), dst.a());
+                SkDebugf("res0{ %g %g %g %g }, res1{ %g %g %g %g }\n",
+                         res0.r(), res0.g(), res0.b(), res0.a(),
+                         res1.r(), res1.g(), res1.b(), res1.a());
+#endif
+                SkDebugf("diff{ %g %g %g %g }\n",
+                         sk_float_abs(res0.r() - res1.r()),
+                         sk_float_abs(res0.g() - res1.g()),
+                         sk_float_abs(res0.b() - res1.b()),
+                         sk_float_abs(res0.a() - res1.a()));
+                break;
+            }
+        }
+    }
+
+}
