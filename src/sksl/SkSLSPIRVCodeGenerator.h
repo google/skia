@@ -111,6 +111,8 @@ private:
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
 
+    void writePrecisionModifier(const Modifiers& modifiers, SpvId id);
+
     std::vector<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
     void writeLayout(const Layout& layout, SpvId target);
