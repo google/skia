@@ -16,8 +16,6 @@
 #include "SkImageInfo.h"   // for SkAlphaType
 
 class GrContext;
-class GrSurfaceProxy;
-class GrTexture;
 class GrTextureProxy;
 class SkBitmap;
 class SkCanvas;
@@ -119,7 +117,6 @@ public:
      */
     sk_sp<SkImage> asImage(const SkIRect* subset = nullptr) const;
 
-    // TODO: hide this when GrLayerHoister uses SkSpecialImages more fully (see skbug.com/5063)
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.
      */
@@ -138,7 +135,6 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*) const;
 #endif
 
-    // TODO: hide this whe the imagefilter all have a consistent draw path (see skbug.com/5063)
     /**
      *  Regardless of the underlying backing store, return the contents as an SkBitmap
      *

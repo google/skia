@@ -15,7 +15,6 @@
 #include "GrResourceProvider.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "GrStyle.h"
-#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkDraw.h"
 #include "SkGr.h"
@@ -302,7 +301,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     }
     GrAA aa = GrBoolToAA(paint.isAntiAlias());
     SkMaskFilter* mf = paint.getMaskFilter();
-    if (mf && !mf->asFragmentProcessor(nullptr, nullptr, viewMatrix)) {
+    if (mf && !mf->asFragmentProcessor(nullptr)) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
         draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint), aa,
                                    viewMatrix, mf, style, path, pathIsMutable);

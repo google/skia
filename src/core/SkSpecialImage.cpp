@@ -20,11 +20,7 @@
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
-#include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
-#include "GrSamplerParams.h"
 #include "GrTextureProxy.h"
-#include "SkGr.h"
 #include "SkImage_Gpu.h"
 #endif
 
@@ -342,8 +338,6 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
-#include "GrTexture.h"
-
 static sk_sp<SkImage> wrap_proxy_in_image(GrContext* context, sk_sp<GrTextureProxy> proxy,
                                           SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     return sk_make_sp<SkImage_Gpu>(context, kNeedNewImageUniqueID, alphaType,

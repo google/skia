@@ -529,7 +529,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     SkMaskFilter* maskFilter = skPaint.getMaskFilter();
     if (maskFilter) {
         GrFragmentProcessor* mfFP;
-        if (maskFilter->asFragmentProcessor(&mfFP, nullptr, viewM)) {
+        if (maskFilter->asFragmentProcessor(&mfFP)) {
             grPaint->addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor>(mfFP));
         }
     }

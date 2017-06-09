@@ -13,7 +13,6 @@
 #include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
 #include "GrProcessorAnalysis.h"
-#include "GrTexture.h"
 #include "GrTypes.h"
 
 class GrGLSLXferProcessor;

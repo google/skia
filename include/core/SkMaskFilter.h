@@ -78,7 +78,7 @@ public:
      * If effect is non-NULL, a new GrProcessor instance is stored in it. The caller assumes
      * ownership of the effect and must unref it.
      */
-    virtual bool asFragmentProcessor(GrFragmentProcessor**, GrTexture*, const SkMatrix& ctm) const;
+    virtual bool asFragmentProcessor(GrFragmentProcessor**) const { return false; }
 
     /**
      *  If asFragmentProcessor() fails the filter may be implemented on the GPU by a subclass

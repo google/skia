@@ -17,6 +17,7 @@
 #include "GrReducedClip.h"
 #include "GrResourceCache.h"
 #include "GrSurfaceProxyPriv.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;

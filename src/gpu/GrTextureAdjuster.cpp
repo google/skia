@@ -8,10 +8,7 @@
 #include "GrTextureAdjuster.h"
 
 #include "GrContext.h"
-#include "GrGpu.h"
-#include "GrGpuResourcePriv.h"
 #include "GrResourceProvider.h"
-#include "GrTexture.h"
 #include "SkGr.h"
 
 GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> original,

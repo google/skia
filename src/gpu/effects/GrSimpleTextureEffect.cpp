@@ -7,7 +7,6 @@
 
 #include "GrSimpleTextureEffect.h"
 #include "GrProxyMove.h"
-#include "GrTexture.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
