@@ -314,9 +314,8 @@ static SkPath create_path_19() {
     return path;
 }
 
-// From clusterfuzz-testcase-minimized-6735316361936896
-// FIXME: [add description here]
-
+// An intersection above the first vertex in the mesh.
+// Reduction from http://crbug.com/730687
 static SkPath create_path_20() {
     SkPath path;
     path.moveTo(           2822128.5,  235.026336669921875);
