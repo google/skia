@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47528408_ce4252ae",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-09T13:20:50Z",
+      "side": 1,
+      "message": "In a case like this, [\u0026] or [\u003d] are probably fine, as would be [needsUnpremul].  [\u0026needsUnpremul] kind of makes it look like you\u0027re expecting to pick up changes to needsUnpremul that you may make later.",
+      "range": {
+        "startLine": 262,
+        "startChar": 27,
+        "endLine": 262,
+        "endChar": 41
+      },
+      "revId": "907979cd3de803f9034336e1db3e65b3941834ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d11efd99_64eefc98",
+        "filename": "src/core/SkPixmap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-09T13:20:50Z",
+      "side": 1,
+      "message": "May be clearer as something like\n\n   [\u0026needsUnpremul](uint32_t maybe_premul_color) { ... }",
+      "range": {
+        "startLine": 262,
+        "startChar": 43,
+        "endLine": 262,
+        "endChar": 60
+      },
+      "revId": "907979cd3de803f9034336e1db3e65b3941834ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
