@@ -113,9 +113,6 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
         // Idea: should time this, and see if it helps to have custom versions of the overflow modes
         //       that do their own clamping, avoiding the overhead of an extra stage.
         SkBlendMode_AppendStages(fMode, pipeline);
-        if (SkBlendMode_CanOverflow(fMode)) {
-            pipeline->append(SkRasterPipeline::clamp_a);
-        }
     }
     if (!this->isJustMode()) {
         pipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
