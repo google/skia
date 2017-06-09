@@ -154,7 +154,6 @@
       "angle_d3d11_es2",
       "angle_d3d11_es2_msaa8",
       "--match",
-      "~native_image_to_raster_surface",
       "~shapes_mixed_10000_32x33",
       "~shapes_oval_10000_32x32",
       "~shapes_oval_10000_32x33",
