@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "280234ec_26972ce2",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T12:10:58Z",
+      "side": 1,
+      "message": "We don\u0027t use std::vector anywhere in our public api. Also, its not clear we need a \"stretchy\" type here, since it is input-only.\n\nAt the other end of the spectrum, we could just take an array of ptrs, allowing the caller to allocate their strings however they wish...\n\nchar* const* fComments;  // array of pairs: [key, text] ...\nint fCommentPairCount;\n\nDo we have anything similar in other parts of our api?",
+      "range": {
+        "startLine": 81,
+        "startChar": 20,
+        "endLine": 81,
+        "endChar": 27
+      },
+      "revId": "b72ea349db243267c028e0f8b815afca79533d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
