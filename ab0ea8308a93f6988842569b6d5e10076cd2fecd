@@ -22,6 +22,30 @@
       "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9669666_c5a2e78a",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T19:34:58Z",
+      "side": 1,
+      "message": "Thought about that, but if each individually is legal, then can the overflow modes make the result illegal? I had thought this was only needed for plus, which itself should only need clamp_1.\n\nI only mused over that distinction thinking it was faster to use clamp_1 than clamp_a. Maybe that perf distinction is unimportant.",
+      "parentUuid": "6a741681_6a9ad7d8",
+      "range": {
+        "startLine": 127,
+        "startChar": 35,
+        "endLine": 127,
+        "endChar": 42
+      },
+      "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
