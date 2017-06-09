@@ -114,7 +114,7 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
         //       that do their own clamping, avoiding the overhead of an extra stage.
         SkBlendMode_AppendStages(fMode, pipeline);
         if (SkBlendMode_CanOverflow(fMode)) {
-            pipeline->append(SkRasterPipeline::clamp_a);
+            pipeline->append(SkRasterPipeline::clamp_1);
         }
     }
     if (!this->isJustMode()) {
