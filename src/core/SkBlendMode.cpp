@@ -8,10 +8,6 @@
 #include "SkBlendModePriv.h"
 #include "SkRasterPipeline.h"
 
-bool SkBlendMode_CanOverflow(SkBlendMode mode) {
-    return mode == SkBlendMode::kPlus;
-}
-
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kDst:
@@ -65,7 +61,7 @@ bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoe
     return true;
 }
 
-void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
+void SkBlendMode_AppendStagesNoClamp(SkBlendMode mode, SkRasterPipeline* p) {
     auto stage = SkRasterPipeline::srcover;
     switch (mode) {
         case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
@@ -103,6 +99,14 @@ void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     p->append(stage);
 }
 
+void SkBlendMode_AppendClampIfNeeded(SkBlendMode mode, SkRasterPipeline* p) {
+    if (mode == SkBlendMode::kPlus) {
+        // Both clamp_a and clamp_1 would preserve premultiplication invariants here,
+        // so we pick clamp_1 for being a smidge faster.
+        p->append(SkRasterPipeline::clamp_1);
+    }
+}
+
 SkPM4f SkBlendMode_Apply(SkBlendMode mode, SkPM4f src, SkPM4f dst) {
     // special-case simple/common modes...
     switch (mode) {
@@ -123,9 +127,6 @@ SkPM4f SkBlendMode_Apply(SkBlendMode mode, SkPM4f src, SkPM4f dst) {
     p.append(SkRasterPipeline::move_src_dst);
     p.append(SkRasterPipeline::load_f32, &src_ctx);
     SkBlendMode_AppendStages(mode, &p);
-    if (SkBlendMode_CanOverflow(mode)) {
-        p.append(SkRasterPipeline::clamp_1);
-    }
     p.append(SkRasterPipeline::store_f32, &dst_ctx);
     p.run(0, 0, 1);
     return dst;
