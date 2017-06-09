@@ -196,51 +196,40 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColo
     }
 
     const int frameIndex = opts.fFrameIndex;
-    if (frameIndex > 0) {
-        switch (dstInfo.colorType()) {
-            case kIndex_8_SkColorType:
-                // FIXME: It is possible that a later frame can be decoded to index8, if it does one
-                // of the following:
-                // - Covers the entire previous frame
-                // - Shares a color table (and transparent index) with any prior frames that are
-                //   showing.
-                // We must support index8 for the first frame to be backwards compatible on Android,
-                // but we do not (currently) need to support later frames as index8.
-                return gif_error("Cannot decode multiframe gif (except frame 0) as index 8.\n",
-                                 kInvalidConversion);
-            case kRGB_565_SkColorType:
-                // FIXME: In theory, we might be able to support this, but it's not clear that it
-                // is necessary (Chromium does not decode to 565, and Android does not decode
-                // frames beyond the first). Disabling it because it is somewhat difficult:
-                // - If there is a transparent pixel, and this frame draws on top of another frame
-                //   (if the frame is independent with a transparent pixel, we should not decode to
-                //   565 anyway, since it is not opaque), we need to skip drawing the transparent
-                //   pixels (see writeTransparentPixels in haveDecodedRow). We currently do this by
-                //   first swizzling into temporary memory, then copying into the destination. (We
-                //   let the swizzler handle it first because it may need to sample.) After
-                //   swizzling to 565, we do not know which pixels in our temporary memory
-                //   correspond to the transparent pixel, so we do not know what to skip. We could
-                //   special case the non-sampled case (no need to swizzle), but as this is
-                //   currently unused we can just not support it.
-                return gif_error("Cannot decode multiframe gif (except frame 0) as 565.\n",
-                                 kInvalidConversion);
-            default:
-                break;
-        }
-    }
-
-    fReader->parse((SkGifImageReader::SkGIFParseQuery) frameIndex);
-
-    if (frameIndex >= fReader->imagesCount()) {
-        return gif_error("frame index out of range!\n", kIncompleteInput);
+    if (frameIndex > 0 && kRGB_565_SkColorType == dstInfo.colorType()) {
+        // FIXME: In theory, we might be able to support this, but it's not clear that it
+        // is necessary (Chromium does not decode to 565, and Android does not decode
+        // frames beyond the first). Disabling it because it is somewhat difficult:
+        // - If there is a transparent pixel, and this frame draws on top of another frame
+        //   (if the frame is independent with a transparent pixel, we should not decode to
+        //   565 anyway, since it is not opaque), we need to skip drawing the transparent
+        //   pixels (see writeTransparentPixels in haveDecodedRow). We currently do this by
+        //   first swizzling into temporary memory, then copying into the destination. (We
+        //   let the swizzler handle it first because it may need to sample.) After
+        //   swizzling to 565, we do not know which pixels in our temporary memory
+        //   correspond to the transparent pixel, so we do not know what to skip. We could
+        //   special case the non-sampled case (no need to swizzle), but as this is
+        //   currently unused we can just not support it.
+        return gif_error("Cannot decode multiframe gif (except frame 0) as 565.\n",
+                         kInvalidConversion);
     }
 
     const auto* frame = fReader->frameContext(frameIndex);
-    if (!frame->reachedStartOfData()) {
-        // We have parsed enough to know that there is a color map, but cannot
-        // parse the map itself yet. Exit now, so we do not build an incorrect
-        // table.
-        return gif_error("color map not available yet\n", kIncompleteInput);
+    SkASSERT(frame);
+    if (0 == frameIndex) {
+        // SkCodec does not have a way to just parse through frame 0, so we
+        // have to do so manually, here.
+        fReader->parse((SkGifImageReader::SkGIFParseQuery) 0);
+        if (!frame->reachedStartOfData()) {
+            // We have parsed enough to know that there is a color map, but cannot
+            // parse the map itself yet. Exit now, so we do not build an incorrect
+            // table.
+            return gif_error("color map not available yet\n", kIncompleteInput);
+        }
+    } else {
+        // Parsing happened in SkCodec::getPixels.
+        SkASSERT(frameIndex < fReader->imagesCount());
+        SkASSERT(frame->reachedStartOfData());
     }
 
     const auto at = frame->hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
@@ -398,75 +387,8 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                 filledBackground = true;
             }
         } else {
-            // Not independent
-            // FIXME: Share this code with WEBP
-            const int reqFrame = frameContext->getRequiredFrame();
-            if (opts.fPriorFrame != kNone) {
-                if (opts.fPriorFrame < reqFrame || opts.fPriorFrame >= frameIndex) {
-                    // Alternatively, we could correct this to kNone.
-                    return kInvalidParameters;
-                }
-                const auto* prevFrame = fReader->frameContext(opts.fPriorFrame);
-                if (prevFrame->getDisposalMethod()
-                        == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
-                    // Similarly, this could be corrected to kNone.
-                    return kInvalidParameters;
-                }
-            } else {
-                // Decode that frame into pixels.
-                Options prevFrameOpts(opts);
-                prevFrameOpts.fFrameIndex = frameContext->getRequiredFrame();
-                prevFrameOpts.fPriorFrame = kNone;
-                // The prior frame may have a different color table, so update it and the
-                // swizzler.
-                this->initializeColorTable(dstInfo, prevFrameOpts.fFrameIndex);
-                this->initializeSwizzler(dstInfo, prevFrameOpts.fFrameIndex);
-
-                const Result prevResult = this->decodeFrame(true, prevFrameOpts, nullptr);
-                switch (prevResult) {
-                    case kSuccess:
-                        // Prior frame succeeded. Carry on.
-                        break;
-                    case kIncompleteInput:
-                        // Prior frame was incomplete. So this frame cannot be decoded.
-                        return kInvalidInput;
-                    default:
-                        return prevResult;
-                }
-
-                // Go back to using the correct color table for this frame.
-                this->initializeColorTable(dstInfo, frameIndex);
-                this->initializeSwizzler(dstInfo, frameIndex);
-            }
-
-            // If the required frame is RestoreBG, we need to erase it. If a frame after the
-            // required frame is provided, there is no need to erase, since it will be covered
-            // anyway.
-            if (opts.fPriorFrame == reqFrame || opts.fPriorFrame == kNone) {
-                const auto* prevFrame = fReader->frameContext(reqFrame);
-                if (prevFrame->getDisposalMethod()
-                        == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
-                    SkIRect prevRect = prevFrame->frameRect();
-                    if (prevRect.intersect(this->getInfo().bounds())) {
-                        // Do the divide ourselves for left and top, since we do not want
-                        // get_scaled_dimension to upgrade 0 to 1. (This is similar to
-                        // SkSampledCodec's sampling of the subset.)
-                        const auto sampleX = fSwizzler->sampleX();
-                        const auto sampleY = fSwizzler->sampleY();
-                        auto left = prevRect.fLeft / sampleX;
-                        auto top = prevRect.fTop / sampleY;
-                        void* const eraseDst = SkTAddOffset<void>(fDst, top * fDstRowBytes
-                                + left * SkColorTypeBytesPerPixel(dstInfo.colorType()));
-                        auto width = get_scaled_dimension(prevRect.width(), sampleX);
-                        auto height = get_scaled_dimension(prevRect.height(), sampleY);
-                        // fSwizzler->fill() would fill to the scaled width of the frame, but we
-                        // want to fill to the scaled with of the width of the PRIOR frame, so we
-                        // do all the scaling ourselves and call the static version.
-                        SkSampler::Fill(dstInfo.makeWH(width, height), eraseDst, fDstRowBytes,
-                                        this->getFillValue(dstInfo), kNo_ZeroInitialized);
-                    }
-                }
-            }
+            // Not independent.
+            // SkCodec ensured that the prior frame has been decoded.
             filledBackground = true;
         }
 

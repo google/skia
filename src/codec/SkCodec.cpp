@@ -11,6 +11,7 @@
 #include "SkColorSpace.h"
 #include "SkColorSpaceXform_Base.h"
 #include "SkData.h"
+#include "SkFrameHolder.h"
 #include "SkGifCodec.h"
 #include "SkHalf.h"
 #include "SkIcoCodec.h"
@@ -179,6 +180,90 @@ bool SkCodec::rewindIfNeeded() {
         ctable = nullptr;                                   \
     }
 
+static void zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
+                      SkIRect frameRect) {
+    if (!frameRect.intersect(dstInfo.bounds())) {
+        return;
+    }
+    const auto info = dstInfo.makeWH(frameRect.width(), frameRect.height());
+    const size_t bpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
+    const size_t offset = frameRect.x() * bpp + frameRect.y() * rowBytes;
+    auto* eraseDst = SkTAddOffset<void>(pixels, offset);
+    SkSampler::Fill(info, eraseDst, rowBytes, 0, SkCodec::kNo_ZeroInitialized);
+}
+
+SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                                          const Options& options) {
+    const int index = options.fFrameIndex;
+    if (0 == index) {
+        return kSuccess;
+    }
+
+    if (options.fSubset || info.dimensions() != fSrcInfo.dimensions()) {
+        // If we add support for these, we need to update the code that zeroes
+        // a kRestoreBGColor frame.
+        return kInvalidParameters;
+    }
+
+    // index 8 is not supported beyond the first frame.
+    if (index < 0 || info.colorType() == kIndex_8_SkColorType) {
+        return kInvalidParameters;
+    }
+
+    if (index >= this->onGetFrameCount()) {
+        return kIncompleteInput;
+    }
+
+    const auto* frameHolder = this->getFrameHolder();
+    SkASSERT(frameHolder);
+
+    const auto* frame = frameHolder->getFrame(index);
+    SkASSERT(frame);
+
+    const int requiredFrame = frame->getRequiredFrame();
+    if (requiredFrame == kNone) {
+        return kSuccess;
+    }
+
+    if (options.fPriorFrame != kNone) {
+        // Check for a valid frame as a starting point. Alternatively, we could
+        // treat an invalid frame as not providing one, but rejecting it will
+        // make it easier to catch the mistake.
+        if (options.fPriorFrame < requiredFrame || options.fPriorFrame >= index) {
+            return kInvalidParameters;
+        }
+        const auto* prevFrame = frameHolder->getFrame(options.fPriorFrame);
+        switch (prevFrame->getDisposalMethod()) {
+            case SkCodecAnimation::DisposalMethod::kRestorePrevious:
+                return kInvalidParameters;
+            case SkCodecAnimation::DisposalMethod::kRestoreBGColor:
+                // If a frame after the required frame is provided, there is no
+                // need to clear, since it must be covered by the desired frame.
+                if (options.fPriorFrame == requiredFrame) {
+                    zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
+                }
+                break;
+            default:
+                break;
+        }
+        return kSuccess;
+    }
+
+    Options prevFrameOptions(options);
+    prevFrameOptions.fFrameIndex = requiredFrame;
+    prevFrameOptions.fZeroInitialized = kNo_ZeroInitialized;
+    const Result result = this->getPixels(info, pixels, rowBytes, &prevFrameOptions,
+                                          nullptr, nullptr);
+    if (result == kSuccess) {
+        const auto* prevFrame = frameHolder->getFrame(requiredFrame);
+        const auto disposalMethod = prevFrame->getDisposalMethod();
+        if (disposalMethod == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
+            zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
+        }
+    }
+
+    return result;
+}
 
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                    const Options* options, SkPMColor ctable[], int* ctableCount) {
@@ -202,12 +287,18 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     Options optsStorage;
     if (nullptr == options) {
         options = &optsStorage;
-    } else if (options->fSubset) {
-        SkIRect subset(*options->fSubset);
-        if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
-            // FIXME: How to differentiate between not supporting subset at all
-            // and not supporting this particular subset?
-            return kUnimplemented;
+    } else {
+        const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes, *options);
+        if (frameIndexResult != kSuccess) {
+            return frameIndexResult;
+        }
+        if (options->fSubset) {
+            SkIRect subset(*options->fSubset);
+            if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
+                // FIXME: How to differentiate between not supporting subset at all
+                // and not supporting this particular subset?
+                return kUnimplemented;
+            }
         }
     }
 
@@ -280,16 +371,22 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
     Options optsStorage;
     if (nullptr == options) {
         options = &optsStorage;
-    } else if (options->fSubset) {
-        SkIRect size = SkIRect::MakeSize(info.dimensions());
-        if (!size.contains(*options->fSubset)) {
-            return kInvalidParameters;
+    } else {
+        const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes, *options);
+        if (frameIndexResult != kSuccess) {
+            return frameIndexResult;
         }
+        if (options->fSubset) {
+            SkIRect size = SkIRect::MakeSize(info.dimensions());
+            if (!size.contains(*options->fSubset)) {
+                return kInvalidParameters;
+            }
 
-        const int top = options->fSubset->top();
-        const int bottom = options->fSubset->bottom();
-        if (top < 0 || top >= info.height() || top >= bottom || bottom > info.height()) {
-            return kInvalidParameters;
+            const int top = options->fSubset->top();
+            const int bottom = options->fSubset->bottom();
+            if (top < 0 || top >= info.height() || top >= bottom || bottom > info.height()) {
+                return kInvalidParameters;
+            }
         }
     }
 
