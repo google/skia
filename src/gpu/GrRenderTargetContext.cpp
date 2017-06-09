@@ -24,6 +24,7 @@
 #include "SkDrawShadowRec.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
+#include "SkShadowUtils.h"
 #include "SkSurfacePriv.h"
 #include "effects/GrRRectEffect.h"
 #include "instanced/InstancedRendering.h"
@@ -1012,6 +1013,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
     SkScalar occluderHeight = rec.fZPlaneParams.fZ;
     GrColor4f color = paint.getColor4f();
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
+    bool tonalColor = SkToBool(rec.fFlags & SkShadowFlags::kTonalColor_ShadowFlag);
 
     if (rec.fAmbientAlpha > 0) {
         static constexpr float kHeightFactor = 1.0f / 128.0f;
@@ -1034,7 +1036,13 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             ambientRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
         }
 
-        GrColor ambientColor = color.mulByScalar(rec.fAmbientAlpha).toGrColor();
+        GrColor ambientColor;
+        if (tonalColor) {
+            // with tonal color, the color only applies to the spot shadow
+            ambientColor = GrColorPackRGBA(0, 0, 0, 255.999f*rec.fAmbientAlpha);
+        } else {
+            ambientColor = color.mulByScalar(rec.fAmbientAlpha).toGrColor();
+        }
         if (transparent) {
             // set a large inset to force a fill
             devSpaceInsetWidth = ambientRRect.width();
@@ -1139,7 +1147,22 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             spotShadowRRect = SkRRect::MakeRectXY(outsetRect, outsetRad, outsetRad);
         }
 
-        GrColor spotColor = color.mulByScalar(rec.fSpotAlpha).toGrColor();
+        GrColor spotColor;
+        if (tonalColor) {
+            SkScalar colorScale;
+            SkScalar tonalAlpha;
+            SkShadowUtils::ComputeTonalColorParams(color.fRGBA[0], color.fRGBA[1],
+                                                   color.fRGBA[2], rec.fSpotAlpha,
+                                                   &colorScale, &tonalAlpha);
+            color.fRGBA[0] *= colorScale;
+            color.fRGBA[1] *= colorScale;
+            color.fRGBA[2] *= colorScale;
+            color.fRGBA[3] = tonalAlpha;
+            spotColor = color.toGrColor();
+        } else {
+            spotColor = color.mulByScalar(rec.fSpotAlpha).toGrColor();
+        }
+
         std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
                                                                        spotShadowRRect,
                                                                        devSpaceSpotBlur,
