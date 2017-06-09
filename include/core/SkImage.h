@@ -482,6 +482,7 @@ public:
                                        const DeferredTextureImageUsageParams[],
                                        int paramCnt,
                                        void* buffer,
+                                       SkColorType dstColorType = kN32_SkColorType,
                                        SkColorSpace* dstColorSpace = nullptr) const;
 
     /**
