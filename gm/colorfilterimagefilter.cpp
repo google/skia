@@ -223,3 +223,33 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
         canvas->translate(0, 150);
     }
 }
+
+DEF_SIMPLE_GM(mixershader, canvas, 800, 700) {
+    auto shaderA = GetResourceAsImage("mandrill_128.png")->makeShader(SkShader::kClamp_TileMode,
+                                                                      SkShader::kClamp_TileMode);
+    const SkColor colors[] = { SK_ColorGREEN, 0 };
+    auto shaderB = SkGradientShader::MakeRadial({60, 60}, 55, colors, nullptr, 2,
+                                                SkShader::kClamp_TileMode,
+                                                SkGradientShader::kInterpolateColorsInPremul_Flag,
+                                                nullptr);
+    const SkBlendMode modes[] = {
+        SkBlendMode::kSrc, SkBlendMode::kModulate, SkBlendMode::kColorBurn, SkBlendMode::kPlus,
+        SkBlendMode::kDstATop,
+    };
+    SkPaint paint;
+    SkRect r = SkRect::MakeWH(120, 120);
+
+    canvas->translate(10, 10);
+    for (auto mode : modes) {
+        canvas->save();
+        const int count = 6;
+        for (int x = 0; x < count; ++x) {
+            const float t = x * 1.0f / (count - 1);
+            paint.setShader(SkShader::MakeCompose(shaderA, shaderB, mode, t));
+            canvas->drawRect(r, paint);
+            canvas->translate(r.width() + 10, 0);
+        }
+        canvas->restore();
+        canvas->translate(0, r.height() + 20);
+    }
+}
