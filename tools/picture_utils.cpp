@@ -113,10 +113,11 @@ namespace sk_tools {
                         SkHalfToFloat(static_cast<SkHalf>(px[i] >> (1 * 16))),
                         SkHalfToFloat(static_cast<SkHalf>(px[i] >> (2 * 16))),
                         SkHalfToFloat(static_cast<SkHalf>(px[i] >> (3 * 16))));
-                fs = Sk4f::Max(0.0f, Sk4f::Min(fs, 1.0f));  // Clamp
-                float invA = 1.0f / fs[3];
-                fs = fs * Sk4f(invA, invA, invA, 1);  // Unpremultiply.
-                rgba[i] = Sk4f_toS32(fs);             // Pack down to sRGB bytes.
+                if (fs[3]) {                                    // Unpremultiply.
+                    fs *= Sk4f(1/fs[3], 1/fs[3], 1/fs[3], 1);
+                }
+                fs = Sk4f::Max(0.0f, Sk4f::Min(fs, 1.0f));      // Clamp to [0,1].
+                rgba[i] = Sk4f_toS32(fs);                       // Pack down to sRGB bytes.
             }
 
         } else {
