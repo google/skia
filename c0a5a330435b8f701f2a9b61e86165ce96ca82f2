@@ -105,6 +105,30 @@
       "revId": "c0a5a330435b8f701f2a9b61e86165ce96ca82f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3ba30da_62376da0",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T19:35:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d814bac3_51d60093",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 19
+      },
+      "revId": "c0a5a330435b8f701f2a9b61e86165ce96ca82f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
