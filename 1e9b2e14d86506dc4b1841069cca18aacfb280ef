@@ -22,6 +22,30 @@
       "revId": "1e9b2e14d86506dc4b1841069cca18aacfb280ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04dbc099_0204043c",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-06-09T18:36:37Z",
+      "side": 1,
+      "message": "Yeah, probably true... not sure why I didn\u0027t do this initially... Changed this to be an arg to getDeferredTextureImageData",
+      "parentUuid": "d1416184_63356ba4",
+      "range": {
+        "startLine": 702,
+        "startChar": 33,
+        "endLine": 702,
+        "endChar": 52
+      },
+      "revId": "1e9b2e14d86506dc4b1841069cca18aacfb280ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
