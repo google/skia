@@ -102,3 +102,31 @@ void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     }
     p->append(stage);
 }
+
+SkPM4f SkBlendMode_Apply(SkBlendMode mode, SkPM4f src, SkPM4f dst) {
+    // special-case simple/common modes...
+    switch (mode) {
+        case SkBlendMode::kClear:   return {{ 0, 0, 0, 0 }};
+        case SkBlendMode::kSrc:     return src;
+        case SkBlendMode::kDst:     return dst;
+        case SkBlendMode::kSrcOver:
+            return SkPM4f::From4f(src.to4f() + dst.to4f() * Sk4f(1 - src.a()));
+        default:
+            break;
+    }
+
+    SkRasterPipeline_<256> p;
+    SkPM4f                 *src_ctx = &src,
+                           *dst_ctx = &dst;
+
+    p.append(SkRasterPipeline::load_f32, &dst_ctx);
+    p.append(SkRasterPipeline::move_src_dst);
+    p.append(SkRasterPipeline::load_f32, &src_ctx);
+    SkBlendMode_AppendStages(mode, &p);
+    if (SkBlendMode_CanOverflow(mode)) {
+        p.append(SkRasterPipeline::clamp_1);
+    }
+    p.append(SkRasterPipeline::store_f32, &dst_ctx);
+    p.run(0, 0, 1);
+    return dst;
+}
