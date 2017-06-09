@@ -8,7 +8,6 @@
 #ifndef SkFontConfigInterface_DEFINED
 #define SkFontConfigInterface_DEFINED
 
-#include "SkDataTable.h"
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
 #include "SkTypeface.h"
