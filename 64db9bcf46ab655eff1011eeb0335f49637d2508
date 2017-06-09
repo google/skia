@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c854438a_60b4b180",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-09T20:12:12Z",
+      "side": 1,
+      "message": "this caused the crash.",
+      "range": {
+        "startLine": 254,
+        "startChar": 60,
+        "endLine": 254,
+        "endChar": 74
+      },
+      "revId": "64db9bcf46ab655eff1011eeb0335f49637d2508",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
