@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a741681_6a9ad7d8",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-09T19:03:11Z",
+      "side": 1,
+      "message": "If those really are SkPM4f, we want clamp_a.  If not, we probably want to pass SkColor4f?",
+      "range": {
+        "startLine": 127,
+        "startChar": 35,
+        "endLine": 127,
+        "endChar": 42
+      },
+      "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
