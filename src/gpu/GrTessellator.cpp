@@ -1114,9 +1114,9 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
                 v = alloc.make<Vertex>(p, alpha);
 #if LOGGING_ENABLED
                 if (!prevV) {
-                    v->fID = mesh->fHead - 1.0f;
+                    v->fID = mesh->fHead->fID - 1.0f;
                 } else if (!nextV) {
-                    v->fID = mesh->fTail + 1.0f;
+                    v->fID = mesh->fTail->fID + 1.0f;
                 } else {
                     v->fID = (prevV->fID + nextV->fID) * 0.5f;
                 }
