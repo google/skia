@@ -468,6 +468,7 @@ def dm_flags(bot):
     blacklist(['vk', 'gm', '_', 'lcdtextsize'])
     blacklist(['vk', 'gm', '_', 'matriximagefilter'])
     blacklist(['vk', 'gm', '_', 'mixedtextblobsCOLR'])
+    blacklist(['vk', 'gm', '_', 'mixershader'])
     blacklist(['vk', 'gm', '_', 'pictureimagefilter'])
     blacklist(['vk', 'gm', '_', 'resizeimagefilter'])
     blacklist(['vk', 'gm', '_', 'rotate_imagefilter'])
