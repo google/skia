@@ -34,6 +34,24 @@
       "revId": "5191436bb66c7b142597acfb933e151b4c882f86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "039d37ee_33dfbe82",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-06-09T15:19:33Z",
+      "side": 1,
+      "message": "Right, but that will also skip Housekeeper-PerCommit-InfraTests which I think we want for changes like this. You can always manually trigger it next time though.",
+      "parentUuid": "1ace946f_0357f01a",
+      "revId": "5191436bb66c7b142597acfb933e151b4c882f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
