@@ -157,21 +157,14 @@ public:
 
     virtual GradientType asAGradient(GradientInfo* info) const;
 
-    /**
-     *  If the shader subclass is composed of two shaders, return true, and if rec is not NULL,
-     *  fill it out with info about the shader.
-     *
-     *  These are bare pointers; the ownership and reference count are unchanged.
-     */
-
-    // TODO: clean up clients, move to SkShaderBase.
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     struct ComposeRec {
         const SkShader*     fShaderA;
         const SkShader*     fShaderB;
         SkBlendMode         fBlendMode;
     };
-
     virtual bool asACompose(ComposeRec*) const { return false; }
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     //  Methods to create combinations or variants of shaders
