@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0d1e265_1c4406b9",
+        "filename": "src/core/SkScanPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T18:59:20Z",
+      "side": 1,
+      "message": "is shift only used a couple of places? Can we just make it a parameter, to avoid the bloat of 2 version of this code?",
+      "range": {
+        "startLine": 121,
+        "startChar": 13,
+        "endLine": 121,
+        "endChar": 18
+      },
+      "revId": "13aac051ef774974b8a97d75557a69e2e599bee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
