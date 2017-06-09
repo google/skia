@@ -108,33 +108,6 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
     SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
-    enum D32Flags {
-        kSrcIsOpaque_D32Flag  = 1 << 0,
-        kSrcIsSingle_D32Flag  = 1 << 1,
-        kDstIsSRGB_D32Flag    = 1 << 2,
-    };
-    typedef void (*D32Proc)(SkBlendMode, uint32_t dst[], const SkPM4f src[],
-                            int count, const SkAlpha coverage[]);
-    static D32Proc GetD32Proc(SkBlendMode, uint32_t flags);
-
-    enum F16Flags {
-        kSrcIsOpaque_F16Flag  = 1 << 0,
-        kSrcIsSingle_F16Flag  = 1 << 1,
-    };
-    typedef void (*F16Proc)(SkBlendMode, uint64_t dst[], const SkPM4f src[], int count,
-                            const SkAlpha coverage[]);
-    static F16Proc GetF16Proc(SkBlendMode, uint32_t flags);
-
-    enum LCDFlags {
-        kSrcIsOpaque_LCDFlag    = 1 << 0,   // else src(s) may have alpha < 1
-        kSrcIsSingle_LCDFlag    = 1 << 1,   // else src[count]
-        kDstIsSRGB_LCDFlag      = 1 << 2,   // else l32 or f16
-    };
-    typedef void (*LCD32Proc)(uint32_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
-    typedef void (*LCDF16Proc)(uint64_t* dst, const SkPM4f* src, int count, const uint16_t lcd[]);
-    static LCD32Proc GetLCD32Proc(uint32_t flags);
-    static LCDF16Proc GetLCDF16Proc(uint32_t) { return nullptr; }
-
     virtual bool isArithmetic(SkArithmeticParams*) const { return false; }
 
 protected:

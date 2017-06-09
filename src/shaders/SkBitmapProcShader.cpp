@@ -10,6 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkBitmapProcState.h"
 #include "SkBitmapProvider.h"
+#include "SkPM4fPriv.h"
 #include "SkXfermodePriv.h"
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {
@@ -120,11 +121,6 @@ public:
             info->fPaintColor,
             info->fPixmap,
             fAllocator);
-
-        // To implement the old shadeSpan entry-point, we need to efficiently convert our native
-        // floats into SkPMColor. The SkXfermode::D32Procs do exactly that.
-        //
-        fSrcModeProc = SkXfermode::GetD32Proc(SkBlendMode::kSrc, 0);
     }
 
     void shadeSpan4f(int x, int y, SkPM4f dstC[], int count) override {
@@ -138,7 +134,10 @@ public:
         while (count > 0) {
             const int n = SkTMin(count, N);
             fShaderPipeline->shadeSpan4f(x, y, tmp, n);
-            fSrcModeProc(SkBlendMode::kSrc, dstC, tmp, n, nullptr);
+            // now convert to SkPMColor
+            for (int i = 0; i < n; ++i) {
+                dstC[i] = Sk4f_toL32(tmp[i].to4f_pmorder());
+            }
             dstC += n;
             x += n;
             count -= n;
@@ -149,7 +148,6 @@ private:
     // Store the allocator from the context creation incase we are asked to build a blitter.
     SkArenaAlloc*           fAllocator;
     SkLinearBitmapPipeline* fShaderPipeline;
-    SkXfermode::D32Proc     fSrcModeProc;
     SkPixmap                fSrcPixmap;
     float                   fAlpha;
     SkMatrix::TypeMask      fMatrixTypeMask;
