@@ -1043,6 +1043,30 @@ bool ColorCodecSrc::veto(SinkFlags flags) const {
     return flags.type != SinkFlags::kRaster || flags.approach != SinkFlags::kDirect;
 }
 
+void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
+    if (kRGBA_F16_SkColorType != bitmap.colorType() || kRGBA_F16_SkColorType == dstCT) {
+        // No need to clamp if the dst is F16.  We will clamp when we encode to PNG.
+        return;
+    }
+
+    void* ptr = bitmap.getAddr(0, 0);
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_f16, &ptr);
+    p.append(SkRasterPipeline::clamp_0);
+    if (kPremul_SkAlphaType == bitmap.alphaType()) {
+        p.append(SkRasterPipeline::clamp_a);
+    } else {
+        p.append(SkRasterPipeline::clamp_1);
+    }
+    p.append(SkRasterPipeline::store_f16, &ptr);
+
+    auto run = p.compile();
+    for (int y = 0; y < bitmap.height(); y++) {
+        run(0, y, bitmap.width());
+        ptr = SkTAddOffset<void>(ptr, bitmap.rowBytes());
+    }
+}
+
 Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     if (kRGB_565_SkColorType == canvas->imageInfo().colorType()) {
         return Error::Nonfatal("No need to test color correction to 565 backend.");
@@ -1113,6 +1137,8 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         case kBaseline_Mode:
         case kDst_sRGB_Mode:
         case kDst_HPZR30w_Mode:
+            // We do not support drawing unclamped F16.
+            clamp_if_necessary(bitmap, canvas->imageInfo().colorType());
             canvas->drawBitmap(bitmap, 0, 0);
             break;
         default:
