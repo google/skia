@@ -19,7 +19,6 @@
 #include "GrContext.h"
 #include "GrFixedClip.h"
 #include "GrRenderTargetContext.h"
-#include "GrTexture.h"
 #include "GrTextureProxy.h"
 
 #include "SkGr.h"

@@ -26,7 +26,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf)
     : GrSurfaceProxy(surf, SkBackingFit::kExact)
-    , GrTextureProxy(sk_ref_sp(surf->asTexture()))
+    , GrTextureProxy(surf)
     , GrRenderTargetProxy(sk_ref_sp(surf->asRenderTarget())) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
