@@ -22,6 +22,30 @@
       "revId": "b72ea349db243267c028e0f8b815afca79533d6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57057e0a_2853a00a",
+        "filename": "include/encode/SkPngEncoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-06-09T15:36:02Z",
+      "side": 1,
+      "message": "I return an std::vector from SkCodec::getFrameInfo. I suppose I could return a pointer and length, but then I need to ensure the pointer remains valid (or be clear about when it\u0027s no longer valid). Alternatively, I can drop that one, now that I have the version of getFrameInfo that takes an index as a parameter.",
+      "parentUuid": "280234ec_26972ce2",
+      "range": {
+        "startLine": 81,
+        "startChar": 20,
+        "endLine": 81,
+        "endChar": 27
+      },
+      "revId": "b72ea349db243267c028e0f8b815afca79533d6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
