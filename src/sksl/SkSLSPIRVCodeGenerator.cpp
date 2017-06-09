@@ -2599,6 +2599,13 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     return result;
 }
 
+void SPIRVCodeGenerator::writePrecisionModifier(const Modifiers& modifiers, SpvId id) {
+    if ((modifiers.fFlags & Modifiers::kLowp_Flag) |
+        (modifiers.fFlags & Modifiers::kMediump_Flag)) {
+        this->writeInstruction(SpvOpDecorate, id, SpvDecorationRelaxedPrecision, fDecorationBuffer);
+    }
+}
+
 #define BUILTIN_IGNORE 9999
 void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclarations& decl,
                                          OutputStream& out) {
@@ -2650,6 +2657,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         SpvId type = this->getPointerType(var->fType, storageClass);
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
+        this->writePrecisionModifier(var->fModifiers, id);
         if (var->fType.kind() == Type::kMatrix_Kind) {
             this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationColMajor,
                                    fDecorationBuffer);
