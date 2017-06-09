@@ -441,6 +441,9 @@ protected:
 
     const GrCoordTransform& getCoordTransform() const { return fCoordTransform; }
 
+    /** Checks whether the constructor failed to fully initialize the processor. */
+    bool isValid() const { return fColorType != kTexture_ColorType || fTextureSampler.proxy(); }
+
 private:
     static OptimizationFlags OptFlags(bool isOpaque);
 

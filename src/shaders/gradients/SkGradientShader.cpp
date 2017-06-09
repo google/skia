@@ -1862,6 +1862,7 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
                                                                 args.fContext->resourceProvider(),
                                                                 bitmap);
                 if (!proxy) {
+                    SkDebugf("Gradient won't draw. Could not create texture.");
                     return;
                 }
                 // This is 2/2 places where auto-normalization is disabled
