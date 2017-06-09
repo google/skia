@@ -56,7 +56,7 @@
  *    neighbouring edges at the top or bottom vertex. This is handled by merging the
  *    edges (merge_collinear_edges()).
  * B) Intersections may cause an edge to violate the left-to-right ordering of the
- *    active edge list. This is handled by detecting potential violati0ns and rewinding
+ *    active edge list. This is handled by detecting potential violations and rewinding
  *    the active edge list to the vertex before they occur (rewind() during merging,
  *    rewind_if_necessary() during splitting).
  *
@@ -1114,9 +1114,9 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
                 v = alloc.make<Vertex>(p, alpha);
 #if LOGGING_ENABLED
                 if (!prevV) {
-                    v->fID = mesh->fHead - 1.0f;
+                    v->fID = mesh->fHead->fID - 1.0f;
                 } else if (!nextV) {
-                    v->fID = mesh->fTail + 1.0f;
+                    v->fID = mesh->fTail->fID + 1.0f;
                 } else {
                     v->fID = (prevV->fID + nextV->fID) * 0.5f;
                 }
