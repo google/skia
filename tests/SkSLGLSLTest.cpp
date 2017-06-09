@@ -1375,4 +1375,22 @@ DEF_TEST(SkSLDependentInitializers, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLDeadLoopVar, r) {
+    test(r,
+         "void main() {"
+         "for (int x = 0; x < 4; ) {"
+         "break;"
+         "}"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    for (; true; ) {\n"
+         "        break;\n"
+         "    }\n"
+         "}\n"
+         );
+}
+
 #endif
