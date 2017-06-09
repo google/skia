@@ -9,6 +9,7 @@
 #ifndef SkScanPriv_DEFINED
 #define SkScanPriv_DEFINED
 
+#include "SkPath.h"
 #include "SkScan.h"
 #include "SkBlitter.h"
 
@@ -75,6 +76,136 @@ static EdgeType* backward_insert_start(EdgeType* prev, SkFixed x) {
         prev = prev->fPrev;
     }
     return prev;
+}
+
+static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
+    const SkScalar min = -max;
+    return  r.fLeft > min && r.fTop > min &&
+            r.fRight < max && r.fBottom < max;
+}
+
+static int overflows_short_shift(int value, int shift) {
+    const int s = 16 + shift;
+    return (SkLeftShift(value, s) >> s) - value;
+}
+
+/**
+  Would any of the coordinates of this rectangle not fit in a short,
+  when left-shifted by shift?
+*/
+static int rect_overflows_short_shift(SkIRect rect, int shift) {
+    SkASSERT(!overflows_short_shift(8191, shift));
+    SkASSERT(overflows_short_shift(8192, shift));
+    SkASSERT(!overflows_short_shift(32767, 0));
+    SkASSERT(overflows_short_shift(32768, 0));
+
+    // Since we expect these to succeed, we bit-or together
+    // for a tiny extra bit of speed.
+    return overflows_short_shift(rect.fLeft, shift) |
+           overflows_short_shift(rect.fRight, shift) |
+           overflows_short_shift(rect.fTop, shift) |
+           overflows_short_shift(rect.fBottom, shift);
+}
+
+static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
+    const SkScalar maxScalar = SkIntToScalar(maxInt);
+
+    if (fitsInsideLimit(src, maxScalar)) {
+        src.roundOut(dst);
+        return true;
+    }
+    return false;
+}
+
+// Return false if we don't have to continue to fill the path (e.g., clip is empty)
+static inline bool prepare_clip_rgn(
+        // input
+        const SkPath& path, const SkRegion& origClip,
+        SkBlitter* blitter, SkRegion& tmpClipStorage, const int SHIFT,
+        // output
+        bool& isInverse, SkIRect& ir, const SkRegion*& clipRgn) {
+    if (origClip.isEmpty()) {
+        return false;
+    }
+
+    isInverse = path.isInverseFillType();
+
+    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> SHIFT)) {
+#if 0
+        const SkRect& r = path.getBounds();
+        SkDebugf("--- bounds can't fit in SkIRect\n", r.fLeft, r.fTop, r.fRight, r.fBottom);
+#endif
+        return false;
+    }
+    if (ir.isEmpty()) {
+        if (isInverse) {
+            blitter->blitRegion(origClip);
+        }
+        return false;
+    }
+
+    // If the intersection of the path bounds and the clip bounds
+    // will overflow 32767 when << by SHIFT, we can't supersample,
+    // so draw without antialiasing.
+    SkIRect clippedIR;
+    if (isInverse) {
+       // If the path is an inverse fill, it's going to fill the entire
+       // clip, and we care whether the entire clip exceeds our limits.
+       clippedIR = origClip.getBounds();
+    } else {
+       if (!clippedIR.intersect(ir, origClip.getBounds())) {
+           return false;
+       }
+    }
+    if (rect_overflows_short_shift(clippedIR, SHIFT)) {
+        SkScan::FillPath(path, origClip, blitter);
+        return false;
+    }
+
+    // Our antialiasing can't handle a clip larger than 32767, so we restrict
+    // the clip to that limit here. (the runs[] uses int16_t for its index).
+    //
+    // A more general solution (one that could also eliminate the need to
+    // disable aa based on ir bounds (see overflows_short_shift) would be
+    // to tile the clip/target...
+    clipRgn = &origClip;
+    {
+        static const int32_t kMaxClipCoord = 32767;
+        const SkIRect& bounds = origClip.getBounds();
+        if (bounds.fRight > kMaxClipCoord || bounds.fBottom > kMaxClipCoord) {
+            SkIRect limit = { 0, 0, kMaxClipCoord, kMaxClipCoord };
+            tmpClipStorage.op(origClip, limit, SkRegion::kIntersect_Op);
+            clipRgn = &tmpClipStorage;
+        }
+    }
+
+    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
+
+    return true;
+}
+
+// Return false if we don't have to continue to fill the path (i.e., clipped out)
+static inline bool prepare_wrapped_blitter(
+        SkScanClipper& clipper, bool isInverse, const SkIRect& ir, const SkRegion* clipRgn,
+        SkBlitter*& blitter) {
+    if (clipper.getBlitter() == nullptr) { // clipped out
+        if (isInverse) {
+            blitter->blitRegion(*clipRgn);
+        }
+        return false;
+    }
+
+    SkASSERT(clipper.getClipRect() == nullptr ||
+            *clipper.getClipRect() == clipRgn->getBounds());
+
+    // now use the (possibly wrapped) blitter
+    blitter = clipper.getBlitter();
+
+    if (isInverse) {
+        sk_blit_above(blitter, ir, *clipRgn);
+    }
+
+    return true;
 }
 
 #endif
