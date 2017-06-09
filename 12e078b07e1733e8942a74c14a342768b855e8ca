@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ba96640_16d78a0f",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1865,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-09T12:25:34Z",
+      "side": 1,
+      "message": "The problem is that here we return without installing a sampler or coord transform. However, in emitCode we will try to access them because the color type is kTexture.",
+      "revId": "12e078b07e1733e8942a74c14a342768b855e8ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
