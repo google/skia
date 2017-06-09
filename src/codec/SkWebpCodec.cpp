@@ -85,12 +85,8 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     WebPChunkIterator chunkIterator;
     SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
     sk_sp<SkColorSpace> colorSpace = nullptr;
-    bool unsupportedICC = false;
     if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
         colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
-        if (!colorSpace) {
-            unsupportedICC = true;
-        }
     }
     if (!colorSpace) {
         colorSpace = SkColorSpace::MakeSRGB();
@@ -150,7 +146,6 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
                                             streamDeleter.release(), demux.release(),
                                             std::move(data));
-    codecOut->setUnsupportedICC(unsupportedICC);
     return codecOut;
 }
 

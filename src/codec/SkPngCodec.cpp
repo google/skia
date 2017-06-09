@@ -909,7 +909,6 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
             iccType |= SkColorSpace_Base::kGray_ICCTypeFlag;
         }
         sk_sp<SkColorSpace> colorSpace = read_color_space(fPng_ptr, fInfo_ptr, iccType);
-        const bool unsupportedICC = !colorSpace;
         if (!colorSpace) {
             // Treat unsupported/invalid color spaces as sRGB.
             colorSpace = SkColorSpace::MakeSRGB();
@@ -935,7 +934,6 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
             *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
                     fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
         }
-        (*fOutCodec)->setUnsupportedICC(unsupportedICC);
         static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
 

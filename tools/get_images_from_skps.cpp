@@ -30,8 +30,6 @@ DEFINE_bool(writeImages, true,
             "Indicates if we want to write out supported/decoded images.");
 DEFINE_bool(writeFailedImages, false,
             "Indicates if we want to write out unsupported/failed to decode images.");
-DEFINE_bool(testICCSupport, false,
-            "Indicates if we want to test that the images with ICC profiles are supported");
 DEFINE_string2(failuresJsonPath, j, "",
                "Dump SKP and count of unknown images to the specified JSON file. Will not be "
                "written anywhere if empty.");
@@ -114,19 +112,6 @@ struct Sniffer : public SkPixelSerializer {
             }
         }
 
-#ifdef SK_DEBUG
-        if (FLAGS_testICCSupport) {
-            if (codec->fUnsupportedICC) {
-                SkDebugf("Color correction failed for %s\n", skpName.c_str());
-                gSkpToUnsupportedCount[skpName]++;
-                if (FLAGS_writeFailedImages) {
-                    writeImage();
-                }
-                return;
-            }
-        }
-#endif
-
         if (FLAGS_writeImages) {
             writeImage();
         }
@@ -154,7 +139,7 @@ static void get_images_from_file(const SkString& file) {
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage(
             "Usage: get_images_from_skps -s <dir of skps> -o <dir for output images> --testDecode "
-            "-j <output JSON path> --testICCSupport --writeImages, --writeFailedImages\n");
+            "-j <output JSON path> --writeImages, --writeFailedImages\n");
 
     SkCommandLineFlags::Parse(argc, argv);
     const char* inputs = FLAGS_skps[0];
@@ -164,12 +149,6 @@ int main(int argc, char** argv) {
         SkCommandLineFlags::PrintUsage();
         return 1;
     }
-#ifndef SK_DEBUG
-    if (FLAGS_testICCSupport) {
-        std::cerr << "--testICCSupport unavailable outside of SK_DEBUG builds" << std::endl;
-        return 1;
-    }
-#endif
 
     if (sk_isdir(inputs)) {
         SkOSFile::Iter iter(inputs, "skp");
