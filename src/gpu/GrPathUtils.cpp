@@ -837,13 +837,16 @@ int GrPathUtils::chopCubicAtLoopIntersection(const SkPoint src[4], SkPoint dst[1
         t[1] /= s[1];
         SkASSERT(t[0] <= t[1]); // Technically t0 != t1 in a loop, but there may be FP error.
 
-        if (t[0] > 0 && t[0] < 1) {
-            chops.push_back(t[0]);
-            *loopIndex = 1;
-        }
-        if (t[1] > 0 && t[1] < 1) {
-            chops.push_back(t[1]);
-            *loopIndex = chops.count() - 1;
+        if (t[0] < 1 && t[1] > 0) {
+            *loopIndex = 0;
+            if (t[0] > 0) {
+                chops.push_back(t[0]);
+                *loopIndex = 1;
+            }
+            if (t[1] < 1) {
+                chops.push_back(t[1]);
+                *loopIndex = chops.count() - 1;
+            }
         }
     }
 
