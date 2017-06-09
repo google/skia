@@ -92,7 +92,7 @@ void SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
     auto mode = (SkBlendMode)fMode;
     SkBlendMode_AppendStages(mode, p);
     if (SkBlendMode_CanOverflow(mode)) {
-        p->append(SkRasterPipeline::clamp_a);
+        p->append(SkRasterPipeline::clamp_1);
     }
 }
 

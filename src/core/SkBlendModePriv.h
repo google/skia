@@ -14,7 +14,17 @@
 class SkRasterPipeline;
 
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
+
+/**
+ *  If this returns true, the blendmode can produce values > 1, so the call may need to append
+ *  a clamp_1 or clamp_a stage afterwards. clamp_a is never wrong (for pre-mul colors) but it
+ *  is slightly slower than clamp_1.
+ */
 bool SkBlendMode_CanOverflow(SkBlendMode);
+
+/**
+ *  Append the corresponding blend stage to the pipeline.
+ */
 void SkBlendMode_AppendStages(SkBlendMode, SkRasterPipeline*);
 
 #if SK_SUPPORT_GPU
