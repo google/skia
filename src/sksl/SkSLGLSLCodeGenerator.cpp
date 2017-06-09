@@ -736,7 +736,7 @@ void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {
 
 void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     this->write("for (");
-    if (f.fInitializer) {
+    if (f.fInitializer && !f.fInitializer->isEmpty()) {
         this->writeStatement(*f.fInitializer);
     } else {
         this->write("; ");
