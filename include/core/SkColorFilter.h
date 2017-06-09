@@ -175,14 +175,6 @@ private:
      */
     virtual int privateComposedFilterCount() const { return 1; }
 
-    /*
-     *  Returns true and sets |outer| and |inner| if this is a compose color filter.
-     *  Returns false otherwise.
-     */
-    virtual bool asACompose(SkColorFilter** /*outer*/, SkColorFilter** /*inner*/) const {
-        return false;
-    }
-
     virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                                 bool shaderIsOpaque) const = 0;
 
