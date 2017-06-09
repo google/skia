@@ -31,7 +31,9 @@ public:
     SkShader* getShaderB() { return fShaderB.get(); }
 #endif
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     bool asACompose(ComposeRec* rec) const override;
+#endif
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeShader)

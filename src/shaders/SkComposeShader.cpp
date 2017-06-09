@@ -69,6 +69,7 @@ sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) 
                        fMode, fLerpT);
 }
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (!this->isJustMode()) {
         return false;
@@ -81,6 +82,7 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
     }
     return true;
 }
+#endif
 
 bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
                                      SkArenaAlloc* alloc, const SkMatrix& ctm,
