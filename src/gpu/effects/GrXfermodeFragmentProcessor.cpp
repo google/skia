@@ -143,8 +143,8 @@ private:
         GrColor4f dstColor = ConstantOutputForConstantInput(this->childProcessor(1), input);
         SkPM4f src = GrColor4fToSkPM4f(srcColor);
         SkPM4f dst = GrColor4fToSkPM4f(dstColor);
-        auto proc = SkXfermode::GetProc4f(fMode);
-        return SkPM4fToGrColor4f(proc(src, dst)).mulByScalar(alpha);
+        SkPM4f res = SkBlendMode_Apply(fMode, src, dst);
+        return SkPM4fToGrColor4f(res).mulByScalar(alpha);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -391,8 +391,8 @@ private:
             src = GrColor4fToSkPM4f(inputColor);
             dst = GrColor4fToSkPM4f(childColor);
         }
-        auto proc = SkXfermode::GetProc4f(fMode);
-        return SkPM4fToGrColor4f(proc(src, dst));
+        SkPM4f res = SkBlendMode_Apply(fMode, src, dst);
+        return SkPM4fToGrColor4f(res);
     }
 
 private:
