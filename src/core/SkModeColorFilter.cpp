@@ -91,9 +91,7 @@ void SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
     p->append(SkRasterPipeline::constant_color, color);
     auto mode = (SkBlendMode)fMode;
     SkBlendMode_AppendStages(mode, p);
-    if (SkBlendMode_CanOverflow(mode)) {
-        p->append(SkRasterPipeline::clamp_a);
-    }
+    SkBlendMode_AppendClampIfNeeded(mode, p);
 }
 
 sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {

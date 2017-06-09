@@ -272,9 +272,7 @@ void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
-    if (SkBlendMode_CanOverflow(fBlend)) {
-        p->append(SkRasterPipeline::clamp_a);
-    }
+    SkBlendMode_AppendClampIfNeeded(fBlend, p);
 }
 
 void SkRasterPipelineBlitter::maybe_shade(int x, int y, int w) {
