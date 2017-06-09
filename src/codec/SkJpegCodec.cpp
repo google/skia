@@ -225,7 +225,6 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMg
         Origin orientation = get_exif_orientation(decoderMgr->dinfo());
         sk_sp<SkData> iccData = get_icc_profile(decoderMgr->dinfo());
         sk_sp<SkColorSpace> colorSpace = nullptr;
-        bool unsupportedICC = false;
         if (iccData) {
             SkColorSpace_Base::ICCTypeFlag iccType = SkColorSpace_Base::kRGB_ICCTypeFlag;
             switch (decoderMgr->dinfo()->jpeg_color_space) {
@@ -241,10 +240,6 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMg
                     break;
             }
             colorSpace = SkColorSpace_Base::MakeICC(iccData->data(), iccData->size(), iccType);
-            if (!colorSpace) {
-                SkCodecPrintf("Could not create SkColorSpace from ICC data.\n");
-                unsupportedICC = true;
-            }
         }
         if (!colorSpace) {
             colorSpace = defaultColorSpace;
@@ -254,7 +249,6 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMg
         const int height = decoderMgr->dinfo()->image_height;
         SkJpegCodec* codec = new SkJpegCodec(width, height, info, stream, decoderMgr.release(),
                                              std::move(colorSpace), orientation);
-        codec->setUnsupportedICC(unsupportedICC);
         *codecOut = codec;
     } else {
         SkASSERT(nullptr != decoderMgrOut);
