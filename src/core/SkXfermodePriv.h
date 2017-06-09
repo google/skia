@@ -72,7 +72,6 @@ public:
     }
 
     static SkXfermodeProc GetProc(SkBlendMode);
-    static SkXfermodeProc4f GetProc4f(SkBlendMode);
 
     enum SrcColorOpacity {
         // The src color is known to be opaque (alpha == 255)

@@ -327,10 +327,9 @@ SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
         // It would be awesome to use SkXfermode::Create here but it knows better
         // than us and won't return a kSrcOver_Mode SkXfermode. That means we
         // have to get one the hard way.
-        struct ProcCoeff rec;
-        rec.fProc = SkXfermode::GetProc(SkBlendMode::kSrcOver);
+        SkXfermodeProc proc = SkXfermode::GetProc(SkBlendMode::kSrcOver);
 
-        srcover.reset(new SkProcCoeffXfermode(rec, SkBlendMode::kSrcOver));
+        srcover.reset(new SkProcCoeffXfermode(proc, SkBlendMode::kSrcOver));
         xfer = srcover.get();
 
     }
