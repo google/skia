@@ -70,6 +70,30 @@
       "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed79ce59_336a5ac1",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-09T19:49:40Z",
+      "side": 1,
+      "message": "OK, I\u0027ll go look at the other place(s)",
+      "parentUuid": "cc67391b_f88d012c",
+      "range": {
+        "startLine": 127,
+        "startChar": 35,
+        "endLine": 127,
+        "endChar": 42
+      },
+      "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
