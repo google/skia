@@ -255,6 +255,7 @@ public:
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
 
+    bool isInitialized() const { return SkToBool(fProxyRef.get()); }
     /**
      * For internal use by GrProcessor.
      */
