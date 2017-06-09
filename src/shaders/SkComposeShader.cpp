@@ -55,6 +55,7 @@ sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) 
                                        xformer->apply(fShaderB.get()), fMode);
 }
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
     if (rec) {
         rec->fShaderA   = fShaderA.get();
@@ -63,6 +64,7 @@ bool SkComposeShader::asACompose(ComposeRec* rec) const {
     }
     return true;
 }
+#endif
 
 bool SkComposeShader::isRasterPipelineOnly() const {
     return true;
