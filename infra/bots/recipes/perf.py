@@ -126,8 +126,6 @@ def nanobench_flags(bot):
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
-  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
-    match.append('~native_image_to_raster_surface')  # skia:6401
   if ('Vulkan' in bot and ('IntelIris540' in bot or 'IntelIris640' in bot) and
       'Win' in bot):
     # skia:6398
@@ -149,8 +147,6 @@ def nanobench_flags(bot):
     match.append('~text_16_LCD_WT')
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~Xfermode') # skia:6691
-  if 'ANGLE' in bot and any('msaa' in x for x in configs):
-    match.append('~native_image_to_raster_surface')  # skia:6457
   if 'ANGLE' in bot and 'Radeon' in bot and 'Release' in bot:
     # skia:6534
     match.append('~shapes_mixed_10000_32x33')

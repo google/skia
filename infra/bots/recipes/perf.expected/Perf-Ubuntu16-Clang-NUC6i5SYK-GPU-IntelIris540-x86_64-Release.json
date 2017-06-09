@@ -163,7 +163,6 @@
       "gl",
       "gles",
       "--match",
-      "~native_image_to_raster_surface",
       "~inc0.gif",
       "~inc1.gif",
       "~incInterlaced.gif",
