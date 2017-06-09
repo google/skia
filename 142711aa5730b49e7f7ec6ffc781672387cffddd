@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82974c0e_39aac5b7",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-06-09T20:05:01Z",
+      "side": 1,
+      "message": "I might have preferred to put dstColorType before dstColorSpace... but that makes it much harder to do the Chrome merge - how do you normally handle this? A temporary ifdef that Chrome doesnt\u0027 define, a code change in chrome, then remove the ifdef?\n\nProbably not worth it in this case though... WDYT?",
+      "revId": "142711aa5730b49e7f7ec6ffc781672387cffddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
