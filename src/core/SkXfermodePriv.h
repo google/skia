@@ -107,8 +107,6 @@ public:
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
     SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
-    virtual bool isArithmetic(SkArithmeticParams*) const { return false; }
-
 protected:
     SkXfermode() {}
 

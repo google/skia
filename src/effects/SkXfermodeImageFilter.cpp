@@ -84,24 +84,20 @@ SkXfermodeImageFilter_Base::SkXfermodeImageFilter_Base(SkBlendMode mode,
     , fMode(mode)
 {}
 
-static int unflatten_blendmode(SkReadBuffer& buffer, SkArithmeticParams* arith) {
-    uint32_t mode = buffer.read32();
+static unsigned unflatten_blendmode(SkReadBuffer& buffer) {
+    unsigned mode = buffer.read32();
     (void)buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode);
     return mode;
 }
 
 sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    SkArithmeticParams arith;
-    int mode = unflatten_blendmode(buffer, &arith);
-    if (mode >= 0) {
-        return SkXfermodeImageFilter::Make((SkBlendMode)mode, common.getInput(0),
-                                           common.getInput(1), &common.cropRect());
-    } else {
-        return SkArithmeticImageFilter::Make(arith.fK[0], arith.fK[1], arith.fK[2], arith.fK[3],
-                                             arith.fEnforcePMColor, common.getInput(0),
-                                             common.getInput(1), &common.cropRect());
+    unsigned mode = unflatten_blendmode(buffer);
+    if (!buffer.isValid()) {
+        return nullptr;
     }
+    return SkXfermodeImageFilter::Make((SkBlendMode)mode, common.getInput(0),
+                                       common.getInput(1), &common.cropRect());
 }
 
 void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
@@ -342,7 +338,7 @@ SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
 sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::LegacyArithmeticCreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
     // skip the unused mode (srcover) field
-    SkDEBUGCODE(int mode =) unflatten_blendmode(buffer, nullptr);
+    SkDEBUGCODE(unsigned mode =) unflatten_blendmode(buffer);
     if (!buffer.isValid()) {
         return nullptr;
     }
