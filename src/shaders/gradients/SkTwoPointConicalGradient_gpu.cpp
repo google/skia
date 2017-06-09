@@ -62,7 +62,8 @@ public:
     class GLSLEdge2PtConicalProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return sk_sp<GrFragmentProcessor>(new Edge2PtConicalEffect(args));
+        auto processor = sk_sp<Edge2PtConicalEffect>(new Edge2PtConicalEffect(args));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     ~Edge2PtConicalEffect() override {}
@@ -370,8 +371,9 @@ public:
     class GLSLFocalOutside2PtConicalProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar focalX) {
-        return sk_sp<GrFragmentProcessor>(
-            new FocalOutside2PtConicalEffect(args, focalX));
+        auto processor =
+                sk_sp<FocalOutside2PtConicalEffect>(new FocalOutside2PtConicalEffect(args, focalX));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     ~FocalOutside2PtConicalEffect() override {}
@@ -583,8 +585,9 @@ public:
     class GLSLFocalInside2PtConicalProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar focalX) {
-        return sk_sp<GrFragmentProcessor>(
-            new FocalInside2PtConicalEffect(args, focalX));
+        auto processor =
+                sk_sp<FocalInside2PtConicalEffect>(new FocalInside2PtConicalEffect(args, focalX));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     ~FocalInside2PtConicalEffect() override {}
@@ -821,8 +824,9 @@ public:
     class GLSLCircleInside2PtConicalProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args, const CircleConicalInfo& info) {
-        return sk_sp<GrFragmentProcessor>(
-            new CircleInside2PtConicalEffect(args, info));
+        auto processor =
+                sk_sp<CircleInside2PtConicalEffect>(new CircleInside2PtConicalEffect(args, info));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     ~CircleInside2PtConicalEffect() override {}

@@ -247,7 +247,8 @@ public:
     class GLSLRadialProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(args));
+        auto processor = sk_sp<GrRadialGradient>(new GrRadialGradient(args));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     ~GrRadialGradient() override {}
@@ -363,6 +364,9 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
     sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
+    if (!inner) {
+        return nullptr;
+    }
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

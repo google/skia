@@ -376,7 +376,8 @@ public:
     class GLSLLinearProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return sk_sp<GrFragmentProcessor>(new GrLinearGradient(args));
+        auto processor = sk_sp<GrLinearGradient>(new GrLinearGradient(args));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     ~GrLinearGradient() override {}
@@ -489,6 +490,9 @@ sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs&
     sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
+    if (!inner) {
+        return nullptr;
+    }
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 

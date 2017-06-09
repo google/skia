@@ -144,8 +144,10 @@ public:
     class GLSLSweepProcessor;
 
     static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(args));
+        auto processor = sk_sp<GrSweepGradient>(new GrSweepGradient(args));
+        return processor->isValid() ? std::move(processor) : nullptr;
     }
+
     ~GrSweepGradient() override {}
 
     const char* name() const override { return "Sweep Gradient"; }
@@ -267,6 +269,9 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
     sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, &matrix, SkShader::kClamp_TileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
+    if (!inner) {
+        return nullptr;
+    }
     return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
