@@ -8,8 +8,8 @@
 #ifndef GrTextureProxy_DEFINED
 #define GrTextureProxy_DEFINED
 
+#include "GrSamplerParams.h"
 #include "GrSurfaceProxy.h"
-#include "GrTexture.h"
 
 class GrCaps;
 class GrResourceProvider;

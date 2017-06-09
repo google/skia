@@ -25,7 +25,6 @@
 #include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "GrStyle.h"
-#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "glsl/GrGLSLFragmentProcessor.h"

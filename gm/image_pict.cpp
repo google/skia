@@ -18,8 +18,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrSurfaceContext.h"
-#include "GrSurfaceProxy.h"
-#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "../src/image/SkImage_Gpu.h"
 #endif

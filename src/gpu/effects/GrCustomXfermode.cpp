@@ -13,7 +13,6 @@
 #include "GrPipeline.h"
 #include "GrProcessor.h"
 #include "GrShaderCaps.h"
-#include "GrTexture.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
