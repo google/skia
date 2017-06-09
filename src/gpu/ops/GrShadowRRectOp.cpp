@@ -287,6 +287,8 @@ private:
         SkPoint fOffset;
         SkScalar fDistanceCorrection;
         SkScalar fClampValue;
+        SkScalar fTNumerator;
+        SkScalar fTDenominator;
     };
 
     void fillInCircleVerts(const Geometry& args, bool isStroked, CircleVertex** verts) const {
@@ -312,6 +314,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(-octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
@@ -319,6 +323,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(octOffset, -1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
@@ -326,6 +332,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
@@ -333,6 +341,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
@@ -340,6 +350,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
@@ -347,6 +359,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(-octOffset, 1);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
@@ -354,6 +368,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(-1, octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         (*verts)->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
@@ -361,6 +377,8 @@ private:
         (*verts)->fOffset = SkPoint::Make(-1, -octOffset);
         (*verts)->fDistanceCorrection = distanceCorrection;
         (*verts)->fClampValue = clampValue;
+        (*verts)->fTNumerator = 1;   // use smoothstep
+        (*verts)->fTDenominator = 1;
         (*verts)++;
 
         if (isStroked) {
@@ -376,6 +394,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;   // use smoothstep
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, -c * r);
@@ -383,6 +403,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, -c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;   // use smoothstep
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, -s * r);
@@ -390,6 +412,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(c * r, s * r);
@@ -397,6 +421,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(s * r, c * r);
@@ -404,6 +430,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-s * r, c * r);
@@ -411,6 +439,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(-s * innerRadius, c * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, s * r);
@@ -418,6 +448,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = center + SkPoint::Make(-c * r, -s * r);
@@ -425,6 +457,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(-c * innerRadius, -s * innerRadius);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
         } else {
             // filled
@@ -433,6 +467,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
         }
     }
@@ -476,6 +512,7 @@ private:
         diagVec *= umbraInset / (2 * umbraInset - outerRadius);
         SkScalar distanceCorrection = umbraInset / blurRadius;
         SkScalar clampValue = args.fClampValue;
+        SkScalar fooFactor = SkTMax(0.0f, (outerRadius - 0.5f*blurRadius) / outerRadius);
 
         // build corner by corner
         for (int i = 0; i < 4; ++i) {
@@ -485,6 +522,8 @@ private:
             (*verts)->fOffset = SkVector::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 0;
+            (*verts)->fTDenominator = 0.0001f;
             (*verts)++;
 
             // outer points
@@ -493,6 +532,8 @@ private:
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yMid[i]);
@@ -500,6 +541,8 @@ private:
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = outerRadius / umbraInset;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xOuter[i], yOuter[i]);
@@ -507,6 +550,8 @@ private:
             (*verts)->fOffset = diagVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = fooFactor;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xMid[i], yOuter[i]);
@@ -514,6 +559,8 @@ private:
             (*verts)->fOffset = outerVec;
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = outerRadius / umbraInset;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
 
             (*verts)->fPos = SkPoint::Make(xInner[i], yOuter[i]);
@@ -521,6 +568,8 @@ private:
             (*verts)->fOffset = SkVector::Make(0, -1);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 1;
+            (*verts)->fTDenominator = 1;
             (*verts)++;
         }
 
@@ -539,6 +588,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 0;
+            (*verts)->fTDenominator = 0.001f;
             (*verts)++;
 
             // TR
@@ -547,6 +598,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 0;
+            (*verts)->fTDenominator = 0.001f;
             (*verts)++;
 
             // BL
@@ -555,6 +608,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 0;
+            (*verts)->fTDenominator = 0.001f;
             (*verts)++;
 
             // BR
@@ -563,6 +618,8 @@ private:
             (*verts)->fOffset = SkPoint::Make(0, 0);
             (*verts)->fDistanceCorrection = distanceCorrection;
             (*verts)->fClampValue = clampValue;
+            (*verts)->fTNumerator = 0;
+            (*verts)->fTDenominator = 0.001f;
             (*verts)++;
         }
 

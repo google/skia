@@ -30,6 +30,7 @@ public:
     const Attribute* inPosition() const { return fInPosition; }
     const Attribute* inColor() const { return fInColor; }
     const Attribute* inShadowParams() const { return fInShadowParams; }
+    const Attribute* inTValues() const { return fInTValues; }
     GrColor color() const { return fColor; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
@@ -45,6 +46,7 @@ private:
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInShadowParams;
+    const Attribute* fInTValues;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
 
