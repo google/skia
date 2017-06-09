@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c112eedc_9706d3a1",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-09T13:33:46Z",
+      "side": 1,
+      "message": "it looks like both GL and Vulkan just cast this to a texture. So why not just have this take a GrTexture instead of a GrSurface",
+      "range": {
+        "startLine": 411,
+        "startChar": 31,
+        "endLine": 411,
+        "endChar": 50
+      },
+      "revId": "e67f608d3e5de9764a1367cfebb2a6bde45fe8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb198b80_e1687071",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-09T13:33:46Z",
+      "side": 1,
+      "message": "vulkan requires this offset to be a multiple of 4. Do we check that anywhere?",
+      "range": {
+        "startLine": 414,
+        "startChar": 31,
+        "endLine": 414,
+        "endChar": 50
+      },
+      "revId": "e67f608d3e5de9764a1367cfebb2a6bde45fe8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "721cfb99_1d76a91d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-09T13:33:46Z",
+      "side": 1,
+      "message": "In general, could we not just call uploadTexDataOptimal here? Seems like a lot of the same code.",
+      "revId": "e67f608d3e5de9764a1367cfebb2a6bde45fe8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa7dbe08_9ccc5fa3",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-09T13:33:46Z",
+      "side": 1,
+      "message": "I don\u0027t think this is needed since when you submit a cmd buffer to the queue, there is an implicit barrier on all cpu writes",
+      "range": {
+        "startLine": 434,
+        "startChar": 1,
+        "endLine": 440,
+        "endChar": 39
+      },
+      "revId": "e67f608d3e5de9764a1367cfebb2a6bde45fe8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4cb2afd_c942d84d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-09T13:33:46Z",
+      "side": 1,
+      "message": "alignment",
+      "range": {
+        "startLine": 456,
+        "startChar": 14,
+        "endLine": 459,
+        "endChar": 35
+      },
+      "revId": "e67f608d3e5de9764a1367cfebb2a6bde45fe8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "511be09f_5e8bf347",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-09T13:33:46Z",
+      "side": 1,
+      "message": "align",
+      "range": {
+        "startLine": 463,
+        "startChar": 34,
+        "endLine": 467,
+        "endChar": 48
+      },
+      "revId": "e67f608d3e5de9764a1367cfebb2a6bde45fe8c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
