@@ -175,6 +175,34 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
     int zlibLevel = SkTMin(SkTMax(0, options.fZLibLevel), 9);
     SkASSERT(zlibLevel == options.fZLibLevel);
     png_set_compression_level(fPngPtr, zlibLevel);
+
+    // Set comments in tEXt chunk
+    const sk_sp<SkDataTable>& comments = options.fComments;
+    if (comments != nullptr) {
+        std::vector<png_text> png_texts(comments->count());
+        std::vector<SkString> clippedKeys;
+        for (int i = 0; i < comments->count() / 2; ++i) {
+            const char* keyword;
+            const char* originalKeyword = comments->atStr(2 * i);
+            const char* text = comments->atStr(2 * i + 1);
+            if (strlen(originalKeyword) <= PNG_KEYWORD_MAX_LENGTH) {
+                keyword = originalKeyword;
+            } else {
+                SkDEBUGFAILF("PNG tEXt keyword should be no longer than %d.",
+                        PNG_KEYWORD_MAX_LENGTH);
+                clippedKeys.emplace_back(originalKeyword, PNG_KEYWORD_MAX_LENGTH);
+                keyword = clippedKeys.back().c_str();
+            }
+            // It seems safe to convert png_const_charp to png_charp for key/text,
+            // and we don't have to provide text_length and other fields as we're providing
+            // 0-terminated c_str with PNG_TEXT_COMPRESSION_NONE (no compression, no itxt).
+            png_texts[i].compression = PNG_TEXT_COMPRESSION_NONE;
+            png_texts[i].key = (png_charp)keyword;
+            png_texts[i].text = (png_charp)text;
+        }
+        png_set_text(fPngPtr, fInfoPtr, png_texts.data(), png_texts.size());
+    }
+
     return true;
 }
 
