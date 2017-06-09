@@ -10,18 +10,13 @@
 
 #include "SkXfermodePriv.h"
 
-struct ProcCoeff {
-    SkXfermodeProc      fProc;
-    SkXfermodeProc4f    fProc4f;
-};
-
 #define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
 
 class SK_API SkProcCoeffXfermode : public SkXfermode {
 public:
-    SkProcCoeffXfermode(const ProcCoeff& rec, SkBlendMode mode) {
+    SkProcCoeffXfermode(SkXfermodeProc proc, SkBlendMode mode) {
         fMode = mode;
-        fProc = rec.fProc;
+        fProc = proc;
     }
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int count,

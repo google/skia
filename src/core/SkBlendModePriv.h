@@ -9,7 +9,9 @@
 #define SkBlendModePriv_DEFINED
 
 #include "SkBlendMode.h"
-#include "SkRasterPipeline.h"
+#include "SkPM4f.h"
+
+class SkRasterPipeline;
 
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
 bool SkBlendMode_CanOverflow(SkBlendMode);
@@ -36,5 +38,7 @@ enum class SkBlendModeCoeff {
 };
 
 bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst);
+
+SkPM4f SkBlendMode_Apply(SkBlendMode, SkPM4f src, SkPM4f dst);
 
 #endif
