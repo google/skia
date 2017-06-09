@@ -287,11 +287,13 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
             buff = GrVkIndexBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
             break;
         case kXferCpuToGpu_GrBufferType:
-            SkASSERT(kStream_GrAccessPattern == accessPattern);
+            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
+                     kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyRead_Type);
             break;
         case kXferGpuToCpu_GrBufferType:
-            SkASSERT(kStream_GrAccessPattern == accessPattern);
+            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
+                     kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
             break;
         case kTexel_GrBufferType:
@@ -404,6 +406,68 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     }
 
     return success;
+}
+
+bool GrVkGpu::onTransferPixels(GrSurface* surface,
+                               int left, int top, int width, int height,
+                               GrPixelConfig config, GrBuffer* transferBuffer,
+                               size_t bufferOffset, size_t rowBytes) {
+    GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
+    if (!vkTex) {
+        return false;
+    }
+    GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
+    if (!vkBuffer) {
+        return false;
+    }
+
+    // We assume Vulkan doesn't do sRGB <-> linear conversions when reading and writing pixels.
+    if (GrPixelConfigIsSRGB(surface->config()) != GrPixelConfigIsSRGB(config)) {
+        return false;
+    }
+
+    // TODO: Handle y axis flip via copy to temp image, then blit to final
+    if (kBottomLeft_GrSurfaceOrigin == vkTex->origin()) {
+        return false;
+    }
+
+    // make sure the unmap has finished
+    vkBuffer->addMemoryBarrier(this,
+                                VK_ACCESS_HOST_WRITE_BIT,
+                                VK_ACCESS_TRANSFER_READ_BIT,
+                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                false);
+
+    // Set up copy region
+    size_t bpp = GrBytesPerPixel(config);
+
+    VkBufferImageCopy region;
+    memset(&region, 0, sizeof(VkBufferImageCopy));
+    region.bufferOffset = bufferOffset;
+    region.bufferRowLength = (uint32_t)(rowBytes / bpp);
+    region.bufferImageHeight = 0;
+    region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+    region.imageOffset = { left, top, 0 };
+    region.imageExtent = { (uint32_t)width, (uint32_t)height, 1 };
+
+    // Change layout of our target so it can be copied to
+    vkTex->setImageLayout(this,
+                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                            VK_ACCESS_TRANSFER_WRITE_BIT,
+                            VK_PIPELINE_STAGE_TRANSFER_BIT,
+                            false);
+
+    // Copy the buffer to the image
+    fCurrentCmdBuffer->copyBufferToImage(this,
+                                            vkBuffer,
+                                            vkTex,
+                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                            1,
+                                            &region);
+
+    vkTex->texturePriv().dirtyMipMaps(true);
+    return true;
 }
 
 void GrVkGpu::resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,

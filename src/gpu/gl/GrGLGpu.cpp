@@ -787,7 +787,7 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
 
     bool success = false;
     GrMipLevel mipLevel;
-    mipLevel.fPixels = transferBuffer;
+    mipLevel.fPixels = (void*)offset;
     mipLevel.fRowBytes = rowBytes;
     SkSTArray<1, GrMipLevel> texels;
     texels.push_back(mipLevel);
@@ -954,6 +954,14 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                             int left, int top, int width, int height, GrPixelConfig dataConfig,
                             const SkTArray<GrMipLevel>& texels) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
+
+    // unbind any previous transfer buffer if not transferring
+    auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
+    if (kTransfer_UploadType != uploadType &&
+        !xferBufferState.fBoundBufferUniqueID.isInvalid()) {
+        GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
+        xferBufferState.invalidate();
+    }
 
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
