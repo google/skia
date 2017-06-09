@@ -46,6 +46,30 @@
       "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc67391b_f88d012c",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-09T19:46:56Z",
+      "side": 1,
+      "message": "Ah, I see.  If r\u003ca and R\u003cA, r+R \u003c a+A.  ( 0 \u003c a-r, 0 \u003c A-R ~~~\u003e 0 \u003c (a-r) + (A-R) )\n\nLet\u0027s either use clamp_a here or switch the other places we call SkBlendMode_CanOverflow() over to use clamp_1?  If we do, it\u0027d be nice to put a note on SkBlendMode_CanOverflow() to remind us that both clamp_a and clamp_1 will work fine and why we picked clamp_1?",
+      "parentUuid": "a9669666_c5a2e78a",
+      "range": {
+        "startLine": 127,
+        "startChar": 35,
+        "endLine": 127,
+        "endChar": 42
+      },
+      "revId": "ab0ea8308a93f6988842569b6d5e10076cd2fecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
