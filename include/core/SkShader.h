@@ -210,7 +210,38 @@ public:
      */
     static sk_sp<SkShader> MakeColorShader(const SkColor4f&, sk_sp<SkColorSpace>);
 
-    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode);
+    /**
+     *  Compose two shaders together, using two operators: mode and lerp. The resulting colors
+     *  are computed by first combining the src and dst shaders using mode, and then linearly
+     *  interpolating between the dst and result colors using lerp.
+     *
+     *      result = dst * (1 - lerp) + (src (mode) dst) * lerp
+     *
+     *  If either shader is nullptr, then this returns nullptr.
+     *  If lerp is NaN then this returns nullptr, otherwise lerp is clamped to [0..1].
+     */
+    static sk_sp<SkShader> MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                       SkBlendMode mode, float lerp = 1);
+
+    /*
+     *  DEPRECATED: call MakeCompose.
+     */
+    static sk_sp<SkShader> MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                             SkBlendMode mode) {
+        return MakeCompose(std::move(dst), std::move(src), mode, 1);
+    }
+
+    /**
+     *  Compose two shaders together using a weighted average.
+     *
+     *  result = dst * (1 - lerp) + src * lerp
+     *
+     *  If either shader is nullptr, then this returns nullptr.
+     *  If lerp is NaN then this returns nullptr, otherwise lerp is clamped to [0..1].
+     */
+    static sk_sp<SkShader> MakeMixer(sk_sp<SkShader> dst, sk_sp<SkShader> src, float lerp) {
+        return MakeCompose(std::move(dst), std::move(src), SkBlendMode::kSrc, lerp);
+    }
 
     /** Call this to create a new shader that will draw with the specified bitmap.
      *

@@ -17,54 +17,68 @@
 #include "SkString.h"
 #include "../jumper/SkJumper.h"
 
-sk_sp<SkShader> SkShader::MakeComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src,
-                                            SkBlendMode mode) {
-    if (!src || !dst) {
+sk_sp<SkShader> SkShader::MakeCompose(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode mode,
+                                      float lerpT) {
+    if (!src || !dst || SkScalarIsNaN(lerpT)) {
         return nullptr;
     }
-    if (SkBlendMode::kSrc == mode) {
-        return src;
-    }
-    if (SkBlendMode::kDst == mode) {
+    lerpT = SkScalarPin(lerpT, 0, 1);
+
+    if (lerpT == 0) {
         return dst;
+    } else if (lerpT == 1) {
+        if (mode == SkBlendMode::kSrc) {
+            return src;
+        }
+        if (mode == SkBlendMode::kDst) {
+            return dst;
+        }
     }
-    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode));
+    return sk_sp<SkShader>(new SkComposeShader(std::move(dst), std::move(src), mode, lerpT));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkComposeShader::CreateProc(SkReadBuffer& buffer) {
-    sk_sp<SkShader> shaderA(buffer.readShader());
-    sk_sp<SkShader> shaderB(buffer.readShader());
-    SkBlendMode mode = (SkBlendMode)buffer.read32();
+    sk_sp<SkShader> dst(buffer.readShader());
+    sk_sp<SkShader> src(buffer.readShader());
+    unsigned        mode = buffer.read32();
 
-    if (!shaderA || !shaderB) {
+    float lerp = 1;
+    if (!buffer.isVersionLT(SkReadBuffer::kComposeShaderCanLerp_Version)) {
+        lerp = buffer.readScalar();
+    }
+
+    // check for valid mode before we cast to the enum type
+    if (mode > (unsigned)SkBlendMode::kLastMode) {
         return nullptr;
     }
-    return sk_make_sp<SkComposeShader>(std::move(shaderA), std::move(shaderB), mode);
+
+    return MakeCompose(std::move(dst), std::move(src), static_cast<SkBlendMode>(mode), lerp);
 }
 
 void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeFlattenable(fShaderA.get());
-    buffer.writeFlattenable(fShaderB.get());
+    buffer.writeFlattenable(fDst.get());
+    buffer.writeFlattenable(fSrc.get());
     buffer.write32((int)fMode);
+    buffer.writeScalar(fLerpT);
 }
 
 sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return SkShader::MakeComposeShader(xformer->apply(fShaderA.get()),
-                                       xformer->apply(fShaderB.get()), fMode);
+    return MakeCompose(xformer->apply(fDst.get()), xformer->apply(fSrc.get()),
+                       fMode, fLerpT);
 }
 
 bool SkComposeShader::asACompose(ComposeRec* rec) const {
+    if (!this->isJustMode()) {
+        return false;
+    }
+
     if (rec) {
-        rec->fShaderA   = fShaderA.get();
-        rec->fShaderB   = fShaderB.get();
+        rec->fShaderA   = fDst.get();
+        rec->fShaderB   = fSrc.get();
         rec->fBlendMode = fMode;
     }
-    return true;
-}
-
-bool SkComposeShader::isRasterPipelineOnly() const {
     return true;
 }
 
@@ -77,27 +91,32 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     };
     auto storage = alloc->make<Storage>();
 
-    if (!as_SB(fShaderB)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) { // SRC
+    if (!as_SB(fSrc)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {
         return false;
     }
     // This outputs r,g,b,a, which we'll need later when we apply the mode, but we save it off now
     // since fShaderB will overwrite them.
     pipeline->append(SkRasterPipeline::store_rgba, storage->fRGBA);
 
-    if (!as_SB(fShaderA)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {  // DST
+    if (!as_SB(fDst)->appendStages(pipeline, dstCS, alloc, ctm, paint, localM)) {
         return false;
     }
-    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode
+    // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...
     pipeline->append(SkRasterPipeline::move_src_dst);
     pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
 
-    // Idea: should time this, and see if it helps to have custom versions of the overflow modes
-    //       that do their own clamping, avoiding the overhead of an extra stage.
-    SkBlendMode_AppendStages(fMode, pipeline);
-    if (SkBlendMode_CanOverflow(fMode)) {
-        pipeline->append(SkRasterPipeline::clamp_a);
+    if (!this->isJustLerp()) {
+        // Idea: should time this, and see if it helps to have custom versions of the overflow modes
+        //       that do their own clamping, avoiding the overhead of an extra stage.
+        SkBlendMode_AppendStages(fMode, pipeline);
+        if (SkBlendMode_CanOverflow(fMode)) {
+            pipeline->append(SkRasterPipeline::clamp_a);
+        }
+    }
+    if (!this->isJustMode()) {
+        pipeline->append(SkRasterPipeline::lerp_1_float, &fLerpT);
     }
     return true;
 }
@@ -110,29 +129,25 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
 /////////////////////////////////////////////////////////////////////
 
 sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& args) const {
-    switch (fMode) {
-        case SkBlendMode::kClear:
+    if (this->isJustMode()) {
+        SkASSERT(fMode != SkBlendMode::kSrc && fMode != SkBlendMode::kDst); // caught in factory
+        if (fMode == SkBlendMode::kClear) {
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
                                                GrConstColorProcessor::kIgnore_InputMode);
-            break;
-        case SkBlendMode::kSrc:
-            return as_SB(fShaderB)->asFragmentProcessor(args);
-            break;
-        case SkBlendMode::kDst:
-            return as_SB(fShaderA)->asFragmentProcessor(args);
-            break;
-        default:
-            sk_sp<GrFragmentProcessor> fpA(as_SB(fShaderA)->asFragmentProcessor(args));
-            if (!fpA) {
-                return nullptr;
-            }
-            sk_sp<GrFragmentProcessor> fpB(as_SB(fShaderB)->asFragmentProcessor(args));
-            if (!fpB) {
-                return nullptr;
-            }
-            return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
-                                                                      std::move(fpA), fMode);
+        }
     }
+
+    sk_sp<GrFragmentProcessor> fpA(as_SB(fDst)->asFragmentProcessor(args));
+    if (!fpA) {
+        return nullptr;
+    }
+    sk_sp<GrFragmentProcessor> fpB(as_SB(fSrc)->asFragmentProcessor(args));
+    if (!fpB) {
+        return nullptr;
+    }
+    // TODO: account for fLerpT when it is < 1
+    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
+                                                              std::move(fpA), fMode);
 }
 #endif
 
@@ -140,13 +155,12 @@ sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& 
 void SkComposeShader::toString(SkString* str) const {
     str->append("SkComposeShader: (");
 
-    str->append("ShaderA: ");
-    as_SB(fShaderA)->toString(str);
-    str->append(" ShaderB: ");
-    as_SB(fShaderB)->toString(str);
-    if (SkBlendMode::kSrcOver != fMode) {
-        str->appendf(" Xfermode: %s", SkBlendMode_Name(fMode));
-    }
+    str->append("dst: ");
+    as_SB(fDst)->toString(str);
+    str->append(" src: ");
+    as_SB(fSrc)->toString(str);
+    str->appendf(" mode: %s", SkBlendMode_Name(fMode));
+    str->appendf(" lerpT: %g", fLerpT);
 
     this->INHERITED::toString(str);
 
