@@ -103,7 +103,7 @@ Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:B
 <a name="how_close_tree"></a>
 ### How to close or re-open the tree
 
-1. Go to [skia-tree-status.appspot.com](skia-tree-status.appspot.com).
+1. Go to [skia-tree-status.appspot.com](https://skia-tree-status.appspot.com).
 2. Change the status.
  *  To close the tree, include the word "closed" in the status.
  * To open the tree, include the word "open" in the status.
