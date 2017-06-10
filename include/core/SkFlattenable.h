@@ -80,7 +80,7 @@ public:
         kSkRasterizer_Type,
         kSkShaderBase_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
-        kSkXfermode_Type,
+        kSkUnused_Xfermode_Type,
         kSkNormalSource_Type,
     };
 

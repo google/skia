@@ -679,18 +679,6 @@ const GrXPFactory* SkXfermode::asXPFactory() const {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkFlattenable> SkProcCoeffXfermode::CreateProc(SkReadBuffer& buffer) {
-    uint32_t mode32 = buffer.read32();
-    if (!buffer.validate(mode32 < SK_ARRAY_COUNT(gProcs))) {
-        return nullptr;
-    }
-    return SkXfermode::Make((SkBlendMode)mode32);
-}
-
-void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
-    buffer.write32((int)fMode);
-}
-
 bool SkProcCoeffXfermode::asMode(SkBlendMode* mode) const {
     if (mode) {
         *mode = fMode;
@@ -758,16 +746,6 @@ const char* SkBlendMode_Name(SkBlendMode mode) {
     static_assert(SK_ARRAY_COUNT(gModeStrings) == (size_t)SkBlendMode::kLastMode + 1, "mode_count");
 }
 
-#ifndef SK_IGNORE_TO_STRING
-void SkProcCoeffXfermode::toString(SkString* str) const {
-    str->append("SkProcCoeffXfermode: ");
-
-    str->append("mode: ");
-    str->append(SkBlendMode_Name(fMode));
-}
-#endif
-
-
 sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
     if ((unsigned)mode > (unsigned)SkBlendMode::kLastMode) {
         // report error
@@ -804,10 +782,6 @@ SkXfermodeProc SkXfermode::GetProc(SkBlendMode mode) {
     }
     return proc;
 }
-
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkProcCoeffXfermode)
-SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

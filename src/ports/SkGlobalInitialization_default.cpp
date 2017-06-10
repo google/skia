@@ -8,7 +8,6 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
-#include "../../src/effects/SkArithmeticModePriv.h"
 #include "SkArcToPathEffect.h"
 #include "SkBitmapSourceDeserializer.h"
 #include "SkBlurImageFilter.h"
@@ -81,7 +80,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
     SkAlphaThresholdFilter::InitializeFlattenables();
-    SkArithmeticMode::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkOverdrawColorFilter::InitializeFlattenables();
     SkHighContrastFilter::InitializeFlattenables();

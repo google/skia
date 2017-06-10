@@ -10,7 +10,7 @@
 
 #include "SkBlendMode.h"
 #include "SkColor.h"
-#include "SkFlattenable.h"
+#include "SkRefCnt.h"
 
 class GrFragmentProcessor;
 class GrTexture;
@@ -18,23 +18,7 @@ class GrXPFactory;
 class SkRasterPipeline;
 class SkString;
 
-struct SkArithmeticParams;
-
-struct SkPM4f;
-typedef SkPM4f (*SkXfermodeProc4f)(const SkPM4f& src, const SkPM4f& dst);
-
-/** \class SkXfermode
- *
- *  SkXfermode is the base class for objects that are called to implement custom
- *  "transfer-modes" in the drawing pipeline. The static function Create(Modes)
- *  can be called to return an instance of any of the predefined subclasses as
- *  specified in the Modes enum. When an SkXfermode is assigned to an SkPaint,
- *  then objects drawn with that paint have the xfermode applied.
- *
- *  All subclasses are required to be reentrant-safe : it must be legal to share
- *  the same instance between several threads.
- */
-class SK_API SkXfermode : public SkFlattenable {
+class SkXfermode : public SkRefCnt {
 public:
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const = 0;
@@ -103,16 +87,11 @@ public:
     virtual const GrXPFactory* asXPFactory() const;
 #endif
 
-    SK_TO_STRING_PUREVIRT()
-    SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
-    SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
-
 protected:
     SkXfermode() {}
+    virtual ~SkXfermode() {}
 
 private:
-
-    typedef SkFlattenable INHERITED;
 };
 
 #endif

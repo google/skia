@@ -44,7 +44,6 @@ void SkFlattenable::PrivateInitializer::InitCore() {
     SkColorFilter::InitializeFlattenables();
     SkPathEffect::InitializeFlattenables();
     SkShaderBase::InitializeFlattenables();
-    SkXfermode::InitializeFlattenables();
 
     // Drawable
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkRecordedDrawable)

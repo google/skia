@@ -7,7 +7,6 @@
 
 #include "SkXfermodeImageFilter.h"
 #include "SkArithmeticImageFilter.h"
-#include "SkArithmeticModePriv.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkReadBuffer.h"

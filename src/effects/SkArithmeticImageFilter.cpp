@@ -6,7 +6,6 @@
  */
 
 #include "SkArithmeticImageFilter.h"
-#include "SkArithmeticModePriv.h"
 #include "SkCanvas.h"
 #include "SkNx.h"
 #include "SkReadBuffer.h"
