@@ -23,13 +23,6 @@ public:
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const = 0;
 
-    /**
-     *  If the xfermode is one of the modes in the Mode enum, then asMode()
-     *  returns true and sets (if not null) mode accordingly. Otherwise it
-     *  returns false and ignores the mode parameter.
-     */
-    virtual bool asMode(SkBlendMode* mode) const;
-
     /** Return an SkXfermode object for the specified mode.
      */
     static sk_sp<SkXfermode> Make(SkBlendMode);
@@ -49,12 +42,6 @@ public:
         return xfer.get();
     }
 
-    SkBlendMode blend() const {
-        SkBlendMode mode;
-        SkAssertResult(this->asMode(&mode));
-        return mode;
-    }
-
     static SkXfermodeProc GetProc(SkBlendMode);
 
     enum SrcColorOpacity {
@@ -70,28 +57,8 @@ public:
 
     static bool IsOpaque(SkBlendMode, SrcColorOpacity);
 
-#if SK_SUPPORT_GPU
-    /** Used by the SkXfermodeImageFilter to blend two colors via a GrFragmentProcessor.
-        The input to the returned FP is the src color. The dst color is
-        provided by the dst param which becomes a child FP of the returned FP.
-        It is legal for the function to return a null output. This indicates that
-        the output of the blend is simply the src color.
-     */
-    virtual sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
-                                                            sk_sp<GrFragmentProcessor> dst) const;
-
-    /** A subclass must implement this factory function to work with the GPU backend.
-        The xfermode will return a factory for which the caller will get a ref. It is up
-        to the caller to install it. XferProcessors cannot use a background texture.
-      */
-    virtual const GrXPFactory* asXPFactory() const;
-#endif
-
 protected:
     SkXfermode() {}
-    virtual ~SkXfermode() {}
-
-private:
 };
 
 #endif

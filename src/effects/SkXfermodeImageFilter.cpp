@@ -221,7 +221,7 @@ void SkXfermodeImageFilter_Base::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 
-#include "SkXfermode_proccoeff.h"
+#include "effects/GrXfermodeFragmentProcessor.h"
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                    SkSpecialImage* source,
@@ -315,20 +315,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
 
 sk_sp<GrFragmentProcessor>
 SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
-    // A null fMode is interpreted to mean kSrcOver_Mode (to match raster).
-    SkXfermode* xfer = SkXfermode::Peek(fMode);
-    sk_sp<SkXfermode> srcover;
-    if (!xfer) {
-        // It would be awesome to use SkXfermode::Create here but it knows better
-        // than us and won't return a kSrcOver_Mode SkXfermode. That means we
-        // have to get one the hard way.
-        SkXfermodeProc proc = SkXfermode::GetProc(SkBlendMode::kSrcOver);
-
-        srcover.reset(new SkProcCoeffXfermode(proc, SkBlendMode::kSrcOver));
-        xfer = srcover.get();
-
-    }
-    return xfer->makeFragmentProcessorForImageFilter(std::move(bgFP));
+    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(bgFP), fMode);
 }
 
 #endif
