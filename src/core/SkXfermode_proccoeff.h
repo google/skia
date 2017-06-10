@@ -12,7 +12,7 @@
 
 #define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
 
-class SK_API SkProcCoeffXfermode : public SkXfermode {
+class SkProcCoeffXfermode : public SkXfermode {
 public:
     SkProcCoeffXfermode(SkXfermodeProc proc, SkBlendMode mode) {
         fMode = mode;
