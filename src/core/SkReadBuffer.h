@@ -23,7 +23,6 @@
 #include "SkShaderBase.h"
 #include "SkTHash.h"
 #include "SkWriteBuffer.h"
-#include "SkXfermodePriv.h"
 
 class SkBitmap;
 class SkImage;
@@ -152,7 +151,6 @@ public:
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkRasterizer> readRasterizer() { return this->readFlattenable<SkRasterizer>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
-    sk_sp<SkXfermode> readXfermode() { return this->readFlattenable<SkXfermode>(); }
 
     // binary data and arrays
     virtual bool readByteArray(void* value, size_t size);

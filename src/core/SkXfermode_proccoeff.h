@@ -30,12 +30,7 @@ public:
     const GrXPFactory* asXPFactory() const override;
 #endif
 
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
-
 protected:
-    void flatten(SkWriteBuffer& buffer) const override;
-
     SkBlendMode getMode() const { return fMode; }
 
     SkXfermodeProc getProc() const { return fProc; }
