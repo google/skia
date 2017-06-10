@@ -46,6 +46,6 @@ enum class SkBlendModeCoeff {
 
 bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst);
 
-SkPM4f SkBlendMode_Apply(SkBlendMode, SkPM4f src, SkPM4f dst);
+SkPM4f SkBlendMode_Apply(SkBlendMode, const SkPM4f& src, const SkPM4f& dst);
 
 #endif
