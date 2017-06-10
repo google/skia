@@ -24,11 +24,6 @@ static inline void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* 
     SkBlendMode_AppendClampIfNeeded(mode, p);
 }
 
-#if SK_SUPPORT_GPU
-#include "GrXferProcessor.h"
-const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode);
-#endif
-
 enum class SkBlendModeCoeff {
     kZero, /** 0 */
     kOne,  /** 1 */
@@ -47,5 +42,10 @@ enum class SkBlendModeCoeff {
 bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst);
 
 SkPM4f SkBlendMode_Apply(SkBlendMode, const SkPM4f& src, const SkPM4f& dst);
+
+#if SK_SUPPORT_GPU
+#include "GrXferProcessor.h"
+const GrXPFactory* SkBlendMode_AsXPFactory(SkBlendMode);
+#endif
 
 #endif

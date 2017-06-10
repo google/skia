@@ -22,14 +22,6 @@ public:
     void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                 const SkAlpha aa[]) const override;
 
-    bool asMode(SkBlendMode* mode) const override;
-
-#if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> makeFragmentProcessorForImageFilter(
-                                                        sk_sp<GrFragmentProcessor>) const override;
-    const GrXPFactory* asXPFactory() const override;
-#endif
-
 protected:
     SkBlendMode getMode() const { return fMode; }
 
