@@ -655,36 +655,8 @@ const SkXfermodeProc gProcs[] = {
     luminosity_modeproc,
 };
 
-bool SkXfermode::asMode(SkBlendMode* mode) const {
-    return false;
-}
-
-#if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkXfermode::makeFragmentProcessorForImageFilter(
-                                                                sk_sp<GrFragmentProcessor>) const {
-    // This should never be called.
-    // TODO: make pure virtual in SkXfermode once Android update lands
-    SkASSERT(0);
-    return nullptr;
-}
-
-const GrXPFactory* SkXfermode::asXPFactory() const {
-    // This should never be called.
-    // TODO: make pure virtual in SkXfermode once Android update lands
-    SkASSERT(0);
-    return nullptr;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-bool SkProcCoeffXfermode::asMode(SkBlendMode* mode) const {
-    if (mode) {
-        *mode = fMode;
-    }
-    return true;
-}
 
 void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src, int count,
@@ -713,25 +685,6 @@ void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
         }
     }
 }
-
-#if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkProcCoeffXfermode::makeFragmentProcessorForImageFilter(
-                                                            sk_sp<GrFragmentProcessor> dst) const {
-    SkASSERT(dst);
-    return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(dst), fMode);
-}
-
-const GrXPFactory* SkProcCoeffXfermode::asXPFactory() const {
-    if (SkBlendMode_AsCoeff(fMode, nullptr, nullptr)) {
-        const GrXPFactory* result(GrPorterDuffXPFactory::Get(fMode));
-        SkASSERT(result);
-        return result;
-    }
-
-    SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
-    return GrCustomXfermode::Get(fMode);
-}
-#endif
 
 const char* SkBlendMode_Name(SkBlendMode mode) {
     SkASSERT((unsigned) mode <= (unsigned)SkBlendMode::kLastMode);
