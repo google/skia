@@ -123,6 +123,20 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
+// This isn't strictly necessary... it's just a performance experiment.
+template <>
+inline U8 load(const uint8_t* src, size_t tail) {
+    if (tail == 0) {
+        return unaligned_load<U8>(src);
+    }
+    uint64_t v = 0;
+    size_t off = 0;
+    if (tail & 4) { v |= (uint64_t)unaligned_load<uint32_t>(src+off)<<(8*off); off += 4; }
+    if (tail & 2) { v |= (uint64_t)unaligned_load<uint16_t>(src+off)<<(8*off); off += 2; }
+    if (tail & 1) { v |= (uint64_t)unaligned_load< uint8_t>(src+off)<<(8*off); off += 1; }
+    return unaligned_load<U8>(&v);
+}
+
 SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
     // Split the 8 pixels into low and high halves, and reinterpret as vectors of 16-bit values.
     U16 lo = unaligned_load<U16>((const uint32_t*)&rgba + 0),

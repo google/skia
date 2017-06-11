@@ -129,22 +129,19 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
-// This doesn't look strictly necessary, but without it Clang would generate load() using
-// compiler-generated constants that we can't support.  This version doesn't need constants.
+// This isn't strictly necessary... it's just a performance experiment.
 #if defined(JUMPER) && defined(__AVX__)
     template <>
     inline U8 load(const uint8_t* src, size_t tail) {
-        if (__builtin_expect(tail, 0)) {
-            uint64_t v = 0;
-            size_t shift = 0;
-            #pragma nounroll
-            while (tail --> 0) {
-                v |= (uint64_t)*src++ << shift;
-                shift += 8;
-            }
-            return unaligned_load<U8>(&v);
+        if (tail == 0) {
+            return unaligned_load<U8>(src);
         }
-        return unaligned_load<U8>(src);
+        uint64_t v = 0;
+        size_t off = 0;
+        if (tail & 4) { v |= (uint64_t)unaligned_load<uint32_t>(src+off)<<(8*off); off += 4; }
+        if (tail & 2) { v |= (uint64_t)unaligned_load<uint16_t>(src+off)<<(8*off); off += 2; }
+        if (tail & 1) { v |= (uint64_t)unaligned_load< uint8_t>(src+off)<<(8*off); off += 1; }
+        return unaligned_load<U8>(&v);
     }
 #endif
 
