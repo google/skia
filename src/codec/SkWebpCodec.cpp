@@ -381,11 +381,8 @@ static void blend_line(SkColorType dstCT, void* dst,
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, SkPMColor*, int*,
                                          int* rowsDecodedPtr) {
-    // Ensure that we have parsed this far.
     const int index = options.fFrameIndex;
-    if (index >= this->onGetFrameCount()) {
-        return kIncompleteInput;
-    }
+    SkASSERT(0 == index || index < fFrameHolder.size());
 
     const auto& srcInfo = this->getInfo();
     {
@@ -401,13 +398,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         }
     }
 
-    if (index > 0 && (options.fSubset || dstInfo.dimensions() != srcInfo.dimensions())) {
-        // Subsetting and scaling are tricky when asking for frames beyond frame 0. In order to
-        // support it, we'll need to determine the proper rectangle for a
-        // WEBP_MUX_DISPOSE_BACKGROUND required frame before erasing it. (Currently the order
-        // is backwards.) Disable until it becomes clear that supporting it is important.
-        return kUnimplemented;
-    }
+    SkASSERT(0 == index || (!options.fSubset && dstInfo.dimensions() == srcInfo.dimensions()));
 
     WebPDecoderConfig config;
     if (0 == WebPInitDecoderConfig(&config)) {
@@ -424,53 +415,15 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // If this succeeded in onGetFrameCount(), it should succeed again here.
     SkAssertResult(WebPDemuxGetFrame(fDemux, index + 1, &frame));
 
-    const int requiredFrame = index == 0 ? kNone : fFrameHolder.frame(index)->getRequiredFrame();
+    const bool independent = index == 0 ? true :
+            (fFrameHolder.frame(index)->getRequiredFrame() == kNone);
     // Get the frameRect.  libwebp will have already signaled an error if this is not fully
     // contained by the canvas.
     auto frameRect = SkIRect::MakeXYWH(frame.x_offset, frame.y_offset, frame.width, frame.height);
     SkASSERT(srcInfo.bounds().contains(frameRect));
     const bool frameIsSubset = frameRect != srcInfo.bounds();
-    if (kNone == requiredFrame) {
-        if (frameIsSubset) {
-            SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
-        }
-    } else {
-        // FIXME: Share with GIF
-        if (options.fPriorFrame != kNone) {
-            if (options.fPriorFrame < requiredFrame || options.fPriorFrame >= index) {
-                return kInvalidParameters;
-            }
-        } else {
-            Options prevFrameOpts(options);
-            prevFrameOpts.fFrameIndex = requiredFrame;
-            prevFrameOpts.fPriorFrame = kNone;
-            const auto result = this->getPixels(dstInfo, dst, rowBytes, &prevFrameOpts,
-                                                nullptr, nullptr);
-            switch (result) {
-                case kSuccess:
-                    break;
-                case kIncompleteInput:
-                    return kInvalidInput;
-                default:
-                    return result;
-            }
-        }
-
-        if (options.fPriorFrame == requiredFrame || options.fPriorFrame == kNone) {
-            // Dispose bg color
-            const Frame* priorFrame = fFrameHolder.frame(requiredFrame);
-            if (priorFrame->getDisposalMethod()
-                    == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
-                // FIXME: If we add support for scaling/subsets, this rectangle needs to be
-                // adjusted.
-                const auto priorRect = priorFrame->frameRect();
-                const auto info = dstInfo.makeWH(priorRect.width(), priorRect.height());
-                const size_t bpp = SkColorTypeBytesPerPixel(dstInfo.colorType());
-                const size_t offset = priorRect.x() * bpp + priorRect.y() * rowBytes;
-                auto* eraseDst = SkTAddOffset<void>(dst, offset);
-                SkSampler::Fill(info, eraseDst, rowBytes, 0, kNo_ZeroInitialized);
-            }
-        }
+    if (independent && frameIsSubset) {
+        SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
     }
 
     int dstX = frameRect.x();
@@ -540,7 +493,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         config.options.scaled_height = scaledHeight;
     }
 
-    const bool blendWithPrevFrame = requiredFrame != kNone && frame.blend_method == WEBP_MUX_BLEND
+    const bool blendWithPrevFrame = !independent && frame.blend_method == WEBP_MUX_BLEND
         && frame.has_alpha;
     if (blendWithPrevFrame && options.fPremulBehavior == SkTransferFunctionBehavior::kRespect) {
         // Blending is done with SkRasterPipeline, which requires a color space that is valid for

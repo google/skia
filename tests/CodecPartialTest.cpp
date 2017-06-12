@@ -200,13 +200,9 @@ DEF_TEST(Codec_partialAnim, r) {
     // frameByteCounts stores the number of bytes to decode a particular frame.
     // - [0] is the number of bytes for the header
     // - frames[i] requires frameByteCounts[i+1] bytes to decode
-    std::vector<size_t> frameByteCounts;
+    const std::vector<size_t> frameByteCounts = { 455, 69350, 1344, 1346, 1327 };
     std::vector<SkBitmap> frames;
-    size_t lastOffset = 0;
     for (size_t i = 0; true; i++) {
-        frameByteCounts.push_back(stream->getPosition() - lastOffset);
-        lastOffset = stream->getPosition();
-
         SkBitmap frame;
         frame.allocPixels(info);
 
@@ -216,8 +212,6 @@ DEF_TEST(Codec_partialAnim, r) {
                 frame.rowBytes(), &opts, nullptr, nullptr);
 
         if (result == SkCodec::kIncompleteInput || result == SkCodec::kInvalidInput) {
-            frameByteCounts.push_back(stream->getPosition() - lastOffset);
-
             // We need to distinguish between a partial frame and no more frames.
             // getFrameInfo lets us do this, since it tells the number of frames
             // not considering whether they are complete.

@@ -1254,8 +1254,8 @@ static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
             bm.getPixels(), bm.rowBytes(), &opts, nullptr, nullptr));
 }
 
-// For an animated image, we should only read enough to decode the requested
-// frame if the client never calls getFrameInfo.
+// For an animated GIF, we should only read enough to decode frame 0 if the
+// client never calls getFrameInfo and only decodes frame 0.
 DEF_TEST(Codec_skipFullParse, r) {
     auto path = "test640x479.gif";
     SkStream* stream(GetResourceAsStream(path));
@@ -1282,26 +1282,10 @@ DEF_TEST(Codec_skipFullParse, r) {
     REPORTER_ASSERT(r, positionAfterFirstFrame > sizePosition
                        && positionAfterFirstFrame < stream->getLength());
 
-    // Again, this should read more of the stream.
-    decode_frame(r, codec.get(), 2);
-    const size_t positionAfterThirdFrame = stream->getPosition();
-    REPORTER_ASSERT(r, positionAfterThirdFrame > positionAfterFirstFrame
-                       && positionAfterThirdFrame < stream->getLength());
-
-    // This does not need to read any more of the stream, since it has already
-    // parsed the second frame.
-    decode_frame(r, codec.get(), 1);
-    REPORTER_ASSERT(r, stream->getPosition() == positionAfterThirdFrame);
-
-    // This should read the rest of the frames.
-    decode_frame(r, codec.get(), 3);
-    const size_t finalPosition = stream->getPosition();
-    REPORTER_ASSERT(r, finalPosition > positionAfterThirdFrame);
-
-    // There may be more data in the stream.
+    // There is more data in the stream.
     auto frameInfo = codec->getFrameInfo();
     REPORTER_ASSERT(r, frameInfo.size() == 4);
-    REPORTER_ASSERT(r, stream->getPosition() >= finalPosition);
+    REPORTER_ASSERT(r, stream->getPosition() > positionAfterFirstFrame);
 }
 
 // Only rewinds up to a limit.

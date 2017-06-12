@@ -45,6 +45,10 @@ protected:
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
 
+    const SkFrameHolder* getFrameHolder() const override {
+        return &fFrameHolder;
+    }
+
 private:
     SkWebpCodec(int width, int height, const SkEncodedInfo&, sk_sp<SkColorSpace>, SkStream*,
                 WebPDemuxer*, sk_sp<SkData>);

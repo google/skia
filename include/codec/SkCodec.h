@@ -23,8 +23,8 @@
 #include <vector>
 
 class SkColorSpace;
-class SkColorSpaceXform;
 class SkData;
+class SkFrameHolder;
 class SkPngChunkReader;
 class SkSampler;
 
@@ -879,6 +879,18 @@ private:
     bool dimensionsSupported(const SkISize& dim) {
         return dim == fSrcInfo.dimensions() || this->onDimensionsSupported(dim);
     }
+
+    /**
+     *  For multi-framed images, return the object with information about the frames.
+     */
+    virtual const SkFrameHolder* getFrameHolder() const {
+        return nullptr;
+    }
+
+    /**
+     *  Check for a valid Options.fFrameIndex, and decode prior frames if necessary.
+     */
+    Result handleFrameIndex(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&);
 
     // Methods for scanline decoding.
     virtual Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
