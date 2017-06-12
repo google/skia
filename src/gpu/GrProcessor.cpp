@@ -170,7 +170,7 @@ void GrResourceIOProcessor::pendingIOComplete() const {
         sampler->programProxy()->pendingIOComplete();
     }
     for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->pendingIOComplete();
+        buffer->programBuffer()->pendingIOComplete1();
     }
     for (const auto& imageStorage : fImageStorageAccesses) {
         imageStorage->programProxy()->pendingIOComplete();

@@ -88,7 +88,7 @@ void GrGpuResourceRef::markPendingIO() const {
     }
 }
 
-void GrGpuResourceRef::pendingIOComplete() const {
+void GrGpuResourceRef::pendingIOComplete1() const {
     if (!fResource) {
         return;
     }
