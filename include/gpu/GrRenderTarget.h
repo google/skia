@@ -34,11 +34,12 @@ public:
 
     GrFSAAType fsaaType() const {
         if (!fSampleCnt) {
-            SkASSERT(!(fFlags & Flags::kMixedSampled));
+            SkASSERT(!(fPerRenderTargetCaps & GrPerRenderTargetCaps::kMixedSampled));
             return GrFSAAType::kNone;
         }
-        return (fFlags & Flags::kMixedSampled) ? GrFSAAType::kMixedSamples
-                                               : GrFSAAType::kUnifiedMSAA;
+        return (fPerRenderTargetCaps & GrPerRenderTargetCaps::kMixedSampled)
+                                ? GrFSAAType::kMixedSamples
+                                : GrFSAAType::kUnifiedMSAA;
     }
 
     /**
@@ -110,15 +111,7 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    enum class Flags {
-        kNone                = 0,
-        kMixedSampled        = 1 << 0,
-        kWindowRectsSupport  = 1 << 1
-    };
-
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
-
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, Flags = Flags::kNone,
+    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrPerRenderTargetCaps,
                    GrStencilAttachment* = nullptr);
 
     // override of GrResource
@@ -133,18 +126,15 @@ private:
     virtual bool completeStencilAttachment() = 0;
 
     friend class GrRenderTargetPriv;
-    friend class GrRenderTargetProxy; // for Flags
 
     int                   fSampleCnt;
     GrStencilAttachment*  fStencilAttachment;
     uint8_t               fMultisampleSpecsID;
-    Flags                 fFlags;
+    GrPerRenderTargetCaps fPerRenderTargetCaps;
 
     SkIRect               fResolveRect;
 
     typedef GrSurface INHERITED;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrRenderTarget::Flags);
 
 #endif

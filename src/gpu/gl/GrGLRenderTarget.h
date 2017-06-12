@@ -28,7 +28,7 @@ public:
         GrBackendObjectOwnership   fRTFBOOwnership;
         GrGLuint                   fTexFBOID;
         GrGLuint                   fMSColorRenderbufferID;
-        bool                       fIsMixedSampled;
+        bool                       fIsMixedSampled1;
     };
 
     static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*,
@@ -81,7 +81,7 @@ private:
     // Constructor for instances wrapping backend objects.
     GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrGLStencilAttachment*);
 
-    static Flags ComputeFlags(const GrGLCaps&, const IDDesc&);
+    static GrPerRenderTargetCaps ComputePerRenderTargetCaps(const GrGLCaps&, const IDDesc&);
 
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;

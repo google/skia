@@ -576,6 +576,27 @@ enum GrAccessPattern {
     kLast_GrAccessPattern = kStream_GrAccessPattern
 };
 
+// This enum captures caps that vary on a per-rendertarget basis. It is carried along inside
+// individual GrRenderTargetProxies and/or GrRenderTargets
+enum GrPerRenderTargetCaps {
+    kNone = 0,
+
+    // For internal resources:
+    //    this is enabled whenever MSAA is enabled and GrCaps reports mixed samples are supported
+    // For wrapped resources:
+    //    this is disabled for FBO0
+    //    but, otherwise, is enabled whenever MSAA is enabled and GrCaps reports mixed samples
+    //        are supported
+    kMixedSampled        = 1 << 0,
+
+    // For internal resources:
+    //    this is enabled whenever GrCaps reports window rect support
+    // For wrapped resources:
+    //    this is disabled for FBO0
+    //    but, otherwise, is enabled whenever GrCaps reports window rect support
+    kWindowRectsSupport  = 1 << 1
+};
+GR_MAKE_BITFIELD_OPS(GrPerRenderTargetCaps);
 
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required
