@@ -15,6 +15,7 @@
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrRect.h"
+#include "GrRenderTarget.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
@@ -235,13 +236,7 @@ public:
     }
     bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
-    GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
-        if (fDstTextureProxy.get() &&
-            fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget.get()->asTexture()) {
-            return kTexture_GrXferBarrierType;
-        }
-        return this->getXferProcessor().xferBarrierType(caps);
-    }
+    GrXferBarrierType xferBarrierType(const GrCaps& caps) const;
 
 private:
     void markAsBad() { fFlags |= kIsBad_Flag; }
