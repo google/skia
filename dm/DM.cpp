@@ -28,6 +28,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPM4fPriv.h"
+#include "SkPngEncoder.h"
 #include "SkSpinlock.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
@@ -985,33 +986,11 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions) {
 }
 
 static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
-    const int w = bitmap.width(),
-              h = bitmap.height();
-
-    sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(bitmap);
-    if (encodedBitmap.get() == nullptr) {
-        return false;
+    SkPixmap pm;
+    if (!bitmap.peekPixels(&pm)) {
+        return false;  // Ought to never happen... we're already read-back at this point.
     }
-    uint32_t* rgba = static_cast<uint32_t*>(encodedBitmap.get()->writable_data());
-
-    // We don't need bitmap anymore.  Might as well drop our ref.
-    bitmap.reset();
-
-    FILE* f = fopen(path, "wb");
-    if (!f) { return false; }
-
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png) {
-        fclose(f);
-        return false;
-    }
-
-    png_infop info = png_create_info_struct(png);
-    if (!info) {
-        png_destroy_write_struct(&png, &info);
-        fclose(f);
-        return false;
-    }
+    SkFILEWStream dst{path};
 
     SkString description;
     description.append("Key: ");
@@ -1024,31 +1003,22 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
     }
     description.appendf("MD5: %s", md5);
 
-    png_text text[2];
-    text[0].key = (png_charp)"Author";
-    text[0].text = (png_charp)"DM dump_png()";
-    text[0].compression = PNG_TEXT_COMPRESSION_NONE;
-    text[1].key = (png_charp)"Description";
-    text[1].text = (png_charp)description.c_str();
-    text[1].compression = PNG_TEXT_COMPRESSION_NONE;
-    png_set_text(png, info, text, 2);
+    const char* comments[] = {
+        "Author",       "DM dump_png()",
+        "Description",  description.c_str(),
+    };
+    size_t lengths[] = {
+        strlen(comments[0])+1, strlen(comments[1])+1,
+        strlen(comments[2])+1, strlen(comments[3])+1,
+    };
 
-    png_init_io(png, f);
-    png_set_IHDR(png, info, (png_uint_32)w, (png_uint_32)h, 8,
-                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-                 PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    png_set_filter(png,  PNG_FILTER_TYPE_BASE, PNG_FILTER_NONE);
-    png_set_compression_level(png, 1);
-    png_write_info(png, info);
-    for (int j = 0; j < h; j++) {
-        png_bytep row = (png_bytep)(rgba + w*j);
-        png_write_rows(png, &row, 1);
-    }
-    png_write_end(png, info);
-
-    png_destroy_write_struct(&png, &info);
-    fclose(f);
-    return true;
+    SkPngEncoder::Options options;
+    options.fComments         = SkDataTable::MakeCopyArrays((const void**)comments, lengths, 4);
+    options.fFilterFlags      = SkPngEncoder::FilterFlag::kNone;
+    options.fZLibLevel        = 1;
+    options.fUnpremulBehavior = pm.colorSpace() ? SkTransferFunctionBehavior::kRespect
+                                                : SkTransferFunctionBehavior::kIgnore;
+    return SkPngEncoder::Encode(&dst, pm, options);
 }
 
 static bool match(const char* needle, const char* haystack) {
