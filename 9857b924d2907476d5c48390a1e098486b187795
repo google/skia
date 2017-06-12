@@ -16,6 +16,29 @@
       "revId": "9857b924d2907476d5c48390a1e098486b187795",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8f5a6e9_0a3e3f90",
+        "filename": "src/core/SkScan_AAAPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1687,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-06-12T14:11:47Z",
+      "side": 1,
+      "message": "Can you please add comments describing each of the cases here and below.",
+      "range": {
+        "startLine": 1687,
+        "startChar": 17,
+        "endLine": 1687,
+        "endChar": 29
+      },
+      "revId": "9857b924d2907476d5c48390a1e098486b187795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
