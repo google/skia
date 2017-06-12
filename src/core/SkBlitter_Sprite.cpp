@@ -144,9 +144,8 @@ public:
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
         }
 
-        bool is_opaque    = fSource.isOpaque() && fPaintColor.fA == 1.0f,
-             wants_dither = paint.isDither();
-        fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, is_opaque, wants_dither, fAlloc);
+        bool is_opaque = fSource.isOpaque() && fPaintColor.fA == 1.0f;
+        fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, is_opaque, fAlloc);
     }
 
     void blitRect(int x, int y, int width, int height) override {
