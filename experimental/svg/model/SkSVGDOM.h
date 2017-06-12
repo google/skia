@@ -33,7 +33,7 @@ public:
 
     void render(SkCanvas*) const;
 
-private:
+public:
     SkSize intrinsicSize() const;
 
     SkSize           fContainerSize;
