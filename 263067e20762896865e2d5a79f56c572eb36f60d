@@ -22,6 +22,30 @@
       "revId": "263067e20762896865e2d5a79f56c572eb36f60d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a974e69_501d01e7",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-12T20:51:39Z",
+      "side": 1,
+      "message": "Oh somehow I didn\u0027t upload the change with that half of the check deleted, but the nested if is needed so that we don\u0027t add a /vulkan directory. I tried building an android build of skia and it compiled just fine so I think it is successfully picking up the NDK headers that we need.",
+      "parentUuid": "d6829712_e3b943af",
+      "range": {
+        "startLine": 750,
+        "startChar": 24,
+        "endLine": 750,
+        "endChar": 52
+      },
+      "revId": "263067e20762896865e2d5a79f56c572eb36f60d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
