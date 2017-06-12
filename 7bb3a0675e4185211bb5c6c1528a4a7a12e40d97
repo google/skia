@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32702939_c7bcd4c0",
+        "filename": "include/gpu/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-12T19:02:13Z",
+      "side": 1,
+      "message": "PerRenderTargetCaps strikes me as an unusual name. WindowRectsSupport could be thought of as a capability but MixedSampled seems more like a property.\n\nWe usually either use \"enum class\" and omit the _EnumName suffix or we make it a regular enum and use the suffix. Unless you need to store this in bitfield, I\u0027m not sure of a reason not to use enum class.",
+      "revId": "7bb3a0675e4185211bb5c6c1528a4a7a12e40d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
