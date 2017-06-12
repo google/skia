@@ -282,7 +282,7 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDraw
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTarget::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
+GrRenderTargetProxy::Flags GrRenderTargetProxy::testingOnly_getFlags() const {
     return fRenderTargetFlags;
 }
 

@@ -16,6 +16,8 @@ class GrRenderTargetOpList;
 class GrRenderTargetPriv;
 class GrStencilAttachment;
 
+#include "GrRenderTargetProxy.h"
+
 /**
  * GrRenderTarget represents a 2D buffer of pixels that can be rendered to.
  * A context's render target is set by setRenderTarget(). Render targets are
@@ -34,11 +36,11 @@ public:
 
     GrFSAAType fsaaType() const {
         if (!fSampleCnt) {
-            SkASSERT(!(fFlags & Flags::kMixedSampled));
+            SkASSERT(!(fFlags & GrRenderTargetProxy::Flags::kMixedSampled));
             return GrFSAAType::kNone;
         }
-        return (fFlags & Flags::kMixedSampled) ? GrFSAAType::kMixedSamples
-                                               : GrFSAAType::kUnifiedMSAA;
+        return (fFlags & GrRenderTargetProxy::Flags::kMixedSampled) ? GrFSAAType::kMixedSamples
+                                                                     : GrFSAAType::kUnifiedMSAA;
     }
 
     /**
@@ -110,15 +112,8 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    enum class Flags {
-        kNone                = 0,
-        kMixedSampled        = 1 << 0,
-        kWindowRectsSupport  = 1 << 1
-    };
-
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
-
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&, Flags = Flags::kNone,
+    GrRenderTarget(GrGpu*, const GrSurfaceDesc&,
+                   GrRenderTargetProxy::Flags = GrRenderTargetProxy::Flags::kNone,
                    GrStencilAttachment* = nullptr);
 
     // override of GrResource
@@ -135,16 +130,14 @@ private:
     friend class GrRenderTargetPriv;
     friend class GrRenderTargetProxy; // for Flags
 
-    int                   fSampleCnt;
-    GrStencilAttachment*  fStencilAttachment;
-    uint8_t               fMultisampleSpecsID;
-    Flags                 fFlags;
+    int                        fSampleCnt;
+    GrStencilAttachment*       fStencilAttachment;
+    uint8_t                    fMultisampleSpecsID;
+    GrRenderTargetProxy::Flags fFlags;
 
-    SkIRect               fResolveRect;
+    SkIRect                    fResolveRect;
 
     typedef GrSurface INHERITED;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrRenderTarget::Flags);
 
 #endif

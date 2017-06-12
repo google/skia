@@ -8,7 +8,6 @@
 #ifndef GrRenderTargetProxy_DEFINED
 #define GrRenderTargetProxy_DEFINED
 
-#include "GrRenderTarget.h"
 #include "GrSurfaceProxy.h"
 #include "GrTypes.h"
 
@@ -28,10 +27,10 @@ public:
 
     GrFSAAType fsaaType() const {
         if (!fSampleCnt) {
-            SkASSERT(!(fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled));
+            SkASSERT(!(fRenderTargetFlags & Flags::kMixedSampled));
             return GrFSAAType::kNone;
         }
-        return (fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled)
+        return (fRenderTargetFlags & Flags::kMixedSampled)
                        ? GrFSAAType::kMixedSamples
                        : GrFSAAType::kUnifiedMSAA;
     }
@@ -54,10 +53,18 @@ public:
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
-    GrRenderTarget::Flags testingOnly_getFlags() const;
-
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
+
+    enum class Flags {
+        kNone                = 0,
+        kMixedSampled        = 1 << 0,
+        kWindowRectsSupport  = 1 << 1
+    };
+
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
+
+    Flags testingOnly_getFlags() const;
 
 protected:
     friend class GrSurfaceProxy;  // for ctors
@@ -72,7 +79,7 @@ protected:
 private:
     size_t onUninstantiatedGpuMemorySize() const override;
 
-    int fSampleCnt;
+    int   fSampleCnt;
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
     // deferred resource.
@@ -82,9 +89,11 @@ private:
     // we know the newly created render target will be internal, we are able to precompute what the
     // flags will ultimately end up being. In the wrapped case we just copy the wrapped
     // rendertarget's info here.
-    GrRenderTarget::Flags   fRenderTargetFlags;
+    Flags fRenderTargetFlags;
 
     typedef GrSurfaceProxy INHERITED;
 };
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrRenderTargetProxy::Flags);
 
 #endif

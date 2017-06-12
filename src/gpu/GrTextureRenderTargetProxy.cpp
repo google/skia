@@ -27,7 +27,7 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf)
     : GrSurfaceProxy(surf, SkBackingFit::kExact)
     , GrTextureProxy(surf)
-    , GrRenderTargetProxy(sk_ref_sp(surf->asRenderTarget())) {
+    , GrRenderTargetProxy(surf) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
 }

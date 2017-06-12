@@ -8,6 +8,7 @@
 #include "GrSurface.h"
 #include "GrContext.h"
 #include "GrOpList.h"
+#include "GrRenderTarget.h"
 #include "GrSurfacePriv.h"
 #include "GrTexture.h"
 
