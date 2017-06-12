@@ -529,7 +529,9 @@ private:
 };
 
 GrGLCubicEffect::GrGLCubicEffect(const GrGeometryProcessor& processor)
-    : fViewMatrix(SkMatrix::InvalidMatrix()), fColor(GrColor_ILLEGAL) {
+    : fViewMatrix(SkMatrix::InvalidMatrix())
+    , fDevKLMMatrix(SkMatrix::InvalidMatrix())
+    , fColor(GrColor_ILLEGAL) {
     const GrCubicEffect& ce = processor.cast<GrCubicEffect>();
     fEdgeType = ce.getEdgeType();
 }
