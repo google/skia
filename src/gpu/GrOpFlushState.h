@@ -72,16 +72,7 @@ public:
         fAsapUploads.reset();
     }
 
-    void doUpload(GrDrawOp::DeferredUploadFn& upload) {
-        GrDrawOp::WritePixelsFn wp = [this] (GrSurface* surface,
-                int left, int top, int width, int height,
-                GrPixelConfig config, const void* buffer,
-                size_t rowBytes) -> bool {
-            return this->fGpu->writePixels(surface, left, top, width, height, config, buffer,
-                                           rowBytes);
-        };
-        upload(wp);
-    }
+    void doUpload(GrDrawOp::DeferredUploadFn&);
 
     void putBackIndices(size_t indices) { fIndexPool.putBack(indices * sizeof(uint16_t)); }
 

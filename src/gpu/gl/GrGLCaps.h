@@ -374,6 +374,18 @@ public:
     /// op instead of using glClear seems to resolve the issue.
     bool useDrawToClearStencilClip() const { return fUseDrawToClearStencilClip; }
 
+    // If true then we must use an intermediate surface to perform partial updates to unorm textures
+    // that have ever been bound to a FBO.
+    bool disallowTexSubImageForUnormConfigTexturesEverBoundToFBO() const {
+        return fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO;
+    }
+
+    // Use an intermediate surface to write pixels (full or partial overwrite) to into a texture
+    // that is bound to an FBO.
+    bool useDrawInsteadOfAllRenderTargetWrites() const {
+        return fUseDrawInsteadOfAllRenderTargetWrites;
+    }
+
     // At least some Adreno 3xx drivers draw lines incorrectly after drawing non-lines. Toggling
     // face culling on and off seems to resolve this.
     bool requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() const {
@@ -456,6 +468,8 @@ private:
     bool fClearTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
     bool fUseDrawToClearStencilClip : 1;
+    bool fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO : 1;
+    bool fUseDrawInsteadOfAllRenderTargetWrites : 1;
     bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
 
     uint32_t fBlitFramebufferFlags;

@@ -57,6 +57,8 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fClearTextureSupport = false;
     fDrawArraysBaseVertexIsBroken = false;
     fUseDrawToClearStencilClip = false;
+    fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
+    fUseDrawInsteadOfAllRenderTargetWrites = false;
     fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
 
     fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
@@ -523,12 +525,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (kAdreno4xx_GrGLRenderer == ctxInfo.renderer()) {
-        fUseDrawInsteadOfPartialRenderTargetWrite = true;
         // This is known to be fixed sometime between driver 145.0 and 219.0
         if (ctxInfo.driver() == kQualcomm_GrGLDriver &&
             ctxInfo.driverVersion() <= GR_GL_DRIVER_VER(219, 0)) {
             fUseDrawToClearStencilClip = true;
         }
+        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
     }
 
     // This was reproduced on the following configurations:
@@ -546,7 +548,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Texture uploads sometimes seem to be ignored to textures bound to FBOS on Tegra3.
     if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
-        fUseDrawInsteadOfPartialRenderTargetWrite = true;
+        fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
         fUseDrawInsteadOfAllRenderTargetWrites = true;
     }
 
@@ -1298,6 +1300,10 @@ SkString GrGLCaps::dump() const {
     r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
     r.appendf("BGRA to RGBA readback conversions are slow: %s\n",
               (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
+    r.appendf("Intermediate texture for partial updates of unorm textures ever bound to FBOs: %s\n",
+              fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO ? "YES" : "NO");
+    r.appendf("Intermediate texture for all updates of textures bound to FBOs: %s\n",
+              fUseDrawInsteadOfAllRenderTargetWrites ? "YES" : "NO");
 
     r.append("Configs\n-------\n");
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
@@ -2216,5 +2222,8 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         // glDraw*Indirect, regardless of the underlying GPU.
         fAvoidInstancedDrawsToFPTargets = true;
 #endif
+    }
+    if (options.fUseDrawInsteadOfPartialRenderTargetWrite) {
+        fUseDrawInsteadOfAllRenderTargetWrites = true;
     }
 }

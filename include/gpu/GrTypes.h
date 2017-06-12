@@ -512,6 +512,29 @@ static inline bool GrPixelConfigIsSint(GrPixelConfig config) {
     return config == kRGBA_8888_sint_GrPixelConfig;
 }
 
+static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kGray_8_GrPixelConfig:
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kBGRA_8888_GrPixelConfig:
+        case kSRGBA_8888_GrPixelConfig:
+        case kSBGRA_8888_GrPixelConfig:
+            return true;
+        case kUnknown_GrPixelConfig:
+        case kAlpha_half_GrPixelConfig:
+        case kRGBA_8888_sint_GrPixelConfig:
+        case kRGBA_float_GrPixelConfig:
+        case kRG_float_GrPixelConfig:
+        case kRGBA_half_GrPixelConfig:
+            return false;
+    }
+    SkFAIL("Invalid pixel config.");
+    return false;
+}
+
 /**
  * Optional bitfield flags that can be set on GrSurfaceDesc (below).
  */
