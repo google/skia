@@ -1024,21 +1024,23 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
     struct {
         std::function<sk_sp<SkImage> ()>                      fImageFactory;
         std::vector<SkImage::DeferredTextureImageUsageParams> fParams;
+        sk_sp<SkColorSpace>                                   fColorSpace;
+        SkColorType                                           fColorType;
         SkFilterQuality                                       fExpectedQuality;
         int                                                   fExpectedScaleFactor;
         bool                                                  fExpectation;
     } testCases[] = {
         { create_image,          {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, true },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, true },
         { create_codec_image,    {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, true },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, true },
         { create_data_image,     {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, true },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, true },
         { create_picture_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, false },
         { [context] { return create_gpu_image(context); },
           {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, false },
         // Create a texture image in a another GrContext.
         { [testContext, otherContextInfo] {
             otherContextInfo.testContext()->makeCurrent();
@@ -1046,21 +1048,34 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             testContext->makeCurrent();
             return otherContextImage;
           }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, false },
         // Create an image that is too large to upload.
         { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
-          kNone_SkFilterQuality, 1, false },
+          nullptr, kN32_SkColorType, kNone_SkFilterQuality, 1, false },
         // Create an image that is too large, but is scaled to an acceptable size.
         { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
+          nullptr, kN32_SkColorType, kMedium_SkFilterQuality, 16, true},
         // Create an image with multiple low filter qualities, make sure we round up.
         { createLarge, {{SkMatrix::I(), kNone_SkFilterQuality, 4},
                         {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
+          nullptr, kN32_SkColorType, kMedium_SkFilterQuality, 16, true},
         // Create an image with multiple prescale levels, make sure we chose the minimum scale.
         { createLarge, {{SkMatrix::I(), kMedium_SkFilterQuality, 5},
                         {SkMatrix::I(), kMedium_SkFilterQuality, 4}},
-          kMedium_SkFilterQuality, 16, true},
+          nullptr, kN32_SkColorType, kMedium_SkFilterQuality, 16, true},
+        // Create a images which are decoded to a 4444 backing.
+        { create_image,       {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          nullptr, kARGB_4444_SkColorType, kNone_SkFilterQuality, 1, true },
+        { create_codec_image, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          nullptr, kARGB_4444_SkColorType, kNone_SkFilterQuality, 1, true },
+        { create_data_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          nullptr, kARGB_4444_SkColorType, kNone_SkFilterQuality, 1, true },
+        // Valid SkColorSpace and SkColorType.
+        { create_data_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          SkColorSpace::MakeSRGB(), kN32_SkColorType, kNone_SkFilterQuality, 1, true },
+        // Invalid SkColorSpace and SkColorType.
+        { create_data_image,  {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
+          SkColorSpace::MakeSRGB(), kARGB_4444_SkColorType, kNone_SkFilterQuality, 1, false },
     };
 
 
@@ -1073,7 +1088,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
 
         size_t size = image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                          static_cast<int>(testCase.fParams.size()),
-                                                         nullptr, nullptr);
+                                                         nullptr, testCase.fColorSpace.get(),
+                                                         testCase.fColorType);
         static const char *const kFS[] = { "fail", "succeed" };
         if (SkToBool(size) != testCase.fExpectation) {
             ERRORF(reporter,  "This image was expected to %s but did not.",
@@ -1084,12 +1100,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             void* misaligned = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(buffer) + 3);
             if (image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                    static_cast<int>(testCase.fParams.size()),
-                                                   misaligned, nullptr)) {
+                                                   misaligned, testCase.fColorSpace.get(),
+                                                   testCase.fColorType)) {
                 ERRORF(reporter, "Should fail when buffer is misaligned.");
             }
             if (!image->getDeferredTextureImageData(*proxy, testCase.fParams.data(),
                                                     static_cast<int>(testCase.fParams.size()),
-                                                    buffer, nullptr)) {
+                                                    buffer, testCase.fColorSpace.get(),
+                                                   testCase.fColorType)) {
                 ERRORF(reporter, "deferred image size succeeded but creation failed.");
             } else {
                 for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {

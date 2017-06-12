@@ -477,12 +477,18 @@ public:
      * dstColorSpace is the color space of the surface where this texture will ultimately be used.
      * If the method determines that mip-maps are needed, this helps determine the correct strategy
      * for building them (gamma-correct or not).
+     *
+     * dstColorType is the color type of the surface where this texture will ultimately be used.
+     * This determines the format with which the image will be uploaded to the GPU. If dstColorType
+     * does not support color spaces (low bit depth types such as ARGB_4444), then dstColorSpace
+     * must be null.
      */
     size_t getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                        const DeferredTextureImageUsageParams[],
                                        int paramCnt,
                                        void* buffer,
-                                       SkColorSpace* dstColorSpace = nullptr) const;
+                                       SkColorSpace* dstColorSpace = nullptr,
+                                       SkColorType dstColorType = kN32_SkColorType) const;
 
     /**
      * Returns a texture-backed image from data produced in SkImage::getDeferredTextureImageData.
