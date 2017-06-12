@@ -583,7 +583,10 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
             return nullptr;
         }
-        return GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc);
+        sk_sp<GrGLTextureRenderTarget> texRT(
+                GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc));
+        texRT->baseLevelWasBoundToFBO();
+        return texRT;
     }
 
     return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
@@ -663,16 +666,28 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
                                    GrPixelConfig srcConfig,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
-    // This subclass only allows writes to textures. If the dst is not a texture we have to draw
-    // into it. We could use glDrawPixels on GLs that have it, but we don't today.
-    if (!dstSurface->asTexture()) {
-        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
-    } else {
-        GrGLTexture* texture = static_cast<GrGLTexture*>(dstSurface->asTexture());
+    if (SkToBool(dstSurface->asRenderTarget())) {
+        if (this->glCaps().useDrawInsteadOfAllRenderTargetWrites()) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        }
+    }
+
+    GrGLTexture* texture = static_cast<GrGLTexture*>(dstSurface->asTexture());
+
+    if (texture) {
         if (GR_GL_TEXTURE_EXTERNAL == texture->target()) {
              // We don't currently support writing pixels to EXTERNAL textures.
              return false;
         }
+        if (GrPixelConfigIsUnorm(texture->config()) && texture->hasBaseLevelBeenBoundToFBO() &&
+            this->glCaps().disallowTexSubImageForUnormConfigTexturesEverBoundToFBO() &&
+            (width < dstSurface->width() || height < dstSurface->height())) {
+            ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
+        }
+    } else {
+        // This subclass only allows writes to textures. If the dst is not a texture we have to draw
+        // into it. We could use glDrawPixels on GLs that have it, but we don't today.
+        ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
     }
 
     // If the dst is MSAA, we have to draw, or we'll just be writing to the resolve target.
@@ -1373,6 +1388,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         }
         tex = sk_make_sp<GrGLTextureRenderTarget>(this, budgeted, desc, idDesc, rtIDDesc,
                                                   wasMipMapDataProvided);
+        tex->baseLevelWasBoundToFBO();
     } else {
         tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, wasMipMapDataProvided);
     }
@@ -3274,8 +3290,9 @@ void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!rt) {
         SkASSERT(surface->asTexture());
-        GrGLuint texID = static_cast<GrGLTexture*>(surface->asTexture())->textureID();
-        GrGLenum target = static_cast<GrGLTexture*>(surface->asTexture())->target();
+        GrGLTexture* texture = static_cast<GrGLTexture*>(surface->asTexture());
+        GrGLuint texID = texture->textureID();
+        GrGLenum target = texture->target();
         GrGLuint* tempFBOID;
         tempFBOID = kSrc_TempFBOTarget == tempFBOTarget ? &fTempSrcFBOID : &fTempDstFBOID;
 
@@ -3290,6 +3307,7 @@ void GrGLGpu::bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, 
                                                              target,
                                                              texID,
                                                              0));
+        texture->baseLevelWasBoundToFBO();
         viewport->fLeft = 0;
         viewport->fBottom = 0;
         viewport->fWidth = surface->width();
