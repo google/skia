@@ -27,8 +27,8 @@ public:
 
     Type type() const override { return Type::kXYZ; }
 
-    sk_sp<SkColorSpace> makeLinearGamma() override;
-    sk_sp<SkColorSpace> makeSRGBGamma() override;
+    sk_sp<SkColorSpace> makeLinearGamma() const override;
+    sk_sp<SkColorSpace> makeSRGBGamma() const override;
 
     SkGammaNamed gammaNamed() const { return fGammaNamed; }
 
