@@ -632,6 +632,9 @@ SkScalar quad_error_at(const SkPoint pts[3], SkScalar t, SkScalar u) {
     SkPoint p0 = to_point(quad.eval(t - 0.5f * u));
     SkPoint mid = to_point(quad.eval(t));
     SkPoint p1 = to_point(quad.eval(t + 0.5f * u));
+    if (!p0.isFinite() || !mid.isFinite() || !p1.isFinite()) {
+        return 0;
+    }
     return mid.distanceToLineSegmentBetweenSqd(p0, p1);
 }
 
@@ -1082,7 +1085,7 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
     }
     SkPoint p;
     uint8_t alpha;
-    if (edge->intersect(*other, &p, &alpha)) {
+    if (edge->intersect(*other, &p, &alpha) && p.isFinite()) {
         Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         Vertex* top = *current;
