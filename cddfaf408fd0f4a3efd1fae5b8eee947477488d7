@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "633bc31b_a899fdd3",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 988,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-12T20:09:59Z",
+      "side": 1,
+      "message": "nit: I wonder about making this void and asserting that things can\u0027t fail.",
+      "range": {
+        "startLine": 988,
+        "startChar": 7,
+        "endLine": 988,
+        "endChar": 11
+      },
+      "revId": "cddfaf408fd0f4a3efd1fae5b8eee947477488d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
