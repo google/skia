@@ -374,10 +374,10 @@ public:
     /// op instead of using glClear seems to resolve the issue.
     bool useDrawToClearStencilClip() const { return fUseDrawToClearStencilClip; }
 
-    // At least some Adreno 3xx drivers draw lines incorrectly if there is not a flush after
-    // non-line draws under some not fully understood circumstances.
-    bool requiresFlushToDrawLinesAfterNonLines() const {
-        return fRequiresFlushToDrawLinesAfterNonLines;
+    // At least some Adreno 3xx drivers draw lines incorrectly after drawing non-lines. Toggling
+    // face culling on and off seems to resolve this.
+    bool requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() const {
+        return fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines;
     }
 
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -456,7 +456,7 @@ private:
     bool fClearTextureSupport : 1;
     bool fDrawArraysBaseVertexIsBroken : 1;
     bool fUseDrawToClearStencilClip : 1;
-    bool fRequiresFlushToDrawLinesAfterNonLines : 1;
+    bool fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines : 1;
 
     uint32_t fBlitFramebufferFlags;
 
