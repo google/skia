@@ -93,6 +93,30 @@
       "revId": "4b7cbdc89f5db4550961339c5a54c4022ce2f1b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3d81f56_a2cffe58",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-12T18:40:09Z",
+      "side": 1,
+      "message": "Yeah, setting fImage \u003d nullptr seems like a fine way to signal skip.\n\nAlternatively you can just be explicit:\n\n\nfor (bool done \u003d false; !done; ) {\n  switch(it.next(positioner(...), \u0026mask)) {\n     case kSkip:            continue;\n     case kDone: done \u003d true;  break;\n     case kMask: imager(mask); break;\n  }\n}",
+      "parentUuid": "7be06807_731a0df2",
+      "range": {
+        "startLine": 311,
+        "startChar": 4,
+        "endLine": 311,
+        "endChar": 50
+      },
+      "revId": "4b7cbdc89f5db4550961339c5a54c4022ce2f1b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
