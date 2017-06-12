@@ -9,7 +9,9 @@
 
 #include "ast/SkSLASTPrecision.h"
 #include "SkSLCFGGenerator.h"
+#include "SkSLCPPCodeGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
+#include "SkSLHCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
@@ -46,6 +48,11 @@ static const char* SKSL_FRAG_INCLUDE =
 static const char* SKSL_GEOM_INCLUDE =
 #include "sksl_geom.include"
 ;
+
+static const char* SKSL_FP_INCLUDE =
+#include "sksl_fp.include"
+;
+
 
 namespace SkSL {
 
@@ -148,11 +155,17 @@ Compiler::Compiler()
     ADD_TYPE(SamplerCubeArrayShadow);
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
+    ADD_TYPE(ColorSpaceXform);
 
     String skCapsName("sk_Caps");
     Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName,
                                     *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
+
+    String skArgsName("sk_Args");
+    Variable* skArgs = new Variable(Position(), Modifiers(), skArgsName,
+                                    *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
+    fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
@@ -778,7 +791,6 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
 }
 
-
 // returns true if this statement could potentially execute a break at the current level (we ignore
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch)
 static bool contains_break(Statement& s) {
@@ -1112,6 +1124,13 @@ void Compiler::internalConvertProgram(String text,
                 }
                 break;
             }
+            case ASTDeclaration::kSection_Kind: {
+                std::unique_ptr<Section> s = fIRGenerator->convertSection((ASTSection&) decl);
+                if (s) {
+                    result->push_back(std::move(s));
+                }
+                break;
+            }
             case ASTDeclaration::kPrecision_Kind: {
                 *defaultPrecision = ((ASTPrecision&) decl).fPrecision;
                 break;
@@ -1138,6 +1157,9 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             break;
         case Program::kGeometry_Kind:
             this->internalConvertProgram(String(SKSL_GEOM_INCLUDE), &ignored, &elements);
+            break;
+        case Program::kFragmentProcessor_Kind:
+            this->internalConvertProgram(String(SKSL_FP_INCLUDE), &ignored, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
@@ -1205,6 +1227,19 @@ bool Compiler::toGLSL(const Program& program, String* out) {
     return result;
 }
 
+bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
+    CPPCodeGenerator cg(&fContext, &program, this, name, &out);
+    bool result = cg.generateCode();
+    this->writeErrorCount();
+    return result;
+}
+
+bool Compiler::toH(const Program& program, String name, OutputStream& out) {
+    HCodeGenerator cg(&program, this, name, &out);
+    bool result = cg.generateCode();
+    this->writeErrorCount();
+    return result;
+}
 
 void Compiler::error(Position position, String msg) {
     fErrorCount++;
