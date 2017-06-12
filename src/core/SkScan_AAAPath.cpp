@@ -1682,152 +1682,36 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int overflows_short_shift(int value, int shift) {
-    const int s = 16 + shift;
-    return (SkLeftShift(value, s) >> s) - value;
-}
-
-/**
-  Would any of the coordinates of this rectangle not fit in a short,
-  when left-shifted by shift?
-*/
-static int rect_overflows_short_shift(SkIRect rect, int shift) {
-    SkASSERT(!overflows_short_shift(8191, 2));
-    SkASSERT(overflows_short_shift(8192, 2));
-    SkASSERT(!overflows_short_shift(32767, 0));
-    SkASSERT(overflows_short_shift(32768, 0));
-
-    // Since we expect these to succeed, we bit-or together
-    // for a tiny extra bit of speed.
-    return overflows_short_shift(rect.fLeft, 2) |
-           overflows_short_shift(rect.fRight, 2) |
-           overflows_short_shift(rect.fTop, 2) |
-           overflows_short_shift(rect.fBottom, 2);
-}
-
-static bool fitsInsideLimit(const SkRect& r, SkScalar max) {
-    const SkScalar min = -max;
-    return  r.fLeft > min && r.fTop > min &&
-            r.fRight < max && r.fBottom < max;
-}
-
-static bool safeRoundOut(const SkRect& src, SkIRect* dst, int32_t maxInt) {
-    const SkScalar maxScalar = SkIntToScalar(maxInt);
-
-    if (fitsInsideLimit(src, maxScalar)) {
-        src.roundOut(dst);
-        return true;
-    }
-    return false;
-}
-
 void SkScan::AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
                          bool forceRLE) {
-    if (origClip.isEmpty()) {
-        return;
-    }
-
-    const bool isInverse = path.isInverseFillType();
-    SkIRect ir;
-    if (!safeRoundOut(path.getBounds(), &ir, SK_MaxS32 >> 2)) {
-        return;
-    }
-    if (ir.isEmpty()) {
-        if (isInverse) {
-            blitter->blitRegion(origClip);
+    FillPathFunc fillPathFunc = [](const SkPath& path, SkBlitter* blitter, bool isInverse,
+            const SkIRect& ir, const SkRegion* clipRgn, const SkIRect* clipRect, bool forceRLE){
+        // The mask blitter (where we store intermediate alpha values directly in a mask, and then
+        // call the real blitter once in the end to blit the whole mask) is faster than the RLE
+        // blitter when the blit region is small enough (i.e., canHandleRect(ir)).
+        // When isInverse is true, the blit region is no longer ir so we won't use the mask blitter.
+        // The caller may also use the forceRLE flag to force not using the mask blitter.
+        if (MaskAdditiveBlitter::canHandleRect(ir) && !isInverse && !forceRLE) {
+            MaskAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
+            aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
+                    clipRect == nullptr, true, forceRLE);
+        } else if (!isInverse && path.isConvex()) {
+            // If the filling area is convex (i.e., path.isConvex && !isInverse), our simpler
+            // aaa_walk_convex_edges won't generate alphas above 255. Hence we don't need
+            // SafeRLEAdditiveBlitter (which is slow due to clamping). The basic RLE blitter
+            // RunBasedAdditiveBlitter would suffice.
+            RunBasedAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
+            aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
+                    clipRect == nullptr, false, forceRLE);
+        } else {
+            // If the filling area might not be convex, the more involved aaa_walk_edges would
+            // be called and we have to clamp the alpha downto 255. The SafeRLEAdditiveBlitter
+            // does that at a cost of performance.
+            SafeRLEAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
+            aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
+                    clipRect == nullptr, false, forceRLE);
         }
-        return;
-    }
+    };
 
-    SkIRect clippedIR;
-    if (isInverse) {
-       // If the path is an inverse fill, it's going to fill the entire
-       // clip, and we care whether the entire clip exceeds our limits.
-       clippedIR = origClip.getBounds();
-    } else {
-       if (!clippedIR.intersect(ir, origClip.getBounds())) {
-           return;
-       }
-    }
-    // If the intersection of the path bounds and the clip bounds
-    // will overflow 32767 when << by 2, our SkFixed will overflow,
-    // so draw without antialiasing.
-    if (rect_overflows_short_shift(clippedIR, 2)) {
-        SkScan::FillPath(path, origClip, blitter);
-        return;
-    }
-
-    // Our antialiasing can't handle a clip larger than 32767, so we restrict
-    // the clip to that limit here. (the runs[] uses int16_t for its index).
-    //
-    // A more general solution (one that could also eliminate the need to
-    // disable aa based on ir bounds (see overflows_short_shift) would be
-    // to tile the clip/target...
-    SkRegion tmpClipStorage;
-    const SkRegion* clipRgn = &origClip;
-    {
-        static const int32_t kMaxClipCoord = 32767;
-        const SkIRect& bounds = origClip.getBounds();
-        if (bounds.fRight > kMaxClipCoord || bounds.fBottom > kMaxClipCoord) {
-            SkIRect limit = { 0, 0, kMaxClipCoord, kMaxClipCoord };
-            tmpClipStorage.op(origClip, limit, SkRegion::kIntersect_Op);
-            clipRgn = &tmpClipStorage;
-        }
-    }
-    // for here down, use clipRgn, not origClip
-
-    SkScanClipper   clipper(blitter, clipRgn, ir);
-    const SkIRect*  clipRect = clipper.getClipRect();
-
-    if (clipper.getBlitter() == nullptr) { // clipped out
-        if (isInverse) {
-            blitter->blitRegion(*clipRgn);
-        }
-        return;
-    }
-
-    // now use the (possibly wrapped) blitter
-    blitter = clipper.getBlitter();
-
-    if (isInverse) {
-        sk_blit_above(blitter, ir, *clipRgn);
-    }
-
-    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
-
-    if (MaskAdditiveBlitter::canHandleRect(ir) && !isInverse && !forceRLE) {
-        MaskAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
-        aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
-                clipRect == nullptr, true, forceRLE);
-    } else if (!isInverse && path.isConvex()) {
-        RunBasedAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
-        aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
-                clipRect == nullptr, false, forceRLE);
-    } else {
-        SafeRLEAdditiveBlitter additiveBlitter(blitter, ir, *clipRgn, isInverse);
-        aaa_fill_path(path, clipRgn->getBounds(), &additiveBlitter, ir.fTop, ir.fBottom,
-                clipRect == nullptr, false, forceRLE);
-    }
-
-    if (isInverse) {
-        sk_blit_below(blitter, ir, *clipRgn);
-    }
-}
-
-// This almost copies SkScan::AntiFillPath
-void SkScan::AAAFillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
-    if (clip.isEmpty()) {
-        return;
-    }
-
-    if (clip.isBW()) {
-        AAAFillPath(path, clip.bwRgn(), blitter);
-    } else {
-        SkRegion        tmp;
-        SkAAClipBlitter aaBlitter;
-
-        tmp.setRect(clip.getBounds());
-        aaBlitter.init(blitter, &clip.aaRgn());
-        AAAFillPath(path, tmp, &aaBlitter, true);
-    }
+    do_fill_path(path, origClip, blitter, forceRLE, 2, std::move(fillPathFunc));
 }
