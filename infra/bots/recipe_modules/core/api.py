@@ -75,7 +75,9 @@ class SkiaApi(recipe_api.RecipeApi):
     patch_repo = main.url
     if self.m.properties.get('patch_repo'):
       patch_repo = self.m.properties['patch_repo']
-      patch_root = patch_repo.split('/')[-1].rstrip('.git')
+      patch_root = patch_repo.split('/')[-1]
+      if patch_root.endswith('.git'):
+        patch_root = patch_root[:-4]
 
     if self.m.vars.need_pdfium_checkout:
       # Skia is a DEP of PDFium; the 'revision' property is a Skia revision, and
