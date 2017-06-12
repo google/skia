@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6829712_e3b943af",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-12T20:46:19Z",
+      "side": 1,
+      "message": "Why this condition? Will this break android NDK builds?",
+      "range": {
+        "startLine": 750,
+        "startChar": 24,
+        "endLine": 750,
+        "endChar": 52
+      },
+      "revId": "263067e20762896865e2d5a79f56c572eb36f60d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
