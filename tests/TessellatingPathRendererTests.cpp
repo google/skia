@@ -326,6 +326,26 @@ static SkPath create_path_20() {
     return path;
 }
 
+// An intersection whose result is NaN (due to rounded-to-inf endpoint).
+static SkPath create_path_21() {
+    SkPath path;
+    path.moveTo(1.7889142061167663539e+38, 39338463358011572224.0);
+    path.lineTo(  1647.4193115234375,       -522.603515625);
+    path.lineTo(    1677.74560546875,   -529.0028076171875);
+    path.lineTo(    1678.29541015625,   -528.7847900390625);
+    path.lineTo(  1637.5167236328125,  -519.79266357421875);
+    path.lineTo(  1647.4193115234375,       -522.603515625);
+    return path;
+}
+
+// A quad which becomes NaN when interpolated.
+static SkPath create_path_22() {
+    SkPath path;
+    path.moveTo(-5.71889e+13f, 1.36759e+09f);
+    path.quadTo(2.45472e+19f, -3.12406e+15f, -2.19589e+18f, 2.79462e+14f);
+    return path;
+}
+
 static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
@@ -403,5 +423,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_18());
     test_path(ctx, rtc.get(), create_path_19());
     test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_22());
 }
 #endif
