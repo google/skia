@@ -375,10 +375,6 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
 }
 
-static bool view_matrix_ok_for_aa_fill_rect(const SkMatrix& viewMatrix) {
-    return viewMatrix.preservesRightAngles();
-}
-
 // Attempts to crop a rect and optional local rect to the clip boundaries.
 // Returns false if the draw can be skipped entirely.
 static bool crop_filled_rect(int width, int height, const GrClip& clip,
@@ -447,20 +443,10 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
     }
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        // The fill path can handle rotation but not skew.
-        if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-            SkRect devBoundRect;
-            viewMatrix.mapRect(&devBoundRect, croppedRect);
-            std::unique_ptr<GrLegacyMeshDrawOp> op =
-                    GrRectOpFactory::MakeAAFill(paint, viewMatrix, rect, croppedRect, devBoundRect);
-            if (op) {
-                GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                if (ss) {
-                    pipelineBuilder.setUserStencil(ss);
-                }
-                this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
-                return true;
-            }
+        std::unique_ptr<GrDrawOp> op = GrAAFillRectOp::Make(std::move(paint), viewMatrix, rect, ss);
+        if (op) {
+            this->addDrawOp(clip, std::move(op));
+            return true;
         }
     } else {
         this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect, nullptr, nullptr,
@@ -559,14 +545,13 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
         }
 
         bool snapToPixelCenters = false;
-        std::unique_ptr<GrLegacyMeshDrawOp> op;
+        std::unique_ptr<GrDrawOp> op;
 
-        GrColor color = paint.getColor();
         GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
         if (GrAAType::kCoverage == aaType) {
             // The stroke path needs the rect to remain axis aligned (no rotation or skew).
             if (viewMatrix.rectStaysRect()) {
-                op = GrRectOpFactory::MakeAAStroke(color, viewMatrix, rect, stroke);
+                op = GrRectOpFactory::MakeAAStroke(std::move(paint), viewMatrix, rect, stroke);
             }
         } else {
             // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
@@ -574,14 +559,14 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
             // when MSAA is enabled because it can cause ugly artifacts.
             snapToPixelCenters = stroke.getStyle() == SkStrokeRec::kHairline_Style &&
                                  GrFSAAType::kUnifiedMSAA != fRenderTargetProxy->fsaaType();
-            op = GrRectOpFactory::MakeNonAAStroke(color, viewMatrix, rect, stroke,
+            op = GrRectOpFactory::MakeNonAAStroke(std::move(paint), viewMatrix, rect, stroke,
                                                   snapToPixelCenters);
         }
 
         if (op) {
-            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-            pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
-            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+            //GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+            //pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
+            this->addDrawOp(clip, std::move(op));
             return;
         }
     }
@@ -756,11 +741,10 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
         return;
     }
 
-    if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        std::unique_ptr<GrLegacyMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
-                paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
-        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    std::unique_ptr<GrDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(std::move(paint), viewMatrix,
+                                                                     croppedRect, croppedLocalRect);
+    if (op) {
+        this->addDrawOp(clip, std::move(op));
         return;
     }
 
@@ -812,11 +796,10 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
         return;
     }
 
-    if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        std::unique_ptr<GrLegacyMeshDrawOp> op =
-                GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
-        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    std::unique_ptr<GrDrawOp> op =
+            GrAAFillRectOp::Make(std::move(paint), viewMatrix, localMatrix, croppedRect);
+    if (op) {
+        this->addDrawOp(clip, std::move(op));
         return;
     }
 
@@ -1519,13 +1502,12 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             SkRect rects[2];
 
             if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                std::unique_ptr<GrLegacyMeshDrawOp> op =
-                        GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
+                std::unique_ptr<GrDrawOp> op =
+                        GrRectOpFactory::MakeAAFillNestedRects(std::move(paint), viewMatrix, rects);
                 if (op) {
-                    GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
-                    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+                    this->addDrawOp(clip, std::move(op));
+                    return;
                 }
-                return;
             }
         }
         SkRect ovalRect;

@@ -8,22 +8,23 @@
 #ifndef GrAAStrokeRectOp_DEFINED
 #define GrAAStrokeRectOp_DEFINED
 
-#include "GrColor.h"
-#include "SkRefCnt.h"
+#include <memory>
+#include "GrTypes.h"
 
-class GrLegacyMeshDrawOp;
+class GrDrawOp;
+class GrPaint;
 class SkMatrix;
 struct SkRect;
 class SkStrokeRec;
 
 namespace GrAAStrokeRectOp {
 
-std::unique_ptr<GrLegacyMeshDrawOp> MakeFillBetweenRects(GrColor color,
+std::unique_ptr<GrDrawOp> MakeFillBetweenRects(GrPaint&&,
                                                          const SkMatrix& viewMatrix,
                                                          const SkRect& devOutside,
                                                          const SkRect& devInside);
 
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+std::unique_ptr<GrDrawOp> Make(GrPaint&&,
                                          const SkMatrix& viewMatrix,
                                          const SkRect& rect,
                                          const SkStrokeRec& stroke);

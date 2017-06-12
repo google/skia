@@ -8,34 +8,29 @@
 #ifndef GrAAFillRectOp_DEFINED
 #define GrAAFillRectOp_DEFINED
 
-#include "GrColor.h"
-#include "SkRefCnt.h"
+#include <memory>
+#include "GrTypes.h"
 
-class GrLegacyMeshDrawOp;
+class GrDrawOp;
+class GrPaint;
+struct GrUserStencilSettings;
 class SkMatrix;
 struct SkRect;
 
 namespace GrAAFillRectOp {
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
-                                         const SkMatrix& viewMatrix,
-                                         const SkRect& rect,
-                                         const SkRect& devRect);
+std::unique_ptr<GrDrawOp> Make(GrPaint&&, const SkMatrix& viewMatrix, const SkRect&,
+                               const GrUserStencilSettings* = nullptr);
 
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
-                                         const SkMatrix& viewMatrix,
-                                         const SkMatrix& localMatrix,
-                                         const SkRect& rect);
+std::unique_ptr<GrDrawOp> Make(GrPaint&&, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                               const SkRect& rect, const GrUserStencilSettings* = nullptr);
 
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
-                                         const SkMatrix& viewMatrix,
-                                         const SkMatrix& localMatrix,
-                                         const SkRect& rect,
-                                         const SkRect& devRect);
+std::unique_ptr<GrDrawOp> Make(GrPaint&&, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+                               const SkRect& rect, const SkRect& devRect,
+                               const GrUserStencilSettings* = nullptr);
 
-std::unique_ptr<GrLegacyMeshDrawOp> MakeWithLocalRect(GrColor color,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& localRect);
+std::unique_ptr<GrDrawOp> MakeWithLocalRect(GrPaint&&, const SkMatrix& viewMatrix,
+                                            const SkRect& rect, const SkRect& localRect,
+                                            const GrUserStencilSettings* = nullptr);
 };
 
 #endif

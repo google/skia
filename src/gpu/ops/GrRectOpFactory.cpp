@@ -6,14 +6,13 @@
  */
 
 #include "GrRectOpFactory.h"
-
 #include "GrAAStrokeRectOp.h"
-#include "GrMeshDrawOp.h"
-#include "SkStrokeRec.h"
+#include "SkMatrix.h"
+#include "SkRect.h"
 
 namespace GrRectOpFactory {
 
-std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor color,
+std::unique_ptr<GrDrawOp> MakeAAFillNestedRects(GrPaint&& paint,
                                                           const SkMatrix& viewMatrix,
                                                           const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
@@ -26,9 +25,11 @@ std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor color,
         if (devOutside.isEmpty()) {
             return nullptr;
         }
-        return GrAAFillRectOp::Make(color, viewMatrix, devOutside, devOutside);
+        return GrAAFillRectOp::Make(std::move(paint), viewMatrix, SkMatrix::I(), rects[0],
+                                    devOutside);
     }
 
-    return GrAAStrokeRectOp::MakeFillBetweenRects(color, viewMatrix, devOutside, devInside);
+    return GrAAStrokeRectOp::MakeFillBetweenRects(std::move(paint), viewMatrix, devOutside,
+                                                  devInside);
 }
 };

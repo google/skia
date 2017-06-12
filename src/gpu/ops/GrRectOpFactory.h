@@ -10,15 +10,13 @@
 
 #include "GrAAFillRectOp.h"
 #include "GrAAStrokeRectOp.h"
-#include "GrAnalyticRectOp.h"
-#include "GrColor.h"
-#include "GrMeshDrawOp.h"
 #include "GrNonAAStrokeRectOp.h"
-#include "GrPaint.h"
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
+#include "GrDrawOp.h"
 
+class GrDrawOp;
+class GrPaint;
 struct SkRect;
+class SkMatrix;
 class SkStrokeRec;
 
 /**
@@ -26,39 +24,23 @@ class SkStrokeRec;
  */
 namespace GrRectOpFactory {
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(const GrPaint& paint,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& croppedRect,
-                                                      const SkRect& devRect) {
-    return GrAAFillRectOp::Make(paint.getColor(), viewMatrix, croppedRect, devRect);
-}
-
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(GrColor color,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkMatrix& localMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& devRect) {
-    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect);
-}
-
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAAStroke(GrColor color,
+inline std::unique_ptr<GrDrawOp> MakeNonAAStroke(GrPaint&& paint,
                                                            const SkMatrix& viewMatrix,
                                                            const SkRect& rect,
                                                            const SkStrokeRec& strokeRec,
                                                            bool snapToPixelCenters) {
-    return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
+    return GrNonAAStrokeRectOp::Make(std::move(paint), viewMatrix, rect, strokeRec, snapToPixelCenters);
 }
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAStroke(GrColor color,
+inline std::unique_ptr<GrDrawOp> MakeAAStroke(GrPaint&& paint,
                                                         const SkMatrix& viewMatrix,
                                                         const SkRect& rect,
                                                         const SkStrokeRec& stroke) {
-    return GrAAStrokeRectOp::Make(color, viewMatrix, rect, stroke);
+    return GrAAStrokeRectOp::Make(std::move(paint), viewMatrix, rect, stroke);
 }
 
 // First rect is outer; second rect is inner
-std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor, const SkMatrix& viewMatrix,
+std::unique_ptr<GrDrawOp> MakeAAFillNestedRects(GrPaint&&, const SkMatrix& viewMatrix,
                                                           const SkRect rects[2]);
 };
 

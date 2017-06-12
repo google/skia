@@ -8,17 +8,18 @@
 #ifndef GrNonAAStrokeRectOp_DEFINED
 #define GrNonAAStrokeRectOp_DEFINED
 
-#include "GrColor.h"
-#include "SkRefCnt.h"
+#include <memory>
+#include "GrTypes.h"
 
-class GrLegacyMeshDrawOp;
+class GrDrawOp;
+class GrPaint;
 struct SkRect;
 class SkStrokeRec;
 class SkMatrix;
 
 namespace GrNonAAStrokeRectOp {
 
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
+std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
                                          const SkMatrix& viewMatrix,
                                          const SkRect& rect,
                                          const SkStrokeRec&,
