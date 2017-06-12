@@ -26,22 +26,6 @@ class SkStrokeRec;
  */
 namespace GrRectOpFactory {
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(const GrPaint& paint,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& croppedRect,
-                                                      const SkRect& devRect) {
-    return GrAAFillRectOp::Make(paint.getColor(), viewMatrix, croppedRect, devRect);
-}
-
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(GrColor color,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkMatrix& localMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& devRect) {
-    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect);
-}
-
 inline std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAAStroke(GrColor color,
                                                            const SkMatrix& viewMatrix,
                                                            const SkRect& rect,

@@ -14,6 +14,7 @@
 #include "GrProcessorSet.h"
 #include "GrRect.h"
 #include "GrUserStencilSettings.h"
+extern int cnt;
 
 /**
  * This class can be used to help implement simple mesh draw ops. It reduces the amount of
@@ -89,6 +90,7 @@ public:
 
     bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
                               GrProcessorAnalysisCoverage geometryCoverage, GrColor* color) {
+        ++cnt;
         SkDEBUGCODE(fDidAnalysis = true);
         GrProcessorSet::Analysis analysis;
         if (fProcessors) {
@@ -191,6 +193,7 @@ public:
 
     using GrSimpleMeshDrawOpHelper::xpRequiresDstTexture;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
+    using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
                       const SkRect& aBounds, const SkRect& bBounds) const {
