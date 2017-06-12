@@ -805,6 +805,116 @@ void SkGraphics::PurgeFontCache() {
     SkTypefaceCache::PurgeAll();
 }
 
+SkStrike::Iterator::Iterator()
+    : fIsValid{false}
+    , fGlyphCount{0}
+    , fGlyphs{nullptr}
+    , fConservativeClip(SkIRect::MakeEmpty())
+    , fCache{SkAutoGlyphCache()} {}
+SkStrike::Iterator::Iterator(const SkGlyphID* glyphs,
+         size_t glyphCount,
+         SkIRect conservativeClip,
+         SkAutoGlyphCache&& cache)
+    : fIsValid{true}
+    , fGlyphCount{glyphCount}
+    , fGlyphs{glyphs}
+    , fConservativeClip(conservativeClip)
+    , fCache{std::move(cache)} {}
+
+bool SkStrike::Iterator::IsValid() const {return fIsValid;}
+
+SkStrike::Action SkStrike::Iterator::Next(SkPoint pos, SkMask* mask) {
+    if (fCursor >= fGlyphCount) { return kDone; }
+
+    auto skip = [this] () {fCursor++; return kSkip;};
+
+    SkGlyphID glyphId = fGlyphs[fCursor];
+    SkPoint finalPosition = pos;
+    if (!SkScalarsAreFinite(finalPosition.fX, finalPosition.fY)) {
+        return skip();
+    }
+
+    SkIPoint glyphOrigin{SkScalarFloorToInt(finalPosition.fX),
+                         SkScalarFloorToInt(finalPosition.fY)};
+    if (!fConservativeClip.contains(glyphOrigin.fX, glyphOrigin.fY)) {
+        return skip();
+    }
+
+    const SkGlyph& imageGlyph =
+        fCache->getGlyphIDMetrics(
+            glyphId,
+            // FIXME: generalize to any axis alignment. See SubpixelPositionRounding
+            //and SubpixelAlignment.
+            SkScalarToFixed(SkScalarFraction(finalPosition.fX) + kSubpixelRounding), 0);
+
+    // FIXME: generalize.
+    finalPosition += SkPoint{kSubpixelRounding, SK_ScalarHalf};
+
+    if (imageGlyph.fWidth <= 0 || imageGlyph.fHeight <= 0) {
+        return skip();
+    }
+
+    uint8_t* bits = (uint8_t*)(fCache->findImage(imageGlyph));
+    if (bits == nullptr) {
+        return skip();
+    }
+
+    int left    = glyphOrigin.fX + imageGlyph.fLeft;
+    int top     = glyphOrigin.fY + imageGlyph.fTop;
+    int right   = left + imageGlyph.fWidth;
+    int bottom  = top  + imageGlyph.fHeight;
+
+    mask->fBounds.set(left, top, right, bottom);
+    mask->fImage    = bits;
+    mask->fRowBytes = imageGlyph.rowBytes();
+    mask->fFormat   = static_cast<SkMask::Format>(imageGlyph.fMaskFormat);
+
+    fCursor++;
+    return kDraw;
+}
+
+SkStrike::SkStrike(const SkPaint& paint,
+         const SkSurfaceProps* props,
+         uint32_t scalerContextFlags,
+         const SkMatrix& matrix)
+    : fPaint(paint)
+    , fSurfaceProps(*props)
+    , fScalarContextFlags(scalerContextFlags)
+    , fMatrix(matrix) { }
+
+SkStrike::Iterator SkStrike::MakeMaskIterator(
+    const SkGlyphID* glyphs, size_t glyphCount, SkIRect clip) {
+    SkAutoGlyphCache cache(fPaint.detachCache(&fSurfaceProps, fScalarContextFlags, &fMatrix));
+
+    // It would be great to get rid of this, but a cache is needed to make this check. In the
+    // future, I would like the cache to just return a SkGlyphCacheIterator.
+    if (!cache->isSubpixel()
+        || cache->getScalerContext()->computeAxisAlignmentForHText() != kX_SkAxisAlignment)
+    {
+        return Iterator();
+    }
+
+    // Calculate conservative clipping rect.
+    SkIRect conservativeClip = deviceIRect;
+    {
+        const SkPaint::FontMetrics& metrics = cache->getFontMetrics();
+        int32_t leftAdj   = SkScalarCeilToInt(metrics.fXMax);
+        int32_t rightAdj  = SkScalarFloorToInt(metrics.fXMin);
+        int32_t bottomAdj = SkScalarFloorToInt(metrics.fTop);
+        int32_t topAdj    = SkScalarCeilToInt(metrics.fBottom);
+        if (topAdj != bottomAdj) {
+            conservativeClip = {
+                clip.fLeft   - leftAdj,
+                clip.fTop    - topAdj,
+                clip.fRight  - rightAdj,
+                clip.fBottom - bottomAdj
+            };
+        }
+    }
+
+    return Iterator(glyphs, glyphCount, conservativeClip, std::move(cache));
+}
+
 // TODO(herb): clean up TLS apis.
 size_t SkGraphics::GetTLSFontCacheLimit() { return 0; }
 void SkGraphics::SetTLSFontCacheLimit(size_t bytes) { }
