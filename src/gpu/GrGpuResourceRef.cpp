@@ -143,10 +143,10 @@ GrSurfaceProxyRef::GrSurfaceProxyRef(sk_sp<GrSurfaceProxy> proxy, GrIOType ioTyp
 }
 
 GrSurfaceProxyRef::~GrSurfaceProxyRef() {
-    if (fOwnRef) {
-        SkASSERT(fProxy);
-        fProxy->unref();
-    }
+    this->reset();
+}
+
+void GrSurfaceProxyRef::reset() {
     if (fPendingIO) {
         switch (fIOType) {
             case kRead_GrIOType:
@@ -160,13 +160,10 @@ GrSurfaceProxyRef::~GrSurfaceProxyRef() {
                 fProxy->completedWrite();
                 break;
         }
+        fPendingIO = false;
     }
-}
-
-void GrSurfaceProxyRef::reset() {
-    SkASSERT(!fPendingIO);
-    SkASSERT(SkToBool(fProxy) == fOwnRef);
     if (fOwnRef) {
+        SkASSERT(fProxy);
         fProxy->unref();
         fOwnRef = false;
         fProxy = nullptr;
