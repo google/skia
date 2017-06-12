@@ -533,10 +533,10 @@ int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
 
 // Assumes the third component of points is 1.
 // Calcs p0 . (p1 x p2)
-static SkScalar calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
-    const SkScalar xComp = p0.fX * (p1.fY - p2.fY);
-    const SkScalar yComp = p0.fY * (p2.fX - p1.fX);
-    const SkScalar wComp = p1.fX * p2.fY - p1.fY * p2.fX;
+static double calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    const double xComp = (double) p0.fX * (double) (p1.fY - p2.fY);
+    const double yComp = (double) p0.fY * (double) (p2.fX - p1.fX);
+    const double wComp = (double) p1.fX * (double) p2.fY - (double) p1.fY * (double) p2.fX;
     return (xComp + yComp + wComp);
 }
 
@@ -549,42 +549,42 @@ static SkScalar calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const
 // a2 = p1 . (p0 x p3)
 // a3 = p2 . (p1 x p0)
 // Places the values of d1, d2, d3 in array d passed in
-static void calc_cubic_inflection_func(const SkPoint p[4], SkScalar d[4]) {
-    SkScalar a1 = calc_dot_cross_cubic(p[0], p[3], p[2]);
-    SkScalar a2 = calc_dot_cross_cubic(p[1], p[0], p[3]);
-    SkScalar a3 = calc_dot_cross_cubic(p[2], p[1], p[0]);
+static void calc_cubic_inflection_func(const SkPoint p[4], double d[4]) {
+    const double a1 = calc_dot_cross_cubic(p[0], p[3], p[2]);
+    const double a2 = calc_dot_cross_cubic(p[1], p[0], p[3]);
+    const double a3 = calc_dot_cross_cubic(p[2], p[1], p[0]);
 
-    d[3] = 3.f * a3;
+    d[3] = 3 * a3;
     d[2] = d[3] - a2;
     d[1] = d[2] - a2 + a1;
     d[0] = 0;
 }
 
-static void normalize_t_s(float t[], float s[], int count) {
+static void normalize_t_s(double t[], double s[], int count) {
     // Keep the exponents at or below zero to avoid overflow down the road.
     for (int i = 0; i < count; ++i) {
         SkASSERT(0 != s[i]);
-        union { float value; int32_t bits; } tt, ss, norm;
+        union { double value; int64_t bits; } tt, ss, norm;
         tt.value = t[i];
         ss.value = s[i];
-        int32_t expT = ((tt.bits >> 23) & 0xff) - 127,
-                expS = ((ss.bits >> 23) & 0xff) - 127;
-        int32_t expNorm = -SkTMax(expT, expS) + 127;
-        SkASSERT(expNorm > 0 && expNorm < 255); // ensure we have a valid non-zero exponent.
-        norm.bits = expNorm << 23;
+        int64_t expT = ((tt.bits >> 52) & 0x7ff) - 1023,
+                expS = ((ss.bits >> 52) & 0x7ff) - 1023;
+        int64_t expNorm = -SkTMax(expT, expS) + 1023;
+        SkASSERT(expNorm > 0 && expNorm < 2047); // ensure we have a valid non-zero exponent.
+        norm.bits = expNorm << 52;
         t[i] *= norm.value;
         s[i] *= norm.value;
     }
 }
 
-static void sort_and_orient_t_s(SkScalar t[2], SkScalar s[2]) {
+static void sort_and_orient_t_s(double t[2], double s[2]) {
     // This copysign/abs business orients the implicit function so positive values are always on the
     // "left" side of the curve.
-    t[1] = -SkScalarCopySign(t[1], t[1] * s[1]);
-    s[1] = -SkScalarAbs(s[1]);
+    t[1] = -copysign(t[1], t[1] * s[1]);
+    s[1] = -fabs(s[1]);
 
     // Ensure t[0]/s[0] <= t[1]/s[1] (s[1] is negative from above).
-    if (SkScalarCopySign(s[1], s[0]) * t[0] > -SkScalarAbs(s[0]) * t[1]) {
+    if (copysign(s[1], s[0]) * t[0] > -fabs(s[0]) * t[1]) {
         std::swap(t[0], t[1]);
         std::swap(s[0], s[1]);
     }
@@ -600,15 +600,15 @@ static void sort_and_orient_t_s(SkScalar t[2], SkScalar s[2]) {
 // d1 = 0, d2 != 0              Cusp (with cusp at infinity)
 // d1 = d2 = 0, d3 != 0         Quadratic
 // d1 = d2 = d3 = 0             Line or Point
-static SkCubicType classify_cubic(const SkScalar d[4], SkScalar t[2], SkScalar s[2]) {
-    SkScalar tolerance = SkTMax(SkScalarAbs(d[1]), SkScalarAbs(d[2]));
-    tolerance = SkTMax(tolerance, SkScalarAbs(d[3]));
+static SkCubicType classify_cubic(const double d[4], double t[2], double s[2]) {
+    double tolerance = SkTMax(fabs(d[1]), fabs(d[2]));
+    tolerance = SkTMax(tolerance, fabs(d[3]));
     tolerance = tolerance * 1e-5;
-    if (!SkScalarNearlyZero(d[1], tolerance)) {
-        const SkScalar discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
+    if (fabs(d[1]) > tolerance) {
+        const double discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
         if (discr > 0) {
             if (t && s) {
-                const SkScalar q = 3 * d[2] + SkScalarCopySign(SkScalarSqrt(3 * discr), d[2]);
+                const double q = 3 * d[2] + copysign(sqrt(3 * discr), d[2]);
                 t[0] = q;
                 s[0] = 6 * d[1];
                 t[1] = 2 * d[3];
@@ -619,7 +619,7 @@ static SkCubicType classify_cubic(const SkScalar d[4], SkScalar t[2], SkScalar s
             return SkCubicType::kSerpentine;
         } else if (discr < 0) {
             if (t && s) {
-                const SkScalar q = d[2] + SkScalarCopySign(SkScalarSqrt(-discr), d[2]);
+                const double q = d[2] + copysign(sqrt(-discr), d[2]);
                 t[0] = q;
                 s[0] = 2 * d[1];
                 t[1] = 2 * (d[2] * d[2] - d[3] * d[1]);
@@ -641,7 +641,7 @@ static SkCubicType classify_cubic(const SkScalar d[4], SkScalar t[2], SkScalar s
             return SkCubicType::kLocalCusp;
         }
     } else {
-        if (!SkScalarNearlyZero(d[2], tolerance)) {
+        if (fabs(d[2]) > tolerance) {
             if (t && s) {
                 t[0] = d[3];
                 s[0] = 3 * d[2];
@@ -655,15 +655,14 @@ static SkCubicType classify_cubic(const SkScalar d[4], SkScalar t[2], SkScalar s
                 t[0] = t[1] = 1;
                 s[0] = s[1] = 0; // infinity
             }
-            return !SkScalarNearlyZero(d[3], tolerance) ? SkCubicType::kQuadratic
-                                                        : SkCubicType::kLineOrPoint;
+            return fabs(d[3]) > tolerance ? SkCubicType::kQuadratic : SkCubicType::kLineOrPoint;
         }
     }
 }
 
-SkCubicType SkClassifyCubic(const SkPoint src[4], SkScalar t[2], SkScalar s[2], SkScalar d[4]) {
-    SkScalar localD[4];
-    SkScalar* dd = d ? d : localD;
+SkCubicType SkClassifyCubic(const SkPoint src[4], double t[2], double s[2], double d[4]) {
+    double localD[4];
+    double* dd = d ? d : localD;
     calc_cubic_inflection_func(src, dd);
     return classify_cubic(dd, t, s);
 }

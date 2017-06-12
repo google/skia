@@ -182,8 +182,8 @@ enum class SkCubicType {
 
     https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
 */
-SkCubicType SkClassifyCubic(const SkPoint p[4], SkScalar t[2] = nullptr, SkScalar s[2] = nullptr,
-                            SkScalar d[4] = nullptr);
+SkCubicType SkClassifyCubic(const SkPoint p[4], double t[2] = nullptr, double s[2] = nullptr,
+                            double d[4] = nullptr);
 
 ///////////////////////////////////////////////////////////////////////////////
 

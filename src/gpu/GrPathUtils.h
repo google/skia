@@ -146,7 +146,7 @@ namespace GrPathUtils {
     // intersect with K (See SkClassifyCubic).
     //
     // Returns the cubic's classification.
-    SkCubicType getCubicKLM(const SkPoint src[4], SkMatrix* klm, SkScalar t[2], SkScalar s[2]);
+    SkCubicType getCubicKLM(const SkPoint src[4], SkMatrix* klm, double t[2], double s[2]);
 
     // Chops the cubic bezier passed in by src, at the double point (intersection point)
     // if the curve is a cubic loop. If it is a loop, there will be two parametric values for
