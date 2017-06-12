@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c222e773_194664f1",
+        "filename": "src/gpu/GrGpuResourceRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-12T16:48:11Z",
+      "side": 1,
+      "message": "same assert in \"if (fPendingIO) {\" block?",
+      "range": {
+        "startLine": 166,
+        "startChar": 8,
+        "endLine": 166,
+        "endChar": 25
+      },
+      "revId": "de7afaa3c998bd680e53e9d003dddf34b632974c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
