@@ -22,27 +22,28 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
                                          SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
         : INHERITED(desc, fit, budgeted, flags)
         , fSampleCnt(desc.fSampleCnt)
-        , fRenderTargetFlags(GrRenderTarget::Flags::kNone) {
+        , fPerRenderTargetCaps(GrPerRenderTargetCaps::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fSampleCnt > 0) {
-        fRenderTargetFlags |= GrRenderTarget::Flags::kMixedSampled;
+        fPerRenderTargetCaps |= GrPerRenderTargetCaps::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {
-        fRenderTargetFlags |= GrRenderTarget::Flags::kWindowRectsSupport;
+        fPerRenderTargetCaps |= GrPerRenderTargetCaps::kWindowRectsSupport;
     }
 }
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf)
-        : INHERITED(std::move(surf), SkBackingFit::kExact)
-        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-        , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {}
+    : INHERITED(std::move(surf), SkBackingFit::kExact)
+    , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+    , fPerRenderTargetCaps(fTarget->asRenderTarget()->renderTargetPriv().perRenderTargetCaps()) {
+}
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
-    return (fRenderTargetFlags & GrRenderTarget::Flags::kWindowRectsSupport)
-                   ? caps.maxWindowRectangles()
-                   : 0;
+    return (fPerRenderTargetCaps & GrPerRenderTargetCaps::kWindowRectsSupport)
+                    ? caps.maxWindowRectangles()
+                    : 0;
 }
 
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
@@ -55,7 +56,8 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     }
     SkASSERT(fTarget->asRenderTarget());
     // Check that our a priori computation matched the ultimate reality
-    SkASSERT(fRenderTargetFlags == fTarget->asRenderTarget()->renderTargetPriv().flags());
+    SkASSERT(fPerRenderTargetCaps == 
+             fTarget->asRenderTarget()->renderTargetPriv().perRenderTargetCaps());
 
     return true;
 }
