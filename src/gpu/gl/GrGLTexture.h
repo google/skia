@@ -66,7 +66,11 @@ public:
 
     GrGLenum target() const { return fInfo.fTarget; }
 
+    bool hasBaseLevelBeenBoundToFBO() const { return fBaseLevelHasBeenBoundToFBO; }
+    void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
+
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+
 protected:
     // Constructor for subclasses.
     GrGLTexture(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, bool wasMipMapDataProvided);
@@ -96,6 +100,7 @@ private:
     // direct interaction with the GL object.
     GrGLTextureInfo                 fInfo;
     GrBackendObjectOwnership        fTextureIDOwnership;
+    bool                            fBaseLevelHasBeenBoundToFBO = false;
 
     ReleaseProc                     fReleaseProc = nullptr;
     ReleaseCtx                      fReleaseCtx = nullptr;
