@@ -11,7 +11,7 @@
 #include "Sk4px.h"
 #include "SkMSAN.h"
 #include "SkNx.h"
-#include "SkXfermode_proccoeff.h"
+#include "SkXfermodePriv.h"
 
 namespace {
 
@@ -215,10 +215,9 @@ template <> void mark_dst_initialized_if_safe<Clear>(void* dst, void* end) {
 }
 
 template <typename Xfermode>
-class Sk4pxXfermode : public SkProcCoeffXfermode {
+class Sk4pxXfermode : public SkXfermode {
 public:
-    Sk4pxXfermode(SkXfermodeProc proc, SkBlendMode mode)
-        : INHERITED(proc, mode) {}
+    Sk4pxXfermode() {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         mark_dst_initialized_if_safe<Xfermode>(dst, dst+n);
@@ -228,16 +227,12 @@ public:
             Sk4px::MapDstSrcAlpha(n, dst, src, aa, xfer_aa<Xfermode>);
         }
     }
-
-private:
-    typedef SkProcCoeffXfermode INHERITED;
 };
 
 template <typename Xfermode>
-class Sk4fXfermode : public SkProcCoeffXfermode {
+class Sk4fXfermode : public SkXfermode {
 public:
-    Sk4fXfermode(SkXfermodeProc proc, SkBlendMode mode)
-        : INHERITED(proc, mode) {}
+    Sk4fXfermode() {}
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int n, const SkAlpha aa[]) const override {
         for (int i = 0; i < n; i++) {
@@ -266,18 +261,16 @@ private:
         SkNx_cast<uint8_t>(f * Sk4f(255) + Sk4f(0.5f)).store(&c);
         return c;
     }
-
-    typedef SkProcCoeffXfermode INHERITED;
 };
 
 } // namespace
 
 namespace SK_OPTS_NS {
 
-static SkXfermode* create_xfermode(SkXfermodeProc proc, SkBlendMode mode) {
+static SkXfermode* create_xfermode(SkBlendMode mode) {
     switch (mode) {
 #define CASE(Xfermode) \
-    case SkBlendMode::k##Xfermode: return new Sk4pxXfermode<Xfermode>(proc, mode)
+    case SkBlendMode::k##Xfermode: return new Sk4pxXfermode<Xfermode>()
         CASE(Clear);
         CASE(Src);
         CASE(Dst);
@@ -303,7 +296,7 @@ static SkXfermode* create_xfermode(SkXfermodeProc proc, SkBlendMode mode) {
     #undef CASE
 
 #define CASE(Xfermode) \
-    case SkBlendMode::k##Xfermode: return new Sk4fXfermode<Xfermode>(proc, mode)
+    case SkBlendMode::k##Xfermode: return new Sk4fXfermode<Xfermode>()
         CASE(ColorDodge);
         CASE(ColorBurn);
         CASE(SoftLight);
