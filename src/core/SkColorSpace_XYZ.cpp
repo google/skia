@@ -82,16 +82,16 @@ bool SkColorSpace_XYZ::onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) c
     return false;
 }
 
-sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() {
+sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() const {
     if (this->gammaIsLinear()) {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
     }
     return SkColorSpace_Base::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
 }
 
-sk_sp<SkColorSpace> SkColorSpace_XYZ::makeSRGBGamma() {
+sk_sp<SkColorSpace> SkColorSpace_XYZ::makeSRGBGamma() const {
     if (this->gammaCloseToSRGB()) {
-        return sk_ref_sp(this);
+        return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
     }
     return SkColorSpace_Base::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
 }

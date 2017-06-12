@@ -54,13 +54,13 @@ public:
 
     bool onIsCMYK() const override { return kCMYK_ICCTypeFlag == fICCType; }
 
-    sk_sp<SkColorSpace> makeLinearGamma() override {
+    sk_sp<SkColorSpace> makeLinearGamma() const override {
         // TODO: Analyze the extrema of our projection into XYZ and use suitable primaries?
         // For now, just fall back to a default, because we don't have a good answer.
         return SkColorSpace::MakeSRGBLinear();
     }
 
-    sk_sp<SkColorSpace> makeSRGBGamma() override {
+    sk_sp<SkColorSpace> makeSRGBGamma() const override {
         // See comment in makeLinearGamma
         return SkColorSpace::MakeSRGB();
     }
