@@ -10,6 +10,7 @@
 #ifdef SK_HAS_JPEG_LIBRARY
 
 #include "SkColorPriv.h"
+#include "SkColorSpace_Base.h"
 #include "SkImageEncoderFns.h"
 #include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
@@ -206,8 +207,15 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
     jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
     jpeg_start_compress(encoderMgr->cinfo(), TRUE);
 
-    if (src.colorSpace()) {
-        sk_sp<SkData> icc = icc_from_color_space(*src.colorSpace());
+    if (SkColorSpace* cs = src.colorSpace()) {
+        sk_sp<SkColorSpace> owned;
+        if (src.colorType() == kRGBA_F16_SkColorType) {
+            // We'll be converting to 8-bit sRGB, so we'd better tag it that way.
+            owned = as_CSB(src.colorSpace())->makeSRGBGamma();
+            cs = owned.get();
+        }
+
+        sk_sp<SkData> icc = icc_from_color_space(*cs);
         if (icc) {
             // Create a contiguous block of memory with the icc signature followed by the profile.
             sk_sp<SkData> markerData =
