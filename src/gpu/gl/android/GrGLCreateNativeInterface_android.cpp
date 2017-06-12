@@ -110,6 +110,8 @@ static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
         return (GrGLFuncPtr) glGetShaderInfoLog;
     } else if (0 == strcmp("glGetShaderiv", name)) {
         return (GrGLFuncPtr) glGetShaderiv;
+    } else if (0 == strcmp("glGetShaderPrecisionFormat", name)) {
+        return (GrGLFuncPtr) glGetShaderPrecisionFormat;
     } else if (0 == strcmp("glGetString", name)) {
         return (GrGLFuncPtr) glGetString;
     } else if (0 == strcmp("glGetUniformLocation", name)) {
