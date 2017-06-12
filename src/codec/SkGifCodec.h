@@ -59,6 +59,10 @@ protected:
 
     Result onIncrementalDecode(int*) override;
 
+    const SkFrameHolder* getFrameHolder() const override {
+        return fReader.get();
+    }
+
 private:
 
     /*
