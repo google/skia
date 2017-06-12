@@ -53,7 +53,7 @@ public:
     bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
     bool setPalette(const SkImageInfo& srcInfo, SkColorTable* colorTable,
                     SkTransferFunctionBehavior);
-    bool setColorSpace(SkColorSpace* colorSpace);
+    bool setColorSpace(SkColorType, SkColorSpace* colorSpace);
     bool writeInfo(const SkImageInfo& srcInfo);
     void chooseProc(const SkImageInfo& srcInfo, SkTransferFunctionBehavior unpremulBehavior);
 
@@ -355,8 +355,9 @@ bool SkPngEncoderMgr::setPalette(const SkImageInfo& srcInfo, SkColorTable* color
     return true;
 }
 
-static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpace& colorSpace) {
-    sk_sp<SkData> icc = icc_from_color_space(colorSpace);
+static void set_icc(png_structp png_ptr, png_infop info_ptr,
+                    SkColorType colorType, const SkColorSpace& colorSpace) {
+    sk_sp<SkData> icc = icc_from_color_space(colorType, colorSpace);
     if (!icc) {
         return;
     }
@@ -372,7 +373,7 @@ static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpace&
     png_set_iCCP(png_ptr, info_ptr, name, 0, iccPtr, icc->size());
 }
 
-bool SkPngEncoderMgr::setColorSpace(SkColorSpace* colorSpace) {
+bool SkPngEncoderMgr::setColorSpace(SkColorType colorType, SkColorSpace* colorSpace) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
@@ -381,7 +382,7 @@ bool SkPngEncoderMgr::setColorSpace(SkColorSpace* colorSpace) {
         if (colorSpace->isSRGB()) {
             png_set_sRGB(fPngPtr, fInfoPtr, PNG_sRGB_INTENT_PERCEPTUAL);
         } else {
-            set_icc(fPngPtr, fInfoPtr, *colorSpace);
+            set_icc(fPngPtr, fInfoPtr, colorType, *colorSpace);
         }
     }
 
@@ -429,7 +430,7 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
         return nullptr;
     }
 
-    if (!encoderMgr->setColorSpace(src.colorSpace())) {
+    if (!encoderMgr->setColorSpace(src.colorType(), src.colorSpace())) {
         return nullptr;
     }
 

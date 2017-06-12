@@ -20,7 +20,6 @@
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkColorSpace_Base.h"
 #include "SkImageEncoderFns.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -196,13 +195,7 @@ bool SkWebpEncoder::Encode(SkWStream* stream, const SkPixmap& pixmap, const Opti
     // forces us to have an encoded image before we can add a profile.
     sk_sp<SkData> icc;
     if (SkColorSpace* cs = pixmap.colorSpace()) {
-        sk_sp<SkColorSpace> owned;
-        if (pixmap.colorType() == kRGBA_F16_SkColorType) {
-            // We'll be converting to 8-bit sRGB, so we'd better tag it that way.
-            owned = as_CSB(pixmap.colorSpace())->makeSRGBGamma();
-            cs = owned.get();
-        }
-        icc = icc_from_color_space(*cs);
+        icc = icc_from_color_space(pixmap.colorType(), *cs);
     }
     SkDynamicMemoryWStream tmp;
     pic.custom_ptr = icc ? (void*)&tmp : (void*)stream;
