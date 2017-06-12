@@ -69,6 +69,30 @@
       "revId": "4b7cbdc89f5db4550961339c5a54c4022ce2f1b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7be06807_731a0df2",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-06-12T18:06:30Z",
+      "side": 1,
+      "message": "I like this, but it would have to be more like:\n\n...\nwhile (it.next(positioner(...), \u0026mask)) {\n  if (mask) {\n    imager(mask);\n  }\n}\n\nI\u0027ll code this up and see how it performs.",
+      "parentUuid": "40fc48f1_30c12370",
+      "range": {
+        "startLine": 311,
+        "startChar": 4,
+        "endLine": 311,
+        "endChar": 50
+      },
+      "revId": "4b7cbdc89f5db4550961339c5a54c4022ce2f1b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
