@@ -719,7 +719,7 @@ sk_sp<SkXfermode> SkXfermode::Make(SkBlendMode mode) {
 
     once[(int)mode]([mode] {
         SkXfermodeProc proc = gProcs[(int)mode];
-        if (auto xfermode = SkOpts::create_xfermode(proc, mode)) {
+        if (auto xfermode = SkOpts::create_xfermode(mode)) {
             cached[(int)mode] = xfermode;
         } else {
             cached[(int)mode] = new SkProcCoeffXfermode(proc, mode);
