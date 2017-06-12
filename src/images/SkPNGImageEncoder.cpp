@@ -347,14 +347,12 @@ static bool do_encode(SkWStream* stream, const SkPixmap& pixmap, int pngColorTyp
         }
     }
 
-    if (pixmap.colorSpace()) {
-        if (pixmap.colorSpace()->isSRGB()) {
-            png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
-        } else {
-            sk_sp<SkData> icc = icc_from_color_space(*pixmap.colorSpace());
-            if (icc) {
-                set_icc(png_ptr, info_ptr, std::move(icc));
-            }
+    if (pixmap.colorSpace() && pixmap.colorSpace()->isSRGB()) {
+        png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_PERCEPTUAL);
+    } else {
+        sk_sp<SkData> icc = icc_from_color_space(pixmap.info());
+        if (icc) {
+            set_icc(png_ptr, info_ptr, std::move(icc));
         }
     }
 

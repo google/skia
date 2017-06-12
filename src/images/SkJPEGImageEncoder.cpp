@@ -136,21 +136,19 @@ bool SkEncodeImageAsJPEG(SkWStream* stream, const SkPixmap& pixmap, int quality)
 
     jpeg_start_compress(&cinfo, TRUE);
 
-    if (pixmap.colorSpace()) {
-        sk_sp<SkData> icc = icc_from_color_space(*pixmap.colorSpace());
-        if (icc) {
-            // Create a contiguous block of memory with the icc signature followed by the profile.
-            sk_sp<SkData> markerData =
-                    SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
-            uint8_t* ptr = (uint8_t*) markerData->writable_data();
-            memcpy(ptr, kICCSig, sizeof(kICCSig));
-            ptr += sizeof(kICCSig);
-            *ptr++ = 1; // This is the first marker.
-            *ptr++ = 1; // Out of one total markers.
-            memcpy(ptr, icc->data(), icc->size());
+    sk_sp<SkData> icc = icc_from_color_space(pixmap.info());
+    if (icc) {
+        // Create a contiguous block of memory with the icc signature followed by the profile.
+        sk_sp<SkData> markerData =
+                SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
+        uint8_t* ptr = (uint8_t*) markerData->writable_data();
+        memcpy(ptr, kICCSig, sizeof(kICCSig));
+        ptr += sizeof(kICCSig);
+        *ptr++ = 1; // This is the first marker.
+        *ptr++ = 1; // Out of one total markers.
+        memcpy(ptr, icc->data(), icc->size());
 
-            jpeg_write_marker(&cinfo, kICCMarker, markerData->bytes(), markerData->size());
-        }
+        jpeg_write_marker(&cinfo, kICCMarker, markerData->bytes(), markerData->size());
     }
 
     if (proc) {
