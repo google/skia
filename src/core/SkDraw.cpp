@@ -1613,17 +1613,104 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
         return;
     }
 
-    SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), fMatrix);
-
     // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser(fDst, *fMatrix, paint);
+    SkAutoBlitterChoose blitterChooser(fDst, *fMatrix, paint);
     SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
-    DrawOneGlyph           drawOneGlyph(*this, paint, cache.get(), wrapper.getBlitter());
-    SkPaint::Align         textAlignment = paint.getTextAlign();
+    SkBlitter* blitter = wrapper.getBlitter();
 
-    SkFindAndPlaceGlyph::ProcessPosText(
-        paint.getTextEncoding(), text, byteLength,
-        offset, *fMatrix, pos, scalarsPerPosition, textAlignment, cache.get(), drawOneGlyph);
+    SkPaint::Align textAlignment = paint.getTextAlign();
+
+    bool fastWorks = false;
+    if (scalarsPerPosition == 1
+        && textAlignment == SkPaint::kLeft_Align
+        && fMatrix->getType() <= SkMatrix::kTranslate_Mask)
+    {
+        SkPoint fullOffset = offset + SkPoint{fMatrix->getTranslateX(), fMatrix->getTranslateY()};
+        size_t glyphCount = byteLength / 2;
+        size_t cursor = 0;
+        auto positioner = [fullOffset, pos, glyphCount, &cursor]() {
+            SkPoint mappedPoint = cursor < glyphCount ? SkPoint{pos[cursor], 0} + fullOffset
+                                                      : SkPoint{0, 0};
+            cursor++;
+            return mappedPoint;
+        };
+        auto blitMask = [this, &paint, blitter](const SkMask& mask, const SkIRect& clip) {
+            if (SkMask::kARGB32_Format == mask.fFormat) {
+                SkBitmap bm;
+                bm.installPixels(
+                    SkImageInfo::MakeN32Premul(mask.fBounds.width(), mask.fBounds.height()),
+                    (SkPMColor*)mask.fImage, mask.fRowBytes);
+
+                this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
+            } else {
+                blitter->blitMask(mask, clip);
+            }
+        };
+
+        SkStrike strike{paint, props, this->scalerContextFlags(), *fMatrix};
+        const SkRegion* bwRgn = &fRC->bwRgn();
+        if (fRC->isBW() && !fRC->isRect()) {
+            SkIRect clipBounds = fRC->bwRgn().getBounds();
+            auto imager = [blitMask, bwRgn](const SkMask& mask) {
+                SkRegion::Cliperator clipper(*bwRgn, mask.fBounds);
+
+                const SkIRect& cr = clipper.rect();
+                while (!clipper.done()) {
+                    blitMask(mask, cr);
+                    clipper.next();
+                }
+            };
+            auto iter = strike.MakeMaskIterator((uint16_t*)text, byteLength / 2, clipBounds);
+            fastWorks = iter.IsValid();
+            if (fastWorks) {
+                SkMask mask;
+                for (bool done = false; !done;) {
+                    switch(iter.Next(positioner(), &mask)) {
+                        case SkStrike::kDone: done = true; break;
+                        case SkStrike::kSkip: continue;
+                        case SkStrike::kDraw: imager(mask); break;
+                    }
+                }
+            }
+        } else {
+            SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds() : fRC->aaRgn().getBounds();
+            auto imager = [blitMask, &clipBounds](const SkMask& mask) {
+                SkIRect  storage;
+                const SkIRect* bounds = &mask.fBounds;
+
+                // this extra test is worth it, assuming that most of the time it succeeds
+                // since we can avoid writing to storage
+                if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
+                    if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds))
+                        return;
+                    bounds = &storage;
+                }
+                blitMask(mask, *bounds);
+            };
+
+            auto iter = strike.MakeMaskIterator((uint16_t*)text, byteLength / 2, clipBounds);
+            fastWorks = iter.IsValid();
+            if (fastWorks) {
+                SkMask mask;
+                for (bool done = false; !done;) {
+                    switch(iter.Next(positioner(), &mask)) {
+                        case SkStrike::kDone: done = true; break;
+                        case SkStrike::kSkip: continue;
+                        case SkStrike::kDraw: imager(mask); break;
+                    }
+                }
+            }
+        }
+
+    }
+
+    if (!fastWorks) {
+        SkAutoGlyphCache cache(paint, props, this->scalerContextFlags(), fMatrix);
+        DrawOneGlyph     drawOneGlyph(*this, paint, cache.get(), blitter);
+        SkFindAndPlaceGlyph::ProcessPosText(
+            paint.getTextEncoding(), text, byteLength,
+            offset, *fMatrix, pos, scalarsPerPosition, textAlignment, cache.get(), drawOneGlyph);
+    }
 }
 
 #if defined _WIN32

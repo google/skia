@@ -14,6 +14,7 @@
 #include "SkPaint.h"
 #include "SkTHash.h"
 #include "SkScalerContext.h"
+#include "SkSurfaceProps.h"
 #include "SkTemplates.h"
 #include "SkTDArray.h"
 #include <memory>
@@ -21,6 +22,8 @@
 class SkTraceMemoryDump;
 
 class SkGlyphCache_Globals;
+
+class SkGlyphCacheIterator;
 
 /** \class SkGlyphCache
 
@@ -175,6 +178,7 @@ public:
 
 private:
     friend class SkGlyphCache_Globals;
+    friend class SkGlyphCacheIterator;
 
     enum MetricsType {
         kJustAdvance_MetricsType,
@@ -284,7 +288,57 @@ public:
         : SkAutoGlyphCache(paint, surfaceProps, SkPaint::kNone_ScalerContextFlags, matrix)
     {}
 };
-#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 #define SkAutoGlyphCacheNoGamma(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCacheNoGamma)
+
+
+class SkStrike {
+public:
+    static constexpr int32_t deviceEdgeMin = INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/);
+    static constexpr int32_t deviceEdgeMax = INT_MAX - (INT16_MAX + UINT16_MAX);
+    static constexpr SkIRect deviceIRect{deviceEdgeMin, deviceEdgeMax,
+                                         deviceEdgeMin, deviceEdgeMax};
+
+    SkStrike(const SkPaint& paint,
+             const SkSurfaceProps* props,
+             uint32_t scalerContextFlags,
+             const SkMatrix& matrix);
+    enum Action {
+        kDone,
+        kDraw,
+        kSkip
+    };
+
+    class Iterator {
+    public:
+        Iterator();
+        Iterator(const SkGlyphID* glyphs,
+                 size_t glyphCount,
+                 SkIRect conservativeClip,
+                 SkAutoGlyphCache&& cache);
+
+        bool IsValid() const;
+        Action Next(SkPoint pos, SkMask* mask);
+
+    private:
+        const bool             fIsValid;
+        const size_t           fGlyphCount;
+        const SkGlyphID* const fGlyphs;
+        const SkIRect          fConservativeClip;
+        SkAutoGlyphCache       fCache;
+        size_t                 fCursor{0};
+    };
+
+    Iterator MakeMaskIterator(const SkGlyphID* glyphs, size_t glyphCount, SkIRect clip);
+
+private:
+
+    static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
+    SkPaint        fPaint;
+    SkSurfaceProps fSurfaceProps;
+    uint32_t       fScalarContextFlags;
+    SkMatrix       fMatrix;
+
+
+};
 
 #endif
