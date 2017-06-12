@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c189437_2e7d2ba6",
+        "filename": "src/core/SkScanPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-06-12T11:18:50Z",
+      "side": 1,
+      "message": "I see this is copy/paste code that you may not have originally written, but do you know why this is commented out, and if so, could you add a comment so it\u0027s clear that it shouldn\u0027t be deleted/ Or, just delete it?",
+      "revId": "9857b924d2907476d5c48390a1e098486b187795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
