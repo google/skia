@@ -1494,25 +1494,29 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     }
 
     if (fPerspAnim) {
-        SkScalar secs = gAnimTimer.scaled(1);
-
-        static const SkScalar gAnimPeriod = 10 * SK_Scalar1;
-        static const SkScalar gAnimMag = SK_Scalar1 / 1000;
-        SkScalar t = SkScalarMod(secs, gAnimPeriod);
-        if (SkScalarFloorToInt(secs / gAnimPeriod) & 0x1) {
-            t = gAnimPeriod - t;
-        }
-        t = 2 * t - gAnimPeriod;
-        t *= gAnimMag / gAnimPeriod;
         SkMatrix m;
         m.reset();
-#if 1
-        m.setPerspY(t);
-#else
-        m.setPerspY(SK_Scalar1 / 1000);
-        m.setSkewX(8.0f / 25);
-        m.dump();
-#endif
+        if (false) {
+            SkScalar secs = gAnimTimer.scaled(1);
+
+            static const SkScalar gAnimPeriod = 10 * SK_Scalar1;
+            static const SkScalar gAnimMag = SK_Scalar1 / 1000;
+            SkScalar t = SkScalarMod(secs, gAnimPeriod);
+            if (SkScalarFloorToInt(secs / gAnimPeriod) & 0x1) {
+                t = gAnimPeriod - t;
+            }
+            t = 2 * t - gAnimPeriod;
+            t *= gAnimMag / gAnimPeriod;
+            m.setPerspY(t);
+        } else {
+            const SkPoint src[] = {
+                { 0, 0 }, { 1024, 0 }, { 1024, 768 }, { 0, 768 },
+            };
+            const SkPoint dst[] = {
+                { 0, 0 }, { 700, 200 }, { 700, 768-200 }, { 0, 768 },
+            };
+            m.setPolyToPoly(src, dst, 4);
+        }
         canvas->concat(m);
     }
 
@@ -1522,7 +1526,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
     }
-    if (fPerspAnim || fRotate) {
+    if (/*fPerspAnim ||*/ fRotate) {
         this->inval(nullptr);
     }
 }
