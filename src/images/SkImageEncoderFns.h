@@ -15,6 +15,7 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
+#include "SkColorSpace_Base.h"
 #include "SkICC.h"
 #include "SkPreConfig.h"
 #include "SkRasterPipeline.h"
@@ -276,10 +277,21 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
     p.run(0, width);
 }
 
-static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace& cs) {
+static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
+    SkColorSpace* cs = info.colorSpace();
+    if (!cs) {
+        return nullptr;
+    }
+
+    sk_sp<SkColorSpace> owned;
+    if (kRGBA_F16_SkColorType == info.colorType()) {
+        owned = as_CSB(cs)->makeSRGBGamma();
+        cs = owned.get();
+    }
+
     SkColorSpaceTransferFn fn;
     SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
-    if (cs.isNumericalTransferFn(&fn) && cs.toXYZD50(&toXYZD50)) {
+    if (cs->isNumericalTransferFn(&fn) && cs->toXYZD50(&toXYZD50)) {
         return SkICC::WriteToICC(fn, toXYZD50);
     }
 
