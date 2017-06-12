@@ -10,31 +10,38 @@
 
 #include "GrTypes.h"
 #include "gl/GrGLTypes.h"
+
+#ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
+#endif
 
 class GrBackendTexture {
 public:
     GrBackendTexture(int width,
                      int height,
-                     const GrVkImageInfo& vkInfo);
-
-    GrBackendTexture(int width,
-                     int height,
                      GrPixelConfig config,
                      const GrGLTextureInfo& glInfo);
+
+#ifdef SK_VULKAN
+    GrBackendTexture(int width,
+                     int height,
+                     const GrVkImageInfo& vkInfo);
+#endif
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     GrPixelConfig config() const { return fConfig; }
     GrBackend backend() const {return fBackend; }
 
-    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr.
-    const GrVkImageInfo* getVkImageInfo() const;
-
     // If the backend API is GL, this returns a pointer to the GrGLTextureInfo struct. Otherwise
     // it returns nullptr.
     const GrGLTextureInfo* getGLTextureInfo() const;
+
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
+    // it returns nullptr.
+    const GrVkImageInfo* getVkImageInfo() const;
+#endif
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendTextureDesc.
@@ -50,8 +57,10 @@ private:
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo   fVkInfo;
         GrGLTextureInfo fGLInfo;
+#ifdef SK_VULKAN
+        GrVkImageInfo   fVkInfo;
+#endif
     };
 };
 
@@ -61,14 +70,16 @@ public:
                           int height,
                           int sampleCnt,
                           int stencilBits,
-                          const GrVkImageInfo& vkInfo);
+                          GrPixelConfig config,
+                          const GrGLFramebufferInfo& glInfo);
 
+#ifdef SK_VULKAN
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
                           int stencilBits,
-                          GrPixelConfig config,
-                          const GrGLFramebufferInfo& glInfo);
+                          const GrVkImageInfo& vkInfo);
+#endif
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -77,13 +88,15 @@ public:
     GrPixelConfig config() const { return fConfig; }
     GrBackend backend() const {return fBackend; }
 
-    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
-    // it returns nullptr
-    const GrVkImageInfo* getVkImageInfo() const;
-
     // If the backend API is GL, this returns a pointer to the GrGLFramebufferInfo struct. Otherwise
     // it returns nullptr.
     const GrGLFramebufferInfo* getGLFramebufferInfo() const;
+
+#ifdef SK_VULKAN
+    // If the backend API is Vulkan, this returns a pointer to the GrVkImageInfo struct. Otherwise
+    // it returns nullptr
+    const GrVkImageInfo* getVkImageInfo() const;
+#endif
 
 private:
     // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
@@ -102,8 +115,10 @@ private:
     GrBackend fBackend;
 
     union {
-        GrVkImageInfo   fVkInfo;
         GrGLFramebufferInfo fGLInfo;
+#ifdef SK_VULKAN
+        GrVkImageInfo   fVkInfo;
+#endif
     };
 };
 

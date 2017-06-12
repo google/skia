@@ -12,20 +12,16 @@
 #include "vk/GrVkUtil.h"
 #endif
 
+#ifdef SK_VULKAN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo)
         : fWidth(width)
         , fHeight(height)
-        , fConfig(
-#ifdef SK_VULKAN
-                  GrVkFormatToPixelConfig(vkInfo.fFormat)
-#else
-                  kUnknown_GrPixelConfig
-#endif
-                  )
+        , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
+#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -57,12 +53,14 @@ GrBackendTexture::GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend b
     }
 }
 
+#ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendTexture::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {
         return &fVkInfo;
     }
     return nullptr;
 }
+#endif
 
 const GrGLTextureInfo* GrBackendTexture::getGLTextureInfo() const {
     if (kOpenGL_GrBackend == fBackend) {
@@ -73,6 +71,7 @@ const GrGLTextureInfo* GrBackendTexture::getGLTextureInfo() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_VULKAN
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -82,15 +81,10 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(sampleCnt)
         , fStencilBits(stencilBits)
-        , fConfig(
-#ifdef SK_VULKAN
-                  GrVkFormatToPixelConfig(vkInfo.fFormat)
-#else
-                  kUnknown_GrPixelConfig
-#endif
-                  )
+        , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo) {}
+#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -129,12 +123,14 @@ GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTargetDesc& de
     }
 }
 
+#ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {
         return &fVkInfo;
     }
     return nullptr;
 }
+#endif
 
 const GrGLFramebufferInfo* GrBackendRenderTarget::getGLFramebufferInfo() const {
     if (kOpenGL_GrBackend == fBackend) {
