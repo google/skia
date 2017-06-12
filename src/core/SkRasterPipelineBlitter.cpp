@@ -26,7 +26,7 @@ public:
     static SkBlitter* Create(const SkPixmap&, const SkPaint&, SkArenaAlloc*,
                              const SkRasterPipeline& shaderPipeline,
                              SkShaderBase::Context*,
-                             bool is_opaque, bool is_constant, bool wants_dither);
+                             bool is_opaque, bool is_constant);
 
     SkRasterPipelineBlitter(SkPixmap dst,
                             SkBlendMode blend,
@@ -93,11 +93,6 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     SkColorSpace* dstCS = dst.colorSpace();
     auto paintColor = alloc->make<SkPM4f>(SkPM4f_from_SkColor(paint.getColor(), dstCS));
     auto shader = as_SB(paint.getShader());
-    bool wants_dither = paint.isDither();
-
-#ifdef SK_SUPPORT_LEGACY_RASTERPIPELINE
-    wants_dither = shader && shader->asAGradient(nullptr) >= SkShader::kLinear_GradientType;
-#endif
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
@@ -107,7 +102,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
              is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, nullptr,
-                                               is_opaque, is_constant, wants_dither);
+                                               is_opaque, is_constant);
     }
 
     bool is_opaque    = shader->isOpaque() && paintColor->a() == 1.0f;
@@ -119,7 +114,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                  dstCS), alloc)) {
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, burstCtx,
-                                               is_opaque, is_constant, wants_dither);
+                                               is_opaque, is_constant);
     }
 
     if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
@@ -127,7 +122,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
             shaderPipeline.append(SkRasterPipeline::scale_1_float, &paintColor->fVec[SkPM4f::A]);
         }
         return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
-                                               is_opaque, is_constant, wants_dither);
+                                               is_opaque, is_constant);
     }
 
     // The shader has opted out of drawing anything.
@@ -138,11 +133,10 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkRasterPipeline& shaderPipeline,
                                          bool is_opaque,
-                                         bool wants_dither,
                                          SkArenaAlloc* alloc) {
     bool is_constant = false;  // If this were the case, it'd be better to just set a paint color.
     return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
-                                           is_opaque, is_constant, wants_dither);
+                                           is_opaque, is_constant);
 }
 
 SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
@@ -151,8 +145,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            const SkRasterPipeline& shaderPipeline,
                                            SkShaderBase::Context* burstCtx,
                                            bool is_opaque,
-                                           bool is_constant,
-                                           bool wants_dither) {
+                                           bool is_constant) {
     auto blitter = alloc->make<SkRasterPipelineBlitter>(dst,
                                                         paint.getBlendMode(),
                                                         alloc,
@@ -176,17 +169,18 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         is_opaque = is_opaque && (colorFilter->getFlags() & SkColorFilter::kAlphaUnchanged_Flag);
     }
 
-    // We'll dither if the shader wants to, or if we're drawing 565 and the paint wants to.
     // Not all formats make sense to dither (think, F16).  We set their dither rate to zero.
     // We need to decide if we're going to dither now to keep is_constant accurate.
-    if (wants_dither ||
-            (paint.isDither() && dst.info().colorType() == kRGB_565_SkColorType)) {
+    if (paint.isDither()) {
         switch (dst.info().colorType()) {
             default:                     blitter->fDitherRate =     0.0f; break;
             case   kRGB_565_SkColorType: blitter->fDitherRate =  1/63.0f; break;
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType: blitter->fDitherRate = 1/255.0f; break;
         }
+        // TODO: for constant colors, we could try to measure the effect of dithering, and if
+        //       it has no value (i.e. all variations result in the same 32bit color, then we
+        //       could disable it (for speed, by not adding the stage).
     }
     is_constant = is_constant && (blitter->fDitherRate == 0.0f);
 
