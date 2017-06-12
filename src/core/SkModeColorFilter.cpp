@@ -24,6 +24,13 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+SkModeColorFilter::SkModeColorFilter(SkColor color, SkBlendMode mode) {
+    fColor = color;
+    fMode = mode;
+    // cache
+    fPMColor = SkPreMultiplyColor(fColor);
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkModeColorFilter::toString(SkString* str) const {
     str->append("SkModeColorFilter: color: 0x");
@@ -57,7 +64,7 @@ uint32_t SkModeColorFilter::getFlags() const {
 
 void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
     SkPMColor       color = fPMColor;
-    SkXfermodeProc  proc = fProc;
+    SkXfermodeProc  proc = SkXfermode::GetProc(fMode);
 
     for (int i = 0; i < count; i++) {
         result[i] = proc(color, shader[i]);
@@ -67,12 +74,6 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
 void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
     buffer.writeUInt((int)fMode);
-}
-
-void SkModeColorFilter::updateCache() {
-    fPMColor = SkPreMultiplyColor(fColor);
-    fProc = SkXfermode::GetProc(fMode);
-    fPMColor4f = SkColor4f::FromColor(fColor).premul();
 }
 
 sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {

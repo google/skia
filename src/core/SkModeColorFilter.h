@@ -6,7 +6,6 @@
  */
 
 #include "SkColorFilter.h"
-#include "SkPM4f.h"
 
 #ifndef SkModeColorFilter_DEFINED
 #define SkModeColorFilter_DEFINED
@@ -18,7 +17,6 @@ public:
     }
 
     SkColor getColor() const { return fColor; }
-    SkBlendMode getMode() const { return fMode; }
     SkPMColor getPMColor() const { return fPMColor; }
 
     bool asColorMode(SkColor*, SkBlendMode*) const override;
@@ -35,11 +33,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkModeColorFilter)
 
 protected:
-    SkModeColorFilter(SkColor color, SkBlendMode mode) {
-        fColor = color;
-        fMode = mode;
-        this->updateCache();
-    }
+    SkModeColorFilter(SkColor color, SkBlendMode mode);
 
     void flatten(SkWriteBuffer&) const override;
 
@@ -48,17 +42,11 @@ protected:
 
     sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
-    // cache
-    SkPM4f              fPMColor4f;
-
 private:
-    SkColor             fColor;
-    SkBlendMode         fMode;
+    SkColor     fColor;
+    SkBlendMode fMode;
     // cache
-    SkPMColor           fPMColor;
-    SkXfermodeProc      fProc;
-
-    void updateCache();
+    SkPMColor   fPMColor;
 
     friend class SkColorFilter;
 
