@@ -11,8 +11,6 @@
 
 #if SK_SUPPORT_GPU
 
-#ifndef SK_DISABLE_DEFERRED_PROXIES
-
 #include "GrBackendSurface.h"
 #include "GrRenderTargetPriv.h"
 #include "GrRenderTargetProxy.h"
@@ -309,7 +307,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
         }
     }
 }
-
-#endif
 
 #endif
