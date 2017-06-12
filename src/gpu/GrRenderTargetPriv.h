@@ -37,9 +37,9 @@ public:
     // to affect the multisample information itself.
     const GrGpu::MultisampleSpecs& getMultisampleSpecs(const GrPipeline&) const;
 
-    typedef GrRenderTarget::Flags Flags;
-
-    Flags flags() const { return fRenderTarget->fFlags; }
+    GrPerRenderTargetCaps perRenderTargetCaps() const {
+        return fRenderTarget->fPerRenderTargetCaps;
+    }
 
 private:
     explicit GrRenderTargetPriv(GrRenderTarget* renderTarget) : fRenderTarget(renderTarget) {}
