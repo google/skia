@@ -53,7 +53,7 @@ public:
     bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
     bool setPalette(const SkImageInfo& srcInfo, SkColorTable* colorTable,
                     SkTransferFunctionBehavior);
-    bool setColorSpace(SkColorSpace* colorSpace);
+    bool setColorSpace(const SkImageInfo& info);
     bool writeInfo(const SkImageInfo& srcInfo);
     void chooseProc(const SkImageInfo& srcInfo, SkTransferFunctionBehavior unpremulBehavior);
 
@@ -355,8 +355,8 @@ bool SkPngEncoderMgr::setPalette(const SkImageInfo& srcInfo, SkColorTable* color
     return true;
 }
 
-static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpace& colorSpace) {
-    sk_sp<SkData> icc = icc_from_color_space(colorSpace);
+static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkImageInfo& info) {
+    sk_sp<SkData> icc = icc_from_color_space(info);
     if (!icc) {
         return;
     }
@@ -372,17 +372,15 @@ static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkColorSpace&
     png_set_iCCP(png_ptr, info_ptr, name, 0, iccPtr, icc->size());
 }
 
-bool SkPngEncoderMgr::setColorSpace(SkColorSpace* colorSpace) {
+bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
 
-    if (colorSpace) {
-        if (colorSpace->isSRGB()) {
-            png_set_sRGB(fPngPtr, fInfoPtr, PNG_sRGB_INTENT_PERCEPTUAL);
-        } else {
-            set_icc(fPngPtr, fInfoPtr, *colorSpace);
-        }
+    if (info.colorSpace() && info.colorSpace()->isSRGB()) {
+        png_set_sRGB(fPngPtr, fInfoPtr, PNG_sRGB_INTENT_PERCEPTUAL);
+    } else {
+        set_icc(fPngPtr, fInfoPtr, info);
     }
 
     return true;
@@ -429,7 +427,7 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
         return nullptr;
     }
 
-    if (!encoderMgr->setColorSpace(src.colorSpace())) {
+    if (!encoderMgr->setColorSpace(src.info())) {
         return nullptr;
     }
 
