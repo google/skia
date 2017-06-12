@@ -46,6 +46,29 @@
       "revId": "4b7cbdc89f5db4550961339c5a54c4022ce2f1b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40fc48f1_30c12370",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-12T14:11:10Z",
+      "side": 1,
+      "message": "Exposing template methods like this makes me worry about code clarity (what are Positioner and Imager?) and size.  There are several ways to encapsulate this problem, and I\u0027m not convinced this is best.\n\nI would have expected an API more like\n\n  SkMask mask;\n  SkGlyphCacheIterator it(...);\n  while (it.next(positioner(...), \u0026mask)) {\n     imager(mask);\n  }\n\neliminating both template arguments.",
+      "range": {
+        "startLine": 311,
+        "startChar": 4,
+        "endLine": 311,
+        "endChar": 50
+      },
+      "revId": "4b7cbdc89f5db4550961339c5a54c4022ce2f1b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
