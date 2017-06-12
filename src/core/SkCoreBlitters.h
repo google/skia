@@ -147,7 +147,6 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkRasterPipeline& shaderPipeline,
                                          bool shader_is_opaque,
-                                         bool shader_wants_dither,
                                          SkArenaAlloc*);
 
 #endif
