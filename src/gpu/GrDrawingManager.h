@@ -75,18 +75,7 @@ public:
 private:
     GrDrawingManager(GrContext* context,
                      const GrPathRendererChain::Options& optionsForPathRendererChain,
-                     GrSingleOwner* singleOwner)
-        : fContext(context)
-        , fOptionsForPathRendererChain(optionsForPathRendererChain)
-        , fSingleOwner(singleOwner)
-        , fAbandoned(false)
-        , fAtlasTextContext(nullptr)
-        , fPathRendererChain(nullptr)
-        , fSoftwarePathRenderer(nullptr)
-        , fFlushState(context->getGpu(), context->resourceProvider())
-        , fFlushing(false) {
-    }
-
+                     GrSingleOwner* singleOwner);
     void abandon();
     void cleanup();
     void reset();

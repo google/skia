@@ -23,6 +23,39 @@
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
+class ReproCB : public GrOnFlushCallbackObject {
+    void preFlush(GrOnFlushResourceProvider* onFlushRP, const uint32_t* opListIDs,
+                  int numOpListIDs, SkTArray<sk_sp<GrRenderTargetContext>>* results) {
+        GrSurfaceDesc desc;
+        desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+        desc.fWidth = 1024;
+        desc.fHeight = 1024;
+        desc.fConfig = kAlpha_half_GrPixelConfig;
+        sk_sp<GrRenderTargetContext> rtc = onFlushRP->makeRenderTargetContext(desc, nullptr, nullptr);
+
+        // Comment this line to un-break viewer!!!!!
+        rtc->clear(nullptr, GrColorPackRGBA(0,255,0,255), true);
+
+        results->push_back(std::move(rtc));
+    }
+};
+
+GrDrawingManager::GrDrawingManager(GrContext* context,
+                                   const GrPathRendererChain::Options& optionsForPathRendererChain,
+                                   GrSingleOwner* singleOwner)
+    : fContext(context)
+    , fOptionsForPathRendererChain(optionsForPathRendererChain)
+    , fSingleOwner(singleOwner)
+    , fAbandoned(false)
+    , fAtlasTextContext(nullptr)
+    , fPathRendererChain(nullptr)
+    , fSoftwarePathRenderer(nullptr)
+    , fFlushState(context->getGpu(), context->resourceProvider())
+    , fFlushing(false) {
+    this->addOnFlushCallbackObject(new ReproCB());
+}
+
 void GrDrawingManager::cleanup() {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
@@ -64,6 +97,7 @@ void GrDrawingManager::freeGpuResources() {
 }
 
 void GrDrawingManager::reset() {
+    // Should this free the perFlushCB's?
     for (int i = 0; i < fOpLists.count(); ++i) {
         fOpLists[i]->reset();
     }
