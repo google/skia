@@ -676,7 +676,7 @@ private:
 
     void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         if (flushInfo->fInstancesToFlush) {
-            GrMesh mesh(kTriangles_GrPrimitiveType);
+            GrMesh mesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
             mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,

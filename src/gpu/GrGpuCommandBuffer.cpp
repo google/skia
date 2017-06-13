@@ -45,6 +45,8 @@ bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttribs() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(GrPrimitiveType::kLinesAdjacency != meshes[i].primitiveType() ||
+                 this->gpu()->caps()->shaderCaps()->geometryShaderSupport());
         SkASSERT(primProc.hasVertexAttribs() == meshes[i].hasVertexData());
         SkASSERT(primProc.hasInstanceAttribs() == meshes[i].isInstanced());
     }

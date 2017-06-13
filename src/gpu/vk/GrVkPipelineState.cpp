@@ -570,7 +570,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
                                     const GrStencilSettings& stencil,
                                     GrPrimitiveType primitiveType,
                                     const GrShaderCaps& caps) {
-    if (!INHERITED::Build(desc, primProc, primitiveType == kPoints_GrPrimitiveType, pipeline,
+    if (!INHERITED::Build(desc, primProc, primitiveType == GrPrimitiveType::kPoints, pipeline,
                           caps)) {
         return false;
     }
@@ -583,7 +583,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
 
     b.add32(get_blend_info_key(pipeline));
 
-    b.add32(primitiveType);
+    b.add32((uint32_t)primitiveType);
 
     return true;
 }

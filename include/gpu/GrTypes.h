@@ -216,24 +216,27 @@ static inline GrAA GrBoolToAA(bool aa) { return aa ? GrAA::kYes : GrAA::kNo; }
 /**
 * Geometric primitives used for drawing.
 */
-enum GrPrimitiveType {
-    kTriangles_GrPrimitiveType,
-    kTriangleStrip_GrPrimitiveType,
-    kTriangleFan_GrPrimitiveType,
-    kPoints_GrPrimitiveType,
-    kLines_GrPrimitiveType,     // 1 pix wide only
-    kLineStrip_GrPrimitiveType, // 1 pix wide only
-    kLast_GrPrimitiveType = kLineStrip_GrPrimitiveType
+enum class GrPrimitiveType {
+    kTriangles,
+    kTriangleStrip,
+    kTriangleFan,
+    kPoints,
+    kLines,     // 1 pix wide only
+    kLineStrip, // 1 pix wide only
+    kLinesAdjacency // requires geometry shader support.
 };
+static constexpr int kNumGrPrimitiveTypes = (int) GrPrimitiveType::kLinesAdjacency + 1;
 
 static inline bool GrIsPrimTypeLines(GrPrimitiveType type) {
-    return kLines_GrPrimitiveType == type || kLineStrip_GrPrimitiveType == type;
+    return GrPrimitiveType::kLines == type ||
+           GrPrimitiveType::kLineStrip == type ||
+           GrPrimitiveType::kLinesAdjacency == type;
 }
 
 static inline bool GrIsPrimTypeTris(GrPrimitiveType type) {
-    return kTriangles_GrPrimitiveType == type     ||
-           kTriangleStrip_GrPrimitiveType == type ||
-           kTriangleFan_GrPrimitiveType == type;
+    return GrPrimitiveType::kTriangles == type     ||
+           GrPrimitiveType::kTriangleStrip == type ||
+           GrPrimitiveType::kTriangleFan == type;
 }
 
 /**

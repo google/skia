@@ -138,7 +138,7 @@ public:
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
      * The max number of quads is the buffer's index capacity divided by 6.
-     * Draw with kTriangles_GrPrimitiveType
+     * Draw with GrPrimitiveType::kTriangles
      * @ return the quad index buffer
      */
     const GrBuffer* refQuadIndexBuffer() {
