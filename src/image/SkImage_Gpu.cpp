@@ -325,15 +325,15 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
                                                          int width, int height,
                                                          GrPixelConfig config,
                                                          GrBackendObject handle) {
-#if SK_VULKAN
-    if (kVulkan_GrBackend == backend) {
+
+    if (kOpenGL_GrBackend == backend) {
+        GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
+        return GrBackendTexture(width, height, config, *glInfo);
+    } else {
+        SkASSERT(kVulkan_GrBackend == backend);
         GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
         return GrBackendTexture(width, height, *vkInfo);
     }
-#endif
-    SkASSERT(kOpenGL_GrBackend == backend);
-    GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-    return GrBackendTexture(width, height, config, *glInfo);
 }
 
 static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpace colorSpace,
