@@ -10,7 +10,6 @@
 #include "GrTypes.h"
 #include "SkMathPriv.h"
 
-static const int MAX_POINTS_PER_CURVE = 1 << 10;
 static const SkScalar gMinCurveTol = 0.0001f;
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
@@ -44,7 +43,7 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) 
 
     SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
     if (!SkScalarIsFinite(d)) {
-        return MAX_POINTS_PER_CURVE;
+        return kMaxPointsPerCurve;
     } else if (d <= tol) {
         return 1;
     } else {
@@ -54,7 +53,7 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) 
         // 2^(log4(x)) = sqrt(x);
         SkScalar divSqrt = SkScalarSqrt(d / tol);
         if (((SkScalar)SK_MaxS32) <= divSqrt) {
-            return MAX_POINTS_PER_CURVE;
+            return kMaxPointsPerCurve;
         } else {
             int temp = SkScalarCeilToInt(divSqrt);
             int pow2 = GrNextPow2(temp);
@@ -64,7 +63,7 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) 
             if (pow2 < 1) {
                 pow2 = 1;
             }
-            return SkTMin(pow2, MAX_POINTS_PER_CURVE);
+            return SkTMin(pow2, kMaxPointsPerCurve);
         }
     }
 }
@@ -104,13 +103,13 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
         points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
     d = SkScalarSqrt(d);
     if (!SkScalarIsFinite(d)) {
-        return MAX_POINTS_PER_CURVE;
+        return kMaxPointsPerCurve;
     } else if (d <= tol) {
         return 1;
     } else {
         SkScalar divSqrt = SkScalarSqrt(d / tol);
         if (((SkScalar)SK_MaxS32) <= divSqrt) {
-            return MAX_POINTS_PER_CURVE;
+            return kMaxPointsPerCurve;
         } else {
             int temp = SkScalarCeilToInt(SkScalarSqrt(d / tol));
             int pow2 = GrNextPow2(temp);
@@ -120,7 +119,7 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
             if (pow2 < 1) {
                 pow2 = 1;
             }
-            return SkTMin(pow2, MAX_POINTS_PER_CURVE);
+            return SkTMin(pow2, kMaxPointsPerCurve);
         }
     }
 }
