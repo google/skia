@@ -15,10 +15,6 @@ class SkRasterPipeline;
 
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
 
-static inline bool SkBlendMode_CaresAboutRBOrder(SkBlendMode mode) {
-    return (mode > SkBlendMode::kLastSeparableMode);
-}
-
 void SkBlendMode_AppendStagesNoClamp(SkBlendMode, SkRasterPipeline*);
 void SkBlendMode_AppendClampIfNeeded(SkBlendMode, SkRasterPipeline*);
 
