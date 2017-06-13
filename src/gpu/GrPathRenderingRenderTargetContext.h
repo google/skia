@@ -27,7 +27,9 @@ protected:
                                        sk_sp<SkColorSpace> colorSpace,
                                        const SkSurfaceProps* surfaceProps, GrAuditTrail* at,
                                        GrSingleOwner* so)
-        : INHERITED(ctx, mgr, std::move(rtp), std::move(colorSpace), surfaceProps, at, so) {}
+        : INHERITED(ctx, mgr, nullptr, std::move(rtp),
+                    std::move(colorSpace), surfaceProps, at, so) {
+    }
 
 private:
     std::unique_ptr<GrStencilAndCoverTextContext> fStencilAndCoverTextContext;

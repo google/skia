@@ -224,7 +224,8 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
     fOnFlushCBObjects.push_back(onFlushCBObject);
 }
 
-sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp) {
+sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,
+                                                          bool managed) {
     SkASSERT(fContext);
 
     // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
@@ -239,7 +240,9 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
                                                                 fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
-    fOpLists.push_back() = opList;
+    if (managed) {
+        fOpLists.push_back() = opList;
+    }
 
     return opList;
 }
@@ -343,13 +346,41 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
         }
     }
 
-    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this, std::move(rtp),
+    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this,
+                                                                  nullptr, std::move(rtp),
                                                                   std::move(colorSpace),
                                                                   surfaceProps,
                                                                   fContext->getAuditTrail(),
                                                                   fSingleOwner));
 }
 
+sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
+                                                            sk_sp<GrRenderTargetOpList> opList,
+                                                            sk_sp<GrSurfaceProxy> sProxy,
+                                                            sk_sp<SkColorSpace> colorSpace,
+                                                            const SkSurfaceProps* surfaceProps) {
+    if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
+        return nullptr;
+    }
+
+    // SkSurface catches bad color space usage at creation. This check handles anything that slips
+    // by, including internal usage. We allow a null color space here, for read/write pixels and
+    // other special code paths. If a color space is provided, though, enforce all other rules.
+    if (colorSpace && !SkSurface_Gpu::Valid(fContext, sProxy->config(), colorSpace.get())) {
+        SkDEBUGFAIL("Invalid config and colorspace combination");
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(sProxy->asRenderTargetProxy()));
+
+    return sk_sp<GrRenderTargetContext>(new GrRenderTargetContext(fContext, this,
+                                                                  std::move(opList),
+                                                                  std::move(rtp),
+                                                                  std::move(colorSpace),
+                                                                  surfaceProps,
+                                                                  fContext->getAuditTrail(),
+                                                                  fSingleOwner));
+}
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,
                                                              sk_sp<SkColorSpace> colorSpace) {
     if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
