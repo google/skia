@@ -16,6 +16,24 @@
       "revId": "7bb3a0675e4185211bb5c6c1528a4a7a12e40d97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fccc672f_8c166f8d",
+        "filename": "include/gpu/GrTypesPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-13T11:48:16Z",
+      "side": 1,
+      "message": "Renamed PerRenderTargetCaps to GrRenderTargetFlags\n\nAdded the dispreferred _GrRenderTarget suffix. Apparently GR_MAKE_BITFIELD_OPS is not \"enum class\" capable.",
+      "parentUuid": "32702939_c7bcd4c0",
+      "revId": "7bb3a0675e4185211bb5c6c1528a4a7a12e40d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
