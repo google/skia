@@ -11,7 +11,6 @@
 #include "GrGpuResourceRef.h"
 #include "GrPipeline.h"
 #include "GrProcessorSet.h"
-#include "GrRenderTarget.h"
 #include "GrUserStencilSettings.h"
 #include "GrXferProcessor.h"
 

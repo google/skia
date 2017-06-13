@@ -12,13 +12,14 @@
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkImagePriv.h"
 #include "SkImage_Base.h"
 #include "SkSurface.h"
+
+class GrTexture;
 
 class SkImage_Gpu : public SkImage_Base {
 public:

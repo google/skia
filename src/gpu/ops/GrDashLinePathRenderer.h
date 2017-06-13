@@ -10,7 +10,7 @@
 
 #include "GrPathRenderer.h"
 
-#include "GrGpu.h"
+class GrGpu;
 
 class GrDashLinePathRenderer : public GrPathRenderer {
 private:

@@ -13,8 +13,9 @@
 #include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
-    #include "GrTexture.h"
     #include "GrTextureProxy.h"
+
+    class GrTexture;
 #endif
 
 #include <new>

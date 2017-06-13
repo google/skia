@@ -36,6 +36,7 @@
 #include "GrGpu.h"
 #include "GrResourceCache.h"
 #include "GrTest.h"
+#include "GrTexture.h"
 #endif
 
 using namespace sk_gpu_test;

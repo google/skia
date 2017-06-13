@@ -10,6 +10,7 @@
 #include "InstancedOp.h"
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
+#include "GrGpu.h"
 #include "GrPipeline.h"
 #include "GrResourceProvider.h"
 

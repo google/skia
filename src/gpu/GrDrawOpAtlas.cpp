@@ -11,6 +11,7 @@
 #include "GrOpFlushState.h"
 #include "GrRectanizer.h"
 #include "GrResourceProvider.h"
+#include "GrTexture.h"
 #include "GrTracing.h"
 
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config,

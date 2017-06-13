@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "SkDescriptor.h"
 #include "SkGlyph.h"
@@ -103,4 +104,40 @@ sk_sp<GrPathRange> GrPathRendering::createGlyphs(const SkTypeface* typeface,
 
     sk_sp<GlyphGenerator> generator(new GlyphGenerator(*typeface, noEffects, *genericDesc));
     return this->createPathRange(generator.get(), style);
+}
+
+void GrPathRendering::stencilPath(const StencilPathArgs& args, const GrPath* path) {
+    fGpu->handleDirtyContext();
+    this->onStencilPath(args, path);
+}
+
+void GrPathRendering::drawPath(const GrPipeline& pipeline,
+                               const GrPrimitiveProcessor& primProc,
+                               const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
+                               const GrPath* path) {
+    fGpu->handleDirtyContext();
+    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+        fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+    }
+    this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
+}
+
+void GrPathRendering::drawPaths(const GrPipeline& pipeline,
+                                const GrPrimitiveProcessor& primProc,
+                                const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
+                                const GrPathRange* pathRange,
+                                const void* indices,
+                                PathIndexType indexType,
+                                const float transformValues[],
+                                PathTransformType transformType,
+                                int count) {
+    fGpu->handleDirtyContext();
+    if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
+        fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
+    }
+#ifdef SK_DEBUG
+    pathRange->assertPathsLoaded(indices, indexType, count);
+#endif
+    this->onDrawPaths(pipeline, primProc, stencilPassSettings, pathRange, indices, indexType,
+                        transformValues, transformType, count);
 }

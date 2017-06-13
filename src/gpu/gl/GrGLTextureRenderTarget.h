@@ -12,7 +12,6 @@
 #include "GrGLGpu.h"
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
-#include "GrTexturePriv.h"
 
 class GrGLGpu;
 
@@ -69,12 +68,7 @@ private:
         this->registerWithCacheWrapped();
     }
 
-    size_t onGpuMemorySize() const override {
-        return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                      this->numSamplesOwnedPerPixel(),
-                                      this->texturePriv().hasMipMaps());
-    }
-
+    size_t onGpuMemorySize() const override;
 };
 
 #ifdef SK_BUILD_FOR_WIN
