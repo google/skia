@@ -43,7 +43,6 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrRenderTarget.h"
 #include "SkGr.h"
 
 #endif

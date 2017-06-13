@@ -9,10 +9,12 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrCaps.h"
+#include "GrGpu.h"
 #include "GrRenderTargetContext.h"
 #include "GrPaint.h"
 #include "GrResourceProvider.h"
 #include "GrShape.h"
+#include "GrUserStencilSettings.h"
 
 #include "SkDrawProcs.h"
 #include "SkTArray.h"
