@@ -81,6 +81,30 @@
       "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a6f78ff_7952bc57",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T15:34:27Z",
+      "side": 1,
+      "message": "Yeah, but why do we need to pass skia_vulkan_headers into find_headers.py to begin with?  We don\u0027t pass any other third-party headers into it.  This is just for Skia headers.",
+      "parentUuid": "b0a8188c_3f7f8da9",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 753,
+        "endChar": 7
+      },
+      "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
