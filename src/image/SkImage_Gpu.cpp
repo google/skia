@@ -25,7 +25,7 @@
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
 #include "GrTextureAdjuster.h"
-#include "GrTexturePriv.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 #include "effects/GrYUVEffect.h"

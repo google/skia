@@ -111,20 +111,12 @@ public:
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-        return this->createTexture(desc, budgeted, SkTArray<GrMipLevel>());
-    }
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted);
 
     /** Simplified createTexture() interface for when there is only a base level */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                    const void* level0Data,
-                                   size_t rowBytes) {
-        SkASSERT(level0Data);
-        GrMipLevel level = { level0Data, rowBytes };
-        SkSTArray<1, GrMipLevel> array;
-        array.push_back() = level;
-        return this->createTexture(desc, budgeted, array);
-    }
+                                   size_t rowBytes);
 
     /**
      * Implements GrResourceProvider::wrapBackendTexture

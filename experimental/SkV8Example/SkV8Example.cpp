@@ -18,7 +18,6 @@
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
-#include "GrRenderTarget.h"
 #include "GrContext.h"
 #include "SkApplication.h"
 #include "SkCommandLineFlags.h"

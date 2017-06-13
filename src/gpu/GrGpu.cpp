@@ -163,6 +163,20 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
     return tex;
 }
 
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
+    return this->createTexture(desc, budgeted, SkTArray<GrMipLevel>());
+}
+
+sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                      const void* level0Data,
+                                      size_t rowBytes) {
+    SkASSERT(level0Data);
+    GrMipLevel level = { level0Data, rowBytes };
+    SkSTArray<1, GrMipLevel> array;
+    array.push_back() = level;
+    return this->createTexture(desc, budgeted, array);
+}
+
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            GrSurfaceOrigin origin,
                                            GrBackendTextureFlags flags,

@@ -6,6 +6,7 @@
  */
 #include "GrMatrixConvolutionEffect.h"
 
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

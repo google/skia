@@ -6,6 +6,7 @@
  */
 
 #include "GrCopySurfaceOp.h"
+#include "GrGpu.h"
 
 // returns true if the read/written rect intersects the src/dst and false if not.
 static bool clip_src_rect_and_dst_point(const GrSurfaceProxy* dst,
@@ -76,4 +77,16 @@ std::unique_ptr<GrOp> GrCopySurfaceOp::Make(GrSurfaceProxy* dstProxy, GrSurfaceP
 
     return std::unique_ptr<GrOp>(new GrCopySurfaceOp(dstProxy, srcProxy,
                                                      clippedSrcRect, clippedDstPoint));
+}
+
+void GrCopySurfaceOp::onExecute(GrOpFlushState* state) {
+    SkASSERT(!state->commandBuffer());
+
+    if (!fDst.get()->instantiate(state->resourceProvider()) ||
+        !fSrc.get()->instantiate(state->resourceProvider())) {
+        return;
+    }
+
+    state->gpu()->copySurface(fDst.get()->priv().peekSurface(),
+                              fSrc.get()->priv().peekSurface(), fSrcRect, fDstPoint);
 }

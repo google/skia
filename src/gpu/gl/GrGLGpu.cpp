@@ -4309,3 +4309,19 @@ sk_sp<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* textur
 
     return semaphore;
 }
+
+int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
+    switch (texture->texturePriv().samplerType()) {
+        case kTexture2DSampler_GrSLType:
+            return 0;
+        case kITexture2DSampler_GrSLType:
+            return 1;
+        case kTexture2DRectSampler_GrSLType:
+            return 2;
+        case kTextureExternalSampler_GrSLType:
+            return 3;
+        default:
+            SkFAIL("Unexpected samper type");
+            return 0;
+    }
+}

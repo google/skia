@@ -10,10 +10,6 @@
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrRenderTargetContext.h"
-#include "GrGpu.h"
-#include "GrRenderTarget.h"
-#include "GrResourceProvider.h"
-#include "GrTexture.h"
 
 static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t expectedValue,
                        uint32_t* actualValue, int* failX, int* failY) {

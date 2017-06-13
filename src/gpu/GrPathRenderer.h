@@ -13,6 +13,7 @@
 #include "GrPaint.h"
 #include "GrResourceProvider.h"
 #include "GrShape.h"
+#include "GrUserStencilSettings.h"
 
 #include "SkDrawProcs.h"
 #include "SkTArray.h"

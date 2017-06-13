@@ -13,6 +13,8 @@
 
 #include "GrContextFactory.h"
 #include "GrTest.h"
+#include "GrTexture.h"
+
 #include "Test.h"
 #include "vk/GrVkCaps.h"
 #include "vk/GrVkGpu.h"

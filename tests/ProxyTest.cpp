@@ -16,6 +16,7 @@
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 
 // Check that the surface proxy's member vars are set as expected

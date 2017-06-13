@@ -9,10 +9,10 @@
 #define GrOpFlushState_DEFINED
 
 #include "GrBufferAllocPool.h"
-#include "GrGpu.h"
 #include "SkArenaAlloc.h"
 #include "ops/GrMeshDrawOp.h"
 
+class GrGpu;
 class GrGpuCommandBuffer;
 class GrResourceProvider;
 
@@ -29,7 +29,7 @@ public:
         fAsapUploads.emplace_back(std::move(upload));
     }
 
-    const GrCaps& caps() const { return *fGpu->caps(); }
+    const GrCaps& caps() const;
     GrResourceProvider* resourceProvider() const { return fResourceProvider; }
 
     /** Has the token been flushed to the backend 3D API. */

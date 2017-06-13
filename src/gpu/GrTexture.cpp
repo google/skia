@@ -10,7 +10,6 @@
 #include "GrGpu.h"
 #include "GrResourceKey.h"
 #include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTypes.h"

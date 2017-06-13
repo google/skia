@@ -16,7 +16,6 @@
 #  include "GrRenderTargetContextPriv.h"
 #  include "GrFixedClip.h"
 #  include "GrReducedClip.h"
-#  include "GrRenderTargetPriv.h"
 #  include "GrResourceProvider.h"
 #  include "effects/GrTextureDomain.h"
 #endif

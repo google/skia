@@ -8,7 +8,9 @@
 #include "GrOpFlushState.h"
 
 #include "GrDrawOpAtlas.h"
+#include "GrGpu.h"
 #include "GrResourceProvider.h"
+#include "GrTexture.h"
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
         : fGpu(gpu)
@@ -19,6 +21,10 @@ GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
         , fLastIssuedToken(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fLastFlushedToken(0)
         , fOpArgs(nullptr) {}
+
+const GrCaps& GrOpFlushState::caps() const {
+    return *fGpu->caps();
+}
 
 void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
                                          const GrBuffer** buffer, int* startVertex) {

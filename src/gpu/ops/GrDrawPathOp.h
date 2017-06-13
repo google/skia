@@ -9,7 +9,6 @@
 #define GrDrawPathOp_DEFINED
 
 #include "GrDrawOp.h"
-#include "GrGpu.h"
 #include "GrOpFlushState.h"
 #include "GrPath.h"
 #include "GrPathProcessor.h"

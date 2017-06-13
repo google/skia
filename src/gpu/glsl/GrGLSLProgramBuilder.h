@@ -10,7 +10,7 @@
 
 #include "GrCaps.h"
 #include "GrGeometryProcessor.h"
-#include "GrGpu.h"
+#include "GrProgramDesc.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLGeometryShaderBuilder.h"

@@ -16,11 +16,11 @@
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrGpuResourcePriv.h"
-#include "GrRenderTarget.h"
-#include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTest.h"
+#include "GrTexture.h"
+
 #include "SkCanvas.h"
 #include "SkGr.h"
 #include "SkMessageBus.h"

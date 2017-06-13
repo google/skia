@@ -8,7 +8,6 @@
 
 #include "GrBackendSurface.h"
 #include "GrContext.h"
-#include "GrRenderTarget.h"
 #include "GLWindowContext.h"
 
 #include "gl/GrGLDefines.h"

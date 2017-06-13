@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrTexture.h"
 #include "effects/GrProxyMove.h"
 #include "effects/GrSingleTextureEffect.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"

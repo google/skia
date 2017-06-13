@@ -8,6 +8,7 @@
 #include "GrBicubicEffect.h"
 
 #include "GrProxyMove.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

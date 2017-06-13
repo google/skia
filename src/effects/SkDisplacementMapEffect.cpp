@@ -18,6 +18,7 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrRenderTargetContext.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
 #include "effects/GrTextureDomain.h"

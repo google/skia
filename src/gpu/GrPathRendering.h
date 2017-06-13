@@ -9,12 +9,12 @@
 #define GrPathRendering_DEFINED
 
 #include "SkPath.h"
-#include "GrGpu.h"
 #include "GrPathRange.h"
 #include "GrPipeline.h"
 
 class SkDescriptor;
 class SkTypeface;
+class GrGpu;
 class GrPath;
 class GrStencilSettings;
 class GrStyle;
@@ -149,21 +149,12 @@ public:
         const GrStencilSettings* fStencil;
     };
 
-    void stencilPath(const StencilPathArgs& args, const GrPath* path) {
-        fGpu->handleDirtyContext();
-        this->onStencilPath(args, path);
-    }
+    void stencilPath(const StencilPathArgs& args, const GrPath* path);
 
     void drawPath(const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
                   const GrStencilSettings& stencilPassSettings, // Cover pass settings in pipeline.
-                  const GrPath* path) {
-        fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
-        }
-        this->onDrawPath(pipeline, primProc, stencilPassSettings, path);
-    }
+                  const GrPath* path);
 
     void drawPaths(const GrPipeline& pipeline,
                    const GrPrimitiveProcessor& primProc,
@@ -173,22 +164,11 @@ public:
                    PathIndexType indexType,
                    const float transformValues[],
                    PathTransformType transformType,
-                   int count) {
-        fGpu->handleDirtyContext();
-        if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*fGpu->caps())) {
-            fGpu->xferBarrier(pipeline.getRenderTarget(), barrierType);
-        }
-#ifdef SK_DEBUG
-        pathRange->assertPathsLoaded(indices, indexType, count);
-#endif
-        this->onDrawPaths(pipeline, primProc, stencilPassSettings, pathRange, indices, indexType,
-                          transformValues, transformType, count);
-    }
+                   int count);
 
 protected:
-    GrPathRendering(GrGpu* gpu)
-        : fGpu(gpu) {
-    }
+    GrPathRendering(GrGpu* gpu) : fGpu(gpu) { }
+
     virtual void onStencilPath(const StencilPathArgs&, const GrPath*) = 0;
     virtual void onDrawPath(const GrPipeline&,
                             const GrPrimitiveProcessor&,

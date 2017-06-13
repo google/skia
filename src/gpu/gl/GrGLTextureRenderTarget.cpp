@@ -8,6 +8,7 @@
 #include "GrGLTextureRenderTarget.h"
 
 #include "GrContext.h"
+#include "GrTexturePriv.h"
 #include "SkTraceMemoryDump.h"
 
 // GrGLTextureRenderTarget must dump both of its superclasses.
@@ -51,4 +52,10 @@ sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
 {
     return sk_sp<GrGLTextureRenderTarget>(
         new GrGLTextureRenderTarget(gpu, desc, texIDDesc, rtIDDesc, false));
+}
+
+size_t GrGLTextureRenderTarget::onGpuMemorySize() const {
+    return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
+                                    this->numSamplesOwnedPerPixel(),
+                                    this->texturePriv().hasMipMaps());
 }

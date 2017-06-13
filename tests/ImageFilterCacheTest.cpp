@@ -182,6 +182,7 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrTest.h"
+#include "GrTexture.h"
 
 static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) {
     SkBitmap srcBM = create_bm();

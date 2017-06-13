@@ -53,17 +53,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override {
-        SkASSERT(!state->commandBuffer());
-
-        if (!fDst.get()->instantiate(state->resourceProvider()) ||
-            !fSrc.get()->instantiate(state->resourceProvider())) {
-            return;
-        }
-
-        state->gpu()->copySurface(fDst.get()->priv().peekSurface(),
-                                  fSrc.get()->priv().peekSurface(), fSrcRect, fDstPoint);
-    }
+    void onExecute(GrOpFlushState* state) override;
 
     // For RenderTargetContexts 'fDst' is redundant with the RenderTarget that will be passed
     // into onExecute in the drawOpArgs.

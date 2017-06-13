@@ -8,10 +8,11 @@
 #ifndef GrTracing_DEFINED
 #define GrTracing_DEFINED
 
-#include "GrGpu.h"
 #include "GrTraceMarker.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
+
+class GrContext;
 
 /**
  * Marker generation class used for adding and removing markers around code blocks

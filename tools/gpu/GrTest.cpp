@@ -20,6 +20,7 @@
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
 #include "GrSurfaceContextPriv.h"
+#include "GrTexture.h"
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"

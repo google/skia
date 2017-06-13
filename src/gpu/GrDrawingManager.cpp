@@ -8,6 +8,7 @@
 #include "GrDrawingManager.h"
 
 #include "GrContext.h"
+#include "GrGpu.h"
 #include "GrRenderTargetContext.h"
 #include "GrPathRenderingRenderTargetContext.h"
 #include "GrRenderTargetProxy.h"

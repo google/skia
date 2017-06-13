@@ -8,6 +8,7 @@
 #include "GrGLSLPrimitiveProcessor.h"
 
 #include "GrCoordTransform.h"
+#include "GrTexture.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 #include "glsl/GrGLSLUniformHandler.h"

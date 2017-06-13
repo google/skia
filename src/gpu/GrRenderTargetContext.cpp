@@ -18,7 +18,6 @@
 #include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrRenderTargetPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStencilAttachment.h"
 #include "SkDrawShadowRec.h"

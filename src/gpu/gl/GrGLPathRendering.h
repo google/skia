@@ -9,6 +9,7 @@
 #define GrGLPathRendering_DEFINED
 
 #include "SkRefCnt.h"
+#include "GrGpu.h"
 #include "GrPathRendering.h"
 #include "GrStencilSettings.h"
 #include "gl/GrGLTypes.h"

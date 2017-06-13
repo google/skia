@@ -13,7 +13,6 @@
 #include "GrCoordTransform.h"
 #include "SkMatrix.h"
 
-class GrTexture;
 class GrTextureProxy;
 
 /**

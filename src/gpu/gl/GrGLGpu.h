@@ -18,7 +18,6 @@
 #include "GrGLVertexArray.h"
 #include "GrGpu.h"
 #include "GrMesh.h"
-#include "GrTexturePriv.h"
 #include "GrWindowRectsState.h"
 #include "GrXferProcessor.h"
 #include "SkLRUCache.h"
@@ -618,21 +617,7 @@ private:
     GrGLuint                                fStencilClipClearProgram;
     sk_sp<GrGLBuffer>                       fStencilClipClearArrayBuffer;
 
-    static int TextureToCopyProgramIdx(GrTexture* texture) {
-        switch (texture->texturePriv().samplerType()) {
-            case kTexture2DSampler_GrSLType:
-                return 0;
-            case kITexture2DSampler_GrSLType:
-                return 1;
-            case kTexture2DRectSampler_GrSLType:
-                return 2;
-            case kTextureExternalSampler_GrSLType:
-                return 3;
-            default:
-                SkFAIL("Unexpected samper type");
-                return 0;
-        }
-    }
+    static int TextureToCopyProgramIdx(GrTexture* texture);
 
     static int TextureSizeToMipmapProgramIdx(int width, int height) {
         const bool wide = (width > 1) && SkToBool(width & 0x1);
