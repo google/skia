@@ -1413,6 +1413,21 @@ static SkPath draw_text_as_path(const void* sourceText, size_t sourceByteCount,
     return path;
 }
 
+static SkRect get_glyph_bounds_device_space(SkGlyphID gid, const SkPaint& paint,
+                                            SkPoint xy, const SkMatrix& ctm) {
+    SkRect glyphBounds;
+    SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+    (void)paint.measureText(&gid, sizeof(SkGlyphID), &glyphBounds);
+    glyphBounds.offset(xy);
+    ctm.mapRect(&glyphBounds); // now in dev space.
+    return glyphBounds;
+}
+
+static bool contains(const SkRect& r, SkPoint p) {
+   return r.left() <= p.x() && p.x() <= r.right() &&
+          r.top()  <= p.y() && p.y() <= r.bottom();
+}
+
 void SkPDFDevice::internalDrawText(
         const void* sourceText, size_t sourceByteCount,
         const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
@@ -1509,6 +1524,7 @@ void SkPDFDevice::internalDrawText(
         }
         offset.offset(alignmentFactor * advance, 0);
     }
+    SkRect clipStackBounds = this->cs().bounds(size(*this));
     ScopedContentEntry content(this, paint, true);
     if (!content.entry()) {
         return;
@@ -1532,6 +1548,7 @@ void SkPDFDevice::internalDrawText(
                                     defaultPositioning,
                                     offset);
     SkPDFFont* font = nullptr;
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);  // for quick reject.
 
     while (Clusterator::Cluster c = clusterator.next()) {
         int index = c.fGlyphIndex;
@@ -1599,6 +1616,18 @@ void SkPDFDevice::internalDrawText(
                    : SkPoint{pos[index], 0};
                 if (alignment != SkPaint::kLeft_Align) {
                     xy.offset(alignmentFactor * advance, 0);
+                }
+                // Do a glyph-by-glyph bounds-reject if positions are absolute.
+                SkRect glyphBounds = get_glyph_bounds_device_space(gid, paint, xy + offset,
+                                                                   this->ctm());
+                if (glyphBounds.isEmpty()) {
+                    if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
+                        continue;
+                    }
+                } else {
+                    if (!clipStackBounds.intersects(glyphBounds)) {
+                        continue;  // reject glyphs as out of bounds
+                    }
                 }
             }
             font->noteGlyphUsage(gid);
