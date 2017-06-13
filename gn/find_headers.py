@@ -24,10 +24,14 @@ blacklist = {
 
 headers = []
 for directory in include_dirs:
-  for d, _, files in os.walk(directory):
-    for f in files:
+  for f in os.listdir(directory):
+    if os.path.isfile(os.path.join(directory, f)):
       if f.endswith('.h') and f not in blacklist:
-        headers.append(os.path.join(d,f))
+        # Some VulkanSDK directorys have extra heads that cause redefinition of
+        # macros so we make sure to only include the headers we care about.
+        if (not directory.endswith("vulkan")
+            or f == "vulkan.h" or f == "vk_platform.h"):
+          headers.append(os.path.join(directory,f))
 headers.sort()
 
 with open(skia_h, "w") as f:
