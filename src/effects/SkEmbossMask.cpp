@@ -43,44 +43,7 @@ static inline unsigned div255(unsigned x) {
 
 #define kDelta  32  // small enough to show off angle differences
 
-#include "SkEmbossMask_Table.h"
-
-#if defined(SK_BUILD_FOR_WIN32) && defined(SK_DEBUG)
-
-#include <stdio.h>
-
-void SkEmbossMask_BuildTable() {
-    // build it 0..127 x 0..127, so we use 2^15 - 1 in the numerator for our "fixed" table
-
-    FILE* file = ::fopen("SkEmbossMask_Table.h", "w");
-    SkASSERT(file);
-    ::fprintf(file, "#include \"SkTypes.h\"\n\n");
-    ::fprintf(file, "static const U16 gInvSqrtTable[128 * 128] = {\n");
-    for (int dx = 0; dx <= 255/2; dx++) {
-        for (int dy = 0; dy <= 255/2; dy++) {
-            if ((dy & 15) == 0)
-                ::fprintf(file, "\t");
-
-            uint16_t value = SkToU16((1 << 15) / SkSqrt32(dx * dx + dy * dy + kDelta*kDelta/4));
-
-            ::fprintf(file, "0x%04X", value);
-            if (dx * 128 + dy < 128*128-1) {
-                ::fprintf(file, ", ");
-            }
-            if ((dy & 15) == 15) {
-                ::fprintf(file, "\n");
-            }
-        }
-    }
-    ::fprintf(file, "};\n#define kDeltaUsedToBuildTable\t%d\n", kDelta);
-    ::fclose(file);
-}
-
-#endif
-
 void SkEmbossMask::Emboss(SkMask* mask, const SkEmbossMaskFilter::Light& light) {
-    SkASSERT(kDelta == kDeltaUsedToBuildTable);
-
     SkASSERT(mask->fFormat == SkMask::k3D_Format);
 
     int     specular = light.fSpecular;
@@ -114,17 +77,9 @@ void SkEmbossMask::Emboss(SkMask* mask, const SkEmbossMaskFilter::Light& light) 
                 int     add = 0;
 
                 if (numer > 0) {  // preflight when numer/denom will be <= 0
-#if 0
                     int denom = SkSqrt32(nx * nx + ny * ny + kDelta*kDelta);
                     SkFixed dot = numer / denom;
                     dot >>= 8;  // now dot is 2^8 instead of 2^16
-#else
-                    // can use full numer, but then we need to call SkFixedMul, since
-                    // numer is 24 bits, and our table is 12 bits
-
-                    // SkFixed dot = SkFixedMul(numer, gTable[]) >> 8
-                    SkFixed dot = (unsigned)(numer >> 4) * gInvSqrtTable[(SkAbs32(nx) >> 1 << 7) | (SkAbs32(ny) >> 1)] >> 20;
-#endif
                     mul = SkFastMin32(mul + dot, 255);
 
                     // now for the reflection
