@@ -291,9 +291,9 @@ void SkGpuDevice::drawPaint(const SkPaint& paint) {
 
 // must be in SkCanvas::PointMode order
 static const GrPrimitiveType gPointMode2PrimitiveType[] = {
-    GrPrimitiveType::kPoints,
-    GrPrimitiveType::kLines,
-    GrPrimitiveType::kLineStrip
+    kPoints_GrPrimitiveType,
+    kLines_GrPrimitiveType,
+    kLineStrip_GrPrimitiveType
 };
 
 void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
@@ -346,7 +346,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
     // This offsetting in device space matches the expectations of the Android framework for non-AA
     // points and lines.
     SkMatrix tempMatrix;
-    if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
+    if (GrIsPrimTypeLines(primitiveType) || kPoints_GrPrimitiveType == primitiveType) {
         tempMatrix = *viewMatrix;
         static const SkScalar kOffset = 0.063f; // Just greater than 1/16.
         tempMatrix.postTranslate(kOffset, kOffset);
@@ -1597,7 +1597,7 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
         i += 6;
     }
 
-    GrPrimitiveType primitiveType = GrPrimitiveType::kLines;
+    GrPrimitiveType primitiveType = kLines_GrPrimitiveType;
     fRenderTargetContext->drawVertices(this->clip(),
                                        std::move(grPaint),
                                        this->ctm(),

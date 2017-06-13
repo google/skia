@@ -190,7 +190,7 @@ private:
             return;
         }
         const GrBuffer* vertexBuffer;
-        GrMesh mesh(GrPrimitiveType::kTriangles);
+        GrMesh mesh(kTriangles_GrPrimitiveType);
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);

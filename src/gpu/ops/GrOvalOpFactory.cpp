@@ -1082,7 +1082,7 @@ private:
             vertices += circle_type_to_vert_count(circle.fStroked) * vertexStride;
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
+        GrMesh mesh(kTriangles_GrPrimitiveType);
         mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(),  fHelper.makePipeline(target), mesh);
@@ -1987,7 +1987,7 @@ private:
             currStartVertex += rrect_type_to_vert_count(rrect.fType);
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
+        GrMesh mesh(kTriangles_GrPrimitiveType);
         mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
         mesh.setVertexData(vertexBuffer, firstVertex);
         target->draw(gp.get(), fHelper.makePipeline(target), mesh);
@@ -2177,7 +2177,7 @@ private:
         sk_sp<const GrBuffer> indexBuffer(ref_rrect_index_buffer(
                 fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider()));
 
-        PatternHelper helper(GrPrimitiveType::kTriangles);
+        PatternHelper helper(kTriangles_GrPrimitiveType);
         EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
                 helper.init(target, vertexStride, indexBuffer.get(), kVertsPerStandardRRect,
                             indicesPerInstance, fRRects.count()));

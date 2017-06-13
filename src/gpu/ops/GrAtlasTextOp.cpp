@@ -139,7 +139,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
 }
 
 void GrAtlasTextOp::flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
-    GrMesh mesh(GrPrimitiveType::kTriangles);
+    GrMesh mesh(kTriangles_GrPrimitiveType);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
     mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,

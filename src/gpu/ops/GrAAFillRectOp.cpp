@@ -231,7 +231,7 @@ private:
         size_t vertexStride = gp->getVertexStride();
 
         sk_sp<const GrBuffer> indexBuffer(get_index_buffer(target->resourceProvider()));
-        PatternHelper helper(GrPrimitiveType::kTriangles);
+        PatternHelper helper(kTriangles_GrPrimitiveType);
         void* vertices =
                 helper.init(target, vertexStride, indexBuffer.get(), kVertsPerAAFillRect,
                             kIndicesPerAAFillRect, fRectCnt);

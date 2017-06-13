@@ -70,9 +70,9 @@ private:
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
-        return GrPrimitiveType::kTriangles == fPrimitiveType ||
-               GrPrimitiveType::kLines == fPrimitiveType ||
-               GrPrimitiveType::kPoints == fPrimitiveType;
+        return kTriangles_GrPrimitiveType == fPrimitiveType ||
+               kLines_GrPrimitiveType == fPrimitiveType ||
+               kPoints_GrPrimitiveType == fPrimitiveType;
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;

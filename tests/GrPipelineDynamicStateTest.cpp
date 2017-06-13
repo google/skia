@@ -126,7 +126,7 @@ private:
         GrPipeline pipeline(rt, fScissorState, SkBlendMode::kSrc);
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
-            GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);
+            GrMesh& mesh = meshes.emplace_back(kTriangleStrip_GrPrimitiveType);
             mesh.setNonIndexedNonInstanced(4);
             mesh.setVertexData(fVertexBuffer.get(), 4 * i);
         }

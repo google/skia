@@ -2426,6 +2426,15 @@ void GrGLGpu::flushViewport(const GrGLIRect& viewport) {
     }
 }
 
+GrGLenum gPrimitiveType2GLMode[] = {
+    GR_GL_TRIANGLES,
+    GR_GL_TRIANGLE_STRIP,
+    GR_GL_TRIANGLE_FAN,
+    GR_GL_POINTS,
+    GR_GL_LINES,
+    GR_GL_LINE_STRIP
+};
+
 #define SWAP_PER_DRAW 0
 
 #if SWAP_PER_DRAW
@@ -2457,7 +2466,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 
     bool hasPoints = false;
     for (int i = 0; i < meshCount; ++i) {
-        if (meshes[i].primitiveType() == GrPrimitiveType::kPoints) {
+        if (meshes[i].primitiveType() == kPoints_GrPrimitiveType) {
             hasPoints = true;
             break;
         }
@@ -2502,30 +2511,9 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 #endif
 }
 
-static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
-    switch (primitiveType) {
-        case GrPrimitiveType::kTriangles:
-            return GR_GL_TRIANGLES;
-        case GrPrimitiveType::kTriangleStrip:
-            return GR_GL_TRIANGLE_STRIP;
-        case GrPrimitiveType::kTriangleFan:
-            return GR_GL_TRIANGLE_FAN;
-        case GrPrimitiveType::kPoints:
-            return GR_GL_POINTS;
-        case GrPrimitiveType::kLines:
-            return GR_GL_LINES;
-        case GrPrimitiveType::kLineStrip:
-            return GR_GL_LINE_STRIP;
-        case GrPrimitiveType::kLinesAdjacency:
-            return GR_GL_LINES_ADJACENCY;
-    }
-    SkFAIL("invalid GrPrimitiveType");
-    return GR_GL_TRIANGLES;
-}
-
 void GrGLGpu::sendMeshToGpu(const GrPrimitiveProcessor& primProc, GrPrimitiveType primitiveType,
                             const GrBuffer* vertexBuffer, int vertexCount, int baseVertex) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+    const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     if (this->glCaps().drawArraysBaseVertexIsBroken()) {
         this->setupGeometry(primProc, nullptr, vertexBuffer, baseVertex, nullptr, 0);
         GL_CALL(DrawArrays(glPrimType, 0, vertexCount));
@@ -2541,7 +2529,7 @@ void GrGLGpu::sendIndexedMeshToGpu(const GrPrimitiveProcessor& primProc,
                                    int indexCount, int baseIndex, uint16_t minIndexValue,
                                    uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
                                    int baseVertex) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+    const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     GrGLvoid* const indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                       sizeof(uint16_t) * baseIndex);
 
@@ -2561,7 +2549,7 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrPrimitiveProcessor& primProc, GrPri
                                      int vertexCount, int baseVertex,
                                      const GrBuffer* instanceBuffer, int instanceCount,
                                      int baseInstance) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+    const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     this->setupGeometry(primProc, nullptr, vertexBuffer, 0, instanceBuffer, baseInstance);
     GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount, instanceCount));
     fStats.incNumDraws();
@@ -2573,7 +2561,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
                                             int baseIndex, const GrBuffer* vertexBuffer,
                                             int baseVertex, const GrBuffer* instanceBuffer,
                                             int instanceCount, int baseInstance) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+    const GrGLenum glPrimType = gPrimitiveType2GLMode[primitiveType];
     GrGLvoid* indices = reinterpret_cast<void*>(indexBuffer->baseOffset() +
                                                 sizeof(uint16_t) * baseIndex);
     this->setupGeometry(primProc, indexBuffer, vertexBuffer, baseVertex,
