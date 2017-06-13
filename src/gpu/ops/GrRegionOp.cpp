@@ -103,7 +103,7 @@ private:
 
         size_t vertexStride = gp->getVertexStride();
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
-        PatternHelper helper(kTriangles_GrPrimitiveType);
+        PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices =
                 helper.init(target, vertexStride, indexBuffer.get(), kVertsPerInstance,
                             kIndicesPerInstance, numRects);

@@ -165,14 +165,14 @@ GrSamplerParams::FilterMode GrSkFilterQualityToGrFilterMode(SkFilterQuality pain
 static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode) {
     switch (mode) {
         case SkVertices::kTriangles_VertexMode:
-            return kTriangles_GrPrimitiveType;
+            return GrPrimitiveType::kTriangles;
         case SkVertices::kTriangleStrip_VertexMode:
-            return kTriangleStrip_GrPrimitiveType;
+            return GrPrimitiveType::kTriangleStrip;
         case SkVertices::kTriangleFan_VertexMode:
-            return kTriangleFan_GrPrimitiveType;
+            return GrPrimitiveType::kTriangleFan;
     }
     SkFAIL("Invalid mode");
-    return kPoints_GrPrimitiveType;
+    return GrPrimitiveType::kPoints;
 }
 
 //////////////////////////////////////////////////////////////////////////////

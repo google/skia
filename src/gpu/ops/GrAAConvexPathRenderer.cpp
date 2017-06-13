@@ -812,7 +812,7 @@ private:
 
             extract_verts(tess, verts, vertexStride, fColor, idxs, canTweakAlphaForCoverage);
 
-            GrMesh mesh(kTriangles_GrPrimitiveType);
+            GrMesh mesh(GrPrimitiveType::kTriangles);
             mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1);
             mesh.setVertexData(vertexBuffer, firstVertex);
             target->draw(gp.get(), this->pipeline(), mesh);
@@ -897,7 +897,7 @@ private:
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
-            GrMesh mesh(kTriangles_GrPrimitiveType);
+            GrMesh mesh(GrPrimitiveType::kTriangles);
 
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
