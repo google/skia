@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5cc2b28_90f51c99",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1613,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-13T20:15:50Z",
+      "side": 1,
+      "message": "Seems like it would be nice to just re-use this glyph cache instead of having the paint go and detach one at a time. However, this turns out to be somewhat complex.",
+      "range": {
+        "startLine": 1613,
+        "startChar": 41,
+        "endLine": 1613,
+        "endChar": 51
+      },
+      "revId": "fd7537682aec1178178db096ff41ccf8ed1dff59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
