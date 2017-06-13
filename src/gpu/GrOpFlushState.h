@@ -59,6 +59,12 @@ public:
                           const GrBuffer** buffer, int* startVertex);
     uint16_t* makeIndexSpace(int indexCount, const GrBuffer** buffer, int* startIndex);
 
+    void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount, int fallbackVertexCount,
+                                 const GrBuffer** buffer, int* startVertex, int* actualVertexCount);
+    uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
+                                    const GrBuffer** buffer, int* startIndex,
+                                    int* actualIndexCount);
+
     /** This is called after each op has a chance to prepare its draws and before the draws are
         issued. */
     void preIssueDraws() {
@@ -203,6 +209,21 @@ public:
 
     uint16_t* makeIndexSpace(int indexCount, const GrBuffer** buffer, int* startIndex) {
         return this->state()->makeIndexSpace(indexCount, buffer, startIndex);
+    }
+
+    void* makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount, int fallbackVertexCount,
+                                 const GrBuffer** buffer, int* startVertex,
+                                 int* actualVertexCount) {
+        return this->state()->makeVertexSpaceAtLeast(vertexSize, minVertexCount,
+                                                     fallbackVertexCount, buffer, startVertex,
+                                                     actualVertexCount);
+    }
+
+    uint16_t* makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
+                                    const GrBuffer** buffer, int* startIndex,
+                                    int* actualIndexCount) {
+        return this->state()->makeIndexSpaceAtLeast(minIndexCount, fallbackIndexCount, buffer,
+                                                    startIndex, actualIndexCount);
     }
 
     /** Helpers for ops which over-allocate and then return data to the pool. */
