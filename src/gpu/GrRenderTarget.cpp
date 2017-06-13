@@ -17,7 +17,8 @@
 #include "GrStencilAttachment.h"
 #include "GrStencilSettings.h"
 
-GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flags,
+GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
+                               GrRenderTargetFlags flags,
                                GrStencilAttachment* stencil)
         : INHERITED(gpu, desc)
         , fSampleCnt(desc.fSampleCnt)
@@ -25,8 +26,9 @@ GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flag
         , fMultisampleSpecsID(0)
         , fFlags(flags) {
     SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    SkASSERT(!(fFlags & Flags::kMixedSampled) || fSampleCnt > 0);
-    SkASSERT(!(fFlags & Flags::kWindowRectsSupport) || gpu->caps()->maxWindowRectangles() > 0);
+    SkASSERT(!(fFlags & GrRenderTargetFlags::kMixedSampled) || fSampleCnt > 0);
+    SkASSERT(!(fFlags & GrRenderTargetFlags::kWindowRectsSupport) ||
+             gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect.setLargestInverted();
 }
 

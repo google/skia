@@ -22,25 +22,26 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
                                          SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
         : INHERITED(desc, fit, budgeted, flags)
         , fSampleCnt(desc.fSampleCnt)
-        , fRenderTargetFlags(GrRenderTarget::Flags::kNone) {
+        , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
     if (caps.usesMixedSamples() && fSampleCnt > 0) {
-        fRenderTargetFlags |= GrRenderTarget::Flags::kMixedSampled;
+        fRenderTargetFlags |= GrRenderTargetFlags::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {
-        fRenderTargetFlags |= GrRenderTarget::Flags::kWindowRectsSupport;
+        fRenderTargetFlags |= GrRenderTargetFlags::kWindowRectsSupport;
     }
 }
 
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf)
-        : INHERITED(std::move(surf), SkBackingFit::kExact)
-        , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
-        , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {}
+    : INHERITED(std::move(surf), SkBackingFit::kExact)
+    , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+    , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
+}
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
-    return (fRenderTargetFlags & GrRenderTarget::Flags::kWindowRectsSupport)
+    return (fRenderTargetFlags & GrRenderTargetFlags::kWindowRectsSupport)
                    ? caps.maxWindowRectangles()
                    : 0;
 }
