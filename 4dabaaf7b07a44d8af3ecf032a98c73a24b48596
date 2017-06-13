@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "20d63bdb_48340778",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-13T14:48:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6710ae1a_897163b5",
+      "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11d6cd95_d4106b50",
         "filename": "BUILD.gn",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2017-06-13T13:48:28Z",
       "side": 1,
       "message": "Remind me why we need to do this now?",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 753,
+        "endChar": 7
+      },
+      "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0a8188c_3f7f8da9",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-13T14:48:23Z",
+      "side": 1,
+      "message": "The find_headers file no longer searches recursively through the directories, so we need to give the full path for where the headers will be.",
+      "parentUuid": "11d6cd95_d4106b50",
       "range": {
         "startLine": 751,
         "startChar": 0,
