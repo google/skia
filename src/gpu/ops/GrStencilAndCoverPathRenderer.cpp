@@ -18,7 +18,7 @@
 #include "GrResourceProvider.h"
 #include "GrStencilPathOp.h"
 #include "GrStyle.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 GrPathRenderer* GrStencilAndCoverPathRenderer::Create(GrResourceProvider* resourceProvider,
                                                       const GrCaps& caps) {
@@ -137,8 +137,10 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             }
             args.fRenderTargetContext->addDrawOp(
                     *args.fClip,
-                    GrNonAAFillRectOp::Make(std::move(args.fPaint), viewM, bounds, nullptr, &invert,
-                                            coverAAType, &kInvertedCoverPass));
+                    GrRectOpFactory::MakeNonAAFillWithLocalMatrix(std::move(args.fPaint),
+                                                                            viewM, invert, bounds,
+                                                                            coverAAType,
+                                                                            &kInvertedCoverPass));
         }
     } else {
         std::unique_ptr<GrDrawOp> op =

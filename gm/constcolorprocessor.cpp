@@ -18,7 +18,7 @@
 #include "SkGradientShader.h"
 #include "effects/GrConstColorProcessor.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 namespace skiagm {
 /**
@@ -109,9 +109,8 @@ protected:
                     sk_sp<GrFragmentProcessor> fp(GrConstColorProcessor::Make(color, mode));
 
                     grPaint.addColorFragmentProcessor(std::move(fp));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrNonAAFillRectOp::Make(std::move(grPaint), viewMatrix, renderRect,
-                                                    nullptr, nullptr, GrAAType::kNone));
+                    renderTargetContext->priv().testingOnly_addDrawOp(GrRectOpFactory::MakeNonAAFill(
+                                    std::move(grPaint), viewMatrix, renderRect,GrAAType::kNone));
 
                     // Draw labels for the input to the processor and the processor to the right of
                     // the test rect. The input label appears above the processor label.

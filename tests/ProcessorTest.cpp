@@ -19,7 +19,7 @@
 #include "GrResourceProvider.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 #include "ops/GrTestMeshDrawOp.h"
 
 namespace {
@@ -270,9 +270,9 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto op = GrNonAAFillRectOp::Make(std::move(paint), SkMatrix::I(),
-                                      SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr,
-                                      GrAAType::kNone);
+    auto op = GrRectOpFactory::MakeNonAAFill(std::move(paint), SkMatrix::I(),
+                                             SkRect::MakeWH(rtc->width(), rtc->height()),
+                                             GrAAType::kNone);
     rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 
