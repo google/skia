@@ -337,3 +337,18 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new TinyAngleBigRadiusArcsGM; )
+
+
+DEF_SIMPLE_GM(quadspiral, canvas, 256, 256) {
+    canvas->clear(SK_ColorWHITE);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+        SkPath path;
+        SkPoint pts[] = {{128, 10}, {10, 214}, {236, 214}};
+        path.moveTo(pts[0]);
+    for (int i = 0; i < 3; i = (i + 2) % 3) {
+        path.quadTo(pts[i % 3],  pts[(i + 1) % 3]);
+   }
+   path.offset(128, 128);
+        canvas->drawPath(path, paint);
+}
