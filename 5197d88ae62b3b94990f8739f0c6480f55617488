@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57b7e29b_b2913d1b",
+        "filename": "src/gpu/effects/GrPorterDuffXferProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-13T19:17:47Z",
+      "side": 1,
+      "message": "This looks to be a check that was just missing from before.",
+      "range": {
+        "startLine": 821,
+        "startChar": 15,
+        "endLine": 821,
+        "endChar": 48
+      },
+      "revId": "5197d88ae62b3b94990f8739f0c6480f55617488",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
