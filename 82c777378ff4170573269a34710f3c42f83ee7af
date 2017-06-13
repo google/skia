@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b00e7f8_183af98a",
+        "filename": "infra/bots/recipe_modules/core/api.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-06-13T13:47:11Z",
+      "side": 1,
+      "message": "I\u0027m confused.  Doesn\u0027t this do the same as before?\n\n\u003e\u003e\u003e \u0027skia.git\u0027.rstrip(\u0027.git\u0027)\n\u0027skia\u0027\n\u003e\u003e\u003e \u0027skia\u0027.rstrip(\u0027.git\u0027)\n\u0027skia\u0027",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "82c777378ff4170573269a34710f3c42f83ee7af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
