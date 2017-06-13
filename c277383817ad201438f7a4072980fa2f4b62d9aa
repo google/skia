@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5da3fab_351b31e2",
+        "filename": "src/gpu/GrBufferAllocPool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-13T16:10:27Z",
+      "side": 1,
+      "message": "This comment isn\u0027t quite accurate anymore. We do use glDrawRangeElements now if available.",
+      "range": {
+        "startLine": 224,
+        "startChar": 30,
+        "endLine": 226,
+        "endChar": 39
+      },
+      "revId": "c277383817ad201438f7a4072980fa2f4b62d9aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
