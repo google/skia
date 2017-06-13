@@ -337,3 +337,98 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new TinyAngleBigRadiusArcsGM; )
+
+
+DEF_SIMPLE_GM(dither1, canvas, 256, 256) {
+    SkBitmap bm16;
+    bm16.allocPixels(SkImageInfo::Make(32, 32, kRGB_565_SkColorType, kOpaque_SkAlphaType));
+    SkCanvas c16(bm16);
+    SkPaint colorPaint;
+    for (auto dither : { false, true } ) {
+        colorPaint.setDither(dither);
+        for (auto colors : { 0xFF333333, 0xFF666666, 0xFF999999, 0xFFCCCCCC } ) {
+            for (auto mask : { 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFFFF } ) {
+                 colorPaint.setColor(colors & mask);
+                 c16.drawRect({0, 0, 8, 4}, colorPaint);
+                 c16.translate(8, 0);
+            }
+            c16.translate(-32, 4);
+        }
+    }
+    canvas->scale(8, 8);
+    canvas->drawBitmap(bm16, 0, 0);
+}
+
+#include "SkGradientShader.h"
+
+DEF_SIMPLE_GM(dither2, canvas, 256, 256) {
+    SkBitmap bm32;
+    bm32.allocPixels(SkImageInfo::Make(20, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+    SkCanvas c32(bm32);
+    SkPoint points[] = {{0, 0}, {20, 0}};
+    SkColor colors[] = {0xFF334455, 0xFF662211 };
+    SkPaint paint;
+    paint.setShader(SkGradientShader::MakeLinear(
+                     points, colors, nullptr, SK_ARRAY_COUNT(colors),
+                     SkShader::kClamp_TileMode, 0, nullptr));
+    paint.setDither(true);
+    c32.drawPaint(paint);
+    canvas->scale(12, 12);
+    canvas->clear(0);
+    canvas->drawBitmap(bm32, 0, 0);
+    paint.setBlendMode(SkBlendMode::kPlus);
+    canvas->drawBitmap(bm32, 0, 11, &paint);
+    canvas->drawBitmap(bm32, 0, 11, &paint);
+    canvas->drawBitmap(bm32, 0, 11, &paint);
+}
+
+#include "SkTextBlob.h"
+#include <vector>
+
+DEF_SIMPLE_GM(textblobinterval, canvas, 256, 256) {
+            SkPaint paint;
+            paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            paint.setTextSize(120);
+            SkPoint textPos = { 20, 110 };
+            int len = 3;
+            SkTextBlobBuilder textBlobBuilder;
+            const SkTextBlobBuilder::RunBuffer& run = 
+                    textBlobBuilder.allocRun(paint, len, textPos.fX, textPos.fY);
+            run.glyphs[0] = 10;
+            run.glyphs[1] = 20;
+            run.glyphs[2] = 30;       
+            sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+            canvas->drawTextBlob(blob.get(), textPos.fX, textPos.fY, paint);
+            SkScalar bounds[] = { 116, 134 };
+            int count = paint.getTextBlobIntercepts(blob.get(), bounds, nullptr);
+            std::vector<SkScalar> intervals;
+            intervals.resize(count);
+            (void) paint.getTextBlobIntercepts(blob.get(), bounds, &intervals.front());
+            canvas->clear(SK_ColorWHITE);
+            canvas->drawTextBlob(blob.get(), 0, 0, paint);
+            paint.setColor(0xFFFF7777);
+            SkScalar x = textPos.fX;
+            for (int i = 0; i < count; i+= 2) {
+                canvas->drawRect({x, bounds[0], intervals[i], bounds[1]}, paint);
+                x = intervals[i + 1];
+            }
+            canvas->drawRect({intervals[count - 1], bounds[0], 180, bounds[1]}, paint);
+}
+
+#include "SkLightingImageFilter.h"
+
+DEF_SIMPLE_GM(setimagefilter, canvas, 256, 256) {
+        SkBitmap bitmap;
+        bitmap.allocN32Pixels(100, 100);
+        SkCanvas offscreen(bitmap);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorWHITE);
+        paint.setTextSize(96);
+        offscreen.clear(0);
+        offscreen.drawString("e", 20, 70, paint);
+        paint.setImageFilter(
+               SkLightingImageFilter::MakePointLitDiffuse(SkPoint3::Make(80, 100, 10),
+               SK_ColorWHITE, 1, 2, nullptr, nullptr));
+        canvas->drawBitmap(bitmap, 0, 0, &paint);
+}
