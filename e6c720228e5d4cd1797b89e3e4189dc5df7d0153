@@ -16,6 +16,24 @@
       "revId": "e6c720228e5d4cd1797b89e3e4189dc5df7d0153",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "147a5941_6a76aca8",
+        "filename": "src/core/SkXfermode.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-13T09:58:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef500b64_1c34f741",
+      "revId": "e6c720228e5d4cd1797b89e3e4189dc5df7d0153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
