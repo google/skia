@@ -576,6 +576,26 @@ enum GrAccessPattern {
     kLast_GrAccessPattern = kStream_GrAccessPattern
 };
 
+// Flags shared between GrRenderTarget and GrRenderTargetProxy
+enum GrRenderTargetFlags {
+    kNone_GrRenderTargetFlags                = 0,
+
+    // For internal resources:
+    //    this is enabled whenever MSAA is enabled and GrCaps reports mixed samples are supported
+    // For wrapped resources:
+    //    this is disabled for FBO0
+    //    but, otherwise, is enabled whenever MSAA is enabled and GrCaps reports mixed samples
+    //        are supported
+    kMixedSampled_GrRenderTargetFlags        = 1 << 0,
+
+    // For internal resources:
+    //    this is enabled whenever GrCaps reports window rect support
+    // For wrapped resources1
+    //    this is disabled for FBO0
+    //    but, otherwise, is enabled whenever GrCaps reports window rect support
+    kWindowRectsSupport_GrRenderTargetFlags  = 1 << 1
+};
+GR_MAKE_BITFIELD_OPS(GrRenderTargetFlags);
 
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required

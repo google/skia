@@ -81,7 +81,7 @@ private:
     // Constructor for instances wrapping backend objects.
     GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrGLStencilAttachment*);
 
-    static Flags ComputeFlags(const GrGLCaps&, const IDDesc&);
+    static GrRenderTargetFlags ComputeFlags(const GrGLCaps&, const IDDesc&);
 
     GrGLGpu* getGLGpu() const;
     bool completeStencilAttachment() override;
