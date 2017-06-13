@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d398864_45d87027",
+        "filename": "src/gpu/ops/GrRectOpFactory.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-13T19:43:11Z",
+      "side": 1,
+      "message": "I thought about adding yet another AA enum for this that was bimodal. I\u0027m still not sure if its a good idea or not. It\u0027ll come up for any \"non-AA\" op that can be used with MSAA enabled.",
+      "range": {
+        "startLine": 38,
+        "startChar": 18,
+        "endLine": 38,
+        "endChar": 56
+      },
+      "revId": "7931bdd76f4cbd28adb7d1bff10a5d8fbdcbadf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
