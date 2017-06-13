@@ -31,13 +31,13 @@
 #   endif
 #endif
 
-#endif
-
 #include <vulkan/vulkan.h>
 
 #define SKIA_REQUIRED_VULKAN_HEADER_VERSION 17
 #if VK_HEADER_VERSION < SKIA_REQUIRED_VULKAN_HEADER_VERSION
 #error "Vulkan header version is too low"
+#endif
+
 #endif
 
 #endif
