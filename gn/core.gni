@@ -345,7 +345,6 @@ skia_core_sources = [
   "$_src/core/SkWriteBuffer.cpp",
   "$_src/core/SkWriter32.cpp",
   "$_src/core/SkXfermode.cpp",
-  "$_src/core/SkXfermode_proccoeff.h",
   "$_src/core/SkXfermodeInterpretation.cpp",
   "$_src/core/SkXfermodeInterpretation.h",
   "$_src/core/SkYUVPlanesCache.cpp",
