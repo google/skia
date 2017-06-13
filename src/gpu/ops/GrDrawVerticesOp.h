@@ -45,8 +45,8 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", fPrimitiveType,
-                       fMeshes.count(), fVertexCount, fIndexCount);
+        string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n",
+                      (int) fPrimitiveType, fMeshes.count(), fVertexCount, fIndexCount);
         string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
@@ -70,9 +70,9 @@ private:
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
-        return kTriangles_GrPrimitiveType == fPrimitiveType ||
-               kLines_GrPrimitiveType == fPrimitiveType ||
-               kPoints_GrPrimitiveType == fPrimitiveType;
+        return GrPrimitiveType::kTriangles == fPrimitiveType ||
+               GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kPoints == fPrimitiveType;
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
