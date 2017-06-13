@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef500b64_1c34f741",
+        "filename": "src/core/SkXfermode.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T01:04:25Z",
+      "side": 1,
+      "message": "This is probably also a place we\u0027re missing a couple swap_rb\u0027s when N32 \u003d\u003d BGRA.",
+      "revId": "e6c720228e5d4cd1797b89e3e4189dc5df7d0153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
