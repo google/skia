@@ -43,11 +43,16 @@ public:
     sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrRenderTargetOpList> opList,
+                                                         sk_sp<GrSurfaceProxy> sProxy,
+                                                         sk_sp<SkColorSpace> colorSpace,
+                                                         const SkSurfaceProps* surfaceProps);
+
     sk_sp<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
 
     // The caller automatically gets a ref on the returned opList. It must
     // be balanced by an unref call.
-    sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp);
+    sk_sp<GrRenderTargetOpList> newRTOpList(GrRenderTargetProxy* rtp, bool managed = true);
     sk_sp<GrTextureOpList> newTextureOpList(GrTextureProxy* textureProxy);
 
     GrContext* getContext() { return fContext; }

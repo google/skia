@@ -30,8 +30,15 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
         return nullptr;
     }
 
+    sk_sp<GrRenderTargetOpList> opList = fDrawingMgr->newRTOpList(proxy->asRenderTargetProxy(),
+                                                                  false);
+    if (!opList) {
+        return nullptr;
+    }
+
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fDrawingMgr->makeRenderTargetContext(std::move(proxy),
+        fDrawingMgr->makeRenderTargetContext(std::move(opList),
+                                             std::move(proxy),
                                              std::move(colorSpace),
                                              props));
 
@@ -50,8 +57,16 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
                                                         sk_sp<GrSurfaceProxy> proxy,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
+
+    sk_sp<GrRenderTargetOpList> opList = fDrawingMgr->newRTOpList(proxy->asRenderTargetProxy(),
+                                                                  false);
+    if (!opList) {
+        return nullptr;
+    }
+
     sk_sp<GrRenderTargetContext> renderTargetContext(
-        fDrawingMgr->makeRenderTargetContext(std::move(proxy),
+        fDrawingMgr->makeRenderTargetContext(std::move(opList),
+                                             std::move(proxy),
                                              std::move(colorSpace),
                                              props));
 
@@ -63,4 +78,3 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
 
     return renderTargetContext;
 }
-

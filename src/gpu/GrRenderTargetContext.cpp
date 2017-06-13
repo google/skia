@@ -76,6 +76,7 @@ bool GrRenderTargetContext::wasAbandoned() const {
 // when the renderTargetContext attempts to use it (via getOpList).
 GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              GrDrawingManager* drawingMgr,
+                                             sk_sp<GrRenderTargetOpList> opList,
                                              sk_sp<GrRenderTargetProxy> rtp,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
@@ -83,10 +84,16 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              GrSingleOwner* singleOwner)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
-    , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
+    if (opList) {
+        SkASSERT(!fRenderTargetProxy->getLastRenderTargetOpList());
+        fOpList = opList;
+    } else {
+        fOpList = sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList());
+    }
+
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
