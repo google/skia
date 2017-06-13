@@ -10,8 +10,8 @@
 
 #include <memory>
 #include "GrColor.h"
+#include "GrDrawOp.h"
 
-class GrDrawOp;
 class GrPaint;
 class SkMatrix;
 struct SkRect;

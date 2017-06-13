@@ -12,6 +12,9 @@
 #include "GrOpList.h"
 #include "GrPathRendering.h"
 #include "GrPrimitiveProcessor.h"
+
+#include "ops/GrOp.h"
+
 #include "SkArenaAlloc.h"
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -24,9 +27,12 @@
 class GrAuditTrail;
 class GrClearOp;
 class GrCaps;
-class GrOp;
 class GrPipelineBuilder;
 class GrRenderTargetProxy;
+
+namespace gr_instanced {
+    class InstancedRendering;
+}
 
 class GrRenderTargetOpList final : public GrOpList {
 private:

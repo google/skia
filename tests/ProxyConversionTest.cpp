@@ -14,6 +14,7 @@
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 
 static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrResourceProvider* provider,
