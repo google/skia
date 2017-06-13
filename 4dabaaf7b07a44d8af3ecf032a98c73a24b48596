@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6710ae1a_897163b5",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T13:48:28Z",
+      "side": 1,
+      "message": "This probably makes more sense inside the if (skia_use_vulkan) {}, maybe now with an extra \"... so no need for any extra path.\"?",
+      "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11d6cd95_d4106b50",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T13:48:28Z",
+      "side": 1,
+      "message": "Remind me why we need to do this now?",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 753,
+        "endChar": 7
+      },
+      "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
