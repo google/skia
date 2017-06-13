@@ -42,6 +42,8 @@ public:
         return xfer.get();
     }
 
+    static SkXfermodeProc GetProc(SkBlendMode);
+
     enum SrcColorOpacity {
         // The src color is known to be opaque (alpha == 255)
         kOpaque_SrcColorOpacity = 0,
