@@ -129,25 +129,6 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
-// This doesn't look strictly necessary, but without it Clang would generate load() using
-// compiler-generated constants that we can't support.  This version doesn't need constants.
-#if defined(JUMPER) && defined(__AVX__)
-    template <>
-    inline U8 load(const uint8_t* src, size_t tail) {
-        if (__builtin_expect(tail, 0)) {
-            uint64_t v = 0;
-            size_t shift = 0;
-            #pragma nounroll
-            while (tail --> 0) {
-                v |= (uint64_t)*src++ << shift;
-                shift += 8;
-            }
-            return unaligned_load<U8>(&v);
-        }
-        return unaligned_load<U8>(src);
-    }
-#endif
-
 // AVX adds some mask loads and stores that make for shorter, faster code.
 #if defined(JUMPER) && defined(__AVX__)
     SI U32 mask(size_t tail) {
