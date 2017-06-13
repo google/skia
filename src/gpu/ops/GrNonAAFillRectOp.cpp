@@ -175,7 +175,7 @@ private:
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
-        PatternHelper helper(kTriangles_GrPrimitiveType);
+        PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
         if (!vertices || !indexBuffer) {
@@ -296,7 +296,7 @@ private:
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
-        PatternHelper helper(kTriangles_GrPrimitiveType);
+        PatternHelper helper(GrPrimitiveType::kTriangles);
         void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
                                      kIndicesPerRect, rectCount);
         if (!vertices || !indexBuffer) {

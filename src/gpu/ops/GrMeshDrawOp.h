@@ -52,7 +52,7 @@ protected:
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {
     public:
-        QuadHelper() : INHERITED(kTriangles_GrPrimitiveType) {}
+        QuadHelper() : INHERITED(GrPrimitiveType::kTriangles) {}
         /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
             and on success a pointer to the vertex data that the caller should populate before
             calling recordDraws(). */
