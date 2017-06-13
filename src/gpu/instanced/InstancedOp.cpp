@@ -8,7 +8,7 @@
 #include "InstancedOp.h"
 #include "InstanceProcessor.h"
 #include "InstancedRendering.h"
-
+#include "GrGpu.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetOpList.h"
 

@@ -21,6 +21,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrPaint.h"
 #include "GrRenderTargetContext.h"
+#include "GrTexture.h"
 #include "GrTextureProxy.h"
 
 #include "SkGr.h"

@@ -11,12 +11,18 @@
 #include "GrBuffer.h"
 #include "GrGpu.h"
 #include "GrPathRange.h"
+#include "SkImageInfo.h"
 
 class GrBackendRenderTarget;
 class GrPath;
 class GrRenderTarget;
+class GrSemaphore;
 class GrSingleOwner;
 class GrStencilAttachment;
+class GrSurfaceProxy;
+class GrTexture;
+class GrTextureProxy;
+
 class GrStyle;
 class SkDescriptor;
 class SkPath;
@@ -243,10 +249,7 @@ public:
 
 private:
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
-    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
-        SkASSERT(key.isValid());
-        this->assignUniqueKeyToResource(key, texture);
-    }
+    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
     sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 

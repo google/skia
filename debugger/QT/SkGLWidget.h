@@ -19,7 +19,6 @@
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
-#include "GrRenderTarget.h"
 
 class SkGLWidget : public QGLWidget {
 Q_OBJECT

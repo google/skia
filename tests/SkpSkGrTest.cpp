@@ -7,7 +7,6 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
-#include "GrRenderTarget.h"
 #include "SkGpuDevice.h"
 #include "gl/GrGLDefines.h"
 
