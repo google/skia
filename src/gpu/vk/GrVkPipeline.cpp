@@ -94,24 +94,35 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
     vertexInputInfo->pVertexAttributeDescriptions = attributeDesc;
 }
 
+static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType primitiveType) {
+    switch (primitiveType) {
+        case GrPrimitiveType::kTriangles:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        case GrPrimitiveType::kTriangleStrip:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+        case GrPrimitiveType::kTriangleFan:
+            return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+        case GrPrimitiveType::kPoints:
+            return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        case GrPrimitiveType::kLines:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        case GrPrimitiveType::kLineStrip:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+        case GrPrimitiveType::kLinesAdjacency:
+            return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+    }
+    SkFAIL("invalid GrPrimitiveType");
+    return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+}
 
 static void setup_input_assembly_state(GrPrimitiveType primitiveType,
                                        VkPipelineInputAssemblyStateCreateInfo* inputAssemblyInfo) {
-    static const VkPrimitiveTopology gPrimitiveType2VkTopology[] = {
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
-        VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
-        VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-        VK_PRIMITIVE_TOPOLOGY_LINE_STRIP
-    };
-
     memset(inputAssemblyInfo, 0, sizeof(VkPipelineInputAssemblyStateCreateInfo));
     inputAssemblyInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssemblyInfo->pNext = nullptr;
     inputAssemblyInfo->flags = 0;
     inputAssemblyInfo->primitiveRestartEnable = false;
-    inputAssemblyInfo->topology = gPrimitiveType2VkTopology[primitiveType];
+    inputAssemblyInfo->topology = gr_primitive_type_to_vk_topology(primitiveType);
 }
 
 

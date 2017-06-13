@@ -860,7 +860,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
         }
 
-        GrMesh mesh(kTriangles_GrPrimitiveType);
+        GrMesh mesh(GrPrimitiveType::kTriangles);
         mesh.setIndexedPatterned(linesIndexBuffer.get(), kIdxsPerLineSeg, kLineSegNumVertices,
                                  lineCount, kLineSegsNumInIdxBuffer);
         mesh.setVertexData(vertexBuffer, firstVertex);
@@ -917,7 +917,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         }
 
         if (quadCount > 0) {
-            GrMesh mesh(kTriangles_GrPrimitiveType);
+            GrMesh mesh(GrPrimitiveType::kTriangles);
             mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                      quadCount, kQuadsNumInIdxBuffer);
             mesh.setVertexData(vertexBuffer, firstVertex);
@@ -926,7 +926,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         }
 
         if (conicCount > 0) {
-            GrMesh mesh(kTriangles_GrPrimitiveType);
+            GrMesh mesh(GrPrimitiveType::kTriangles);
             mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                      conicCount, kQuadsNumInIdxBuffer);
             mesh.setVertexData(vertexBuffer, firstVertex);
