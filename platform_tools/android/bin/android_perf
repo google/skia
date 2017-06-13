@@ -56,7 +56,7 @@ perf_setup() {
 perf_record() {
 
     echo "Killing any running Skia processes."
-    $ADB shell ps | grep ${runVars[0]} | awk '{print $2}' | xargs $ADB shell kill
+    #$ADB shell ps | grep ${runVars[0]} | awk '{print $2}' | xargs $ADB shell kill
 
     echo "Starting application"
     $ADB shell /data/local/tmp/${runVars[@]} &

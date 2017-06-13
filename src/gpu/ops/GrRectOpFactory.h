@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2017 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -8,58 +8,59 @@
 #ifndef GrRectOpFactory_DEFINED
 #define GrRectOpFactory_DEFINED
 
-#include "GrAAFillRectOp.h"
-#include "GrAAStrokeRectOp.h"
-#include "GrAnalyticRectOp.h"
-#include "GrColor.h"
-#include "GrMeshDrawOp.h"
-#include "GrNonAAStrokeRectOp.h"
-#include "GrPaint.h"
-#include "SkMatrix.h"
-#include "SkRefCnt.h"
+#include <memory>
+#include "GrTypes.h"
 
+enum class GrAAType : unsigned;
+class GrDrawOp;
+class GrPaint;
+struct GrUserStencilSettings;
+class SkMatrix;
 struct SkRect;
 class SkStrokeRec;
 
-/**
- * A factory for returning GrDrawOps which can draw rectangles.
- */
 namespace GrRectOpFactory {
+/** AA Fill */
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(const GrPaint& paint,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& croppedRect,
-                                                      const SkRect& devRect) {
-    return GrAAFillRectOp::Make(paint.getColor(), viewMatrix, croppedRect, devRect);
-}
+std::unique_ptr<GrDrawOp> MakeAAFill(GrPaint&&, const SkMatrix&, const SkRect&,
+                                     const GrUserStencilSettings* = nullptr);
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFill(GrColor color,
-                                                      const SkMatrix& viewMatrix,
-                                                      const SkMatrix& localMatrix,
-                                                      const SkRect& rect,
-                                                      const SkRect& devRect) {
-    return GrAAFillRectOp::Make(color, viewMatrix, localMatrix, rect, devRect);
-}
+// Device rect simply saves recalculation.
+std::unique_ptr<GrDrawOp> MakeAAFillWithDevRect(GrPaint&&, const SkMatrix& viewMatrix,
+                                                const SkRect& rect, const SkRect& devRect);
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAAStroke(GrColor color,
-                                                           const SkMatrix& viewMatrix,
-                                                           const SkRect& rect,
-                                                           const SkStrokeRec& strokeRec,
-                                                           bool snapToPixelCenters) {
-    return GrNonAAStrokeRectOp::Make(color, viewMatrix, rect, strokeRec, snapToPixelCenters);
-}
+std::unique_ptr<GrDrawOp> MakeAAFillWithLocalMatrix(GrPaint&&, const SkMatrix& viewMatrix,
+                                                    const SkMatrix& localMatrix, const SkRect&);
 
-inline std::unique_ptr<GrLegacyMeshDrawOp> MakeAAStroke(GrColor color,
-                                                        const SkMatrix& viewMatrix,
-                                                        const SkRect& rect,
-                                                        const SkStrokeRec& stroke) {
-    return GrAAStrokeRectOp::Make(color, viewMatrix, rect, stroke);
-}
+std::unique_ptr<GrDrawOp> MakeAAFillWithLocalRect(GrPaint&&, const SkMatrix&, const SkRect& rect,
+                                                  const SkRect& localRect);
 
-// First rect is outer; second rect is inner
-std::unique_ptr<GrLegacyMeshDrawOp> MakeAAFillNestedRects(GrColor, const SkMatrix& viewMatrix,
-                                                          const SkRect rects[2]);
-};
+/** Non-AA Fill - GrAAType must be either kNone or kMSAA. */
+
+std::unique_ptr<GrDrawOp> MakeNonAAFill(GrPaint&&, const SkMatrix& viewMatrix, const SkRect& rect,
+                                        GrAAType, const GrUserStencilSettings* = nullptr);
+
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalMatrix(GrPaint&&, const SkMatrix& viewMatrix,
+                                                       const SkMatrix& localMatrix, const SkRect&,
+                                                       GrAAType,
+                                                       const GrUserStencilSettings* = nullptr);
+
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrPaint&&, const SkMatrix&, const SkRect& rect,
+                                                     const SkRect& localRect, GrAAType);
+
+/** AA Stroke */
+
+std::unique_ptr<GrDrawOp> MakeAAStroke(GrPaint&&, const SkMatrix&, const SkRect&,
+                                       const SkStrokeRec&);
+
+// rects[0] == outer rectangle, rects[1] == inner rectangle
+std::unique_ptr<GrDrawOp> MakeAAFillNestedRects(GrPaint&&, const SkMatrix&, const SkRect rects[2]);
+
+/** Non-AA Stroke - GrAAType must be either kNone or kMSAA. */
+
+std::unique_ptr<GrDrawOp> MakeNonAAStroke(GrPaint&&, const SkMatrix&, const SkRect&,
+                                          const SkStrokeRec&, bool snapToPixelCenters, GrAAType);
+
+}  // namespace GrRectOpFactory
 
 #endif

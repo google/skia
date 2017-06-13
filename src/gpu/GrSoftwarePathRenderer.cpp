@@ -12,7 +12,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
@@ -76,9 +76,10 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrRenderTargetContext* renderTargetCo
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
-    renderTargetContext->addDrawOp(
-            clip, GrNonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, &localMatrix,
-                                          GrAAType::kNone, &userStencilSettings));
+    renderTargetContext->addDrawOp(clip,
+                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
+                                           std::move(paint), viewMatrix, localMatrix, rect,
+                                           GrAAType::kNone, &userStencilSettings));
 }
 
 void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTargetContext,
