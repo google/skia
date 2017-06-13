@@ -58,7 +58,7 @@ GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType p
     }
 
     IsZeroArea zeroArea;
-    if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
+    if (GrIsPrimTypeLines(primitiveType) || kPoints_GrPrimitiveType == primitiveType) {
         zeroArea = IsZeroArea::kYes;
     } else {
         zeroArea = IsZeroArea::kNo;
@@ -300,17 +300,15 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
 static uint32_t seed_vertices(GrPrimitiveType type) {
     switch (type) {
-        case GrPrimitiveType::kTriangles:
-        case GrPrimitiveType::kTriangleStrip:
-        case GrPrimitiveType::kTriangleFan:
+        case kTriangles_GrPrimitiveType:
+        case kTriangleStrip_GrPrimitiveType:
+        case kTriangleFan_GrPrimitiveType:
             return 3;
-        case GrPrimitiveType::kPoints:
+        case kPoints_GrPrimitiveType:
             return 1;
-        case GrPrimitiveType::kLines:
-        case GrPrimitiveType::kLineStrip:
+        case kLines_GrPrimitiveType:
+        case kLineStrip_GrPrimitiveType:
             return 2;
-        case GrPrimitiveType::kLinesAdjacency:
-            return 4;
     }
     SkFAIL("Incomplete switch\n");
     return 0;
@@ -318,17 +316,15 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
 
 static uint32_t primitive_vertices(GrPrimitiveType type) {
     switch (type) {
-        case GrPrimitiveType::kTriangles:
+        case kTriangles_GrPrimitiveType:
             return 3;
-        case GrPrimitiveType::kLines:
+        case kLines_GrPrimitiveType:
             return 2;
-        case GrPrimitiveType::kTriangleStrip:
-        case GrPrimitiveType::kTriangleFan:
-        case GrPrimitiveType::kPoints:
-        case GrPrimitiveType::kLineStrip:
+        case kTriangleStrip_GrPrimitiveType:
+        case kTriangleFan_GrPrimitiveType:
+        case kPoints_GrPrimitiveType:
+        case kLineStrip_GrPrimitiveType:
             return 1;
-        case GrPrimitiveType::kLinesAdjacency:
-            return 4;
     }
     SkFAIL("Incomplete switch\n");
     return 0;
@@ -362,7 +358,7 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
 }
 
 GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(VerticesOp) {
-    GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
+    GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kLast_GrPrimitiveType + 1));
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 
     // TODO make 'sensible' indexbuffers

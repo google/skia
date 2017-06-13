@@ -184,16 +184,16 @@ private:
         if (this->isHairline()) {
             if (isIndexed) {
                 maxIndices = 2 * maxVertices;
-                primitiveType = GrPrimitiveType::kLines;
+                primitiveType = kLines_GrPrimitiveType;
             } else {
-                primitiveType = GrPrimitiveType::kLineStrip;
+                primitiveType = kLineStrip_GrPrimitiveType;
             }
         } else {
             if (isIndexed) {
                 maxIndices = 3 * maxVertices;
-                primitiveType = GrPrimitiveType::kTriangles;
+                primitiveType = kTriangles_GrPrimitiveType;
             } else {
-                primitiveType = GrPrimitiveType::kTriangleFan;
+                primitiveType = kTriangleFan_GrPrimitiveType;
             }
         }
 

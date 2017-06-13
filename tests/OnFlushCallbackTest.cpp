@@ -144,7 +144,7 @@ private:
             }
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
+        GrMesh mesh(kTriangles_GrPrimitiveType);
         mesh.setIndexed(indexBuffer, 6, firstIndex, 0, 3);
         mesh.setVertexData(vertexBuffer, firstVertex);
 

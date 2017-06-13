@@ -330,8 +330,8 @@ private:
             return;
         }
 
-        GrPrimitiveType primitiveType = fIsIndexed ? GrPrimitiveType::kTriangles
-                                                   : GrPrimitiveType::kTriangleFan;
+        GrPrimitiveType primitiveType = fIsIndexed ? kTriangles_GrPrimitiveType
+                                                   : kTriangleFan_GrPrimitiveType;
 
         // allocate vertex / index buffers
         const GrBuffer* lineVertexBuffer;
@@ -437,7 +437,7 @@ private:
                     target->makeVertexSpace(quadVertexStride, quadVertexOffset, &quadVertexBuffer,
                                             &firstQuadVertex);
             memcpy(quadVertices, quads.vertices, quadVertexStride * quadVertexOffset);
-            GrMesh quadMeshes(GrPrimitiveType::kTriangles);
+            GrMesh quadMeshes(kTriangles_GrPrimitiveType);
             if (!fIsIndexed) {
                 quadMeshes.setNonIndexedNonInstanced(quadVertexOffset);
             } else {

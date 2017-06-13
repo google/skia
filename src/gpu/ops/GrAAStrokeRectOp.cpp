@@ -262,7 +262,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) const {
 
     const sk_sp<const GrBuffer> indexBuffer(
             GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
-    PatternHelper helper(GrPrimitiveType::kTriangles);
+    PatternHelper helper(kTriangles_GrPrimitiveType);
     void* vertices =
             helper.init(target, vertexStride, indexBuffer.get(),
                         verticesPerInstance, indicesPerInstance, instanceCount);

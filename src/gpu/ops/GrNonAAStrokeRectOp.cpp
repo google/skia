@@ -144,11 +144,11 @@ private:
 
         GrPrimitiveType primType;
         if (fStrokeWidth > 0) {
-            primType = GrPrimitiveType::kTriangleStrip;
+            primType = kTriangleStrip_GrPrimitiveType;
             init_stroke_rect_strip(vertex, fRect, fStrokeWidth);
         } else {
             // hairline
-            primType = GrPrimitiveType::kLineStrip;
+            primType = kLineStrip_GrPrimitiveType;
             vertex[0].set(fRect.fLeft, fRect.fTop);
             vertex[1].set(fRect.fRight, fRect.fTop);
             vertex[2].set(fRect.fRight, fRect.fBottom);
