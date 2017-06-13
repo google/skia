@@ -1413,6 +1413,24 @@ static SkPath draw_text_as_path(const void* sourceText, size_t sourceByteCount,
     return path;
 }
 
+static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkGlyphCache* cache,
+                                            SkScalar xScale, SkScalar yScale,
+                                            SkPoint xy, const SkMatrix& ctm) {
+    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
+    SkRect glyphBounds = {glyph.fLeft * xScale,
+                          glyph.fTop * yScale,
+                          (glyph.fLeft + glyph.fWidth) * xScale,
+                          (glyph.fTop + glyph.fHeight) * yScale};
+    glyphBounds.offset(xy);
+    ctm.mapRect(&glyphBounds); // now in dev space.
+    return glyphBounds;
+}
+
+static bool contains(const SkRect& r, SkPoint p) {
+   return r.left() <= p.x() && p.x() <= r.right() &&
+          r.top()  <= p.y() && p.y() <= r.bottom();
+}
+
 void SkPDFDevice::internalDrawText(
         const void* sourceText, size_t sourceByteCount,
         const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
@@ -1498,6 +1516,10 @@ void SkPDFDevice::internalDrawText(
     SkScalar textSize = paint.getTextSize();
     SkScalar advanceScale = textSize * paint.getTextScaleX() / emSize;
 
+    // textScaleX and textScaleY are used to get a conservative bounding box for glyphs.
+    SkScalar textScaleY = textSize / emSize;
+    SkScalar textScaleX = advanceScale + paint.getTextSkewX() * textScaleY;
+
     SkPaint::Align alignment = paint.getTextAlign();
     float alignmentFactor = SkPaint::kLeft_Align   == alignment ?  0.0f :
                             SkPaint::kCenter_Align == alignment ? -0.5f :
@@ -1509,6 +1531,7 @@ void SkPDFDevice::internalDrawText(
         }
         offset.offset(alignmentFactor * advance, 0);
     }
+    SkRect clipStackBounds = this->cs().bounds(size(*this));
     ScopedContentEntry content(this, paint, true);
     if (!content.entry()) {
         return;
@@ -1599,6 +1622,18 @@ void SkPDFDevice::internalDrawText(
                    : SkPoint{pos[index], 0};
                 if (alignment != SkPaint::kLeft_Align) {
                     xy.offset(alignmentFactor * advance, 0);
+                }
+                // Do a glyph-by-glyph bounds-reject if positions are absolute.
+                SkRect glyphBounds = get_glyph_bounds_device_space(
+                        gid, glyphCache.get(), textScaleX, textScaleY, xy + offset, this->ctm());
+                if (glyphBounds.isEmpty()) {
+                    if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
+                        continue;
+                    }
+                } else {
+                    if (!clipStackBounds.intersects(glyphBounds)) {
+                        continue;  // reject glyphs as out of bounds
+                    }
                 }
             }
             font->noteGlyphUsage(gid);
