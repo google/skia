@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dedd6535_fea51e02",
+        "filename": "src/core/SkXfermode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:23:14Z",
+      "side": 1,
+      "message": "This is one of the places you need to be careful to clamp separately from the blend mode.\n\nIt\u0027s\n\n  AppendStagesNoClamp\n  if (aa) {\n    lerp_u8\n  }\n  AppendClampIfNeeded",
+      "revId": "90eac99700364f3f5772a18aeb8c6cce816ebb53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
