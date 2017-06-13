@@ -63,35 +63,11 @@ uint32_t SkModeColorFilter::getFlags() const {
 }
 
 void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
-    SkPMColor color = fPMColor;
+    SkPMColor       color = fPMColor;
+    SkXfermodeProc  proc = SkXfermode::GetProc(fMode);
 
-    switch (fMode) {
-        case SkBlendMode::kSrc:
-            sk_memset32(result, color, count);
-            break;
-        case SkBlendMode::kSrcIn:
-            for (int i = 0; i < count; ++i) {
-                result[i] = SkAlphaMulQ(color, SkAlpha255To256(SkGetPackedA32(shader[i])));
-            }
-            break;
-        case SkBlendMode::kModulate:
-            for (int i = 0; i < count; ++i) {
-                int a = SkMulDiv255Round(SkGetPackedA32(color), SkGetPackedA32(shader[i]));
-                int r = SkMulDiv255Round(SkGetPackedR32(color), SkGetPackedR32(shader[i]));
-                int g = SkMulDiv255Round(SkGetPackedG32(color), SkGetPackedG32(shader[i]));
-                int b = SkMulDiv255Round(SkGetPackedB32(color), SkGetPackedB32(shader[i]));
-                result[i] = SkPackARGB32(a, r, g, b);
-            }
-            break;
-        default: {
-            SkSTArenaAlloc<256> alloc;
-            SkRasterPipeline p(&alloc);
-
-            p.append(SkRasterPipeline::load_8888, &shader);
-            this->appendStages(&p, nullptr, &alloc, false);
-            p.append(SkRasterPipeline::store_8888, &result);
-            p.run(0, 0, count);
-        } break;
+    for (int i = 0; i < count; i++) {
+        result[i] = proc(color, shader[i]);
     }
 }
 
@@ -156,6 +132,32 @@ sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class Src_SkModeColorFilter final : public SkModeColorFilter {
+public:
+    Src_SkModeColorFilter(SkColor color) : INHERITED(color, SkBlendMode::kSrc) {}
+
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
+        sk_memset32(result, this->getPMColor(), count);
+    }
+
+private:
+    typedef SkModeColorFilter INHERITED;
+};
+
+class SrcOver_SkModeColorFilter final : public SkModeColorFilter {
+public:
+    SrcOver_SkModeColorFilter(SkColor color) : INHERITED(color, SkBlendMode::kSrcOver) { }
+
+    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
+        SkBlitRow::Color32(result, shader, count, this->getPMColor());
+    }
+
+private:
+    typedef SkModeColorFilter INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 sk_sp<SkColorFilter> SkColorFilter::MakeModeFilter(SkColor color, SkBlendMode mode) {
     if (!SkIsValidMode(mode)) {
         return nullptr;
@@ -189,5 +191,12 @@ sk_sp<SkColorFilter> SkColorFilter::MakeModeFilter(SkColor color, SkBlendMode mo
         return nullptr;
     }
 
-    return SkModeColorFilter::Make(color, mode);
+    switch (mode) {
+        case SkBlendMode::kSrc:
+            return sk_make_sp<Src_SkModeColorFilter>(color);
+        case SkBlendMode::kSrcOver:
+            return sk_make_sp<SrcOver_SkModeColorFilter>(color);
+        default:
+            return SkModeColorFilter::Make(color, mode);
+    }
 }
