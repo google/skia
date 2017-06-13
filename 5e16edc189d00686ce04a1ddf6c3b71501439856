@@ -1,0 +1,509 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5dd2ec7a_baa9fccd",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1628,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "might make sense to call this \"translate\".",
+      "range": {
+        "startLine": 1628,
+        "startChar": 15,
+        "endLine": 1628,
+        "endChar": 26
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e1f0d2_2e87273f",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "I think positioner and imager are probably more easily understood if as verbs (like blitMask and really, all functions).  E.g.\n\n  auto offset_position \u003d [fullOffset, pos,...]{ ... };\n\nBut really, I think it\u0027d be even clearer unnamed as normal code instead of as a lambda.\n\nfor (bool done \u003d false; !done;) {\n  SkPoint mappedPoint \u003d cursor \u003c glyphCount ? SkPoint{pos[cursor],0} + fullOFfset\n                                            : SkPoint{0,0};\n  cursor++;\n  switch(iter.next(mappedPoint, \u0026mask)) {\n    ...\n  }\n}",
+      "range": {
+        "startLine": 1631,
+        "startChar": 13,
+        "endLine": 1631,
+        "endChar": 23
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53352f19_d863a674",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Probably better to use glyphCount consistently.",
+      "range": {
+        "startLine": 1663,
+        "startChar": 65,
+        "endLine": 1663,
+        "endChar": 79
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "296a1e16_c3e102bd",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "It seems like this would read more clearly as\n\nSkStrike::Iterator it;\nif (strike.getIterator(\u0026it, ...)) {\n   ...\n}",
+      "range": {
+        "startLine": 1663,
+        "startChar": 12,
+        "endLine": 1664,
+        "endChar": 39
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8649c97f_ca379902",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "It\u0027s occurred to me that this is also correctly written as \"break;\", and it might read more clearly that way.",
+      "range": {
+        "startLine": 1670,
+        "startChar": 46,
+        "endLine": 1670,
+        "endChar": 55
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae7d94ab_67db9ca0",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1684,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Please please always put {} around everything that can accept them... this is asking for goto fail.",
+      "range": {
+        "startLine": 1684,
+        "startChar": 20,
+        "endLine": 1684,
+        "endChar": 81
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65819195_0c8f88c8",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1707,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "I would have expected to return early by here if we don\u0027t want to call this code?",
+      "range": {
+        "startLine": 1707,
+        "startChar": 4,
+        "endLine": 1707,
+        "endChar": 21
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3618120_c697802f",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "I don\u0027t really see any big reason to write these on one line...\n\nif (fCursor \u003e\u003d fGlyphCount) {\n   return kDone;\n}",
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e794049_9afddd07",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "I think if you write\n\n  SkGlyphID glyphId \u003d fGlyphs[fCursor++];\n\nyou will avoid the need to have skip() be a function, and to ever worry about incrementing fCursor anywhere else.  We always want to increment it and this is the last place we use it.",
+      "range": {
+        "startLine": 831,
+        "startChar": 32,
+        "endLine": 831,
+        "endChar": 39
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed59cdac_1d24394c",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "It seems like this can be done outside in the caller rather than here?",
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "317ab027_eb9ad3bd",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "This is probably better called \"image\", or just stored into the mask directly?",
+      "range": {
+        "startLine": 857,
+        "startChar": 13,
+        "endLine": 857,
+        "endChar": 17
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1629e93_39ace360",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "These () don\u0027t really do anything.",
+      "range": {
+        "startLine": 857,
+        "startChar": 30,
+        "endLine": 857,
+        "endChar": 61
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8a91958_d0d121fb",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "looks like a good spot for .setXYWH(left, top, imageGlyph.fWidth, imageGlyph.fHeight)",
+      "range": {
+        "startLine": 867,
+        "startChar": 4,
+        "endLine": 867,
+        "endChar": 48
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a8556c1_39d987d8",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "If we\u0027re gonna cast things with C casts, let\u0027s just cast everything with C casts?",
+      "range": {
+        "startLine": 870,
+        "startChar": 22,
+        "endLine": 870,
+        "endChar": 34
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58057770_c7cc502f",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 890,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Let\u0027s update or delete this?",
+      "range": {
+        "startLine": 889,
+        "startChar": 2,
+        "endLine": 890,
+        "endChar": 76
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61293f70_ee0bdf3c",
+        "filename": "src/core/SkGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Is this important?  It\u0027s clearly a very conservative clip, to the point of seeming pointless...\n\nIf it is important, why do we compute this here and pass it into the iterator, rather than just compute it in the iterator?  It\u0027s already got the cache...",
+      "range": {
+        "startLine": 897,
+        "startChar": 0,
+        "endLine": 913,
+        "endChar": 5
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25779b6a_ec8c5fd3",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Seems like these can be file-scoped static, or at least private?  Probably best to start the name with k?  I think you can really just put them as locals in the function that uses them... this seems like a lot of ceremony.",
+      "range": {
+        "startLine": 293,
+        "startChar": 29,
+        "endLine": 293,
+        "endChar": 42
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6b7fdaa_4c60f360",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Might want to group this down a line with the Iterator rather than with the constructor?",
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab75eb6c_285d582a",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "isValid(), but I think it\u0027d be better if makeMaskIterator() filled this and returned a bool.",
+      "range": {
+        "startLine": 316,
+        "startChar": 13,
+        "endLine": 316,
+        "endChar": 20
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "585605f6_609f2c1b",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "next()",
+      "range": {
+        "startLine": 317,
+        "startChar": 15,
+        "endLine": 317,
+        "endChar": 19
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8d86f11_6e82c84a",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Instead of count, glyphs, and cursor, you might just want to store glyphs and end, both const SkGlyphID*?",
+      "range": {
+        "startLine": 321,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 42
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0abf6bfb_a623f56c",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "makeMaskIterator()",
+      "range": {
+        "startLine": 328,
+        "startChar": 13,
+        "endLine": 328,
+        "endChar": 28
+      },
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b9d0b7d_ee9bfd37",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:14:20Z",
+      "side": 1,
+      "message": "Might be nice to move this newline to between the constants and the data.",
+      "revId": "5e16edc189d00686ce04a1ddf6c3b71501439856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
