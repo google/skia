@@ -12,7 +12,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "GrTexture.h"

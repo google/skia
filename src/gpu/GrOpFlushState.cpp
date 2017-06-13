@@ -9,6 +9,7 @@
 
 #include "GrDrawOpAtlas.h"
 #include "GrResourceProvider.h"
+#include "GrTexture.h"
 
 GrOpFlushState::GrOpFlushState(GrGpu* gpu, GrResourceProvider* resourceProvider)
         : fGpu(gpu)

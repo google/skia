@@ -12,6 +12,7 @@
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
+#include "GrTexture.h"
 
 #include "SkGr.h"
 #include "SkMessageBus.h"

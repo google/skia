@@ -10,10 +10,10 @@
 
 #include "SkMatrix.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrTexture.h"
 #include "GrTextureProxy.h"
 
 class GrResourceProvider;
+class GrTexture;
 
 /**
  * A class representing a linear transformation of local coordinates. GrFragnentProcessors

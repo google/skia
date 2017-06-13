@@ -243,10 +243,7 @@ public:
 
 private:
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
-    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
-        SkASSERT(key.isValid());
-        this->assignUniqueKeyToResource(key, texture);
-    }
+    void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
     sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 

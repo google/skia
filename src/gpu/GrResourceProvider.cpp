@@ -307,6 +307,11 @@ GrTexture* GrResourceProvider::findAndRefTextureByUniqueKey(const GrUniqueKey& k
     return NULL;
 }
 
+void GrResourceProvider::assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture) {
+    SkASSERT(key.isValid());
+    this->assignUniqueKeyToResource(key, texture);
+}
+
 // MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
 void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
     ASSERT_SINGLE_OWNER

@@ -19,6 +19,7 @@
 #include "GrSurfaceContext.h"
 #include "GrSurfacePriv.h"
 #include "GrSurfaceProxyPriv.h"
+#include "GrTexture.h"
 #include "GrTextureContext.h"
 #include "SkConvertPixels.h"
 #include "SkGr.h"
