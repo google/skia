@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb765ac9_6db891f7",
+        "filename": "BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T00:35:51Z",
+      "side": 0,
+      "message": "Might be nice to write it so that skia_vulkan_headers is always defined.\n\nskia_vulkan_headers \u003d \"\"\nif (skia_use_vulkan) {\n  if (is_fuchsia) {\n    skia_vulkan_headers \u003d ...\n  } elif (is_linux || is_win) {\n    skia_vulkan_headers \u003d ...\n  }\n}\n\nIf nothing else, that means the change to :skia_public isn\u0027t needed.",
+      "revId": "2ee0f42a4b678529d6d62a2619e66fec5e637412",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
