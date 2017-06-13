@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c524c52_dce2e0cd",
+        "filename": "src/gpu/GrRenderTargetOpList.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-13T16:25:48Z",
+      "side": 1,
+      "message": "Why the new lines? I don\u0027t think we usually do that and it breaks automated reordering.",
+      "range": {
+        "startLine": 16,
+        "startChar": 9,
+        "endLine": 16,
+        "endChar": 10
+      },
+      "revId": "b4b746cc0417b58db671c083108d016b09505242",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bf1aa73_83b7155c",
+        "filename": "src/gpu/ops/GrCopySurfaceOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-13T16:25:48Z",
+      "side": 1,
+      "message": "?",
+      "revId": "b4b746cc0417b58db671c083108d016b09505242",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
