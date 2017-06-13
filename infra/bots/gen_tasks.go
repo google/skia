@@ -59,6 +59,10 @@ var (
 	// Mapping of human-friendly GPU names to PCI IDs.
 	GPU_MAPPING map[string]string
 
+	// alternateSwarmDimensions can be set in an init function to override the default swarming bot
+	// dimensions for the given task.
+	alternateSwarmDimensions func(parts map[string]string) []string
+
 	// Defines the structure of job names.
 	jobNameSchema *JobNameSchema
 
@@ -154,11 +158,19 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 
 // swarmDimensions generates swarming bot dimensions for the given task.
 func swarmDimensions(parts map[string]string) []string {
+	if alternateSwarmDimensions != nil {
+		return alternateSwarmDimensions(parts)
+	}
+	return defaultSwarmDimensions(parts)
+}
+
+// defaultSwarmDimensions generates default swarming bot dimensions for the given task.
+func defaultSwarmDimensions(parts map[string]string) []string {
 	d := map[string]string{
 		"pool": CONFIG.Pool,
 	}
 	if os, ok := parts["os"]; ok {
-		d["os"] = map[string]string{
+		d["os"], ok = map[string]string{
 			"Android":    "Android",
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
@@ -172,6 +184,9 @@ func swarmDimensions(parts map[string]string) []string {
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-10.3.1",
 		}[os]
+		if !ok {
+			glog.Fatalf("Entry %q not found in OS mapping.", os)
+		}
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
 			d["os"] = "Windows-10-10586"
@@ -183,26 +198,60 @@ func swarmDimensions(parts map[string]string) []string {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
-			deviceInfo, ok := ANDROID_MAPPING[parts["model"]]
+			androidMapping := map[string][]string{
+				"AndroidOne":      {"sprout", "MOB30Q"},
+				"Chorizo":         {"chorizo", "1.24_82923"},
+				"Ci20":            {"ci20", "NRD90M"},
+				"GalaxyJ5":        {"j5xnlte", "MMB29M"},
+				"GalaxyS6":        {"zerofltetmo", "MMB29K"},
+				"GalaxyS7_G930A":  {"heroqlteatt", "NRD90M_G930AUCS4BQC2"},
+				"GalaxyS7_G930FD": {"herolte", "NRD90M_G930FXXU1DQAS"},
+				"GalaxyTab3":      {"goyawifi", "JDQ39"},
+				"MotoG4":          {"athene", "NPJ25.93-14"},
+				"NVIDIA_Shield":   {"foster", "NRD90M"},
+				"Nexus10":         {"manta", "LMY49J"},
+				"Nexus5":          {"hammerhead", "M4B30Z"},
+				"Nexus6":          {"shamu", "M"},
+				"Nexus6p":         {"angler", "OPP1.170223.012"},
+				"Nexus7":          {"grouper", "LMY47V"},
+				"Nexus7v2":        {"flo", "M"},
+				"NexusPlayer":     {"fugu", "OPP2.170420.017"},
+				"Pixel":           {"sailfish", "NMF26Q"},
+				"PixelC":          {"dragon", "N2G47D"},
+				"PixelXL":         {"marlin", "NMF26Q"},
+			}
+			// Use ANDROID_MAPPING if set for backward compatibility.
+			if len(ANDROID_MAPPING) > 0 {
+				androidMapping = ANDROID_MAPPING
+			}
+			deviceInfo, ok := androidMapping[parts["model"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in Android mapping: %v", parts["model"], ANDROID_MAPPING)
+				glog.Fatalf("Entry %q not found in Android mapping: %v", parts["model"], androidMapping)
 			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
 		} else if strings.Contains(parts["os"], "iOS") {
-			d["device"] = map[string]string{
+			device, ok := map[string]string{
 				"iPadMini4": "iPad5,1",
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
+			if !ok {
+				glog.Fatalf("Entry %q not found in iOS mapping.", parts["model"])
+			}
+			d["device"] = device
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
-			d["cpu"] = map[string]string{
+			cpu, ok := map[string]string{
 				"AVX":  "x86-64",
 				"AVX2": "x86-64-avx2",
 				"SSE4": "x86-64",
 			}[parts["cpu_or_gpu_value"]]
+			if !ok {
+				glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
+			}
+			d["cpu"] = cpu
 			if strings.Contains(parts["os"], "Win") && parts["cpu_or_gpu_value"] == "AVX2" {
 				// AVX2 is not correctly detected on Windows. Fall back on other
 				// dimensions to ensure that we correctly target machines which we know
@@ -213,7 +262,33 @@ func swarmDimensions(parts map[string]string) []string {
 				}
 			}
 		} else {
-			gpu, ok := GPU_MAPPING[parts["cpu_or_gpu_value"]]
+			gpuMapping := map[string]string{
+				"AMDHD7770":     "1002:683d",
+				"GT610":         "10de:104a",
+				"GTX1070":       "10de:1ba1",
+				"GTX550Ti":      "10de:1244",
+				"GTX660":        "10de:11c0",
+				"GTX960":        "10de:1401",
+				"IntelHD4000":   "8086:0a2e",
+				"IntelHD530":    "8086:1912",
+				"IntelBayTrail": "8086:0f31",
+				"IntelHD2000":   "8086:0102",
+				"IntelHD405":    "8086:22b1",
+				"IntelHD4400":   "8086:0a16",
+				"IntelHD4600":   "8086:0412",
+				"IntelIris540":  "8086:1926",
+				"IntelIris6100": "8086:162b",
+				"MaliT604":      "MaliT604",
+				"MaliT764":      "MaliT764",
+				"MaliT860":      "MaliT860",
+				"RadeonR9M470X": "1002:6646",
+				"TegraK1":       "TegraK1",
+			}
+			// Use GPU_MAPPING if set for backward compatibility.
+			if len(GPU_MAPPING) > 0 {
+				gpuMapping = GPU_MAPPING
+			}
+			gpu, ok := gpuMapping[parts["cpu_or_gpu_value"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in GPU mapping: %v", parts["cpu_or_gpu_value"], GPU_MAPPING)
 			}
@@ -848,10 +923,14 @@ func main() {
 	loadJson(jobsFile, path.Join(infraBots, "jobs.json"), &JOBS)
 
 	// Load the GPU mapping from a JSON file.
-	loadJson(gpuMapFile, path.Join(infraBots, "gpu_map.json"), &GPU_MAPPING)
+	if *gpuMapFile != "" {
+		loadJson(gpuMapFile, "", &GPU_MAPPING)
+	}
 
 	// Load the Android device mapping from a JSON file.
-	loadJson(androidMapFile, path.Join(infraBots, "android_map.json"), &ANDROID_MAPPING)
+	if *androidMapFile != "" {
+		loadJson(androidMapFile, "", &ANDROID_MAPPING)
+	}
 
 	// Load general config information from a JSON file.
 	loadJson(cfgFile, path.Join(infraBots, "cfg.json"), &CONFIG)
