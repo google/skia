@@ -10,13 +10,10 @@
 
 #include "SkXfermodePriv.h"
 
-#define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
-
 class SkProcCoeffXfermode : public SkXfermode {
 public:
-    SkProcCoeffXfermode(SkXfermodeProc proc, SkBlendMode mode) {
+    SkProcCoeffXfermode(SkBlendMode mode) {
         fMode = mode;
-        fProc = proc;
     }
 
     void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
@@ -25,11 +22,8 @@ public:
 protected:
     SkBlendMode getMode() const { return fMode; }
 
-    SkXfermodeProc getProc() const { return fProc; }
-
 private:
-    SkXfermodeProc  fProc;
-    SkBlendMode     fMode;
+    SkBlendMode fMode;
 
     friend class SkXfermode;
 
