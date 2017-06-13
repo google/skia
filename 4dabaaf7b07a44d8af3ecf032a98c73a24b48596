@@ -129,6 +129,30 @@
       "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cab0cd55_16186f94",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-13T16:11:00Z",
+      "side": 1,
+      "message": "Can you go like, 2 steps further with why?  What breaks if we don\u0027t do this?  Something fails to compile?",
+      "parentUuid": "6226a818_c054d619",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 753,
+        "endChar": 7
+      },
+      "revId": "4dabaaf7b07a44d8af3ecf032a98c73a24b48596",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
