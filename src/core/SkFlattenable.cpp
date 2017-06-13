@@ -48,8 +48,6 @@ void SkRefCntSet::decPtr(void* ptr) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define MAX_ENTRY_COUNT  1024
-
 struct Entry {
     const char*             fName;
     SkFlattenable::Factory  fFactory;
@@ -57,12 +55,12 @@ struct Entry {
 };
 
 static int gCount = 0;
-static Entry gEntries[MAX_ENTRY_COUNT];
+static Entry gEntries[128];
 
 void SkFlattenable::Register(const char name[], Factory factory, SkFlattenable::Type type) {
     SkASSERT(name);
     SkASSERT(factory);
-    SkASSERT(gCount < MAX_ENTRY_COUNT);
+    SkASSERT(gCount < (int)SK_ARRAY_COUNT(gEntries));
 
     gEntries[gCount].fName = name;
     gEntries[gCount].fFactory = factory;
