@@ -313,7 +313,7 @@ private:
 
     void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
                       int firstVertex, int count) const {
-        GrMesh mesh(TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType : kTriangles_GrPrimitiveType);
+        GrMesh mesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines : GrPrimitiveType::kTriangles);
         mesh.setNonIndexedNonInstanced(count);
         mesh.setVertexData(vb, firstVertex);
         target->draw(gp, this->pipeline(), mesh);
