@@ -39,6 +39,7 @@ struct SWDst : Dst {
     }
 };
 static Register sw{"sw", "draw with the software backend", SWDst::Create};
+static Register _8888{"8888", "alias for sw", SWDst::Create};
 
 static Register _565{"565", "alias for sw:ct=565", [](Options options) {
     options["ct"] = "565";
@@ -53,5 +54,11 @@ static Register srgb{"srgb", "alias for sw:cs=srgb", [](Options options) {
 static Register f16{"f16", "alias for sw:ct=f16,cs=srgb", [](Options options) {
     options["ct"] = "f16";
     options["cs"] = "srgb";
+    return SWDst::Create(options);
+}};
+
+extern bool gSkForceRasterPipelineBlitter;
+static Register rp{"rp", "draw forcing SkRasterPipelineBlitter", [](Options options) {
+    gSkForceRasterPipelineBlitter = true;
     return SWDst::Create(options);
 }};
