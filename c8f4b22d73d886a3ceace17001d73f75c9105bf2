@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a1a89ed_519ec0a5",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-14T16:35:57Z",
+      "side": 1,
+      "message": "This assert gets triggered when I apply this patch on top of https://skia-review.googlesource.com/c/19582/\n\nIf I comment it out everything seems to work fine.",
+      "range": {
+        "startLine": 91,
+        "startChar": 8,
+        "endLine": 91,
+        "endChar": 16
+      },
+      "revId": "c8f4b22d73d886a3ceace17001d73f75c9105bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
