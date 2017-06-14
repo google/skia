@@ -249,42 +249,73 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				}
 			}
 		} else {
-			gpu, ok := map[string]string{
-				"AMDHD7770":     "1002:683d",
-				"GT610":         "10de:104a",
-				"GTX1070":       "10de:1ba1",
-				"GTX550Ti":      "10de:1244",
-				"GTX660":        "10de:11c0",
-				"GTX960":        "10de:1401",
-				"IntelHD4000":   "8086:0a2e",
-				"IntelHD530":    "8086:1912",
-				"IntelBayTrail": "8086:0f31",
-				"IntelHD2000":   "8086:0102",
-				"IntelHD405":    "8086:22b1",
-				"IntelHD4400":   "8086:0a16",
-				"IntelHD4600":   "8086:0412",
-				"IntelIris540":  "8086:1926",
-				"IntelIris6100": "8086:162b",
-				"MaliT604":      "MaliT604",
-				"MaliT764":      "MaliT764",
-				"MaliT860":      "MaliT860",
-				"RadeonR9M470X": "1002:6646",
-				"TegraK1":       "TegraK1",
-			}[parts["cpu_or_gpu_value"]]
-			if !ok {
-				glog.Fatalf("Entry %q not found in GPU mapping.", parts["cpu_or_gpu_value"])
-			}
-			d["gpu"] = gpu
+			if strings.Contains(parts["os"], "Win") {
+				gpu, ok := map[string]string{
+					"AMDHD7770":     "1002:683d-22.19.165.512",
+					"GT610":         "10de:104a-21.21.13.7619",
+					"GTX1070":       "10de:1ba1-22.21.13.8205",
+					"GTX660":        "10de:11c0-22.21.13.8205",
+					"GTX960":        "10de:1401-22.21.13.8205",
+					"IntelHD530":    "8086:1912-21.20.16.4590",
+					"IntelHD4400":   "8086:0a16-20.19.15.4531",
+					"IntelHD4600":   "8086:0412-20.19.15.4531",
+					"IntelIris540":  "8086:1926-21.20.16.4590",
+					"IntelIris6100": "8086:162b-20.19.15.4531",
+					"RadeonR9M470X": "1002:6646-22.19.165.512",
+				}[parts["cpu_or_gpu_value"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
+				}
+				d["gpu"] = gpu
 
-			// Hack: Specify machine_type dimension for NUCs and ShuttleCs. We
-			// temporarily have two types of machines with a GTX960. The only way to
-			// distinguish these bots is by machine_type.
-			machine_type, ok := map[string]string{
-				"NUC6i7KYK": "n1-highcpu-8",
-				"ShuttleC":  "n1-standard-8",
-			}[parts["model"]]
-			if ok {
-				d["machine_type"] = machine_type
+				// Hack: Specify machine_type dimension for NUCs and ShuttleCs. We
+				// temporarily have two types of machines with a GTX960. The only way to
+				// distinguish these bots is by machine_type.
+				machine_type, ok := map[string]string{
+					"NUC6i7KYK": "n1-highcpu-8",
+					"ShuttleC":  "n1-standard-8",
+				}[parts["model"]]
+				if ok {
+					d["machine_type"] = machine_type
+				}
+			} else if strings.Contains(parts["os"], "Ubuntu") {
+				gpu, ok := map[string]string{
+					"GT610":    "10de:104a-340.96",
+					"GTX550Ti": "10de:1244-340.76",
+					"GTX660":   "10de:11c0-367.57",
+					"GTX960":   "10de:1401-367.57",
+					// Intel drivers come from CIPD, so no need to specify the version here.
+					"IntelBayTrail": "8086:0f31",
+					"IntelHD2000":   "8086:0102",
+					"IntelHD405":    "8086:22b1",
+					"IntelIris540":  "8086:1926",
+				}[parts["cpu_or_gpu_value"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
+				}
+				d["gpu"] = gpu
+			} else if strings.Contains(parts["os"], "Mac") {
+				gpu, ok := map[string]string{
+					// TODO(benjaminwagner): GPU name doesn't match device ID.
+					"IntelHD4000": "8086:0a2e",
+				}[parts["cpu_or_gpu_value"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
+				}
+				d["gpu"] = gpu
+			} else if strings.Contains(parts["os"], "ChromeOS") {
+				gpu, ok := map[string]string{
+					"MaliT604": "MaliT604",
+					"MaliT764": "MaliT764",
+					"MaliT860": "MaliT860",
+					"TegraK1":  "TegraK1",
+				}[parts["cpu_or_gpu_value"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in ChromeOS GPU mapping.", parts["cpu_or_gpu_value"])
+				}
+				d["gpu"] = gpu
+			} else {
+				glog.Fatalf("Unknown GPU mapping for OS %q.", parts["os"])
 			}
 		}
 	} else {
