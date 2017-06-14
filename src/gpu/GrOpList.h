@@ -35,10 +35,7 @@ public:
     virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
     virtual void makeClosed(const GrCaps&) {
-        if (!this->isClosed()) {
-            this->setFlag(kClosed_Flag);
-            fTarget.removeRef();
-        }
+        this->setFlag(kClosed_Flag);
     }
 
     virtual void reset();

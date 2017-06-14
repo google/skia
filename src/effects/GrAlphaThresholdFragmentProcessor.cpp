@@ -44,7 +44,7 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
                   resourceProvider,
                   SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                   maskProxy.get())
-        , fMaskTextureSampler(resourceProvider, std::move(maskProxy)) {
+        , fMaskTextureSampler(resourceProvider, maskProxy) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
     this->addTextureSampler(&fImageTextureSampler);

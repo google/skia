@@ -45,6 +45,8 @@ GrOpList::~GrOpList() {
         if (this == fTarget.get()->getLastOpList()) {
             fTarget.get()->setLastOpList(nullptr);
         }
+
+        fTarget.pendingIOComplete();
     }
 }
 
@@ -57,6 +59,7 @@ void GrOpList::reset() {
         fTarget.get()->setLastOpList(nullptr);
     }
 
+    fTarget.pendingIOComplete();
     fTarget.reset();
     fAuditTrail = nullptr;
 }
