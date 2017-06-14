@@ -11852,7 +11852,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NMF26Q",
+        "device_os:OPP3.170518.006",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
@@ -11886,7 +11886,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NMF26Q",
+        "device_os:OPP3.170518.006",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
@@ -11920,7 +11920,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NMF26Q",
+        "device_os:OPP3.170518.006",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
@@ -11954,7 +11954,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:NMF26Q",
+        "device_os:OPP3.170518.006",
         "device_type:marlin",
         "os:Android",
         "pool:Skia"
