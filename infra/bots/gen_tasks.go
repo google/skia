@@ -15,12 +15,15 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/skia-dev/glog"
+	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
@@ -333,6 +336,21 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	return rv
 }
 
+// relpath returns the relative path to the given file from the config file.
+func relpath(f string) string {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Dir(filename)
+	rel := dir
+	if *cfgFile != "" {
+		rel = path.Dir(*cfgFile)
+	}
+	rv, err := filepath.Rel(rel, path.Join(dir, f))
+	if err != nil {
+		sklog.Fatal(err)
+	}
+	return rv
+}
+
 // bundleRecipes generates the task to bundle and isolate the recipes.
 func bundleRecipes(b *specs.TasksCfgBuilder) string {
 	b.MustAddTask(BUNDLE_RECIPES_NAME, &specs.TaskSpec{
@@ -343,7 +361,7 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 		},
-		Isolate:  "bundle_recipes.isolate",
+		Isolate:  relpath("bundle_recipes.isolate"),
 		Priority: 0.7,
 	})
 	return BUNDLE_RECIPES_NAME
@@ -383,7 +401,7 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 			b.MustGetCipdPackageFromAsset(ISOLATE_ASSET_MAPPING[name].cipdPkg),
 		},
 		Dimensions: linuxGceDimensions(),
-		Isolate:    ISOLATE_ASSET_MAPPING[name].isolateFile,
+		Isolate:    relpath(ISOLATE_ASSET_MAPPING[name].isolateFile),
 		Priority:   0.7,
 	})
 	return name
@@ -479,7 +497,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "compile_skia.isolate",
+		Isolate:  relpath("compile_skia.isolate"),
 		Priority: 0.8,
 	})
 	// All compile tasks are runnable as their own Job. Assert that the Job
@@ -510,7 +528,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
 		IoTimeout: 40 * time.Minute,
-		Isolate:   "compile_skia.isolate",
+		Isolate:   relpath("compile_skia.isolate"),
 		Priority:  0.8,
 	})
 	return name
@@ -534,7 +552,7 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "meta_config.isolate",
+		Isolate:  relpath("meta_config.isolate"),
 		Priority: 0.8,
 	})
 	return name
@@ -559,7 +577,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
 		IoTimeout: time.Hour,
-		Isolate:   "ct_skps_skia.isolate",
+		Isolate:   relpath("ct_skps_skia.isolate"),
 		Priority:  0.8,
 	})
 	return name
@@ -583,7 +601,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "housekeeper_skia.isolate",
+		Isolate:  relpath("housekeeper_skia.isolate"),
 		Priority: 0.8,
 	})
 	return name
@@ -606,7 +624,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
-		Isolate:  "infra_skia.isolate",
+		Isolate:  relpath("infra_skia.isolate"),
 		Priority: 0.8,
 	})
 	return name
@@ -647,16 +665,16 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
 		IoTimeout:   40 * time.Minute,
-		Isolate:     "test_skia.isolate",
+		Isolate:     relpath("test_skia.isolate"),
 		MaxAttempts: 1,
 		Priority:    0.8,
 	}
 	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 		if strings.Contains(parts["os"], "Win") {
-			s.Isolate = "test_skia_bundled_win.isolate"
+			s.Isolate = relpath("test_skia_bundled_win.isolate")
 		} else {
-			s.Isolate = "test_skia_bundled_unix.isolate"
+			s.Isolate = relpath("test_skia_bundled_unix.isolate")
 		}
 	}
 	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
@@ -693,7 +711,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketGm),
 			},
-			Isolate:  "upload_dm_results.isolate",
+			Isolate:  relpath("upload_dm_results.isolate"),
 			Priority: 0.8,
 		})
 		return uploadName
@@ -705,22 +723,22 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 // generated chain of tasks, which the Job should add as a dependency.
 func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compileTaskName string, pkgs []*specs.CipdPackage) string {
 	recipe := "perf"
-	isolate := "perf_skia.isolate"
+	isolate := relpath("perf_skia.isolate")
 	if strings.Contains(parts["extra_config"], "Skpbench") {
 		recipe = "skpbench"
-		isolate = "skpbench_skia.isolate"
+		isolate = relpath("skpbench_skia.isolate")
 		if useBundledRecipes(parts) {
 			if strings.Contains(parts["os"], "Win") {
-				isolate = "skpbench_skia_bundled_win.isolate"
+				isolate = relpath("skpbench_skia_bundled_win.isolate")
 			} else {
-				isolate = "skpbench_skia_bundled_unix.isolate"
+				isolate = relpath("skpbench_skia_bundled_unix.isolate")
 			}
 		}
 	} else if useBundledRecipes(parts) {
 		if strings.Contains(parts["os"], "Win") {
-			isolate = "perf_skia_bundled_win.isolate"
+			isolate = relpath("perf_skia_bundled_win.isolate")
 		} else {
-			isolate = "perf_skia_bundled_unix.isolate"
+			isolate = relpath("perf_skia_bundled_unix.isolate")
 		}
 	}
 	s := &specs.TaskSpec{
@@ -783,7 +801,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 				fmt.Sprintf("gs_bucket=%s", CONFIG.GsBucketNano),
 			},
-			Isolate:  "upload_nano_results.isolate",
+			Isolate:  relpath("upload_nano_results.isolate"),
 			Priority: 0.8,
 		})
 		return uploadName
