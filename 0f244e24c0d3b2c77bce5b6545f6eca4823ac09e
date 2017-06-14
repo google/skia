@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e577e74_ec1c951c",
+        "filename": "tests/skbug6653.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T19:26:44Z",
+      "side": 1,
+      "message": "time warp",
+      "revId": "0f244e24c0d3b2c77bce5b6545f6eca4823ac09e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
