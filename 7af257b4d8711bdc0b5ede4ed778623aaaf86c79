@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "f2fddcdd_4b63581c",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:46:35Z",
+      "side": 1,
+      "message": "Isn\u0027t \u0027snapToPixelCenters\u0027 only used in this else block?",
+      "parentUuid": "6e0ce7ca_70df859a",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2eed81a6_dd9c3abf",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -83,6 +101,24 @@
       "side": 1,
       "message": "Yeah, the implicit contract for op factories is if the op didn\u0027t get created then the paint was left in tact. I\u0027m not crazy about it but we need a pattern for things like:\n\nauto op \u003d GrFasterFactory::Make(paint, ...)\nif (op) {\n    this-\u003eaddop(op);\n    return;\n}\nthis-\u003edrawPath(paint, ...);\n\n\nthat doesn\u0027t require making paint copies. We could take paint as GrPaint* or GrPaint\u0026 but I\u0027m not sure that\u0027s any better.",
       "parentUuid": "7a9aa91f_23d363da",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3881fe24_5e968c37",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:46:35Z",
+      "side": 1,
+      "message": "Yep, I figured that was the contract. I can\u0027t think of a non-grubby way of making it clearer though (e.g., adding comments all over the place).",
+      "parentUuid": "3c7957eb_1a1cb52a",
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
