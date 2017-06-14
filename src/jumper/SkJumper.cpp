@@ -101,7 +101,6 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(dstover)           \
     M(modulate)          \
     M(multiply)          \
-    M(plus_)             \
     M(screen)            \
     M(xor_)
 
