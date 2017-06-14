@@ -120,7 +120,8 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fShape = &shape;
         canDrawArgs.fAAType = GrChooseAAType(GrBoolToAA(element->isAA()),
                                              renderTargetContext->fsaaType(),
-                                             GrAllowMixedSamples::kYes);
+                                             GrAllowMixedSamples::kYes,
+                                             *context->caps());
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
 
         // the 'false' parameter disallows use of the SW path renderer

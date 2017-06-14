@@ -12,6 +12,8 @@
 #include "GrTypes.h"
 #include "SkRefCnt.h"
 
+class GrCaps;
+
 // The old libstdc++ uses the draft name "monotonic_clock" rather than "steady_clock". This might
 // not actually be monotonic, depending on how libstdc++ was built. However, this is only currently
 // used for idle resource purging so it shouldn't cause a correctness problem.
@@ -67,23 +69,7 @@ enum class GrFSAAType {
  */
 enum class GrAllowMixedSamples { kNo, kYes };
 
-static inline GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType,
-                                      GrAllowMixedSamples allowMixedSamples) {
-    if (GrAA::kNo == aa) {
-        return GrAAType::kNone;
-    }
-    switch (fsaaType) {
-        case GrFSAAType::kNone:
-            return GrAAType::kCoverage;
-        case GrFSAAType::kUnifiedMSAA:
-            return GrAAType::kMSAA;
-        case GrFSAAType::kMixedSamples:
-            return GrAllowMixedSamples::kYes == allowMixedSamples ? GrAAType::kMixedSamples
-                                                                  : GrAAType::kCoverage;
-    }
-    SkFAIL("Unexpected fsaa type");
-    return GrAAType::kNone;
-}
+GrAAType GrChooseAAType(GrAA, GrFSAAType, GrAllowMixedSamples, const GrCaps&);
 
 /**
  * Types of shader-language-specific boxed variables we can create. (Currently only GrGLShaderVars,
