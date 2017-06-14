@@ -34,6 +34,7 @@
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
 #include "ops/GrLatticeOp.h"
+#include "ops/GrNonAAFillRectOp.h"
 #include "ops/GrOp.h"
 #include "ops/GrOvalOpFactory.h"
 #include "ops/GrRectOpFactory.h"
@@ -284,9 +285,10 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
 
         // We don't call drawRect() here to avoid the cropping to the, possibly smaller,
         // RenderTargetProxy bounds
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFill(
-                std::move(paint), SkMatrix::I(), SkRect::Make(rtRect), GrAAType::kNone);
-        fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
+        fRenderTargetContext->drawNonAAFilledRect(GrNoClip(), std::move(paint), SkMatrix::I(),
+                                                  SkRect::Make(rtRect), nullptr, nullptr, nullptr,
+                                                  GrAAType::kNone);
+
     } else {
         // This path doesn't handle coalescing of full screen clears b.c. it
         // has to clear the entire render target - not just the content area.
@@ -396,15 +398,18 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
 
         AutoCheckFlush acf(this->drawingManager());
 
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                std::move(paint), SkMatrix::I(), localMatrix, r, GrAAType::kNone);
-        this->addDrawOp(clip, std::move(op));
+        this->drawNonAAFilledRect(clip, std::move(paint), SkMatrix::I(), r, nullptr, &localMatrix,
+                                  nullptr, GrAAType::kNone);
     }
 }
 
 static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& point) {
     return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
            point.fY >= rect.fTop && point.fY <= rect.fBottom;
+}
+
+static bool view_matrix_ok_for_aa_fill_rect(const SkMatrix& viewMatrix) {
+    return viewMatrix.preservesRightAngles();
 }
 
 // Attempts to crop a rect and optional local rect to the clip boundaries.
@@ -474,17 +479,29 @@ bool GrRenderTargetContext::drawFilledRect(const GrClip& clip,
         }
     }
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op;
     if (GrAAType::kCoverage == aaType) {
-        op = GrRectOpFactory::MakeAAFill(std::move(paint), viewMatrix, rect, ss);
+        // The fill path can handle rotation but not skew.
+        if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+            SkRect devBoundRect;
+            viewMatrix.mapRect(&devBoundRect, croppedRect);
+            std::unique_ptr<GrLegacyMeshDrawOp> op =
+                    GrRectOpFactory::MakeAAFill(paint, viewMatrix, rect, croppedRect, devBoundRect);
+            if (op) {
+                GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+                if (ss) {
+                    pipelineBuilder.setUserStencil(ss);
+                }
+                this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+                return true;
+            }
+        }
     } else {
-        op = GrRectOpFactory::MakeNonAAFill(std::move(paint), viewMatrix, croppedRect, aaType, ss);
+        this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect, nullptr, nullptr,
+                                  ss, aaType);
+        return true;
     }
-    if (!op) {
-        return false;
-    }
-    this->addDrawOp(clip, std::move(op));
-    return true;
+
+    return false;
 }
 
 void GrRenderTargetContext::drawRect(const GrClip& clip,
@@ -574,21 +591,30 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 }
         }
 
-        std::unique_ptr<GrDrawOp> op;
+        bool snapToPixelCenters = false;
+        std::unique_ptr<GrLegacyMeshDrawOp> op;
 
+        GrColor color = paint.getColor();
         GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
         if (GrAAType::kCoverage == aaType) {
             // The stroke path needs the rect to remain axis aligned (no rotation or skew).
             if (viewMatrix.rectStaysRect()) {
-                op = GrRectOpFactory::MakeAAStroke(std::move(paint), viewMatrix, rect, stroke);
+                op = GrRectOpFactory::MakeAAStroke(color, viewMatrix, rect, stroke);
             }
         } else {
-            op = GrRectOpFactory::MakeNonAAStroke(std::move(paint), viewMatrix, rect, stroke,
-                                                  aaType);
+            // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
+            // hairline rects. We jam all the vertices to pixel centers to avoid this, but not
+            // when MSAA is enabled because it can cause ugly artifacts.
+            snapToPixelCenters = stroke.getStyle() == SkStrokeRec::kHairline_Style &&
+                                 GrFSAAType::kUnifiedMSAA != fRenderTargetProxy->fsaaType();
+            op = GrRectOpFactory::MakeNonAAStroke(color, viewMatrix, rect, stroke,
+                                                  snapToPixelCenters);
         }
 
         if (op) {
-            this->addDrawOp(clip, std::move(op));
+            GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+            pipelineBuilder.setSnapVerticesToPixelCenters(snapToPixelCenters);
+            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
             return;
         }
     }
@@ -694,9 +720,9 @@ void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
 
     GrPaint paint;
     paint.setXPFactory(GrDisableColorXPFactory::Get());
-    std::unique_ptr<GrDrawOp> op =
-            GrRectOpFactory::MakeNonAAFill(std::move(paint), viewMatrix, rect, aaType, ss);
-    fRenderTargetContext->addDrawOp(clip, std::move(op));
+
+    fRenderTargetContext->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, rect, nullptr,
+                                              nullptr, ss, aaType);
 }
 
 bool GrRenderTargetContextPriv::drawAndStencilRect(const GrClip& clip,
@@ -758,16 +784,16 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage != aaType) {
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalRect(
-                std::move(paint), viewMatrix, croppedRect, croppedLocalRect, aaType);
-        this->addDrawOp(clip, std::move(op));
+        this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect,
+                                  &croppedLocalRect, nullptr, nullptr, aaType);
         return;
     }
 
-    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillWithLocalRect(
-            std::move(paint), viewMatrix, croppedRect, croppedLocalRect);
-    if (op) {
-        this->addDrawOp(clip, std::move(op));
+    if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+        std::unique_ptr<GrLegacyMeshDrawOp> op = GrAAFillRectOp::MakeWithLocalRect(
+                paint.getColor(), viewMatrix, croppedRect, croppedLocalRect);
+        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
         return;
     }
 
@@ -814,16 +840,16 @@ void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage != aaType) {
-        std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                std::move(paint), viewMatrix, localMatrix, croppedRect, aaType);
-        this->addDrawOp(clip, std::move(op));
+        this->drawNonAAFilledRect(clip, std::move(paint), viewMatrix, croppedRect, nullptr,
+                                  &localMatrix, nullptr, aaType);
         return;
     }
 
-    std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillWithLocalMatrix(
-            std::move(paint), viewMatrix, localMatrix, croppedRect);
-    if (op) {
-        this->addDrawOp(clip, std::move(op));
+    if (view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
+        std::unique_ptr<GrLegacyMeshDrawOp> op =
+                GrAAFillRectOp::Make(paint.getColor(), viewMatrix, localMatrix, croppedRect);
+        GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+        this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
         return;
     }
 
@@ -1438,6 +1464,21 @@ void GrRenderTargetContext::prepareForExternalIO() {
     this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
 }
 
+void GrRenderTargetContext::drawNonAAFilledRect(const GrClip& clip,
+                                                GrPaint&& paint,
+                                                const SkMatrix& viewMatrix,
+                                                const SkRect& rect,
+                                                const SkRect* localRect,
+                                                const SkMatrix* localMatrix,
+                                                const GrUserStencilSettings* ss,
+                                                GrAAType hwOrNoneAAType) {
+    SkASSERT(GrAAType::kCoverage != hwOrNoneAAType);
+    SkASSERT(GrAAType::kNone == hwOrNoneAAType || GrFSAAType::kNone != this->fsaaType());
+    std::unique_ptr<GrDrawOp> op = GrNonAAFillRectOp::Make(
+            std::move(paint), viewMatrix, rect, localRect, localMatrix, hwOrNoneAAType, ss);
+    this->addDrawOp(clip, std::move(op));
+}
+
 // Can 'path' be drawn as a pair of filled nested rectangles?
 static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path, SkRect rects[2]) {
 
@@ -1511,13 +1552,13 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             SkRect rects[2];
 
             if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                std::unique_ptr<GrDrawOp> op =
-                        GrRectOpFactory::MakeAAFillNestedRects(std::move(paint), viewMatrix, rects);
-                if (!op) {
-                    // A null return indicates that there is nothing to draw in this case.
-                    return;
+                std::unique_ptr<GrLegacyMeshDrawOp> op =
+                        GrRectOpFactory::MakeAAFillNestedRects(paint.getColor(), viewMatrix, rects);
+                if (op) {
+                    GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
+                    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
                 }
-                this->addDrawOp(clip, std::move(op));
+                return;
             }
         }
         SkRect ovalRect;

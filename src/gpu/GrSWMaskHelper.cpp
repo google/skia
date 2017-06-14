@@ -6,6 +6,7 @@
  */
 
 #include "GrSWMaskHelper.h"
+
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -14,9 +15,11 @@
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
-#include "SkDistanceFieldGen.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
+
+#include "SkDistanceFieldGen.h"
+
+#include "ops/GrNonAAFillRectOp.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -173,8 +176,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
             resourceProvider, std::move(proxy), nullptr, maskMatrix,
             GrSamplerParams::kNone_FilterMode));
-    renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), SkMatrix::I(), invert, dstRect,
-                                           GrAAType::kNone, &userStencilSettings));
+    renderTargetContext->addDrawOp(
+            clip, GrNonAAFillRectOp::Make(std::move(paint), SkMatrix::I(), dstRect, nullptr,
+                                          &invert, GrAAType::kNone, &userStencilSettings));
 }

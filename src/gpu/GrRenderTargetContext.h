@@ -400,6 +400,15 @@ private:
                         const SkRect& rect,
                         const GrUserStencilSettings* ss);
 
+    void drawNonAAFilledRect(const GrClip&,
+                             GrPaint&&,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             const SkRect* localRect,
+                             const SkMatrix* localMatrix,
+                             const GrUserStencilSettings* ss,
+                             GrAAType hwOrNoneAAType);
+
     void internalDrawPath(
             const GrClip&, GrPaint&&, GrAA, const SkMatrix&, const SkPath&, const GrStyle&);
 
