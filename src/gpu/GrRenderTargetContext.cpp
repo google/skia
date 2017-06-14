@@ -55,6 +55,33 @@
 #define RETURN_FALSE_IF_ABANDONED_PRIV  if (fRenderTargetContext->drawingManager()->wasAbandoned()) { return false; }
 #define RETURN_NULL_IF_ABANDONED   if (this->drawingManager()->wasAbandoned()) { return nullptr; }
 
+//////////////////////////////////////////////////////////////////////////////
+
+GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType, GrAllowMixedSamples allowMixedSamples,
+                        const GrCaps& caps) {
+    if (GrAA::kNo == aa) {
+        // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
+        // that.
+        if (fsaaType == GrFSAAType::kUnifiedMSAA && !caps.multisampleDisableSupport()) {
+            return GrAAType::kMSAA;
+        }
+        return GrAAType::kNone;
+    }
+    switch (fsaaType) {
+        case GrFSAAType::kNone:
+            return GrAAType::kCoverage;
+        case GrFSAAType::kUnifiedMSAA:
+            return GrAAType::kMSAA;
+        case GrFSAAType::kMixedSamples:
+            return GrAllowMixedSamples::kYes == allowMixedSamples ? GrAAType::kMixedSamples
+                                                                  : GrAAType::kCoverage;
+    }
+    SkFAIL("Unexpected fsaa type");
+    return GrAAType::kNone;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 class AutoCheckFlush {
 public:
     AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
