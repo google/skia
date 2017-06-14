@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "77118ff6_6e0e93c8",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Moved all this logic to the op class",
+      "parentUuid": "569b12ef_3d02b581",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2eed81a6_dd9c3abf",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -105,6 +123,24 @@
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "499d8251_b9579746",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2eed81a6_dd9c3abf",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -161,6 +197,24 @@
     },
     {
       "key": {
+        "uuid": "47cfd071_a363c001",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "I added a comment to GrRectOpFactory about the paint remaining unchanged if the return is null",
+      "parentUuid": "3881fe24_5e968c37",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c2518ec_5a3bc4e5",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -196,6 +250,24 @@
     },
     {
       "key": {
+        "uuid": "a5481155_6a22e7e1",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6aaecf99_fa4e0dd9",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3078c714_1bca22bc",
         "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
         "patchSetId": 10
@@ -228,6 +300,24 @@
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7da0623c_1e0b244d",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7536fd0_1bf0f647",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -283,6 +373,24 @@
     },
     {
       "key": {
+        "uuid": "ad44cec9_d1897aac",
+        "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b6bb963_e7180f72",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ef233eb_c0e0ecfb",
         "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
         "patchSetId": 10
@@ -297,6 +405,24 @@
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "205a9d75_a1c6a63d",
+        "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Oh, yes, nice catch. Fixed.",
+      "parentUuid": "7ef233eb_c0e0ecfb",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -317,6 +443,24 @@
     },
     {
       "key": {
+        "uuid": "c14db8e2_53b4d921",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9181d19a_7184cf1d",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c886fb5a_fdd441ec",
         "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
         "patchSetId": 10
@@ -334,6 +478,24 @@
     },
     {
       "key": {
+        "uuid": "4283e491_7f5ea478",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c886fb5a_fdd441ec",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43be6067_ad202cb9",
         "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
         "patchSetId": 10
@@ -348,6 +510,24 @@
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd44a2f4_5ae13f69",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 1,
+      "message": "No... the macro used at line 214 adds a GrPaint param to this function that is randomly configured by the unit test. strokePaint is just used to make a SkStrokeRec.",
+      "parentUuid": "43be6067_ad202cb9",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

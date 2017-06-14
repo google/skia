@@ -16,6 +16,24 @@
       "revId": "f046594d82b84bf96c18f6fd0cb14c16bd3b8708",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78ae5f84_2ec6d7bb",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T13:52:34Z",
+      "side": 0,
+      "message": "Yeah, I\u0027ll prepare a separate CL to add back this info and update all the non-legacy ops to use it.",
+      "parentUuid": "d710e754_c63eca6d",
+      "revId": "f046594d82b84bf96c18f6fd0cb14c16bd3b8708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
