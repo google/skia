@@ -45,6 +45,12 @@ SI F mad(F f, F m, F a) { return f*m+a; }
 SI F inv(F v) { return 1.0f - v; }
 SI F two(F v) { return v + v; }
 SI F lerp(F from, F to, F t) { return to*t + from*inv(t); }
+SI F min(F x, F y) {
+    // With SSE4.1+ this is trivially _mm_min_epu16, but with SSSE3 we must bend _mm_min_epi16
+    // to our will.  There are a few ways to do this, here picking ^0x8000 because xor is cheap.
+    U16 munge = 0x8000;
+    return munge ^ _mm_min_epi16(munge ^ x.vec, munge ^ y.vec);
+}
 
 SI F operator<<(F x, int bits) { return x.vec << bits; }
 SI F operator>>(F x, int bits) { return x.vec >> bits; }
@@ -203,6 +209,20 @@ STAGE(premul) {
     r = r * a;
     g = g * a;
     b = b * a;
+}
+
+STAGE(clamp_1) {
+    r = min(r, 1.0f);
+    g = min(g, 1.0f);
+    b = min(b, 1.0f);
+    a = min(a, 1.0f);
+}
+
+STAGE(clamp_a) {
+    a = min(a, 1.0f);
+    r = min(r, a);
+    g = min(g, a);
+    b = min(b, a);
 }
 
 STAGE(load_8888) {
