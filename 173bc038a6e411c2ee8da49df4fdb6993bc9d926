@@ -52,6 +52,24 @@
       "revId": "173bc038a6e411c2ee8da49df4fdb6993bc9d926",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b553058_f08609b7",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-14T20:28:03Z",
+      "side": 1,
+      "message": "\u003e Looking at how image filters are implemented in AutoDrawLooper, we create a saveLayer with a temp paint that is initialized with the original paint. So we will dither when dropping the layer I guess. I didn\u0027t look into how restore consumes the image filter WRT the layer paint. The input to the image filter doesn\u0027t seem like it needs dithering if we think dithering is a no-op drawing it straight to the dst.\n\u003e \n\u003e I haven\u0027t looked at how mask filters would be affected by the presence of the dither flag. Do you know if the CPU implementation does dithering only affect the output of the xfermode or does it affect the coverage-blended color? This might be a point of difference with GPU.\n\nI only did a quick grep and couldn\u0027t find any interesting readers of SkPaint::isDither().\n\n\n\u003e I don\u0027t mean to be hung up on this, just trying to understand the impact and how this function affects these cases. I\u0027m ok landing as is and deferring a more careful consideration dithering in the presence of filters indefinitely.\n\nIndeed, I\u0027d like to understand more about these interactions myself.  Maybe we can dig into it this Friday or next week when I\u0027m in the office.\n\nNote however that this CL shouldn\u0027t change the current mask/filter behavior: while previously we were always observing the dither flag, now we\u0027re ignoring it when there\u0027s no filter/mask (and no-or-const shader).  So if there\u0027s a mask or filter, nothing will change (ShouldDither \u003d\u003d paint.isDither).",
+      "parentUuid": "8b91dfb5_1092dc03",
+      "revId": "173bc038a6e411c2ee8da49df4fdb6993bc9d926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
