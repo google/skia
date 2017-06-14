@@ -245,6 +245,91 @@
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b6bb963_e7180f72",
+        "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T13:01:17Z",
+      "side": 1,
+      "message": "sort this guy ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ef233eb_c0e0ecfb",
+        "filename": "src/gpu/ops/GrNonAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T13:01:17Z",
+      "side": 1,
+      "message": "Does this drop testing of NonAAFillRectPerspectiveOp ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9181d19a_7184cf1d",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T13:01:17Z",
+      "side": 1,
+      "message": "sort ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c886fb5a_fdd441ec",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T13:01:17Z",
+      "side": 1,
+      "message": "Two SkRandom.h\u0027s ?\nSort order ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43be6067_ad202cb9",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T13:01:17Z",
+      "side": 1,
+      "message": "Not strokePaint ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

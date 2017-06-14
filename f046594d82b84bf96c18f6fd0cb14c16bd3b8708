@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d710e754_c63eca6d",
+        "filename": "src/gpu/ops/GrNonAAStrokeRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T13:01:17Z",
+      "side": 0,
+      "message": "Don\u0027t we have similar information around (albeit not in GrPipeline form) that we can dump?",
+      "revId": "f046594d82b84bf96c18f6fd0cb14c16bd3b8708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
