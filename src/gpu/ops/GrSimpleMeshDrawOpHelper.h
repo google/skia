@@ -137,6 +137,27 @@ public:
         friend class GrSimpleMeshDrawOpHelper;
     };
 
+    SkString dumpInfo() const {
+        SkString result = this->processors().dumpProcessors();
+        result.append("AA Type: ");
+        switch (this->aaType()) {
+            case GrAAType::kNone:
+                result.append(" none\n");
+                break;
+            case GrAAType::kCoverage:
+                result.append(" coverage\n");
+                break;
+            case GrAAType::kMSAA:
+                result.append(" msaa\n");
+                break;
+            case GrAAType::kMixedSamples:
+                result.append(" mixed samples\n");
+                break;
+        }
+        result.append(GrPipeline::DumpFlags(fPipelineFlags));
+        return result;
+    }
+
 protected:
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     uint32_t pipelineFlags() const { return fPipelineFlags; }
@@ -212,6 +233,12 @@ public:
         auto args = INHERITED::pipelineInitArgs(target);
         args.fUserStencil = fStencilSettings;
         return target->allocPipeline(args);
+    }
+
+    SkString dumpInfo() const {
+        SkString result = INHERITED::dumpInfo();
+        result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));
+        return result;
     }
 
 private:

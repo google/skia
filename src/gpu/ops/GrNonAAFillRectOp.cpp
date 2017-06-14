@@ -149,6 +149,8 @@ public:
                         info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
                         info.fRect.fBottom);
         }
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
@@ -265,7 +267,8 @@ public:
                         geo.fColor, geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight,
                         geo.fRect.fBottom);
         }
-        str.append(INHERITED::dumpInfo());
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
