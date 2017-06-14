@@ -169,10 +169,6 @@ SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 */
 SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
-/** Define a function pointer type for combining two premultiplied colors
-*/
-typedef SkPMColor (*SkXfermodeProc)(SkPMColor src, SkPMColor dst);
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct SkPM4f;
