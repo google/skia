@@ -362,7 +362,12 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
 }
 
 GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(VerticesOp) {
-    GrPrimitiveType type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
+    GrPrimitiveType type;
+    do {
+       type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
+    } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
+             !context->caps()->shaderCaps()->geometryShaderSupport());
+
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 
     // TODO make 'sensible' indexbuffers
