@@ -33,7 +33,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fDrawingMgr->makeRenderTargetContext(std::move(proxy),
                                              std::move(colorSpace),
-                                             props));
+                                             props, false));
 
     if (!renderTargetContext) {
         return nullptr;
@@ -53,7 +53,7 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     sk_sp<GrRenderTargetContext> renderTargetContext(
         fDrawingMgr->makeRenderTargetContext(std::move(proxy),
                                              std::move(colorSpace),
-                                             props));
+                                             props, false));
 
     if (!renderTargetContext) {
         return nullptr;

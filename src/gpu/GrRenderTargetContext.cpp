@@ -106,13 +106,15 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              GrAuditTrail* auditTrail,
-                                             GrSingleOwner* singleOwner)
+                                             GrSingleOwner* singleOwner,
+                                             bool managedOpList)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
     , fOpList(sk_ref_sp(fRenderTargetProxy->getLastRenderTargetOpList()))
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
-    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps)) {
+    , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
+    , fManagedOpList(managedOpList) {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
         auto srgbColorSpace = SkColorSpace::MakeSRGB();
@@ -154,7 +156,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get());
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get(), fManagedOpList);
     }
 
     return fOpList.get();
