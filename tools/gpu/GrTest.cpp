@@ -61,7 +61,7 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
                                       GrPixelConfig config, GrBackendObject handle) {
-#if SK_VULKAN
+#ifdef SK_VULKAN
     if (kVulkan_GrBackend == backend) {
         GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
         return GrBackendTexture(width, height, *vkInfo);

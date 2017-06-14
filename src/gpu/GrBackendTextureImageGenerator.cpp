@@ -33,7 +33,7 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
                                                          int width, int height,
                                                          GrPixelConfig config,
                                                          GrBackendObject handle) {
-#if SK_VULKAN
+#ifdef SK_VULKAN
     if (kVulkan_GrBackend == backend) {
         GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
         return GrBackendTexture(width, height, *vkInfo);
