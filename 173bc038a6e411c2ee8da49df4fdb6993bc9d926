@@ -88,6 +88,24 @@
       "revId": "173bc038a6e411c2ee8da49df4fdb6993bc9d926",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91880a7d_1d391e3a",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T20:44:13Z",
+      "side": 1,
+      "message": "That makes sense. It\u0027s going to be something that will differ between CPU and GPU as we have no way to efficiently dither post-blending on most GPUs.",
+      "parentUuid": "00c39a35_1e2e95d4",
+      "revId": "173bc038a6e411c2ee8da49df4fdb6993bc9d926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
