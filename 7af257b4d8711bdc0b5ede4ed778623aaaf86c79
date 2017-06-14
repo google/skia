@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cff48a01_be387f0a",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:18:36Z",
+      "side": 1,
+      "message": "move the entire snapToPixelCenters variable in here ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eed81a6_dd9c3abf",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:18:36Z",
+      "side": 1,
+      "message": "We move the paint here",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a9aa91f_23d363da",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:18:36Z",
+      "side": 1,
+      "message": "but if that fails we use it here\n\nI think the same pattern appears a couple of other places too",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c2518ec_5a3bc4e5",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:18:36Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this go in the if block ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3078c714_1bca22bc",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:18:36Z",
+      "side": 1,
+      "message": "GrAAFillRectOp.h got special treatment bc it matched the .cpp, this include should probably be sorted with the others",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49a85742_1a5408d2",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-14T12:18:36Z",
+      "side": 1,
+      "message": "Why do we need this ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
