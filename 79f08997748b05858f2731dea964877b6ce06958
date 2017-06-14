@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11c427e4_13d44d30",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-14T19:25:57Z",
+      "side": 1,
+      "message": "Still hitting this assert. Otherwise this CL appears to fix my mac.",
+      "range": {
+        "startLine": 91,
+        "startChar": 18,
+        "endLine": 91,
+        "endChar": 36
+      },
+      "revId": "79f08997748b05858f2731dea964877b6ce06958",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
