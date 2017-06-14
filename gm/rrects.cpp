@@ -12,7 +12,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "effects/GrRRectEffect.h"
 #include "ops/GrDrawOp.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 #endif
 #include "SkRRect.h"
 
@@ -117,12 +117,9 @@ protected:
                             bounds.outset(2.f, 2.f);
 
                             renderTargetContext->priv().testingOnly_addDrawOp(
-                                    GrNonAAFillRectOp::Make(std::move(grPaint),
-                                                            SkMatrix::I(),
-                                                            bounds,
-                                                            nullptr,
-                                                            nullptr,
-                                                            GrAAType::kNone));
+                                    GrRectOpFactory::MakeNonAAFill(std::move(grPaint),
+                                                                   SkMatrix::I(), bounds,
+                                                                   GrAAType::kNone));
                         } else {
                             drew = false;
                         }

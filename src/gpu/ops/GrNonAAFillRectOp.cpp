@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "GrNonAAFillRectOp.h"
 #include "GrAppliedClip.h"
 #include "GrColor.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -14,6 +13,7 @@
 #include "GrOpFlushState.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrQuad.h"
+#include "GrRectOpFactory.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkMatrixPriv.h"
@@ -149,6 +149,8 @@ public:
                         info.fColor, info.fRect.fLeft, info.fRect.fTop, info.fRect.fRight,
                         info.fRect.fBottom);
         }
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
@@ -265,7 +267,8 @@ public:
                         geo.fColor, geo.fRect.fLeft, geo.fRect.fTop, geo.fRect.fRight,
                         geo.fRect.fBottom);
         }
-        str.append(INHERITED::dumpInfo());
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
@@ -358,25 +361,45 @@ private:
 
 }  // anonymous namespace
 
-namespace GrNonAAFillRectOp {
+namespace GrRectOpFactory {
 
-std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkRect* localRect,
-                               const SkMatrix* localMatrix,
-                               GrAAType aaType,
-                               const GrUserStencilSettings* stencilSettings) {
-    if (!viewMatrix.hasPerspective() && (!localMatrix || !localMatrix->hasPerspective())) {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, localRect, localMatrix,
-                                     aaType, stencilSettings);
+std::unique_ptr<GrDrawOp> MakeNonAAFill(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                        const SkRect& rect, GrAAType aaType,
+                                        const GrUserStencilSettings* stencilSettings) {
+    if (viewMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, nullptr,
+                                                nullptr, aaType, stencilSettings);
     } else {
-        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, localRect,
-                                                localMatrix, aaType, stencilSettings);
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, nullptr, aaType,
+                                     stencilSettings);
     }
 }
 
-};  // namespace GrNonAAFillRectOp
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalMatrix(
+        GrPaint&& paint, const SkMatrix& viewMatrix, const SkMatrix& localMatrix,
+        const SkRect& rect, GrAAType aaType, const GrUserStencilSettings* stencilSettings) {
+    if (viewMatrix.hasPerspective() || localMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, nullptr,
+                                                &localMatrix, aaType, stencilSettings);
+    } else {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, nullptr, &localMatrix,
+                                     aaType, stencilSettings);
+    }
+}
+
+std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                                     const SkRect& rect, const SkRect& localRect,
+                                                     GrAAType aaType) {
+    if (viewMatrix.hasPerspective()) {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, &localRect,
+                                                nullptr, aaType, nullptr);
+    } else {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, &localRect, nullptr,
+                                     aaType, nullptr);
+    }
+}
+
+}  // namespace GrRectOpFactory
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -385,14 +408,17 @@ GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
     SkRect localRect = GrTest::TestRect(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkMatrix localMatrix = GrTest::TestMatrix(random);
-    bool hasLocalRect = random->nextBool();
-    bool hasLocalMatrix = random->nextBool();
     const GrUserStencilSettings* stencil = GrGetRandomStencil(random, context);
     GrAAType aaType = GrAAType::kNone;
     if (fsaaType == GrFSAAType::kUnifiedMSAA) {
         aaType = random->nextBool() ? GrAAType::kMSAA : GrAAType::kNone;
     }
-    return GrNonAAFillRectOp::Make(std::move(paint), viewMatrix, rect,
-                                   hasLocalRect ? &localRect : nullptr,
-                                   hasLocalMatrix ? &localMatrix : nullptr, aaType, stencil);
+    const SkRect* lr = random->nextBool() ? &localRect : nullptr;
+    const SkMatrix* lm = random->nextBool() ? &localMatrix : nullptr;
+    if (viewMatrix.hasPerspective() || (lm && lm->hasPerspective())) {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType, stencil);
+    } else {
+        return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType,
+                                                stencil);
+    }
 }

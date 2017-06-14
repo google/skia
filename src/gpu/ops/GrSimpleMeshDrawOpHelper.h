@@ -35,18 +35,25 @@ public:
     template <typename Op, typename... OpArgs>
     static std::unique_ptr<GrDrawOp> FactoryHelper(GrPaint&& paint, OpArgs... opArgs);
 
-    GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
-                             GrUserStencilSettings* stencilSettings = nullptr)
+    enum class Flags : uint32_t {
+        kNone = 0x0,
+        kSnapVerticesToPixelCenters = 0x1,
+    };
+    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
+
+    GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType, Flags flags = Flags::kNone)
             : fProcessors(args.fProcessorSet)
             , fPipelineFlags(args.fSRGBFlags)
             , fAAType((int)aaType)
             , fRequiresDstTexture(false)
             , fUsesLocalCoords(false)
             , fCompatibleWithAlphaAsCoveage(false) {
-        SkASSERT(!stencilSettings);
         SkDEBUGCODE(fDidAnalysis = false);
         if (GrAATypeIsHW(aaType)) {
             fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
+        }
+        if (flags & Flags::kSnapVerticesToPixelCenters) {
+            fPipelineFlags |= GrPipeline::kSnapVerticesToPixelCenters_Flag;
         }
     }
 
@@ -130,6 +137,27 @@ public:
         friend class GrSimpleMeshDrawOpHelper;
     };
 
+    SkString dumpInfo() const {
+        SkString result = this->processors().dumpProcessors();
+        result.append("AA Type: ");
+        switch (this->aaType()) {
+            case GrAAType::kNone:
+                result.append(" none\n");
+                break;
+            case GrAAType::kCoverage:
+                result.append(" coverage\n");
+                break;
+            case GrAAType::kMSAA:
+                result.append(" msaa\n");
+                break;
+            case GrAAType::kMixedSamples:
+                result.append(" mixed samples\n");
+                break;
+        }
+        result.append(GrPipeline::DumpFlags(fPipelineFlags));
+        return result;
+    }
+
 protected:
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
     uint32_t pipelineFlags() const { return fPipelineFlags; }
@@ -167,6 +195,7 @@ private:
 class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
+    using Flags = GrSimpleMeshDrawOpHelper::Flags;
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>
@@ -176,8 +205,9 @@ public:
     }
 
     GrSimpleMeshDrawOpHelperWithStencil(const MakeArgs& args, GrAAType aaType,
-                                         const GrUserStencilSettings* stencilSettings)
-            : INHERITED(args, aaType)
+                                        const GrUserStencilSettings* stencilSettings,
+                                        Flags flags = Flags::kNone)
+            : INHERITED(args, aaType, flags)
             , fStencilSettings(stencilSettings ? stencilSettings
                                                : &GrUserStencilSettings::kUnused) {}
 
@@ -191,6 +221,7 @@ public:
 
     using GrSimpleMeshDrawOpHelper::xpRequiresDstTexture;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
+    using GrSimpleMeshDrawOpHelper::compatibleWithAlphaAsCoverage;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps& caps,
                       const SkRect& aBounds, const SkRect& bBounds) const {
@@ -202,6 +233,12 @@ public:
         auto args = INHERITED::pipelineInitArgs(target);
         args.fUserStencil = fStencilSettings;
         return target->allocPipeline(args);
+    }
+
+    SkString dumpInfo() const {
+        SkString result = INHERITED::dumpInfo();
+        result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));
+        return result;
     }
 
 private:
@@ -226,5 +263,7 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrPaint&& pain
                 new (mem) Op(makeArgs, color, std::forward<OpArgs>(opArgs)...));
     }
 }
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::Flags)
 
 #endif
