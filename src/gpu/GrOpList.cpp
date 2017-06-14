@@ -41,13 +41,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
 }
 
 GrOpList::~GrOpList() {
-    if (fTarget.get()) {
-        if (this == fTarget.get()->getLastOpList()) {
-            fTarget.get()->setLastOpList(nullptr);
-        }
-
-        fTarget.pendingIOComplete();
-    }
+    this->reset();
 }
 
 bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
@@ -59,7 +53,6 @@ void GrOpList::reset() {
         fTarget.get()->setLastOpList(nullptr);
     }
 
-    fTarget.pendingIOComplete();
     fTarget.reset();
     fAuditTrail = nullptr;
 }
