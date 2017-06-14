@@ -173,6 +173,9 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                 return "Cannot decode (full) region.";
             }
             alpha8_to_gray8(&bitmap);
+
+            // Verify that we no longer support kIndex8 from this API.
+            SkASSERT(kIndex_8_SkColorType != bitmap.colorType());
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -229,6 +232,7 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     }
 
                     alpha8_to_gray8(&bitmap);
+                    SkASSERT(kIndex_8_SkColorType != bitmap.colorType());
                     canvas->drawBitmapRect(bitmap,
                             SkRect::MakeXYWH((SkScalar) scaledBorder, (SkScalar) scaledBorder,
                                     (SkScalar) (subsetWidth / fSampleSize),
