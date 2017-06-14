@@ -1382,23 +1382,14 @@ int main(int argc, char** argv) {
     SkTaskGroup parallel;
     SkTArray<Task> serial;
 
+    for (int i = 0; i < 50; ++i) {
     for (auto& sink : gSinks)
     for (auto&  src : gSrcs) {
-        if (src->veto(sink->flags()) ||
-            is_blacklisted(sink.tag.c_str(), src.tag.c_str(),
-                           src.options.c_str(), src->name().c_str())) {
-            SkAutoMutexAcquire lock(gMutex);
-            gPending--;
-            continue;
-        }
-
         Task task(src, sink);
-        if (src->serial() || sink->serial()) {
-            serial.push_back(task);
-        } else {
-            parallel.add([task] { Task::Run(task); });
-        }
+        Task::Run(task);
     }
+    }
+
     for (auto test : gParallelTests) {
         parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
     }

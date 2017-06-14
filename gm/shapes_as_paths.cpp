@@ -14,6 +14,66 @@
 
 namespace skiagm {
 
+static SkBitmap read_pixels(sk_sp<SkSurface> surface) {
+    SkBitmap bmp;
+    bmp.allocN32Pixels(surface->width(), surface->height());
+    if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
+        SkDebugf("readPixels failed\n");
+    }
+    return bmp;
+}
+
+DEF_SIMPLE_GM_BG(mali_msaa_bug, canvas, 70, 130, SK_ColorBLACK) {
+    const SkRect rect = SkRect::MakeXYWH(10, 10, 30, 30);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorWHITE);
+    paint.setStrokeWidth(5);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    SkImageInfo info = canvas->imageInfo().makeWH(50, 50);
+
+    canvas->translate(10, 10);
+
+    auto s1 = canvas->makeSurface(info);
+    s1->getCanvas()->clear(SK_ColorBLACK);
+    s1->getCanvas()->drawOval(rect, paint);
+    SkBitmap b1 = read_pixels(s1);
+    s1 = nullptr;
+
+    auto s2 = canvas->makeSurface(info);
+    s2->getCanvas()->clear(SK_ColorBLUE);
+    SkBitmap b2 = read_pixels(s2);
+    s2 = nullptr;
+
+    auto s3 = canvas->makeSurface(info);
+    s3->getCanvas()->clear(SK_ColorBLUE);
+    SkBitmap b3 = read_pixels(s3);
+    canvas->drawBitmap(b3, 0, 0);
+    canvas->translate(0, 60);
+    s3 = nullptr;
+
+    auto s4 = canvas->makeSurface(info);
+    s4->getCanvas()->clear(SK_ColorBLUE);
+    s4->getCanvas()->drawOval(rect, paint);
+
+    SkBitmap b4 = read_pixels(s4);
+    canvas->drawBitmap(b4, 0, 0);
+    SkBitmap b5 = read_pixels(s4);
+
+    for (int y = 0; y < b4.height(); ++y) {
+        for (int x = 0; x < b4.width(); ++x) {
+            uint32_t pixelA = *b4.getAddr32(x, y);
+            uint32_t pixelB = *b5.getAddr32(x, y);
+            if (pixelA != pixelB) {
+                SkDebugf("*** FAILURE ***\n");
+                return;
+            }
+        }
+    }
+    SkDebugf("Success\n");
+}
+
 static void draw_diff(SkCanvas* canvas, SkImage* imgA, SkImage* imgB) {
     SkASSERT(imgA->dimensions() == imgB->dimensions());
 
