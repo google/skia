@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6e0ce7ca_70df859a",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T12:41:56Z",
+      "side": 1,
+      "message": "Into the op factory? That would be an improvement.",
+      "parentUuid": "cff48a01_be387f0a",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2eed81a6_dd9c3abf",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "3c7957eb_1a1cb52a",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T12:41:56Z",
+      "side": 1,
+      "message": "Yeah, the implicit contract for op factories is if the op didn\u0027t get created then the paint was left in tact. I\u0027m not crazy about it but we need a pattern for things like:\n\nauto op \u003d GrFasterFactory::Make(paint, ...)\nif (op) {\n    this-\u003eaddop(op);\n    return;\n}\nthis-\u003edrawPath(paint, ...);\n\n\nthat doesn\u0027t require making paint copies. We could take paint as GrPaint* or GrPaint\u0026 but I\u0027m not sure that\u0027s any better.",
+      "parentUuid": "7a9aa91f_23d363da",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c2518ec_5a3bc4e5",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
@@ -64,6 +100,24 @@
       "writtenOn": "2017-06-14T12:18:36Z",
       "side": 1,
       "message": "Shouldn\u0027t this go in the if block ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6aaecf99_fa4e0dd9",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T12:41:56Z",
+      "side": 1,
+      "message": "Oh yes, I meant to move the one at 1490 out of the if block. It has a different semantic on failure as I discovered while writing this patch. If it fails then there was nothing to draw.",
+      "parentUuid": "6c2518ec_5a3bc4e5",
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "a7536fd0_1bf0f647",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T12:41:56Z",
+      "side": 1,
+      "message": "Will do",
+      "parentUuid": "3078c714_1bca22bc",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "49a85742_1a5408d2",
         "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
         "patchSetId": 10
@@ -98,6 +170,24 @@
       "writtenOn": "2017-06-14T12:18:36Z",
       "side": 1,
       "message": "Why do we need this ?",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eedbb2f0_9d5cb6d0",
+        "filename": "src/gpu/ops/GrAAFillRectOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T12:41:56Z",
+      "side": 1,
+      "message": "It gives makes this class have internal linkage so the ODR wouldn\u0027t be violated if there was another class with the same name elsewhere and thereby possibly speeds up linking.",
+      "parentUuid": "49a85742_1a5408d2",
       "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
