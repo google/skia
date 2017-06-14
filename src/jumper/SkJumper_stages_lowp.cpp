@@ -336,7 +336,6 @@ BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
 
 BLEND_MODE(modulate) { return s*d; }
 BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-BLEND_MODE(plus_)    { return s + d; }
 BLEND_MODE(screen)   { return s + inv(s)*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 
