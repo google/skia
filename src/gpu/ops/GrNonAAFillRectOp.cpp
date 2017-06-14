@@ -413,9 +413,9 @@ GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
     const SkRect* lr = random->nextBool() ? &localRect : nullptr;
     const SkMatrix* lm = random->nextBool() ? &localMatrix : nullptr;
     if (viewMatrix.hasPerspective() || (lm && lm->hasPerspective())) {
-        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType, stencil);
-    } else {
         return NonAAFillRectPerspectiveOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType,
                                                 stencil);
+    } else {
+        return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType, stencil);
     }
 }
