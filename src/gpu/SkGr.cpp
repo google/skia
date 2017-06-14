@@ -28,6 +28,7 @@
 #include "SkMessageBus.h"
 #include "SkMipMap.h"
 #include "SkPM4fPriv.h"
+#include "SkPaintPriv.h"
 #include "SkPixelRef.h"
 #include "SkResourceCache.h"
 #include "SkShaderBase.h"
@@ -542,7 +543,11 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    if (skPaint.isDither() && grPaint->numColorFragmentProcessors() > 0 && !rtc->isGammaCorrect()) {
+    // Conservative default, in case GrPixelConfigToColorType() fails.
+    SkColorType ct = SkColorType::kRGB_565_SkColorType;
+    GrPixelConfigToColorType(rtc->config(), &ct);
+    if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0
+        && !rtc->isGammaCorrect()) {
         grPaint->addColorFragmentProcessor(GrDitherEffect::Make());
     }
 #endif

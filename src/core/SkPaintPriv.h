@@ -8,6 +8,7 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
+#include "SkImageInfo.h"
 #include "SkPaint.h"
 #include "SkMatrix.h"
 
@@ -62,6 +63,7 @@ public:
         MakeTextMatrix(matrix, paint.getTextSize(), paint.getTextScaleX(), paint.getTextSkewX());
     }
     
+    static bool ShouldDither(const SkPaint&, SkColorType);
 };
 
 #endif
