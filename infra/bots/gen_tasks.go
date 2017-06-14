@@ -45,9 +45,6 @@ var (
 	// jobs.json.
 	JOBS []string
 
-	// Mapping of human-friendly Android device names to a pair of {device_type, device_os}.
-	ANDROID_MAPPING map[string][]string
-
 	// General configuration information.
 	CONFIG struct {
 		GsBucketGm   string   `json:"gs_bucket_gm"`
@@ -55,9 +52,6 @@ var (
 		NoUpload     []string `json:"no_upload"`
 		Pool         string   `json:"pool"`
 	}
-
-	// Mapping of human-friendly GPU names to PCI IDs.
-	GPU_MAPPING map[string]string
 
 	// alternateSwarmDimensions can be set in an init function to override the default swarming bot
 	// dimensions for the given task.
@@ -79,11 +73,9 @@ var (
 	}
 
 	// Flags.
-	androidMapFile        = flag.String("android_map", "", "JSON file containing a mapping of human-friendly Android device names to a pair of {device_type, device_os}.")
 	builderNameSchemaFile = flag.String("builder_name_schema", "", "Path to the builder_name_schema.json file. If not specified, uses infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json from this repo.")
 	assetsDir             = flag.String("assets_dir", "", "Directory containing assets.")
 	cfgFile               = flag.String("cfg_file", "", "JSON file containing general configuration information.")
-	gpuMapFile            = flag.String("gpu_map", "", "JSON file containing a mapping of human-friendly GPU names to PCI IDs.")
 	jobsFile              = flag.String("jobs", "", "JSON file containing jobs to run.")
 )
 
@@ -198,7 +190,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
-			androidMapping := map[string][]string{
+			deviceInfo, ok := map[string][]string{
 				"AndroidOne":      {"sprout", "MOB30Q"},
 				"Chorizo":         {"chorizo", "1.24_82923"},
 				"Ci20":            {"ci20", "NRD90M"},
@@ -219,14 +211,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"Pixel":           {"sailfish", "NMF26Q"},
 				"PixelC":          {"dragon", "N2G47D"},
 				"PixelXL":         {"marlin", "NMF26Q"},
-			}
-			// Use ANDROID_MAPPING if set for backward compatibility.
-			if len(ANDROID_MAPPING) > 0 {
-				androidMapping = ANDROID_MAPPING
-			}
-			deviceInfo, ok := androidMapping[parts["model"]]
+			}[parts["model"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in Android mapping: %v", parts["model"], androidMapping)
+				glog.Fatalf("Entry %q not found in Android mapping.", parts["model"])
 			}
 			d["device_type"] = deviceInfo[0]
 			d["device_os"] = deviceInfo[1]
@@ -262,7 +249,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				}
 			}
 		} else {
-			gpuMapping := map[string]string{
+			gpu, ok := map[string]string{
 				"AMDHD7770":     "1002:683d",
 				"GT610":         "10de:104a",
 				"GTX1070":       "10de:1ba1",
@@ -283,14 +270,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				"MaliT860":      "MaliT860",
 				"RadeonR9M470X": "1002:6646",
 				"TegraK1":       "TegraK1",
-			}
-			// Use GPU_MAPPING if set for backward compatibility.
-			if len(GPU_MAPPING) > 0 {
-				gpuMapping = GPU_MAPPING
-			}
-			gpu, ok := gpuMapping[parts["cpu_or_gpu_value"]]
+			}[parts["cpu_or_gpu_value"]]
 			if !ok {
-				glog.Fatalf("Entry %q not found in GPU mapping: %v", parts["cpu_or_gpu_value"], GPU_MAPPING)
+				glog.Fatalf("Entry %q not found in GPU mapping.", parts["cpu_or_gpu_value"])
 			}
 			d["gpu"] = gpu
 
@@ -921,16 +903,6 @@ func main() {
 
 	// Load the jobs from a JSON file.
 	loadJson(jobsFile, path.Join(infraBots, "jobs.json"), &JOBS)
-
-	// Load the GPU mapping from a JSON file.
-	if *gpuMapFile != "" {
-		loadJson(gpuMapFile, "", &GPU_MAPPING)
-	}
-
-	// Load the Android device mapping from a JSON file.
-	if *androidMapFile != "" {
-		loadJson(androidMapFile, "", &ANDROID_MAPPING)
-	}
 
 	// Load general config information from a JSON file.
 	loadJson(cfgFile, path.Join(infraBots, "cfg.json"), &CONFIG)
