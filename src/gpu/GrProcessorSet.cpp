@@ -47,6 +47,56 @@ GrProcessorSet::~GrProcessorSet() {
     }
 }
 
+SkString dump_fragment_processor_tree(const GrFragmentProcessor* fp, int indentCnt) {
+    SkString result;
+    SkString indentString;
+    for (int i = 0; i < indentCnt; ++i) {
+        indentString.append("    ");
+    }
+    result.appendf("%s%s %s \n", indentString.c_str(), fp->name(), fp->dumpInfo().c_str());
+    if (fp->numChildProcessors()) {
+        for (int i = 0; i < fp->numChildProcessors(); ++i) {
+            result += dump_fragment_processor_tree(&fp->childProcessor(i), indentCnt + 1);
+        }
+    }
+    return result;
+}
+
+SkString GrProcessorSet::dumpProcessors() const {
+    SkString result;
+    if (this->numFragmentProcessors()) {
+        if (this->numColorFragmentProcessors()) {
+            result.append("Color Fragment Processors:\n");
+            for (int i = 0; i < this->numColorFragmentProcessors(); ++i) {
+                result += dump_fragment_processor_tree(this->colorFragmentProcessor(i), 1);
+            }
+        } else {
+            result.append("No color fragment processors.\n");
+        }
+        if (this->numCoverageFragmentProcessors()) {
+            result.append("Coverage Fragment Processors:\n");
+            for (int i = 0; i < this->numColorFragmentProcessors(); ++i) {
+                result += dump_fragment_processor_tree(this->coverageFragmentProcessor(i), 1);
+            }
+        } else {
+            result.append("No coverage fragment processors.\n");
+        }
+    } else {
+        result.append("No color or coverage fragment processors.\n");
+    }
+    if (this->isFinalized()) {
+        result.append("Xfer Processor: ");
+        if (this->xferProcessor()) {
+            result.appendf("%s\n", this->xferProcessor()->name());
+        } else {
+            result.append("SrcOver\n");
+        }
+    } else {
+        result.append("XP Factory dumping not implemented.\n");
+    }
+    return result;
+}
+
 bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
     SkASSERT(this->isFinalized());
     SkASSERT(that.isFinalized());

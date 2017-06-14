@@ -184,7 +184,8 @@ public:
                     info.fDevOutsideAssist.fBottom, info.fDevInside.fLeft, info.fDevInside.fTop,
                     info.fDevInside.fRight, info.fDevInside.fBottom, info.fDegenerate);
         }
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 

@@ -135,6 +135,8 @@ public:
     static const GrProcessorSet& EmptySet();
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
+    SkString dumpProcessors() const;
+
 private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
 

@@ -212,6 +212,8 @@ public:
                         info->color(), rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
             info = this->next(info);
         }
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 

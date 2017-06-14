@@ -238,6 +238,26 @@ public:
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const;
 
+    static SkString DumpFlags(uint32_t flags) {
+        if (flags) {
+            SkString result;
+            if (flags & GrPipeline::kSnapVerticesToPixelCenters_Flag) {
+                result.append("Snap vertices to pixel center.\n");
+            }
+            if (flags & GrPipeline::kHWAntialias_Flag) {
+                result.append("HW Antialiasing enabled.\n");
+            }
+            if (flags & GrPipeline::kDisableOutputConversionToSRGB_Flag) {
+                result.append("Disable output conversion to sRGB.\n");
+            }
+            if (flags & GrPipeline::kAllowSRGBInputs_Flag) {
+                result.append("Allow sRGB Inputs.\n");
+            }
+            return result;
+        }
+        return SkString("No pipeline flags\n");
+    }
+
 private:
     void markAsBad() { fFlags |= kIsBad_Flag; }
 
