@@ -76,6 +76,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(constant_color)    \
     M(set_rgb)           \
     M(premul)            \
+    M(clamp_1)           \
+    M(clamp_a)           \
     M(load_8888)         \
     M(store_8888)        \
     M(load_a8)           \
@@ -101,7 +103,6 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(dstover)           \
     M(modulate)          \
     M(multiply)          \
-    M(plus_)             \
     M(screen)            \
     M(xor_)
 
