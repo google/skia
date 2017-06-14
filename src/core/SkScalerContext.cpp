@@ -761,12 +761,24 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
 
     // At this point, given GA, create s.
     switch (preMatrixScale) {
-        case kFull_PreMatrixScale:
-            s->fX = SkScalarAbs(GA.get(SkMatrix::kMScaleX));
-            s->fY = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+        case kFull_PreMatrixScale: {
+            SkScalar xScale = SkScalarAbs(GA.get(SkMatrix::kMScaleX));
+            SkScalar yScale = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+            if (xScale <= SK_ScalarNearlyZero) {
+                xScale = SK_Scalar1;
+            }
+            if (yScale <= SK_ScalarNearlyZero) {
+                yScale = SK_Scalar1;
+            }
+            s->fX = xScale;
+            s->fY = yScale;
             break;
+        }
         case kVertical_PreMatrixScale: {
             SkScalar yScale = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+            if (yScale <= SK_ScalarNearlyZero) {
+                yScale = SK_Scalar1;
+            }
             s->fX = yScale;
             s->fY = yScale;
             break;
