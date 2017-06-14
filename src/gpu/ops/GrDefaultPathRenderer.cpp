@@ -6,7 +6,6 @@
  */
 
 #include "GrDefaultPathRenderer.h"
-
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrDrawOpTest.h"
@@ -20,9 +19,8 @@
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTraceEvent.h"
-
 #include "ops/GrMeshDrawOp.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 GrDefaultPathRenderer::GrDefaultPathRenderer() {
 }
@@ -522,8 +520,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                                                                                viewMatrix;
             renderTargetContext->addDrawOp(
                     clip,
-                    GrNonAAFillRectOp::Make(std::move(paint), viewM, bounds, nullptr, &localMatrix,
-                                            aaType, passes[p]));
+                    GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
+                            std::move(paint), viewM, localMatrix, bounds, aaType, passes[p]));
         } else {
             std::unique_ptr<GrLegacyMeshDrawOp> op =
                     DefaultPathOp::Make(paint.getColor(), path, srcSpaceTol, newCoverage,
