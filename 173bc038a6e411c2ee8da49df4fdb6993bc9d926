@@ -106,6 +106,24 @@
       "revId": "173bc038a6e411c2ee8da49df4fdb6993bc9d926",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc431884_6d3d86fd",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-14T20:50:50Z",
+      "side": 1,
+      "message": "Yeah, I figure if how we dither varies, it\u0027s no worse if when we dither also varies.",
+      "parentUuid": "91880a7d_1d391e3a",
+      "revId": "173bc038a6e411c2ee8da49df4fdb6993bc9d926",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
