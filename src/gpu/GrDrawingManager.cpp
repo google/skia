@@ -224,7 +224,8 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
     fOnFlushCBObjects.push_back(onFlushCBObject);
 }
 
-sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp) {
+sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* rtp,
+                                                          bool managedOpList) {
     SkASSERT(fContext);
 
     // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
@@ -239,7 +240,9 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
                                                                 fContext->getAuditTrail()));
     SkASSERT(rtp->getLastOpList() == opList.get());
 
-    fOpLists.push_back() = opList;
+    if (managedOpList) {
+        fOpLists.push_back() = opList;
+    }
 
     return opList;
 }
@@ -306,7 +309,8 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                             sk_sp<GrSurfaceProxy> sProxy,
                                                             sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* surfaceProps) {
+                                                            const SkSurfaceProps* surfaceProps,
+                                                            bool managedOpList) {
     if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
         return nullptr;
     }
@@ -347,7 +351,7 @@ sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                                   std::move(colorSpace),
                                                                   surfaceProps,
                                                                   fContext->getAuditTrail(),
-                                                                  fSingleOwner));
+                                                                  fSingleOwner, managedOpList));
 }
 
 sk_sp<GrTextureContext> GrDrawingManager::makeTextureContext(sk_sp<GrSurfaceProxy> sProxy,

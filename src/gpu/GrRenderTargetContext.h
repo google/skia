@@ -351,7 +351,7 @@ public:
 protected:
     GrRenderTargetContext(GrContext*, GrDrawingManager*, sk_sp<GrRenderTargetProxy>,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
-                          GrSingleOwner*);
+                          GrSingleOwner*, bool managedOpList = true);
 
     SkDEBUGCODE(void validate() const;)
 
@@ -431,6 +431,7 @@ private:
 
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;
     SkSurfaceProps                    fSurfaceProps;
+    bool                              fManagedOpList;
 
     typedef GrSurfaceContext INHERITED;
 };
