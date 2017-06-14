@@ -227,16 +227,20 @@ enum class GrPrimitiveType {
 };
 static constexpr int kNumGrPrimitiveTypes = (int) GrPrimitiveType::kLinesAdjacency + 1;
 
-static inline bool GrIsPrimTypeLines(GrPrimitiveType type) {
+static constexpr bool GrIsPrimTypeLines(GrPrimitiveType type) {
     return GrPrimitiveType::kLines == type ||
            GrPrimitiveType::kLineStrip == type ||
            GrPrimitiveType::kLinesAdjacency == type;
 }
 
-static inline bool GrIsPrimTypeTris(GrPrimitiveType type) {
+static constexpr bool GrIsPrimTypeTris(GrPrimitiveType type) {
     return GrPrimitiveType::kTriangles == type     ||
            GrPrimitiveType::kTriangleStrip == type ||
            GrPrimitiveType::kTriangleFan == type;
+}
+
+static constexpr bool GrPrimTypeRequiresGeometryShaderSupport(GrPrimitiveType type) {
+    return GrPrimitiveType::kLinesAdjacency == type;
 }
 
 /**
