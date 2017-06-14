@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "1d9a3d75_7b6fd1b9",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-14T12:56:14Z",
+      "side": 1,
+      "message": "Oh, I see. I didn\u0027t catch that it was still defined above. I think it\u0027d be even better to move it into the op itself though now that sees the GrAAType.",
+      "parentUuid": "f2fddcdd_4b63581c",
+      "revId": "7af257b4d8711bdc0b5ede4ed778623aaaf86c79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2eed81a6_dd9c3abf",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 10
