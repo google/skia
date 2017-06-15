@@ -6,7 +6,7 @@ deps = {
   "third_party/externals/angle2"        : "https://chromium.googlesource.com/angle/angle.git@0492d4479799f296c4b1db4cb4ea465bacc8cec0",
   "third_party/externals/dng_sdk"       : "https://android.googlesource.com/platform/external/dng_sdk.git@96443b262250c390b0caefbf3eed8463ba35ecae",
   "third_party/externals/expat"         : "https://android.googlesource.com/platform/external/expat.git@android-6.0.1_r55",
-  "third_party/externals/freetype"      : "https://skia.googlesource.com/third_party/freetype2.git@447a0b62634802d8acdb56008cff5ff4e50be244",
+  "third_party/externals/freetype"      : "https://skia.googlesource.com/third_party/freetype2.git@5c402d97afcc98cbb8d8e049409533f747c4c514",
   "third_party/externals/harfbuzz"      : "https://skia.googlesource.com/third_party/harfbuzz.git@1.4.2",
   "third_party/externals/icu"           : "https://chromium.googlesource.com/chromium/deps/icu.git@ec9c1133693148470ffe2e5e53576998e3650c1d",
   "third_party/externals/imgui"         : "https://github.com/ocornut/imgui.git@6384eee34f08cb7eab8d835043e1738e4adcdf75",
