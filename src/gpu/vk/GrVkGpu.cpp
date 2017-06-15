@@ -7,6 +7,7 @@
 
 #include "GrVkGpu.h"
 
+#include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "GrContextOptions.h"
 #include "GrGeometryProcessor.h"
@@ -191,6 +192,12 @@ void GrVkGpu::destroyResources() {
     }
     fSemaphoresToWaitOn.reset();
 
+    for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
+        fSemaphoresToSignal[i]->unref(this);
+    }
+    fSemaphoresToSignal.reset();
+
+
     fCopyManager.destroyResources(this);
 
     // must call this just before we destroy the command pool and VkDevice
@@ -226,12 +233,16 @@ void GrVkGpu::disconnect(DisconnectType type) {
             for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
                 fSemaphoresToWaitOn[i]->unrefAndAbandon();
             }
+            for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
+                fSemaphoresToSignal[i]->unrefAndAbandon();
+            }
             fCopyManager.abandonResources();
 
             // must call this just before we destroy the command pool and VkDevice
             fResourceProvider.abandonResources();
         }
         fSemaphoresToWaitOn.reset();
+        fSemaphoresToSignal.reset();
 #ifdef SK_ENABLE_VK_LAYERS
         fCallback = VK_NULL_HANDLE;
 #endif
@@ -249,17 +260,20 @@ GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
     return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
 }
 
-void GrVkGpu::submitCommandBuffer(SyncQueue sync,
-                                  const GrVkSemaphore::Resource* signalSemaphore) {
+void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->end(this);
 
-    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, signalSemaphore, fSemaphoresToWaitOn);
+    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, fSemaphoresToSignal, fSemaphoresToWaitOn);
 
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
         fSemaphoresToWaitOn[i]->unref(this);
     }
     fSemaphoresToWaitOn.reset();
+    for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
+        fSemaphoresToSignal[i]->unref(this);
+    }
+    fSemaphoresToSignal.reset();
 
     fResourceProvider.checkCommandBuffers();
 
@@ -1937,15 +1951,25 @@ void GrVkGpu::deleteFence(GrFence fence) const {
     VK_CALL(DestroyFence(this->device(), (VkFence)fence, nullptr));
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore() {
-    return GrVkSemaphore::Make(this);
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore(bool isOwned) {
+    return GrVkSemaphore::Make(this, isOwned);
 }
 
-void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool /*flush*/) {
+sk_sp<GrSemaphore> GrVkGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                 GrWrapOwnership ownership) {
+    return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), ownership);
+}
+
+void GrVkGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
     GrVkSemaphore* vkSem = static_cast<GrVkSemaphore*>(semaphore.get());
 
-    // We *always* flush, so ignore that parameter
-    this->submitCommandBuffer(kSkip_SyncQueue, vkSem->getResource());
+    const GrVkSemaphore::Resource* resource = vkSem->getResource();
+    resource->ref();
+    fSemaphoresToSignal.push_back(resource);
+
+    if (flush) {
+        this->submitCommandBuffer(kSkip_SyncQueue);
+    }
 }
 
 void GrVkGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
