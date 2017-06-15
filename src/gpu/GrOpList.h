@@ -9,7 +9,6 @@
 #define GrOpList_DEFINED
 
 #include "GrGpuResourceRef.h"
-
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 
