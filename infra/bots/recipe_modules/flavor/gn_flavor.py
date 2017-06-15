@@ -121,6 +121,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if extra_ldflags:
       args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
+    args['skia_use_system_freetype2'] = "false"
+
     gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
 
     gn    = 'gn.exe'    if 'Win' in os else 'gn'
