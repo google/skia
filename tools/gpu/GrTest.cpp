@@ -12,6 +12,7 @@
 #include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
+#include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"

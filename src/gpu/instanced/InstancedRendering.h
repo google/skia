@@ -46,7 +46,7 @@ class InstanceProcessor;
  */
 class InstancedRendering : public SkNoncopyable {
 public:
-    virtual ~InstancedRendering() { SkASSERT(State::kRecordingDraws == fState); }
+    virtual ~InstancedRendering();
 
     GrGpu* gpu() const { return fGpu.get(); }
 
