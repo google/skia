@@ -606,6 +606,7 @@
       "~ReadPixels_Gpu",
       "~ReadPixels_Texture",
       "~ReadWriteAlpha",
+      "~skbug6653",
       "~SRGBReadWritePixels",
       "~SpecialImage_DeferredGpu",
       "~SpecialImage_Gpu",
