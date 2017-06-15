@@ -15,6 +15,7 @@
 #include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "GrSurfaceProxy.h"
+#include "GrTextureProxy.h"
 #include "SkCanvas.h"
 #include "SkSurface.h"
 

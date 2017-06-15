@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrGpuCommandBuffer.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"

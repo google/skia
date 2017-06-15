@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrBackendSurface.h"
+#include "GrRenderTarget.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"

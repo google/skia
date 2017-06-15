@@ -10,7 +10,7 @@
 
 #include "GrSemaphore.h"
 
-#include "GrGLGpu.h"
+class GrGLGpu;
 
 class GrGLSemaphore : public GrSemaphore {
 public:
