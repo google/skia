@@ -9,9 +9,10 @@
 #ifndef GrGLTextureRenderTarget_DEFINED
 #define GrGLTextureRenderTarget_DEFINED
 
-#include "GrGLGpu.h"
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
+
+class GrGLGpu;
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
@@ -28,12 +29,7 @@ public:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided)
-        : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
-        this->registerWithCache(budgeted);
-    }
+                            bool wasMipMapDataProvided);
 
     bool canAttemptStencilAttachment() const override;
 
@@ -59,12 +55,7 @@ private:
                             const GrSurfaceDesc& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
-                            bool wasMipMapDataProvided)
-        : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
-        this->registerWithCacheWrapped();
-    }
+                            bool wasMipMapDataProvided);
 
     size_t onGpuMemorySize() const override;
 };
