@@ -20,15 +20,13 @@
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            sk_sp<GrTextureProxy> maskProxy,
                                            float innerThreshold,
                                            float outerThreshold,
                                            const SkIRect& bounds) {
         return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
-                                                                    resourceProvider,
                                                                     std::move(proxy),
                                                                     std::move(colorSpaceXform),
                                                                     std::move(maskProxy),
@@ -46,8 +44,7 @@ public:
 private:
     static OptimizationFlags OptFlags(float outerThreshold);
 
-    GrAlphaThresholdFragmentProcessor(GrResourceProvider*,
-                                      sk_sp<GrTextureProxy> proxy,
+    GrAlphaThresholdFragmentProcessor(sk_sp<GrTextureProxy> proxy,
                                       sk_sp<GrColorSpaceXform> colorSpaceXform,
                                       sk_sp<GrTextureProxy> maskProxy,
                                       float innerThreshold,

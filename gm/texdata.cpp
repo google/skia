@@ -117,8 +117,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         } else {
             vm.reset();
         }
-        paint.addColorTextureProcessor(context->resourceProvider(), tContext->asTextureProxyRef(),
-                                       nullptr, vm);
+        paint.addColorTextureProcessor(tContext->asTextureProxyRef(), nullptr, vm);
 
         renderTargetContext->drawRect(clip, GrPaint(paint), GrAA::kNo, vm,
                                       SkRect::MakeWH(2 * S, 2 * S));

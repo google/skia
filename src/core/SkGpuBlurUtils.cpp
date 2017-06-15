@@ -79,10 +79,8 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
-
     sk_sp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
-            resourceProvider, std::move(proxy), direction, radius, sigma, useBounds, bounds));
+            std::move(proxy), direction, radius, sigma, useBounds, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
@@ -109,10 +107,8 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
     SkIRect bounds = srcBounds ? *srcBounds : SkIRect::EmptyIRect();
 
-    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
-
     sk_sp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
-            resourceProvider, std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
+            std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
             srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
@@ -197,16 +193,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           SkBackingFit fit) {
     SkASSERT(context);
 
-    {
-        // MDB TODO: remove this
-        // Chrome is crashing with proxies when they need to be instantiated.
-        // Force an instantiation here (where, in olden days, we used to require a GrTexture)
-        // to see if the input is already un-instantiable.
-        if (!srcProxy->instantiate(context->resourceProvider())) {
-            return nullptr;
-        }
-    }
-
     SkIRect clearRect;
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;
@@ -280,7 +266,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
                          (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
             sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
-                                                        context->resourceProvider(),
                                                         std::move(srcProxy),
                                                         nullptr,
                                                         SkMatrix::I(),
@@ -292,7 +277,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             srcOffset.set(0, 0);
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
-            paint.addColorTextureProcessor(context->resourceProvider(), std::move(srcProxy),
+            paint.addColorTextureProcessor(std::move(srcProxy),
                                            nullptr, SkMatrix::I(), params);
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -379,7 +364,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
-        paint.addColorTextureProcessor(context->resourceProvider(), std::move(proxy),
+        paint.addColorTextureProcessor(std::move(proxy),
                                        nullptr, SkMatrix::I(), params);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

@@ -11,7 +11,6 @@
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
 #include "GrProcessor.h"
-#include "GrResourceProvider.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

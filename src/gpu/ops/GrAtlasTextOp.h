@@ -148,8 +148,7 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
     // TODO just use class params
-    sk_sp<GrGeometryProcessor> setupDfProcessor(GrResourceProvider*,
-                                                const SkMatrix& viewMatrix, SkColor luminanceColor,
+    sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor luminanceColor,
                                                 GrColor color, sk_sp<GrTextureProxy> proxy) const;
 
     GrColor fColor;

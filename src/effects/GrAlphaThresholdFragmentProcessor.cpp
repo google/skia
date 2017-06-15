@@ -27,7 +27,6 @@ inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor:
 }
 
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
-                                                           GrResourceProvider* resourceProvider,
                                                            sk_sp<GrTextureProxy> proxy,
                                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                            sk_sp<GrTextureProxy> maskProxy,
@@ -37,14 +36,13 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         : INHERITED(OptFlags(outerThreshold))
         , fInnerThreshold(innerThreshold)
         , fOuterThreshold(outerThreshold)
-        , fImageCoordTransform(resourceProvider, SkMatrix::I(), proxy.get())
-        , fImageTextureSampler(resourceProvider, std::move(proxy))
+        , fImageCoordTransform(SkMatrix::I(), proxy.get())
+        , fImageTextureSampler(std::move(proxy))
         , fColorSpaceXform(std::move(colorSpaceXform))
         , fMaskCoordTransform(
-                  resourceProvider,
                   SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                   maskProxy.get())
-        , fMaskTextureSampler(resourceProvider, maskProxy) {
+        , fMaskTextureSampler(std::move(maskProxy)) {
     this->initClassID<GrAlphaThresholdFragmentProcessor>();
     this->addCoordTransform(&fImageCoordTransform);
     this->addTextureSampler(&fImageTextureSampler);
@@ -159,8 +157,7 @@ sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(GrProce
     uint32_t y = d->fRandom->nextULessThan(kMaxHeight - height);
     SkIRect bounds = SkIRect::MakeXYWH(x, y, width, height);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(d->fRandom);
-    return GrAlphaThresholdFragmentProcessor::Make(d->resourceProvider(),
-                                                   std::move(bmpProxy),
+    return GrAlphaThresholdFragmentProcessor::Make(std::move(bmpProxy),
                                                    std::move(colorSpaceXform),
                                                    std::move(maskProxy),
                                                    innerThresh, outerThresh,

@@ -258,8 +258,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     };
 
     for (auto filter : kNamedFilters) {
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(context->resourceProvider(),
-                                                                  sContext->asTextureProxyRef(),
+        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(sContext->asTextureProxyRef(),
                                                                   nullptr,
                                                                   SkMatrix::I(),
                                                                   filter.fMode));
