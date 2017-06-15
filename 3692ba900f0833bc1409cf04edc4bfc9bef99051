@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33f46d74_d3715b82",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T20:10:39Z",
+      "side": 1,
+      "message": "This is currently still required here cause we pass in GrVkGpu::SyncQueue enum for submitting command buffers. We have a couple options here.\n\n1) Leave as is (include stays)\n2) Keep enum on GrVkGpu, but pass a bool in GrVkCommandBuffer::submitToQueue (include goes)\n3) Remove enum entirely and just use bools (include goes)\n4) Move enum to GrVkCommandBuffer and have GrVkGpu.h include GrVkCommandBuffer.h\n\nAny of these ideas sound more preferable than the others?",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 20
+      },
+      "revId": "3692ba900f0833bc1409cf04edc4bfc9bef99051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
