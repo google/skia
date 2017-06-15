@@ -8,7 +8,6 @@
 #ifndef GrPipelineBuilder_DEFINED
 #define GrPipelineBuilder_DEFINED
 
-#include "GrGpuResourceRef.h"
 #include "GrPipeline.h"
 #include "GrProcessorSet.h"
 #include "GrUserStencilSettings.h"
