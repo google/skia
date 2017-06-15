@@ -63,6 +63,30 @@
       "revId": "557b3488bcaa21f8a968e35d5b2e7550a90a96ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77947ac6_6c63bc9e",
+        "filename": "tests/TArrayTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-15T20:38:53Z",
+      "side": 1,
+      "message": "Ah, that\u0027s fine with me. Thank you for the clarification.",
+      "parentUuid": "563d09ad_1b52b147",
+      "range": {
+        "startLine": 308,
+        "startChar": 29,
+        "endLine": 308,
+        "endChar": 51
+      },
+      "revId": "557b3488bcaa21f8a968e35d5b2e7550a90a96ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
