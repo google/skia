@@ -482,6 +482,37 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
     return sk_64_asS32(size);
 }
 
+#include "SkCoreBlitters.h"
+#include "SkDraw.h"
+#include "SkRasterClip.h"
+#include "SkRasterPipeline.h"
+#include "SkShader.h"
+
+bool gUseBicubicForMipBuilder = true;
+
+extern void SkImageShader_ApendStagesRaw(SkRasterPipeline* p, SkColorSpace* dstCS,
+                                         SkArenaAlloc* alloc, const SkPixmap& pm,
+                                         const SkMatrix& invCTM,
+                                         SkShader::TileMode tx, SkShader::TileMode ty,
+                                         SkFilterQuality quality, SkColor color);
+
+static void draw(const SkPixmap& src, const SkPixmap& dst) {
+    SkMatrix inv = SkMatrix::MakeScale(SkIntToScalar(src.width()) / dst.width(),
+                                       SkIntToScalar(src.height()) / dst.height());
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+
+    SkImageShader_ApendStagesRaw(&p, dst.colorSpace(), &alloc, src, inv,
+                                 SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                 kHigh_SkFilterQuality, SK_ColorBLACK);
+
+    auto blitter = SkCreateRasterPipelineBlitter(dst, SkPaint(), p, src.isOpaque(), &alloc);
+
+    dst.erase(0);
+    blitter->blitRect(0, 0, dst.width(), dst.height());
+}
+
 SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode colorMode,
                           SkDiscardableFactoryProc fact) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
@@ -654,14 +685,22 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
                                          SkIntToScalar(height) / src.height());
 
         const SkPixmap& dstPM = levels[i].fPixmap;
-        const void* srcBasePtr = srcPM.addr();
-        void* dstBasePtr = dstPM.writable_addr();
+        if (gUseBicubicForMipBuilder) {
+            const SkPixmap* spm = &srcPM;
+            if (i > 1 && false) {
+                spm = &levels[i-2].fPixmap;
+            }
+            draw(*spm, dstPM);
+        } else {
+            const void* srcBasePtr = srcPM.addr();
+            void* dstBasePtr = dstPM.writable_addr();
 
-        const size_t srcRB = srcPM.rowBytes();
-        for (int y = 0; y < height; y++) {
-            proc(dstBasePtr, srcBasePtr, srcRB, width);
-            srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
-            dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
+            const size_t srcRB = srcPM.rowBytes();
+            for (int y = 0; y < height; y++) {
+                proc(dstBasePtr, srcBasePtr, srcRB, width);
+                srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
+                dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
+            }
         }
         srcPM = dstPM;
         addr += height * rowBytes;
