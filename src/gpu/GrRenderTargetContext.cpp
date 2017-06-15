@@ -1815,7 +1815,7 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
     args.fAppliedClip = &appliedClip;
     args.fRenderTarget = rt;
     args.fCaps = this->caps();
-    args.fResourceProvider = this->resourceProvider();
+    args.fResourceProvider = resourceProvider;
 
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, bounds, &args.fDstProxy)) {

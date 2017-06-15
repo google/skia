@@ -62,8 +62,7 @@ static const float kRec709InverseConversionMatrix[16] = {
 
 class YUVtoRGBEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> yProxy,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> yProxy,
                                            sk_sp<GrTextureProxy> uProxy,
                                            sk_sp<GrTextureProxy> vProxy, const SkISize sizes[3],
                                            SkYUVColorSpace colorSpace, bool nv12) {
@@ -87,7 +86,7 @@ public:
             GrSamplerParams::kBilerp_FilterMode :
             GrSamplerParams::kNone_FilterMode;
         return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(
-            resourceProvider, std::move(yProxy), std::move(uProxy), std::move(vProxy),
+            std::move(yProxy), std::move(uProxy), std::move(vProxy),
             yuvMatrix, uvFilterMode, colorSpace, nv12));
     }
 
@@ -153,16 +152,15 @@ public:
     };
 
 private:
-    YUVtoRGBEffect(GrResourceProvider* resourceProvider,
-                   sk_sp<GrTextureProxy> yProxy, sk_sp<GrTextureProxy> uProxy,
+    YUVtoRGBEffect(sk_sp<GrTextureProxy> yProxy, sk_sp<GrTextureProxy> uProxy,
                    sk_sp<GrTextureProxy> vProxy, const SkMatrix yuvMatrix[3],
                    GrSamplerParams::FilterMode uvFilterMode, SkYUVColorSpace colorSpace, bool nv12)
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
-            , fYTransform(resourceProvider, yuvMatrix[0], yProxy.get())
-            , fYSampler(resourceProvider, std::move(yProxy))
-            , fUTransform(resourceProvider, yuvMatrix[1], uProxy.get())
-            , fUSampler(resourceProvider, std::move(uProxy), uvFilterMode)
-            , fVSampler(resourceProvider, vProxy, uvFilterMode)
+            , fYTransform(yuvMatrix[0], yProxy.get())
+            , fYSampler(std::move(yProxy))
+            , fUTransform(yuvMatrix[1], uProxy.get())
+            , fUSampler(std::move(uProxy), uvFilterMode)
+            , fVSampler(vProxy, uvFilterMode)
             , fColorSpace(colorSpace)
             , fNV12(nv12) {
         this->initClassID<YUVtoRGBEffect>();
@@ -171,7 +169,7 @@ private:
         this->addCoordTransform(&fUTransform);
         this->addTextureSampler(&fUSampler);
         if (!fNV12) {
-            fVTransform = GrCoordTransform(resourceProvider, yuvMatrix[2], vProxy.get());
+            fVTransform = GrCoordTransform(yuvMatrix[2], vProxy.get());
             this->addCoordTransform(&fVTransform);
             this->addTextureSampler(&fVSampler);
         }
@@ -360,15 +358,13 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> GrYUVEffect::MakeYUVToRGB(GrResourceProvider* resourceProvider,
-                                                     sk_sp<GrTextureProxy> yProxy,
+sk_sp<GrFragmentProcessor> GrYUVEffect::MakeYUVToRGB(sk_sp<GrTextureProxy> yProxy,
                                                      sk_sp<GrTextureProxy> uProxy,
                                                      sk_sp<GrTextureProxy> vProxy,
                                                      const SkISize sizes[3],
                                                      SkYUVColorSpace colorSpace, bool nv12) {
     SkASSERT(yProxy && uProxy && vProxy && sizes);
-    return YUVtoRGBEffect::Make(resourceProvider,
-                                std::move(yProxy), std::move(uProxy), std::move(vProxy),
+    return YUVtoRGBEffect::Make(std::move(yProxy), std::move(uProxy), std::move(vProxy),
                                 sizes, colorSpace, nv12);
 }
 

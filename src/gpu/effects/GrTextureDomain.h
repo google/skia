@@ -153,8 +153,7 @@ protected:
 class GrTextureDomainEffect : public GrSingleTextureEffect {
 
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*,
-                                           sk_sp<GrTextureProxy>,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
                                            sk_sp<GrColorSpaceXform>,
                                            const SkMatrix&,
                                            const SkRect& domain,
@@ -175,8 +174,7 @@ public:
 private:
     GrTextureDomain fTextureDomain;
 
-    GrTextureDomainEffect(GrResourceProvider*,
-                          sk_sp<GrTextureProxy>,
+    GrTextureDomainEffect(sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>,
                           const SkMatrix&,
                           const SkRect& domain,
@@ -198,7 +196,7 @@ private:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
                                            const SkIRect& subset,
                                            const SkIPoint& deviceSpaceOffset);
 
@@ -219,7 +217,7 @@ private:
     GrTextureDomain fTextureDomain;
     SkIPoint fDeviceSpaceOffset;
 
-    GrDeviceSpaceTextureDecalFragmentProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    GrDeviceSpaceTextureDecalFragmentProcessor(sk_sp<GrTextureProxy>,
                                                const SkIRect&, const SkIPoint&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

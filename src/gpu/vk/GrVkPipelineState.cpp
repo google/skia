@@ -267,7 +267,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     GrResourceIOProcessor::TextureSampler dstTextureSampler;
     if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
-        dstTextureSampler.reset(gpu->getContext()->resourceProvider(), sk_ref_sp(dstTextureProxy));
+        dstTextureSampler.reset(sk_ref_sp(dstTextureProxy));
         SkAssertResult(dstTextureSampler.instantiate(gpu->getContext()->resourceProvider()));
         textureBindings.push_back(&dstTextureSampler);
     }

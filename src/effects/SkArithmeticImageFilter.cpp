@@ -324,11 +324,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ArithmeticFP);
 
 sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkSpecialImage* source,
-        sk_sp<SkSpecialImage>
-                background,
+        sk_sp<SkSpecialImage> background,
         const SkIPoint& backgroundOffset,
-        sk_sp<SkSpecialImage>
-                foreground,
+        sk_sp<SkSpecialImage> foreground,
         const SkIPoint& foregroundOffset,
         const SkIRect& bounds,
         const OutputProperties& outputProperties) const {
@@ -355,7 +353,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         sk_sp<GrColorSpaceXform> bgXform =
                 GrColorSpaceXform::Make(background->getColorSpace(), outputProperties.colorSpace());
         bgFP = GrTextureDomainEffect::Make(
-                context->resourceProvider(), std::move(backgroundProxy), std::move(bgXform),
+                std::move(backgroundProxy), std::move(bgXform),
                 backgroundMatrix, GrTextureDomain::MakeTexelDomain(background->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode);
     } else {
@@ -371,7 +369,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         sk_sp<GrFragmentProcessor> foregroundFP;
 
         foregroundFP = GrTextureDomainEffect::Make(
-                context->resourceProvider(), std::move(foregroundProxy), std::move(fgXform),
+                std::move(foregroundProxy), std::move(fgXform),
                 foregroundMatrix, GrTextureDomain::MakeTexelDomain(foreground->subset()),
                 GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode);
 

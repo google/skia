@@ -7,7 +7,6 @@
 
 #include "GrTextureProxy.h"
 
-#include "GrResourceProvider.h"
 #include "GrTexturePriv.h"
 
 GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, SkBudgeted budgeted,

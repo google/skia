@@ -168,15 +168,13 @@ static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-                                                            GrResourceProvider* resourceProvider,
                                                             sk_sp<GrTextureProxy> proxy,
                                                             Direction direction,
                                                             int radius,
                                                             float gaussianSigma,
                                                             bool useBounds,
                                                             int bounds[2])
-        : INHERITED{resourceProvider,
-                    ModulationFlags(proxy->config()),
+        : INHERITED{ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     direction,
                     radius}
@@ -237,8 +235,7 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
 
-    return GrGaussianConvolutionFragmentProcessor::Make(
-            d->resourceProvider(), d->textureProxy(texIdx),
-            dir, radius, sigma, useBounds, bounds);
+    return GrGaussianConvolutionFragmentProcessor::Make(d->textureProxy(texIdx),
+                                                        dir, radius, sigma, useBounds, bounds);
 }
 #endif

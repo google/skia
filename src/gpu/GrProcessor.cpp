@@ -136,8 +136,7 @@ void GrResourceIOProcessor::addBufferAccess(const BufferAccess* access) {
     fBufferAccesses.push_back(access);
 }
 
-void GrResourceIOProcessor::addImageStorageAccess(GrResourceProvider* resourceProvider,
-                                                  const ImageStorageAccess* access) {
+void GrResourceIOProcessor::addImageStorageAccess(const ImageStorageAccess* access) {
     fImageStorageAccesses.push_back(access);
 }
 
@@ -223,22 +222,19 @@ bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcess
 
 GrResourceIOProcessor::TextureSampler::TextureSampler() {}
 
-GrResourceIOProcessor::TextureSampler::TextureSampler(GrResourceProvider* resourceProvider,
-                                                      sk_sp<GrTextureProxy> proxy,
+GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
                                                       const GrSamplerParams& params) {
-    this->reset(resourceProvider, std::move(proxy), params);
+    this->reset(std::move(proxy), params);
 }
 
-GrResourceIOProcessor::TextureSampler::TextureSampler(GrResourceProvider* resourceProvider,
-                                                      sk_sp<GrTextureProxy> proxy,
+GrResourceIOProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
                                                       GrSamplerParams::FilterMode filterMode,
                                                       SkShader::TileMode tileXAndY,
                                                       GrShaderFlags visibility) {
-    this->reset(resourceProvider, std::move(proxy), filterMode, tileXAndY, visibility);
+    this->reset(std::move(proxy), filterMode, tileXAndY, visibility);
 }
 
-void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourceProvider,
-                                                  sk_sp<GrTextureProxy> proxy,
+void GrResourceIOProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
                                                   const GrSamplerParams& params,
                                                   GrShaderFlags visibility) {
     fParams = params;
@@ -247,8 +243,7 @@ void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourcePr
     fVisibility = visibility;
 }
 
-void GrResourceIOProcessor::TextureSampler::reset(GrResourceProvider* resourceProvider,
-                                                  sk_sp<GrTextureProxy> proxy,
+void GrResourceIOProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
                                                   GrSamplerParams::FilterMode filterMode,
                                                   SkShader::TileMode tileXAndY,
                                                   GrShaderFlags visibility) {

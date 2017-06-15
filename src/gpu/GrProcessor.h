@@ -190,7 +190,7 @@ protected:
      */
     void addTextureSampler(const TextureSampler*);
     void addBufferAccess(const BufferAccess*);
-    void addImageStorageAccess(GrResourceProvider* resourceProvider, const ImageStorageAccess*);
+    void addImageStorageAccess(const ImageStorageAccess*);
 
     bool hasSameSamplersAndAccesses(const GrResourceIOProcessor&) const;
 
@@ -219,15 +219,14 @@ public:
      */
     TextureSampler();
 
-    // MDB TODO: ultimately we shouldn't need the resource provider parameter
-    TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&);
-    explicit TextureSampler(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerParams&);
+    explicit TextureSampler(sk_sp<GrTextureProxy>,
                             GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                             SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(GrResourceProvider*, sk_sp<GrTextureProxy>, const GrSamplerParams&,
+    void reset(sk_sp<GrTextureProxy>, const GrSamplerParams&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    void reset(sk_sp<GrTextureProxy>,
                GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                GrShaderFlags visibility = kFragment_GrShaderFlag);

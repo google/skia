@@ -21,56 +21,31 @@ class GrInvariantOutput;
 class GrSimpleTextureEffect : public GrSingleTextureEffect {
 public:
     /* unfiltered, clamp mode */
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix) {
-        // MDB TODO: remove this instantiation once instantiation is pushed past the
-        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
-        // recover from.
-        if (!proxy->instantiate(resourceProvider)) {
-            return nullptr;
-        }
-
         return sk_sp<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
+            new GrSimpleTextureEffect(std::move(proxy),
                                       std::move(colorSpaceXform), matrix,
                                       GrSamplerParams::kNone_FilterMode));
     }
 
     /* clamp mode */
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            GrSamplerParams::FilterMode filterMode) {
-        // MDB TODO: remove this instantiation once instantiation is pushed past the
-        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
-        // recover from.
-        if (!proxy->instantiate(resourceProvider)) {
-            return nullptr;
-        }
-
         return sk_sp<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(resourceProvider, std::move(proxy),
+            new GrSimpleTextureEffect(std::move(proxy),
                                       std::move(colorSpaceXform),
                                       matrix, filterMode));
     }
 
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            const GrSamplerParams& p) {
-        // MDB TODO: remove this instantiation once instantiation is pushed past the
-        // TextureSamplers. Instantiation failure in the TextureSampler is difficult to
-        // recover from.
-        if (!proxy->instantiate(resourceProvider)) {
-            return nullptr;
-        }
-
-        return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(resourceProvider,
-                                                                    std::move(proxy),
+        return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(std::move(proxy),
                                                                     std::move(colorSpaceXform),
                                                                     matrix, p));
     }
@@ -80,11 +55,11 @@ public:
     const char* name() const override { return "SimpleTexture"; }
 
 private:
-    GrSimpleTextureEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    GrSimpleTextureEffect(sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix& matrix,
                           GrSamplerParams::FilterMode);
 
-    GrSimpleTextureEffect(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    GrSimpleTextureEffect(sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix& matrix,
                           const GrSamplerParams&);
 

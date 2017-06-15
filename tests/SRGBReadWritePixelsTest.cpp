@@ -10,7 +10,6 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
 #include "GrSurfaceContext.h"
 #include "SkCanvas.h"
 #include "SkGr.h"

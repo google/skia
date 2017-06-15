@@ -11,9 +11,9 @@
 #include "GrFragmentProcessor.h"
 #include "GrColorSpaceXform.h"
 #include "GrCoordTransform.h"
-#include "SkMatrix.h"
 
 class GrTextureProxy;
+class SkMatrix;
 
 /**
  * A base class for effects that draw a single texture with a texture matrix. This effect has no
@@ -31,13 +31,13 @@ public:
 
 protected:
     /** unfiltered, clamp mode */
-    GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
+    GrSingleTextureEffect(OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&);
     /** clamp mode */
-    GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
+    GrSingleTextureEffect(OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&,
                           GrSamplerParams::FilterMode filterMode);
-    GrSingleTextureEffect(GrResourceProvider*, OptimizationFlags, sk_sp<GrTextureProxy>,
+    GrSingleTextureEffect(OptimizationFlags, sk_sp<GrTextureProxy>,
                           sk_sp<GrColorSpaceXform>, const SkMatrix&, const GrSamplerParams&);
 
     /**
@@ -56,8 +56,8 @@ protected:
     }
 
 private:
-    GrCoordTransform fCoordTransform;
-    TextureSampler fTextureSampler;
+    GrCoordTransform         fCoordTransform;
+    TextureSampler           fTextureSampler;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     typedef GrFragmentProcessor INHERITED;

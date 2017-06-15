@@ -57,13 +57,11 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
         // better!
         SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
         paint.addColorFragmentProcessor(
-            GrTextureDomainEffect::Make(context->resourceProvider(), std::move(inputProxy),
-                                        nullptr, SkMatrix::I(),
+            GrTextureDomainEffect::Make(std::move(inputProxy), nullptr, SkMatrix::I(),
                                         domain, GrTextureDomain::kClamp_Mode, copyParams.fFilter));
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
-        paint.addColorTextureProcessor(context->resourceProvider(), std::move(inputProxy),
-                                       nullptr, SkMatrix::I(), params);
+        paint.addColorTextureProcessor(std::move(inputProxy), nullptr, SkMatrix::I(), params);
     }
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -220,7 +218,6 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
 }
 
 sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
-                                        GrResourceProvider* resourceProvider,
                                         sk_sp<GrTextureProxy> proxy,
                                         sk_sp<GrColorSpaceXform> colorSpaceXform,
                                         const SkMatrix& textureMatrix,
@@ -230,26 +227,24 @@ sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAn
     SkASSERT(kTightCopy_DomainMode != domainMode);
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {
-            return GrTextureDomainEffect::Make(resourceProvider, std::move(proxy),
+            return GrTextureDomainEffect::Make(std::move(proxy),
                                                std::move(colorSpaceXform), textureMatrix,
                                                domain, GrTextureDomain::kClamp_Mode,
                                                *filterOrNullForBicubic);
         } else {
             GrSamplerParams params(SkShader::kClamp_TileMode, *filterOrNullForBicubic);
-            return GrSimpleTextureEffect::Make(resourceProvider, std::move(proxy),
+            return GrSimpleTextureEffect::Make(std::move(proxy),
                                                std::move(colorSpaceXform), textureMatrix,
                                                params);
         }
     } else {
         if (kDomain_DomainMode == domainMode) {
-            return GrBicubicEffect::Make(resourceProvider, std::move(proxy),
-                                         std::move(colorSpaceXform),
+            return GrBicubicEffect::Make(std::move(proxy), std::move(colorSpaceXform),
                                          textureMatrix, domain);
         } else {
             static const SkShader::TileMode kClampClamp[] =
                 { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
-            return GrBicubicEffect::Make(resourceProvider, std::move(proxy),
-                                         std::move(colorSpaceXform),
+            return GrBicubicEffect::Make(std::move(proxy), std::move(colorSpaceXform),
                                          textureMatrix, kClampClamp);
         }
     }

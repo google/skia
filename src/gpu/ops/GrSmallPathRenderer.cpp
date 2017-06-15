@@ -233,7 +233,6 @@ private:
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
 
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                atlas->context()->resourceProvider(),
                 this->color(), this->viewMatrix(), atlas->getProxy(), params, flags,
                 this->usesLocalCoords());
         } else {
@@ -251,7 +250,6 @@ private:
             }
 
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                atlas->context()->resourceProvider(),
                 this->color(), atlas->getProxy(), params, kA8_GrMaskFormat, invert,
                 this->usesLocalCoords());
         }

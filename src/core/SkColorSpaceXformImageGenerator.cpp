@@ -71,8 +71,8 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(GrConte
 
     SkASSERT(ctx);
 
-    sk_sp<GrTextureProxy> proxy =
-            GrUploadBitmapToTextureProxy(ctx->resourceProvider(), fSrc, nullptr);
+    sk_sp<GrTextureProxy> proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(),
+                                                               fSrc, nullptr);
 
     sk_sp<SkColorSpace> srcSpace =
             fSrc.colorSpace() ? sk_ref_sp(fSrc.colorSpace()) : SkColorSpace::MakeSRGB();
@@ -89,8 +89,8 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(GrConte
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(ctx->resourceProvider(), proxy, nullptr,
-            SkMatrix::MakeTrans(origin.fX, origin.fY));
+    paint.addColorTextureProcessor(std::move(proxy), nullptr,
+                                   SkMatrix::MakeTrans(origin.fX, origin.fY));
     paint.addColorFragmentProcessor(std::move(xform));
 
     const SkRect rect = SkRect::MakeWH(info.width(), info.height());

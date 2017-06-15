@@ -11,7 +11,6 @@
 #include "GrOpFlushState.h"
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
-#include "GrOnFlushResourceProvider.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTArray.h"
@@ -19,6 +18,7 @@
 #include "text/GrAtlasTextContext.h"
 
 class GrContext;
+class GrOnFlushCallbackObject;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOWner;

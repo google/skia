@@ -171,10 +171,10 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner;
     if (doBicubic) {
-        inner = GrBicubicEffect::Make(args.fContext->resourceProvider(), std::move(proxy),
+        inner = GrBicubicEffect::Make(std::move(proxy),
                                       std::move(colorSpaceXform), lmInverse, tm);
     } else {
-        inner = GrSimpleTextureEffect::Make(args.fContext->resourceProvider(), std::move(proxy),
+        inner = GrSimpleTextureEffect::Make(std::move(proxy),
                                             std::move(colorSpaceXform), lmInverse, params);
     }
 

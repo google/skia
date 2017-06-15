@@ -13,7 +13,6 @@
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrResourceProvider.h"
 #include "GrTest.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"

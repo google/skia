@@ -160,8 +160,6 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
         return;
     }
 
-    GrResourceProvider* resourceProvider = renderTargetContext->resourceProvider();
-
     SkRect dstRect = SkRect::Make(deviceSpaceRectToDraw);
 
     // We use device coords to compute the texture coordinates. We take the device coords and apply
@@ -171,7 +169,7 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            resourceProvider, std::move(proxy), nullptr, maskMatrix,
+            std::move(proxy), nullptr, maskMatrix,
             GrSamplerParams::kNone_FilterMode));
     renderTargetContext->addDrawOp(clip,
                                    GrRectOpFactory::MakeNonAAFillWithLocalMatrix(

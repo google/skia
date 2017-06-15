@@ -677,15 +677,14 @@ private:
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           SkPerlinNoiseShaderImpl::Type type,
+    static sk_sp<GrFragmentProcessor> Make(SkPerlinNoiseShaderImpl::Type type,
                                            int numOctaves, bool stitchTiles,
                                            std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                            sk_sp<GrTextureProxy> permutationsProxy,
                                            sk_sp<GrTextureProxy> noiseProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrPerlinNoise2Effect(resourceProvider, type, numOctaves, stitchTiles,
+            new GrPerlinNoise2Effect(type, numOctaves, stitchTiles,
                                      std::move(paintingData),
                                      std::move(permutationsProxy), std::move(noiseProxy), matrix));
     }
@@ -719,8 +718,7 @@ private:
                fPaintingData->fStitchDataInit == s.fPaintingData->fStitchDataInit;
     }
 
-    GrPerlinNoise2Effect(GrResourceProvider* resourceProvider,
-                         SkPerlinNoiseShaderImpl::Type type, int numOctaves, bool stitchTiles,
+    GrPerlinNoise2Effect(SkPerlinNoiseShaderImpl::Type type, int numOctaves, bool stitchTiles,
                          std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                          sk_sp<GrTextureProxy> permutationsProxy,
                          sk_sp<GrTextureProxy> noiseProxy,
@@ -729,8 +727,8 @@ private:
             , fType(type)
             , fNumOctaves(numOctaves)
             , fStitchTiles(stitchTiles)
-            , fPermutationsSampler(resourceProvider, std::move(permutationsProxy))
-            , fNoiseSampler(resourceProvider, std::move(noiseProxy))
+            , fPermutationsSampler(std::move(permutationsProxy))
+            , fNoiseSampler(std::move(noiseProxy))
             , fPaintingData(std::move(paintingData)) {
         this->initClassID<GrPerlinNoise2Effect>();
         this->addTextureSampler(&fPermutationsSampler);
@@ -741,7 +739,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
 
-    SkPerlinNoiseShaderImpl::Type           fType;
+    SkPerlinNoiseShaderImpl::Type       fType;
     GrCoordTransform                    fCoordTransform;
     int                                 fNumOctaves;
     bool                                fStitchTiles;
@@ -1096,14 +1094,13 @@ private:
 
 class GrImprovedPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           int octaves, SkScalar z,
+    static sk_sp<GrFragmentProcessor> Make(int octaves, SkScalar z,
                                            std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                            sk_sp<GrTextureProxy> permutationsProxy,
                                            sk_sp<GrTextureProxy> gradientProxy,
                                            const SkMatrix& matrix) {
         return sk_sp<GrFragmentProcessor>(
-            new GrImprovedPerlinNoiseEffect(resourceProvider, octaves, z, std::move(paintingData),
+            new GrImprovedPerlinNoiseEffect(octaves, z, std::move(paintingData),
                                             std::move(permutationsProxy),
                                             std::move(gradientProxy), matrix));
     }
@@ -1130,8 +1127,7 @@ private:
                fPaintingData->fBaseFrequency == s.fPaintingData->fBaseFrequency;
     }
 
-    GrImprovedPerlinNoiseEffect(GrResourceProvider* resourceProvider,
-                                int octaves, SkScalar z,
+    GrImprovedPerlinNoiseEffect(int octaves, SkScalar z,
                                 std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                 sk_sp<GrTextureProxy> permutationsProxy,
                                 sk_sp<GrTextureProxy> gradientProxy,
@@ -1139,8 +1135,8 @@ private:
             : INHERITED(kNone_OptimizationFlags)
             , fOctaves(octaves)
             , fZ(z)
-            , fPermutationsSampler(resourceProvider, std::move(permutationsProxy))
-            , fGradientSampler(resourceProvider, std::move(gradientProxy))
+            , fPermutationsSampler(std::move(permutationsProxy))
+            , fGradientSampler(std::move(gradientProxy))
             , fPaintingData(std::move(paintingData)) {
         this->initClassID<GrImprovedPerlinNoiseEffect>();
         this->addTextureSampler(&fPermutationsSampler);
@@ -1380,8 +1376,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const As
             GrRefCachedBitmapTextureProxy(args.fContext,
                                           paintingData->getGradientBitmap(),
                                           textureParams, nullptr));
-        return GrImprovedPerlinNoiseEffect::Make(args.fContext->resourceProvider(),
-                                                 fNumOctaves, fSeed, std::move(paintingData),
+        return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, std::move(paintingData),
                                                  std::move(permutationsTexture),
                                                  std::move(gradientTexture), m);
     }
@@ -1410,8 +1405,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const As
 
     if (permutationsProxy && noiseProxy) {
         sk_sp<GrFragmentProcessor> inner(
-            GrPerlinNoise2Effect::Make(args.fContext->resourceProvider(),
-                                       fType,
+            GrPerlinNoise2Effect::Make(fType,
                                        fNumOctaves,
                                        fStitchTiles,
                                        std::move(paintingData),

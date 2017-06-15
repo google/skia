@@ -173,7 +173,6 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
                                                                            outProps.colorSpace());
 
         sk_sp<GrFragmentProcessor> fp(GrAlphaThresholdFragmentProcessor::Make(
-                                            context->resourceProvider(),
                                             std::move(inputProxy),
                                             std::move(colorSpaceXform),
                                             std::move(maskProxy),

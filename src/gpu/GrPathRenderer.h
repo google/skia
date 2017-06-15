@@ -11,7 +11,6 @@
 #include "GrCaps.h"
 #include "GrRenderTargetContext.h"
 #include "GrPaint.h"
-#include "GrResourceProvider.h"
 #include "GrShape.h"
 #include "GrUserStencilSettings.h"
 

@@ -18,7 +18,6 @@
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
-#include "GrResourceProvider.h"
 #include "SkGr.h"
 #endif
 

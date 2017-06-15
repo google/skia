@@ -10,7 +10,6 @@
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrResourceProvider.h"
 #include "GrTexture.h"
 
 #include "SkCanvas.h"
