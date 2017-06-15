@@ -22,6 +22,30 @@
       "revId": "3692ba900f0833bc1409cf04edc4bfc9bef99051",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5a9e740_1510075e",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-15T21:03:05Z",
+      "side": 1,
+      "message": "For now I think we should take option 1 \u0026 land this as is.\n\nLonger term 4 sounds plausible.",
+      "parentUuid": "33f46d74_d3715b82",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 20
+      },
+      "revId": "3692ba900f0833bc1409cf04edc4bfc9bef99051",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
