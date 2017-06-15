@@ -36,7 +36,8 @@
       "ninja",
       "-C",
       "[START_DIR]/out/Release",
-      "nanobench"
+      "nanobench",
+      "dm"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
