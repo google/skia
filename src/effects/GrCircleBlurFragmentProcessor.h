@@ -45,7 +45,7 @@ private:
      * The x texture coord should map from 0 to 1 across the radius range of solidRadius to
      * solidRadius + textureRadius.
      */
-    GrCircleBlurFragmentProcessor(GrResourceProvider*, const SkRect& circle,
+    GrCircleBlurFragmentProcessor(const SkRect& circle,
                                   float textureRadius, float innerRadius,
                                   sk_sp<GrTextureProxy> blurProfile);
 

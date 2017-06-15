@@ -109,14 +109,14 @@ public:
      * Helpers for adding color or coverage effects that sample a texture. The matrix is applied
      * to the src space position to compute texture coordinates.
      */
-    void addColorTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    void addColorTextureProcessor(sk_sp<GrTextureProxy>,
                                   sk_sp<GrColorSpaceXform>, const SkMatrix&);
-    void addColorTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    void addColorTextureProcessor(sk_sp<GrTextureProxy>,
                                   sk_sp<GrColorSpaceXform>, const SkMatrix&,
                                   const GrSamplerParams&);
 
-    void addCoverageTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>, const SkMatrix&);
-    void addCoverageTextureProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>,
+    void addCoverageTextureProcessor(sk_sp<GrTextureProxy>, const SkMatrix&);
+    void addCoverageTextureProcessor(sk_sp<GrTextureProxy>,
                                      const SkMatrix&, const GrSamplerParams&);
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }

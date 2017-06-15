@@ -9,6 +9,7 @@
 #define GrOnFlushResourceProvider_DEFINED
 
 #include "GrTypes.h"
+#include "GrResourceProvider.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 

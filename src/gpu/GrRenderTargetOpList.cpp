@@ -12,7 +12,6 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
-#include "GrResourceProvider.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"

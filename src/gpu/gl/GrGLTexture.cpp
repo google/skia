@@ -7,7 +7,6 @@
 
 #include "GrGLTexture.h"
 #include "GrGLGpu.h"
-#include "GrResourceProvider.h"
 #include "GrSemaphore.h"
 #include "GrShaderCaps.h"
 #include "SkTraceMemoryDump.h"

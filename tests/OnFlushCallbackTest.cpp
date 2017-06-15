@@ -416,7 +416,6 @@ private:
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> fakeAtlas) {
-
     sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
                                                                       SkBackingFit::kApprox,
                                                                       3*kDrawnTileSize,
@@ -433,8 +432,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
 
         // TODO: here is the blocker for deferring creation of the atlas. The TextureSamplers
         // created here currently require a hard GrTexture.
-        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(context->resourceProvider(),
-                                                                    fakeAtlas,
+        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(fakeAtlas,
                                                                     nullptr, SkMatrix::I());
 
         GrPaint paint;
@@ -569,8 +567,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(context->resourceProvider(),
-                                                                  std::move(proxies[i]),
+        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(std::move(proxies[i]),
                                                                   nullptr, t));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));

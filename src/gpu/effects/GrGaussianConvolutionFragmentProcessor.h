@@ -18,15 +18,14 @@
 class GrGaussianConvolutionFragmentProcessor : public Gr1DKernelEffect {
 public:
     /// Convolve with a Gaussian kernel
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            Direction dir,
                                            int halfWidth,
                                            float gaussianSigma,
                                            bool useBounds,
                                            int* bounds) {
         return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-            resourceProvider, std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds));
+            std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds));
     }
 
     ~GrGaussianConvolutionFragmentProcessor() override;
@@ -49,7 +48,7 @@ public:
 
 private:
     /// Convolve with a Gaussian kernel
-    GrGaussianConvolutionFragmentProcessor(GrResourceProvider*, sk_sp<GrTextureProxy>, Direction,
+    GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, Direction,
                                            int halfWidth, float gaussianSigma, bool useBounds,
                                            int bounds[2]);
 

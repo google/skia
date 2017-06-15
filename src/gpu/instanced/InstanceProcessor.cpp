@@ -10,7 +10,6 @@
 #include "GrContext.h"
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
-#include "GrResourceProvider.h"
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLGeometryProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

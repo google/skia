@@ -386,7 +386,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    ColorTableEffect(GrResourceProvider* , sk_sp<GrTextureProxy> proxy,
+    ColorTableEffect(sk_sp<GrTextureProxy> proxy,
                      GrTextureStripAtlas* atlas, int row, unsigned flags);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
@@ -508,16 +508,13 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBi
         return nullptr;
     }
 
-    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(context->resourceProvider(),
-                                                           std::move(proxy),
-                                                           atlas, row, flags));
+    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(std::move(proxy), atlas, row, flags));
 }
 
-ColorTableEffect::ColorTableEffect(GrResourceProvider* resourceProvider,
-                                   sk_sp<GrTextureProxy> proxy,
+ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy,
                                    GrTextureStripAtlas* atlas, int row, unsigned flags)
         : INHERITED(kNone_OptimizationFlags)  // Not bothering with table-specific optimizations.
-        , fTextureSampler(resourceProvider, std::move(proxy))
+        , fTextureSampler(std::move(proxy))
         , fAtlas(atlas)
         , fRow(row) {
     this->initClassID<ColorTableEffect>();

@@ -137,8 +137,8 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     desc.fHeight = kSize;
     desc.fConfig = kConfig;
 
-    GrResourceProvider* resourceProvider = context->resourceProvider();
-    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
+    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                   desc,
                                                                    SkBudgeted::kYes, data, 0);
     if (!dataProxy) {
         return false;
@@ -156,7 +156,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     sk_sp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(kToUnpremul_PMConversion));
     sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(kToPremul_PMConversion));
 
-    paint1.addColorTextureProcessor(resourceProvider, dataProxy, nullptr, SkMatrix::I());
+    paint1.addColorTextureProcessor(dataProxy, nullptr, SkMatrix::I());
     paint1.addColorFragmentProcessor(pmToUPM);
     paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -165,14 +165,14 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         return false;
     }
 
-    paint2.addColorTextureProcessor(resourceProvider, readRTC->asTextureProxyRef(), nullptr,
+    paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), nullptr,
                                     SkMatrix::I());
     paint2.addColorFragmentProcessor(std::move(upmToPM));
     paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect, kRect);
 
-    paint3.addColorTextureProcessor(resourceProvider, tempRTC->asTextureProxyRef(), nullptr,
+    paint3.addColorTextureProcessor(tempRTC->asTextureProxyRef(), nullptr,
                                     SkMatrix::I());
     paint3.addColorFragmentProcessor(std::move(pmToUPM));
     paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);

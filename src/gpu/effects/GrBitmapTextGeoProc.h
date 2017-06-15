@@ -21,12 +21,12 @@ class GrInvariantOutput;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(GrResourceProvider* resourceProvider, GrColor color,
+    static sk_sp<GrGeometryProcessor> Make(GrColor color,
                                            sk_sp<GrTextureProxy> proxy, const GrSamplerParams& p,
                                            GrMaskFormat format, const SkMatrix& localMatrix,
                                            bool usesLocalCoords) {
         return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(resourceProvider, color, std::move(proxy), p, format,
+            new GrBitmapTextGeoProc(color, std::move(proxy), p, format,
                                     localMatrix, usesLocalCoords));
     }
 
@@ -48,7 +48,7 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    GrBitmapTextGeoProc(GrResourceProvider*, GrColor, sk_sp<GrTextureProxy>,
+    GrBitmapTextGeoProc(GrColor, sk_sp<GrTextureProxy>,
                         const GrSamplerParams& params,
                         GrMaskFormat format, const SkMatrix& localMatrix, bool usesLocalCoords);
 

@@ -382,7 +382,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
 
     if (tempProxy) {
         sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
-                fContext->resourceProvider(), tempProxy, nullptr, SkMatrix::I());
+                tempProxy, nullptr, SkMatrix::I());
         if (premulOnGpu) {
             fp = fContext->createUPMToPMEffect(std::move(fp), useConfigConversionEffect);
         }
@@ -507,7 +507,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
             sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
-                    fContext->resourceProvider(), std::move(proxy), nullptr, textureMatrix);
+                    std::move(proxy), nullptr, textureMatrix);
             if (unpremulOnGpu) {
                 fp = fContext->createPMToUPMEffect(std::move(fp), useConfigConversionEffect);
                 // We no longer need to do this on CPU after the read back.

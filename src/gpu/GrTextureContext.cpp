@@ -9,7 +9,6 @@
 
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
-#include "GrResourceProvider.h"
 #include "GrTextureOpList.h"
 
 #include "../private/GrAuditTrail.h"
