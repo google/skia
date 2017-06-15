@@ -8,6 +8,7 @@
 #include "GrTextureAdjuster.h"
 
 #include "GrContext.h"
+#include "GrGpu.h"
 #include "GrResourceProvider.h"
 #include "SkGr.h"
 

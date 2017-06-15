@@ -8,12 +8,14 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
+#include "GrBackendSurface.h"
 #include "GrBuffer.h"
-#include "GrGpu.h"
 #include "GrPathRange.h"
 #include "SkImageInfo.h"
+#include "SkScalerContext.h"
 
 class GrBackendRenderTarget;
+class GrGpu;
 class GrPath;
 class GrRenderTarget;
 class GrSemaphore;
