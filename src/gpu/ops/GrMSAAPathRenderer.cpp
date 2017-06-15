@@ -6,7 +6,6 @@
  */
 
 #include "GrMSAAPathRenderer.h"
-
 #include "GrAuditTrail.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -26,7 +25,7 @@
 #include "glsl/GrGLSLUtil.h"
 #include "glsl/GrGLSLVertexShaderBuilder.h"
 #include "ops/GrMeshDrawOp.h"
-#include "ops/GrNonAAFillRectOp.h"
+#include "ops/GrRectOpFactory.h"
 
 static const float kTolerance = 0.5f;
 
@@ -667,8 +666,8 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
                 (reverse && viewMatrix.hasPerspective()) ? SkMatrix::I() : viewMatrix;
         renderTargetContext->addDrawOp(
                 clip,
-                GrNonAAFillRectOp::Make(std::move(paint), viewM, bounds, nullptr, &localMatrix,
-                                        aaType, passes[1]));
+                GrRectOpFactory::MakeNonAAFillWithLocalMatrix(std::move(paint), viewM, localMatrix,
+                                                              bounds, aaType, passes[1]));
     }
     return true;
 }
