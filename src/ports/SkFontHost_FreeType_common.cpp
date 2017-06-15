@@ -395,8 +395,6 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
     switch ( face->glyph->format ) {
         case FT_GLYPH_FORMAT_OUTLINE: {
             FT_Outline* outline = &face->glyph->outline;
-            FT_BBox     bbox;
-            FT_Bitmap   target;
 
             int dx = 0, dy = 0;
             if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
@@ -405,19 +403,10 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 // negate dy since freetype-y-goes-up and skia-y-goes-down
                 dy = -dy;
             }
-            FT_Outline_Get_CBox(outline, &bbox);
-            /*
-                what we really want to do for subpixel is
-                    offset(dx, dy)
-                    compute_bounds
-                    offset(bbox & !63)
-                but that is two calls to offset, so we do the following, which
-                achieves the same thing with only one offset call.
-            */
-            FT_Outline_Translate(outline, dx - ((bbox.xMin + dx) & ~63),
-                                          dy - ((bbox.yMin + dy) & ~63));
 
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+                FT_Outline_Translate(outline, dx, dy);
+
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
                                                                      FT_RENDER_MODE_LCD);
                 if (err) {
@@ -425,16 +414,75 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                     sk_bzero(glyph.fImage, glyph.computeImageSize());
                     return;
                 }
+
                 SkMask mask;
                 glyph.toMask(&mask);
+                sk_bzero(mask.fImage, mask.fBounds.height() * mask.fRowBytes);
+                FT_GlyphSlotRec& ftGlyph = *face->glyph;
+                unsigned char* origBuffer = ftGlyph.bitmap.buffer;
+                // First align the top left (origin).
+                // If the FreeType bitmap is bigger, discard bits of the bitmap outside the mask.
+                if (-ftGlyph.bitmap_top < mask.fBounds.fTop) {
+                    int32_t topDiff = mask.fBounds.fTop - (-ftGlyph.bitmap_top);
+                    ftGlyph.bitmap.buffer += ftGlyph.bitmap.pitch * topDiff;
+                    ftGlyph.bitmap.rows -= topDiff;
+                    ftGlyph.bitmap_top = -mask.fBounds.fTop;
+                }
+                if (ftGlyph.bitmap_left < mask.fBounds.fLeft) {
+                    int32_t leftDiff = mask.fBounds.fLeft - ftGlyph.bitmap_left;
+                    ftGlyph.bitmap.buffer += leftDiff;
+                    ftGlyph.bitmap.width -= leftDiff;
+                    ftGlyph.bitmap_left = mask.fBounds.fLeft;
+                }
+                // If the SkMask is bigger, shrink mask to fit bitmap (clearing anything discarded)
+                if (mask.fBounds.fTop < -ftGlyph.bitmap_top) {
+                    mask.fImage += mask.fRowBytes * (-ftGlyph.bitmap_top - mask.fBounds.fTop);
+                    mask.fBounds.fTop = -ftGlyph.bitmap_top;
+                }
+                if (mask.fBounds.fLeft < ftGlyph.bitmap_left) {
+                    mask.fImage += sizeof(uint16_t) * (ftGlyph.bitmap_left - mask.fBounds.fLeft);
+                    mask.fBounds.fLeft = ftGlyph.bitmap_left;
+                }
+                // Origins aligned, clean up the width and height.
+                // If the FreeType bitmap is bigger, discard bits of the bitmap outside the mask.
+                int ftVertScale = (doVert ? 3 : 1);
+                int ftHoriScale = (doVert ? 1 : 3);
+                if (SkTo<unsigned>(mask.fBounds.height() * ftVertScale) < ftGlyph.bitmap.rows) {
+                    ftGlyph.bitmap.rows = mask.fBounds.height() * ftVertScale;
+                }
+                if (SkTo<unsigned>(mask.fBounds.width() * ftHoriScale) < ftGlyph.bitmap.width) {
+                    ftGlyph.bitmap.width = mask.fBounds.width() * ftHoriScale;
+                }
+                // If the SkMask is bigger, shrink mask to fit bitmap (clearing anything discarded)
+                if (ftGlyph.bitmap.rows < SkTo<unsigned>(mask.fBounds.height() * ftVertScale)) {
+                    mask.fBounds.fBottom = mask.fBounds.fTop + ftGlyph.bitmap.rows / ftVertScale;
+                }
+                if (ftGlyph.bitmap.width < SkTo<unsigned>(mask.fBounds.width() * ftHoriScale)) {
+                    mask.fBounds.fRight = mask.fBounds.fLeft + ftGlyph.bitmap.width / ftHoriScale;
+                }
                 if (fPreBlend.isApplicable()) {
-                    copyFT2LCD16<true>(face->glyph->bitmap, mask, doBGR,
+                    copyFT2LCD16<true>(ftGlyph.bitmap, mask, doBGR,
                                        fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 } else {
-                    copyFT2LCD16<false>(face->glyph->bitmap, mask, doBGR,
+                    copyFT2LCD16<false>(ftGlyph.bitmap, mask, doBGR,
                                         fPreBlend.fR, fPreBlend.fG, fPreBlend.fB);
                 }
+                ftGlyph.bitmap.buffer = origBuffer;
             } else {
+                FT_BBox     bbox;
+                FT_Bitmap   target;
+                FT_Outline_Get_CBox(outline, &bbox);
+                /*
+                    what we really want to do for subpixel is
+                        offset(dx, dy)
+                        compute_bounds
+                        offset(bbox & !63)
+                    but that is two calls to offset, so we do the following, which
+                    achieves the same thing with only one offset call.
+                */
+                FT_Outline_Translate(outline, dx - ((bbox.xMin + dx) & ~63),
+                                              dy - ((bbox.yMin + dy) & ~63));
+
                 target.width = glyph.fWidth;
                 target.rows = glyph.fHeight;
                 target.pitch = glyph.rowBytes();
