@@ -128,3 +128,41 @@ DEF_TEST(DrawText_weirdCoordinates, r) {
         canvas->drawString("a", 0.0f, -y, SkPaint());
     }
 }
+
+// Test drawing text with some unusual matricies.
+// We measure success by not crashing or asserting.
+DEF_TEST(DrawText_weirdMatricies, r) {
+    auto surface = SkSurface::MakeRasterN32Premul(100,100);
+    auto canvas = surface->getCanvas();
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setLCDRenderText(true);
+
+    struct {
+        SkScalar textSize;
+        SkScalar matrix[9];
+    } testCases[] = {
+        // 2x2 singular
+        {10, { 0,  0,  0,  0,  0,  0,  0,  0,  1}},
+        {10, { 0,  0,  0,  0,  1,  0,  0,  0,  1}},
+        {10, { 0,  0,  0,  1,  0,  0,  0,  0,  1}},
+        {10, { 0,  0,  0,  1,  1,  0,  0,  0,  1}},
+        {10, { 0,  1,  0,  0,  1,  0,  0,  0,  1}},
+        {10, { 1,  0,  0,  0,  0,  0,  0,  0,  1}},
+        {10, { 1,  0,  0,  1,  0,  0,  0,  0,  1}},
+        {10, { 1,  1,  0,  0,  0,  0,  0,  0,  1}},
+        {10, { 1,  1,  0,  1,  1,  0,  0,  0,  1}},
+        // See https://bugzilla.mozilla.org/show_bug.cgi?id=1305085 .
+        { 1, {10, 20,  0, 20, 40,  0,  0,  0,  1}},
+    };
+
+    for (const auto& testCase : testCases) {
+        paint.setTextSize(testCase.textSize);
+        const SkScalar(&m)[9] = testCase.matrix;
+        SkMatrix mat;
+        mat.setAll(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+        canvas->setMatrix(mat);
+        canvas->drawString("Hamburgefons", 10, 10, paint);
+    }
+}
