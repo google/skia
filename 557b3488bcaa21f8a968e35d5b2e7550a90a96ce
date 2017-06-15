@@ -16,6 +16,29 @@
       "revId": "557b3488bcaa21f8a968e35d5b2e7550a90a96ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3ed5925_1ddc221e",
+        "filename": "tests/TArrayTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-15T20:37:24Z",
+      "side": 1,
+      "message": "It\u0027s used here and a few places below. In an earlier version it was used more often. It\u0027d be fine to remove it.",
+      "range": {
+        "startLine": 308,
+        "startChar": 29,
+        "endLine": 308,
+        "endChar": 51
+      },
+      "revId": "557b3488bcaa21f8a968e35d5b2e7550a90a96ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
