@@ -8,14 +8,13 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
+#include "GrBackendSurface.h"
 #include "GrBuffer.h"
 #include "GrPathRange.h"
 #include "SkImageInfo.h"
 #include "SkScalerContext.h"
 
 class GrBackendRenderTarget;
-class GrBackendSemaphore;
-class GrBackendTexture;
 class GrGpu;
 class GrPath;
 class GrRenderTarget;
@@ -228,10 +227,7 @@ public:
      */
     GrGpuResource* findAndRefResourceByUniqueKey(const GrUniqueKey&);
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
-
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
-                                            GrWrapOwnership = kBorrow_GrWrapOwnership);
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore();
 
     // Takes the GrSemaphore and sets the ownership of the semaphore to the GrGpu object used by
     // this class. This call is only used when passing a GrSemaphore from one context to another.

@@ -10,7 +10,6 @@
 
 #include "SkRefCnt.h"
 
-class GrBackendSemaphore;
 class GrGpu;
 
 class GrSemaphore : public SkRefCnt {
@@ -21,15 +20,9 @@ private:
     // GrSemaphore should not be used with its old context.
     void resetGpu(const GrGpu* gpu) { fGpu = gpu; }
 
-    // The derived class will init the GrBackendSemaphore. This is used when flushing with signal
-    // semaphores so we can set the clients GrBackendSemaphore object after we've created the
-    // internal semaphore.
-    virtual void setBackendSemaphore(GrBackendSemaphore*) const = 0;
-
 protected:
     explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
 
-    friend class GrRenderTargetContext; // setBackendSemaphore
     friend class GrResourceProvider; // resetGpu
 
     const GrGpu* fGpu;

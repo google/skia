@@ -7,7 +7,6 @@
 
 #include "GrVkSemaphore.h"
 
-#include "GrBackendSemaphore.h"
 #include "GrVkGpu.h"
 #include "GrVkUtil.h"
 
@@ -16,7 +15,7 @@
 #undef CreateSemaphore
 #endif
 
-sk_sp<GrVkSemaphore> GrVkSemaphore::Make(const GrVkGpu* gpu, bool isOwned) {
+sk_sp<GrVkSemaphore> GrVkSemaphore::Make(const GrVkGpu* gpu) {
     VkSemaphoreCreateInfo createInfo;
     memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -26,22 +25,11 @@ sk_sp<GrVkSemaphore> GrVkSemaphore::Make(const GrVkGpu* gpu, bool isOwned) {
     GR_VK_CALL_ERRCHECK(gpu->vkInterface(),
                         CreateSemaphore(gpu->device(), &createInfo, nullptr, &semaphore));
 
-    return sk_sp<GrVkSemaphore>(new GrVkSemaphore(gpu, semaphore, isOwned));
+    return sk_sp<GrVkSemaphore>(new GrVkSemaphore(gpu, semaphore));
 }
 
-sk_sp<GrVkSemaphore> GrVkSemaphore::MakeWrapped(const GrVkGpu* gpu,
-                                                VkSemaphore semaphore,
-                                                GrWrapOwnership ownership) {
-    if (VK_NULL_HANDLE == semaphore) {
-        return nullptr;
-    }
-    return sk_sp<GrVkSemaphore>(new GrVkSemaphore(gpu, semaphore,
-                                                  kBorrow_GrWrapOwnership != ownership));
-}
-
-GrVkSemaphore::GrVkSemaphore(const GrVkGpu* gpu, VkSemaphore semaphore, bool isOwned)
-        : INHERITED(gpu) {
-    fResource = new Resource(semaphore, isOwned);
+GrVkSemaphore::GrVkSemaphore(const GrVkGpu* gpu, VkSemaphore semaphore) : INHERITED(gpu) {
+    fResource = new Resource(semaphore);
 }
 
 GrVkSemaphore::~GrVkSemaphore() {
@@ -53,13 +41,7 @@ GrVkSemaphore::~GrVkSemaphore() {
 }
 
 void GrVkSemaphore::Resource::freeGPUData(const GrVkGpu* gpu) const {
-    if (fIsOwned) {
-        GR_VK_CALL(gpu->vkInterface(),
-                   DestroySemaphore(gpu->device(), fSemaphore, nullptr));
-    }
-}
-
-void GrVkSemaphore::setBackendSemaphore(GrBackendSemaphore* backendSemaphore) const {
-    backendSemaphore->initVulkan(fResource->semaphore());
+    GR_VK_CALL(gpu->vkInterface(),
+               DestroySemaphore(gpu->device(), fSemaphore, nullptr));
 }
 
