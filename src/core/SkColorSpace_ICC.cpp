@@ -1490,8 +1490,8 @@ static sk_sp<SkColorSpace> make_a2b(SkColorSpace_Base::ICCTypeFlag iccType,
     return nullptr;
 }
 
-sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len) {
-    return SkColorSpace_Base::MakeICC(input, len, SkColorSpace_Base::kRGB_ICCTypeFlag);
+sk_sp<SkColorSpace> SkColorSpace::MakeICC(const void* input, size_t len, ICCTypeFlag desiredType) {
+    return SkColorSpace_Base::MakeICC(input, len, desiredType);
 }
 
 sk_sp<SkColorSpace> SkColorSpace_Base::MakeICC(const void* input, size_t len,
