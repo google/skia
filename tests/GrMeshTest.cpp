@@ -12,6 +12,7 @@
 
 #include "GrContext.h"
 #include "GrGeometryProcessor.h"
+#include "GrGpuCommandBuffer.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"

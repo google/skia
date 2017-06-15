@@ -12,6 +12,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
+#include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
 
 ////////////////////////////////////////////////////////////////////////////////
