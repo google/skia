@@ -10,9 +10,9 @@
 
 #include "GrGpuCommandBuffer.h"
 
-#include "GrGLGpu.h"
 #include "GrOpFlushState.h"
 
+class GrGLGpu;
 class GrGLRenderTarget;
 
 class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {

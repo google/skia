@@ -19,6 +19,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"
+#include "GrTextureProxy.h"
 #include "SkHalf.h"
 
 static const int DEV_W = 100, DEV_H = 100;
