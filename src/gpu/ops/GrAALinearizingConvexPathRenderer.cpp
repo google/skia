@@ -100,7 +100,7 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
+static sk_sp<GrGeometryProcessor> create_lines_only_gp(bool tweakAlphaForCoverage,
                                                  const SkMatrix& viewMatrix,
                                                  bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
@@ -217,7 +217,7 @@ private:
         bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
 
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(create_fill_gp(
+        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(
                 canTweakAlphaForCoverage, this->viewMatrix(), this->usesLocalCoords()));
         if (!gp) {
             SkDebugf("Couldn't create a GrGeometryProcessor\n");
