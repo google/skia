@@ -1,0 +1,54 @@
+declare_args() {
+  ar = "ar"
+  cc = "cc"
+  cxx = "c++"
+}
+
+declare_args() {
+  host_ar = ar
+  host_cc = cc
+  host_cxx = cxx
+
+  if (is_android) {
+    if (host_os == "win") {
+      target_ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar.exe"
+      target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang.exe"
+      target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++.exe"
+    } else {
+      target_ar = "$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin/ar"
+      target_cc = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang"
+      target_cxx = "$ndk/toolchains/llvm/prebuilt/$ndk_host/bin/clang++"
+    }
+  } else {
+    target_ar = ar
+    target_cc = cc
+    target_cxx = cxx
+  }
+
+  msvc = 2015
+
+  extra_asmflags = []
+  extra_cflags = []
+  extra_cflags_c = []
+  extra_cflags_cc = []
+  extra_ldflags = []
+
+  cc_wrapper = ""
+  malloc = ""
+}
+
+declare_args() {
+  if (msvc == 2015) {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  } else {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
+  }
+}
+
+if (host_os == "win") {
+  python = "python.bat"
+  stamp = "cmd.exe /c echo >"
+} else {
+  python = "python"
+  stamp = "touch"
+}
