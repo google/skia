@@ -11,13 +11,11 @@
 #include <unordered_set>
 
 #include "SkSLCompiler.h"
-#include "SkSLParser.h"
 #include "ast/SkSLASTBoolLiteral.h"
 #include "ast/SkSLASTFieldSuffix.h"
 #include "ast/SkSLASTFloatLiteral.h"
 #include "ast/SkSLASTIndexSuffix.h"
 #include "ast/SkSLASTIntLiteral.h"
-#include "ast/SkSLASTPrecision.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLBreakStatement.h"
@@ -145,7 +143,6 @@ void IRGenerator::start(const Program::Settings* settings) {
         fill_caps(*settings->fCaps, &fCapsMap);
     }
     this->pushSymbolTable();
-    fInvocations = -1;
     fInputs.reset();
 }
 
@@ -281,21 +278,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
 
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(
                                                                  const ASTModifiersDeclaration& m) {
-    Modifiers modifiers = m.fModifiers;
-    if (modifiers.fLayout.fInvocations != -1) {
-        fInvocations = modifiers.fLayout.fInvocations;
-        if (fSettings->fCaps->mustImplementGSInvocationsWithLoop()) {
-            modifiers.fLayout.fInvocations = -1;
-            if (modifiers.fLayout.description() == "") {
-                return nullptr;
-            }
-        }
-    }
-    if (modifiers.fLayout.fMaxVertices != -1 && fInvocations > 0 &&
-        fSettings->fCaps->mustImplementGSInvocationsWithLoop()) {
-        modifiers.fLayout.fMaxVertices *= fInvocations;
-    }
-    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(modifiers));
+    return std::unique_ptr<ModifiersDeclaration>(new ModifiersDeclaration(m.fModifiers));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
@@ -507,76 +490,16 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTDiscardStatement
     return std::unique_ptr<Statement>(new DiscardStatement(d.fPosition));
 }
 
-std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main,
-        Variable* invocationID, std::vector<std::unique_ptr<ProgramElement>>* out) {
-    Layout invokeLayout;
-    Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
-    FunctionDeclaration* invokeDecl = new FunctionDeclaration(Position(),
-                                                              invokeModifiers,
-                                                              "_invoke",
-                                                              { invocationID },
-                                                              *fContext.fVoid_Type);
-    out->push_back(std::unique_ptr<ProgramElement>(new FunctionDefinition(Position(),
-                                                                          *invokeDecl,
-                                                                          std::move(main))));
-    fSymbolTable->add(invokeDecl->fName, std::unique_ptr<FunctionDeclaration>(invokeDecl));
-
-    std::vector<std::unique_ptr<VarDeclaration>> variables;
-    Variable* loopIdx = new Variable(Position(), Modifiers(), "i", *fContext.fInt_Type,
-                                     Variable::kLocal_Storage);
-    variables.emplace_back(new VarDeclaration(
-                             loopIdx,
-                             std::vector<std::unique_ptr<Expression>>(),
-                             std::unique_ptr<IntLiteral>(new IntLiteral(fContext, Position(), 0))));
-    std::unique_ptr<Statement> initializer(new VarDeclarationsStatement(
-                            std::unique_ptr<VarDeclarations>(new VarDeclarations(Position(),
-                                                                   fContext.fInt_Type.get(),
-                                                                   std::move(variables)))));
-    std::unique_ptr<Expression> test(new BinaryExpression(Position(),
-                std::unique_ptr<Expression>(new VariableReference(Position(), *loopIdx)),
-                Token::LT,
-                std::unique_ptr<IntLiteral>(new IntLiteral(fContext, Position(), fInvocations)),
-                *fContext.fBool_Type));
-    std::unique_ptr<Expression> next(new PostfixExpression(
-                std::unique_ptr<Expression>(
-                                      new VariableReference(Position(),
-                                                            *loopIdx,
-                                                            VariableReference::kReadWrite_RefKind)),
-                Token::PLUSPLUS));
-    ASTIdentifier endPrimitiveID = ASTIdentifier(Position(), "EndPrimitive");
-    std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
-    ASSERT(endPrimitive);
-
-    std::vector<std::unique_ptr<Statement>> loopBody;
-    std::vector<std::unique_ptr<Expression>> invokeArgs;
-    invokeArgs.push_back(std::unique_ptr<Expression>(new VariableReference(Position(), *loopIdx)));
-    loopBody.push_back(std::unique_ptr<Statement>(new ExpressionStatement(
-                                  this->call(Position(), *invokeDecl, { std::move(invokeArgs) }))));
-    loopBody.push_back(std::unique_ptr<Statement>(new ExpressionStatement(
-                                            this->call(Position(), std::move(endPrimitive), { }))));
-    std::unique_ptr<Statement> loop = std::unique_ptr<Statement>(
-                new ForStatement(Position(),
-                                 std::move(initializer),
-                                 std::move(test),
-                                 std::move(next),
-                                 std::unique_ptr<Block>(new Block(Position(), std::move(loopBody))),
-                                 fSymbolTable));
-    std::vector<std::unique_ptr<Statement>> children;
-    children.push_back(std::move(loop));
-    return std::unique_ptr<Block>(new Block(Position(), std::move(children)));
-}
-
-void IRGenerator::convertFunction(const ASTFunction& f,
-                                  std::vector<std::unique_ptr<ProgramElement>>* out) {
+std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFunction& f) {
     const Type* returnType = this->convertType(*f.fReturnType);
     if (!returnType) {
-        return;
+        return nullptr;
     }
     std::vector<const Variable*> parameters;
     for (const auto& param : f.fParameters) {
         const Type* type = this->convertType(*param->fType);
         if (!type) {
-            return;
+            return nullptr;
         }
         for (int j = (int) param->fSizes.size() - 1; j >= 0; j--) {
             int size = param->fSizes[j];
@@ -607,7 +530,7 @@ void IRGenerator::convertFunction(const ASTFunction& f,
                 break;
             default:
                 fErrors.error(f.fPosition, "symbol '" + f.fName + "' was already defined");
-                return;
+                return nullptr;
         }
         for (const auto& other : functions) {
             ASSERT(other->fName == f.fName);
@@ -626,7 +549,7 @@ void IRGenerator::convertFunction(const ASTFunction& f,
                         fErrors.error(f.fPosition, "functions '" + newDecl.description() +
                                                    "' and '" + other->description() +
                                                    "' differ only in return type");
-                        return;
+                        return nullptr;
                     }
                     decl = other;
                     for (size_t i = 0; i < parameters.size(); i++) {
@@ -635,7 +558,7 @@ void IRGenerator::convertFunction(const ASTFunction& f,
                                                        to_string((uint64_t) i + 1) +
                                                        " differ between declaration and "
                                                        "definition");
-                            return;
+                            return nullptr;
                         }
                     }
                     if (other->fDefined) {
@@ -666,32 +589,17 @@ void IRGenerator::convertFunction(const ASTFunction& f,
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
         }
-        Variable* invocationIDWorkaround;
-        bool needInvocationIDWorkaround = fSettings->fCaps->mustImplementGSInvocationsWithLoop() &&
-                                          fInvocations != -1 && f.fName == "main";
-        if (needInvocationIDWorkaround) {
-            invocationIDWorkaround = new Variable(Position(),
-                                                  Modifiers(),
-                                                  "sk_InvocationID",
-                                                  *fContext.fInt_Type,
-                                                  Variable::kParameter_Storage);
-            fSymbolTable->add(invocationIDWorkaround->fName,
-                              std::unique_ptr<Symbol>(invocationIDWorkaround));
-        }
         std::unique_ptr<Block> body = this->convertBlock(*f.fBody);
         fCurrentFunction = nullptr;
         if (!body) {
-            return;
-        }
-        if (needInvocationIDWorkaround) {
-            body = this->applyInvocationIDWorkaround(std::move(body), invocationIDWorkaround, out);
+            return nullptr;
         }
         // conservatively assume all user-defined functions have side effects
         ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
-
-        out->push_back(std::unique_ptr<FunctionDefinition>(
-                                      new FunctionDefinition(f.fPosition, *decl, std::move(body))));
+        return std::unique_ptr<FunctionDefinition>(new FunctionDefinition(f.fPosition, *decl,
+                                                                          std::move(body)));
     }
+    return nullptr;
 }
 
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInterfaceBlock& intf) {
@@ -1879,65 +1787,5 @@ void IRGenerator::markWrittenTo(const Expression& expr, bool readWrite) {
             break;
     }
 }
-
-void IRGenerator::convertProgram(String text,
-                                 SymbolTable& types,
-                                 Modifiers::Flag* defaultPrecision,
-                                 std::vector<std::unique_ptr<ProgramElement>>* out) {
-    Parser parser(text, types, fErrors);
-    std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
-    if (fErrors.errorCount()) {
-        return;
-    }
-    *defaultPrecision = Modifiers::kHighp_Flag;
-    for (size_t i = 0; i < parsed.size(); i++) {
-        ASTDeclaration& decl = *parsed[i];
-        switch (decl.fKind) {
-            case ASTDeclaration::kVar_Kind: {
-                std::unique_ptr<VarDeclarations> s = this->convertVarDeclarations(
-                                                                         (ASTVarDeclarations&) decl,
-                                                                         Variable::kGlobal_Storage);
-                if (s) {
-                    out->push_back(std::move(s));
-                }
-                break;
-            }
-            case ASTDeclaration::kFunction_Kind: {
-                this->convertFunction((ASTFunction&) decl, out);
-                break;
-            }
-            case ASTDeclaration::kModifiers_Kind: {
-                std::unique_ptr<ModifiersDeclaration> f = this->convertModifiersDeclaration(
-                                                                   (ASTModifiersDeclaration&) decl);
-                if (f) {
-                    out->push_back(std::move(f));
-                }
-                break;
-            }
-            case ASTDeclaration::kInterfaceBlock_Kind: {
-                std::unique_ptr<InterfaceBlock> i = this->convertInterfaceBlock(
-                                                                         (ASTInterfaceBlock&) decl);
-                if (i) {
-                    out->push_back(std::move(i));
-                }
-                break;
-            }
-            case ASTDeclaration::kExtension_Kind: {
-                std::unique_ptr<Extension> e = this->convertExtension((ASTExtension&) decl);
-                if (e) {
-                    out->push_back(std::move(e));
-                }
-                break;
-            }
-            case ASTDeclaration::kPrecision_Kind: {
-                *defaultPrecision = ((ASTPrecision&) decl).fPrecision;
-                break;
-            }
-            default:
-                ABORT("unsupported declaration: %s\n", decl.description().c_str());
-        }
-    }
-}
-
 
 }
