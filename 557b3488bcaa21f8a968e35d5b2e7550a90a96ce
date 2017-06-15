@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d52d2074_4409aa66",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-06-15T20:30:27Z",
+      "side": 1,
+      "message": "Where is this used?",
+      "revId": "557b3488bcaa21f8a968e35d5b2e7550a90a96ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
