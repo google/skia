@@ -755,6 +755,7 @@ extern int skslwrap (yyscan_t yyscanner );
 #endif
 #endif
 
+#define YY_NO_UNPUT
 #ifndef YY_NO_UNPUT
     
     static void yyunput (int c,char *buf_ptr  ,yyscan_t yyscanner);
