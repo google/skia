@@ -1736,17 +1736,17 @@ void SkGpuDevice::flush() {
     this->flushAndSignalSemaphores(0, nullptr);
 }
 
-void SkGpuDevice::flushAndSignalSemaphores(int numSemaphores,
+bool SkGpuDevice::flushAndSignalSemaphores(int numSemaphores,
                                            GrBackendSemaphore* signalSemaphores) {
     ASSERT_SINGLE_OWNER
 
-    fRenderTargetContext->prepareForExternalIO(numSemaphores, signalSemaphores);
+    return fRenderTargetContext->prepareForExternalIO(numSemaphores, signalSemaphores);
 }
 
-void SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
     ASSERT_SINGLE_OWNER
 
-    fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores);
+    return fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
