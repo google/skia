@@ -341,15 +341,22 @@ public:
      * signalSemaphores with the info on the semaphores we submitted. The client is reposonsible for
      * allocating enough space in signalSemaphores to handle numSemaphores of GrBackendSemaphores.
      * The client will also take ownership of the returned underlying backend semaphores.
+     *
+     * If this call returns false, the GPU backend will not have created or added any semaphores to
+     * signal. Thus the array of semaphores will remain uninitialized. However, we will still flush
+     * any pending surface IO.
      */
-    void flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores);
+    bool flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores);
 
     /**
      * Inserts a list of GPU semaphores that the current backend 3D API must wait on before
      * executing any more commands on the GPU for this surface. Skia will take ownership of the
      * underlying semaphores and delete them once they have been signaled and waited on.
+     *
+     * If this call returns false, then the GPU backend will not wait on any passed in semaphores,
+     * and the client will still own the semaphores.
      */
-    void wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);

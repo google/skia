@@ -1431,12 +1431,17 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
-void GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
+bool GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
                                                  GrBackendSemaphore* backendSemaphores) {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
+    RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::prepareForExternalIO");
+
+    if (numSemaphores && !this->caps()->fenceSyncSupport()) {
+        this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
+        return false;
+    }
 
     SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
@@ -1451,16 +1456,21 @@ void GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
     for (int i = 0; i < numSemaphores; ++i) {
         semaphores[i]->setBackendSemaphore(&backendSemaphores[i]);
     }
+    return true;
 }
 
-void GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
+bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
                                              const GrBackendSemaphore* waitSemaphores) {
     ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
+    RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::waitOnSemaphores");
 
     AutoCheckFlush acf(this->drawingManager());
+
+    if (numSemaphores && !this->caps()->fenceSyncSupport()) {
+        return false;
+    }
 
     SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
@@ -1469,6 +1479,7 @@ void GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
         std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(sema, fRenderTargetProxy.get()));
         this->getOpList()->addOp(std::move(waitOp), *this->caps());
     }
+    return true;
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?

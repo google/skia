@@ -4273,6 +4273,7 @@ bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
+    SkASSERT(this->caps()->fenceSyncSupport());
     GrGLsync sync;
     GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
     GR_STATIC_ASSERT(sizeof(GrFence) >= sizeof(GrGLsync));
@@ -4290,11 +4291,13 @@ void GrGLGpu::deleteFence(GrFence fence) const {
 }
 
 sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrGLGpu::makeSemaphore(bool isOwned) {
+    SkASSERT(this->caps()->fenceSyncSupport());
     return GrGLSemaphore::Make(this, isOwned);
 }
 
 sk_sp<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                                  GrWrapOwnership ownership) {
+    SkASSERT(this->caps()->fenceSyncSupport());
     return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), ownership);
 }
 
