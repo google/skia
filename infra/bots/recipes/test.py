@@ -405,6 +405,7 @@ def dm_flags(bot):
 
   if 'GalaxyS6' in bot:
     match.append('~SpecialImage') # skia:6338
+    match.append('~skbug6653') # skia:6653
 
   if 'GalaxyS7_G930A' in bot:
     match.append('~WritePixels') # skia:6427
