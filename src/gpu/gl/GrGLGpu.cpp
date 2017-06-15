@@ -9,7 +9,6 @@
 
 #include <cmath>
 #include "../private/GrGLSL.h"
-#include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "GrFixedClip.h"
 #include "GrGLBuffer.h"
@@ -4289,15 +4288,9 @@ void GrGLGpu::deleteFence(GrFence fence) const {
     this->deleteSync((GrGLsync)fence);
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrGLGpu::makeSemaphore(bool isOwned) {
-    return GrGLSemaphore::Make(this, isOwned);
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrGLGpu::makeSemaphore() {
+    return GrGLSemaphore::Make(this);
 }
-
-sk_sp<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                 GrWrapOwnership ownership) {
-    return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), ownership);
-}
-
 
 void GrGLGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore.get());
@@ -4323,7 +4316,7 @@ void GrGLGpu::deleteSync(GrGLsync sync) const {
 
 sk_sp<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     // Set up a semaphore to be signaled once the data is ready, and flush GL
-    sk_sp<GrSemaphore> semaphore = this->makeSemaphore(true);
+    sk_sp<GrSemaphore> semaphore = this->makeSemaphore();
     this->insertSemaphore(semaphore, true);
 
     return semaphore;

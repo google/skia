@@ -298,7 +298,7 @@ public:
                       const VkImageResolve* regions);
 
     void submitToQueue(const GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
-                       SkTArray<const GrVkSemaphore::Resource*>& signalSemaphores,
+                       const GrVkSemaphore::Resource* signalSemaphore,
                        SkTArray<const GrVkSemaphore::Resource*>& waitSemaphores);
     bool finished(const GrVkGpu* gpu) const;
 

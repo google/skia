@@ -402,7 +402,7 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
         const GrVkGpu* gpu,
         VkQueue queue,
         GrVkGpu::SyncQueue sync,
-        SkTArray<const GrVkSemaphore::Resource*>& signalSemaphores,
+        const GrVkSemaphore::Resource* signalSemaphore,
         SkTArray<const GrVkSemaphore::Resource*>& waitSemaphores) {
     SkASSERT(!fIsActive);
 
@@ -418,20 +418,23 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
         GR_VK_CALL(gpu->vkInterface(), ResetFences(gpu->device(), 1, &fSubmitFence));
     }
 
-    int signalCount = signalSemaphores.count();
-    SkTArray<VkSemaphore> vkSignalSem(signalCount);
-    for (int i = 0; i < signalCount; ++i) {
-        this->addResource(signalSemaphores[i]);
-        vkSignalSem.push_back(signalSemaphores[i]->semaphore());
+    if (signalSemaphore) {
+        this->addResource(signalSemaphore);
     }
 
     int waitCount = waitSemaphores.count();
     SkTArray<VkSemaphore> vkWaitSems(waitCount);
     SkTArray<VkPipelineStageFlags> vkWaitStages(waitCount);
-    for (int i = 0; i < waitCount; ++i) {
-        this->addResource(waitSemaphores[i]);
-        vkWaitSems.push_back(waitSemaphores[i]->semaphore());
-        vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+    if (waitCount) {
+        for (int i = 0; i < waitCount; ++i) {
+            this->addResource(waitSemaphores[i]);
+            vkWaitSems.push_back(waitSemaphores[i]->semaphore());
+            vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        }
+    }
+    SkTArray<VkSemaphore> vkSignalSem;
+    if (signalSemaphore) {
+        vkSignalSem.push_back(signalSemaphore->semaphore());
     }
 
     VkSubmitInfo submitInfo;
