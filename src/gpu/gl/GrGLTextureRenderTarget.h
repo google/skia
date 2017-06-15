@@ -13,8 +13,6 @@
 #include "GrGLTexture.h"
 #include "GrGLRenderTarget.h"
 
-class GrGLGpu;
-
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
 #pragma warning(push)
