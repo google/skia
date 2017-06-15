@@ -100,6 +100,30 @@ public:
                                   SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
 
     /**
+     * Returns a C++11-iterable object that traverses a path's verbs in order. e.g:
+     *
+     *   for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
+     *       ...
+     *   }
+     */
+    struct Verbs {
+    public:
+        Verbs(const SkPath& path) : fPathRef(path.fPathRef.get()) {}
+        struct Iter {
+            void operator++() { --fVerb; } // verbs are laid out backwards in memory.
+            bool operator!=(const Iter& b) { return fVerb != b.fVerb; }
+            SkPath::Verb operator*() { return static_cast<SkPath::Verb>(*fVerb); }
+            const uint8_t* fVerb;
+        };
+        Iter begin() { return Iter{fPathRef->verbs() - 1}; }
+        Iter end() { return Iter{fPathRef->verbs() - fPathRef->countVerbs() - 1}; }
+    private:
+        Verbs(const Verbs&) = delete;
+        Verbs& operator=(const Verbs&) = delete;
+        SkPathRef* fPathRef;
+    };
+
+    /**
      * Returns a pointer to the verb data. Note that the verbs are stored backwards in memory and
      * thus the returned pointer is the last verb.
      */
