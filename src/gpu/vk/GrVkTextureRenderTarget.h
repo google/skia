@@ -11,7 +11,8 @@
 
 #include "GrVkTexture.h"
 #include "GrVkRenderTarget.h"
-#include "GrVkGpu.h"
+
+class GrVkGpu;
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
@@ -54,27 +55,15 @@ private:
                             const GrVkImageView* texView,
                             const GrVkImageInfo& msaaInfo,
                             const GrVkImageView* colorAttachmentView,
-                            const GrVkImageView* resolveAttachmentView)
-        : GrSurface(gpu, desc)
-        , GrVkImage(info, GrVkImage::kNot_Wrapped)
-        , GrVkTexture(gpu, desc, info, texView, GrVkImage::kNot_Wrapped)
-        , GrVkRenderTarget(gpu, desc, info, msaaInfo, colorAttachmentView,
-                           resolveAttachmentView, GrVkImage::kNot_Wrapped) {
-        this->registerWithCache(budgeted);
-    }
+                            const GrVkImageView* resolveAttachmentView);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
                             const GrVkImageView* texView,
-                            const GrVkImageView* colorAttachmentView)
-        : GrSurface(gpu, desc)
-        , GrVkImage(info, GrVkImage::kNot_Wrapped)
-        , GrVkTexture(gpu, desc, info, texView, GrVkImage::kNot_Wrapped)
-        , GrVkRenderTarget(gpu, desc, info, colorAttachmentView, GrVkImage::kNot_Wrapped) {
-        this->registerWithCache(budgeted);
-    }
+                            const GrVkImageView* colorAttachmentView);
+
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
@@ -82,27 +71,14 @@ private:
                             const GrVkImageInfo& msaaInfo,
                             const GrVkImageView* colorAttachmentView,
                             const GrVkImageView* resolveAttachmentView,
-                            GrVkImage::Wrapped wrapped)
-        : GrSurface(gpu, desc)
-        , GrVkImage(info, wrapped)
-        , GrVkTexture(gpu, desc, info, texView, wrapped)
-        , GrVkRenderTarget(gpu, desc, info, msaaInfo, colorAttachmentView,
-                           resolveAttachmentView, wrapped) {
-        this->registerWithCacheWrapped();
-    }
+                            GrVkImage::Wrapped wrapped);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
                             const GrVkImageView* texView,
                             const GrVkImageView* colorAttachmentView,
-                            GrVkImage::Wrapped wrapped)
-        : GrSurface(gpu, desc)
-        , GrVkImage(info, wrapped)
-        , GrVkTexture(gpu, desc, info, texView, wrapped)
-        , GrVkRenderTarget(gpu, desc, info, colorAttachmentView, wrapped) {
-        this->registerWithCacheWrapped();
-    }
+                            GrVkImage::Wrapped wrapped);
 
     static sk_sp<GrVkTextureRenderTarget> Make(GrVkGpu*,
                                                const GrSurfaceDesc&,
