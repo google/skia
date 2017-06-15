@@ -402,7 +402,6 @@ skia_gpu_sources = [
   "$_src/gpu/gl/GrGLProgramDataManager.h",
   "$_src/gpu/gl/GrGLRenderTarget.cpp",
   "$_src/gpu/gl/GrGLRenderTarget.h",
-  "$_src/gpu/gl/GrGLSemaphore.cpp",
   "$_src/gpu/gl/GrGLSemaphore.h",
   "$_src/gpu/gl/GrGLStencilAttachment.cpp",
   "$_src/gpu/gl/GrGLStencilAttachment.h",

@@ -11,8 +11,7 @@
 #include "GrSemaphore.h"
 
 #include "GrBackendSemaphore.h"
-
-class GrGLGpu;
+#include "GrGLGpu.h"
 
 class GrGLSemaphore : public GrSemaphore {
 public:
@@ -29,13 +28,17 @@ public:
         return sema;
     }
 
-    ~GrGLSemaphore() override;
+    ~GrGLSemaphore() override {
+        if (fIsOwned && fGpu) {
+            static_cast<const GrGLGpu*>(fGpu)->deleteSync(fSync);
+        }
+    }
 
     GrGLsync sync() const { return fSync; }
     void setSync(const GrGLsync& sync) { fSync = sync; }
 
 private:
-    GrGLSemaphore(const GrGLGpu* gpu, bool isOwned);
+    GrGLSemaphore(const GrGLGpu* gpu, bool isOwned) : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {}
 
     void setBackendSemaphore(GrBackendSemaphore* backendSemaphore) const override {
         backendSemaphore->initGL(fSync);
