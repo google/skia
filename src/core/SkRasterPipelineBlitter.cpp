@@ -174,7 +174,9 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     if (paint.isDither()) {
         switch (dst.info().colorType()) {
             default:                     blitter->fDitherRate =     0.0f; break;
+            case kARGB_4444_SkColorType: blitter->fDitherRate =  1/15.0f; break;
             case   kRGB_565_SkColorType: blitter->fDitherRate =  1/63.0f; break;
+            case    kGray_8_SkColorType:
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType: blitter->fDitherRate = 1/255.0f; break;
         }
@@ -222,8 +224,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
     p->append(SkRasterPipeline::move_src_dst);
     switch (fDst.info().colorType()) {
+        case kGray_8_SkColorType:    p->append(SkRasterPipeline::load_g8,   &fDstPtr); break;
         case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::load_a8,   &fDstPtr); break;
         case kRGB_565_SkColorType:   p->append(SkRasterPipeline::load_565,  &fDstPtr); break;
+        case kARGB_4444_SkColorType: p->append(SkRasterPipeline::load_4444, &fDstPtr); break;
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::load_8888, &fDstPtr); break;
         case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::load_f16,  &fDstPtr); break;
@@ -252,8 +256,10 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
         p->append(SkRasterPipeline::swap_rb);
     }
     switch (fDst.info().colorType()) {
+        case kGray_8_SkColorType:    p->append(SkRasterPipeline::luminance_to_alpha); // fallthru
         case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::store_a8,   &fDstPtr); break;
         case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  &fDstPtr); break;
+        case kARGB_4444_SkColorType: p->append(SkRasterPipeline::store_4444, &fDstPtr); break;
         case kBGRA_8888_SkColorType:
         case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::store_8888, &fDstPtr); break;
         case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::store_f16,  &fDstPtr); break;
