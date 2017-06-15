@@ -14,16 +14,11 @@
 #include "GrVkUtil.h"
 #include "vk/GrVkDefines.h"
 
-class GrVkBuffer;
 class GrVkFramebuffer;
-class GrVkIndexBuffer;
-class GrVkImage;
 class GrVkPipeline;
-class GrVkPipelineState;
 class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkTransferBuffer;
-class GrVkVertexBuffer;
 
 class GrVkCommandBuffer : public GrVkResource {
 public:
@@ -45,9 +40,40 @@ public:
                          BarrierType barrierType,
                          void* barrier) const;
 
-    void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkVertexBuffer* vbuffer);
+    static constexpr uint32_t kMaxInputBuffers = 2;
 
-    void bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer);
+    void bindInputBuffer(GrVkGpu* gpu, uint32_t binding, const GrVkVertexBuffer* vbuffer) {
+        VkBuffer vkBuffer = vbuffer->buffer();
+        SkASSERT(VK_NULL_HANDLE != vkBuffer);
+        SkASSERT(binding < kMaxInputBuffers);
+        // TODO: once vbuffer->offset() no longer always returns 0, we will need to track the offset
+        // to know if we can skip binding or not.
+        if (vkBuffer != fBoundInputBuffers[binding]) {
+            VkDeviceSize offset = vbuffer->offset();
+            GR_VK_CALL(gpu->vkInterface(), CmdBindVertexBuffers(fCmdBuffer,
+                                                                binding,
+                                                                1,
+                                                                &vkBuffer,
+                                                                &offset));
+            fBoundInputBuffers[binding] = vkBuffer;
+            addResource(vbuffer->resource());
+        }
+    }
+
+    void bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer) {
+        VkBuffer vkBuffer = ibuffer->buffer();
+        SkASSERT(VK_NULL_HANDLE != vkBuffer);
+        // TODO: once ibuffer->offset() no longer always returns 0, we will need to track the offset
+        // to know if we can skip binding or not.
+        if (vkBuffer != fBoundIndexBuffer) {
+            GR_VK_CALL(gpu->vkInterface(), CmdBindIndexBuffer(fCmdBuffer,
+                                                              vkBuffer,
+                                                              ibuffer->offset(),
+                                                              VK_INDEX_TYPE_UINT16));
+            fBoundIndexBuffer = vkBuffer;
+            addResource(ibuffer->resource());
+        }
+    }
 
     void bindPipeline(const GrVkGpu* gpu, const GrVkPipeline* pipeline);
 
@@ -152,8 +178,6 @@ private:
 
     virtual void onReset(GrVkGpu* gpu) {}
 
-    static constexpr uint32_t kMaxInputBuffers = 2;
-
     VkBuffer fBoundInputBuffers[kMaxInputBuffers];
     VkBuffer fBoundIndexBuffer;
 
@@ -234,7 +258,18 @@ public:
                    const GrVkImage& dstImage,
                    uint32_t blitRegionCount,
                    const VkImageBlit* blitRegions,
-                   VkFilter filter);
+                   VkFilter filter) {
+        this->blitImage(gpu,
+                        srcImage.resource(),
+                        srcImage.image(),
+                        srcImage.currentLayout(),
+                        dstImage.resource(),
+                        dstImage.image(),
+                        dstImage.currentLayout(),
+                        blitRegionCount,
+                        blitRegions,
+                        filter);
+    }
 
     void copyImageToBuffer(const GrVkGpu* gpu,
                            GrVkImage* srcImage,

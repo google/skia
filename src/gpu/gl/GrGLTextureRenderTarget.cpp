@@ -8,32 +8,8 @@
 #include "GrGLTextureRenderTarget.h"
 
 #include "GrContext.h"
-#include "GrGLGpu.h"
 #include "GrTexturePriv.h"
 #include "SkTraceMemoryDump.h"
-
-GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
-                                                 SkBudgeted budgeted,
-                                                 const GrSurfaceDesc& desc,
-                                                 const GrGLTexture::IDDesc& texIDDesc,
-                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
-                                                 bool wasMipMapDataProvided)
-        : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
-    this->registerWithCache(budgeted);
-}
-
-GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
-                                                 const GrSurfaceDesc& desc,
-                                                 const GrGLTexture::IDDesc& texIDDesc,
-                                                 const GrGLRenderTarget::IDDesc& rtIDDesc,
-                                                 bool wasMipMapDataProvided)
-        : GrSurface(gpu, desc)
-        , GrGLTexture(gpu, desc, texIDDesc, wasMipMapDataProvided)
-        , GrGLRenderTarget(gpu, desc, rtIDDesc) {
-    this->registerWithCacheWrapped();
-}
 
 // GrGLTextureRenderTarget must dump both of its superclasses.
 void GrGLTextureRenderTarget::dumpMemoryStatistics(
