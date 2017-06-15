@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e73151cb_b69dad31",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T15:56:11Z",
+      "side": 1,
+      "message": "As discussed offline, changed to different style that doesn\u0027t need returning unique_ptr",
+      "parentUuid": "f8c6c3c1_2021c6ac",
+      "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "468ab4df_31fb26f0",
         "filename": "include/core/SkSurface.h",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-02T18:50:21Z",
       "side": 1,
       "message": "Should this be std::unique_ptr\u003cGrBackendSemaphore\u003e[]?",
+      "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c843e05e_a6406268",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T15:56:11Z",
+      "side": 1,
+      "message": "As discussed offline, changed to different style that doesn\u0027t need using unique_ptr",
+      "parentUuid": "468ab4df_31fb26f0",
       "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "1975c66e_bb132dfd",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T15:56:11Z",
+      "side": 1,
+      "message": "No longer allocating inside Ganesh.",
+      "parentUuid": "3605dde8_e49cab54",
+      "range": {
+        "startLine": 1421,
+        "startChar": 49,
+        "endLine": 1421,
+        "endChar": 55
+      },
+      "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5f25e60_68ee4292",
         "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
         "patchSetId": 6
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "23bed22d_cbda8862",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T15:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5f25e60_68ee4292",
+      "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10f96c1e_4ac06bd2",
         "filename": "src/image/SkSurface_Base.h",
         "patchSetId": 6
@@ -87,6 +165,24 @@
       "writtenOn": "2017-06-02T18:50:21Z",
       "side": 1,
       "message": "The include guard is saving you here :)",
+      "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4d24a56_4d3a0edf",
+        "filename": "src/image/SkSurface_Base.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T15:56:11Z",
+      "side": 1,
+      "message": "luckily with change we no longer need to include GrBackendSemaphore here.",
+      "parentUuid": "10f96c1e_4ac06bd2",
       "revId": "90fdca5a23d4c101d47212374f2e1a9100317409",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
