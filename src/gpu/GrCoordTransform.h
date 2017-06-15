@@ -12,7 +12,6 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureProxy.h"
 
-class GrResourceProvider;
 class GrTexture;
 
 /**
@@ -32,21 +31,20 @@ public:
      * Create a transformation that maps [0, 1] to a proxy's boundaries. The proxy origin also
      * implies whether a y-reversal should be performed.
      */
-    GrCoordTransform(GrResourceProvider* resourceProvider, GrTextureProxy* proxy) {
+    GrCoordTransform(GrTextureProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(resourceProvider, SkMatrix::I(), proxy, true);
+        this->reset(SkMatrix::I(), proxy, true);
     }
 
     /**
      * Create a transformation from a matrix. The proxy origin also implies whether a y-reversal
      * should be performed.
      */
-    GrCoordTransform(GrResourceProvider* resourceProvider, const SkMatrix& m,
-                     GrTextureProxy* proxy) {
+    GrCoordTransform(const SkMatrix& m, GrTextureProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(resourceProvider, m, proxy, true);
+        this->reset(m, proxy, true);
     }
 
     /**
@@ -57,7 +55,15 @@ public:
         this->reset(m);
     }
 
-    void reset(GrResourceProvider*, const SkMatrix&, GrTextureProxy*, bool normalize);
+    void reset(const SkMatrix& m, GrTextureProxy* proxy, bool normalize) {
+        SkASSERT(proxy);
+        SkASSERT(!fInProcessor);
+
+        fMatrix = m;
+        fProxy = proxy;
+        fNormalize = normalize;
+        fReverseY = kBottomLeft_GrSurfaceOrigin == proxy->origin();
+    }
 
     void reset(const SkMatrix& m) {
         SkASSERT(!fInProcessor);

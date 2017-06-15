@@ -9,10 +9,9 @@
 #define GrClearOp_DEFINED
 
 #include "GrFixedClip.h"
-#include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
-#include "GrOpFlushState.h"
-#include "GrResourceProvider.h"
+
+class GrOpFlushState;
 
 class GrClearOp final : public GrOp {
 public:
@@ -55,26 +54,7 @@ public:
     void setColor(GrColor color) { fColor = color; }
 
 private:
-    GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy)
-        : INHERITED(ClassID())
-        , fClip(clip)
-        , fColor(color) {
-
-        const SkIRect rtRect = SkIRect::MakeWH(proxy->width(), proxy->height());
-        if (fClip.scissorEnabled()) {
-            // Don't let scissors extend outside the RT. This may improve op combining.
-            if (!fClip.intersect(rtRect)) {
-                SkASSERT(0);  // should be caught upstream
-                fClip = GrFixedClip(SkIRect::MakeEmpty());
-            }
-
-            if (GrResourceProvider::IsFunctionallyExact(proxy) && fClip.scissorRect() == rtRect) {
-                fClip.disableScissor();
-            }
-        }
-        this->setBounds(SkRect::Make(fClip.scissorEnabled() ? fClip.scissorRect() : rtRect),
-                        HasAABloat::kNo, IsZeroArea::kNo);
-    }
+    GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* proxy);
 
     GrClearOp(const SkIRect& rect, GrColor color, bool fullScreen)
         : INHERITED(ClassID())
@@ -115,11 +95,7 @@ private:
 
     void onPrepare(GrOpFlushState*) override {}
 
-    void onExecute(GrOpFlushState* state) override {
-        SkASSERT(state->drawOpArgs().fRenderTarget);
-
-        state->commandBuffer()->clear(state->drawOpArgs().fRenderTarget, fClip, fColor);
-    }
+    void onExecute(GrOpFlushState* state) override;
 
     GrFixedClip fClip;
     GrColor     fColor;

@@ -14,6 +14,7 @@
 #include "GrContext.h"
 #include "SkGradientShader.h"
 #include "SkShaderBase.h"
+#include "effects/GrPorterDuffXferProcessor.h"
 #include "ops/GrTessellatingPathRenderer.h"
 
 /*

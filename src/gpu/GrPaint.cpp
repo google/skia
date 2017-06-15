@@ -19,40 +19,33 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
     this->setXPFactory(GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage));
 }
 
-void GrPaint::addColorTextureProcessor(GrResourceProvider* resourceProvider,
-                                       sk_sp<GrTextureProxy> proxy,
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        const SkMatrix& matrix) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(resourceProvider, std::move(proxy),
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
                                                                 std::move(colorSpaceXform),
                                                                 matrix));
 }
 
-void GrPaint::addColorTextureProcessor(GrResourceProvider* resourceProvider,
-                                       sk_sp<GrTextureProxy> proxy,
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                        const SkMatrix& matrix,
                                        const GrSamplerParams& params) {
-    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(resourceProvider,
-                                                                std::move(proxy),
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
                                                                 std::move(colorSpaceXform),
                                                                 matrix, params));
 }
 
-void GrPaint::addCoverageTextureProcessor(GrResourceProvider* resourceProvider,
-                                          sk_sp<GrTextureProxy> proxy,
+void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                           const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(resourceProvider,
-                                                                   std::move(proxy),
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
                                                                    nullptr, matrix));
 }
 
-void GrPaint::addCoverageTextureProcessor(GrResourceProvider* resourceProvider,
-                                          sk_sp<GrTextureProxy> proxy,
+void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                           const SkMatrix& matrix,
                                           const GrSamplerParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(resourceProvider,
-                                                                   std::move(proxy),
+    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
                                                                    nullptr, matrix, params));
 }
 

@@ -9,7 +9,6 @@
 
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
-#include "GrResourceProvider.h"
 #include "GrStyle.h"
 
 #include "effects/GrShadowGeoProc.h"

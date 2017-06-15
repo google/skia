@@ -8,6 +8,7 @@
 #include "GrOnFlushResourceProvider.h"
 
 #include "GrDrawingManager.h"
+#include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(

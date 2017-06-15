@@ -12,7 +12,6 @@
 #include "GrResourceKey.h"
 
 class GrColorSpaceXform;
-class GrResourceProvider;
 class GrTexture;
 class GrTextureProxy;
 
@@ -132,7 +131,6 @@ protected:
         SkRect* domainRect);
 
     static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        GrResourceProvider*,
         sk_sp<GrTextureProxy> proxy,
         sk_sp<GrColorSpaceXform>,
         const SkMatrix& textureMatrix,

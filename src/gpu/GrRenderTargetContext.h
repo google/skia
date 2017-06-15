@@ -54,10 +54,6 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
-    // MDB TODO: This access is mainly provided for the image filters. Remove it when they
-    // no longer need to pass it to the FragmentProcessor ctors.
-    GrResourceProvider* resourceProvider() { return fContext->resourceProvider(); }
-
     // We use SkPaint rather than GrPaint here for two reasons:
     //    * The SkPaint carries extra text settings. If these were extracted to a lighter object
     //      we could use GrPaint except that

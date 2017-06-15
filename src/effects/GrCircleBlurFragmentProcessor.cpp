@@ -82,8 +82,7 @@ void GrCircleBlurFragmentProcessor::GLSLProcessor::onSetData(const GrGLSLProgram
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(GrResourceProvider* resourceProvider,
-                                                             const SkRect& circle,
+GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(const SkRect& circle,
                                                              float textureRadius,
                                                              float solidRadius,
                                                              sk_sp<GrTextureProxy> blurProfile)
@@ -91,8 +90,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(GrResourceProvider*
         , fCircle(circle)
         , fSolidRadius(solidRadius)
         , fTextureRadius(textureRadius)
-        , fBlurProfileSampler(resourceProvider, std::move(blurProfile),
-                              GrSamplerParams::kBilerp_FilterMode) {
+        , fBlurProfileSampler(std::move(blurProfile), GrSamplerParams::kBilerp_FilterMode) {
     this->initClassID<GrCircleBlurFragmentProcessor>();
     this->addTextureSampler(&fBlurProfileSampler);
 }
@@ -340,8 +338,7 @@ sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(GrResourceProvide
     if (!profile) {
         return nullptr;
     }
-    return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(resourceProvider,
-                                                                        circle,
+    return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(circle,
                                                                         textureRadius, solidRadius,
                                                                         std::move(profile)));
 }

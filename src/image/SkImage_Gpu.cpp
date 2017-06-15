@@ -401,10 +401,8 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorFragmentProcessor(
-        GrYUVEffect::MakeYUVToRGB(ctx->resourceProvider(),
-                                  yProxy, uProxy, vProxy,
-                                  yuvSizes, colorSpace, nv12));
+    paint.addColorFragmentProcessor(GrYUVEffect::MakeYUVToRGB(yProxy, uProxy, vProxy,
+                                                              yuvSizes, colorSpace, nv12));
 
     const SkRect rect = SkRect::MakeIWH(width, height);
 
@@ -975,7 +973,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(fContext->resourceProvider(), fProxy, nullptr, SkMatrix::I());
+    paint.addColorTextureProcessor(fProxy, nullptr, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(xform));
 
     const SkRect rect = SkRect::MakeIWH(this->width(), this->height());

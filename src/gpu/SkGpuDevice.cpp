@@ -1046,10 +1046,10 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             domain.fTop = domain.fBottom = srcRect.centerY();
         }
         if (bicubic) {
-            fp = GrBicubicEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+            fp = GrBicubicEffect::Make(std::move(proxy),
                                        std::move(colorSpaceXform), texMatrix, domain);
         } else {
-            fp = GrTextureDomainEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+            fp = GrTextureDomainEffect::Make(std::move(proxy),
                                              std::move(colorSpaceXform), texMatrix,
                                              domain, GrTextureDomain::kClamp_Mode,
                                              params.filterMode());
@@ -1057,10 +1057,10 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     } else if (bicubic) {
         SkASSERT(GrSamplerParams::kNone_FilterMode == params.filterMode());
         SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
-        fp = GrBicubicEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+        fp = GrBicubicEffect::Make(std::move(proxy),
                                    std::move(colorSpaceXform), texMatrix, tileModes);
     } else {
-        fp = GrSimpleTextureEffect::Make(this->context()->resourceProvider(), std::move(proxy),
+        fp = GrSimpleTextureEffect::Make(std::move(proxy),
                                          std::move(colorSpaceXform), texMatrix, params);
     }
 
@@ -1132,8 +1132,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
 
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(this->context()->resourceProvider(),
-                                                              std::move(proxy),
+    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(config)) {
