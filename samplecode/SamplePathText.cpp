@@ -354,11 +354,11 @@ void WavyPathText::Waves::reset(SkRandom& rand, int w, int h) {
 }
 
 SkPoint WavyPathText::Waves::apply(float tsec, const Sk2f matrix[3], const SkPoint& pt) const {
-    constexpr static int kTableSize = 4096;
+    constexpr static int kTableSize = 1 << 12;
     static float sin2table[kTableSize];
     static SkOnce initTable;
     initTable([]() {
-        for (int i = 0; i <= kTableSize; ++i) {
+        for (int i = 0; i < kTableSize; ++i) {
             const double sintheta = sin(i * (SK_ScalarPI / kTableSize));
             sin2table[i] = static_cast<float>(sintheta * sintheta - 0.5);
         }
