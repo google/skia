@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7b76e99f_dfc45115",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T17:38:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c0dfe04_47073831",
+      "revId": "6d420c2a34dc91dcfbc78233ca9c997be97a1ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb1fe1d7_d7b82fbe",
         "filename": "tests/SurfaceSemaphoreTest.cpp",
         "patchSetId": 9
@@ -33,6 +51,24 @@
       "revId": "6d420c2a34dc91dcfbc78233ca9c997be97a1ae7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bdc3ff0_67d692f6",
+        "filename": "tests/SurfaceSemaphoreTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-15T17:38:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb1fe1d7_d7b82fbe",
+      "revId": "6d420c2a34dc91dcfbc78233ca9c997be97a1ae7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
