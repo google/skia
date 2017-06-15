@@ -49,6 +49,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
 
     for (int i = 0; i < kNumIterations; ++i) {
         auto s0 = make_surface(ctx);
+        if (!s0) {
+            // MSAA may not be supported
+            return;
+        }
 
         auto s1 = make_surface(ctx);
         s1->getCanvas()->clear(SK_ColorBLACK);
