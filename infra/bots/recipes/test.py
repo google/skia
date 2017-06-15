@@ -497,6 +497,7 @@ def dm_flags(bot):
     match.append('~ReadPixels_Gpu')
     match.append('~ReadPixels_Texture')
     match.append('~ReadWriteAlpha')
+    match.append('~skbug6653')
     match.append('~SRGBReadWritePixels')
     match.append('~SpecialImage_DeferredGpu')
     match.append('~SpecialImage_Gpu')
