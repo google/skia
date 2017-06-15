@@ -22,6 +22,8 @@
 */
 template <typename T, bool MEM_MOVE = false> class SkTArray {
 public:
+    using Type = T;
+
     /**
      * Creates an empty array with no initial storage
      */
@@ -96,12 +98,15 @@ public:
     }
 
     /**
-     * Resets to count() == 0
+     * Resets to count() == 0 and resets any reserve count.
      */
-    void reset() { this->pop_back_n(fCount); }
+    void reset() {
+        this->pop_back_n(fCount);
+        fReserved = false;
+    }
 
     /**
-     * Resets to count() = n newly constructed T objects.
+     * Resets to count() = n newly constructed T objects and resets any reserve count.
      */
     void reset(int n) {
         SkASSERT(n >= 0);
@@ -115,19 +120,11 @@ public:
         for (int i = 0; i < fCount; ++i) {
             new (fItemArray + i) T;
         }
+        fReserved = false;
     }
 
     /**
-     * Ensures there is enough reserved space for n elements.
-     */
-    void reserve(int n) {
-        if (fCount < n) {
-            this->checkRealloc(n - fCount);
-        }
-    }
-
-    /**
-     * Resets to a copy of a C array.
+     * Resets to a copy of a C array and resets any reserve count.
      */
     void reset(const T* array, int count) {
         for (int i = 0; i < fCount; ++i) {
@@ -137,6 +134,22 @@ public:
         this->checkRealloc(count);
         fCount = count;
         this->copy(array);
+        fReserved = false;
+    }
+
+    /**
+     * Ensures there is enough reserved space for n additional elements. The is guaranteed at least
+     * until the array size grows above n and subsequently shrinks below n, any version of reset()
+     * is called, or reserve() is called again.
+     */
+    void reserve(int n) {
+        SkASSERT(n >= 0);
+        if (n > 0) {
+            this->checkRealloc(n);
+            fReserved = fOwnMemory;
+        } else {
+            fReserved = false;
+        }
     }
 
     void removeShuffle(int n) {
@@ -431,10 +444,12 @@ private:
             fAllocCount = 0;
             fMemArray = nullptr;
             fOwnMemory = false;
+            fReserved = false;
         } else {
             fAllocCount = SkTMax(count, SkTMax(kMinHeapAllocCount, reserveCount));
             fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
             fOwnMemory = true;
+            fReserved = reserveCount > 0;
         }
     }
 
@@ -444,6 +459,7 @@ private:
         SkASSERT(preallocStorage);
         fCount = count;
         fMemArray = nullptr;
+        fReserved = false;
         if (count > preallocCount) {
             fAllocCount = SkTMax(count, kMinHeapAllocCount);
             fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
@@ -505,10 +521,11 @@ private:
         int newCount = fCount + delta;
 
         // We allow fAllocCount to be in the range [newCount, 3*newCount]. We also never shrink
-        // when we're currently using preallocated memory or would allocate less than
-        // kMinHeapAllocCount.
+        // when we're currently using preallocated memory, would allocate less than
+        // kMinHeapAllocCount, or we are over-allocated because a reserve count was passed to the
+        // constructor.
         bool mustGrow = newCount > fAllocCount;
-        bool shouldShrink = fAllocCount > 3 * newCount && fOwnMemory;
+        bool shouldShrink = fAllocCount > 3 * newCount && fOwnMemory && !fReserved;
         if (!mustGrow && !shouldShrink) {
             return;
         }
@@ -531,15 +548,17 @@ private:
         }
         fMemArray = newMemArray;
         fOwnMemory = true;
+        fReserved = false;
     }
 
-    int fCount;
-    int fAllocCount;
-    bool fOwnMemory;
     union {
         T*       fItemArray;
         void*    fMemArray;
     };
+    int fCount;
+    int fAllocCount;
+    bool fOwnMemory : 1;
+    bool fReserved : 1;
 };
 
 template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCount;
