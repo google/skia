@@ -703,37 +703,11 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
         *A_out = A;
     }
 
-    // If the 'total' matrix is singular, set the 'scale' to something finite and zero the matrices.
-    // All underlying ports have issues with zero text size, so use the matricies to zero.
-
-    // Map the vectors [0,1], [1,0], [1,1] and [1,-1] (the EM) through the 'total' matrix.
-    // If the length of one of these vectors is less than 1/256 then an EM filling square will
-    // never affect any pixels.
-    SkVector diag[4] = { { A.getScaleX()               ,                 A.getSkewY() },
-                         {                 A.getSkewX(), A.getScaleY()                },
-                         { A.getScaleX() + A.getSkewX(), A.getScaleY() + A.getSkewY() },
-                         { A.getScaleX() - A.getSkewX(), A.getScaleY() - A.getSkewY() }, };
-    if (diag[0].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
-        diag[1].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
-        diag[2].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero ||
-        diag[3].lengthSqd() <= SK_ScalarNearlyZero * SK_ScalarNearlyZero)
-    {
-        s->fX = SK_Scalar1;
-        s->fY = SK_Scalar1;
-        sA->setScale(0, 0);
-        if (GsA) {
-            GsA->setScale(0, 0);
-        }
-        if (G_inv) {
-            G_inv->reset();
-        }
-        return false;
-    }
-
     // GA is the matrix A with rotation removed.
     SkMatrix GA;
     bool skewedOrFlipped = A.getSkewX() || A.getSkewY() || A.getScaleX() < 0 || A.getScaleY() < 0;
     if (skewedOrFlipped) {
+        // QR by Givens rotations. G is Q^T and GA is R. G is rotational (no reflections).
         // h is where A maps the horizontal baseline.
         SkPoint h = SkPoint::Make(SK_Scalar1, 0);
         A.mapPoints(&h, 1);
@@ -757,6 +731,25 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
         if (G_inv) {
             G_inv->reset();
         }
+    }
+
+    // If the 'total' matrix is singular, set the 'scale' to something finite and zero the matrices.
+    // All underlying ports have issues with zero text size, so use the matricies to zero.
+    // If one of the scale factors is less than 1/256 then an EM filling square will
+    // never affect any pixels.
+    if (SkScalarAbs(GA.get(SkMatrix::kMScaleX)) <= SK_ScalarNearlyZero ||
+        SkScalarAbs(GA.get(SkMatrix::kMScaleY)) <= SK_ScalarNearlyZero)
+    {
+        s->fX = SK_Scalar1;
+        s->fY = SK_Scalar1;
+        sA->setScale(0, 0);
+        if (GsA) {
+            GsA->setScale(0, 0);
+        }
+        if (G_inv) {
+            G_inv->reset();
+        }
+        return false;
     }
 
     // At this point, given GA, create s.
