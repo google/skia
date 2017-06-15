@@ -80,14 +80,18 @@ public:
      * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
      * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
      */
-    virtual void onFlush(int numSemaphores, GrBackendSemaphore* signalSemaphores) {}
+    virtual bool onFlush(int numSemaphores, GrBackendSemaphore* signalSemaphores) {
+        return false;
+    }
 
     /**
      * Caused the current backend 3D API to wait on the passed in semaphores before executing new
      * commands on the gpu. Any previously submitting commands will not be blocked by these
      * semaphores.
      */
-    virtual void onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {}
+    virtual bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+        return false;
+    }
 
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
