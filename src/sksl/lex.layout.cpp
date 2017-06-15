@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#define YY_NO_UNPUT
 #include "disable_flex_warnings.h"
 #include "lex.layout.c"
 static_assert(YY_FLEX_MAJOR_VERSION * 100 + YY_FLEX_MINOR_VERSION * 10 +
