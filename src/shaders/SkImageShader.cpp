@@ -211,68 +211,27 @@ SkFlattenable::Register("SkBitmapProcShader", SkBitmapProcShader_CreateProc, kSk
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 
-bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkArenaAlloc* alloc,
-                                   const SkMatrix& ctm, const SkPaint& paint,
-                                   const SkMatrix* localM) const {
-    auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
-    if (localM) {
-        matrix.preConcat(*localM);
-    }
-
-    if (!matrix.invert(&matrix)) {
-        return false;
-    }
-    auto quality = paint.getFilterQuality();
-
-    SkBitmapProvider provider(fImage.get(), dstCS);
-    SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kYes);
-    std::unique_ptr<SkBitmapController::State> state {
-        controller.requestBitmap(provider, matrix, quality)
-    };
-    if (!state) {
-        return false;
-    }
-
-    const SkPixmap& pm = state->pixmap();
-    matrix  = state->invMatrix();
-    quality = state->quality();
+void SkImageShader_ApendStagesRaw(SkRasterPipeline* p, SkColorSpace* dstCS,
+                                         SkArenaAlloc* alloc, const SkPixmap& pm,
+                                         const SkMatrix& invCTM,
+                                         SkShader::TileMode tx, SkShader::TileMode ty,
+                                         SkFilterQuality quality, SkColor color) {
+    SkMatrix matrix = invCTM;
     auto info = pm.info();
-
-    // When the matrix is just an integer translate, bilerp == nearest neighbor.
-    if (quality == kLow_SkFilterQuality &&
-        matrix.getType() <= SkMatrix::kTranslate_Mask &&
-        matrix.getTranslateX() == (int)matrix.getTranslateX() &&
-        matrix.getTranslateY() == (int)matrix.getTranslateY()) {
-        quality = kNone_SkFilterQuality;
-    }
-
-    // See skia:4649 and the GM image_scale_aligned.
-    if (quality == kNone_SkFilterQuality) {
-        if (matrix.getScaleX() >= 0) {
-            matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
-                                            floorf(matrix.getTranslateX())));
-        }
-        if (matrix.getScaleY() >= 0) {
-            matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
-                                            floorf(matrix.getTranslateY())));
-        }
-    }
 
     p->append(SkRasterPipeline::seed_shader);
 
-    struct MiscCtx {
-        std::unique_ptr<SkBitmapController::State> state;
+    struct ColorMatrixCtx {
         SkColor4f paint_color;
         float     matrix[9];
     };
-    auto misc = alloc->make<MiscCtx>();
-    misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
-    misc->paint_color = SkColor4f_from_SkColor(paint.getColor(), dstCS);
-    if (matrix.asAffine(misc->matrix)) {
-        p->append(SkRasterPipeline::matrix_2x3, misc->matrix);
+    auto ctx = alloc->make<ColorMatrixCtx>();
+    ctx->paint_color = SkColor4f_from_SkColor(color, dstCS);
+    if (matrix.asAffine(ctx->matrix)) {
+        p->append(SkRasterPipeline::matrix_2x3, ctx->matrix);
     } else {
-        matrix.get9(misc->matrix);
-        p->append(SkRasterPipeline::matrix_perspective, misc->matrix);
+        matrix.get9(ctx->matrix);
+        p->append(SkRasterPipeline::matrix_perspective, ctx->matrix);
     }
 
     auto gather = alloc->make<SkJumper_GatherCtx>();
@@ -290,18 +249,18 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
         return f;
     };
     auto limit_x = alloc->make<float>(ulp_before((float)pm. width())),
-         limit_y = alloc->make<float>(ulp_before((float)pm.height()));
+    limit_y = alloc->make<float>(ulp_before((float)pm.height()));
 
     auto append_tiling_and_gather = [&] {
-        switch (fTileModeX) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  limit_x); break;
-            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x); break;
-            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x); break;
+        switch (tx) {
+            case SkShader::kClamp_TileMode:  p->append(SkRasterPipeline::clamp_x,  limit_x); break;
+            case SkShader::kMirror_TileMode: p->append(SkRasterPipeline::mirror_x, limit_x); break;
+            case SkShader::kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x, limit_x); break;
         }
-        switch (fTileModeY) {
-            case kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  limit_y); break;
-            case kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y); break;
-            case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y); break;
+        switch (ty) {
+            case SkShader::kClamp_TileMode:  p->append(SkRasterPipeline::clamp_y,  limit_y); break;
+            case SkShader::kMirror_TileMode: p->append(SkRasterPipeline::mirror_y, limit_y); break;
+            case SkShader::kRepeat_TileMode: p->append(SkRasterPipeline::repeat_y, limit_y); break;
         }
         switch (info.colorType()) {
             case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::gather_a8,   gather); break;
@@ -377,7 +336,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
         p->append(SkRasterPipeline::swap_rb);
     }
     if (info.colorType() == kAlpha_8_SkColorType) {
-        p->append(SkRasterPipeline::set_rgb, &misc->paint_color);
+        p->append(SkRasterPipeline::set_rgb, &ctx->paint_color);
     }
     if (info.colorType() == kAlpha_8_SkColorType || info.alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::premul);
@@ -388,5 +347,63 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
         p->append(SkRasterPipeline::clamp_a);
     }
     append_gamut_transform(p, alloc, info.colorSpace(), dstCS, kPremul_SkAlphaType);
+}
+
+bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkArenaAlloc* alloc,
+                                   const SkMatrix& ctm, const SkPaint& paint,
+                                   const SkMatrix* localM) const {
+    auto matrix = SkMatrix::Concat(ctm, this->getLocalMatrix());
+    if (localM) {
+        matrix.preConcat(*localM);
+    }
+
+    if (!matrix.invert(&matrix)) {
+        return false;
+    }
+    auto quality = paint.getFilterQuality();
+
+    SkBitmapProvider provider(fImage.get(), dstCS);
+    SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kYes);
+    std::unique_ptr<SkBitmapController::State> state {
+        controller.requestBitmap(provider, matrix, quality)
+    };
+    if (!state) {
+        return false;
+    }
+
+
+    const SkPixmap& pm = state->pixmap();
+    matrix  = state->invMatrix();
+    quality = state->quality();
+    auto info = pm.info();
+
+    // When the matrix is just an integer translate, bilerp == nearest neighbor.
+    if (quality == kLow_SkFilterQuality &&
+        matrix.getType() <= SkMatrix::kTranslate_Mask &&
+        matrix.getTranslateX() == (int)matrix.getTranslateX() &&
+        matrix.getTranslateY() == (int)matrix.getTranslateY()) {
+        quality = kNone_SkFilterQuality;
+    }
+
+    // See skia:4649 and the GM image_scale_aligned.
+    if (quality == kNone_SkFilterQuality) {
+        if (matrix.getScaleX() >= 0) {
+            matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
+                                            floorf(matrix.getTranslateX())));
+        }
+        if (matrix.getScaleY() >= 0) {
+            matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
+                                            floorf(matrix.getTranslateY())));
+        }
+    }
+
+    struct StateCtx {
+        std::unique_ptr<SkBitmapController::State> state;
+    };
+    auto ctx = alloc->make<StateCtx>();
+    ctx->state = std::move(state);  // Extend lifetime to match the pipeline's.
+
+    SkImageShader_ApendStagesRaw(p, dstCS, alloc, pm, matrix, fTileModeX, fTileModeY,
+                                 quality, paint.getColor());
     return true;
 }

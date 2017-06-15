@@ -149,3 +149,93 @@ private:
 };
 
 DEF_GM(return new ImageScaleAlignedGM();)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkAutoPixmapStorage.h"
+#include "SkCoreBlitters.h"
+#include "SkRasterPipeline.h"
+#include "Resources.h"
+#include "SkStream.h"
+#include "SkSurface.h"
+#include "sk_tool_utils.h"
+
+extern void SkImageShader_ApendStagesRaw(SkRasterPipeline* p, SkColorSpace* dstCS,
+                                         SkArenaAlloc* alloc, const SkPixmap& pm,
+                                         const SkMatrix& invCTM,
+                                         SkShader::TileMode tx, SkShader::TileMode ty,
+                                         SkFilterQuality quality, SkColor color);
+
+static void draw(const SkPixmap& src, const SkPixmap& dst) {
+    SkMatrix inv = SkMatrix::MakeScale(SkIntToScalar(src.width()) / dst.width(),
+                                       SkIntToScalar(src.height()) / dst.height());
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+
+    SkImageShader_ApendStagesRaw(&p, dst.colorSpace(), &alloc, src, inv,
+                                 SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
+                                 kHigh_SkFilterQuality, SK_ColorBLACK);
+
+    auto blitter = SkCreateRasterPipelineBlitter(dst, SkPaint(), p, src.isOpaque(), &alloc);
+
+    dst.erase(0);
+    blitter->blitRect(0, 0, dst.width(), dst.height());
+}
+
+static sk_sp<SkImage> make_checker(int size) {
+    auto surf = SkSurface::MakeRasterN32Premul(size, size);
+    sk_tool_utils::draw_checkerboard(surf->getCanvas(), SK_ColorBLACK, SK_ColorWHITE, 1);
+    return surf->makeImageSnapshot();
+}
+
+DEF_SIMPLE_GM(bicubic_scale, canvas, 1024, 1024) {
+    canvas->translate(10, 10);
+
+    int src_size = 256;
+    auto src_img = make_checker(src_size);
+    auto src_info = SkImageInfo::MakeN32Premul(src_img->width(), src_img->height());
+    SkAutoPixmapStorage src_pm;
+    src_pm.alloc(src_info);
+    src_img->readPixels(src_pm, 0, 0);
+
+    if (false) {
+        auto data = src_img->encode();
+        SkString name;
+        name.printf("checker%d.png", src_size);
+        SkFILEWStream stream(name.c_str());
+        stream.write(data->data(), data->size());
+    }
+
+    for (int dst_size = 129; dst_size >= 126; dst_size--) {
+        const SkRect dstR = {0, 0, SkIntToScalar(dst_size), SkIntToScalar(dst_size)};
+        auto info = SkImageInfo::MakeN32Premul(dst_size, dst_size);
+//                                               sk_ref_sp(canvas->imageInfo().colorSpace()));
+        auto surf = SkSurface::MakeRaster(info);
+        SkPixmap dst_pm;
+        if (!surf->peekPixels(&dst_pm)) {
+            continue;
+        }
+        auto surfCanvas = surf->getCanvas();
+
+        canvas->save();
+        for (int fq = kNone_SkFilterQuality; fq <= kHigh_SkFilterQuality; ++fq) {
+            if (fq < kHigh_SkFilterQuality) {
+                SkPaint paint;
+                paint.setFilterQuality((SkFilterQuality)fq);
+                surfCanvas->clear(0);
+                surfCanvas->drawImageRect(src_img, dstR, &paint);
+            } else {
+                draw(src_pm, dst_pm);
+            }
+
+            surf->draw(canvas, 0, 0, nullptr);
+
+            canvas->translate(dst_size + 10.f, 0);
+        }
+        canvas->restore();
+
+        canvas->translate(0, dst_size + 20.f);
+    }
+}
+
+
