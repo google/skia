@@ -99,14 +99,11 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
                             const sk_gpu_test::ContextInfo& mainInfo,
                             const sk_gpu_test::ContextInfo& childInfo1,
                             const sk_gpu_test::ContextInfo& childInfo2) {
-    GrContext* mainCtx = mainInfo.grContext();
-    if (!mainCtx->caps()->fenceSyncSupport()) {
-        return;
-    }
 
     const SkImageInfo ii = SkImageInfo::Make(MAIN_W, MAIN_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
 
+    GrContext* mainCtx = mainInfo.grContext();
     sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(mainCtx, SkBudgeted::kNo,
                                                              ii, 0, kTopLeft_GrSurfaceOrigin,
                                                              nullptr));
