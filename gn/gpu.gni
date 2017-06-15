@@ -8,7 +8,6 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_gpu_sources = [
-  "$_include/gpu/GrBackendSemaphore.h",
   "$_include/gpu/GrBackendSurface.h",
   "$_include/gpu/GrBlend.h",
   "$_include/gpu/GrCaps.h",

@@ -83,37 +83,6 @@ public:
         }
     }
 
-    static const char* ContextTypeName(ContextType contextType) {
-        switch (contextType) {
-            case kGL_ContextType:
-                return "OpenGL";
-            case kGLES_ContextType:
-                return "OpenGLES";
-            case kANGLE_D3D9_ES2_ContextType:
-                return "ANGLE D3D9 ES2";
-            case kANGLE_D3D11_ES2_ContextType:
-                return "ANGLE D3D11 ES2";
-            case kANGLE_D3D11_ES3_ContextType:
-                return "ANGLE D3D11 ES3";
-            case kANGLE_GL_ES2_ContextType:
-                return "ANGLE GL ES2";
-            case kANGLE_GL_ES3_ContextType:
-                return "ANGLE GL ES3";
-            case kCommandBuffer_ContextType:
-                return "Command Buffer";
-            case kMESA_ContextType:
-                return "Mesa";
-            case kNullGL_ContextType:
-                return "Null GL";
-            case kDebugGL_ContextType:
-                return "Debug GL";
-            case kVulkan_ContextType:
-                return "Vulkan";
-        }
-        SkDEBUGFAIL("Unreachable");
-        return "Unknown";
-    }
-
     explicit GrContextFactory(const GrContextOptions& opts);
     GrContextFactory();
 
