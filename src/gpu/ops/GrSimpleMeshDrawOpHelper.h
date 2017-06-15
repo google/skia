@@ -229,7 +229,7 @@ public:
                fStencilSettings == that.fStencilSettings;
     }
 
-    GrPipeline* makePipeline(GrMeshDrawOp::Target* target) const {
+    const GrPipeline* makePipeline(GrMeshDrawOp::Target* target) const {
         auto args = INHERITED::pipelineInitArgs(target);
         args.fUserStencil = fStencilSettings;
         return target->allocPipeline(args);

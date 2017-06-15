@@ -17,6 +17,7 @@
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
 #include "SkString.h"
@@ -722,12 +723,29 @@ static sk_sp<GrGeometryProcessor> create_fill_gp(bool tweakAlphaForCoverage,
                               viewMatrix);
 }
 
-class AAConvexPathOp final : public GrLegacyMeshDrawOp {
+namespace {
+
+class AAConvexPathOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
+
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                                    const SkPath& path) {
-        return std::unique_ptr<GrLegacyMeshDrawOp>(new AAConvexPathOp(color, viewMatrix, path));
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          const SkPath& path,
+                                          const GrUserStencilSettings* stencilSettings) {
+        return Helper::FactoryHelper<AAConvexPathOp>(std::move(paint), viewMatrix, path,
+                                                     stencilSettings);
+    }
+
+    AAConvexPathOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+                   const SkPath& path, const GrUserStencilSettings* stencilSettings)
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings)
+            , fColor(color) {
+        fPaths.emplace_back(PathData{viewMatrix, path});
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
+        fLinesOnly = SkPath::kLine_SegmentMask == path.getSegmentMasks();
     }
 
     const char* name() const override { return "AAConvexPathOp"; }
@@ -735,38 +753,25 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color: 0x%08x, Count: %d\n", fColor, fPaths.count());
-        string.append(DumpPipelineInfo(*this->pipeline()));
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
+                                            &fColor);
+    }
+
 private:
-    AAConvexPathOp(GrColor color, const SkMatrix& viewMatrix, const SkPath& path)
-            : INHERITED(ClassID()), fColor(color) {
-        fPaths.emplace_back(PathData{viewMatrix, path});
-        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes, IsZeroArea::kNo);
-    }
-
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(fColor);
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fColor);
-
-        fUsesLocalCoords = optimizations.readsLocalCoords();
-        fLinesOnly = SkPath::kLine_SegmentMask == fPaths[0].fPath.getSegmentMasks();
-        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
-    }
-
     void prepareLinesOnlyDraws(Target* target) const {
-        bool canTweakAlphaForCoverage = this->canTweakAlphaForCoverage();
+        bool canTweakAlphaForCoverage = fHelper.compatibleWithAlphaAsCoverage();
 
-        // Setup GrGeometryProcessor
+        // Setup GrGeometryProcessor.
         sk_sp<GrGeometryProcessor> gp(create_fill_gp(
-                canTweakAlphaForCoverage, this->viewMatrix(), this->usesLocalCoords()));
+                canTweakAlphaForCoverage, fPaths.back().fViewMatrix, fHelper.usesLocalCoords()));
         if (!gp) {
             SkDebugf("Could not create GrGeometryProcessor\n");
             return;
@@ -781,7 +786,7 @@ private:
         GrAAConvexTessellator tess;
 
         int instanceCount = fPaths.count();
-
+        const GrPipeline* pipeline = fHelper.makePipeline(target);
         for (int i = 0; i < instanceCount; i++) {
             tess.rewind();
 
@@ -815,29 +820,29 @@ private:
             GrMesh mesh(GrPrimitiveType::kTriangles);
             mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1);
             mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(gp.get(), this->pipeline(), mesh);
+            target->draw(gp.get(), pipeline, mesh);
         }
     }
 
     void onPrepareDraws(Target* target) const override {
 #ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
-        if (this->linesOnly()) {
+        if (fLinesOnly) {
             this->prepareLinesOnlyDraws(target);
             return;
         }
 #endif
-
+        const GrPipeline* pipeline = fHelper.makePipeline(target);
         int instanceCount = fPaths.count();
 
         SkMatrix invert;
-        if (this->usesLocalCoords() && !this->viewMatrix().invert(&invert)) {
+        if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
             SkDebugf("Could not invert viewmatrix\n");
             return;
         }
 
         // Setup GrGeometryProcessor
         sk_sp<GrGeometryProcessor> quadProcessor(
-                QuadEdgeEffect::Make(this->color(), invert, this->usesLocalCoords()));
+                QuadEdgeEffect::Make(fColor, invert, fHelper.usesLocalCoords()));
 
         // TODO generate all segments for all paths and use one vertex buffer
         for (int i = 0; i < instanceCount; i++) {
@@ -903,7 +908,7 @@ private:
                 const Draw& draw = draws[j];
                 mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1);
                 mesh.setVertexData(vertexBuffer, firstVertex);
-                target->draw(quadProcessor.get(), this->pipeline(), mesh);
+                target->draw(quadProcessor.get(), pipeline, mesh);
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
@@ -912,55 +917,43 @@ private:
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAConvexPathOp* that = t->cast<AAConvexPathOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
 
-        if (this->color() != that->color()) {
+        if (fColor != that->fColor) {
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (fHelper.usesLocalCoords() &&
+            !fPaths[0].fViewMatrix.cheapEqualTo(that->fPaths[0].fViewMatrix)) {
             return false;
         }
 
-        if (this->linesOnly() != that->linesOnly()) {
+        if (fLinesOnly != that->fLinesOnly) {
             return false;
         }
 
-        // In the event of two ops, one who can tweak, one who cannot, we just fall back to not
-        // tweaking
-        if (this->canTweakAlphaForCoverage() != that->canTweakAlphaForCoverage()) {
-            fCanTweakAlphaForCoverage = false;
-        }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
         return true;
     }
 
-    GrColor color() const { return fColor; }
-    bool linesOnly() const { return fLinesOnly; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-    bool canTweakAlphaForCoverage() const { return fCanTweakAlphaForCoverage; }
-    const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
-
-    GrColor fColor;
-    bool fUsesLocalCoords;
-    bool fLinesOnly;
-    bool fCanTweakAlphaForCoverage;
-
     struct PathData {
         SkMatrix fViewMatrix;
         SkPath fPath;
     };
 
+    Helper fHelper;
     SkSTArray<1, PathData, true> fPaths;
+    GrColor fColor;
+    bool fLinesOnly;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
@@ -971,29 +964,21 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    std::unique_ptr<GrLegacyMeshDrawOp> op =
-            AAConvexPathOp::Make(args.fPaint.getColor(), *args.fViewMatrix, path);
-
-    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
-    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-
-    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
-                                                   std::move(op));
-
+    std::unique_ptr<GrDrawOp> op = AAConvexPathOp::Make(std::move(args.fPaint), *args.fViewMatrix,
+                                                        path, args.fUserStencilSettings);
+    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
 
-GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
-    GrColor color = GrRandomColor(random);
+GR_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);
-
-    return AAConvexPathOp::Make(color, viewMatrix, path);
+    const GrUserStencilSettings* stencilSettings = GrGetRandomStencil(random, context);
+    return AAConvexPathOp::Make(std::move(paint), viewMatrix, path, stencilSettings);
 }
 
 #endif
