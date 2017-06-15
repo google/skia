@@ -131,7 +131,9 @@ public:
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override;
+    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                            GrWrapOwnership ownership) override;
     void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
@@ -208,12 +210,11 @@ private:
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
-    // work in the queue to finish before returning. If the signalSemaphore is not VK_NULL_HANDLE,
-    // we will signal the semaphore at the end of this command buffer. If this GrVkGpu object has
-    // any semaphores in fSemaphoresToWaitOn, we will add those wait semaphores to this command
-    // buffer when submitting.
-    void submitCommandBuffer(SyncQueue sync,
-                             const GrVkSemaphore::Resource* signalSemaphore = nullptr);
+    // work in the queue to finish before returning. If this GrVkGpu object has any semaphores in
+    // fSemaphoreToSignal, we will add those signal semaphores to the submission of this command
+    // buffer. If this GrVkGpu object has any semaphores in fSemaphoresToWaitOn, we will add those
+    // wait semaphores to the submission of this command buffer.
+    void submitCommandBuffer(SyncQueue sync);
 
     void internalResolveRenderTarget(GrRenderTarget* target, bool requiresSubmit);
 
@@ -267,6 +268,7 @@ private:
     GrVkPrimaryCommandBuffer*                    fCurrentCmdBuffer;
 
     SkSTArray<1, const GrVkSemaphore::Resource*> fSemaphoresToWaitOn;
+    SkSTArray<1, const GrVkSemaphore::Resource*> fSemaphoresToSignal;
 
     VkPhysicalDeviceMemoryProperties             fPhysDevMemProps;
 

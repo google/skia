@@ -7,6 +7,7 @@
 
 #include "GrResourceProvider.h"
 
+#include "GrBackendSemaphore.h"
 #include "GrBuffer.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -505,8 +506,14 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     return this->gpu()->wrapBackendTextureAsRenderTarget(tex, origin, sampleCnt);
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore() {
-    return fGpu->makeSemaphore();
+sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {
+    return fGpu->makeSemaphore(isOwned);
+}
+
+sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                            GrWrapOwnership ownership) {
+    ASSERT_SINGLE_OWNER
+    return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore, ownership);
 }
 
 void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
