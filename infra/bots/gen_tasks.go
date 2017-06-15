@@ -271,15 +271,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				}
 				d["gpu"] = gpu
 
-				// Hack: Specify machine_type dimension for NUCs and ShuttleCs. We
-				// temporarily have two types of machines with a GTX960. The only way to
-				// distinguish these bots is by machine_type.
-				machine_type, ok := map[string]string{
-					"NUC6i7KYK": "n1-highcpu-8",
-					"ShuttleC":  "n1-standard-8",
+				// Specify cpu dimension for NUCs and ShuttleCs. We temporarily have two
+				// types of machines with a GTX960.
+				cpu, ok := map[string]string{
+					"NUC6i7KYK": "x86-64-i7-6770HQ",
+					"ShuttleC":  "x86-64-i7-6700K",
 				}[parts["model"]]
 				if ok {
-					d["machine_type"] = machine_type
+					d["cpu"] = cpu
 				}
 			} else if strings.Contains(parts["os"], "Ubuntu") {
 				gpu, ok := map[string]string{
