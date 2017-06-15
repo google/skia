@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc292338_592258ed",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-15T20:00:40Z",
+      "side": 1,
+      "message": "This test up here was supposed to catch that sort of thing (but doesn\u0027t always). Part of the issue here is historical, bits of this got written before we were doing a numerically stable QR decomposition below. Now that we are, we should be using that directly all the time (a bit more broadly than in this CL). I created https://skia-review.googlesource.com/c/20054/ to do that and and some tests.",
+      "range": {
+        "startLine": 716,
+        "startChar": 0,
+        "endLine": 719,
+        "endChar": 73
+      },
+      "revId": "5f8d5f2379bb920b1a4e46703dece1bc79ee17e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
