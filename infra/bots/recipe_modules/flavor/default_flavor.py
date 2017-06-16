@@ -140,7 +140,7 @@ class DefaultFlavorUtils(object):
   def create_clean_host_dir(self, path):
     """Convenience function for creating a clean directory."""
     self.m.run.rmtree(path)
-    self.m.file.makedirs(
+    self.m.shutil.makedirs(
         self.m.path.basename(path), path, infra_step=True)
 
   def install(self):
