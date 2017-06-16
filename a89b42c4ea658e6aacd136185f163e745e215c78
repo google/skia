@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4eda7c32_fdf8c94a",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-16T21:28:14Z",
+      "side": 1,
+      "message": "I think I like this change...  It is maybe a little strange to remove the cost of writing to the stream, but it does remove a variable that we are not interested in at the moment.",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 25
+      },
+      "revId": "a89b42c4ea658e6aacd136185f163e745e215c78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
