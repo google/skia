@@ -26,18 +26,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "remove",
       "[CUSTOM_/_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
@@ -357,13 +353,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/luci-go"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree luci-go"
   },
@@ -371,11 +366,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/tools/luci-go",
-      "[START_DIR]/luci-go",
-      "0"
+      "[START_DIR]/luci-go"
     ],
+    "infra_step": true,
     "name": "Copy Go binary",
     "~followup_annotations": [
       "@@@SET_BUILD_PROPERTY@Download SKPs by rank@\"https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/\"@@@",
@@ -386,13 +384,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/swarming_temp_dir"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree swarming_temp_dir"
   },
@@ -400,13 +397,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave1"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave1"
   },
@@ -418,6 +414,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave1",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave1",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -463,6 +460,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -481,23 +479,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-1.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-get_images_from_skps-1.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave2"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave2"
   },
@@ -509,6 +510,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave2",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave2",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -554,6 +556,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (2)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -572,23 +575,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-2.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-get_images_from_skps-2.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave3"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave3"
   },
@@ -600,6 +606,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave3",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave3",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -645,6 +652,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (3)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -663,23 +671,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-3.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-get_images_from_skps-3.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave4"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave4"
   },
@@ -691,6 +702,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave4",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave4",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -736,6 +748,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (4)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -754,23 +767,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-4.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-get_images_from_skps-4.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave5"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave5"
   },
@@ -782,6 +798,7 @@
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/slave5",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave5",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -827,6 +844,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (5)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -845,17 +863,24 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-get_images_from_skps-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"get_images_from_skps\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-get_images_from_skps-5.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-get_images_from_skps-5.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\"chromium_build\": \"c37e844a6f8708-eee762104c75bd\", \"num_slaves\": 5, \"page_type\": \"10k\"}",
       "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_10k_SKPs/skps_version"
     ],
