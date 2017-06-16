@@ -26,18 +26,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "remove",
       "[CUSTOM_/_B_WORK]/.gclient_entries"
     ],
     "infra_step": true,
-    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries"
   },
   {
     "cmd": [
@@ -353,13 +349,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/luci-go"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree luci-go"
   },
@@ -367,11 +362,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
       "[CUSTOM_/_B_WORK]/skia/infra/bots/tools/luci-go",
-      "[START_DIR]/luci-go",
-      "0"
+      "[START_DIR]/luci-go"
     ],
+    "infra_step": true,
     "name": "Copy Go binary",
     "~followup_annotations": [
       "@@@SET_BUILD_PROPERTY@Download SKPs by rank@\"https://pantheon.corp.google.com/storage/browser/cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/\"@@@",
@@ -382,13 +380,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/swarming_temp_dir"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree swarming_temp_dir"
   },
@@ -396,13 +393,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave1"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave1"
   },
@@ -414,6 +410,7 @@
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave1",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave1",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -459,6 +456,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -477,23 +475,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-1.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-nanobench-1.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave2"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave2"
   },
@@ -505,6 +506,7 @@
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave2",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave2",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -550,6 +552,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (2)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -568,23 +571,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-2.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-nanobench-2.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave3"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave3"
   },
@@ -596,6 +602,7 @@
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave3",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave3",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -641,6 +648,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (3)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -659,23 +667,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-3.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-nanobench-3.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave4"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave4"
   },
@@ -687,6 +698,7 @@
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave4",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave4",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -732,6 +744,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (4)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -750,23 +763,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-4.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-nanobench-4.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave5"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave5"
   },
@@ -778,6 +794,7 @@
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/slave5",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave5",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -823,6 +840,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir (5)",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -841,17 +859,24 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-nanobench-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Release\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"nanobench\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-nanobench-5.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write ct-nanobench-5.isolated.gen.json"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\"chromium_build\": \"c37e844a6f8708-eee762104c75bd\", \"num_slaves\": 5, \"page_type\": \"10k\"}",
       "[CUSTOM_/_B_WORK]/skps/Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_10k_SKPs/skps_version"
     ],
@@ -1326,23 +1351,19 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
-      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1/0",
-      "/path/to/tmp/json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1/0"
     ],
+    "infra_step": true,
     "name": "listdir output dir",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 2\"@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1/0/file 1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-1/0/file 2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
     ]
   },
   {
@@ -1472,23 +1493,19 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
-      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2/0",
-      "/path/to/tmp/json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2/0"
     ],
+    "infra_step": true,
     "name": "listdir output dir (2)",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 2\"@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2/0/file 1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-2/0/file 2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
     ]
   },
   {
@@ -1618,23 +1635,19 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
-      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3/0",
-      "/path/to/tmp/json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3/0"
     ],
+    "infra_step": true,
     "name": "listdir output dir (3)",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 2\"@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3/0/file 1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-3/0/file 2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
     ]
   },
   {
@@ -1764,23 +1777,19 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
-      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4/0",
-      "/path/to/tmp/json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4/0"
     ],
+    "infra_step": true,
     "name": "listdir output dir (4)",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 2\"@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4/0/file 1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-4/0/file 2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
     ]
   },
   {
@@ -1910,23 +1919,19 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport json, os, sys\nif os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):\n  with open(sys.argv[2], 'w') as f:\n    json.dump(os.listdir(sys.argv[1]), f)\n",
-      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5/0",
-      "/path/to/tmp/json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5/0"
     ],
+    "infra_step": true,
     "name": "listdir output dir (5)",
+    "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@json.output@[@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 1\", @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"file 2\"@@@",
-      "@@@STEP_LOG_LINE@json.output@]@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json, os, sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@if os.path.exists(sys.argv[1]) and os.path.isdir(sys.argv[1]):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  with open(sys.argv[2], 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    json.dump(os.listdir(sys.argv[1]), f)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5/0/file 1@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/swarming_temp_dir/outputs/ct-nanobench-5/0/file 2@@@",
+      "@@@STEP_LOG_END@listdir@@@"
     ]
   },
   {

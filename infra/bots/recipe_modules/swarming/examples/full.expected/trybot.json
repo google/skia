@@ -283,12 +283,14 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[TMP_BASE]/hello_isolated_world_tmp_1"
     ],
     "infra_step": true,
-    "name": "rmtree remove temp dir"
+    "name": "remove temp dir"
   },
   {
     "name": "$result",
