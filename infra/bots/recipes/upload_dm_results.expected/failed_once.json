@@ -78,18 +78,26 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport glob\nimport sys\nwith open(sys.argv[1], 'w') as f:\n  f.write('\\n'.join(glob.glob(sys.argv[2])))\n",
-      "/path/to/tmp/",
-      "[START_DIR]/dm/*"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/dm",
+      "*.png"
     ],
     "infra_step": true,
-    "name": "find images"
+    "name": "find images",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/dm/someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
   },
   {
     "cmd": [
       "gsutil",
       "cp",
-      "[START_DIR]/dm/*",
+      "[START_DIR]/dm/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
     "name": "upload images",
@@ -102,10 +110,29 @@
     "cmd": [
       "gsutil",
       "cp",
-      "[START_DIR]/dm/*",
+      "[START_DIR]/dm/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
     "name": "upload images (attempt 2)"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/dm",
+      "*.pdf"
+    ],
+    "infra_step": true,
+    "name": "find images (2)",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/dm/someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
   },
   {
     "cmd": [

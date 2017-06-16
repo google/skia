@@ -7,16 +7,17 @@
 
 
 DEPS = [
+  'core',
   'depot_tools/gclient',
-  'file',
+  'infra',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
+  'recipe_engine/shutil',
   'recipe_engine/step',
-  'core',
-  'infra',
   'run',
   'vars',
 ]
@@ -58,8 +59,8 @@ def RunSteps(api):
   # Clean up the output dir.
   output_dir = api.path['start_dir'].join('skp_output')
   if api.path.exists(output_dir):
-    api.file.rmtree('skp_output', output_dir)
-  api.file.makedirs('skp_output', output_dir)
+    api.run.rmtree(output_dir)
+  api.shutil.makedirs('skp_output', output_dir, infra_step=True)
 
   # Capture the SKPs.
   asset_dir = api.vars.infrabots_dir.join('assets', 'skp')

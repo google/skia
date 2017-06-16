@@ -11,8 +11,8 @@
 import json
 
 DEPS = [
-  'file',
   'isolate',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',

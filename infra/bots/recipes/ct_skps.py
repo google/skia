@@ -7,17 +7,18 @@ import math
 
 
 DEPS = [
+  'core',
+  'ct',
   'depot_tools/gsutil',
-  'file',
+  'flavor',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/time',
-  'core',
-  'ct',
-  'flavor',
   'run',
   'skia_swarming',
   'vars',
@@ -123,11 +124,10 @@ def RunSteps(api):
   skps_dir = api.vars.checkout_root.join('skps', buildername)
   version_file = skps_dir.join(SKPS_VERSION_FILE)
   if api.path.exists(version_file):  # pragma: nocover
-    version_file_contents = api.file.read(
+    version_file_contents = api.file.read_text(
         "Read %s" % version_file,
         version_file,
-        test_data=expected_version_contents,
-        infra_step=True)
+        test_data=expected_version_contents)
     actual_version_contents = api.json.loads(version_file_contents)
     differences = (set(expected_version_contents.items()) ^
                    set(actual_version_contents.items()))
@@ -135,7 +135,8 @@ def RunSteps(api):
     if download_skps:
       # Delete and recreate the skps dir.
       api.run.rmtree(skps_dir)
-      api.file.makedirs(api.path.basename(skps_dir), skps_dir)
+      api.shutil.makedirs(
+          api.path.basename(skps_dir), skps_dir, infra_step=True)
 
   # If a blacklist file exists then specify SKPs to be blacklisted.
   blacklists_dir = api.vars.skia_dir.join('infra', 'bots', 'ct', 'blacklists')
@@ -143,10 +144,9 @@ def RunSteps(api):
       '%s_%s_%s.json' % (skia_tool, ct_page_type, skps_chromium_build))
   blacklist_skps = []
   if api.path.exists(blacklist_file):  # pragma: nocover
-    blacklist_file_contents = api.file.read(
+    blacklist_file_contents = api.file.read_text(
         "Read %s" % blacklist_file,
-        blacklist_file,
-        infra_step=True)
+        blacklist_file)
     blacklist_skps = api.json.loads(blacklist_file_contents)['blacklisted_skps']
 
   for slave_num in range(1, ct_num_slaves + 1):
@@ -172,10 +172,9 @@ def RunSteps(api):
 
   if download_skps:
     # Since we had to download SKPs create an updated version file.
-    api.file.write("Create %s" % version_file,
-                   version_file,
-                   api.json.dumps(expected_version_contents),
-                   infra_step=True)
+    api.file.write_text("Create %s" % version_file,
+                        version_file,
+                        api.json.dumps(expected_version_contents))
 
   # Batcharchive everything on the isolate server for efficiency.
   max_slaves_to_batcharchive = MAX_SLAVES_TO_BATCHARCHIVE
@@ -213,11 +212,12 @@ def RunSteps(api):
         utc = api.time.utcnow()
         gs_dest_dir = 'ct/%s/%d/%02d/%02d/%02d/' % (
             ct_page_type, utc.year, utc.month, utc.day, utc.hour)
-        for json_output in api.file.listdir('output dir', output_dir):
+        for json_output in api.file.listdir(
+            'listdir output dir', output_dir, test_data=['file 1', 'file 2']):
           with api.context(env=env):
             api.gsutil.upload(
                 name='upload json output',
-                source=output_dir.join(json_output),
+                source=json_output,
                 bucket='skia-perf',
                 dest=gs_dest_dir,
                 args=['-R']

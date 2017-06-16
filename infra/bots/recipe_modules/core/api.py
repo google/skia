@@ -26,7 +26,7 @@ class SkiaApi(recipe_api.RecipeApi):
     self.checkout_steps()
 
     if not self.m.path.exists(self.m.vars.tmp_dir):
-      self.m.run.run_once(self.m.file.makedirs,
+      self.m.run.run_once(self.m.shutil.makedirs,
                           'tmp_dir',
                           self.m.vars.tmp_dir,
                           infra_step=True)
@@ -46,9 +46,9 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Create the checkout path if necessary.
     if not self.m.path.exists(self.m.vars.checkout_root):
-      self.m.file.makedirs('checkout_path',
-                           self.m.vars.checkout_root,
-                           infra_step=True)
+      self.m.shutil.makedirs('checkout_path',
+                             self.m.vars.checkout_root,
+                             infra_step=True)
 
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
@@ -114,8 +114,7 @@ class SkiaApi(recipe_api.RecipeApi):
     entries_file = self.m.vars.checkout_root.join('.gclient_entries')
     if self.m.path.exists(entries_file) or self._test_data.enabled:
       self.m.file.remove('remove %s' % entries_file,
-                         entries_file,
-                         infra_step=True)
+                         entries_file)
 
     if self.m.vars.need_chromium_checkout:
       chromium = gclient_cfg.solutions.add()

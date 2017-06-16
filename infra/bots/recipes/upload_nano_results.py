@@ -7,8 +7,8 @@
 
 
 DEPS = [
-  'file',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
@@ -24,11 +24,11 @@ def RunSteps(api):
   src_path = api.path['start_dir'].join(
       'perfdata', builder_name, 'data')
   with api.context(cwd=src_path):
-    results = api.file.glob(
+    results = api.file.glob_paths(
         'find results',
-        src_path.join('*.json'),
-        test_data=[src_path.join('nanobench_abc123.json')],
-        infra_step=True)
+        src_path,
+        '*.json',
+        test_data=['nanobench_abc123.json'])
   if len(results) != 1:  # pragma: nocover
     raise Exception('Unable to find nanobench or skpbench JSON file!')
 

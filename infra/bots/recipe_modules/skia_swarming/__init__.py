@@ -4,14 +4,15 @@
 
 DEPS = [
   'depot_tools/depot_tools',
-  'file',
   'isolate',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
+  'recipe_engine/shutil',
   'recipe_engine/step',
   'run',
   'swarming',

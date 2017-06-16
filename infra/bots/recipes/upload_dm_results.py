@@ -10,7 +10,7 @@ import calendar
 
 
 DEPS = [
-  'file',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -62,13 +62,16 @@ def RunSteps(api):
 
   # Upload the images.
   image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
-  files_to_upload = api.file.glob(
-      'find images',
-      results_dir.join('*'),
-      test_data=[results_dir.join('someimage.png')],
-      infra_step=True)
-  if len(files_to_upload) > 0:
-    cp(api, 'images', results_dir.join('*'), image_dest_path)
+  for ext in ['.png', '.pdf']:
+    files_to_upload = api.file.glob_paths(
+        'find images',
+        results_dir,
+        '*%s' % ext,
+        test_data=['someimage.png'])
+    # For some reason, glob returns results_dir when it should return nothing.
+    files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
+    if len(files_to_upload) > 0:
+      cp(api, 'images', results_dir.join('*%s' % ext), image_dest_path)
 
   # Upload the JSON summary and verbose.log.
   now = api.time.utcnow()

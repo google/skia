@@ -3,13 +3,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/skps/slave0"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree slave0"
   },
@@ -21,6 +20,7 @@
       "[START_DIR]/skps/slave0",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs slave0",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
