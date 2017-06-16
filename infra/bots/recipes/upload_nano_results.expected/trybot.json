@@ -3,13 +3,21 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport glob\nimport sys\nwith open(sys.argv[1], 'w') as f:\n  f.write('\\n'.join(glob.glob(sys.argv[2])))\n",
-      "/path/to/tmp/",
-      "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data/*.json"
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data",
+      "*.json"
     ],
     "cwd": "[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data",
     "infra_step": true,
-    "name": "find results"
+    "name": "find results",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perfdata/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug/data/nanobench_abc123.json@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
   },
   {
     "cmd": [
