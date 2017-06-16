@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fed51e6_3923a863",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-16T17:55:13Z",
+      "side": 1,
+      "message": "Can you pull this out into a function?  write_description()?  Or add a comment?\n\nGiven that this appears fairly complicated, I think it would be useful to document that this is just creating a unique string for the name.",
+      "range": {
+        "startLine": 346,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 56
+      },
+      "revId": "8c0529d84492d169085766b475f3a94b32824329",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
