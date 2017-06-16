@@ -253,12 +253,14 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
             case kRGB_565_SkColorType:
                 index |= 8;
                 break;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8
             case kIndex_8_SkColorType:
                 if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
                     return false;
                 }
                 index |= 16;
                 break;
+#endif
             case kARGB_4444_SkColorType:
                 if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
                     return false;
