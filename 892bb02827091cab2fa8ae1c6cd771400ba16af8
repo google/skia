@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d8ed002_cac6ad25",
+        "filename": "tests/ICCTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-16T20:51:40Z",
+      "side": 1,
+      "message": "nit: Can we just use memcmp()?",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 1
+      },
+      "revId": "892bb02827091cab2fa8ae1c6cd771400ba16af8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
