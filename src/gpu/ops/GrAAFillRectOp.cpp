@@ -361,14 +361,6 @@ std::unique_ptr<GrDrawOp> MakeAAFill(GrPaint&& paint, const SkMatrix& viewMatrix
     return AAFillRectOp::Make(std::move(paint), viewMatrix, rect, devRect, nullptr, stencil);
 }
 
-std::unique_ptr<GrDrawOp> MakeAAFillWithDevRect(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                                const SkRect& rect, const SkRect& devRect) {
-    if (!view_matrix_ok_for_aa_fill_rect(viewMatrix)) {
-        return nullptr;
-    }
-    return AAFillRectOp::Make(std::move(paint), viewMatrix, rect, devRect, nullptr, nullptr);
-}
-
 std::unique_ptr<GrDrawOp> MakeAAFillWithLocalMatrix(GrPaint&& paint, const SkMatrix& viewMatrix,
                                                     const SkMatrix& localMatrix,
                                                     const SkRect& rect) {
