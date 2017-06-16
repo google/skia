@@ -91,7 +91,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
     self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
     # We only build perf for the chromecasts.
-    self._run('ninja', ninja, '-C', self.out_dir, 'nanobench')
+    self._run('ninja', ninja, '-C', self.out_dir, 'nanobench', 'dm')
 
   def _adb(self, title, *cmd, **kwargs):
     if not self._ever_ran_adb:
