@@ -14,6 +14,7 @@
 #include "SkFixed.h"
 #include "SkICC.h"
 #include "SkICCPriv.h"
+#include "SkMD5.h"
 
 SkICC::SkICC(sk_sp<SkColorSpace> colorSpace)
     : fColorSpace(std::move(colorSpace))
@@ -139,19 +140,19 @@ bool SkICC::rawTransferFnData(Tables* tables) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Google Skia (UTF-16)
-static constexpr uint8_t kDescriptionTagBody[] = {
-        0x00, 0x47, 0x00, 0x6f, 0x00, 0x6f, 0x00, 0x67, 0x00, 0x6c, 0x00, 0x65, 0x00, 0x20, 0x00,
-        0x53, 0x00, 0x6b, 0x00, 0x69, 0x00, 0x61, 0x00, 0x20,
-    };
-static_assert(SkIsAlign4(sizeof(kDescriptionTagBody)), "Description must be aligned to 4-bytes.");
+static constexpr char kDescriptionTagBodyPrefix[12] =
+        { 'G', 'o', 'o', 'g', 'l', 'e', '/', 'S', 'k', 'i', 'a' , '/'};
+static constexpr size_t kDescriptionTagBodySize =
+        (sizeof(kDescriptionTagBodyPrefix) + 2 * sizeof(SkMD5::Digest)) * 2;
+
+static_assert(SkIsAlign4(kDescriptionTagBodySize), "Description must be aligned to 4-bytes.");
 static constexpr uint32_t kDescriptionTagHeader[7] {
     SkEndian_SwapBE32(kTAG_TextType),                        // Type signature
     0,                                                       // Reserved
     SkEndian_SwapBE32(1),                                    // Number of records
     SkEndian_SwapBE32(12),                                   // Record size (must be 12)
     SkEndian_SwapBE32(SkSetFourByteTag('e', 'n', 'U', 'S')), // English USA
-    SkEndian_SwapBE32(sizeof(kDescriptionTagBody)),          // Length of string
+    SkEndian_SwapBE32(kDescriptionTagBodySize),              // Length of string
     SkEndian_SwapBE32(28),                                   // Offset of string
 };
 
@@ -185,7 +186,7 @@ static constexpr uint32_t kICCNumEntries = 9;
 
 static constexpr uint32_t kTAG_desc = SkSetFourByteTag('d', 'e', 's', 'c');
 static constexpr uint32_t kTAG_desc_Bytes = sizeof(kDescriptionTagHeader) +
-                                            sizeof(kDescriptionTagBody);
+                                            kDescriptionTagBodySize;
 static constexpr uint32_t kTAG_desc_Offset = kICCHeaderSize +
                                              kICCNumEntries * kICCTagTableEntrySize;
 
@@ -307,6 +308,27 @@ static bool is_3x3(const SkMatrix44& toXYZD50) {
            1.0f == toXYZD50.get(3, 3);
 }
 
+static void write_md5(SkMD5* md5, SkScalar value) { md5->write(&value, sizeof(value)); }
+
+static void checksum(SkMD5::Digest* digest,
+                     const SkColorSpaceTransferFn& fn,
+                     const SkMatrix44& toXYZD50) {
+    SkMD5 md5;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            write_md5(&md5, toXYZD50.get(i,j));
+        }
+    }
+    write_md5(&md5, fn.fG);
+    write_md5(&md5, fn.fA);
+    write_md5(&md5, fn.fB);
+    write_md5(&md5, fn.fC);
+    write_md5(&md5, fn.fD);
+    write_md5(&md5, fn.fE);
+    write_md5(&md5, fn.fF);
+    md5.finish(*digest);
+}
+
 sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix44& toXYZD50) {
     if (!is_3x3(toXYZD50) || !is_valid_transfer_fn(fn)) {
         return nullptr;
@@ -326,8 +348,22 @@ sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix
     // Write profile description tag
     memcpy(ptr, kDescriptionTagHeader, sizeof(kDescriptionTagHeader));
     ptr += sizeof(kDescriptionTagHeader);
-    memcpy(ptr, kDescriptionTagBody, sizeof(kDescriptionTagBody));
-    ptr += sizeof(kDescriptionTagBody);
+
+    SkDEBUGCODE(const uint8_t* const ptrCheck = ptr);
+    for (unsigned i = 0; i < sizeof(kDescriptionTagBodyPrefix); ++i) {
+        *ptr++ = 0;
+        *ptr++ = kDescriptionTagBodyPrefix[i];
+    }
+    SkMD5::Digest digest;
+    checksum(&digest, fn, toXYZD50);
+    for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
+        static const char gHex[] = "0123456789ABCDEF";
+        *ptr++ = 0;
+        *ptr++ = gHex[digest.data[i] >> 4];
+        *ptr++ = 0;
+        *ptr++ = gHex[digest.data[i] & 0xF];
+    }
+    SkASSERT(ptr == ptrCheck + kDescriptionTagBodySize);
 
     // Write XYZ tags
     write_xyz_tag((uint32_t*) ptr, toXYZD50, 0);
