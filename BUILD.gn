@@ -139,6 +139,7 @@ config("skia_private") {
     "src/utils/win",
     "src/xml",
     "third_party/gif",
+    "$root_out_dir/src",
   ]
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
@@ -345,6 +346,9 @@ template("optional") {
 
 optional("effects") {
   enabled = skia_enable_effects
+  deps = [
+    ":compile_processors",
+  ]
   sources =
       skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
   sources_when_disabled = [ "src/ports/SkGlobalInitialization_none.cpp" ]
@@ -410,12 +414,72 @@ optional("fontmgr_fuchsia") {
   ]
 }
 
+if (skia_enable_gpu) {
+  executable("skslc") {
+    defines = [ "SKSL_STANDALONE" ]
+    sources = [
+      "src/sksl/SkSLMain.cpp",
+    ]
+    sources += skia_sksl_sources
+    include_dirs = skia_public_includes
+    include_dirs += [
+      "src/gpu",
+      "src/sksl",
+    ]
+    deps = [
+      "//third_party/spirv-tools",
+    ]
+  }
+
+  gpu_processor_outputs = [
+    "$root_out_dir/src/effects/GrDitherEffect.h",
+    "$root_out_dir/src/effects/GrDitherEffect.cpp",
+  ]
+
+  if (host_os == "win") {
+    host_executable_suffix = ".exe"
+  } else {
+    host_executable_suffix = ""
+  }
+
+  action("compile_processors") {
+    script = "gn/compile_processors.py"
+    deps = [
+      ":skslc(//gn/toolchain:$host_toolchain)",
+    ]
+    sources = [
+      rebase_path("src/gpu/effects/GrDitherEffect.fp"),
+    ]
+    outputs = gpu_processor_outputs
+    skslc_path = "$root_out_dir/"
+    if (host_toolchain != default_toolchain) {
+      print("appending $host_toolchain (!= $default_toolchain)")
+      skslc_path += "$host_toolchain/"
+    }
+    skslc_path += "skslc" + host_executable_suffix
+    print("using path " + rebase_path(skslc_path))
+    args = [
+      rebase_path(skslc_path),
+      rebase_path("$root_out_dir/src/effects"),
+    ]
+    args += sources
+  }
+} else {
+  gpu_processor_outputs = []
+  group("compile_processors") {
+  }
+}
+
 optional("gpu") {
   enabled = skia_enable_gpu
+  deps = [
+    ":compile_processors",
+  ]
   public_defines = []
 
-  sources = skia_gpu_sources + skia_sksl_sources +
-            [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
+  sources =
+      skia_gpu_sources + skia_sksl_sources +
+      [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ] + gpu_processor_outputs
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
   sources -= get_path_info([
@@ -454,9 +518,7 @@ optional("gpu") {
     }
   }
   if (skia_enable_spirv_validation) {
-    deps = [
-      "//third_party/spirv-tools",
-    ]
+    deps += [ "//third_party/spirv-tools" ]
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 }
@@ -1517,17 +1579,6 @@ if (skia_enable_tools) {
       outputs = [
         "$root_out_dir/gdbserver",
       ]
-    }
-  }
-
-  if (skia_enable_gpu) {
-    test_app("skslc") {
-      defines = [ "SKSL_STANDALONE" ]
-      sources = [
-        "src/sksl/SkSLMain.cpp",
-      ]
-      sources += skia_sksl_sources
-      include_dirs = [ "src/sksl" ]
     }
   }
 }
