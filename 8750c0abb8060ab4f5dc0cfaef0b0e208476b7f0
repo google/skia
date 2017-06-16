@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c910cd75_46ca7f47",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-16T21:21:59Z",
+      "side": 1,
+      "message": "I think this is sometimes a lie... meaning we won\u0027t preserve the gen id if we need to make a copy.  However, I think it is fine to preserve the gen id in the copy case - we\u0027re just not doing it.\n\nCan we fix this to preserve the gen id and then assert that it is preserved?",
+      "range": {
+        "startLine": 343,
+        "startChar": 15,
+        "endLine": 343,
+        "endChar": 56
+      },
+      "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
