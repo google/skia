@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "257c71d4_d973948f",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-16T11:06:04Z",
+      "side": 1,
+      "message": "This made me wonder whether we will actually flush pending reads from the surface (in MDB). It only seems necessary if the client is going to write directly into the surface rather than just read. Maybe for now we should say writes? We have this enum for accessing the texture/rt handles:\n\n    enum BackendHandleAccess {\n        kFlushRead_BackendHandleAccess,     //!\u003c caller may read from the backend object\n        kFlushWrite_BackendHandleAccess,    //!\u003c caller may write to the backend object\n        kDiscardWrite_BackendHandleAccess,  //!\u003c caller must over-write the entire backend object\n    };\n\nPerhaps it is sufficient to only have this fine grained control on the methods that return the backend objects. Or we could completely separate these concerns and make the client call flush() and then getBackendFoo(). We should probably decide on something soon before we go changing old clients and telling new clients what pattern to use.",
+      "range": {
+        "startLine": 347,
+        "startChar": 11,
+        "endLine": 347,
+        "endChar": 29
+      },
+      "revId": "d09bc2856de4173f5c3f6c4fb349cf0f019e4669",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
