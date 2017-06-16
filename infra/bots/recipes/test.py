@@ -36,6 +36,9 @@ def dm_flags(bot):
   if '-x86-' in bot and not 'NexusPlayer' in bot:
     args.extend('--threads 4'.split(' '))
 
+  if 'Chromecast' in bot:
+    args.extend('--threads 0'.split(' '))
+
   # Avoid issues with dynamically exceeding resource cache limits.
   if 'Test' in bot and 'DISCARDABLE' in bot:
     args.extend('--threads 0'.split(' '))
@@ -141,6 +144,10 @@ def dm_flags(bot):
     # Just run GLES for now - maybe add gles_msaa4 in the future
     configs = ['gles']
 
+  if 'Chromecast' in bot:
+    # Just run GLES for now - maybe add gles_msaa4 in the future
+    configs = ['gles', '8888']
+
   if 'Ci20' in bot:
     # This bot is really slow, cut it down to just 8888.
     configs = ['8888']
@@ -242,7 +249,7 @@ def dm_flags(bot):
   if 'Win' in bot or 'Mac' in bot:
     blacklist('_ image gen_platf testimgari.jpg')
 
-  if 'Android' in bot or 'iOS' in bot:
+  if 'Android' in bot or 'iOS' in bot or 'Chromecast' in bot:
     # This test crashes the N9 (perhaps because of large malloc/frees). It also
     # is fairly slow and not platform-specific. So we just disable it on all of
     # Android and iOS. skia:5438
@@ -300,7 +307,7 @@ def dm_flags(bot):
     for test in ['bleed_alpha_image', 'bleed_alpha_image_shader']:
       blacklist(['serialize-8888', 'gm', '_', test])
   # It looks like we skip these only for out-of-memory concerns.
-  if 'Win' in bot or 'Android' in bot:
+  if 'Win' in bot or 'Android' in bot or 'Chromecast' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
 
@@ -395,6 +402,12 @@ def dm_flags(bot):
 
   if 'AndroidOne' in bot:  # skia:4711
     match.append('~WritePixels')
+
+  if 'Chromecast' in bot: # skia:6581
+    match.append('~matrixconvolution')
+    match.append('~blur_image_filter')
+    match.append('~blur_0.01')
+    match.append('~GM_animated-image-blurs')
 
   if 'NexusPlayer' in bot:
     match.append('~ResourceCache')
@@ -669,6 +682,17 @@ def test_steps(api):
   if api.vars.upload_dm_results:
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
+  if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
+    # Due to limited disk space, we only deal with skps and one image.
+    args = [
+      'dm',
+      '--undefok',   # This helps branches that may not know new flags.
+      '--resourcePath', api.flavor.device_dirs.resource_dir,
+      '--skps', api.flavor.device_dirs.skp_dir,
+      '--images', api.flavor.device_path_join(
+          api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
+    ]
+
   skip_flag = None
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
     skip_flag = '--nogpu'
@@ -728,7 +752,10 @@ def RunSteps(api):
     env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
   with api.context(env=env):
     try:
-      api.flavor.install_everything()
+      if 'Chromecast' in api.vars.builder_name:
+        api.flavor.install(resources=True, skps=True)
+      else:
+        api.flavor.install_everything()
       test_steps(api)
     finally:
       api.flavor.cleanup_steps()
@@ -750,6 +777,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
+  'Test-Chromecast-GCC-Chorizo-GPU-Cortex_A7-arm-Release',
   'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
   'Test-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Debug-CommandBuffer',
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
@@ -808,6 +836,11 @@ def GenTests(api):
     )
     if 'Win' in builder:
       test += api.platform('win', 64)
+
+    if 'Chromecast' in builder:
+      test += api.step_data(
+          'read chromecast ip',
+          stdout=api.raw_io.output('192.168.1.2:5555'))
 
     if 'ChromeOS' in builder:
       test += api.step_data(
