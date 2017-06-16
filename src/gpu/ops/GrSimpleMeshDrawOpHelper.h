@@ -94,8 +94,9 @@ public:
         return result;
     }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
-                              GrProcessorAnalysisCoverage geometryCoverage, GrColor* color) {
+    GrDrawOp::RequiresDstTexture xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
+                                                      GrProcessorAnalysisCoverage geometryCoverage,
+                                                      GrColor* color) {
         SkDEBUGCODE(fDidAnalysis = true);
         GrProcessorSet::Analysis analysis;
         if (fProcessors) {
@@ -113,7 +114,8 @@ public:
         fRequiresDstTexture = analysis.requiresDstTexture();
         fUsesLocalCoords = analysis.usesLocalCoords();
         fCompatibleWithAlphaAsCoveage = analysis.isCompatibleWithCoverageAsAlpha();
-        return analysis.requiresDstTexture();
+        return analysis.requiresDstTexture() ? GrDrawOp::RequiresDstTexture::kYes
+                                             : GrDrawOp::RequiresDstTexture::kNo;
     }
 
     bool usesLocalCoords() const {

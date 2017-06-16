@@ -131,9 +131,9 @@ public:
         SkFAIL("This should never be called for legacy mesh draw ops.");
         return FixedFunctionFlags::kNone;
     }
-    bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) override {
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         SkFAIL("Should never be called for legacy mesh draw ops.");
-        return false;
+        return RequiresDstTexture::kNo;
     }
 
 protected:

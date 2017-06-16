@@ -30,8 +30,9 @@ protected:
         }
         return FixedFunctionFlags::kUsesStencil;
     }
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return this->doProcessorAnalysis(caps, clip).requiresDstTexture();
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return this->doProcessorAnalysis(caps, clip).requiresDstTexture() ? RequiresDstTexture::kYes
+                                                                          : RequiresDstTexture::kNo;
     }
 
 protected:
