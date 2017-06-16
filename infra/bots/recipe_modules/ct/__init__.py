@@ -4,8 +4,8 @@
 
 DEPS = [
   'depot_tools/gsutil',
-  'file',
   'recipe_engine/path',
+  'recipe_engine/shutil',
   'recipe_engine/step',
   'run',
 ]
