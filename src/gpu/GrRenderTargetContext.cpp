@@ -1546,11 +1546,11 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
             if (fills_as_nested_rects(viewMatrix, path, rects)) {
                 std::unique_ptr<GrDrawOp> op =
                         GrRectOpFactory::MakeAAFillNestedRects(std::move(paint), viewMatrix, rects);
-                if (!op) {
-                    // A null return indicates that there is nothing to draw in this case.
-                    return;
+                if (op) {
+                    this->addDrawOp(clip, std::move(op));
                 }
-                this->addDrawOp(clip, std::move(op));
+                // A null return indicates that there is nothing to draw in this case.
+                return;
             }
         }
         SkRect ovalRect;

@@ -23,9 +23,11 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
         fFragmentProcessors.reset(paint.numTotalFragmentProcessors());
         int i = 0;
         for (auto& fp : paint.fColorFragmentProcessors) {
+            SkASSERT(fp.get());
             fFragmentProcessors[i++] = fp.release();
         }
         for (auto& fp : paint.fCoverageFragmentProcessors) {
+            SkASSERT(fp.get());
             fFragmentProcessors[i++] = fp.release();
         }
     } else {
