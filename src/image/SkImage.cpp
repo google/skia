@@ -348,7 +348,8 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
                                             const DeferredTextureImageUsageParams[],
                                             int paramCnt, void* buffer,
-                                            SkColorSpace* dstColorSpace) const {
+                                            SkColorSpace* dstColorSpace,
+                                            SkColorType dstColorType) const {
     return 0;
 }
 
