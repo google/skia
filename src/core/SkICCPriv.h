@@ -49,4 +49,15 @@ enum ParaCurveType {
     kGABDE_ParaCurveType       = 3,
     kGABCDEF_ParaCurveType     = 4,
 };
+
+/*
+ * Given fn and toXYZD50, generate a ICC decription tag that includes a hash of
+ * the input.  If ptr is not nullptr, write the tag there.  Always returns
+ * length of the tag.
+ *
+ * Exposed for unit testing.
+ */
+size_t SkICCWriteDescriptionTag(uint8_t* ptr,
+                                const SkColorSpaceTransferFn& fn,
+                                const SkMatrix44& toXYZD50);
 #endif  // SkICCPriv_DEFINED

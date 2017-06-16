@@ -11,6 +11,7 @@
 #include "SkColorSpace_XYZ.h"
 #include "SkData.h"
 #include "SkICC.h"
+#include "SkICCPriv.h"
 #include "SkMatrix44.h"
 #include "SkStream.h"
 #include "Test.h"
@@ -112,6 +113,14 @@ static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTrans
     REPORTER_ASSERT(r, SkColorSpace::Equals(reference, colorSpace.get()));
 }
 
+template <typename T>
+static bool equal(const SkTArray<T>& u, const SkTArray<T>& v) {
+    if (u.count() != v.count()) {
+        return false;
+    }
+    return u.count() == 0 || 0 == memcmp(&u[0], &v[0], sizeof(T) * u.count());
+}
+
 DEF_TEST(ICC_WriteICC, r) {
     SkColorSpaceTransferFn adobeFn;
     adobeFn.fA = 1.0f;
@@ -138,6 +147,16 @@ DEF_TEST(ICC_WriteICC, r) {
     srgbMatrix.set3x3RowMajorf(gSRGB_toXYZD50);
     test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeSRGB().get(),
                    false);
+
+    SkTArray<uint8_t> adobeTag;
+    adobeTag.reset(SkToInt(SkICCWriteDescriptionTag(nullptr, adobeFn, adobeMatrix)));
+    SkICCWriteDescriptionTag(&adobeTag[0], adobeFn, adobeMatrix);
+
+    SkTArray<uint8_t> srgbTag;
+    srgbTag.reset(SkToInt(SkICCWriteDescriptionTag(nullptr, srgbFn, srgbMatrix)));
+    SkICCWriteDescriptionTag(&srgbTag[0], srgbFn, srgbMatrix);
+
+    REPORTER_ASSERT(r, !equal(adobeTag, srgbTag));
 }
 
 static inline void test_raw_transfer_fn(skiatest::Reporter* r, SkICC* icc) {
