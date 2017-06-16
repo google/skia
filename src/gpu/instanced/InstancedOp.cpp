@@ -120,7 +120,7 @@ void InstancedOp::appendParamsTexel(SkScalar x, SkScalar y, SkScalar z) {
     fInfo.fHasParams = true;
 }
 
-bool InstancedOp::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) {
+GrDrawOp::RequiresDstTexture InstancedOp::finalize(const GrCaps& caps, const GrAppliedClip* clip) {
     GrProcessorAnalysisCoverage coverageInput;
     bool isMixedSamples = false;
     if (GrAAType::kCoverage == fInfo.aaType() ||
@@ -151,7 +151,7 @@ bool InstancedOp::xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* 
 
     fInfo.fUsesLocalCoords = analysis.usesLocalCoords();
     fRequiresBarrierOnOverlap = analysis.requiresBarrierBetweenOverlappingDraws();
-    return analysis.requiresDstTexture();
+    return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 
 void InstancedOp::wasRecorded(GrRenderTargetOpList* opList) {

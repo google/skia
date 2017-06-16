@@ -1790,7 +1790,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     }
 
     GrXferProcessor::DstProxy dstProxy;
-    if (op->xpRequiresDstTexture(*this->caps(), &appliedClip)) {
+    if (op->finalize(*this->caps(), &appliedClip) == GrDrawOp::RequiresDstTexture::kYes) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy)) {
             return SK_InvalidUniqueID;
         }

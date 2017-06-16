@@ -72,14 +72,15 @@ public:
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(FixedFunctionFlags);
     virtual FixedFunctionFlags fixedFunctionFlags() const = 0;
 
+    enum class RequiresDstTexture : bool { kNo = false, kYes = true };
     /**
      * This is called after the GrAppliedClip has been computed and just prior to recording the op
-     * or combining it with a previously recorded op. It is used to determine whether a copy of the
-     * destination (or destination texture itself) needs to be provided to the xp when this op
-     * executes. This is guaranteed to be called before an op is recorded. However, this is also
-     * called on ops that are not recorded because they combine with a previously recorded op.
+     * or combining it with a previously recorded op. The op should convert any proxies or resources
+     * it owns to "pending io" status so that resource allocation can be more optimal. Additionally,
+     * at this time the op must report whether a copy of the destination (or destination texture
+     * itself) needs to be provided to the GrXferProcessor when this op executes.
      */
-    virtual bool xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*) = 0;
+    virtual RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) = 0;
 
 protected:
     static SkString DumpPipelineInfo(const GrPipeline& pipeline);
