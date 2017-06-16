@@ -31,10 +31,6 @@ namespace GrRectOpFactory {
 std::unique_ptr<GrDrawOp> MakeAAFill(GrPaint&&, const SkMatrix&, const SkRect&,
                                      const GrUserStencilSettings* = nullptr);
 
-// Using this method to supply a device rect simply saves recalculation if the device rect is known.
-std::unique_ptr<GrDrawOp> MakeAAFillWithDevRect(GrPaint&&, const SkMatrix& viewMatrix,
-                                                const SkRect& rect, const SkRect& devRect);
-
 std::unique_ptr<GrDrawOp> MakeAAFillWithLocalMatrix(GrPaint&&, const SkMatrix& viewMatrix,
                                                     const SkMatrix& localMatrix, const SkRect&);
 
