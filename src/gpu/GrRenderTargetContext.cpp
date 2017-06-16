@@ -9,6 +9,7 @@
 #include "../private/GrAuditTrail.h"
 #include "../private/SkShadowFlags.h"
 #include "GrAppliedClip.h"
+#include "GrBackendSemaphore.h"
 #include "GrColor.h"
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
@@ -38,6 +39,7 @@
 #include "ops/GrOvalOpFactory.h"
 #include "ops/GrRectOpFactory.h"
 #include "ops/GrRegionOp.h"
+#include "ops/GrSemaphoreOp.h"
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
 #include "text/GrAtlasTextContext.h"
@@ -508,7 +510,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
     const SkStrokeRec& stroke = style->strokeRec();
     if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
-        
+
         if (!fContext->caps()->useDrawInsteadOfClear()) {
             // Check if this is a full RT draw and can be replaced with a clear. We don't bother
             // checking cases where the RT is fully inside a stroke.
@@ -1429,13 +1431,44 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
 }
 
-void GrRenderTargetContext::prepareForExternalIO() {
+void GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
+                                                 GrBackendSemaphore* backendSemaphores) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::prepareForExternalIO");
 
+    SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
+    for (int i = 0; i < numSemaphores; ++i) {
+        semaphores.push_back(fContext->resourceProvider()->makeSemaphore(false));
+        std::unique_ptr<GrOp> signalOp(GrSemaphoreOp::MakeSignal(semaphores.back(),
+                                                                 fRenderTargetProxy.get()));
+        this->getOpList()->addOp(std::move(signalOp), *this->caps());
+    }
+
     this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
+
+    for (int i = 0; i < numSemaphores; ++i) {
+        semaphores[i]->setBackendSemaphore(&backendSemaphores[i]);
+    }
+}
+
+void GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
+                                             const GrBackendSemaphore* waitSemaphores) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::waitOnSemaphores");
+
+    AutoCheckFlush acf(this->drawingManager());
+
+    SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
+    for (int i = 0; i < numSemaphores; ++i) {
+        sk_sp<GrSemaphore> sema = fContext->resourceProvider()->wrapBackendSemaphore(
+                waitSemaphores[i], kAdopt_GrWrapOwnership);
+        std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(sema, fRenderTargetProxy.get()));
+        this->getOpList()->addOp(std::move(waitOp), *this->caps());
+    }
 }
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
