@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 #include "Test.h"
@@ -294,6 +295,52 @@ static void test_self_assignment(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a[0] == 1);
 }
 
+template <typename Array> static void test_array_reserve(skiatest::Reporter* reporter,
+                                                         Array* array, int reserveCount) {
+    SkRandom random;
+    REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    array->push_back();
+    REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    array->pop_back();
+    REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    while (array->count() < reserveCount) {
+        // Two steps forward, one step back
+        if (random.nextULessThan(3) < 2) {
+            array->push_back();
+        } else if (array->count() > 0) {
+            array->pop_back();
+        }
+        REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    }
+}
+
+template<typename Array> static void test_reserve(skiatest::Reporter* reporter) {
+    // Test that our allocated space stays >= to the reserve count until the array is filled to
+    // the reserve count
+    for (int reserveCount : {1, 2, 10, 100}) {
+        // Test setting reserve in constructor.
+        Array array1(reserveCount);
+        test_array_reserve(reporter, &array1, reserveCount);
+
+        // Test setting reserve after constructor.
+        Array array2;
+        array2.reserve(reserveCount);
+        test_array_reserve(reporter, &array2, reserveCount);
+
+        // Test increasing reserve after constructor.
+        Array array3(reserveCount/2);
+        array3.reserve(reserveCount);
+        test_array_reserve(reporter, &array3, reserveCount);
+
+        // Test setting reserve on non-empty array.
+        Array array4;
+        array4.push_back_n(reserveCount);
+        array4.reserve(reserveCount);
+        array4.pop_back_n(reserveCount);
+        test_array_reserve(reporter, &array4, 2 * reserveCount);
+    }
+}
+
 DEF_TEST(TArray, reporter) {
     TestTSet_basic<true>(reporter);
     TestTSet_basic<false>(reporter);
@@ -311,4 +358,9 @@ DEF_TEST(TArray, reporter) {
     test_unnecessary_alloc(reporter);
 
     test_self_assignment(reporter);
+
+    test_reserve<SkTArray<int>>(reporter);
+    test_reserve<SkSTArray<1, int>>(reporter);
+    test_reserve<SkSTArray<2, int>>(reporter);
+    test_reserve<SkSTArray<16, int>>(reporter);
 }
