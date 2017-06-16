@@ -61,21 +61,16 @@ class SkiaStepApi(recipe_api.RecipeApi):
   def readfile(self, filename, *args, **kwargs):
     """Convenience function for reading files."""
     name = kwargs.pop('name', 'read %s' % self.m.path.basename(filename))
-    return self.m.file.read(name, filename, infra_step=True, *args, **kwargs)
+    return self.m.file.read_text(name, filename, *args, **kwargs)
 
   def writefile(self, filename, contents):
     """Convenience function for writing files."""
-    return self.m.file.write('write %s' % self.m.path.basename(filename),
-                             filename, contents, infra_step=True)
+    return self.m.file.write_text('write %s' % self.m.path.basename(filename),
+                                  filename, contents)
 
   def rmtree(self, path):
-    """Wrapper around api.file.rmtree with environment fix."""
-    env = {'PYTHONPATH': str(self.m.path['start_dir'].join(
-        'skia', 'infra', 'bots', '.recipe_deps', 'build', 'scripts'))}
-    with self.m.env(env):
-      self.m.file.rmtree(self.m.path.basename(path),
-                         path,
-                         infra_step=True)
+    """Wrapper around api.file.rmtree."""
+    self.m.file.rmtree('rmtree %s' % self.m.path.basename(path), path)
 
   def __call__(self, steptype, name, abort_on_failure=True,
                fail_build_on_failure=True, **kwargs):

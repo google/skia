@@ -150,13 +150,12 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "rmtree",
       "[START_DIR]/luci-go"
     ],
-    "env": {
-      "PYTHONPATH": "[START_DIR]/skia/infra/bots/.recipe_deps/build/scripts"
-    },
     "infra_step": true,
     "name": "rmtree luci-go"
   },
@@ -164,11 +163,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copytree(sys.argv[1], sys.argv[2], symlinks=bool(sys.argv[3]))\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
       "mydir",
-      "[START_DIR]/luci-go",
-      "0"
+      "[START_DIR]/luci-go"
     ],
+    "infra_step": true,
     "name": "Copy Go binary"
   },
   {
@@ -179,6 +181,7 @@
       "[START_DIR]/swarming_temp_dir",
       "511"
     ],
+    "infra_step": true,
     "name": "makedirs swarming tmp dir",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -197,10 +200,14 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "{\n    \"args\": [\n        \"--isolate\", \n        \"isolate_path\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-task.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--blacklist\", \n        \"*.pyc\", \n        \"--extra-variable\", \n        \"myvar\", \n        \"myval\"\n    ], \n    \"dir\": \"isolate_dir\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/task.isolated.gen.json"
     ],
+    "infra_step": true,
     "name": "Write task.isolated.gen.json"
   },
   {
