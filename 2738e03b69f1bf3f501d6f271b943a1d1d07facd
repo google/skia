@@ -22,6 +22,30 @@
       "revId": "2738e03b69f1bf3f501d6f271b943a1d1d07facd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "465d8eae_2ebbbc9d",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-06-16T19:39:07Z",
+      "side": 1,
+      "message": "I think this would be tricky to implement efficiently without it:\n\nhttps://cs.chromium.org/chromium/src/third_party/skia/src/gpu/GrShape.cpp?l\u003d102",
+      "parentUuid": "ac61817e_84d2b1c9",
+      "range": {
+        "startLine": 130,
+        "startChar": 26,
+        "endLine": 130,
+        "endChar": 34
+      },
+      "revId": "2738e03b69f1bf3f501d6f271b943a1d1d07facd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
