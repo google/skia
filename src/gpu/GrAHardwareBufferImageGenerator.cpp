@@ -17,6 +17,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrTexture.h"
+#include "GrTextureProxy.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
