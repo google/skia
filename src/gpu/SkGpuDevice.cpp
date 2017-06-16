@@ -1730,10 +1730,23 @@ bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
     return GrTextUtils::ShouldDisableLCD(paint);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 void SkGpuDevice::flush() {
+    this->flushAndSignalSemaphores(0, nullptr);
+}
+
+void SkGpuDevice::flushAndSignalSemaphores(int numSemaphores,
+                                           GrBackendSemaphore* signalSemaphores) {
     ASSERT_SINGLE_OWNER
 
-    fRenderTargetContext->prepareForExternalIO();
+    fRenderTargetContext->prepareForExternalIO(numSemaphores, signalSemaphores);
+}
+
+void SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+    ASSERT_SINGLE_OWNER
+
+    fRenderTargetContext->waitOnSemaphores(numSemaphores, waitSemaphores);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

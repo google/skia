@@ -21,6 +21,7 @@
 #include <map>
 
 class GrBackendRenderTarget;
+class GrBackendSemaphore;
 class GrBuffer;
 class GrContext;
 struct GrContextOptions;
@@ -376,7 +377,9 @@ public:
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
     virtual void deleteFence(GrFence) const = 0;
 
-    virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() = 0;
+    virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) = 0;
+    virtual sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                    GrWrapOwnership ownership) = 0;
     virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush = false) = 0;
     virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
 

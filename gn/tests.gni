@@ -232,6 +232,7 @@ tests_sources = [
   "$_tests/StrokerTest.cpp",
   "$_tests/StrokeTest.cpp",
   "$_tests/SubsetPath.cpp",
+  "$_tests/SurfaceSemaphoreTest.cpp",
   "$_tests/SurfaceTest.cpp",
   "$_tests/SVGDeviceTest.cpp",
   "$_tests/SwizzlerTest.cpp",
