@@ -271,8 +271,7 @@ void SkPDFArray::drop() {
 int SkPDFArray::size() const { return fValues.count(); }
 
 void SkPDFArray::reserve(int length) {
-    // TODO(halcanary): implement SkTArray<T>::reserve() or change the
-    // contstructor of SkPDFArray to take reserve size.
+    fValues.reserve(length);
 }
 
 void SkPDFArray::emitObject(SkWStream* stream,
