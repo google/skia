@@ -119,10 +119,9 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    bool xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip) override {
-        bool result = fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone,
-                                                   &fColor);
-        return result;
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone,
+                                            &fColor);
     }
 
 private:
