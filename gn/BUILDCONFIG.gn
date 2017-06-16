@@ -164,8 +164,10 @@ set_defaults("component") {
 
 if (is_win) {
   # Windows tool chain
-  set_default_toolchain("//gn:msvc")
+  set_default_toolchain("//gn/toolchain:msvc")
+  host_toolchain = "msvc"
 } else {
   # GCC-like toolchains, including Clang.
-  set_default_toolchain("//gn:gcc_like")
+  set_default_toolchain("//gn/toolchain:gcc_like")
+  host_toolchain = "gcc_like_host"
 }
