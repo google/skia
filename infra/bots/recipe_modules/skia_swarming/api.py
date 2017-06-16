@@ -82,7 +82,10 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
       blacklist: list of regular expressions indicating which files/directories
           not to archive.
     """
-    self.m.file.makedirs('swarming tmp dir', self.swarming_temp_dir)
+    self.m.shutil.makedirs(
+        'swarming tmp dir',
+        self.swarming_temp_dir,
+        infra_step=True)
     isolated_path = self.isolated_file_path(task_name)
     isolate_args = [
       '--isolate', isolate_path,
@@ -101,7 +104,7 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
     }
     isolated_gen_json = self.swarming_temp_dir.join(
         '%s.isolated.gen.json' % task_name)
-    self.m.file.write(
+    self.m.file.write_text(
         'Write %s.isolated.gen.json' % task_name,
         isolated_gen_json,
         self.m.json.dumps(isolated_gen_dict, indent=4),

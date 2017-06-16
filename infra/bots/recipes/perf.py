@@ -12,13 +12,13 @@ import calendar
 DEPS = [
   'core',
   'env',
-  'file',
   'flavor',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/raw_io',
+  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/time',
   'run',
@@ -309,7 +309,7 @@ def perf_steps(api):
 
   # Copy results to swarming out dir.
   if api.vars.upload_perf_results:
-    api.file.makedirs('perf_dir', api.vars.perf_data_dir)
+    api.shutil.makedirs('perf_dir', api.vars.perf_data_dir, infra_step=True)
     api.flavor.copy_directory_contents_to_host(
         api.flavor.device_dirs.perf_data_dir,
         api.vars.perf_data_dir)

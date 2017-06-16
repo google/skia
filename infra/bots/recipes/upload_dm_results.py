@@ -10,7 +10,7 @@ import calendar
 
 
 DEPS = [
-  'file',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -62,11 +62,11 @@ def RunSteps(api):
 
   # Upload the images.
   image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
-  files_to_upload = api.file.glob(
+  files_to_upload = api.file.glob_paths(
       'find images',
-      results_dir.join('*'),
-      test_data=[results_dir.join('someimage.png')],
-      infra_step=True)
+      results_dir,
+      '*',
+      test_data=['someimage.png'])
   if len(files_to_upload) > 0:
     cp(api, 'images', results_dir.join('*'), image_dest_path)
 
