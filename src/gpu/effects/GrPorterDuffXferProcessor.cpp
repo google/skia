@@ -267,8 +267,8 @@ static constexpr BlendFormula MakeCoverageDstCoeffZeroFormula(GrBlendCoeff srcCo
 
 // Older GCC won't like the constexpr arrays because of
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61484.
-// MSVC crashes with an internal compiler error.
-#if !defined(__clang__) && ((defined(__GNUC__) && __GNUC__ < 5) || defined(_MSC_VER))
+// MSVC 2015 crashes with an internal compiler error.
+#if !defined(__clang__) && ((defined(__GNUC__) && __GNUC__ < 5) || (defined(_MSC_VER) && _MSC_VER <= 1910))
 #   define MAYBE_CONSTEXPR const
 #else
 #   define MAYBE_CONSTEXPR constexpr
