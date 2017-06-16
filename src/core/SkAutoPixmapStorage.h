@@ -17,6 +17,11 @@ public:
     ~SkAutoPixmapStorage();
 
     /**
+    * Leave the moved-from object in a free-but-valid state.
+    */
+    SkAutoPixmapStorage& operator=(SkAutoPixmapStorage&& other);
+
+    /**
     *  Try to allocate memory for the pixels needed to match the specified Info. On success
     *  return true and fill out the pixmap to point to that memory. The storage will be freed
     *  when this object is destroyed, or if another call to tryAlloc() or alloc() is made.

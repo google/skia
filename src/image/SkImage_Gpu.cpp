@@ -577,10 +577,22 @@ private:
                offsetof(DeferredTextureImage, member), \
                sizeof(DeferredTextureImage::member));
 
+static bool SupportsColorSpace(SkColorType colorType) {
+    switch (colorType) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_F16_SkColorType:
+            return true;
+        default:
+            return false;
+    }
+}
+
 size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& proxy,
                                             const DeferredTextureImageUsageParams params[],
                                             int paramCnt, void* buffer,
-                                            SkColorSpace* dstColorSpace) const {
+                                            SkColorSpace* dstColorSpace,
+                                            SkColorType dstColorType) const {
     // Some quick-rejects where is makes no sense to return CPU data
     //  e.g.
     //      - texture backed
@@ -590,6 +602,12 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         return 0;
     }
     if (as_IB(this)->onCanLazyGenerateOnGPU()) {
+        return 0;
+    }
+
+    bool supportsColorSpace = SupportsColorSpace(dstColorType);
+    // Quick reject if the caller requests a color space with an unsupported color type.
+    if (SkToBool(dstColorSpace) && !supportsColorSpace) {
         return 0;
     }
 
@@ -637,7 +655,8 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkAutoPixmapStorage pixmap;
     SkImageInfo info;
     size_t pixelSize = 0;
-    if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable()) {
+    if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable() &&
+        pixmap.info().colorType() == dstColorType) {
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
         if (!dstColorSpace) {
@@ -660,24 +679,35 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                 info = info.makeColorSpace(nullptr);
             }
         }
-        if (kIndex_8_SkColorType == info.colorType()) {
-            // Force Index8 to be N32 instead. Index8 is unsupported in Ganesh.
-            info = info.makeColorType(kN32_SkColorType);
-        }
+        // Force color type to be the requested type.
+        info = info.makeColorType(dstColorType);
         pixelSize = SkAlign8(SkAutoPixmapStorage::AllocSize(info, nullptr));
         if (fillMode) {
-            pixmap.alloc(info);
+            // Always decode to N32 and convert to the requested type if necessary.
+            SkImageInfo decodeInfo = info.makeColorType(kN32_SkColorType);
+            SkAutoPixmapStorage decodePixmap;
+            decodePixmap.alloc(decodeInfo);
+
             if (isScaled) {
-                if (!this->scalePixels(pixmap, scaleFilterQuality,
+                if (!this->scalePixels(decodePixmap, scaleFilterQuality,
                                        SkImage::kDisallow_CachingHint)) {
                     return 0;
                 }
             } else {
-                if (!this->readPixels(pixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
+                if (!this->readPixels(decodePixmap, 0, 0, SkImage::kDisallow_CachingHint)) {
                     return 0;
                 }
             }
-            SkASSERT(!pixmap.ctable());
+            SkASSERT(!decodePixmap.ctable());
+
+            if (decodeInfo.colorType() != info.colorType()) {
+                pixmap.alloc(info);
+                // Convert and copy the decoded pixmap to the target pixmap.
+                decodePixmap.readPixels(pixmap.info(), pixmap.writable_addr(), pixmap.rowBytes(), 0,
+                                        0);
+            } else {
+                pixmap = std::move(decodePixmap);
+            }
         }
     }
     int mipMapLevelCount = 1;
@@ -715,10 +745,11 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkColorSpaceTransferFn fn;
     if (info.colorSpace()) {
         SkASSERT(dstColorSpace);
+        SkASSERT(supportsColorSpace);
         colorSpaceOffset = size;
         colorSpaceSize = info.colorSpace()->writeToMemory(nullptr);
         size += colorSpaceSize;
-    } else if (this->colorSpace() && this->colorSpace()->isNumericalTransferFn(&fn)) {
+    } else if (supportsColorSpace && this->colorSpace() && this->colorSpace()->isNumericalTransferFn(&fn)) {
         // In legacy mode, preserve the color space tag on the SkImage.  This is only
         // supported if the color space has a parametric transfer function.
         SkASSERT(!dstColorSpace);
@@ -742,6 +773,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
     if (proxy.fCaps->srgbSupport() && SkToBool(dstColorSpace) &&
         info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()) {
+        SkASSERT(supportsColorSpace);
         colorMode = SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware;
     }
 
