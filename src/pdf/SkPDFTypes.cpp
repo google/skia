@@ -100,12 +100,12 @@ bool is_valid_name(const char* n) {
 // leading slash).
 static void write_name_escaped(SkWStream* o, const char* name) {
     static const char kToEscape[] = "#/%()<>[]{}";
-    static const char kHex[] = "0123456789ABCDEF";
     for (const uint8_t* n = reinterpret_cast<const uint8_t*>(name); *n; ++n) {
-        if (*n < '!' || *n > '~' || strchr(kToEscape, *n)) {
-            char buffer[3] = {'#', '\0', '\0'};
-            buffer[1] = kHex[(*n >> 4) & 0xF];
-            buffer[2] = kHex[*n & 0xF];
+        uint8_t v = *n;
+        if (v < '!' || v > '~' || strchr(kToEscape, v)) {
+            char buffer[3] = {'#',
+                              SkHexadecimalDigits::gUpper[v >> 4],
+                              SkHexadecimalDigits::gUpper[v & 0xF]};
             o->write(buffer, sizeof(buffer));
         } else {
             o->write(n, 1);

@@ -9,6 +9,8 @@
 #include "SkMilestone.h"
 #include "SkPDFMetadata.h"
 #include "SkPDFTypes.h"
+#include "SkUtils.h"
+
 #include <utility>
 
 #define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
@@ -120,35 +122,36 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakePdfId(const UUID& doc,
     return array;
 }
 
-#define HEXIFY(INPUT_PTR, OUTPUT_PTR, HEX_STRING, BYTE_COUNT) \
-    do {                                                      \
-        for (int i = 0; i < (BYTE_COUNT); ++i) {              \
-            uint8_t value = *(INPUT_PTR)++;                   \
-            *(OUTPUT_PTR)++ = (HEX_STRING)[value >> 4];       \
-            *(OUTPUT_PTR)++ = (HEX_STRING)[value & 0xF];      \
-        }                                                     \
-    } while (false)
+// Convert a block of memory to hexadecimal.  Input and output pointers will be
+// moved to end of the range.
+static void hexify(const uint8_t** inputPtr, char** outputPtr, int count) {
+    SkASSERT(inputPtr && *inputPtr);
+    SkASSERT(outputPtr && *outputPtr);
+    while (count-- > 0) {
+        uint8_t value = *(*inputPtr)++;
+        *(*outputPtr)++ = SkHexadecimalDigits::gLower[value >> 4];
+        *(*outputPtr)++ = SkHexadecimalDigits::gLower[value & 0xF];
+    }
+}
+
 static SkString uuid_to_string(const SkPDFMetadata::UUID& uuid) {
     //  8-4-4-4-12
     char buffer[36];  // [32 + 4]
-    static const char gHex[] = "0123456789abcdef";
-    SkASSERT(strlen(gHex) == 16);
     char* ptr = buffer;
     const uint8_t* data = uuid.fData;
-    HEXIFY(data, ptr, gHex, 4);
+    hexify(&data, &ptr, 4);
     *ptr++ = '-';
-    HEXIFY(data, ptr, gHex, 2);
+    hexify(&data, &ptr, 2);
     *ptr++ = '-';
-    HEXIFY(data, ptr, gHex, 2);
+    hexify(&data, &ptr, 2);
     *ptr++ = '-';
-    HEXIFY(data, ptr, gHex, 2);
+    hexify(&data, &ptr, 2);
     *ptr++ = '-';
-    HEXIFY(data, ptr, gHex, 6);
+    hexify(&data, &ptr, 6);
     SkASSERT(ptr == buffer + 36);
     SkASSERT(data == uuid.fData + 16);
     return SkString(buffer, 36);
 }
-#undef HEXIFY
 
 namespace {
 class PDFXMLObject final : public SkPDFObject {
