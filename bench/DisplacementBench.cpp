@@ -107,7 +107,9 @@ protected:
                                                 0.0f, std::move(displ), nullptr));
 
         for (int i = 0; i < loops; i++) {
-            this->drawClippedBitmap(canvas, 0, 0, paint);
+            for (int j = 0; j < 100; ++j) {
+                this->drawClippedBitmap(canvas, 0, 0, paint);
+            }
         }
     }
 
@@ -133,7 +135,9 @@ protected:
                                                 SkDisplacementMapEffect::kA_ChannelSelectorType,
                                                 16.0f, std::move(displ), nullptr));
         for (int i = 0; i < loops; i++) {
-            this->drawClippedBitmap(canvas, 100, 0, paint);
+            for (int j = 0; j < 100; ++j) {
+                this->drawClippedBitmap(canvas, 100, 0, paint);
+            }
         }
     }
 
@@ -159,7 +163,9 @@ protected:
                                                 SkDisplacementMapEffect::kB_ChannelSelectorType,
                                                 32.0f, std::move(displ), nullptr));
         for (int i = 0; i < loops; ++i) {
-            this->drawClippedBitmap(canvas, 200, 0, paint);
+            for (int j = 0; j < 100; ++j) {
+                this->drawClippedBitmap(canvas, 200, 0, paint);
+            }
         }
     }
 
