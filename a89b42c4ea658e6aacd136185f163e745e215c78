@@ -22,6 +22,30 @@
       "revId": "a89b42c4ea658e6aacd136185f163e745e215c78",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47ed63c6_5a32d4f8",
+        "filename": "bench/EncoderBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-06-17T18:02:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4eda7c32_fdf8c94a",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 25
+      },
+      "revId": "a89b42c4ea658e6aacd136185f163e745e215c78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
