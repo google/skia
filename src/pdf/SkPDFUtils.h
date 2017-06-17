@@ -79,21 +79,20 @@ void AppendScalar(SkScalar value, SkWStream* stream);
 void WriteString(SkWStream* wStream, const char* input, size_t len);
 
 inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
-    static const char gHex[] = "0123456789ABCDEF";
     char result[4];
-    result[0] = gHex[       value >> 12 ];
-    result[1] = gHex[0xF & (value >> 8 )];
-    result[2] = gHex[0xF & (value >> 4 )];
-    result[3] = gHex[0xF & (value      )];
+    result[0] = SkHexadecimalDigits::gUpper[       value >> 12 ];
+    result[1] = SkHexadecimalDigits::gUpper[0xF & (value >> 8 )];
+    result[2] = SkHexadecimalDigits::gUpper[0xF & (value >> 4 )];
+    result[3] = SkHexadecimalDigits::gUpper[0xF & (value      )];
     wStream->write(result, 4);
 }
+
 inline void WriteUInt8(SkDynamicMemoryWStream* wStream, uint8_t value) {
-    static const char gHex[] = "0123456789ABCDEF";
-    char result[2];
-    result[0] = gHex[value >> 4 ];
-    result[1] = gHex[0xF & value];
+    char result[2] = { SkHexadecimalDigits::gUpper[value >> 4],
+                       SkHexadecimalDigits::gUpper[value & 0xF] };
     wStream->write(result, 2);
 }
+
 inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
     uint16_t utf16[2] = {0, 0};
     size_t len = SkUTF16_FromUnichar(utf32, utf16);

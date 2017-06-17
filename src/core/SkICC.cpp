@@ -15,6 +15,7 @@
 #include "SkICC.h"
 #include "SkICCPriv.h"
 #include "SkMD5.h"
+#include "SkUtils.h"
 
 SkICC::SkICC(sk_sp<SkColorSpace> colorSpace)
     : fColorSpace(std::move(colorSpace))
@@ -332,11 +333,10 @@ size_t SkICCWriteDescriptionTag(uint8_t* ptr,
         SkMD5::Digest digest;
         md5.finish(digest);
         for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
-            static const char gHex[] = "0123456789ABCDEF";
             *ptr++ = 0;
-            *ptr++ = gHex[digest.data[i] >> 4];
+            *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] >> 4];
             *ptr++ = 0;
-            *ptr++ = gHex[digest.data[i] & 0xF];
+            *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] & 0xF];
         }
         SkASSERT(ptr == ptrCheck + kDescriptionTagBodySize + sizeof(kDescriptionTagHeader));
     }
