@@ -479,10 +479,8 @@ void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
         wStream->writeText("<");
         for (size_t i = 0; i < len; i++) {
             uint8_t c = static_cast<uint8_t>(cin[i]);
-            static const char gHex[] = "0123456789ABCDEF";
-            char hexValue[2];
-            hexValue[0] = gHex[(c >> 4) & 0xF];
-            hexValue[1] = gHex[ c       & 0xF];
+            char hexValue[2] = { SkHexadecimalDigits::gUpper[c >> 4],
+                                 SkHexadecimalDigits::gUpper[c & 0xF] };
             wStream->write(hexValue, 2);
         }
         wStream->writeText(">");

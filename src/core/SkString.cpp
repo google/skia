@@ -539,13 +539,11 @@ void SkString::insertU64(size_t offset, uint64_t dec, int minDigits) {
 void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
     minDigits = SkTPin(minDigits, 0, 8);
 
-    static const char gHex[] = "0123456789ABCDEF";
-
     char    buffer[8];
     char*   p = buffer + sizeof(buffer);
 
     do {
-        *--p = gHex[hex & 0xF];
+        *--p = SkHexadecimalDigits::gUpper[hex & 0xF];
         hex >>= 4;
         minDigits -= 1;
     } while (hex != 0);
