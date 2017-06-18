@@ -33,35 +33,41 @@ namespace {
 
 #define kChannelSelectorKeyBits 3; // Max value is 4, so 3 bits are required at most
 
-template<SkDisplacementMapEffect::ChannelSelectorType type>
-uint32_t getValue(SkColor, const SkUnPreMultiply::Scale*) {
-    SkDEBUGFAIL("Unknown channel selector");
-    return 0;
+const uint8_t gChannelTypeToShift[] = {
+     0,  // unknown
+    SK_R32_SHIFT,
+    SK_G32_SHIFT,
+    SK_B32_SHIFT,
+    SK_A32_SHIFT,
+};
+struct Extractor {
+    Extractor(SkDisplacementMapEffect::ChannelSelectorType typeX,
+              SkDisplacementMapEffect::ChannelSelectorType typeY)
+        : fShiftX(gChannelTypeToShift[typeX])
+        , fShiftY(gChannelTypeToShift[typeY])
+    {}
+
+    unsigned fShiftX, fShiftY;
+
+    unsigned getX(SkPMColor c) const { return (c >> fShiftX) & 0xFF; }
+    unsigned getY(SkPMColor c) const { return (c >> fShiftY) & 0xFF; }
+};
+
+static SkPMColor unpremul_pm(SkPMColor c) {
+    const U8CPU a = SkGetPackedA32(c);
+    if (0 == a) {
+        return 0;
+    } else if (0xFF == a) {
+        return c;
+    }
+    const unsigned scale = SkUnPreMultiply::GetScale(a);
+    return SkPackARGB32NoCheck(a,
+                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedR32(c)),
+                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedG32(c)),
+                               SkUnPreMultiply::ApplyScale(scale, SkGetPackedB32(c)));
 }
 
-template<> uint32_t getValue<SkDisplacementMapEffect::kR_ChannelSelectorType>(
-    SkColor l, const SkUnPreMultiply::Scale* table) {
-    return SkUnPreMultiply::ApplyScale(table[SkGetPackedA32(l)], SkGetPackedR32(l));
-}
-
-template<> uint32_t getValue<SkDisplacementMapEffect::kG_ChannelSelectorType>(
-    SkColor l, const SkUnPreMultiply::Scale* table) {
-    return SkUnPreMultiply::ApplyScale(table[SkGetPackedA32(l)], SkGetPackedG32(l));
-}
-
-template<> uint32_t getValue<SkDisplacementMapEffect::kB_ChannelSelectorType>(
-    SkColor l, const SkUnPreMultiply::Scale* table) {
-    return SkUnPreMultiply::ApplyScale(table[SkGetPackedA32(l)], SkGetPackedB32(l));
-}
-
-template<> uint32_t getValue<SkDisplacementMapEffect::kA_ChannelSelectorType>(
-    SkColor l, const SkUnPreMultiply::Scale*) {
-    return SkGetPackedA32(l);
-}
-
-template<SkDisplacementMapEffect::ChannelSelectorType typeX,
-         SkDisplacementMapEffect::ChannelSelectorType typeY>
-void computeDisplacement(const SkVector& scale, SkBitmap* dst,
+void computeDisplacement(Extractor ex, const SkVector& scale, SkBitmap* dst,
                          const SkBitmap& displ, const SkIPoint& offset,
                          const SkBitmap& src,
                          const SkIRect& bounds) {
@@ -71,77 +77,20 @@ void computeDisplacement(const SkVector& scale, SkBitmap* dst,
     const SkVector scaleForColor = SkVector::Make(scale.fX * Inv8bit, scale.fY * Inv8bit);
     const SkVector scaleAdj = SkVector::Make(SK_ScalarHalf - scale.fX * SK_ScalarHalf,
                                              SK_ScalarHalf - scale.fY * SK_ScalarHalf);
-    const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
     SkPMColor* dstPtr = dst->getAddr32(0, 0);
     for (int y = bounds.top(); y < bounds.bottom(); ++y) {
         const SkPMColor* displPtr = displ.getAddr32(bounds.left() + offset.fX, y + offset.fY);
         for (int x = bounds.left(); x < bounds.right(); ++x, ++displPtr) {
-            SkScalar displX = scaleForColor.fX * getValue<typeX>(*displPtr, table) + scaleAdj.fX;
-            SkScalar displY = scaleForColor.fY * getValue<typeY>(*displPtr, table) + scaleAdj.fY;
+            SkPMColor c = unpremul_pm(*displPtr);
+
+            SkScalar displX = scaleForColor.fX * ex.getX(c) + scaleAdj.fX;
+            SkScalar displY = scaleForColor.fY * ex.getY(c) + scaleAdj.fY;
             // Truncate the displacement values
             const int srcX = x + SkScalarTruncToInt(displX);
             const int srcY = y + SkScalarTruncToInt(displY);
             *dstPtr++ = ((srcX < 0) || (srcX >= srcW) || (srcY < 0) || (srcY >= srcH)) ?
                       0 : *(src.getAddr32(srcX, srcY));
         }
-    }
-}
-
-template<SkDisplacementMapEffect::ChannelSelectorType typeX>
-void computeDisplacement(SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
-                         const SkVector& scale, SkBitmap* dst,
-                         const SkBitmap& displ, const SkIPoint& offset,
-                         const SkBitmap& src,
-                         const SkIRect& bounds) {
-    switch (yChannelSelector) {
-      case SkDisplacementMapEffect::kR_ChannelSelectorType:
-        computeDisplacement<typeX, SkDisplacementMapEffect::kR_ChannelSelectorType>(
-            scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kG_ChannelSelectorType:
-        computeDisplacement<typeX, SkDisplacementMapEffect::kG_ChannelSelectorType>(
-            scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kB_ChannelSelectorType:
-        computeDisplacement<typeX, SkDisplacementMapEffect::kB_ChannelSelectorType>(
-            scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kA_ChannelSelectorType:
-        computeDisplacement<typeX, SkDisplacementMapEffect::kA_ChannelSelectorType>(
-            scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
-      default:
-        SkDEBUGFAIL("Unknown Y channel selector");
-    }
-}
-
-void computeDisplacement(SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
-                         SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
-                         const SkVector& scale, SkBitmap* dst,
-                         const SkBitmap& displ, const SkIPoint& offset,
-                         const SkBitmap& src,
-                         const SkIRect& bounds) {
-    switch (xChannelSelector) {
-      case SkDisplacementMapEffect::kR_ChannelSelectorType:
-        computeDisplacement<SkDisplacementMapEffect::kR_ChannelSelectorType>(
-            yChannelSelector, scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kG_ChannelSelectorType:
-        computeDisplacement<SkDisplacementMapEffect::kG_ChannelSelectorType>(
-            yChannelSelector, scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kB_ChannelSelectorType:
-        computeDisplacement<SkDisplacementMapEffect::kB_ChannelSelectorType>(
-            yChannelSelector, scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kA_ChannelSelectorType:
-        computeDisplacement<SkDisplacementMapEffect::kA_ChannelSelectorType>(
-            yChannelSelector, scale, dst, displ, offset, src, bounds);
-        break;
-      case SkDisplacementMapEffect::kUnknown_ChannelSelectorType:
-      default:
-        SkDEBUGFAIL("Unknown X channel selector");
     }
 }
 
@@ -398,7 +347,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         return nullptr;
     }
 
-    computeDisplacement(fXChannelSelector, fYChannelSelector, scale, &dst,
+    computeDisplacement(Extractor(fXChannelSelector, fYChannelSelector), scale, &dst,
                         displBM, colorOffset - displOffset, colorBM, colorBounds);
 
     offset->fX = bounds.left();
