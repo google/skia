@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41b8f0d7_d17fb1e1",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T16:37:35Z",
+      "side": 1,
+      "message": "Might be clearer with the constants on one side and the arguments on the other.",
+      "revId": "da79f48725392a30b099c3a800f1d75d23cc3203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2f3d370_6a44ac2c",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T16:37:35Z",
+      "side": 1,
+      "message": "Looks like the code below would read more consistently if you factor out only this inner 8-\u003eBE 16 bit part, leaving each use case to iterate over the bytes as necessary.",
+      "revId": "da79f48725392a30b099c3a800f1d75d23cc3203",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
