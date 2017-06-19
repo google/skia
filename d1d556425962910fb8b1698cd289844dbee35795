@@ -22,6 +22,30 @@
       "revId": "d1d556425962910fb8b1698cd289844dbee35795",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6721e0b_3788d802",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-19T16:30:20Z",
+      "side": 1,
+      "message": "To clarify I don\u0027t mean on the same object, but in general are the unique IDs stored on the proxy unique from those stored on the real targets?",
+      "parentUuid": "19d55c2e_714a8a91",
+      "range": {
+        "startLine": 245,
+        "startChar": 4,
+        "endLine": 251,
+        "endChar": 5
+      },
+      "revId": "d1d556425962910fb8b1698cd289844dbee35795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
