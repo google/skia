@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3a92397_814502af",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-06-19T17:38:21Z",
+      "side": 1,
+      "message": "Workaround for https://skia.googlesource.com/skia/+/master/tools/ok.cpp#44 (multiple instances in this file)",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 0
+      },
+      "revId": "d050d7ec638efa8ac93865aadb5921255d23f2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
