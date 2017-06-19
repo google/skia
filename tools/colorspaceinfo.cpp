@@ -14,6 +14,7 @@
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
 #include "SkCommandLineFlags.h"
+#include "SkICCPriv.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix44.h"
 #include "SkOSFile.h"
@@ -469,6 +470,16 @@ int main(int argc, char** argv) {
     if (!colorSpace) {
         SkDebugf("Cannot create codec or icc profile from input file.\n");
         return -1;
+    }
+
+    {
+        SkColorSpaceTransferFn colorSpaceTransferFn;
+        SkMatrix44 toXYZD50;
+        if (colorSpace->isNumericalTransferFn(&colorSpaceTransferFn) &&
+            colorSpace->toXYZD50(&toXYZD50)) {
+            SkString description = SkICCGetColorProfileTag(colorSpaceTransferFn, toXYZD50);
+            SkDebugf("Color Profile Description: \"%s\"\n", description.c_str());
+        }
     }
 
     // TODO: command line tweaking of this order
