@@ -9,16 +9,21 @@
 #include "SkJumper_misc.h"
 #include <immintrin.h>
 
-#if !defined(__SSSE3__) || !defined(__clang__) || !defined(__x86_64__)
-    #error "We're starting with just SSSE3 x86-64 for now, and will always require Clang."
+#if !defined(__clang__) || !defined(__x86_64__)
+    #error "We're starting with just x86-64 for now, and will always require Clang."
 #endif
 
-#define WRAP(name) sk_##name##_ssse3_lowp
-
 using K = const SkJumper_constants;
-static const size_t kStride = 8;
 
-template <typename T> using V = T __attribute__((ext_vector_type(8)));
+
+#if defined(__AVX2__)
+    #define WRAP(name) sk_##name##_hsw_lowp
+    template <typename T> using V = T __attribute__((ext_vector_type(16)));
+#else
+    #define WRAP(name) sk_##name##_ssse3_lowp
+    template <typename T> using V = T __attribute__((ext_vector_type(8)));
+#endif
+
 using U8  = V<uint8_t>;
 using U16 = V<uint16_t>;
 using U32 = V<uint32_t>;
@@ -40,17 +45,29 @@ struct F {
 
 SI F operator+(F x, F y) { return x.vec + y.vec; }
 SI F operator-(F x, F y) { return x.vec - y.vec; }
-SI F operator*(F x, F y) { return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec)); }
+SI F operator*(F x, F y) {
+#if defined(__AVX2__)
+    return _mm256_abs_epi16(_mm256_mulhrs_epi16(x.vec, y.vec));
+#else
+    return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec));
+#endif
+}
+
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI F inv(F v) { return 1.0f - v; }
 SI F two(F v) { return v + v; }
 SI F lerp(F from, F to, F t) { return to*t + from*inv(t); }
-
 SI F operator<<(F x, int bits) { return x.vec << bits; }
 SI F operator>>(F x, int bits) { return x.vec >> bits; }
 
+static const size_t kStride = sizeof(F) / sizeof(uint16_t);
 using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 
+#if defined(__AVX__)
+    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
+    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
+    __attribute__((disable_tail_calls))
+#endif
 MAYBE_MSABI
 extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v{};
@@ -84,46 +101,60 @@ extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F
 
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
-#if defined(JUMPER)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail-1) {
-            case 6: v[6] = src[6];
-            case 5: v[5] = src[5];
-            case 4: v[4] = src[4];
-            case 3: v[3] = src[3];
-            case 2: v[2] = src[2];
-            case 1: v[1] = src[1];
-            case 0: v[0] = src[0];
+            case 14: v[14] = src[14];
+            case 13: v[13] = src[13];
+            case 12: v[12] = src[12];
+            case 11: v[11] = src[11];
+            case 10: v[10] = src[10];
+            case  9: v[ 9] = src[ 9];
+            case  8: v[ 8] = src[ 8];
+            case  7: v[ 7] = src[ 7];
+            case  6: v[ 6] = src[ 6];
+            case  5: v[ 5] = src[ 5];
+            case  4: v[ 4] = src[ 4];
+            case  3: v[ 3] = src[ 3];
+            case  2: v[ 2] = src[ 2];
+            case  1: v[ 1] = src[ 1];
+            case  0: v[ 0] = src[ 0];
         }
         return v;
     }
-#endif
     return unaligned_load<V>(src);
 }
 
 template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
-#if defined(JUMPER)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         switch (tail-1) {
-            case 6: dst[6] = v[6];
-            case 5: dst[5] = v[5];
-            case 4: dst[4] = v[4];
-            case 3: dst[3] = v[3];
-            case 2: dst[2] = v[2];
-            case 1: dst[1] = v[1];
-            case 0: dst[0] = v[0];
+            case 14: dst[14] = v[14];
+            case 13: dst[13] = v[13];
+            case 12: dst[12] = v[12];
+            case 11: dst[11] = v[11];
+            case 10: dst[10] = v[10];
+            case  9: dst[ 9] = v[ 9];
+            case  8: dst[ 8] = v[ 8];
+            case  7: dst[ 7] = v[ 7];
+            case  6: dst[ 6] = v[ 6];
+            case  5: dst[ 5] = v[ 5];
+            case  4: dst[ 4] = v[ 4];
+            case  3: dst[ 3] = v[ 3];
+            case  2: dst[ 2] = v[ 2];
+            case  1: dst[ 1] = v[ 1];
+            case  0: dst[ 0] = v[ 0];
         }
         return;
     }
-#endif
     unaligned_store(dst, v);
 }
 
 SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
+#if defined(__AVX2__)
+#else
     // Split the 8 pixels into low and high halves, and reinterpret as vectors of 16-bit values.
     U16 lo = unaligned_load<U16>((const uint32_t*)&rgba + 0),
         hi = unaligned_load<U16>((const uint32_t*)&rgba + 4);
@@ -149,14 +180,22 @@ SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
     *g = _mm_mulhi_epu16(G, U16(32897));
     *b = _mm_mulhi_epu16(B, U16(32897));
     *a = _mm_mulhi_epu16(A, U16(32897));
+#endif
 }
 SI F from_byte(U8 bytes) {
+#if defined(__AVX2__)
+    return F{};
+#else
     // See from_8888() just above.
     U16 hi = _mm_unpacklo_epi8(U16(0), widen_cast<__m128i>(bytes));
     return (F)_mm_mulhi_epu16(hi, U16(32897));
+#endif
 }
 
 SI U32 to_8888(F r, F g, F b, F a) {
+#if defined(__AVX2__)
+    return U32{};
+#else
     // We want to interlace and pack these values from [0,32768] to [0,255].
     // Luckily the simplest possible thing works great: >>7, then saturate.
     // The 'u' in packus handles the saturation to [0,255] we need.
@@ -173,16 +212,23 @@ SI U32 to_8888(F r, F g, F b, F a) {
     memcpy((uint32_t*)&px + 0, &lo, sizeof(lo));
     memcpy((uint32_t*)&px + 4, &hi, sizeof(hi));
     return px;
+#endif
 }
 SI U8 to_byte(F v) {
+#if defined(__AVX2__)
+    return U8{};
+#else
     // See to_8888() just above.
     U16 packed = _mm_packus_epi16(v>>7, v>>7);  // Doesn't really matter what we pack on top.
     return unaligned_load<U8>(&packed);
+#endif
 }
 
 // Stages!
 
 STAGE(constant_color) {
+#if defined(__AVX2__)
+#else
     // We're converting to fixed point, which lets us play some IEEE representation tricks,
     // replacing a naive *32768 and float->int conversion with a simple float add.
     __m128i bits = _mm_loadu_ps((const float*)ctx) + _mm_set1_ps(256.0f);
@@ -190,6 +236,7 @@ STAGE(constant_color) {
     g = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0504));
     b = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0908));
     a = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0d0c));
+#endif
 }
 
 STAGE(set_rgb) {
