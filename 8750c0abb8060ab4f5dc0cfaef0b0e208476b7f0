@@ -22,6 +22,30 @@
       "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "334fe8a6_7fca3bc5",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-19T15:32:30Z",
+      "side": 1,
+      "message": "Ugh. This turns into a bit of a mess. We can only (sanely) preserve the gen id if the bitmap isn\u0027t a subset, but the obvious ways to structure this have lost that information (because we\u0027re constructing the image from a pixmap). Derek, I\u0027m hoping we can work around this in the Android code - do we need the ability to maintain the genID in the situation where we\u0027re going to be copying the pixels anyway? (passing kIfMutable with a mutable bitmap, for a deferred canvas)?",
+      "parentUuid": "c910cd75_46ca7f47",
+      "range": {
+        "startLine": 343,
+        "startChar": 15,
+        "endLine": 343,
+        "endChar": 56
+      },
+      "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
