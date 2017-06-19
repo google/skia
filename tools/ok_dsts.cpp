@@ -6,6 +6,7 @@
  */
 
 #include "ok.h"
+#include "SkNoDrawCanvas.h"
 #include "SkSurface.h"
 
 struct SWDst : Dst {
@@ -62,3 +63,34 @@ static Register rp{"rp", "draw forcing SkRasterPipelineBlitter", [](Options opti
     gSkForceRasterPipelineBlitter = true;
     return SWDst::Create(options);
 }};
+
+struct ImageDst : Dst {
+    sk_sp<SkImage> captured;
+
+    static std::unique_ptr<Dst> Create(Options) {
+        ImageDst dst;
+        return move_unique(dst);
+    }
+
+    Status draw(Src* src) override {
+        struct CaptureCanvas : public SkNoDrawCanvas {
+            sk_sp<SkImage>* captured = nullptr;
+
+            explicit CaptureCanvas(sk_sp<SkImage>* captured)
+                : SkNoDrawCanvas(1e6,1e6)
+                , captured(captured) {}
+
+            void onDrawImage(const SkImage* img, SkScalar, SkScalar, const SkPaint*) override {
+                *captured = sk_ref_sp(const_cast<SkImage*>(img));
+            }
+        };
+
+        CaptureCanvas canvas{&captured};
+        return src->draw(&canvas);
+    }
+
+    sk_sp<SkImage> image() override {
+        return captured;
+    }
+};
+static Register image{"image", "pass through first SkImage the Src draws", ImageDst::Create};
