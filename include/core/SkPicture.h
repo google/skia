@@ -202,10 +202,11 @@ private:
     // V52: Remove SkTextBlob::fRunCount
     // V53: SaveLayerRec clip mask
     // V54: ComposeShader can use a Mode or a Lerp
+    // V55: Drop blendmode[] from MergeImageFilter
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t     MIN_PICTURE_VERSION = 51;     // Produced by Chrome ~M56.
-    static const uint32_t CURRENT_PICTURE_VERSION = 54;
+    static const uint32_t CURRENT_PICTURE_VERSION = 55;
 
     static bool IsValidPictInfo(const SkPictInfo& info);
     static sk_sp<SkPicture> Forwardport(const SkPictInfo&,

@@ -72,6 +72,7 @@ public:
          */
         kTextBlobImplicitRunCount_Version  = 52,
         kComposeShaderCanLerp_Version      = 54,
+        kNoModesInMergeImageFilter_Verison = 55,
     };
 
     /**
