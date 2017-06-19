@@ -22,6 +22,47 @@
       "revId": "d050d7ec638efa8ac93865aadb5921255d23f2c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a14aaf4_c38047ee",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T17:43:40Z",
+      "side": 1,
+      "message": "Cool.  I\u0027ll fix this up after you land.",
+      "parentUuid": "c3a92397_814502af",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 0
+      },
+      "revId": "d050d7ec638efa8ac93865aadb5921255d23f2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6dd55a2_1c52e524",
+        "filename": "tests/RecordTestUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T17:43:40Z",
+      "side": 1,
+      "message": "Can you add a note like,\n\n  // This appears to be a bug in GCC x.y.  There\u0027s no problem here.\n\n?\n\nI\u0027ll follow up here too to see if I can rewrite this function to remove the need for all this.",
+      "revId": "d050d7ec638efa8ac93865aadb5921255d23f2c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
