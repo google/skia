@@ -52,13 +52,10 @@ enum ParaCurveType {
 };
 
 /*
- * Given fn and toXYZD50, generate a ICC decription tag that includes a hash of
- * the input.  If ptr is not nullptr, write the tag there.  Always returns
- * length of the tag.
- *
- * Exposed for unit testing.
+ * Given fn and toXYZD50, generate a decription tag that either includes a hash
+ * of the function and gamut or is a special name.
+ * Exposed for unit testing and tools.
  */
-size_t SkICCWriteDescriptionTag(uint8_t* ptr,
-                                const SkColorSpaceTransferFn& fn,
-                                const SkMatrix44& toXYZD50);
+SkString SkICCGetColorProfileTag(const SkColorSpaceTransferFn& fn,
+                                 const SkMatrix44& toXYZD50);
 #endif  // SkICCPriv_DEFINED

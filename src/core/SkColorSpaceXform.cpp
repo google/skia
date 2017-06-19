@@ -230,9 +230,14 @@ static void build_gamma_tables(const T* outGammaTables[3], T* gammaTableStorage,
                 if (gammas->isNamed(i)) {
                     switch (gammas->data(i).fNamed) {
                         case kSRGB_SkGammaNamed:
-                            (*fns.fBuildFromParam)(&gammaTableStorage[i * gammaTableSize], 2.4f,
-                                                   (1.0f / 1.055f), (0.055f / 1.055f),
-                                                   (1.0f / 12.92f), 0.04045f, 0.0f, 0.0f);
+                            (*fns.fBuildFromParam)(&gammaTableStorage[i * gammaTableSize],
+                                                   gSRGB_TransferFn.fG,
+                                                   gSRGB_TransferFn.fA,
+                                                   gSRGB_TransferFn.fB,
+                                                   gSRGB_TransferFn.fC,
+                                                   gSRGB_TransferFn.fD,
+                                                   gSRGB_TransferFn.fE,
+                                                   gSRGB_TransferFn.fF);
                             outGammaTables[i] = &gammaTableStorage[i * gammaTableSize];
                             break;
                         case k2Dot2Curve_SkGammaNamed:

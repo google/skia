@@ -113,14 +113,6 @@ static inline void test_write_icc(skiatest::Reporter* r, const SkColorSpaceTrans
     REPORTER_ASSERT(r, SkColorSpace::Equals(reference, colorSpace.get()));
 }
 
-template <typename T>
-static bool equal(const SkTArray<T>& u, const SkTArray<T>& v) {
-    if (u.count() != v.count()) {
-        return false;
-    }
-    return u.count() == 0 || 0 == memcmp(&u[0], &v[0], sizeof(T) * u.count());
-}
-
 DEF_TEST(ICC_WriteICC, r) {
     SkColorSpaceTransferFn adobeFn;
     adobeFn.fA = 1.0f;
@@ -148,15 +140,11 @@ DEF_TEST(ICC_WriteICC, r) {
     test_write_icc(r, srgbFn, srgbMatrix, SkColorSpace::MakeSRGB().get(),
                    false);
 
-    SkTArray<uint8_t> adobeTag;
-    adobeTag.reset(SkToInt(SkICCWriteDescriptionTag(nullptr, adobeFn, adobeMatrix)));
-    SkICCWriteDescriptionTag(&adobeTag[0], adobeFn, adobeMatrix);
-
-    SkTArray<uint8_t> srgbTag;
-    srgbTag.reset(SkToInt(SkICCWriteDescriptionTag(nullptr, srgbFn, srgbMatrix)));
-    SkICCWriteDescriptionTag(&srgbTag[0], srgbFn, srgbMatrix);
-
-    REPORTER_ASSERT(r, !equal(adobeTag, srgbTag));
+    SkString adobeTag = SkICCGetColorProfileTag(adobeFn, adobeMatrix);
+    SkString srgbTag = SkICCGetColorProfileTag(srgbFn, srgbMatrix);
+    REPORTER_ASSERT(r, adobeTag != srgbTag);
+    REPORTER_ASSERT(r, srgbTag.equals("sRGB"));
+    REPORTER_ASSERT(r, adobeTag.equals("AdobeRGB"));
 }
 
 static inline void test_raw_transfer_fn(skiatest::Reporter* r, SkICC* icc) {
