@@ -560,9 +560,6 @@ template <bool apply_alpha> SkPMColor trunc_from_255(const Sk4f& x, const Sk4f& 
     SkPMColor c;
     Sk4f c4f255 = x;
     if (apply_alpha) {
-#ifdef SK_SUPPORT_LEGACY_GRADIENT_ALPHATRUNC
-        static constexpr float alphaScale = 1;
-#else
         // Due to use of multiplication by the 1/255 reciprocal instead of division by 255,
         // non-integer alpha values very close to their ceiling can push the color values
         // above the alpha value, which will become an invalid premultiplied color. So nudge
@@ -572,7 +569,7 @@ template <bool apply_alpha> SkPMColor trunc_from_255(const Sk4f& x, const Sk4f& 
         // scaled by the alpha value, we need to scale the epsilon by 255 to get a safe
         // upper bound on the error.
         static constexpr float alphaScale = 1 + 255*std::numeric_limits<float>::epsilon();
-#endif
+
         const float scale = x[SkPM4f::A] * (1 / 255.f);
         c4f255 *= Sk4f(scale, scale, scale, alphaScale);
     }
