@@ -70,6 +70,30 @@
       "revId": "d1d556425962910fb8b1698cd289844dbee35795",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95211bc2_4779dd08",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-19T16:35:06Z",
+      "side": 1,
+      "message": "perfect.",
+      "parentUuid": "f513156d_32503bf4",
+      "range": {
+        "startLine": 245,
+        "startChar": 4,
+        "endLine": 251,
+        "endChar": 5
+      },
+      "revId": "d1d556425962910fb8b1698cd289844dbee35795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
