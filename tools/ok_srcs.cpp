@@ -8,6 +8,7 @@
 #include "ok.h"
 #include "gm.h"
 #include "SkData.h"
+#include "SkImage.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include <vector>
@@ -79,9 +80,10 @@ struct SKPStream : Stream {
         sk_sp<SkPicture> pic;
 
         void init() {
-            if (pic) { return; }
-            auto skp = SkData::MakeFromFileName((dir+"/"+path).c_str());
-            pic = SkPicture::MakeFromData(skp.get());
+            if (!pic) {
+                auto skp = SkData::MakeFromFileName((dir+"/"+path).c_str());
+                pic = SkPicture::MakeFromData(skp.get());
+            }
         }
 
         std::string name() override {
@@ -113,3 +115,63 @@ struct SKPStream : Stream {
     }
 };
 static Register skp{"skp", "draw SKPs from dir=skps", SKPStream::Create};
+
+struct DecodeStream : Stream {
+    std::string dir;
+    std::vector<std::string> images;
+
+    static std::unique_ptr<Stream> Create(Options options) {
+        DecodeStream stream;
+        stream.dir = options("dir", "resources");
+
+        const char* exts[] = { ".bmp", ".gif", ".ico", ".jpg", ".png", ".webp" };
+        for (auto ext : exts) {
+            SkOSFile::Iter it{stream.dir.c_str(), ext};
+            for (SkString path; it.next(&path); ) {
+                stream.images.push_back(path.c_str());
+            }
+        }
+        return move_unique(stream);
+    }
+
+    struct DecodeSrc : Src {
+        std::string dir, path;
+        sk_sp<SkImage> image;
+
+        void init() {
+            if (!image) {
+                auto encoded = SkData::MakeFromFileName((dir+"/"+path).c_str());
+                image = SkImage::MakeFromEncoded(encoded);
+            }
+        }
+
+        std::string name() override {
+            return path;
+        }
+
+        SkISize size() override {
+            this->init();
+            return image->bounds().size();
+        }
+
+        Status draw(SkCanvas* canvas) override {
+            this->init();
+            canvas->drawImage(image, 0,0);
+            return Status::OK;
+        }
+    };
+
+    std::unique_ptr<Src> next() override {
+        if (images.empty()) {
+            return nullptr;
+        }
+        DecodeSrc src;
+        src.dir  = dir;
+        src.path = images.back();
+        images.pop_back();
+        return move_unique(src);
+    }
+};
+static Register decode{"decode",
+                       "decode images from dir=resources",
+                       DecodeStream::Create};
