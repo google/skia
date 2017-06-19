@@ -93,7 +93,8 @@ protected:
             }
         }
         // Test arithmetic mode as image filter
-        paint.setImageFilter(SkArithmeticImageFilter::Make(0, 1, 1, 0, true, background));
+        paint.setImageFilter(SkArithmeticImageFilter::Make(0, 1, 1, 0, true, background,
+                                                           nullptr, nullptr));
         DrawClippedBitmap(canvas, fBitmap, paint, x, y);
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
