@@ -70,6 +70,30 @@
       "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9fa1de6_28d0cfda",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-06-19T18:47:09Z",
+      "side": 1,
+      "message": "Matt is right, we need to keep the genID or we will end up with a bunch of copies of this is someone draws the same bitmap to a picture or PDF.",
+      "parentUuid": "6c9d9a67_22af4300",
+      "range": {
+        "startLine": 343,
+        "startChar": 15,
+        "endLine": 343,
+        "endChar": 56
+      },
+      "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
