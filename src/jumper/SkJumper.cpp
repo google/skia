@@ -128,12 +128,14 @@ extern "C" {
                     ASM(start_pipeline,avx       ),
                     ASM(start_pipeline,sse41     ),
                     ASM(start_pipeline,sse2      ),
+                    ASM(start_pipeline,hsw_lowp  ),
                     ASM(start_pipeline,ssse3_lowp);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
             ASM(just_return,sse41),
             ASM(just_return,sse2),
+            ASM(just_return,hsw_lowp  ),
             ASM(just_return,ssse3_lowp);
 
     #define M(st) StageFn ASM(st,hsw);
@@ -149,6 +151,9 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
+    #define M(st) StageFn ASM(st,hsw_lowp);
+        LOWP_STAGES(M)
+    #undef M
     #define M(st) StageFn ASM(st,ssse3_lowp);
         LOWP_STAGES(M)
     #undef M
@@ -242,14 +247,14 @@ static SkJumper_Engine choose_engine() {
 StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
 #ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
-    if (SkCpu::Supports(SkCpu::SSSE3)) {
+    if (SkCpu::Supports(SkCpu::HSW)) {
         void** reset_point = ip;
 
-        *--ip = (void*)ASM(just_return,ssse3_lowp);
+        *--ip = (void*)ASM(just_return,hsw_lowp);
         for (const StageList* st = fStages; st; st = st->prev) {
             StageFn* fn = nullptr;
             switch (st->stage) {
-            #define M(st) case SkRasterPipeline::st: fn = ASM(st, ssse3_lowp); break;
+            #define M(st) case SkRasterPipeline::st: fn = ASM(st, hsw_lowp); break;
                 LOWP_STAGES(M)
             #undef M
                 case SkRasterPipeline::clamp_0: continue;  // clamp_0 is a no-op in lowp.
@@ -267,7 +272,7 @@ StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
         }
 
         if (ip != reset_point) {
-            return ASM(start_pipeline,ssse3_lowp);
+            return ASM(start_pipeline,hsw_lowp);
         }
     }
 #endif
