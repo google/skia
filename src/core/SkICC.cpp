@@ -309,6 +309,59 @@ static bool is_3x3(const SkMatrix44& toXYZD50) {
            1.0f == toXYZD50.get(3, 3);
 }
 
+static bool is_exactly_equal(const SkColorSpaceTransferFn& u,
+                             const SkColorSpaceTransferFn& v) {
+    return u.fG == v.fG
+        && u.fA == v.fA
+        && u.fB == v.fB
+        && u.fC == v.fC
+        && u.fD == v.fD
+        && u.fE == v.fE
+        && u.fF == v.fF;
+}
+
+static bool is_exactly_equal(const SkMatrix44& toXYZD50, const float standard[9]) {
+    return standard[0] == toXYZD50.getFloat(0, 0)
+        && standard[1] == toXYZD50.getFloat(0, 1)
+        && standard[2] == toXYZD50.getFloat(0, 2)
+        && standard[3] == toXYZD50.getFloat(1, 0)
+        && standard[4] == toXYZD50.getFloat(1, 1)
+        && standard[5] == toXYZD50.getFloat(1, 2)
+        && standard[6] == toXYZD50.getFloat(2, 0)
+        && standard[7] == toXYZD50.getFloat(2, 1)
+        && standard[8] == toXYZD50.getFloat(2, 2)
+        && 0.0f == toXYZD50.getFloat(0, 3)
+        && 0.0f == toXYZD50.getFloat(1, 3)
+        && 0.0f == toXYZD50.getFloat(2, 3)
+        && 0.0f == toXYZD50.getFloat(3, 0)
+        && 0.0f == toXYZD50.getFloat(3, 1)
+        && 0.0f == toXYZD50.getFloat(3, 2)
+        && 1.0f == toXYZD50.getFloat(3, 3);
+}
+
+// Return nullptr if the color profile doen't have a special name.
+static const char* color_profile_description(const SkColorSpaceTransferFn& fn,
+                                            const SkMatrix44& toXYZD50) {
+    if (is_exactly_equal(gSRGB_TransferFn, fn) &&
+        is_exactly_equal(toXYZD50, gSRGB_toXYZD50)) {
+        return "sRGB";
+    } else if (is_exactly_equal(gLineaer_TransferFn, fn) &&
+               is_exactly_equal(toXYZD50, gSRGB_toXYZD50)) {
+        return "Linear_Transfer_With_sRGB_Gamut";
+    } else if (is_exactly_equal(g2Dot2_TransferFn, fn) &&
+               is_exactly_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
+        return "AdobeRGB";
+    }
+    return nullptr;
+}
+
+static void string_copy_ascii_to_utf16be(uint8_t* dst, const char* src) {
+    while (char v = *src++) {
+        *dst++ = 0;
+        *dst++ = (uint8_t)v;
+    }
+}
+
 size_t SkICCWriteDescriptionTag(uint8_t* ptr,
                                 const SkColorSpaceTransferFn& fn,
                                 const SkMatrix44& toXYZD50) {
@@ -317,32 +370,41 @@ size_t SkICCWriteDescriptionTag(uint8_t* ptr,
         memcpy(ptr, kDescriptionTagHeader, sizeof(kDescriptionTagHeader));
         ptr += sizeof(kDescriptionTagHeader);
 
-        for (unsigned i = 0; i < sizeof(kDescriptionTagBodyPrefix); ++i) {
-            *ptr++ = 0;
-            *ptr++ = kDescriptionTagBodyPrefix[i];
-        }
-        SkMD5 md5;
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                float value = toXYZD50.getFloat(i,j);
-                md5.write(&value, sizeof(value));
+        if (const char* description = color_profile_description(fn, toXYZD50)) {
+            // Having a constant-length body size is easier.  Pad with 0.
+            sk_bzero(ptr, kDescriptionTagBodySize);
+            SkASSERT(strlen(description) * 2 < kDescriptionTagBodySize);
+            string_copy_ascii_to_utf16be(ptr, description);
+            ptr += kDescriptionTagBodySize;
+        } else {
+            for (unsigned i = 0; i < sizeof(kDescriptionTagBodyPrefix); ++i) {
+                *ptr++ = 0;
+                *ptr++ = kDescriptionTagBodyPrefix[i];
             }
-        }
-        static_assert(sizeof(fn) == sizeof(float) * 7, "packed");
-        md5.write(&fn, sizeof(fn));
-        SkMD5::Digest digest;
-        md5.finish(digest);
-        for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
-            *ptr++ = 0;
-            *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] >> 4];
-            *ptr++ = 0;
-            *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] & 0xF];
+            SkASSERT(ptr == ptrCheck + sizeof(kDescriptionTagHeader)
+                                     + 2 * sizeof(kDescriptionTagBodyPrefix));
+            SkMD5 md5;
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    float value = toXYZD50.getFloat(i,j);
+                    md5.write(&value, sizeof(value));
+                }
+            }
+            static_assert(sizeof(fn) == sizeof(float) * 7, "packed");
+            md5.write(&fn, sizeof(fn));
+            SkMD5::Digest digest;
+            md5.finish(digest);
+            for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
+                *ptr++ = 0;
+                *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] >> 4];
+                *ptr++ = 0;
+                *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] & 0xF];
+            }
         }
         SkASSERT(ptr == ptrCheck + kDescriptionTagBodySize + sizeof(kDescriptionTagHeader));
     }
     return kDescriptionTagBodySize + sizeof(kDescriptionTagHeader);
 }
-
 
 sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix44& toXYZD50) {
     if (!is_3x3(toXYZD50) || !is_valid_transfer_fn(fn)) {
