@@ -149,6 +149,7 @@ config("default") {
       "-fstrict-aliasing",
       "-fPIC",
       "-Werror",
+      "-Wno-unused-result",
     ]
     cflags_cc += [ "-std=c++11" ]
 
