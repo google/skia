@@ -9,6 +9,7 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPngEncoder.h"
+#include "ProcStats.h"
 #include "Timer.h"
 #include "ok.h"
 #include <chrono>
@@ -156,6 +157,28 @@ struct Time : Dst {
         return target->image();
     }
 };
-static Register _time{"time",
-                      "print wall run time",
-                      Time::Create};
+static Register _time{"time", "print wall run time", Time::Create};
+
+struct Memory : Dst {
+    std::unique_ptr<Dst> target;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        Memory via;
+        via.target = std::move(dst);
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        Status status = target->draw(src);
+
+        auto msg = SkStringPrintf("%dMB", sk_tools::getMaxResidentSetSizeMB());
+        ok_log(msg.c_str());
+
+        return status;
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+static Register memory{"memory", "print process maximum memory usage", Memory::Create};
