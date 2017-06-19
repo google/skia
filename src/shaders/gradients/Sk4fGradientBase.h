@@ -82,16 +82,14 @@ private:
     void addMirrorIntervals(const SkGradientShaderBase&,
                             const Sk4f& componentScale, bool reverse);
 
-    template<DstType, ApplyPremul, SkShader::TileMode tileMode>
+    template<ApplyPremul, SkShader::TileMode tileMode>
     class TSampler;
 
-    template <DstType dstType, ApplyPremul premul>
-    void shadePremulSpan(int x, int y, typename DstTraits<dstType, premul>::Type[],
-                         int count) const;
+    template <ApplyPremul premul>
+    void shadePremulSpan(int x, int y, SkPM4f[], int count) const;
 
-    template <DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
-    void shadeSpanInternal(int x, int y, typename DstTraits<dstType, premul>::Type[],
-                           int count) const;
+    template <ApplyPremul premul, SkShader::TileMode tileMode>
+    void shadeSpanInternal(int x, int y, SkPM4f[], int count) const;
 };
 
 #endif // Sk4fGradientBase_DEFINED

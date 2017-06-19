@@ -22,11 +22,6 @@ namespace {
 
 enum class ApplyPremul { True, False };
 
-enum class DstType {
-    L32,  // Linear 32bit.
-    F32,  // Linear float.
-};
-
 template <ApplyPremul>
 struct PremulTraits;
 
@@ -56,64 +51,19 @@ struct PremulTraits<ApplyPremul::True> {
 //
 //   - store4x()    Store 4 Sk4f values to dest (opportunistic optimization).
 //
-template <DstType, ApplyPremul premul>
-struct DstTraits;
-
 template <ApplyPremul premul>
-struct DstTraits<DstType::L32, premul> {
+struct DstTraits {
     using PM   = PremulTraits<premul>;
-    using Type = SkPMColor;
-
-    // For L32, prescaling by 255 saves a per-pixel multiplication when premul is not needed.
-    static Sk4f load(const SkPM4f& c) {
-        return premul == ApplyPremul::False
-            ? c.to4f_pmorder() * Sk4f(255)
-            : c.to4f_pmorder();
-    }
-
-    static void store(const Sk4f& c, Type* dst) {
-        if (premul == ApplyPremul::False) {
-            // c is prescaled by 255, just store.
-            SkNx_cast<uint8_t>(c).store(dst);
-        } else {
-            *dst = Sk4f_toL32(PM::apply(c));
-        }
-    }
-
-    static void store(const Sk4f& c, Type* dst, int n) {
-        Type pmc;
-        store(c, &pmc);
-        sk_memset32(dst, pmc, n);
-    }
-
-    static void store4x(const Sk4f& c0, const Sk4f& c1,
-                        const Sk4f& c2, const Sk4f& c3,
-                        Type* dst) {
-        if (premul == ApplyPremul::False) {
-            Sk4f_ToBytes((uint8_t*)dst, c0, c1, c2, c3);
-        } else {
-            store(c0, dst + 0);
-            store(c1, dst + 1);
-            store(c2, dst + 2);
-            store(c3, dst + 3);
-        }
-    }
-};
-
-template <ApplyPremul premul>
-struct DstTraits<DstType::F32, premul> {
-    using PM   = PremulTraits<premul>;
-    using Type = SkPM4f;
 
     static Sk4f load(const SkPM4f& c) {
         return c.to4f();
     }
 
-    static void store(const Sk4f& c, Type* dst) {
+    static void store(const Sk4f& c, SkPM4f* dst) {
         PM::apply(c).store(dst->fVec);
     }
 
-    static void store(const Sk4f& c, Type* dst, int n) {
+    static void store(const Sk4f& c, SkPM4f* dst, int n) {
         const Sk4f pmc = PM::apply(c);
         for (int i = 0; i < n; ++i) {
             pmc.store(dst[i].fVec);
@@ -122,7 +72,7 @@ struct DstTraits<DstType::F32, premul> {
 
     static void store4x(const Sk4f& c0, const Sk4f& c1,
                         const Sk4f& c2, const Sk4f& c3,
-                        Type* dst) {
+                        SkPM4f* dst) {
         store(c0, dst + 0);
         store(c1, dst + 1);
         store(c2, dst + 2);

@@ -294,6 +294,8 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
     , fDither(rec.fPaint->isDither())
 #endif
 {
+    SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
+
     const SkMatrix& inverse = this->getTotalInverse();
     fDstToPos.setConcat(shader.fPtsToUnit, inverse);
     fDstToPosProc = fDstToPos.getMapXYProc();
@@ -315,57 +317,44 @@ GradientShaderBase4fContext::isValid() const {
 
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
-    if (fColorsArePremul) {
-        this->shadePremulSpan<DstType::L32, ApplyPremul::False>(x, y, dst, count);
-    } else {
-        this->shadePremulSpan<DstType::L32, ApplyPremul::True>(x, y, dst, count);
-    }
+    // This impl only shades to 4f.
+    SkASSERT(false);
 }
 
 void SkGradientShaderBase::
 GradientShaderBase4fContext::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     if (fColorsArePremul) {
-        this->shadePremulSpan<DstType::F32, ApplyPremul::False>(x, y, dst, count);
+        this->shadePremulSpan<ApplyPremul::False>(x, y, dst, count);
     } else {
-        this->shadePremulSpan<DstType::F32, ApplyPremul::True>(x, y, dst, count);
+        this->shadePremulSpan<ApplyPremul::True>(x, y, dst, count);
     }
 }
 
-template<DstType dstType, ApplyPremul premul>
+template<ApplyPremul premul>
 void SkGradientShaderBase::
-GradientShaderBase4fContext::shadePremulSpan(int x, int y,
-                                             typename DstTraits<dstType, premul>::Type dst[],
-                                             int count) const {
+GradientShaderBase4fContext::shadePremulSpan(int x, int y, SkPM4f dst[], int count) const {
     const SkGradientShaderBase& shader =
         static_cast<const SkGradientShaderBase&>(fShader);
 
     switch (shader.fTileMode) {
     case kClamp_TileMode:
-        this->shadeSpanInternal<dstType,
-                                premul,
-                                kClamp_TileMode>(x, y, dst, count);
+        this->shadeSpanInternal<premul, kClamp_TileMode>(x, y, dst, count);
         break;
     case kRepeat_TileMode:
-        this->shadeSpanInternal<dstType,
-                                premul,
-                                kRepeat_TileMode>(x, y, dst, count);
+        this->shadeSpanInternal<premul, kRepeat_TileMode>(x, y, dst, count);
         break;
     case kMirror_TileMode:
-        this->shadeSpanInternal<dstType,
-                                premul,
-                                kMirror_TileMode>(x, y, dst, count);
+        this->shadeSpanInternal<premul, kMirror_TileMode>(x, y, dst, count);
         break;
     }
 }
 
-template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
+template<ApplyPremul premul, SkShader::TileMode tileMode>
 void SkGradientShaderBase::
-GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
-                                               typename DstTraits<dstType, premul>::Type dst[],
-                                               int count) const {
+GradientShaderBase4fContext::shadeSpanInternal(int x, int y, SkPM4f dst[], int count) const {
     static const int kBufSize = 128;
     SkScalar ts[kBufSize];
-    TSampler<dstType, premul, tileMode> sampler(*this);
+    TSampler<premul, tileMode> sampler(*this);
 
     SkASSERT(count > 0);
     do {
@@ -373,14 +362,14 @@ GradientShaderBase4fContext::shadeSpanInternal(int x, int y,
         this->mapTs(x, y, ts, n);
         for (int i = 0; i < n; ++i) {
             const Sk4f c = sampler.sample(ts[i]);
-            DstTraits<dstType, premul>::store(c, dst++);
+            DstTraits<premul>::store(c, dst++);
         }
         x += n;
         count -= n;
     } while (count > 0);
 }
 
-template<DstType dstType, ApplyPremul premul, SkShader::TileMode tileMode>
+template<ApplyPremul premul, SkShader::TileMode tileMode>
 class SkGradientShaderBase::GradientShaderBase4fContext::TSampler {
 public:
     TSampler(const GradientShaderBase4fContext& ctx)
@@ -443,8 +432,8 @@ private:
     }
 
     void loadIntervalData(const Sk4fGradientInterval* i) {
-        fCb = DstTraits<dstType, premul>::load(i->fCb);
-        fCg = DstTraits<dstType, premul>::load(i->fCg);
+        fCb = DstTraits<premul>::load(i->fCb);
+        fCg = DstTraits<premul>::load(i->fCg);
     }
 
     const GradientShaderBase4fContext& fCtx;
