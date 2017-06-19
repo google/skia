@@ -37,6 +37,20 @@ static constexpr float gRec2020_toXYZD50[] {
    -0.00193139f, 0.0299794f, 0.797162f,  // Rz, Gz, Bz
 };
 
+static constexpr SkColorSpaceTransferFn gSRGB_TransferFn =
+        { 2.4f, 1.0f / 1.055f, 0.055f / 1.055f, 1.0f / 12.92f, 0.04045f, 0.0f, 0.0f };
+
+static constexpr SkColorSpaceTransferFn g2Dot2_TransferFn =
+        { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+// gLinear_TransferFn.fD > 1.0f: Make sure that we use the linear segment of
+// the transfer function even when the x-value is 1.0f.
+static constexpr SkColorSpaceTransferFn gLinear_TransferFn =
+        { 0.0f, 0.0f, 0.0f, 1.0f, 1.0000001f, 0.0f, 0.0f };
+
+static constexpr SkColorSpaceTransferFn gDCIP3_TransferFn =
+    { 2.399994f, 0.947998047f, 0.0520019531f, 0.0769958496f, 0.0390014648f, 0.0f, 0.0f };
+
 static inline void to_xyz_d50(SkMatrix44* toXYZD50, SkColorSpace::Gamut gamut) {
     switch (gamut) {
         case SkColorSpace::kSRGB_Gamut:
@@ -121,13 +135,13 @@ static inline bool is_valid_transfer_fn(const SkColorSpaceTransferFn& coeffs) {
 }
 
 static inline bool is_almost_srgb(const SkColorSpaceTransferFn& coeffs) {
-    return transfer_fn_almost_equal(1.0f / 1.055f,   coeffs.fA) &&
-           transfer_fn_almost_equal(0.055f / 1.055f, coeffs.fB) &&
-           transfer_fn_almost_equal(1.0f / 12.92f,   coeffs.fC) &&
-           transfer_fn_almost_equal(0.04045f,        coeffs.fD) &&
-           transfer_fn_almost_equal(0.00000f,        coeffs.fE) &&
-           transfer_fn_almost_equal(0.00000f,        coeffs.fF) &&
-           transfer_fn_almost_equal(2.40000f,        coeffs.fG);
+    return transfer_fn_almost_equal(gSRGB_TransferFn.fA, coeffs.fA) &&
+           transfer_fn_almost_equal(gSRGB_TransferFn.fB, coeffs.fB) &&
+           transfer_fn_almost_equal(gSRGB_TransferFn.fC, coeffs.fC) &&
+           transfer_fn_almost_equal(gSRGB_TransferFn.fD, coeffs.fD) &&
+           transfer_fn_almost_equal(gSRGB_TransferFn.fE, coeffs.fE) &&
+           transfer_fn_almost_equal(gSRGB_TransferFn.fF, coeffs.fF) &&
+           transfer_fn_almost_equal(gSRGB_TransferFn.fG, coeffs.fG);
 }
 
 static inline bool is_almost_2dot2(const SkColorSpaceTransferFn& coeffs) {
@@ -170,27 +184,13 @@ static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
                                        SkGammaNamed gammaNamed) {
     switch (gammaNamed) {
         case kSRGB_SkGammaNamed:
-            coeffs->fA = 1.0f / 1.055f;
-            coeffs->fB = 0.055f / 1.055f;
-            coeffs->fC = 1.0f / 12.92f;
-            coeffs->fD = 0.04045f;
-            coeffs->fE = 0.0f;
-            coeffs->fF = 0.0f;
-            coeffs->fG = 2.4f;
+            *coeffs = gSRGB_TransferFn;
             return true;
         case k2Dot2Curve_SkGammaNamed:
-            value_to_parametric(coeffs, 2.2f);
+            *coeffs = g2Dot2_TransferFn;
             return true;
         case kLinear_SkGammaNamed:
-            coeffs->fA = 0.0f;
-            coeffs->fB = 0.0f;
-            coeffs->fC = 1.0f;
-            // Make sure that we use the linear segment of the transfer function even
-            // when the x-value is 1.0f.
-            coeffs->fD = nextafterf(1.0f, 2.0f);
-            coeffs->fE = 0.0f;
-            coeffs->fF = 0.0f;
-            coeffs->fG = 0.0f;
+            *coeffs = gLinear_TransferFn;
             return true;
         default:
             return false;
