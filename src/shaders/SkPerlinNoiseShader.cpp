@@ -1084,7 +1084,6 @@ protected:
 
 private:
     GrGLSLProgramDataManager::UniformHandle fZUni;
-    GrGLSLProgramDataManager::UniformHandle fOctavesUni;
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
     typedef GrGLSLFragmentProcessor INHERITED;
@@ -1180,6 +1179,7 @@ sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTe
 #endif
 
 void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
+    const GrImprovedPerlinNoiseEffect& pne = args.fFp.cast<GrImprovedPerlinNoiseEffect>();
     GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     SkString vCoords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
@@ -1188,11 +1188,6 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                                                    kVec2f_GrSLType, kDefault_GrSLPrecision,
                                                    "baseFrequency");
     const char* baseFrequencyUni = uniformHandler->getUniformCStr(fBaseFrequencyUni);
-
-    fOctavesUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                             kFloat_GrSLType, kDefault_GrSLPrecision,
-                                             "octaves");
-    const char* octavesUni = uniformHandler->getUniformCStr(fOctavesUni);
 
     fZUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                        kFloat_GrSLType, kDefault_GrSLPrecision,
@@ -1285,14 +1280,13 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
 
     // noiseOctaves function
     static const GrShaderVar noiseOctavesArgs[] =  {
-        GrShaderVar("p", kVec3f_GrSLType),
-        GrShaderVar("octaves", kFloat_GrSLType),
+        GrShaderVar("p", kVec3f_GrSLType)
     };
     SkString noiseOctavesFuncName;
     SkString noiseOctavesCode;
     noiseOctavesCode.append("float result = 0.0;");
     noiseOctavesCode.append("float ratio = 1.0;");
-    noiseOctavesCode.append("for (float i = 0.0; i < octaves; i++) {");
+    noiseOctavesCode.appendf("for (float i = 0.0; i < %d; i++) {", pne.octaves());
     noiseOctavesCode.appendf("result += %s(p) / ratio;", noiseFuncName.c_str());
     noiseOctavesCode.append("p *= 2.0;");
     noiseOctavesCode.append("ratio *= 2.0;");
@@ -1302,14 +1296,14 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
                               noiseOctavesArgs, noiseOctavesCode.c_str(), &noiseOctavesFuncName);
 
     fragBuilder->codeAppendf("vec2 coords = %s * %s;", vCoords.c_str(), baseFrequencyUni);
-    fragBuilder->codeAppendf("float r = %s(vec3(coords, %s), %s);", noiseOctavesFuncName.c_str(),
-                             zUni, octavesUni);
-    fragBuilder->codeAppendf("float g = %s(vec3(coords, %s + 0000.0), %s);",
-                             noiseOctavesFuncName.c_str(), zUni, octavesUni);
-    fragBuilder->codeAppendf("float b = %s(vec3(coords, %s + 0000.0), %s);",
-                             noiseOctavesFuncName.c_str(), zUni, octavesUni);
-    fragBuilder->codeAppendf("float a = %s(vec3(coords, %s + 0000.0), %s);",
-                             noiseOctavesFuncName.c_str(), zUni, octavesUni);
+    fragBuilder->codeAppendf("float r = %s(vec3(coords, %s));", noiseOctavesFuncName.c_str(),
+                             zUni);
+    fragBuilder->codeAppendf("float g = %s(vec3(coords, %s + 0000.0));",
+                             noiseOctavesFuncName.c_str(), zUni);
+    fragBuilder->codeAppendf("float b = %s(vec3(coords, %s + 0000.0));",
+                             noiseOctavesFuncName.c_str(), zUni);
+    fragBuilder->codeAppendf("float a = %s(vec3(coords, %s + 0000.0));",
+                             noiseOctavesFuncName.c_str(), zUni);
     fragBuilder->codeAppendf("%s = vec4(r, g, b, a);", args.fOutputColor);
 
     // Clamp values
@@ -1323,6 +1317,8 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
 
 void GrGLImprovedPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                      GrProcessorKeyBuilder* b) {
+    const GrImprovedPerlinNoiseEffect& pne = processor.cast<GrImprovedPerlinNoiseEffect>();
+    b->add32(pne.octaves());
 }
 
 void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -1333,8 +1329,6 @@ void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
 
     const SkVector& baseFrequency = noise.baseFrequency();
     pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
-
-    pdman.set1f(fOctavesUni, SkIntToScalar(noise.octaves()));
 
     pdman.set1f(fZUni, noise.z());
 }
