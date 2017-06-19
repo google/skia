@@ -389,6 +389,10 @@ def dm_flags(bot):
   if 'Valgrind' in bot: # skia:3021
     match.append('~Threaded')
 
+  if 'Valgrind' in bot and 'PreAbandonGpuContext' in bot:
+    # skia:6575
+    match.append('~multipicturedraw_')
+
   if 'CommandBuffer' in bot:
     # https://crbug.com/697030
     match.append('~HalfFloatAlphaTextureTest')
