@@ -342,7 +342,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 }
 #endif
 
-static int get_glprograms_max_stages(GrContext* context) {
+static int get_glprograms_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
     GrGLGpu* gpu = static_cast<GrGLGpu*>(context->getGpu());
     int maxStages = 6;
     if (kGLES_GrGLStandard == gpu->glStandard()) {
@@ -359,11 +360,16 @@ static int get_glprograms_max_stages(GrContext* context) {
         maxStages = 3;
 #endif
     }
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
+        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
+        // On Angle D3D we will hit a limit of out variables if we use too many stages.
+        maxStages = 3;
+    }
     return maxStages;
 }
 
 static void test_glprograms(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
-    int maxStages = get_glprograms_max_stages(ctxInfo.grContext());
+    int maxStages = get_glprograms_max_stages(ctxInfo);
     if (maxStages == 0) {
         return;
     }
