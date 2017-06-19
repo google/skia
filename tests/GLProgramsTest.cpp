@@ -211,17 +211,11 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
 
 static void set_random_color_coverage_stages(GrPaint* paint,
                                              GrProcessorTestData* d,
-                                             int maxStages) {
+                                             int maxStages,
+                                             int maxTreeLevels) {
     // Randomly choose to either create a linear pipeline of procs or create one proc tree
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
-        // A full tree with 5 levels (31 nodes) may cause a program that exceeds shader limits
-        // (e.g. uniform or varying limits); maxTreeLevels should be a number from 1 to 4 inclusive.
-        int maxTreeLevels = 4;
-        // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
-#ifdef SK_BUILD_FOR_IOS
-        maxTreeLevels = 2;
-#endif
         sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
         paint->addColorFragmentProcessor(std::move(fp));
     } else {
@@ -257,7 +251,7 @@ static void set_random_state(GrPaint* paint, SkRandom* random) {
 #if !GR_TEST_UTILS
 bool GrDrawingManager::ProgramUnitTest(GrContext*, int) { return true; }
 #else
-bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
+bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int maxLevels) {
     GrDrawingManager* drawingManager = context->contextPriv().drawingManager();
 
     sk_sp<GrTextureProxy> proxies[2];
@@ -300,7 +294,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages) {
 
         GrPaint paint;
         GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
-        set_random_color_coverage_stages(&paint, &ptd, maxStages);
+        set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
         set_random_state(&paint, &random);
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
@@ -368,12 +362,33 @@ static int get_glprograms_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     return maxStages;
 }
 
+static int get_glprograms_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
+    // A full tree with 5 levels (31 nodes) may cause a program that exceeds shader limits
+    // (e.g. uniform or varying limits); maxTreeLevels should be a number from 1 to 4 inclusive.
+    int maxTreeLevels = 4;
+    // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+#ifdef SK_BUILD_FOR_IOS
+    maxTreeLevels = 2;
+#endif
+    if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
+        ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
+        // On Angle D3D we will hit a limit of out variables if we use too many stages.
+        maxTreeLevels = 2;
+    }
+    return maxTreeLevels;
+}
+
 static void test_glprograms(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo) {
     int maxStages = get_glprograms_max_stages(ctxInfo);
     if (maxStages == 0) {
         return;
     }
-    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages));
+    int maxLevels = get_glprograms_max_levels(ctxInfo);
+    if (maxLevels == 0) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, GrDrawingManager::ProgramUnitTest(ctxInfo.grContext(), maxStages,
+                                                                maxLevels));
 }
 
 DEF_GPUTEST(GLPrograms, reporter, /*factory*/) {
