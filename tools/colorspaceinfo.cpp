@@ -471,6 +471,18 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    {
+        SkColorSpaceTransferFn colorSpaceTransferFn;
+        SkMatrix44 toXYZD50;
+        const char* colorProfileDescription;
+        if (colorSpace->isNumericalTransferFn(&colorSpaceTransferFn) &&
+            colorSpace->toXYZD50(&toXYZD50) &&
+            (colorProfileDescription =
+                        SkICCGetColorProfileDescription(colorSpaceTransferFn, toXYZD50))) {
+            SkDebugf("Color Profile Description: \"%s\"\n", colorProfileDescription);
+        }
+    }
+
     // TODO: command line tweaking of this order
     int dimOrder[4] = {0, 1, 2, 3};
 

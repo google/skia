@@ -60,4 +60,12 @@ enum ParaCurveType {
 size_t SkICCWriteDescriptionTag(uint8_t* ptr,
                                 const SkColorSpaceTransferFn& fn,
                                 const SkMatrix44& toXYZD50);
+
+/*
+ * If the given transfer function and gamut is known to have a short name,
+ * return that.  Otherwise, return nullptr.
+ */
+const char* SkICCGetColorProfileDescription(const SkColorSpaceTransferFn& fn,
+                                            const SkMatrix44& toXYZD50);
+
 #endif  // SkICCPriv_DEFINED
