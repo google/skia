@@ -46,6 +46,30 @@
       "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c9d9a67_22af4300",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-19T17:11:30Z",
+      "side": 1,
+      "message": "I think we do need to preserve the gen id in the copy case unfortunately...\n\nEx: If we are drawing the same bitmap to a SkPicture multiple times, the SkPicture only needs one copy of the bitmap.\n\nWhy do subset bitmaps make it hard to preserve the gen id?  The copy would have a smaller pixel ref just representing the subet.  Is the problem that now we have two different pixel refs with the same gen id?",
+      "parentUuid": "334fe8a6_7fca3bc5",
+      "range": {
+        "startLine": 343,
+        "startChar": 15,
+        "endLine": 343,
+        "endChar": 56
+      },
+      "revId": "8750c0abb8060ab4f5dc0cfaef0b0e208476b7f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
