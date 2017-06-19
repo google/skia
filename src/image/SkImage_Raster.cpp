@@ -324,7 +324,8 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
     return SkMakeImageFromRasterBitmapPriv(bm, cpm);
 }
 
-sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> dstCS, uint32_t id) {
+sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> dstCS, uint32_t id,
+                                       SkCopyPixelsMode cpm) {
     if (!SkImageInfoIsValidAllowNumericalCS(bm.info()) || !bm.getPixels() ||
             bm.rowBytes() < bm.info().minRowBytes() || !dstCS) {
         return nullptr;
@@ -336,14 +337,20 @@ sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> d
         srcCS = SkColorSpace::MakeSRGB();
     }
 
+    sk_sp<SkImage> image = nullptr;
+
     // For the Android use case, this is very likely to be true.
     if (SkColorSpace::Equals(srcCS.get(), dstCS.get())) {
         SkASSERT(0 == id || bm.getGenerationID() == id);
-        return SkMakeImageFromRasterBitmapPriv(bm, kNever_SkCopyPixelsMode);
+        image = SkMakeImageFromRasterBitmapPriv(bm, cpm);
+    } else {
+        image = SkImage::MakeFromGenerator(SkColorSpaceXformImageGenerator::Make(bm, dstCS, cpm,
+                                                                                 id));
     }
 
-    return SkImage::MakeFromGenerator(SkColorSpaceXformImageGenerator::Make(
-            bm, dstCS, kNever_SkCopyPixelsMode, id));
+    // If the caller suplied an id, we must propagate that to the image we return
+    SkASSERT(0 == id || image->uniqueID() == id);
+    return image;
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
