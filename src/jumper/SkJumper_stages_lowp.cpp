@@ -84,7 +84,6 @@ extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F
 
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
-#if defined(JUMPER)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
@@ -99,13 +98,11 @@ SI V load(const T* src, size_t tail) {
         }
         return v;
     }
-#endif
     return unaligned_load<V>(src);
 }
 
 template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
-#if defined(JUMPER)
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         switch (tail-1) {
@@ -119,7 +116,6 @@ SI void store(T* dst, V v, size_t tail) {
         }
         return;
     }
-#endif
     unaligned_store(dst, v);
 }
 
