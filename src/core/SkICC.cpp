@@ -143,8 +143,10 @@ bool SkICC::rawTransferFnData(Tables* tables) const {
 
 static constexpr char kDescriptionTagBodyPrefix[12] =
         { 'G', 'o', 'o', 'g', 'l', 'e', '/', 'S', 'k', 'i', 'a' , '/'};
-static constexpr size_t kDescriptionTagBodySize =
-        (sizeof(kDescriptionTagBodyPrefix) + 2 * sizeof(SkMD5::Digest)) * 2;
+
+static_assert(kSkICCDescriptionTagSize ==
+              sizeof(kDescriptionTagBodyPrefix) + 2 * sizeof(SkMD5::Digest), "");
+static constexpr size_t kDescriptionTagBodySize = kSkICCDescriptionTagSize * 2;  // ascii->utf16be
 
 static_assert(SkIsAlign4(kDescriptionTagBodySize), "Description must be aligned to 4-bytes.");
 static constexpr uint32_t kDescriptionTagHeader[7] {
@@ -309,18 +311,97 @@ static bool is_3x3(const SkMatrix44& toXYZD50) {
            1.0f == toXYZD50.get(3, 3);
 }
 
-size_t SkICCWriteDescriptionTag(uint8_t* ptr,
-                                const SkColorSpaceTransferFn& fn,
-                                const SkMatrix44& toXYZD50) {
-    if (ptr) {
-        SkDEBUGCODE(const uint8_t* const ptrCheck = ptr);
-        memcpy(ptr, kDescriptionTagHeader, sizeof(kDescriptionTagHeader));
-        ptr += sizeof(kDescriptionTagHeader);
+static bool nearly_equal(float x, float y) {
+    // A note on why I chose this tolerance:  transfer_fn_almost_equal() uses a
+    // tolerance of 0.001f, which doesn't seem to be enough to distinguish
+    // between similar transfer functions, for example: gamma2.2 and sRGB.
+    //
+    // If the tolerance is 0.0f, then this we can't distinguish between two
+    // different encodings of what is clearly the same colorspace.  Some
+    // experimentation with example files lead to this number:
+    static constexpr float kTolerance = 1.0f / (1 << 11);
+    return ::fabsf(x - y) <= kTolerance;
+}
 
-        for (unsigned i = 0; i < sizeof(kDescriptionTagBodyPrefix); ++i) {
-            *ptr++ = 0;
-            *ptr++ = kDescriptionTagBodyPrefix[i];
+static bool nearly_equal(const SkColorSpaceTransferFn& u,
+                         const SkColorSpaceTransferFn& v) {
+    return nearly_equal(u.fG, v.fG)
+        && nearly_equal(u.fA, v.fA)
+        && nearly_equal(u.fB, v.fB)
+        && nearly_equal(u.fC, v.fC)
+        && nearly_equal(u.fD, v.fD)
+        && nearly_equal(u.fE, v.fE)
+        && nearly_equal(u.fF, v.fF);
+}
+
+static bool nearly_equal(const SkMatrix44& toXYZD50, const float standard[9]) {
+    return nearly_equal(toXYZD50.getFloat(0, 0), standard[0])
+        && nearly_equal(toXYZD50.getFloat(0, 1), standard[1])
+        && nearly_equal(toXYZD50.getFloat(0, 2), standard[2])
+        && nearly_equal(toXYZD50.getFloat(1, 0), standard[3])
+        && nearly_equal(toXYZD50.getFloat(1, 1), standard[4])
+        && nearly_equal(toXYZD50.getFloat(1, 2), standard[5])
+        && nearly_equal(toXYZD50.getFloat(2, 0), standard[6])
+        && nearly_equal(toXYZD50.getFloat(2, 1), standard[7])
+        && nearly_equal(toXYZD50.getFloat(2, 2), standard[8])
+        && nearly_equal(toXYZD50.getFloat(0, 3), 0.0f)
+        && nearly_equal(toXYZD50.getFloat(1, 3), 0.0f)
+        && nearly_equal(toXYZD50.getFloat(2, 3), 0.0f)
+        && nearly_equal(toXYZD50.getFloat(3, 0), 0.0f)
+        && nearly_equal(toXYZD50.getFloat(3, 1), 0.0f)
+        && nearly_equal(toXYZD50.getFloat(3, 2), 0.0f)
+        && nearly_equal(toXYZD50.getFloat(3, 3), 1.0f);
+}
+
+// Return nullptr if the color profile doen't have a special name.
+const char* get_color_profile_description(const SkColorSpaceTransferFn& fn,
+                                          const SkMatrix44& toXYZD50) {
+    bool srgb_xfer = nearly_equal(fn, gSRGB_TransferFn);
+    bool srgb_gamut = nearly_equal(toXYZD50, gSRGB_toXYZD50);
+    if (srgb_xfer && srgb_gamut) {
+        return "sRGB";
+    }
+    bool line_xfer = nearly_equal(fn, gLinear_TransferFn);
+    if (line_xfer && srgb_gamut) {
+        return "Linear Transfer with sRGB Gamut";
+    }
+    if (nearly_equal(fn, g2Dot2_TransferFn) &&
+        nearly_equal(toXYZD50, gAdobeRGB_toXYZD50)) {
+        return "AdobeRGB";
+    }
+    bool dcip3_gamut = nearly_equal(toXYZD50, gDCIP3_toXYZD50);
+    if (srgb_xfer || line_xfer) {
+        if (srgb_xfer && dcip3_gamut) {
+            return "sRGB Transfer with DCI-P3 Gamut";
         }
+        if (line_xfer && dcip3_gamut) {
+            return "Linear Transfer with DCI-P3 Gamut";
+        }
+        bool rec2020 = nearly_equal(toXYZD50, gRec2020_toXYZD50);
+        if (srgb_xfer && rec2020) {
+            return "sRGB Transfer with Rec-BT-2020 Gamut";
+        }
+        if (line_xfer && rec2020) {
+            return "Linear Transfer with Rec-BT-2020 Gamut";
+        }
+    }
+    if (dcip3_gamut && nearly_equal(fn, gDCIP3_TransferFn)) {
+        return "DCI-P3";
+    }
+    return nullptr;
+}
+
+void SkICCGetColorProfileTag(char dst[kSkICCDescriptionTagSize],
+                             const SkColorSpaceTransferFn& fn,
+                             const SkMatrix44& toXYZD50) {
+    SkASSERT(dst);
+    if (const char* description = get_color_profile_description(fn, toXYZD50)) {
+        SkASSERT(strlen(description) < kSkICCDescriptionTagSize);
+        strncpy(dst, description, kSkICCDescriptionTagSize);
+        // "If the length of src is less than n, strncpy() writes additional
+        // null bytes to dest to ensure that a total of n bytes are written."
+    } else {
+        strncpy(dst, kDescriptionTagBodyPrefix, sizeof(kDescriptionTagBodyPrefix));
         SkMD5 md5;
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
@@ -332,17 +413,24 @@ size_t SkICCWriteDescriptionTag(uint8_t* ptr,
         md5.write(&fn, sizeof(fn));
         SkMD5::Digest digest;
         md5.finish(digest);
+        char* ptr = dst + sizeof(kDescriptionTagBodyPrefix);
         for (unsigned i = 0; i < sizeof(SkMD5::Digest); ++i) {
-            *ptr++ = 0;
-            *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] >> 4];
-            *ptr++ = 0;
-            *ptr++ = SkHexadecimalDigits::gUpper[digest.data[i] & 0xF];
+            uint8_t byte = digest.data[i];
+            *ptr++ = SkHexadecimalDigits::gUpper[byte >> 4];
+            *ptr++ = SkHexadecimalDigits::gUpper[byte & 0xF];
         }
-        SkASSERT(ptr == ptrCheck + kDescriptionTagBodySize + sizeof(kDescriptionTagHeader));
+        SkASSERT(ptr == dst + kSkICCDescriptionTagSize);
     }
-    return kDescriptionTagBodySize + sizeof(kDescriptionTagHeader);
 }
 
+// returns pointer just beyond where we just wrote.
+static uint8_t* string_copy_ascii_to_utf16be(uint8_t* dst, const char* src, size_t count) {
+    while (count-- > 0) {
+        *dst++ = 0;
+        *dst++ = (uint8_t)(*src++);
+    }
+    return dst;
+}
 
 sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix44& toXYZD50) {
     if (!is_3x3(toXYZD50) || !is_valid_transfer_fn(fn)) {
@@ -361,7 +449,13 @@ sk_sp<SkData> SkICC::WriteToICC(const SkColorSpaceTransferFn& fn, const SkMatrix
     ptr += sizeof(kICCTagTable);
 
     // Write profile description tag
-    ptr += SkICCWriteDescriptionTag(ptr, fn, toXYZD50);
+    memcpy(ptr, kDescriptionTagHeader, sizeof(kDescriptionTagHeader));
+    ptr += sizeof(kDescriptionTagHeader);
+    {
+        char colorProfileTag[kSkICCDescriptionTagSize];
+        SkICCGetColorProfileTag(colorProfileTag, fn, toXYZD50);
+        ptr = string_copy_ascii_to_utf16be(ptr, colorProfileTag, kSkICCDescriptionTagSize);
+    }
 
     // Write XYZ tags
     write_xyz_tag((uint32_t*) ptr, toXYZD50, 0);
