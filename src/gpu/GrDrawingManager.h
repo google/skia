@@ -68,7 +68,7 @@ public:
         }
     }
 
-    static bool ProgramUnitTest(GrContext* context, int maxStages);
+    static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
     void prepareSurfaceForExternalIO(GrSurfaceProxy*);
 
