@@ -242,6 +242,14 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
+    UniqueID underlyingUniqueID() const {
+        if (fTarget) {
+            return UniqueID(fTarget->uniqueID());
+        }
+
+        return fUniqueID;
+    }
+
     virtual bool instantiate(GrResourceProvider* resourceProvider) = 0;
 
     /**

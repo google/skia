@@ -99,7 +99,7 @@ public:
         }
 
         if (fNormalize) {
-            if (fProxy != that.fProxy) {
+            if (fProxy->underlyingUniqueID() != that.fProxy->underlyingUniqueID()) {
                 return false;
             }
         }
