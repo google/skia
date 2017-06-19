@@ -81,7 +81,7 @@ protected:
 private:
     sk_sp<SkImageFilter> mergeBitmaps() {
         return SkMergeImageFilter::Make(SkImageSource::Make(fCheckerboard),
-                                        SkImageSource::Make(fImage), SkBlendMode::kSrcOver);
+                                        SkImageSource::Make(fImage));
     }
 
     bool fIsSmall;

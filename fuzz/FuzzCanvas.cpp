@@ -838,34 +838,30 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         case 14: {
             sk_sp<SkImageFilter> first = make_fuzz_imageFilter(fuzz, depth - 1);
             sk_sp<SkImageFilter> second = make_fuzz_imageFilter(fuzz, depth - 1);
-            SkBlendMode blendMode;
-            bool useCropRect;
-            fuzz->next(&useCropRect, &blendMode);
-            SkImageFilter::CropRect cropRect;
-            if (useCropRect) {
-                fuzz->next(&cropRect);
-            }
-            return SkMergeImageFilter::Make(std::move(first), std::move(second), blendMode,
-                                            useCropRect ? &cropRect : nullptr);
-        }
-        case 15: {
-            constexpr int kMaxCount = 4;
-            sk_sp<SkImageFilter> ifs[kMaxCount];
-            SkBlendMode blendModes[kMaxCount];
-            int count;
-            fuzz->nextRange(&count, 1, kMaxCount);
-            for (int i = 0; i < count; ++i) {
-                ifs[i] = make_fuzz_imageFilter(fuzz, depth - 1);
-            }
-            fuzz->nextN(blendModes, count);
             bool useCropRect;
             fuzz->next(&useCropRect);
             SkImageFilter::CropRect cropRect;
             if (useCropRect) {
                 fuzz->next(&cropRect);
             }
-            return SkMergeImageFilter::MakeN(ifs, count, blendModes,
-                                             useCropRect ? &cropRect : nullptr);
+            return SkMergeImageFilter::Make(std::move(first), std::move(second),
+                                            useCropRect ? &cropRect : nullptr);
+        }
+        case 15: {
+            constexpr int kMaxCount = 4;
+            sk_sp<SkImageFilter> ifs[kMaxCount];
+            int count;
+            fuzz->nextRange(&count, 1, kMaxCount);
+            for (int i = 0; i < count; ++i) {
+                ifs[i] = make_fuzz_imageFilter(fuzz, depth - 1);
+            }
+            bool useCropRect;
+            fuzz->next(&useCropRect);
+            SkImageFilter::CropRect cropRect;
+            if (useCropRect) {
+                fuzz->next(&cropRect);
+            }
+            return SkMergeImageFilter::Make(ifs, count, useCropRect ? &cropRect : nullptr);
         }
         case 16: {
             int rx, ry;

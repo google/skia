@@ -52,8 +52,7 @@ protected:
             sk_sp<SkImageFilter> erode(SkErodeImageFilter::Make(4, 4, blur));
             sk_sp<SkImageFilter> color(SkColorFilterImageFilter::Make(std::move(cf),
                                                                       std::move(erode)));
-            sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color,
-                                                                SkBlendMode::kSrcOver));
+            sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(blur, color));
 
             SkPaint paint;
             paint.setImageFilter(std::move(merge));

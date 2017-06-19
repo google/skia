@@ -555,8 +555,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
         break;
     case MERGE:
         filter = SkMergeImageFilter::Make(make_image_filter(),
-                                          make_image_filter(),
-                                          make_xfermode());
+                                          make_image_filter());
         break;
     case COLOR: {
         sk_sp<SkColorFilter> cf(make_color_filter());

@@ -145,7 +145,6 @@ protected:
             SkErodeImageFilter::Make(8, 8, nullptr, &cropRect),
             SkMergeImageFilter::Make(nullptr,
                                      std::move(cfOffset),
-                                     SkBlendMode::kSrcOver,
                                      &cropRect),
             SkBlurImageFilter::Make(8.0f, 8.0f, nullptr, &bogusRect),
             SkColorFilterImageFilter::Make(cf, nullptr, &bogusRect),

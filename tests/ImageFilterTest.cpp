@@ -196,9 +196,7 @@ public:
                       input, cropRect));
         }
 
-        this->addFilter("merge", SkMergeImageFilter::Make(input, input,
-                                                          SkBlendMode::kSrcOver,
-                                                          cropRect));
+        this->addFilter("merge", SkMergeImageFilter::Make(input, input, cropRect));
 
         {
             SkPaint greenColorShaderPaint;
@@ -213,8 +211,7 @@ public:
 
 
             this->addFilter("merge with disjoint inputs", SkMergeImageFilter::Make(
-                  std::move(paintFilterLeft), std::move(paintFilterRight),
-                  SkBlendMode::kSrcOver, cropRect));
+                  std::move(paintFilterLeft), std::move(paintFilterRight), cropRect));
         }
 
         this->addFilter("offset",
@@ -959,7 +956,7 @@ static void test_imagefilter_merge_result_size(skiatest::Reporter* reporter, GrC
     greenBM.eraseColor(SK_ColorGREEN);
     sk_sp<SkImage> greenImage(SkImage::MakeFromBitmap(greenBM));
     sk_sp<SkImageFilter> source(SkImageSource::Make(std::move(greenImage)));
-    sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(source, source, SkBlendMode::kSrcOver));
+    sk_sp<SkImageFilter> merge(SkMergeImageFilter::Make(source, source));
 
     sk_sp<SkSpecialImage> srcImg(create_empty_special_image(context, 1));
 
@@ -1865,13 +1862,13 @@ DEF_TEST(ImageFilterComplexCTM, reporter) {
     } recs[] = {
         { cfif,                                     true  },
         { SkColorFilterImageFilter::Make(cf, cfif), true  },
-        { SkMergeImageFilter::Make(cfif, cfif, SkBlendMode::kSrcOver),     true  },
+        { SkMergeImageFilter::Make(cfif, cfif),     true  },
         { SkComposeImageFilter::Make(cfif, cfif),   true  },
 
         { blif,                                     false },
         { SkBlurImageFilter::Make(3, 3, cfif),      false },
         { SkColorFilterImageFilter::Make(cf, blif), false },
-        { SkMergeImageFilter::Make(cfif, blif, SkBlendMode::kSrcOver),     false },
+        { SkMergeImageFilter::Make(cfif, blif),     false },
         { SkComposeImageFilter::Make(blif, cfif),   false },
     };
 
