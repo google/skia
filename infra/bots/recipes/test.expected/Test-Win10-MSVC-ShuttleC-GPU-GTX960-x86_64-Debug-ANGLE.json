@@ -418,8 +418,10 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~GLPrograms"
+      "angle_d3d9_es2",
+      "test",
+      "_",
+      "GLPrograms"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",

@@ -410,8 +410,9 @@ def dm_flags(bot):
   if 'GalaxyS7_G930A' in bot:
     match.append('~WritePixels') # skia:6427
 
-  if 'ANGLE' in bot and 'Debug' in bot:
-    match.append('~GLPrograms') # skia:4717
+  if 'ANGLE' in bot:
+    # skia:4717, skia:6772
+    blacklist(['angle_d3d9_es2', 'test', '_', 'GLPrograms'])
 
   if 'MSAN' in bot:
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.

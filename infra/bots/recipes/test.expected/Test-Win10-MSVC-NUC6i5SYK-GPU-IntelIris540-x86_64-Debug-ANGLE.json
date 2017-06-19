@@ -417,6 +417,10 @@
       "image",
       "_",
       ".SRW",
+      "angle_d3d9_es2",
+      "test",
+      "_",
+      "GLPrograms",
       "_",
       "gm",
       "_",
@@ -482,7 +486,6 @@
       "_",
       "multipicturedraw_rrectclip_simple",
       "--match",
-      "~GLPrograms",
       "~IntTexture"
     ],
     "env": {
