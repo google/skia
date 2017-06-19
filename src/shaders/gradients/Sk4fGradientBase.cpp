@@ -288,11 +288,6 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
                                                          const ContextRec& rec)
     : INHERITED(shader, rec)
     , fFlags(this->INHERITED::getFlags())
-#ifdef SK_SUPPORT_LEGACY_GRADIENT_DITHERING
-    , fDither(true)
-#else
-    , fDither(rec.fPaint->isDither())
-#endif
 {
     SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
 

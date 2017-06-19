@@ -73,7 +73,6 @@ protected:
     SkMatrix::MapXYProc        fDstToPosProc;
     uint8_t                    fDstToPosClass;
     uint8_t                    fFlags;
-    bool                       fDither;
     bool                       fColorsArePremul;
 
 private:
