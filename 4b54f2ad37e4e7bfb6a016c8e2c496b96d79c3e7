@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d3b9183b_58552bd9",
+        "filename": "src/shaders/gradients/Sk4fGradientPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T19:25:20Z",
+      "side": 1,
+      "message": "Probably don\u0027t need these lines anymore.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 17
+      },
+      "revId": "4b54f2ad37e4e7bfb6a016c8e2c496b96d79c3e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
