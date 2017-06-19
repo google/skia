@@ -9,16 +9,22 @@
 #include "SkJumper_misc.h"
 #include <immintrin.h>
 
-#if !defined(__SSSE3__) || !defined(__clang__) || !defined(__x86_64__)
-    #error "We're starting with just SSSE3 x86-64 for now, and will always require Clang."
+#if !defined(__clang__) || !defined(__x86_64__)
+    #error "We're starting with just x86-64 for now, and will always require Clang."
 #endif
 
-#define WRAP(name) sk_##name##_ssse3_lowp
-
 using K = const SkJumper_constants;
-static const size_t kStride = 8;
 
-template <typename T> using V = T __attribute__((ext_vector_type(8)));
+#if defined(__AVX2__)
+    #define WRAP(name) sk_##name##_hsw_lowp
+    template <typename T> using V = T __attribute__((ext_vector_type(16)));
+    static const size_t kStride = 16;
+#else
+    #define WRAP(name) sk_##name##_ssse3_lowp
+    template <typename T> using V = T __attribute__((ext_vector_type(8)));
+    static const size_t kStride = 8;
+#endif
+
 using U8  = V<uint8_t>;
 using U16 = V<uint16_t>;
 using U32 = V<uint32_t>;
@@ -40,7 +46,14 @@ struct F {
 
 SI F operator+(F x, F y) { return x.vec + y.vec; }
 SI F operator-(F x, F y) { return x.vec - y.vec; }
-SI F operator*(F x, F y) { return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec)); }
+SI F operator*(F x, F y) {
+#if defined(__AVX2__)
+    return _mm256_abs_epi16(_mm256_mulhrs_epi16(x.vec, y.vec));
+#else
+    return _mm_abs_epi16(_mm_mulhrs_epi16(x.vec, y.vec));
+#endif
+}
+
 SI F mad(F f, F m, F a) { return f*m+a; }
 SI F inv(F v) { return 1.0f - v; }
 SI F two(F v) { return v + v; }
@@ -51,6 +64,11 @@ SI F operator>>(F x, int bits) { return x.vec >> bits; }
 
 using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
 
+#if defined(__AVX__)
+    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
+    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
+    __attribute__((disable_tail_calls))
+#endif
 MAYBE_MSABI
 extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v{};
@@ -88,13 +106,21 @@ SI V load(const T* src, size_t tail) {
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail-1) {
-            case 6: v[6] = src[6];
-            case 5: v[5] = src[5];
-            case 4: v[4] = src[4];
-            case 3: v[3] = src[3];
-            case 2: v[2] = src[2];
-            case 1: v[1] = src[1];
-            case 0: v[0] = src[0];
+            case 14: v[14] = src[14];
+            case 13: v[13] = src[13];
+            case 12: v[12] = src[12];
+            case 11: v[11] = src[11];
+            case 10: v[10] = src[10];
+            case  9: v[ 9] = src[ 9];
+            case  8: v[ 8] = src[ 8];
+            case  7: v[ 7] = src[ 7];
+            case  6: v[ 6] = src[ 6];
+            case  5: v[ 5] = src[ 5];
+            case  4: v[ 4] = src[ 4];
+            case  3: v[ 3] = src[ 3];
+            case  2: v[ 2] = src[ 2];
+            case  1: v[ 1] = src[ 1];
+            case  0: v[ 0] = src[ 0];
         }
         return v;
     }
@@ -106,74 +132,77 @@ SI void store(T* dst, V v, size_t tail) {
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         switch (tail-1) {
-            case 6: dst[6] = v[6];
-            case 5: dst[5] = v[5];
-            case 4: dst[4] = v[4];
-            case 3: dst[3] = v[3];
-            case 2: dst[2] = v[2];
-            case 1: dst[1] = v[1];
-            case 0: dst[0] = v[0];
+            case 14: dst[14] = v[14];
+            case 13: dst[13] = v[13];
+            case 12: dst[12] = v[12];
+            case 11: dst[11] = v[11];
+            case 10: dst[10] = v[10];
+            case  9: dst[ 9] = v[ 9];
+            case  8: dst[ 8] = v[ 8];
+            case  7: dst[ 7] = v[ 7];
+            case  6: dst[ 6] = v[ 6];
+            case  5: dst[ 5] = v[ 5];
+            case  4: dst[ 4] = v[ 4];
+            case  3: dst[ 3] = v[ 3];
+            case  2: dst[ 2] = v[ 2];
+            case  1: dst[ 1] = v[ 1];
+            case  0: dst[ 0] = v[ 0];
         }
         return;
     }
     unaligned_store(dst, v);
 }
 
-SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
-    // Split the 8 pixels into low and high halves, and reinterpret as vectors of 16-bit values.
-    U16 lo = unaligned_load<U16>((const uint32_t*)&rgba + 0),
-        hi = unaligned_load<U16>((const uint32_t*)&rgba + 4);
+// TODO: mask loads and stores with AVX2
 
-    // Shuffle so that the 4 bytes of each color channel are contiguous...
-    lo = _mm_shuffle_epi8(lo, _mm_setr_epi8(0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15));
-    hi = _mm_shuffle_epi8(hi, _mm_setr_epi8(0,4,8,12, 1,5,9,13, 2,6,10,14, 3,7,11,15));
-
-    // ...then get all 8 bytes of each color channel together into a single register.
-    U16 rg = _mm_unpacklo_epi32(lo,hi),
-        ba = _mm_unpackhi_epi32(lo,hi);
-
-    // Unpack as 16-bit values into the high half of each 16-bit lane, to get a free *256.
-    U16 R = _mm_unpacklo_epi8(U16(0), rg),
-        G = _mm_unpackhi_epi8(U16(0), rg),
-        B = _mm_unpacklo_epi8(U16(0), ba),
-        A = _mm_unpackhi_epi8(U16(0), ba);
-
-    // Now we scale from [0,255] to [0,32768].  Ideally that's 32768/255 = 128.50196,
-    // but we can approximate that very cheaply as 256*32897/65536 = 128.50391.
-    // 0 and 255 map to 0 and 32768 correctly, and nothing else is off by more than 1.
-    *r = _mm_mulhi_epu16(R, U16(32897));
-    *g = _mm_mulhi_epu16(G, U16(32897));
-    *b = _mm_mulhi_epu16(B, U16(32897));
-    *a = _mm_mulhi_epu16(A, U16(32897));
+// Scale from [0,255] up to [0,32768].
+SI F from_wide_byte(U16 bytes) {
+    // Ideally we'd scale by 32768/255 = 128.50196, but instead we'll approximate
+    // that a little more cheaply as 256*32897/65536 = 128.50391.
+    // 0 and 255 map to 0 and 32768 correctly, and nothing else is off by more than 1 bit.
+#if defined(__AVX2__)
+    return _mm256_mulhi_epu16(bytes << 8, U16(32897));
+#else
+    return _mm_mulhi_epu16   (bytes << 8, U16(32897));
+#endif
 }
 SI F from_byte(U8 bytes) {
-    // See from_8888() just above.
-    U16 hi = _mm_unpacklo_epi8(U16(0), widen_cast<__m128i>(bytes));
-    return (F)_mm_mulhi_epu16(hi, U16(32897));
+    return from_wide_byte(__builtin_convertvector(bytes, U16));
+}
+
+// Pack from [0,32768] down to [0,255].
+SI U16 to_wide_byte(F v) {
+    // The simplest thing works great: divide by 128 and saturate.
+#if defined(__AVX2__)
+    return _mm256_max_epi16(v>>7, U16(255));
+#else
+    return _mm_max_epi16(v>>7, U16(255));
+#endif
+}
+SI U8 to_byte(F v) {
+    // Like to_wide_byte(), but we'll bake the saturation into the 16->8 bit pack.
+#if defined(__AVX2__)
+    return _mm_packus_epi16(_mm256_extracti128_si256(v>>7, 0),
+                            _mm256_extracti128_si256(v>>7, 1));
+#else
+    // Only the bottom 8 bytes are of interest... it doesn't matter what we pack on top.
+    __m128i packed = _mm_packus_epi16(v>>7, v>>7);
+    return unaligned_load<U8>(&packed);
+#endif
+}
+
+SI void from_8888(U32 rgba, F* r, F* g, F* b, F* a) {
+    *r = from_wide_byte(__builtin_convertvector((rgba >>  0) & 0xff, U16));
+    *g = from_wide_byte(__builtin_convertvector((rgba >>  8) & 0xff, U16));
+    *b = from_wide_byte(__builtin_convertvector((rgba >> 16) & 0xff, U16));
+    *a = from_wide_byte(__builtin_convertvector((rgba >> 24) & 0xff, U16));
 }
 
 SI U32 to_8888(F r, F g, F b, F a) {
-    // We want to interlace and pack these values from [0,32768] to [0,255].
-    // Luckily the simplest possible thing works great: >>7, then saturate.
-    // The 'u' in packus handles the saturation to [0,255] we need.
-    U16 rb = _mm_packus_epi16(r>>7,b>>7), // r0 r1 r2 r3 r4 r5 r6 r7 b0 b1 b2 b3 b4 b5 b6 b7
-        ga = _mm_packus_epi16(g>>7,a>>7);
-
-    U16 rg = _mm_unpacklo_epi8(rb, ga),   // r0 g0 r1 g1 ...                           r7 g7
-        ba = _mm_unpackhi_epi8(rb, ga);   // b0 a0       ...                           b7 a7
-
-    U16 lo = _mm_unpacklo_epi16(rg, ba),  // r0 g0 b0 a0 ...                     r3 g3 b3 a3
-        hi = _mm_unpackhi_epi16(rg, ba);  // r4 g4 b4 a4 ...                     r7 g7 b7 a7
-
-    U32 px;
-    memcpy((uint32_t*)&px + 0, &lo, sizeof(lo));
-    memcpy((uint32_t*)&px + 4, &hi, sizeof(hi));
-    return px;
-}
-SI U8 to_byte(F v) {
-    // See to_8888() just above.
-    U16 packed = _mm_packus_epi16(v>>7, v>>7);  // Doesn't really matter what we pack on top.
-    return unaligned_load<U8>(&packed);
+    return __builtin_convertvector(to_wide_byte(r), U32) <<  0
+         | __builtin_convertvector(to_wide_byte(g), U32) <<  8
+         | __builtin_convertvector(to_wide_byte(b), U32) << 16
+         | __builtin_convertvector(to_wide_byte(a), U32) << 24;
 }
 
 // Stages!
