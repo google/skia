@@ -41,7 +41,7 @@ static thread_local const char* tls_currently_running = "";
         static void (*original_handlers[32])(int);
         for (int sig : std::vector<int>{ SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV }) {
             original_handlers[sig] = signal(sig, [](int sig) {
-                lockf(log_fd, F_LOCK, 0);
+                (void) lockf(log_fd, F_LOCK, 0);
                     log("\ncaught signal ");
                     switch (sig) {
                     #define CASE(s) case s: log(#s); break
@@ -59,7 +59,7 @@ static thread_local const char* tls_currently_running = "";
                     void* stack[128];
                     int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
                     backtrace_symbols_fd(stack, frames, log_fd);
-                lockf(log_fd, F_ULOCK, 0);
+                (void) lockf(log_fd, F_ULOCK, 0);
 
                 signal(sig, original_handlers[sig]);
                 raise(sig);
@@ -79,13 +79,13 @@ static thread_local const char* tls_currently_running = "";
     }
 
     void ok_log(const char* msg) {
-        lockf(log_fd, F_LOCK, 0);
+        (void) lockf(log_fd, F_LOCK, 0);
             log("[");
             log(tls_currently_running);
             log("]\t");
             log(msg);
             log("\n");
-        lockf(log_fd, F_ULOCK, 0);
+        (void) lockf(log_fd, F_ULOCK, 0);
     }
 
 #else
