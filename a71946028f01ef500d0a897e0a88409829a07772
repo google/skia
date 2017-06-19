@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "978198cf_27080a0d",
+        "filename": "tests/RecordTestUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T18:27:14Z",
+      "side": 1,
+      "message": "Do you happen to know what x and y are?",
+      "range": {
+        "startLine": 37,
+        "startChar": 35,
+        "endLine": 37,
+        "endChar": 38
+      },
+      "revId": "a71946028f01ef500d0a897e0a88409829a07772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69b3ae9e_c84d4197",
+        "filename": "tests/RecordTestUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-19T18:27:14Z",
+      "side": 1,
+      "message": "Yeah, thought this might happen.  Annoyingly compilers don\u0027t ignore each others pragmas.\n\nI think you want to wrap this up like this\n\n\n#if defined(__GNUC__) \u0026\u0026 !defined(__clang__)\n  #pragma ... push\n  #pragma ...\n#endif\n\n...\n\n#if defined(__GNUC__) \u0026\u0026 !defined(__clang__)\n  #pragma ... pop\n#endif\n\nIt\u0027s dumb.",
+      "revId": "a71946028f01ef500d0a897e0a88409829a07772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
