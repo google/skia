@@ -31,8 +31,7 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
 
 #ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
-#if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
-    #if 0
+    #if 0 && !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
         #include <atomic>
 
         #define M(st) #st,
@@ -56,7 +55,6 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
     #else
         static void log_missing(SkRasterPipeline::StockStage) {}
     #endif
-#endif
 #endif
 
 // We can't express the real types of most stage functions portably, so we use a stand-in.
@@ -128,12 +126,14 @@ extern "C" {
                     ASM(start_pipeline,avx       ),
                     ASM(start_pipeline,sse41     ),
                     ASM(start_pipeline,sse2      ),
+                    ASM(start_pipeline,hsw_lowp  ),
                     ASM(start_pipeline,ssse3_lowp);
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
             ASM(just_return,sse41),
             ASM(just_return,sse2),
+            ASM(just_return,hsw_lowp  ),
             ASM(just_return,ssse3_lowp);
 
     #define M(st) StageFn ASM(st,hsw);
@@ -149,6 +149,9 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 
+    #define M(st) StageFn ASM(st,hsw_lowp);
+        LOWP_STAGES(M)
+    #undef M
     #define M(st) StageFn ASM(st,ssse3_lowp);
         LOWP_STAGES(M)
     #undef M
@@ -161,6 +164,24 @@ extern "C" {
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
 }
+
+#if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+    template <SkRasterPipeline::StockStage st>
+    static constexpr StageFn* hsw_lowp() { return nullptr; }
+
+    template <SkRasterPipeline::StockStage st>
+    static constexpr StageFn* ssse3_lowp() { return nullptr; }
+
+    #define M(st) \
+        template <> constexpr StageFn* hsw_lowp<SkRasterPipeline::st>() {   \
+            return ASM(st,hsw_lowp);                                        \
+        }                                                                   \
+        template <> constexpr StageFn* ssse3_lowp<SkRasterPipeline::st>() { \
+            return ASM(st,ssse3_lowp);                                      \
+        }
+        LOWP_STAGES(M)
+    #undef M
+#endif
 
 // Engines comprise everything we need to run SkRasterPipelines.
 struct SkJumper_Engine {
@@ -239,41 +260,70 @@ static SkJumper_Engine choose_engine() {
     return kPortable;
 }
 
+#ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
+    static const SkJumper_Engine kNone = {
+    #define M(stage) nullptr,
+        { SK_RASTER_PIPELINE_STAGES(M) },
+    #undef M
+        nullptr,
+        nullptr,
+    };
+    static SkJumper_Engine gLowp = kNone;
+    static SkOnce gChooseLowpOnce;
+
+    static SkJumper_Engine choose_lowp() {
+    #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+        if (1 && SkCpu::Supports(SkCpu::HSW)) {
+            return {
+            #define M(st) hsw_lowp<SkRasterPipeline::st>(),
+                { SK_RASTER_PIPELINE_STAGES(M) },
+                ASM(start_pipeline,hsw_lowp),
+                ASM(just_return,hsw_lowp)
+            #undef M
+            };
+        }
+        if (1 && SkCpu::Supports(SkCpu::SSSE3)) {
+            return {
+            #define M(st) ssse3_lowp<SkRasterPipeline::st>(),
+                { SK_RASTER_PIPELINE_STAGES(M) },
+                ASM(start_pipeline,ssse3_lowp),
+                ASM(just_return,ssse3_lowp)
+            #undef M
+            };
+        }
+    #endif
+        return kNone;
+    }
+#endif
+
 StartPipelineFn* SkRasterPipeline::build_pipeline(void** ip) const {
 #ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
-#if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
-    if (SkCpu::Supports(SkCpu::SSSE3)) {
-        void** reset_point = ip;
+    gChooseLowpOnce([]{ gLowp = choose_lowp(); });
 
-        *--ip = (void*)ASM(just_return,ssse3_lowp);
-        for (const StageList* st = fStages; st; st = st->prev) {
-            StageFn* fn = nullptr;
-            switch (st->stage) {
-            #define M(st) case SkRasterPipeline::st: fn = ASM(st, ssse3_lowp); break;
-                LOWP_STAGES(M)
-            #undef M
-                case SkRasterPipeline::clamp_0: continue;  // clamp_0 is a no-op in lowp.
-                default:
-                    log_missing(st->stage);
-                    ip = reset_point;
-            }
-            if (ip == reset_point) {
-                break;
-            }
+    // First try to build a lowp pipeline.  If that fails, fall back to normal float gEngine.
+    void** reset_point = ip;
+    *--ip = (void*)gLowp.just_return;
+    for (const StageList* st = fStages; st; st = st->prev) {
+        if (st->stage == SkRasterPipeline::clamp_0) {
+            continue;  // No-op in lowp.
+        }
+        if (StageFn* fn = gLowp.stages[st->stage]) {
             if (st->ctx) {
                 *--ip = st->ctx;
             }
             *--ip = (void*)fn;
-        }
-
-        if (ip != reset_point) {
-            return ASM(start_pipeline,ssse3_lowp);
+        } else {
+            log_missing(st->stage);
+            ip = reset_point;
+            break;
         }
     }
+    if (ip != reset_point) {
+        return gLowp.start_pipeline;
+    }
 #endif
-#endif
-    gChooseEngineOnce([]{ gEngine = choose_engine(); });
 
+    gChooseEngineOnce([]{ gEngine = choose_engine(); });
     // We're building the pipeline backwards, so we start with the final stage just_return.
     *--ip = (void*)gEngine.just_return;
 
