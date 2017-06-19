@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c5c4b0d_d4b1992c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-19T14:07:37Z",
+      "side": 1,
+      "message": "Better commit message, probably don\u0027t want the \u0027;\u0027. Maybe something about how we have lots of gHex floating around...",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 33
+      },
+      "revId": "c9e1fa8ba209c4eabefdb419a931574718bdb8ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
