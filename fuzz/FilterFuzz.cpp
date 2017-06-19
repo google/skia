@@ -595,8 +595,7 @@ static sk_sp<SkImageFilter> make_image_filter(bool canBeNull) {
     case MERGE: {
         sk_sp<SkImageFilter> filA = make_image_filter();
         sk_sp<SkImageFilter> filB = make_image_filter();
-        SkBlendMode blend = make_blendmode();
-        filter = SkMergeImageFilter::Make(filA, filB, blend);
+        filter = SkMergeImageFilter::Make(filA, filB);
         break;
     }
     case COLOR: {
