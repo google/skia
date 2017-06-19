@@ -181,11 +181,13 @@ SI U8 to_byte(F v) {
 STAGE(constant_color) {
     // We're converting to fixed point, which lets us play some IEEE representation tricks,
     // replacing a naive *32768 and float->int conversion with a simple float add.
-    __m128i bits = _mm_loadu_ps((const float*)ctx) + _mm_set1_ps(256.0f);
-    r = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0100));
-    g = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0504));
-    b = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0908));
-    a = _mm_shuffle_epi8(bits, _mm_set1_epi16(0x0d0c));
+    using F32x4 = float    __attribute__((ext_vector_type(4)));
+    using U16x8 = uint16_t __attribute__((ext_vector_type(8)));
+    auto bits = (U16x8)(unaligned_load<F32x4>((const float*)ctx) + 256.0f);
+    r = (U16)bits[0];
+    g = (U16)bits[2];
+    b = (U16)bits[4];
+    a = (U16)bits[6];
 }
 
 STAGE(set_rgb) {
