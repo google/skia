@@ -269,7 +269,7 @@ protected:
         void allocInputs(int count);
     };
 
-    SkImageFilter(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
+    SkImageFilter(sk_sp<SkImageFilter> const* inputs, int inputCount, const CropRect* cropRect);
 
     ~SkImageFilter() override;
 
@@ -435,7 +435,7 @@ private:
 
     static void PurgeCache();
 
-    void init(sk_sp<SkImageFilter>* inputs, int inputCount, const CropRect* cropRect);
+    void init(sk_sp<SkImageFilter> const* inputs, int inputCount, const CropRect* cropRect);
 
     bool usesSrcInput() const { return fUsesSrcInput; }
     virtual bool affectsTransparentBlack() const { return false; }
