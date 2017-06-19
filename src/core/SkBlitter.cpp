@@ -14,6 +14,7 @@
 #include "SkWriteBuffer.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
+#include "SkPaintPriv.h"
 #include "SkShaderBase.h"
 #include "SkString.h"
 #include "SkTLazy.h"
@@ -865,6 +866,11 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         SkASSERT(nullptr == shader);
         SkASSERT(paint->isSrcOver());
         return alloc->make<SkA8_Coverage_Blitter>(device, *paint);
+    }
+
+    if (paint->isDither() && !SkPaintPriv::ShouldDither(*paint, device.colorType())) {
+        // Disable dithering when not needed.
+        paint.writable()->setDither(false);
     }
 
     if (UseRasterPipelineBlitter(device, *paint)) {
