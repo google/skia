@@ -40,6 +40,7 @@
 #include "ir/SkSLPostfixExpression.h"
 #include "ir/SkSLPrefixExpression.h"
 #include "ir/SkSLReturnStatement.h"
+#include "ir/SkSLSetting.h"
 #include "ir/SkSLSwitchCase.h"
 #include "ir/SkSLSwitchStatement.h"
 #include "ir/SkSLSwizzle.h"
@@ -102,7 +103,8 @@ IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> sy
                          ErrorReporter& errorReporter)
 : fContext(*context)
 , fCurrentFunction(nullptr)
-, fSymbolTable(std::move(symbolTable))
+, fRootSymbolTable(symbolTable)
+, fSymbolTable(symbolTable)
 , fLoopLevel(0)
 , fSwitchLevel(0)
 , fErrors(errorReporter) {}
@@ -115,8 +117,10 @@ void IRGenerator::popSymbolTable() {
     fSymbolTable = fSymbolTable->fParent;
 }
 
-static void fill_caps(const SKSL_CAPS_CLASS& caps, std::unordered_map<String, CapValue>* capsMap) {
-#define CAP(name) capsMap->insert(std::make_pair(String(#name), CapValue(caps.name())));
+static void fill_caps(const SKSL_CAPS_CLASS& caps,
+                      std::unordered_map<String, Program::Settings::Value>* capsMap) {
+#define CAP(name) capsMap->insert(std::make_pair(String(#name), \
+                                  Program::Settings::Value(caps.name())));
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
     CAP(bindlessTextureSupport);
@@ -133,6 +137,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps, std::unordered_map<String, Ca
     CAP(mustEnableSpecificAdvBlendEqs);
     CAP(mustDeclareFragmentShaderOutput);
     CAP(canUseAnyFunctionInShader);
+    CAP(floatPrecisionVaries);
 #undef CAP
 }
 
@@ -589,7 +594,12 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
         }
+        ASSERT(!fExtraVars.size());
         std::unique_ptr<Block> body = this->convertBlock(*f.fBody);
+        for (auto& v : fExtraVars) {
+            body->fStatements.insert(body->fStatements.begin(), std::move(v));
+        }
+        fExtraVars.clear();
         fCurrentFunction = nullptr;
         if (!body) {
             return nullptr;
@@ -758,6 +768,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         }
         case Symbol::kVariable_Kind: {
             const Variable* var = (const Variable*) result;
+#ifndef SKSL_STANDALONE
             if (var->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                 fInputs.fFlipY = true;
                 if (fSettings->fFlipY &&
@@ -766,6 +777,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
                     fInputs.fRTHeight = true;
                 }
             }
+#endif
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return std::unique_ptr<VariableReference>(new VariableReference(
                                                                  identifier.fPosition,
@@ -789,8 +801,12 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTIdentifier& 
         default:
             ABORT("unsupported symbol type %d\n", result->fKind);
     }
-
 }
+
+std::unique_ptr<Section> IRGenerator::convertSection(const ASTSection& s) {
+    return std::unique_ptr<Section>(new Section(s.fPosition, s.fName, s.fArgument, s.fText));
+}
+
 
 std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr,
                                                 const Type& type) {
@@ -816,6 +832,9 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         std::unique_ptr<Expression> ctor = this->convertIdentifier(id);
         ASSERT(ctor);
         return this->call(Position(), std::move(ctor), std::move(args));
+    }
+    if (type == *fContext.fColorSpaceXform_Type && expr->fType == *fContext.fMat4x4_Type) {
+        return expr;
     }
     std::vector<std::unique_ptr<Expression>> args;
     args.push_back(std::move(expr));
@@ -1245,7 +1264,7 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i], 
+            this->markWrittenTo(*arguments[i],
                                 function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
         }
     }
@@ -1286,6 +1305,87 @@ bool IRGenerator::determineCallCost(const FunctionDeclaration& function,
     return true;
 }
 
+std::unique_ptr<Expression> IRGenerator::applyColorSpace(std::unique_ptr<Expression> texture,
+                                                         const Variable* xform) {
+    // Before:
+    // vec4 color = texture(img, coords, xform);
+    // After:
+    // vec4 tmp;
+    // vec4 color = (tmp = texture(img, coords) ,
+    //               xform != mat4(1) ?
+    //                            vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a) :
+    //                            tmp);
+
+    // a few macros to keep line lengths manageable
+    #define EXPR std::unique_ptr<Expression>
+    #define REF(v) EXPR(new VariableReference(p, *v))
+    #define FLOAT(x) EXPR(new FloatLiteral(fContext, p, x))
+    #define MOVE std::move
+    Position p = Position();
+    // vec4 tmp;
+    Variable* tmp = new Variable(p, Modifiers(), "_tmp" + to_string(fTmpCount++), texture->fType,
+                                 Variable::kLocal_Storage);
+    fRootSymbolTable->takeOwnership(tmp);
+    std::vector<std::unique_ptr<VarDeclaration>> decls;
+    decls.emplace_back(new VarDeclaration(tmp, {}, nullptr));
+    const Type& type = texture->fType;
+    fExtraVars.emplace_back(new VarDeclarationsStatement(std::unique_ptr<VarDeclarations>(
+                                       new VarDeclarations(p, &type, MOVE(decls)))));
+    // tmp = texture
+    EXPR assignment = EXPR(new BinaryExpression(p,
+                                                EXPR(new VariableReference(p, *tmp,
+                                                                VariableReference::kWrite_RefKind)),
+                                                Token::EQ,
+                                                MOVE(texture), type));
+    // 1.0
+    std::vector<EXPR> matArgs;
+    matArgs.push_back(FLOAT(1.0));
+    // mat4(1.0)
+    EXPR mat = EXPR(new Constructor(p, *fContext.fMat4x4_Type, MOVE(matArgs)));
+    // <xform> != mat4(1.0)
+    EXPR matNeq = EXPR(new BinaryExpression(p, REF(xform), Token::NEQ, MOVE(mat),
+                                            *fContext.fBool_Type));
+    // tmp.rgb
+    std::vector<int> rgb { 0, 1, 2 };
+    EXPR tmpRgb = EXPR(new Swizzle(fContext, REF(tmp), rgb));
+    // vec4(tmp.rgb, 1.0)
+    std::vector<EXPR> tmpVecArgs;
+    tmpVecArgs.push_back(MOVE(tmpRgb));
+    tmpVecArgs.push_back(FLOAT(1.0));
+    EXPR tmpVec = EXPR(new Constructor(p, *fContext.fVec4_Type, MOVE(tmpVecArgs)));
+    // xform * vec4(tmp.rgb, 1.0)
+    EXPR mul = EXPR(new BinaryExpression(p, REF(xform), Token::STAR, MOVE(tmpVec),
+                                         *fContext.fVec4_Type));
+    // (xform * vec4(tmp.rgb, 1.0)).rgb
+    EXPR mulRGB = EXPR(new Swizzle(fContext, std::move(mul), rgb));
+    // tmp.a
+    std::vector<int> a { 3 };
+    EXPR tmpA = EXPR(new Swizzle(fContext, REF(tmp), a));
+    // clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a)
+    EXPR clamp = this->convertIdentifier(ASTIdentifier(p, "clamp"));
+    std::vector<EXPR> clampArgs;
+    clampArgs.push_back(MOVE(mulRGB));
+    clampArgs.push_back(FLOAT(0));
+    clampArgs.push_back(MOVE(tmpA));
+    EXPR clampCall = this->call(p, MOVE(clamp), MOVE(clampArgs));
+    // tmp.a
+    tmpA = EXPR(new Swizzle(fContext, REF(tmp), a));
+    // vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a)
+    std::vector<EXPR> finalVecArgs;
+    finalVecArgs.push_back(MOVE(clampCall));
+    finalVecArgs.push_back(MOVE(tmpA));
+    EXPR finalVec = EXPR(new Constructor(p, *fContext.fVec4_Type, MOVE(finalVecArgs)));
+    // xform != mat4(1) ? vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a) : tmp)
+    EXPR ternary = EXPR(new TernaryExpression(p, MOVE(matNeq), MOVE(finalVec), REF(tmp)));
+    // (tmp = texture ,
+    //   xform != mat4(1) ? vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a) : tmp))
+    return EXPR(new BinaryExpression(p, MOVE(assignment), Token::COMMA, MOVE(ternary), type));
+    #undef EXPR
+    #undef REF
+    #undef FLOAT
+    #undef MOVE
+}
+
 std::unique_ptr<Expression> IRGenerator::call(Position position,
                                               std::unique_ptr<Expression> functionValue,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
@@ -1299,6 +1399,17 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
         return nullptr;
     }
     FunctionReference* ref = (FunctionReference*) functionValue.get();
+    if (ref->fFunctions[0]->fName == "texture" &&
+        arguments.back()->fType == *fContext.fColorSpaceXform_Type) {
+        std::unique_ptr<Expression> colorspace = std::move(arguments.back());
+        ASSERT(colorspace->fKind == Expression::kVariableReference_Kind);
+        arguments.pop_back();
+        return this->applyColorSpace(this->call(position,
+                                                std::move(functionValue),
+                                                std::move(arguments)),
+                                     &((VariableReference&) *colorspace).fVariable);
+    }
+
     int bestCost = INT_MAX;
     const FunctionDeclaration* best = nullptr;
     if (ref->fFunctions.size() > 1) {
@@ -1364,7 +1475,7 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
                                 args[0]->fType.description() + "')");
         return nullptr;
     }
-    return std::unique_ptr<Expression>(new Constructor(position, std::move(type), std::move(args)));
+    return std::unique_ptr<Expression>(new Constructor(position, type, std::move(args)));
 }
 
 int component_count(const Type& type) {
@@ -1386,8 +1497,7 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(
     if (type.kind() == Type::kMatrix_Kind && args.size() == 1 &&
         args[0]->fType.kind() == Type::kMatrix_Kind) {
         // matrix from matrix is always legal
-        return std::unique_ptr<Expression>(new Constructor(position, std::move(type),
-                                                           std::move(args)));
+        return std::unique_ptr<Expression>(new Constructor(position, type, std::move(args)));
     }
     int actual = 0;
     int expected = type.rows() * type.columns();
@@ -1424,7 +1534,7 @@ std::unique_ptr<Expression> IRGenerator::convertCompoundConstructor(
             return nullptr;
         }
     }
-    return std::unique_ptr<Expression>(new Constructor(position, std::move(type), std::move(args)));
+    return std::unique_ptr<Expression>(new Constructor(position, type, std::move(args)));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertConstructor(
@@ -1447,8 +1557,7 @@ std::unique_ptr<Expression> IRGenerator::convertConstructor(
                 return nullptr;
             }
         }
-        return std::unique_ptr<Expression>(new Constructor(position, std::move(type),
-                                                           std::move(args)));
+        return std::unique_ptr<Expression>(new Constructor(position, type, std::move(args)));
     } else if (kind == Type::kVector_Kind || kind == Type::kMatrix_Kind) {
         return this->convertCompoundConstructor(position, type, std::move(args));
     } else {
@@ -1640,16 +1749,21 @@ std::unique_ptr<Expression> IRGenerator::getCap(Position position, String name) 
         fErrors.error(position, "unknown capability flag '" + name + "'");
         return nullptr;
     }
-    switch (found->second.fKind) {
-        case CapValue::kBool_Kind:
-            return std::unique_ptr<Expression>(new BoolLiteral(fContext, position,
-                                                               (bool) found->second.fValue));
-        case CapValue::kInt_Kind:
-            return std::unique_ptr<Expression>(new IntLiteral(fContext, position,
-                                                              found->second.fValue));
+    String fullName = "sk_Caps." + name;
+    return std::unique_ptr<Expression>(new Setting(position, fullName,
+                                                   found->second.literal(fContext, position)));
+}
+
+std::unique_ptr<Expression> IRGenerator::getArg(Position position, String name) {
+    auto found = fSettings->fArgs.find(name);
+    if (found == fSettings->fArgs.end()) {
+        fErrors.error(position, "unknown argument '" + name + "'");
+        return nullptr;
     }
-    ASSERT(false);
-    return nullptr;
+    String fullName = "sk_Args." + name;
+    return std::unique_ptr<Expression>(new Setting(position,
+                                                   fullName,
+                                                   found->second.literal(fContext, position)));
 }
 
 std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
@@ -1691,6 +1805,10 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
         case ASTSuffix::kField_Kind: {
             if (base->fType == *fContext.fSkCaps_Type) {
                 return this->getCap(expression.fPosition,
+                                    ((ASTFieldSuffix&) *expression.fSuffix).fField);
+            }
+            if (base->fType == *fContext.fSkArgs_Type) {
+                return this->getArg(expression.fPosition,
                                     ((ASTFieldSuffix&) *expression.fSuffix).fField);
             }
             switch (base->fType.kind()) {
