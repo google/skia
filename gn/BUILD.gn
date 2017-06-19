@@ -369,6 +369,7 @@ config("warnings") {
         "-Wno-unreachable-code-return",
         "-Wno-unused-macros",
         "-Wno-unused-member-function",
+        "-Wno-unused-result",
       ]
       cflags_cc += [
         "-Wno-abstract-vbase-init",
