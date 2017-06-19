@@ -180,9 +180,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             case kRGBA_8888_SkColorType:
             case kBGRA_8888_SkColorType: blitter->fDitherRate = 1/255.0f; break;
         }
-        // TODO: for constant colors, we could try to measure the effect of dithering, and if
-        //       it has no value (i.e. all variations result in the same 32bit color, then we
-        //       could disable it (for speed, by not adding the stage).
     }
     is_constant = is_constant && (blitter->fDitherRate == 0.0f);
 
