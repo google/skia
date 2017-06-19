@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04f7bb4d_348694ca",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2017-06-19T20:26:52Z",
+      "side": 1,
+      "message": "I think this is already stored in SkColorSpacePriv.h...  hopefully they are exactly identical?\n\nCan we recognize all of the gamut that we have enums for?",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 2
+      },
+      "revId": "7d794043d6c4d5bb6239f767f06917fbcb7f682d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
