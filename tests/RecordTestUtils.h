@@ -33,7 +33,12 @@ static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, int i
     record.visit(index, reader);
     REPORTER_ASSERT(r, T::kType == reader.type);
     REPORTER_ASSERT(r, SkToBool(reader.ptr));
+
+// This appears to be a bug in GCC x.y.  There's no problem here.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"
     return reader.ptr;
+#pragma GCC diagnostic pop
 }
 
 template <typename DrawT> struct MatchType {
