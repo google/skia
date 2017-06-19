@@ -783,13 +783,13 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                                left, top, width, height, config, texels);
 }
 
-bool GrGLGpu::onTransferPixels(GrSurface* surface,
+bool GrGLGpu::onTransferPixels(GrTexture* texture,
                                int left, int top, int width, int height,
                                GrPixelConfig config, GrBuffer* transferBuffer,
                                size_t offset, size_t rowBytes) {
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
-    if (!check_write_and_transfer_input(glTex, surface, config)) {
+    if (!check_write_and_transfer_input(glTex, texture, config)) {
         return false;
     }
 
@@ -803,7 +803,7 @@ bool GrGLGpu::onTransferPixels(GrSurface* surface,
 
     bool success = false;
     GrMipLevel mipLevel;
-    mipLevel.fPixels = transferBuffer;
+    mipLevel.fPixels = (void*)offset;
     mipLevel.fRowBytes = rowBytes;
     SkSTArray<1, GrMipLevel> texels;
     texels.push_back(mipLevel);
@@ -971,6 +971,14 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                             const SkTArray<GrMipLevel>& texels) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
 
+    // unbind any previous transfer buffer if not transferring
+    auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
+    if (kTransfer_UploadType != uploadType &&
+        !xferBufferState.fBoundBufferUniqueID.isInvalid()) {
+        GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
+        xferBufferState.invalidate();
+    }
+
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
     // Rather than flip in place and alter the incoming data,
@@ -1109,6 +1117,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                 texelsShallowCopy[currentMipLevel].fRowBytes = trimRowBytes;
             }
         } else {
+            // TODO: should we assume that transfers with BottomLeft origin don't
+            // require a flip?
             return false;
         }
     }
