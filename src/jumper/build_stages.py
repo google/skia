@@ -60,6 +60,12 @@ subprocess.check_call(clang + cflags + hsw +
 subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_hsw.o'])
+subprocess.check_call(clang + cflags + hsw +
+                      ['-c', 'src/jumper/SkJumper_stages_lowp.cpp'] +
+                      ['-o', 'lowp_hsw.o'])
+subprocess.check_call(clang + cflags + hsw + win +
+                      ['-c', 'src/jumper/SkJumper_stages_lowp.cpp'] +
+                      ['-o', 'win_lowp_hsw.o'])
 
 aarch64 = [ '--target=aarch64' ]
 subprocess.check_call(clang + cflags + aarch64 +
@@ -196,6 +202,8 @@ parse_object_file('sse41.o', '.byte')
 print 'BALIGN32'
 parse_object_file('sse2.o',  '.byte')
 print 'BALIGN32'
+parse_object_file('lowp_hsw.o',  '.byte')
+print 'BALIGN32'
 parse_object_file('lowp_ssse3.o',  '.byte')
 
 print '#endif'
@@ -220,6 +228,8 @@ print 'ALIGN 32'
 parse_object_file('win_sse41.o', 'DB')
 print 'ALIGN 32'
 parse_object_file('win_sse2.o',  'DB')
+print 'ALIGN 32'
+parse_object_file('win_lowp_hsw.o',  'DB')
 print 'ALIGN 32'
 parse_object_file('win_lowp_ssse3.o',  'DB')
 print 'ENDIF'
