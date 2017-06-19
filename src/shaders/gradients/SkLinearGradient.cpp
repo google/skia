@@ -10,9 +10,6 @@
 #include "SkLinearGradient.h"
 #include "SkRefCnt.h"
 
-// define to test the 4f gradient path
-// #define FORCE_4F_CONTEXT
-
 static const float kInv255Float = 1.0f / 255;
 
 static inline int repeat_8bits(int x) {
@@ -37,14 +34,6 @@ static SkMatrix pts_to_unit_matrix(const SkPoint pts[2]) {
     matrix.postTranslate(-pts[0].fX, -pts[0].fY);
     matrix.postScale(inv, inv);
     return matrix;
-}
-
-static bool use_4f_context(const SkShaderBase::ContextRec& rec, uint32_t flags) {
-#ifdef FORCE_4F_CONTEXT
-    return true;
-#else
-    return rec.fPreferredDstType == SkShaderBase::ContextRec::kPM4f_DstType;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,7 +66,7 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
 SkShaderBase::Context* SkLinearGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
-    return use_4f_context(rec, fGradFlags)
+    return rec.fPreferredDstType == ContextRec::kPM4f_DstType
            ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
            : CheckedMakeContext<  LinearGradientContext>(alloc, *this, rec);
 }
