@@ -46,6 +46,30 @@
       "revId": "d1d556425962910fb8b1698cd289844dbee35795",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f513156d_32503bf4",
+        "filename": "include/private/GrSurfaceProxy.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-19T16:33:45Z",
+      "side": 1,
+      "message": "Proxies \u0026 GrSurface\u0027s pull from the same pile of uniqueIDs so they can\u0027t be confused.",
+      "parentUuid": "a6721e0b_3788d802",
+      "range": {
+        "startLine": 245,
+        "startChar": 4,
+        "endLine": 251,
+        "endChar": 5
+      },
+      "revId": "d1d556425962910fb8b1698cd289844dbee35795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
