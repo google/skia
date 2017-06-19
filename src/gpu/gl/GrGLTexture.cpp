@@ -33,6 +33,7 @@ static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelCo
     }
 }
 
+// This method parallels GrTextureProxy::highestFilterMode
 static inline GrSamplerParams::FilterMode highest_filter_mode(const GrGLTexture::IDDesc& idDesc,
                                                               GrPixelConfig config) {
     if (GrPixelConfigIsSint(config)) {

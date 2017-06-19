@@ -244,6 +244,15 @@ public:
      */
     UniqueID uniqueID() const { return fUniqueID; }
 
+    UniqueID fooID() const {
+        if (fTarget) {
+            return UniqueID(fTarget->uniqueID());
+        }
+
+        return fUniqueID;
+    }
+
+
     virtual GrSurface* instantiate(GrResourceProvider* resourceProvider) = 0;
 
     /**

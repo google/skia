@@ -9,7 +9,9 @@
 #define GrCoordTransform_DEFINED
 
 #include "SkMatrix.h"
+#include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
+#include "GrTextureProxy.h"
 
 class GrResourceProvider;
 class GrTextureProxy;
@@ -21,7 +23,7 @@ class GrTextureProxy;
 class GrCoordTransform : SkNoncopyable {
 public:
     GrCoordTransform()
-        : fTexture(nullptr)
+        : fProxy(nullptr)
         , fNormalize(false)
         , fReverseY(false) {
         SkDEBUGCODE(fInProcessor = false);
@@ -34,7 +36,7 @@ public:
     GrCoordTransform(GrResourceProvider* resourceProvider, GrTextureProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(resourceProvider, SkMatrix::I(), proxy);
+        this->reset(resourceProvider, SkMatrix::I(), proxy, true);
     }
 
     /**
@@ -45,7 +47,7 @@ public:
                      GrTextureProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
-        this->reset(resourceProvider, m, proxy);
+        this->reset(resourceProvider, m, proxy, true);
     }
 
     /**
@@ -56,12 +58,12 @@ public:
         this->reset(m);
     }
 
-    void reset(GrResourceProvider*, const SkMatrix&, GrTextureProxy*, bool normalize = true);
+    void reset(GrResourceProvider*, const SkMatrix&, GrTextureProxy*, bool normalize);
 
     void reset(const SkMatrix& m) {
         SkASSERT(!fInProcessor);
         fMatrix = m;
-        fTexture = nullptr;
+        fProxy = nullptr;
         fNormalize = false;
         fReverseY = false;
     }
@@ -69,7 +71,7 @@ public:
     GrCoordTransform& operator= (const GrCoordTransform& that) {
         SkASSERT(!fInProcessor);
         fMatrix = that.fMatrix;
-        fTexture = that.fTexture;
+        fProxy = that.fProxy;
         fNormalize = that.fNormalize;
         fReverseY = that.fReverseY;
         return *this;
@@ -92,18 +94,25 @@ public:
         }
 
         if (fNormalize) {
-            SkASSERT(fTexture && that.fTexture);
-            return fTexture->width() == that.fTexture->width() &&
-                   fTexture->height() == that.fTexture->height();
+            if (fProxy->fooID() != that.fProxy->fooID()) {
+                return false;
+            }
         }
 
         return true;
     }
 
     const SkMatrix& getMatrix() const { return fMatrix; }
-    const GrTexture* texture() const { return fTexture; }
+    const GrTextureProxy* proxy() const { return fProxy; }
     bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
+
+    // This should only ever be called at flush time after the backing texture has been
+    // successfully instantiated
+    GrTexture* peekTexture() const {
+        SkASSERT(fProxy->priv().peekTexture());
+        return fProxy->priv().peekTexture();
+    }
 
 private:
     // The textures' effect is to optionally normalize the final matrix, so a blind
@@ -112,7 +121,7 @@ private:
     bool operator!=(const GrCoordTransform& that) const;
 
     SkMatrix                fMatrix;
-    const GrTexture*        fTexture;
+    const GrTextureProxy*   fProxy;
     bool                    fNormalize;
     bool                    fReverseY;
     typedef SkNoncopyable INHERITED;

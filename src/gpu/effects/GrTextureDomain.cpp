@@ -441,7 +441,9 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
 bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
             fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-    return dstdfp.fTextureSampler.texture() == fTextureSampler.texture() &&
+    SkASSERT_RELEASE((dstdfp.fTextureSampler.proxy()->fooID() == fTextureSampler.proxy()->fooID()) ==
+                     (dstdfp.fTextureSampler.proxy()->priv().peekTexture() == fTextureSampler.proxy()->priv().peekTexture()));
+    return dstdfp.fTextureSampler.proxy()->fooID() == fTextureSampler.proxy()->fooID() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
 }

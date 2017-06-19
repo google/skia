@@ -233,34 +233,27 @@ public:
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
     bool operator==(const TextureSampler& that) const {
-        return this->texture() == that.texture() &&
+        SkASSERT_RELEASE((this->proxy()->fooID() == that.proxy()->fooID()) ==
+                         (this->proxy()->priv().peekTexture() == that.proxy()->priv().peekTexture()));
+        return this->proxy()->fooID() == that.proxy()->fooID() &&
                fParams == that.fParams &&
                fVisibility == that.fVisibility;
     }
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
-    // MDB TODO: remove the remaining callers of this accessor
-    GrTexture* texture() const { return fTexture.get(); }
-
     // 'instantiate' should only ever be called at flush time.
     bool instantiate(GrResourceProvider* resourceProvider) const {
-        // MDB TODO: return SkToBool(fProxy->instantiate(resourceProvider));
-        // and remove the following 2 lines
-        SkDEBUGCODE(fInstantiated = true;)
-        return SkToBool(fTexture.get());
+        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
     }
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
     GrTexture* peekTexture() const {
-        // MDB TODO:
-        // SkASSERT(fProxy->priv().peekTexture());
-        // return fProxy->priv().peekTexture();
-        // and remove the following 3 lines:
-        SkASSERT(fInstantiated);
-        SkASSERT(fTexture.get());
-        return fTexture.get();
+        SkASSERT(fProxyRef.get()->priv().peekTexture());
+        return fProxyRef.get()->priv().peekTexture();
     }
+
+    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
 
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerParams& params() const { return fParams; }
@@ -268,15 +261,12 @@ public:
     /**
      * For internal use by GrProcessor.
      */
-    const GrGpuResourceRef* programTexture() const { return &fTexture; }
+    const  GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
 
 private:
-    typedef GrTGpuResourceRef<GrTexture> ProgramTexture;
-
-    ProgramTexture                  fTexture;
+    GrSurfaceProxyRef               fProxyRef;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
-    SkDEBUGCODE(mutable bool fInstantiated = false;)   // MDB TODO: remove this line
 
     typedef SkNoncopyable INHERITED;
 };

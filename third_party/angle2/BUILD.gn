@@ -41,7 +41,7 @@ config("common") {
     "$root_gen_dir/angle2",
     "$angle_root/include",
     "$angle_root/src",
-    "$angle_root/src/common/third_party/numerics",
+    "$angle_root/src/common/third_party/base",
     "$angle_root/src/third_party/khronos",
   ]
 
