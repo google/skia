@@ -363,7 +363,7 @@ static int get_glprograms_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
     if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
         ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
         // On Angle D3D we will hit a limit of out variables if we use too many stages.
-        maxStages = 3;
+        maxStages = 1;
     }
     return maxStages;
 }
