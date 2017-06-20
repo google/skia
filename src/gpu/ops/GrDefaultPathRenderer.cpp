@@ -57,37 +57,294 @@ GrDefaultPathRenderer::onGetStencilSupport(const GrShape& shape) const {
     }
 }
 
-static inline void append_countour_edge_indices(bool hairLine,
-                                                uint16_t fanCenterIdx,
-                                                uint16_t edgeV0Idx,
-                                                uint16_t** indices) {
-    // when drawing lines we're appending line segments along
-    // the contour. When applying the other fill rules we're
-    // drawing triangle fans around fanCenterIdx.
-    if (!hairLine) {
-        *((*indices)++) = fanCenterIdx;
+class PathGeoBuilder {
+public:
+    PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
+                   GrGeometryProcessor* geometryProcessor, const GrPipeline* pipeline)
+            : fMesh(primitiveType)
+            , fTarget(target)
+            , fVertexStride(sizeof(SkPoint))
+            , fGeometryProcessor(geometryProcessor)
+            , fPipeline(pipeline)
+            , fIndexBuffer(nullptr)
+            , fFirstIndex(0)
+            , fIndicesInChunk(0)
+            , fIndices(nullptr) {
+        this->allocNewBuffers();
     }
-    *((*indices)++) = edgeV0Idx;
-    *((*indices)++) = edgeV0Idx + 1;
-}
 
-static inline void add_quad(SkPoint** vert, const SkPoint* base, const SkPoint pts[],
-                            SkScalar srcSpaceTolSqd, SkScalar srcSpaceTol, bool indexed,
-                            bool isHairline, uint16_t subpathIdxStart, int offset, uint16_t** idx) {
-    // first pt of quad is the pt we ended on in previous step
-    uint16_t firstQPtIdx = (uint16_t)(*vert - base) - 1 + offset;
-    uint16_t numPts =  (uint16_t)
-        GrPathUtils::generateQuadraticPoints(
-            pts[0], pts[1], pts[2],
-            srcSpaceTolSqd, vert,
-            GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
-    if (indexed) {
-        for (uint16_t i = 0; i < numPts; ++i) {
-            append_countour_edge_indices(isHairline, subpathIdxStart,
-                                         firstQPtIdx + i, idx);
+    ~PathGeoBuilder() {
+        this->emitMesh();
+        this->putBackReserve();
+    }
+
+    // Called before we start each path
+    void beginInstance() {
+        fSubpathIndexStart = fVertexOffset;
+        fCurIdx = fIndices + fIndexOffset;
+        fCurVert = fVertices + fVertexOffset;
+    }
+
+    // Called after we end each path
+    void endInstance() {
+        fVertexOffset = fCurVert - fVertices;
+        fIndexOffset = fCurIdx - fIndices;
+        SkASSERT(fVertexOffset <= fVerticesInChunk);
+        SkASSERT(fIndexOffset <= fIndicesInChunk);
+    }
+
+    /**
+     *  Path verbs
+     */
+    void moveTo(const SkPoint& p) {
+        needSpace(1);
+
+        fSubpathIndexStart = this->currentIndex();
+        *(fCurVert++) = p;
+    }
+
+    void addLine(const SkPoint& p) {
+        needSpace(1, this->indexScale());
+
+        if (this->isIndexed()) {
+            uint16_t prevIdx = this->currentIndex() - 1;
+            appendCountourEdgeIndices(prevIdx);
+        }
+        *(fCurVert++) = p;
+    }
+
+    void addQuad(const SkPoint pts[], SkScalar srcSpaceTolSqd, SkScalar srcSpaceTol) {
+        this->needSpace(GrPathUtils::kMaxPointsPerCurve,
+                        GrPathUtils::kMaxPointsPerCurve * this->indexScale());
+
+        // First pt of quad is the pt we ended on in previous step
+        uint16_t firstQPtIdx = this->currentIndex() - 1;
+        uint16_t numPts = (uint16_t)GrPathUtils::generateQuadraticPoints(
+                pts[0], pts[1], pts[2], srcSpaceTolSqd, &fCurVert,
+                GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
+        if (this->isIndexed()) {
+            for (uint16_t i = 0; i < numPts; ++i) {
+                appendCountourEdgeIndices(firstQPtIdx + i);
+            }
         }
     }
-}
+
+    void addConic(SkScalar weight, const SkPoint pts[], SkScalar srcSpaceTolSqd,
+                  SkScalar srcSpaceTol) {
+        SkAutoConicToQuads converter;
+        const SkPoint* quadPts = converter.computeQuads(pts, weight, srcSpaceTol);
+        for (int i = 0; i < converter.countQuads(); ++i) {
+            this->addQuad(quadPts + i * 2, srcSpaceTolSqd, srcSpaceTol);
+        }
+    }
+
+    void addCubic(const SkPoint pts[], SkScalar srcSpaceTolSqd, SkScalar srcSpaceTol) {
+        this->needSpace(GrPathUtils::kMaxPointsPerCurve,
+                        GrPathUtils::kMaxPointsPerCurve * this->indexScale());
+
+        // First pt of cubic is the pt we ended on in previous step
+        uint16_t firstCPtIdx = this->currentIndex() - 1;
+        uint16_t numPts = (uint16_t) GrPathUtils::generateCubicPoints(
+                pts[0], pts[1], pts[2], pts[3], srcSpaceTolSqd, &fCurVert,
+                GrPathUtils::cubicPointCount(pts, srcSpaceTol));
+        if (this->isIndexed()) {
+            for (uint16_t i = 0; i < numPts; ++i) {
+                appendCountourEdgeIndices(firstCPtIdx + i);
+            }
+        }
+    }
+
+    void addPath(const SkPath& path, SkScalar srcSpaceTol) {
+        SkScalar srcSpaceTolSqd = srcSpaceTol * srcSpaceTol;
+
+        SkPath::Iter iter(path, false);
+        SkPoint pts[4];
+
+        bool done = false;
+        while (!done) {
+            SkPath::Verb verb = iter.next(pts);
+            switch (verb) {
+                case SkPath::kMove_Verb:
+                    this->moveTo(pts[0]);
+                    break;
+                case SkPath::kLine_Verb:
+                    this->addLine(pts[1]);
+                    break;
+                case SkPath::kConic_Verb:
+                    this->addConic(iter.conicWeight(), pts, srcSpaceTolSqd, srcSpaceTol);
+                    break;
+                case SkPath::kQuad_Verb:
+                    this->addQuad(pts, srcSpaceTolSqd, srcSpaceTol);
+                    break;
+                case SkPath::kCubic_Verb:
+                    this->addCubic(pts, srcSpaceTolSqd, srcSpaceTol);
+                    break;
+                case SkPath::kClose_Verb:
+                    break;
+                case SkPath::kDone_Verb:
+                    done = true;
+            }
+        }
+    }
+
+    static bool PathHasMultipleSubpaths(const SkPath& path) {
+        bool first = true;
+
+        SkPath::Iter iter(path, false);
+        SkPath::Verb verb;
+
+        SkPoint pts[4];
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+            if (SkPath::kMove_Verb == verb && !first) {
+                return true;
+            }
+            first = false;
+        }
+        return false;
+    }
+
+private:
+    /**
+     *  Derived properties
+     *  TODO: Cache some of these for better performance, rather than re-computing?
+     */
+    bool isIndexed() const {
+        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
+               GrPrimitiveType::kTriangles == fMesh.primitiveType();
+    }
+    bool isHairline() const {
+        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
+               GrPrimitiveType::kLineStrip == fMesh.primitiveType();
+    }
+    int indexScale() const {
+        switch (fMesh.primitiveType()) {
+            case GrPrimitiveType::kLines:
+                return 2;
+            case GrPrimitiveType::kTriangles:
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    uint16_t currentIndex() const { return fCurVert - fVertices; }
+
+    void putBackReserve() {
+        fTarget->putBackIndices((size_t)(fIndicesInChunk - fIndexOffset));
+        fTarget->putBackVertices((size_t)(fVerticesInChunk - fVertexOffset), fVertexStride);
+    }
+
+    // Allocate vertex and (possibly) index buffers
+    void allocNewBuffers() {
+        // Ensure that we always get enough verts for a worst-case quad/cubic, plus leftover points
+        // from previous mesh piece (up to two verts to continue fanning). If we can't get that
+        // many, ask for a much larger number. This needs to be fairly big to handle  quads/cubics,
+        // which have a worst-case of 1k points.
+        static const int kMinVerticesPerChunk = GrPathUtils::kMaxPointsPerCurve + 2;
+        static const int kFallbackVerticesPerChunk = 16384;
+
+        fVertices = static_cast<SkPoint*>(fTarget->makeVertexSpaceAtLeast(fVertexStride,
+                                                                          kMinVerticesPerChunk,
+                                                                          kFallbackVerticesPerChunk,
+                                                                          &fVertexBuffer,
+                                                                          &fFirstVertex,
+                                                                          &fVerticesInChunk));
+
+        if (this->isIndexed()) {
+            // Similar to above: Ensure we get enough indices for one worst-case quad/cubic.
+            // No extra indices are needed for stitching, though. If we can't get that many, ask
+            // for enough to match our large vertex request.
+            const int kMinIndicesPerChunk = GrPathUtils::kMaxPointsPerCurve * this->indexScale();
+            const int kFallbackIndicesPerChunk = kFallbackVerticesPerChunk * this->indexScale();
+
+            fIndices = fTarget->makeIndexSpaceAtLeast(kMinIndicesPerChunk, kFallbackIndicesPerChunk,
+                                                      &fIndexBuffer, &fFirstIndex,
+                                                      &fIndicesInChunk);
+        }
+        fVertexOffset = 0;
+        fIndexOffset = 0;
+    }
+
+    void appendCountourEdgeIndices(uint16_t edgeV0Idx) {
+        // When drawing lines we're appending line segments along the countour. When applying the
+        // other fill rules we're drawing triangle fans around the start of the current (sub)path.
+        if (!this->isHairline()) {
+            *(fCurIdx++) = fSubpathIndexStart;
+        }
+        *(fCurIdx++) = edgeV0Idx;
+        *(fCurIdx++) = edgeV0Idx + 1;
+    }
+
+    // Emits a single draw with all accumulated vertex/index data
+    void emitMesh() {
+        if (fVertexOffset > 0) {
+            if (!this->isIndexed()) {
+                fMesh.setNonIndexedNonInstanced(fVertexOffset);
+            } else {
+                fMesh.setIndexed(fIndexBuffer, fIndexOffset, fFirstIndex, 0, fVertexOffset - 1);
+            }
+            fMesh.setVertexData(fVertexBuffer, fFirstVertex);
+            fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
+        }
+    }
+
+    void needSpace(int vertsNeeded, int indicesNeeded = 0) {
+        if (fCurVert + vertsNeeded > fVertices + fVerticesInChunk ||
+            fCurIdx + indicesNeeded > fIndices + fIndicesInChunk) {
+            // We are about to run out of space (possibly)
+
+            // To maintain continuity, we need to remember one or two points from the current mesh.
+            // Lines only need the last point, fills need the first point from the current contour.
+            // We always grab both here, and append the ones we need at the end of this process.
+            SkPoint lastPt = *(fCurVert - 1);
+            // It's possible for fSubpathIndexStart to be past the end of the vertex buffer, if we
+            // fill up the vertex buffer exactly at the end of a path. To keep things simple, we
+            // still inject a point, but it's just (0,0) because it won't actually be used.
+            SkPoint subpathStartPt = fSubpathIndexStart >= fVerticesInChunk
+                                     ? SkPoint::Make(0, 0) : fVertices[fSubpathIndexStart];
+
+            // Pretend that we've reached the end of an entire path, so our offsets are correct
+            this->endInstance();
+
+            // Draw the mesh we've accumulated
+            this->emitMesh();
+
+            // Put back any unused space, get new buffers
+            this->putBackReserve();
+            this->allocNewBuffers();
+
+            // Start a "new" path, which is really just a continuation of the in-progress one
+            this->beginInstance();
+
+            // Append copies of the points we saved so the two meshes will weld properly
+            if (!this->isHairline()) {
+                *(fCurVert++) = subpathStartPt;
+            }
+            *(fCurVert++) = lastPt;
+        }
+    }
+
+    GrMesh fMesh;
+    GrMeshDrawOp::Target* fTarget;
+    size_t fVertexStride;
+    GrGeometryProcessor* fGeometryProcessor;
+    const GrPipeline* fPipeline;
+
+    const GrBuffer* fVertexBuffer;
+    int fFirstVertex;
+    int fVerticesInChunk;
+    SkPoint* fVertices;
+    SkPoint* fCurVert;
+    int fVertexOffset;
+
+    const GrBuffer* fIndexBuffer;
+    int fFirstIndex;
+    int fIndicesInChunk;
+    uint16_t* fIndices;
+    uint16_t* fCurIdx;
+    int fIndexOffset;
+    uint16_t fSubpathIndexStart;
+};
 
 class DefaultPathOp final : public GrLegacyMeshDrawOp {
 public:
@@ -151,112 +408,35 @@ private:
             gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
         }
 
-        size_t vertexStride = gp->getVertexStride();
-        SkASSERT(vertexStride == sizeof(SkPoint));
+        SkASSERT(gp->getVertexStride() == sizeof(SkPoint));
 
         int instanceCount = fPaths.count();
 
-        // compute number of vertices
-        int maxVertices = 0;
-
         // We will use index buffers if we have multiple paths or one path with multiple contours
         bool isIndexed = instanceCount > 1;
-        for (int i = 0; i < instanceCount; i++) {
+        for (int i = 0; !isIndexed && i < instanceCount; i++) {
             const PathData& args = fPaths[i];
-
-            int contourCount;
-            maxVertices += GrPathUtils::worstCasePointCount(args.fPath, &contourCount,
-                                                            args.fTolerance);
-
-            isIndexed = isIndexed || contourCount > 1;
-        }
-
-        if (maxVertices == 0 || maxVertices > ((int)SK_MaxU16 + 1)) {
-            //SkDebugf("Cannot render path (%d)\n", maxVertices);
-            return;
+            isIndexed = isIndexed || PathGeoBuilder::PathHasMultipleSubpaths(args.fPath);
         }
 
         // determine primitiveType
-        int maxIndices = 0;
         GrPrimitiveType primitiveType;
         if (this->isHairline()) {
-            if (isIndexed) {
-                maxIndices = 2 * maxVertices;
-                primitiveType = GrPrimitiveType::kLines;
-            } else {
-                primitiveType = GrPrimitiveType::kLineStrip;
-            }
+            primitiveType = isIndexed ? GrPrimitiveType::kLines : GrPrimitiveType::kLineStrip;
         } else {
-            if (isIndexed) {
-                maxIndices = 3 * maxVertices;
-                primitiveType = GrPrimitiveType::kTriangles;
-            } else {
-                primitiveType = GrPrimitiveType::kTriangleFan;
-            }
+            primitiveType = isIndexed ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleFan;
         }
 
-        // allocate vertex / index buffers
-        const GrBuffer* vertexBuffer;
-        int firstVertex;
-
-        void* verts = target->makeVertexSpace(vertexStride, maxVertices,
-                                              &vertexBuffer, &firstVertex);
-
-        if (!verts) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
-        }
-
-        const GrBuffer* indexBuffer = nullptr;
-        int firstIndex = 0;
-
-        void* indices = nullptr;
-        if (isIndexed) {
-            indices = target->makeIndexSpace(maxIndices, &indexBuffer, &firstIndex);
-
-            if (!indices) {
-                SkDebugf("Could not allocate indices\n");
-                return;
-            }
-        }
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(), this->pipeline());
 
         // fill buffers
-        int vertexOffset = 0;
-        int indexOffset = 0;
         for (int i = 0; i < instanceCount; i++) {
             const PathData& args = fPaths[i];
 
-            int vertexCnt = 0;
-            int indexCnt = 0;
-            if (!this->createGeom(verts,
-                                  vertexOffset,
-                                  indices,
-                                  indexOffset,
-                                  &vertexCnt,
-                                  &indexCnt,
-                                  args.fPath,
-                                  args.fTolerance,
-                                  isIndexed)) {
-                return;
-            }
-
-            vertexOffset += vertexCnt;
-            indexOffset += indexCnt;
-            SkASSERT(vertexOffset <= maxVertices && indexOffset <= maxIndices);
+            pathGeoBuilder.beginInstance();
+            pathGeoBuilder.addPath(args.fPath, args.fTolerance);
+            pathGeoBuilder.endInstance();
         }
-
-        GrMesh mesh(primitiveType);
-        if (!isIndexed) {
-            mesh.setNonIndexedNonInstanced(vertexOffset);
-        } else {
-            mesh.setIndexed(indexBuffer, indexOffset, firstIndex, 0, vertexOffset - 1);
-        }
-        mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp.get(), this->pipeline(), mesh);
-
-        // put back reserves
-        target->putBackIndices((size_t)(maxIndices - indexOffset));
-        target->putBackVertices((size_t)(maxVertices - vertexOffset), (size_t)vertexStride);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
@@ -284,98 +464,6 @@ private:
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
-        return true;
-    }
-
-    bool createGeom(void* vertices,
-                    size_t vertexOffset,
-                    void* indices,
-                    size_t indexOffset,
-                    int* vertexCnt,
-                    int* indexCnt,
-                    const SkPath& path,
-                    SkScalar srcSpaceTol,
-                    bool isIndexed) const {
-            SkScalar srcSpaceTolSqd = srcSpaceTol * srcSpaceTol;
-
-            uint16_t indexOffsetU16 = (uint16_t)indexOffset;
-            uint16_t vertexOffsetU16 = (uint16_t)vertexOffset;
-
-            uint16_t* idxBase = reinterpret_cast<uint16_t*>(indices) + indexOffsetU16;
-            uint16_t* idx = idxBase;
-            uint16_t subpathIdxStart = vertexOffsetU16;
-
-            SkPoint* base = reinterpret_cast<SkPoint*>(vertices) + vertexOffset;
-            SkPoint* vert = base;
-
-            SkPoint pts[4];
-
-            bool first = true;
-            int subpath = 0;
-
-            SkPath::Iter iter(path, false);
-
-            bool done = false;
-            while (!done) {
-                SkPath::Verb verb = iter.next(pts);
-                switch (verb) {
-                    case SkPath::kMove_Verb:
-                        if (!first) {
-                            uint16_t currIdx = (uint16_t) (vert - base) + vertexOffsetU16;
-                            subpathIdxStart = currIdx;
-                            ++subpath;
-                        }
-                        *vert = pts[0];
-                        vert++;
-                        break;
-                    case SkPath::kLine_Verb:
-                        if (isIndexed) {
-                            uint16_t prevIdx = (uint16_t)(vert - base) - 1 + vertexOffsetU16;
-                            append_countour_edge_indices(this->isHairline(), subpathIdxStart,
-                                                         prevIdx, &idx);
-                        }
-                        *(vert++) = pts[1];
-                        break;
-                    case SkPath::kConic_Verb: {
-                        SkScalar weight = iter.conicWeight();
-                        SkAutoConicToQuads converter;
-                        const SkPoint* quadPts = converter.computeQuads(pts, weight, srcSpaceTol);
-                        for (int i = 0; i < converter.countQuads(); ++i) {
-                            add_quad(&vert, base, quadPts + i*2, srcSpaceTolSqd, srcSpaceTol,
-                                     isIndexed, this->isHairline(), subpathIdxStart,
-                                     (int)vertexOffset, &idx);
-                        }
-                        break;
-                    }
-                    case SkPath::kQuad_Verb:
-                        add_quad(&vert, base, pts, srcSpaceTolSqd, srcSpaceTol, isIndexed,
-                                 this->isHairline(), subpathIdxStart, (int)vertexOffset, &idx);
-                        break;
-                    case SkPath::kCubic_Verb: {
-                        // first pt of cubic is the pt we ended on in previous step
-                        uint16_t firstCPtIdx = (uint16_t)(vert - base) - 1 + vertexOffsetU16;
-                        uint16_t numPts = (uint16_t) GrPathUtils::generateCubicPoints(
-                                        pts[0], pts[1], pts[2], pts[3],
-                                        srcSpaceTolSqd, &vert,
-                                        GrPathUtils::cubicPointCount(pts, srcSpaceTol));
-                        if (isIndexed) {
-                            for (uint16_t i = 0; i < numPts; ++i) {
-                                append_countour_edge_indices(this->isHairline(), subpathIdxStart,
-                                                             firstCPtIdx + i, &idx);
-                            }
-                        }
-                        break;
-                    }
-                    case SkPath::kClose_Verb:
-                        break;
-                    case SkPath::kDone_Verb:
-                        done = true;
-                }
-                first = false;
-            }
-
-            *vertexCnt = static_cast<int>(vert - base);
-            *indexCnt = static_cast<int>(idx - idxBase);
         return true;
     }
 
