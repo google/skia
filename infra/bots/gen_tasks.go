@@ -234,9 +234,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
 			cpu, ok := map[string]string{
-				"AVX":  "x86-64",
-				"AVX2": "x86-64-avx2",
-				"SSE4": "x86-64",
+				"AVX":      "x86-64",
+				"AVX2":     "x86-64-avx2",
+				"SSE4":     "x86-64",
+				"i5_6260U": "x86-64-i5-6260U",
 			}[parts["cpu_or_gpu_value"]]
 			if !ok {
 				glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
