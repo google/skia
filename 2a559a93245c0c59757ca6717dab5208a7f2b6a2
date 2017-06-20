@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "dc6afee1_5647341e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-20T19:18:57Z",
+      "side": 1,
+      "message": "is this needed?",
+      "range": {
+        "startLine": 837,
+        "startChar": 17,
+        "endLine": 837,
+        "endChar": 30
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9423d28b_6bf74468",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-20T19:18:57Z",
+      "side": 1,
+      "message": "extra whitespace",
+      "range": {
+        "startLine": 841,
+        "startChar": 84,
+        "endLine": 841,
+        "endChar": 85
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04b5c616_17b2ac75",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-20T19:18:57Z",
+      "side": 1,
+      "message": "is this used?",
+      "range": {
+        "startLine": 869,
+        "startChar": 13,
+        "endLine": 869,
+        "endChar": 40
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae5567ce_47357c30",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-20T19:18:57Z",
+      "side": 1,
+      "message": "should these be currentWidth and currentHeight?",
+      "range": {
+        "startLine": 875,
+        "startChar": 26,
+        "endLine": 876,
+        "endChar": 33
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "80832274_ba1ed4ee",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 6
@@ -42,6 +134,53 @@
         "startChar": 29,
         "endLine": 451,
         "endChar": 56
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ceed19b_7802b114",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-20T19:18:57Z",
+      "side": 1,
+      "message": "Okay, in that case update the comment in GrGpu which says rowbytes \u003d width * bbp",
+      "parentUuid": "93fc6807_1570d93d",
+      "range": {
+        "startLine": 451,
+        "startChar": 29,
+        "endLine": 451,
+        "endChar": 56
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0eb3532_f941bb35",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-20T19:18:57Z",
+      "side": 1,
+      "message": "at least in Vulkan I don\u0027t think this is needed as it will be handled by the memory barriers on the texture.",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 22
       },
       "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
