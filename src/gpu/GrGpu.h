@@ -291,9 +291,13 @@ public:
                      size_t rowBytes);
 
     /**
-     * Updates the pixels in a rectangle of a surface using a buffer
+     * Updates the pixels in a rectangle of a texture using a buffer
      *
-     * @param surface          The surface to write to.
+     * There are a few assumptions here. First, we only update the top miplevel.
+     * Second, that any y flip needed has already done in the buffer. Finally,
+     * that rowBytes == bpp*width.
+     *
+     * @param texture          The texture to write to.
      * @param left             left edge of the rectangle to write (inclusive)
      * @param top              top edge of the rectangle to write (inclusive)
      * @param width            width of rectangle to write in pixels.
@@ -304,7 +308,7 @@ public:
      * @param rowBytes         number of bytes between consecutive rows. Zero
      *                         means rows are tightly packed.
      */
-    bool transferPixels(GrSurface* surface,
+    bool transferPixels(GrTexture* texture,
                         int left, int top, int width, int height,
                         GrPixelConfig config, GrBuffer* transferBuffer,
                         size_t offset, size_t rowBytes, GrFence* fence);
@@ -588,8 +592,8 @@ private:
                                GrPixelConfig config,
                                const SkTArray<GrMipLevel>& texels) = 0;
 
-    // overridden by backend-specific derived class to perform the surface write
-    virtual bool onTransferPixels(GrSurface*,
+    // overridden by backend-specific derived class to perform the texture transfer
+    virtual bool onTransferPixels(GrTexture*,
                                   int left, int top, int width, int height,
                                   GrPixelConfig config, GrBuffer* transferBuffer,
                                   size_t offset, size_t rowBytes) = 0;
