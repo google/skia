@@ -24,12 +24,6 @@ public:
         return Make(array, 2, cropRect);
     }
 
-    // Change caller in chrome to use Make(...) instead
-    static sk_sp<SkImageFilter> MakeN(sk_sp<SkImageFilter> array[], int count, std::nullptr_t,
-                                      const CropRect* cropRect = nullptr) {
-        return Make(array, count, cropRect);
-    }
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
 
