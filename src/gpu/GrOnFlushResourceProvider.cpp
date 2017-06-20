@@ -64,3 +64,14 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     return renderTargetContext;
 }
 
+sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType, size_t size,
+                                                      const void* data) {
+    GrResourceProvider* rp = fDrawingMgr->getContext()->resourceProvider();
+    return sk_sp<GrBuffer>(rp->createBuffer(size, intendedType, kDynamic_GrAccessPattern,
+                                            GrResourceProvider::kNoPendingIO_Flag,
+                                            data));
+}
+
+const GrCaps* GrOnFlushResourceProvider::caps() const {
+    return fDrawingMgr->getContext()->caps();
+}
