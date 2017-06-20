@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9813861_0abfb061",
+        "filename": "BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T20:53:28Z",
+      "side": 1,
+      "message": "This is somewhat unusual.  You\u0027d normally pick this up by depending on :skia.  skslc needs Skia headers but doesn\u0027t link against Skia?",
+      "range": {
+        "startLine": 424,
+        "startChar": 19,
+        "endLine": 424,
+        "endChar": 39
+      },
+      "revId": "f1eb87f6333b5d3313c7090bbcecbbe1a6b633f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c243fb1b_b8b8f8b7",
+        "filename": "BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T20:53:28Z",
+      "side": 1,
+      "message": "Given that you don\u0027t reuse host_executable_suffix, it\u0027d probably be clearer to fold it through:\n\nif (host_os \u003d\u003d \"win\") {\n   skslc_path +\u003d \"skslc.exe\"\n} else {\n   skslc_path +\u003d \"skslc\"\n}",
+      "range": {
+        "startLine": 460,
+        "startChar": 28,
+        "endLine": 460,
+        "endChar": 50
+      },
+      "revId": "f1eb87f6333b5d3313c7090bbcecbbe1a6b633f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62d419f1_90705839",
+        "filename": "BUILD.gn",
+        "patchSetId": 19
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T20:53:28Z",
+      "side": 1,
+      "message": "I think you can pass rebase_path() a list and it will rebase_path() each of the items, returning a new list.",
+      "range": {
+        "startLine": 465,
+        "startChar": 4,
+        "endLine": 467,
+        "endChar": 5
+      },
+      "revId": "f1eb87f6333b5d3313c7090bbcecbbe1a6b633f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e5edad6_66705eec",
+        "filename": "gn/compile_processors.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T20:53:28Z",
+      "side": 1,
+      "message": "You may be looking for subprocess.check_call()?  It would have essentially the same effect here.",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 17,
+        "endChar": 15
+      },
+      "revId": "f1eb87f6333b5d3313c7090bbcecbbe1a6b633f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dff3c135_9922a690",
+        "filename": "gn/compile_processors.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T20:53:28Z",
+      "side": 1,
+      "message": "The verb you\u0027re doing here is \"compile\", right?  or maybe just inline the code?",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 15
+      },
+      "revId": "f1eb87f6333b5d3313c7090bbcecbbe1a6b633f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82b9104d_818198ac",
+        "filename": "gn/compile_processors.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T20:53:28Z",
+      "side": 1,
+      "message": "You\u0027re never going to not call main... let\u0027s just drop all the boilerplate?",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 10
+      },
+      "revId": "f1eb87f6333b5d3313c7090bbcecbbe1a6b633f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
