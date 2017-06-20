@@ -354,12 +354,12 @@ void WavyPathText::Waves::reset(SkRandom& rand, int w, int h) {
 }
 
 SkPoint WavyPathText::Waves::apply(float tsec, const Sk2f matrix[3], const SkPoint& pt) const {
-    constexpr static int kTableSize = 1 << 12;
-    static float sin2table[kTableSize];
+    constexpr static int kTablePeriod = 1 << 12;
+    static float sin2table[kTablePeriod + 1];
     static SkOnce initTable;
     initTable([]() {
-        for (int i = 0; i < kTableSize; ++i) {
-            const double sintheta = sin(i * (SK_ScalarPI / kTableSize));
+        for (int i = 0; i <= kTablePeriod; ++i) {
+            const double sintheta = sin(i * (SK_ScalarPI / kTablePeriod));
             sin2table[i] = static_cast<float>(sintheta * sintheta - 0.5);
         }
     });
@@ -376,13 +376,13 @@ SkPoint WavyPathText::Waves::apply(float tsec, const Sk2f matrix[3], const SkPoi
 
     const Sk4f t = (frequencies * (dirsX * devicePt[0] + dirsY * devicePt[1]) +
                     speeds * tsec +
-                    offsets).abs() * (float(kTableSize) / float(SK_ScalarPI));
+                    offsets).abs() * (float(kTablePeriod) / float(SK_ScalarPI));
 
     const Sk4i ipart = SkNx_cast<int>(t);
     const Sk4f fpart = t - SkNx_cast<float>(ipart);
 
     int32_t indices[4];
-    (ipart & (kTableSize-1)).store(indices);
+    (ipart & (kTablePeriod-1)).store(indices);
 
     const Sk4f left(sin2table[indices[0]], sin2table[indices[1]],
                     sin2table[indices[2]], sin2table[indices[3]]);
