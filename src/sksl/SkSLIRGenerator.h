@@ -81,13 +81,10 @@ public:
     IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
                 ErrorReporter& errorReporter);
 
-    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
-                                                            Variable::Storage storage);
-    std::unique_ptr<FunctionDefinition> convertFunction(const ASTFunction& f);
-    std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
-    std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
-    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
-                                                                  const ASTModifiersDeclaration& m);
+    void convertProgram(String text,
+                        SymbolTable& types,
+                        Modifiers::Flag* defaultPrecision,
+                        std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**
      * If both operands are compile-time constants and can be folded, returns an expression
@@ -114,6 +111,15 @@ private:
 
     void pushSymbolTable();
     void popSymbolTable();
+
+    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTVarDeclarations& decl,
+                                                            Variable::Storage storage);
+    void convertFunction(const ASTFunction& f,
+                         std::vector<std::unique_ptr<ProgramElement>>* out);
+    std::unique_ptr<Statement> convertStatement(const ASTStatement& statement);
+    std::unique_ptr<Expression> convertExpression(const ASTExpression& expression);
+    std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(
+                                                                  const ASTModifiersDeclaration& m);
 
     const Type* convertType(const ASTType& type);
     std::unique_ptr<Expression> call(Position position,
@@ -163,6 +169,9 @@ private:
     std::unique_ptr<Expression> convertTernaryExpression(const ASTTernaryExpression& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
+    std::unique_ptr<Block> applyInvocationIDWorkaround(
+                                                 std::unique_ptr<Block> main,
+                                                 std::vector<std::unique_ptr<ProgramElement>>* out);
 
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
@@ -175,6 +184,7 @@ private:
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;
+    int fInvocations;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
