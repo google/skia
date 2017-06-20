@@ -22,6 +22,30 @@
       "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93fc6807_1570d93d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T18:58:43Z",
+      "side": 1,
+      "message": "My bad, I think it should be rowBytes/bpp -- that is, the width of the buffer. In my test, they just happen to be the same.",
+      "parentUuid": "80832274_ba1ed4ee",
+      "range": {
+        "startLine": 451,
+        "startChar": 29,
+        "endLine": 451,
+        "endChar": 56
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
