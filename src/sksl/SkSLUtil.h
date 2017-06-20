@@ -150,6 +150,10 @@ public:
     const char* versionDeclString() const {
         return "";
     }
+
+    bool mustImplementGSInvocationsWithLoop() const {
+        return false;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
@@ -221,6 +225,13 @@ public:
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
         result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+        return result;
+    }
+
+    static sk_sp<GrShaderCaps> MustImplementGSInvocationsWithLoop() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fMustImplementGSInvocationsWithLoop = true;
         return result;
     }
 
