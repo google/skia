@@ -47,7 +47,6 @@ extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsM
 
 /**
  *  Similar to SkMakeImageFromRasterBitmap, this wraps a |src| bitmap in an image.
- *  This always operates in kNever_SkCopyPixelsMode.
  *
  *  It also promises to transform the bitmap into the |dst| color space before it
  *  is drawn.  The transform will happen lazily.
@@ -56,7 +55,8 @@ extern sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap&, SkCopyPixelsM
  *  it will generate a new id.
  */
 extern sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& src, sk_sp<SkColorSpace> dst,
-                                              uint32_t id);
+                                              uint32_t id,
+                                              SkCopyPixelsMode = kNever_SkCopyPixelsMode);
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This
 // may be called to see if the surface and the image share the same pixelref,
