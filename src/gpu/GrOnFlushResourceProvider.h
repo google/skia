@@ -68,6 +68,11 @@ public:
                                                          sk_sp<SkColorSpace> colorSpace,
                                                          const SkSurfaceProps* props);
 
+    // Creates a GPU buffer with a "dynamic" access pattern.
+    sk_sp<GrBuffer> makeBuffer(GrBufferType, size_t, const void* data = nullptr);
+
+    const GrCaps* caps() const;
+
 private:
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;
