@@ -95,7 +95,7 @@ static SkString to_string(int n) {
     return str;
 }
 
-DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
+DEFINE_int32(loops, 256, loops_help_txt().c_str());
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
 DEFINE_int32(ms, 0, "If >0, run each bench for this many ms instead of obeying --samples.");
@@ -683,8 +683,7 @@ public:
             if (!bench) {
                 return nullptr;
             }
-        } while(SkCommandLineFlags::ShouldSkip(FLAGS_sourceType, fSourceType) ||
-                SkCommandLineFlags::ShouldSkip(FLAGS_benchType,  fBenchType));
+        } while(false);
         return bench.release();
     }
 

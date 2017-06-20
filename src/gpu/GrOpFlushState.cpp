@@ -36,6 +36,20 @@ uint16_t* GrOpFlushState::makeIndexSpace(int indexCount,
     return reinterpret_cast<uint16_t*>(fIndexPool.makeSpace(indexCount, buffer, startIndex));
 }
 
+void* GrOpFlushState::makeVertexSpaceAtLeast(size_t vertexSize, int minVertexCount,
+                                             int fallbackVertexCount, const GrBuffer** buffer,
+                                             int* startVertex, int* actualVertexCount) {
+    return fVertexPool.makeSpaceAtLeast(vertexSize, minVertexCount, fallbackVertexCount, buffer,
+                                        startVertex, actualVertexCount);
+}
+
+uint16_t* GrOpFlushState::makeIndexSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
+                                                const GrBuffer** buffer, int* startIndex,
+                                                int* actualIndexCount) {
+    return reinterpret_cast<uint16_t*>(fIndexPool.makeSpaceAtLeast(
+        minIndexCount, fallbackIndexCount, buffer, startIndex, actualIndexCount));
+}
+
 void GrOpFlushState::doUpload(GrDrawOp::DeferredUploadFn& upload) {
     GrDrawOp::WritePixelsFn wp = [this](GrSurface* surface, int left, int top, int width,
                                         int height, GrPixelConfig config, const void* buffer,
