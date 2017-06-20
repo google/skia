@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b530e33b_0b78153b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T20:33:02Z",
+      "side": 1,
+      "message": "Turns out, yes.",
+      "parentUuid": "dc6afee1_5647341e",
+      "range": {
+        "startLine": 837,
+        "startChar": 17,
+        "endLine": 837,
+        "endChar": 30
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9423d28b_6bf74468",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbeda169_943b87bc",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T20:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9423d28b_6bf74468",
+      "range": {
+        "startLine": 841,
+        "startChar": 84,
+        "endLine": 841,
+        "endChar": 85
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f1696d6c_9c8bf450",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T20:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04b5c616_17b2ac75",
+      "range": {
+        "startLine": 869,
+        "startChar": 13,
+        "endLine": 869,
+        "endChar": 40
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae5567ce_47357c30",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2017-06-20T19:18:57Z",
       "side": 1,
       "message": "should these be currentWidth and currentHeight?",
+      "range": {
+        "startLine": 875,
+        "startChar": 26,
+        "endLine": 876,
+        "endChar": 33
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a681857_a2068038",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T20:33:02Z",
+      "side": 1,
+      "message": "I\u0027m not sure. In uploadTexData() currentWidth and currentHeight are internal loop variables when calling AdjustWritePixelParams(), so they go out of scope before used in TexSubImage2D.",
+      "parentUuid": "ae5567ce_47357c30",
       "range": {
         "startLine": 875,
         "startChar": 26,
@@ -165,6 +261,30 @@
     },
     {
       "key": {
+        "uuid": "d6418f08_aba347b0",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T20:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ceed19b_7802b114",
+      "range": {
+        "startLine": 451,
+        "startChar": 29,
+        "endLine": 451,
+        "endChar": 56
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0eb3532_f941bb35",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 6
@@ -185,6 +305,30 @@
       "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65100323_8ab7797f",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T20:33:02Z",
+      "side": 1,
+      "message": "Done. I\u0027ll deal with this in GL when I actually get around to using it. With readPixels it should be fine to not have it.",
+      "parentUuid": "a0eb3532_f941bb35",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 22
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
