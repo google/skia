@@ -22,6 +22,30 @@
       "revId": "7d794043d6c4d5bb6239f767f06917fbcb7f682d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7861b0cd_024fc846",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-06-20T14:29:00Z",
+      "side": 1,
+      "message": "dang, they are not quite equal.  better add some slop to the tests.",
+      "parentUuid": "04f7bb4d_348694ca",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 2
+      },
+      "revId": "7d794043d6c4d5bb6239f767f06917fbcb7f682d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
