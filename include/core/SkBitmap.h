@@ -47,9 +47,7 @@ public:
     /**
      *  Copy the settings from the src into this bitmap. If the src has pixels
      *  allocated, they will be shared, not copied, so that the two bitmaps will
-     *  reference the same memory for the pixels. If a deep copy is needed,
-     *  where the new bitmap has its own separate copy of the pixels, use
-     *  deepCopyTo().
+     *  reference the same memory for the pixels.
      */
     SkBitmap(const SkBitmap& src);
 
