@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60a34c09_1e02b7ad",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T14:39:02Z",
+      "side": 1,
+      "message": "How come g,g,g,k?",
+      "range": {
+        "startLine": 40,
+        "startChar": 40,
+        "endLine": 40,
+        "endChar": 41
+      },
+      "revId": "fe060d56c9f4a5bfb218c6aef36b9b4f84041ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f05e954_ed3d9acd",
+        "filename": "src/core/SkColorSpacePriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T14:39:02Z",
+      "side": 1,
+      "message": "Let\u0027s leave that note about tweaking the threshold one ulp to keep 1.0f on the linear segment?",
+      "revId": "fe060d56c9f4a5bfb218c6aef36b9b4f84041ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab5e402e_9c443502",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T14:39:02Z",
+      "side": 1,
+      "message": "Might be more stable to do this in terms of ulps?",
+      "revId": "fe060d56c9f4a5bfb218c6aef36b9b4f84041ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fd48520_614fe64c",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T14:39:02Z",
+      "side": 1,
+      "message": "What\u0027s with the weird names?  Is it required that we don\u0027t have spaces in these descriptions?",
+      "range": {
+        "startLine": 359,
+        "startChar": 16,
+        "endLine": 359,
+        "endChar": 47
+      },
+      "revId": "fe060d56c9f4a5bfb218c6aef36b9b4f84041ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "808f6112_2ae37047",
+        "filename": "src/core/SkICCPriv.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-20T14:39:02Z",
+      "side": 1,
+      "message": "Maybe we can just return an SkString?",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 4
+      },
+      "revId": "fe060d56c9f4a5bfb218c6aef36b9b4f84041ca7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
