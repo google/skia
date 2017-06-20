@@ -232,16 +232,23 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			}
 			d["device"] = device
 		} else if parts["cpu_or_gpu"] == "CPU" {
-			d["gpu"] = "none"
-			cpu, ok := map[string]string{
+			cpu, nogpu := map[string]string{
 				"AVX":  "x86-64",
 				"AVX2": "x86-64-avx2",
 				"SSE4": "x86-64",
 			}[parts["cpu_or_gpu_value"]]
-			if !ok {
-				glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
+			if nogpu {
+				d["gpu"] = "none"
+				d["cpu"] = cpu
+			} else {
+				cpu, ok := map[string]string{
+					"i5_6260U": "x86-64-i5-6260U",
+				}[parts["cpu_or_gpu_value"]]
+				if !ok {
+					glog.Fatalf("Entry %q not found in CPU mapping.", parts["cpu_or_gpu_value"])
+				}
+				d["cpu"] = cpu
 			}
-			d["cpu"] = cpu
 			if strings.Contains(parts["os"], "Win") && parts["cpu_or_gpu_value"] == "AVX2" {
 				// AVX2 is not correctly detected on Windows. Fall back on other
 				// dimensions to ensure that we correctly target machines which we know
