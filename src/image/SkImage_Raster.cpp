@@ -78,7 +78,8 @@ public:
         return true;
     }
 
-    SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*);
+    SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*,
+                   uint32_t id = kNeedNewImageUniqueID);
     ~SkImage_Raster() override;
 
     SkImageInfo onImageInfo() const override {
@@ -145,8 +146,8 @@ static void release_data(void* addr, void* context) {
 }
 
 SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowBytes,
-                               SkColorTable* ctable)
-    : INHERITED(info.width(), info.height(), kNeedNewImageUniqueID)
+                               SkColorTable* ctable, uint32_t id)
+    : INHERITED(info.width(), info.height(), id)
 {
     void* addr = const_cast<void*>(data->data());
 
@@ -261,18 +262,22 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
+sk_sp<SkImage> MakeRasterCopyPriv(const SkPixmap& pmap, uint32_t id) {
     size_t size;
     if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(),
-                                   pmap.ctable() != nullptr, &size) || !pmap.addr()) {
+        pmap.ctable() != nullptr, &size) || !pmap.addr()) {
         return nullptr;
     }
 
     // Here we actually make a copy of the caller's pixel data
     sk_sp<SkData> data(SkData::MakeWithCopy(pmap.addr(), size));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
+    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable(),
+                                      id);
 }
 
+sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
+    return MakeRasterCopyPriv(pmap, kNeedNewImageUniqueID);
+}
 
 sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> data,
                                        size_t rowBytes) {
@@ -303,11 +308,12 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
     return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
 }
 
-sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm) {
+sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,
+                                               uint32_t idForCopy) {
     if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
         SkPixmap pmap;
         if (bm.peekPixels(&pmap)) {
-            return SkImage::MakeRasterCopy(pmap);
+            return MakeRasterCopyPriv(pmap, idForCopy);
         } else {
             return sk_sp<SkImage>();
         }
@@ -321,10 +327,11 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
         return nullptr;
     }
 
-    return SkMakeImageFromRasterBitmapPriv(bm, cpm);
+    return SkMakeImageFromRasterBitmapPriv(bm, cpm, kNeedNewImageUniqueID);
 }
 
-sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> dstCS, uint32_t id) {
+sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> dstCS, uint32_t id,
+                                       SkCopyPixelsMode cpm) {
     if (!SkImageInfoIsValidAllowNumericalCS(bm.info()) || !bm.getPixels() ||
             bm.rowBytes() < bm.info().minRowBytes() || !dstCS) {
         return nullptr;
@@ -336,14 +343,20 @@ sk_sp<SkImage> SkMakeImageInColorSpace(const SkBitmap& bm, sk_sp<SkColorSpace> d
         srcCS = SkColorSpace::MakeSRGB();
     }
 
+    sk_sp<SkImage> image = nullptr;
+
     // For the Android use case, this is very likely to be true.
     if (SkColorSpace::Equals(srcCS.get(), dstCS.get())) {
-        SkASSERT(0 == id || bm.getGenerationID() == id);
-        return SkMakeImageFromRasterBitmapPriv(bm, kNever_SkCopyPixelsMode);
+        SkASSERT(kNeedNewImageUniqueID == id || bm.getGenerationID() == id);
+        image = SkMakeImageFromRasterBitmapPriv(bm, cpm, id);
+    } else {
+        image = SkImage::MakeFromGenerator(SkColorSpaceXformImageGenerator::Make(bm, dstCS, cpm,
+                                                                                 id));
     }
 
-    return SkImage::MakeFromGenerator(SkColorSpaceXformImageGenerator::Make(
-            bm, dstCS, kNever_SkCopyPixelsMode, id));
+    // If the caller suplied an id, we must propagate that to the image we return
+    SkASSERT(kNeedNewImageUniqueID == id || image->uniqueID() == id);
+    return image;
 }
 
 const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
