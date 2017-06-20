@@ -27,7 +27,7 @@ DEFINE_bool(simpleCodec, false, "Runs of a subset of the codec tests.  "
                                 "canvas color type.  "
                                 "For nanobench, this means always N32, Premul or Opaque.");
 
-DEFINE_string2(match, m, nullptr,
+DEFINE_string2(match, m, "colorPattern_blue_blue_path",
                "[~][^]substring[$] [...] of GM name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching GM to always be skipped\n"
