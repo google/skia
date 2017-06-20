@@ -363,4 +363,16 @@ DEF_TEST(Region_readFromMemory_bad, r) {
                           -1, 2147483647};
         REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
     }
+    {
+        // starts with empty yspan
+        int32_t data[] = {12, 0, 0, 10, 10, 2, 2, -5, 0, 0, 2147483647, 10,
+                          2, 0, 4, 6, 10, 2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // ends with empty yspan
+        int32_t data[] = {12, 0, 0, 10, 10, 2, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 15, 0, 2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
 }
