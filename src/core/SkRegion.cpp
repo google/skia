@@ -1155,6 +1155,9 @@ static bool validate_run(const int32_t* runs,
     if (rect.fTop == SkRegion::kRunTypeSentinel) {
         return false;  // no rect can contain SkRegion::kRunTypeSentinel
     }
+    if (rect.fTop != givenBounds.fTop) {
+        return false;
+    }
     do {
         --ySpanCount;
         if (ySpanCount < 0) {
@@ -1164,6 +1167,13 @@ static bool validate_run(const int32_t* runs,
         if (rect.fBottom == SkRegion::kRunTypeSentinel) {
             return false;
         }
+        if (rect.fBottom > givenBounds.fBottom) {
+            return false;
+        }
+        if (rect.fBottom <= rect.fTop) {
+            return false;  // y-intervals must be ordered.
+        }
+
         int32_t xIntervals = *runs++;
         SkASSERT(runs < end);
         if (xIntervals < 0 || runs + 1 + 2 * xIntervals > end) {
@@ -1173,13 +1183,19 @@ static bool validate_run(const int32_t* runs,
         if (intervalCount < 0) {
             return false;  // too many intervals
         }
+        bool firstInterval = true;
+        int32_t lastRight;  // check that rects are distinct and ordered.
         while (xIntervals-- > 0) {
             rect.fLeft = *runs++;
             rect.fRight = *runs++;
             if (rect.fLeft == SkRegion::kRunTypeSentinel ||
-                rect.fRight == SkRegion::kRunTypeSentinel || rect.isEmpty()) {
+                rect.fRight == SkRegion::kRunTypeSentinel ||
+                rect.fLeft >= rect.fRight ||
+                (!firstInterval && rect.fLeft <= lastRight)) {
                 return false;
             }
+            lastRight = rect.fRight;
+            firstInterval = false;
             bounds.join(rect);
         }
         if (*runs++ != SkRegion::kRunTypeSentinel) {
