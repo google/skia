@@ -1155,6 +1155,9 @@ static bool validate_run(const int32_t* runs,
     if (rect.fTop == SkRegion::kRunTypeSentinel) {
         return false;  // no rect can contain SkRegion::kRunTypeSentinel
     }
+    if (rect.fTop != givenBounds.fTop) {
+        return false;
+    }
     do {
         --ySpanCount;
         if (ySpanCount < 0) {
@@ -1162,6 +1165,9 @@ static bool validate_run(const int32_t* runs,
         }
         rect.fBottom = *runs++;
         if (rect.fBottom == SkRegion::kRunTypeSentinel) {
+            return false;
+        }
+        if (rect.fBottom > givenBounds.fBottom) {
             return false;
         }
         int32_t xIntervals = *runs++;
