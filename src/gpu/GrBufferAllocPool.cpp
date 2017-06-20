@@ -185,6 +185,64 @@ void* GrBufferAllocPool::makeSpace(size_t size,
     return fBufferPtr;
 }
 
+void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
+                                          size_t fallbackSize,
+                                          size_t alignment,
+                                          const GrBuffer** buffer,
+                                          size_t* offset,
+                                          size_t* actualSize) {
+    VALIDATE();
+
+    SkASSERT(buffer);
+    SkASSERT(offset);
+    SkASSERT(actualSize);
+
+    if (fBufferPtr) {
+        BufferBlock& back = fBlocks.back();
+        size_t usedBytes = back.fBuffer->gpuMemorySize() - back.fBytesFree;
+        size_t pad = GrSizeAlignUpPad(usedBytes, alignment);
+        if ((minSize + pad) <= back.fBytesFree) {
+            // Consume padding first, to make subsequent alignment math easier
+            memset((void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes), 0, pad);
+            usedBytes += pad;
+            back.fBytesFree -= pad;
+            fBytesInUse += pad;
+
+            // Give caller all remaining space in this block (but aligned correctly)
+            size_t size = GrSizeAlignDown(back.fBytesFree, alignment);
+            *offset = usedBytes;
+            *buffer = back.fBuffer;
+            *actualSize = size;
+            back.fBytesFree -= size;
+            fBytesInUse += size;
+            VALIDATE();
+            return (void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes);
+        }
+    }
+
+    // We could honor the space request using by a partial update of the current
+    // VB (if there is room). But we don't currently use draw calls to GL that
+    // allow the driver to know that previously issued draws won't read from
+    // the part of the buffer we update. Also, the GL buffer implementation
+    // may be cheating on the actual buffer size by shrinking the buffer on
+    // updateData() if the amount of data passed is less than the full buffer
+    // size.
+
+    if (!this->createBlock(fallbackSize)) {
+        return nullptr;
+    }
+    SkASSERT(fBufferPtr);
+
+    *offset = 0;
+    BufferBlock& back = fBlocks.back();
+    *buffer = back.fBuffer;
+    *actualSize = fallbackSize;
+    back.fBytesFree -= fallbackSize;
+    fBytesInUse += fallbackSize;
+    VALIDATE();
+    return fBufferPtr;
+}
+
 void GrBufferAllocPool::putBack(size_t bytes) {
     VALIDATE();
 
@@ -345,6 +403,35 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
     return ptr;
 }
 
+void* GrVertexBufferAllocPool::makeSpaceAtLeast(size_t vertexSize, int minVertexCount,
+                                                int fallbackVertexCount, const GrBuffer** buffer,
+                                                int* startVertex, int* actualVertexCount) {
+
+    SkASSERT(minVertexCount >= 0);
+    SkASSERT(fallbackVertexCount >= minVertexCount);
+    SkASSERT(buffer);
+    SkASSERT(startVertex);
+    SkASSERT(actualVertexCount);
+
+    size_t offset SK_INIT_TO_AVOID_WARNING;
+    size_t actualSize SK_INIT_TO_AVOID_WARNING;
+    void* ptr = INHERITED::makeSpaceAtLeast(vertexSize * minVertexCount,
+                                            vertexSize * fallbackVertexCount,
+                                            vertexSize,
+                                            buffer,
+                                            &offset,
+                                            &actualSize);
+
+    SkASSERT(0 == offset % vertexSize);
+    *startVertex = static_cast<int>(offset / vertexSize);
+
+    SkASSERT(0 == actualSize % vertexSize);
+    SkASSERT(actualSize >= vertexSize * minVertexCount);
+    *actualVertexCount = static_cast<int>(actualSize / vertexSize);
+
+    return ptr;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 GrIndexBufferAllocPool::GrIndexBufferAllocPool(GrGpu* gpu)
@@ -367,5 +454,32 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
 
     SkASSERT(0 == offset % sizeof(uint16_t));
     *startIndex = static_cast<int>(offset / sizeof(uint16_t));
+    return ptr;
+}
+
+void* GrIndexBufferAllocPool::makeSpaceAtLeast(int minIndexCount, int fallbackIndexCount,
+                                               const GrBuffer** buffer, int* startIndex,
+                                               int* actualIndexCount) {
+    SkASSERT(minIndexCount >= 0);
+    SkASSERT(fallbackIndexCount >= minIndexCount);
+    SkASSERT(buffer);
+    SkASSERT(startIndex);
+    SkASSERT(actualIndexCount);
+
+    size_t offset SK_INIT_TO_AVOID_WARNING;
+    size_t actualSize SK_INIT_TO_AVOID_WARNING;
+    void* ptr = INHERITED::makeSpaceAtLeast(minIndexCount * sizeof(uint16_t),
+                                            fallbackIndexCount * sizeof(uint16_t),
+                                            sizeof(uint16_t),
+                                            buffer,
+                                            &offset,
+                                            &actualSize);
+
+    SkASSERT(0 == offset % sizeof(uint16_t));
+    *startIndex = static_cast<int>(offset / sizeof(uint16_t));
+
+    SkASSERT(0 == actualSize % sizeof(uint16_t));
+    SkASSERT(actualSize >= minIndexCount * sizeof(uint16_t));
+    *actualIndexCount = static_cast<int>(actualSize / sizeof(uint16_t));
     return ptr;
 }
