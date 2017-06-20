@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5700bf6a_400b0101",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-20T18:21:53Z",
+      "side": 1,
+      "message": "uploadTexData is overly complex for what we need here (we don\u0027t need mips, we don\u0027t support y flips), so I\u0027m just doing the setup directly.",
+      "revId": "265f0219cb9ce2e58fc27e73079c799fb0469a18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
