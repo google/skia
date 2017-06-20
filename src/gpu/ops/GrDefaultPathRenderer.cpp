@@ -74,23 +74,7 @@ public:
     }
 
     ~PathGeoBuilder() {
-        this->emitMesh();
-        this->putBackReserve();
-    }
-
-    // Called before we start each path
-    void beginInstance() {
-        fSubpathIndexStart = fVertexOffset;
-        fCurIdx = fIndices + fIndexOffset;
-        fCurVert = fVertices + fVertexOffset;
-    }
-
-    // Called after we end each path
-    void endInstance() {
-        fVertexOffset = fCurVert - fVertices;
-        fIndexOffset = fCurIdx - fIndices;
-        SkASSERT(fVertexOffset <= fVerticesInChunk);
-        SkASSERT(fIndexOffset <= fIndicesInChunk);
+        this->emitMeshAndPutBackReserve();
     }
 
     /**
@@ -229,11 +213,6 @@ private:
 
     uint16_t currentIndex() const { return fCurVert - fVertices; }
 
-    void putBackReserve() {
-        fTarget->putBackIndices((size_t)(fIndicesInChunk - fIndexOffset));
-        fTarget->putBackVertices((size_t)(fVerticesInChunk - fVertexOffset), fVertexStride);
-    }
-
     // Allocate vertex and (possibly) index buffers
     void allocNewBuffers() {
         // Ensure that we always get enough verts for a worst-case quad/cubic, plus leftover points
@@ -261,8 +240,10 @@ private:
                                                       &fIndexBuffer, &fFirstIndex,
                                                       &fIndicesInChunk);
         }
-        fVertexOffset = 0;
-        fIndexOffset = 0;
+
+        fCurVert = fVertices;
+        fCurIdx = fIndices;
+        fSubpathIndexStart = 0;
     }
 
     void appendCountourEdgeIndices(uint16_t edgeV0Idx) {
@@ -276,16 +257,24 @@ private:
     }
 
     // Emits a single draw with all accumulated vertex/index data
-    void emitMesh() {
-        if (fVertexOffset > 0) {
+    void emitMeshAndPutBackReserve() {
+        int vertexCount = fCurVert - fVertices;
+        int indexCount = fCurIdx - fIndices;
+        SkASSERT(vertexCount <= fVerticesInChunk);
+        SkASSERT(indexCount <= fIndicesInChunk);
+
+        if (vertexCount > 0) {
             if (!this->isIndexed()) {
-                fMesh.setNonIndexedNonInstanced(fVertexOffset);
+                fMesh.setNonIndexedNonInstanced(vertexCount);
             } else {
-                fMesh.setIndexed(fIndexBuffer, fIndexOffset, fFirstIndex, 0, fVertexOffset - 1);
+                fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1);
             }
             fMesh.setVertexData(fVertexBuffer, fFirstVertex);
             fTarget->draw(fGeometryProcessor, fPipeline, fMesh);
         }
+
+        fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
+        fTarget->putBackVertices((size_t)(fVerticesInChunk - vertexCount), fVertexStride);
     }
 
     void needSpace(int vertsNeeded, int indicesNeeded = 0) {
@@ -297,24 +286,14 @@ private:
             // Lines only need the last point, fills need the first point from the current contour.
             // We always grab both here, and append the ones we need at the end of this process.
             SkPoint lastPt = *(fCurVert - 1);
-            // It's possible for fSubpathIndexStart to be past the end of the vertex buffer, if we
-            // fill up the vertex buffer exactly at the end of a path. To keep things simple, we
-            // still inject a point, but it's just (0,0) because it won't actually be used.
-            SkPoint subpathStartPt = fSubpathIndexStart >= fVerticesInChunk
-                                     ? SkPoint::Make(0, 0) : fVertices[fSubpathIndexStart];
+            SkASSERT(fSubpathIndexStart < fVerticesInChunk);
+            SkPoint subpathStartPt = fVertices[fSubpathIndexStart];
 
-            // Pretend that we've reached the end of an entire path, so our offsets are correct
-            this->endInstance();
+            // Draw the mesh we've accumulated, and put back any unused space
+            this->emitMeshAndPutBackReserve();
 
-            // Draw the mesh we've accumulated
-            this->emitMesh();
-
-            // Put back any unused space, get new buffers
-            this->putBackReserve();
+            // Get new buffers
             this->allocNewBuffers();
-
-            // Start a "new" path, which is really just a continuation of the in-progress one
-            this->beginInstance();
 
             // Append copies of the points we saved so the two meshes will weld properly
             if (!this->isHairline()) {
@@ -335,14 +314,12 @@ private:
     int fVerticesInChunk;
     SkPoint* fVertices;
     SkPoint* fCurVert;
-    int fVertexOffset;
 
     const GrBuffer* fIndexBuffer;
     int fFirstIndex;
     int fIndicesInChunk;
     uint16_t* fIndices;
     uint16_t* fCurIdx;
-    int fIndexOffset;
     uint16_t fSubpathIndexStart;
 };
 
@@ -432,10 +409,7 @@ private:
         // fill buffers
         for (int i = 0; i < instanceCount; i++) {
             const PathData& args = fPaths[i];
-
-            pathGeoBuilder.beginInstance();
             pathGeoBuilder.addPath(args.fPath, args.fTolerance);
-            pathGeoBuilder.endInstance();
         }
     }
 
