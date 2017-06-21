@@ -19,6 +19,7 @@ public:
                                 const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
+    bool isRasterPipelineOnly() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
@@ -28,6 +29,8 @@ public:
 #endif
 
     SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
+
+    static bool IsRasterPipelineOnly(SkColorType, SkShader::TileMode tx, SkShader::TileMode ty);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
