@@ -783,6 +783,36 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
                                left, top, width, height, config, texels);
 }
 
+bool GrGLGpu::onTransferPixels(GrSurface* surface,
+                               int left, int top, int width, int height,
+                               GrPixelConfig config, GrBuffer* transferBuffer,
+                               size_t offset, size_t rowBytes) {
+    GrGLTexture* glTex = static_cast<GrGLTexture*>(surface->asTexture());
+
+    if (!check_write_and_transfer_input(glTex, surface, config)) {
+        return false;
+    }
+
+    this->setScratchTextureUnit();
+    GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
+
+    SkASSERT(!transferBuffer->isMapped());
+    SkASSERT(!transferBuffer->isCPUBacked());
+    const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer);
+    this->bindBuffer(kXferCpuToGpu_GrBufferType, glBuffer);
+
+    bool success = false;
+    GrMipLevel mipLevel;
+    mipLevel.fPixels = transferBuffer;
+    mipLevel.fRowBytes = rowBytes;
+    SkSTArray<1, GrMipLevel> texels;
+    texels.push_back(mipLevel);
+    success = this->uploadTexData(glTex->config(), glTex->width(), glTex->height(), glTex->origin(),
+                                  glTex->target(), kTransfer_UploadType, left, top, width, height,
+                                  config, texels);
+    return success;
+}
+
 // For GL_[UN]PACK_ALIGNMENT.
 static inline GrGLint config_alignment(GrPixelConfig config) {
     switch (config) {
@@ -807,78 +837,6 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
     }
     SkFAIL("Invalid pixel config");
     return 0;
-}
-
-bool GrGLGpu::onTransferPixels(GrTexture* texture,
-                               int left, int top, int width, int height,
-                               GrPixelConfig config, GrBuffer* transferBuffer,
-                               size_t offset, size_t rowBytes) {
-    GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
-    GrPixelConfig texConfig = glTex->config();
-    SkASSERT(this->caps()->isConfigTexturable(texConfig));
-
-    if (!check_write_and_transfer_input(glTex, texture, config)) {
-        return false;
-    }
-
-    if (width <= 0 || width > SK_MaxS32 || height <= 0 || height > SK_MaxS32) {
-        return false;
-    }
-
-    this->setScratchTextureUnit();
-    GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
-
-    SkASSERT(!transferBuffer->isMapped());
-    SkASSERT(!transferBuffer->isCPUBacked());
-    const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer);
-    this->bindBuffer(kXferCpuToGpu_GrBufferType, glBuffer);
-
-    size_t bpp = GrBytesPerPixel(config);
-    const size_t trimRowBytes = width * bpp;
-    const void* pixels = (void*)offset;
-    if (!GrSurfacePriv::AdjustWritePixelParams(glTex->width(), glTex->height(), bpp,
-                                               &left, &top,
-                                               &width, &height,
-                                               &pixels,
-                                               &rowBytes)) {
-        return false;
-    }
-    if (width < 0 || width < 0) {
-        return false;
-    }
-
-    bool restoreGLRowLength = false;
-    if (trimRowBytes != rowBytes) {
-        // we should have checked for this support already
-        SkASSERT(this->glCaps().unpackRowLengthSupport());
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
-        restoreGLRowLength = true;
-    }
-
-    // Internal format comes from the texture desc.
-    GrGLenum internalFormat;
-    // External format and type come from the upload data.
-    GrGLenum externalFormat;
-    GrGLenum externalType;
-    if (!this->glCaps().getTexImageFormats(texConfig, config, &internalFormat,
-                                           &externalFormat, &externalType)) {
-        return false;
-    }
-
-    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, config_alignment(texConfig)));
-    GL_CALL(TexSubImage2D(glTex->target(),
-                          0,
-                          left, top,
-                          width,
-                          height,
-                          externalFormat, externalType,
-                          pixels));
-
-    if (restoreGLRowLength) {
-        GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
-
-    return true;
 }
 
 /**
@@ -1013,13 +971,6 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                             const SkTArray<GrMipLevel>& texels) {
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
 
-    // unbind any previous transfer buffer
-    auto& xferBufferState = fHWBufferState[kXferCpuToGpu_GrBufferType];
-    if (!xferBufferState.fBoundBufferUniqueID.isInvalid()) {
-        GL_CALL(BindBuffer(xferBufferState.fGLTarget, 0));
-        xferBufferState.invalidate();
-    }
-
     // texels is const.
     // But we may need to flip the texture vertically to prepare it.
     // Rather than flip in place and alter the incoming data,
@@ -1029,7 +980,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
 
     for (int currentMipLevel = texelsShallowCopy.count() - 1; currentMipLevel >= 0;
          currentMipLevel--) {
-        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels);
+        SkASSERT(texelsShallowCopy[currentMipLevel].fPixels || kTransfer_UploadType == uploadType);
     }
 
     const GrGLInterface* interface = this->glInterface();
@@ -1135,26 +1086,30 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
                 GR_GL_CALL(interface, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowLength));
                 restoreGLRowLength = true;
             }
-        } else if (trimRowBytes != rowBytes || swFlipY) {
-            // copy data into our new storage, skipping the trailing bytes
-            const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
-            if (swFlipY && currentHeight >= 1) {
-                src += (currentHeight - 1) * rowBytes;
-            }
-            char* dst = buffer + individual_mip_offsets[currentMipLevel];
-            for (int y = 0; y < currentHeight; y++) {
-                memcpy(dst, src, trimRowBytes);
-                if (swFlipY) {
-                    src -= rowBytes;
-                } else {
-                    src += rowBytes;
+        } else if (kTransfer_UploadType != uploadType) {
+            if (trimRowBytes != rowBytes || swFlipY) {
+                // copy data into our new storage, skipping the trailing bytes
+                const char* src = (const char*)texelsShallowCopy[currentMipLevel].fPixels;
+                if (swFlipY && currentHeight >= 1) {
+                    src += (currentHeight - 1) * rowBytes;
                 }
-                dst += trimRowBytes;
+                char* dst = buffer + individual_mip_offsets[currentMipLevel];
+                for (int y = 0; y < currentHeight; y++) {
+                    memcpy(dst, src, trimRowBytes);
+                    if (swFlipY) {
+                        src -= rowBytes;
+                    } else {
+                        src += rowBytes;
+                    }
+                    dst += trimRowBytes;
+                }
+                // now point data to our copied version
+                texelsShallowCopy[currentMipLevel].fPixels = buffer +
+                    individual_mip_offsets[currentMipLevel];
+                texelsShallowCopy[currentMipLevel].fRowBytes = trimRowBytes;
             }
-            // now point data to our copied version
-            texelsShallowCopy[currentMipLevel].fPixels = buffer +
-                individual_mip_offsets[currentMipLevel];
-            texelsShallowCopy[currentMipLevel].fRowBytes = trimRowBytes;
+        } else {
+            return false;
         }
     }
 

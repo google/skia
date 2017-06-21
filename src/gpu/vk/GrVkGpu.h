@@ -203,10 +203,10 @@ private:
                        int left, int top, int width, int height,
                        GrPixelConfig config, const SkTArray<GrMipLevel>&) override;
 
-    bool onTransferPixels(GrTexture*,
+    bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
-                          size_t offset, size_t rowBytes) override;
+                          size_t offset, size_t rowBytes) override { return false; }
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all

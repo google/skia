@@ -389,23 +389,29 @@ bool GrGpu::writePixels(GrSurface* surface,
     return this->writePixels(surface, left, top, width, height, config, texels);
 }
 
-bool GrGpu::transferPixels(GrTexture* texture,
+bool GrGpu::transferPixels(GrSurface* surface,
                            int left, int top, int width, int height,
                            GrPixelConfig config, GrBuffer* transferBuffer,
-                           size_t offset, size_t rowBytes) {
+                           size_t offset, size_t rowBytes, GrFence* fence) {
     SkASSERT(transferBuffer);
+    SkASSERT(fence);
 
     // We don't allow conversion between integer configs and float/fixed configs.
-    if (GrPixelConfigIsSint(texture->config()) != GrPixelConfigIsSint(config)) {
+    if (GrPixelConfigIsSint(surface->config()) != GrPixelConfigIsSint(config)) {
         return false;
     }
 
     this->handleDirtyContext();
-    if (this->onTransferPixels(texture, left, top, width, height, config,
+    if (this->onTransferPixels(surface, left, top, width, height, config,
                                transferBuffer, offset, rowBytes)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(texture, &rect);
+        this->didWriteToSurface(surface, &rect);
         fStats.incTransfersToTexture();
+
+        if (*fence) {
+            this->deleteFence(*fence);
+        }
+        *fence = this->insertFence();
 
         return true;
     }
