@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fe71d4b_c252fd7f",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 21
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-21T17:42:32Z",
+      "side": 1,
+      "message": "is_clang is, I think, only used to turn on more warnings.  If this gets annoying, it\u0027s probably fine to just do\n\n   is_clang \u003d is_android || is_ios || is_mac\n\nand leave it at that (deleting gn/is_clang.py).  Auto-detecting clang is cute but not important. \n\nIf we find ourselves missing the warnings on Linux, we can always put this back as an explicitly passed flag rather than auto-detection.",
+      "revId": "8fbf7d6e733d69ff33aa8cc0e8a20f559e8bda3f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
