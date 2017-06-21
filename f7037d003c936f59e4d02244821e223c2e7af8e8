@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a623b39a_a4765ab6",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-21T15:47:09Z",
+      "side": 1,
+      "message": "Curious, is this not allowed by the API or just not something we expect currently?",
+      "range": {
+        "startLine": 831,
+        "startChar": 4,
+        "endLine": 831,
+        "endChar": 42
+      },
+      "revId": "f7037d003c936f59e4d02244821e223c2e7af8e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54f4fd60_7880b0e6",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-21T15:47:09Z",
+      "side": 1,
+      "message": "Why do you need this check?",
+      "range": {
+        "startLine": 12,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 0
+      },
+      "revId": "f7037d003c936f59e4d02244821e223c2e7af8e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
