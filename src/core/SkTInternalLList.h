@@ -167,8 +167,34 @@ public:
 #endif
     }
 
+    void concat(SkTInternalLList&& list) {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        list.fHead->fPrev = fTail;
+        if (!fHead) {
+            SkASSERT(!list.fHead->fPrev);
+            fHead = list.fHead;
+        } else {
+            SkASSERT(fTail);
+            fTail->fNext = list.fHead;
+        }
+        fTail = list.fTail;
+
+#ifdef SK_DEBUG
+        for (T* node = list.fHead; node; node = node->fNext) {
+            SkASSERT(node->fList == &list);
+            node->fList = this;
+        }
+#endif
+
+        list.fHead = list.fTail = nullptr;
+    }
+
     bool isEmpty() const {
-        return NULL == fHead && NULL == fTail;
+        SkASSERT(SkToBool(fHead) == SkToBool(fTail));
+        return !fHead;
     }
 
     T* head() { return fHead; }
