@@ -1393,4 +1393,39 @@ DEF_TEST(SkSLDeadLoopVar, r) {
          );
 }
 
+DEF_TEST(SkSLInvocations, r) {
+    test(r,
+         "layout(points) in;"
+         "layout(invocations = 2) in;"
+         "layout(line_strip, max_vertices = 2) out;"
+         "void test() {"
+         "gl_Position = sk_in[0].gl_Position + vec4(0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "}"
+         "void main() {"
+         "gl_Position = sk_in[0].gl_Position + vec4(-0.5, 0, 0, sk_InvocationID);"
+         "EmitVertex();"
+         "}",
+         *SkSL::ShaderCapsFactory::MustImplementGSInvocationsWithLoop(),
+         "#version 400\n"
+         "int sk_InvocationID;\n"
+         "layout (points) in ;\n"
+         "layout (line_strip, max_vertices = 4) out ;\n"
+         "void test() {\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(sk_InvocationID));\n"
+         "    EmitVertex();\n"
+         "}\n"
+         "void _invoke() {\n"
+         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(sk_InvocationID));\n"
+         "    EmitVertex();\n"
+         "}\n"
+         "void main() {\n"
+         "    for (sk_InvocationID = 0;sk_InvocationID < 2; sk_InvocationID++) {\n"
+         "        _invoke();\n"
+         "        EndPrimitive();\n"
+         "    }\n"
+         "}\n",
+         SkSL::Program::kGeometry_Kind);
+}
+
 #endif
