@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "efb2f0dc_cdec2008",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-21T14:09:42Z",
+      "side": 1,
+      "message": "Okay well lets leave it to match uploadTexData for now and we\u0027ll file a bug to investigate whether we should be using currentWidth/Height in both cases or not",
+      "parentUuid": "8a681857_a2068038",
+      "range": {
+        "startLine": 875,
+        "startChar": 26,
+        "endLine": 876,
+        "endChar": 33
+      },
+      "revId": "2a559a93245c0c59757ca6717dab5208a7f2b6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "80832274_ba1ed4ee",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 6
