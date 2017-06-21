@@ -112,6 +112,40 @@ static void test_tinternallist(skiatest::Reporter* reporter) {
     for (int i = 0; cur; ++i, cur = iter.next()) {
         REPORTER_ASSERT(reporter, cur->fID == i);
     }
+    while (!list.isEmpty()) {
+        list.remove(list.tail());
+    }
+
+    // test concat.
+    SkTInternalLList<ListElement> listA, listB;
+    listA.concat(std::move(listB));
+    check_list(listA, reporter, true, 0, false, false, false, false, elements);
+    check_list(listB, reporter, true, 0, false, false, false, false, elements);
+
+    listB.addToTail(&elements[0]);
+    listA.concat(std::move(listB));
+    check_list(listA, reporter, false, 1, true, false, false, false, elements);
+    check_list(listB, reporter, true, 0, false, false, false, false, elements);
+
+    listB.addToTail(&elements[1]);
+    listA.concat(std::move(listB));
+    check_list(listA, reporter, false, 2, true, true, false, false, elements);
+    check_list(listB, reporter, true, 0, false, false, false, false, elements);
+
+    listA.concat(std::move(listB));
+    check_list(listA, reporter, false, 2, true, true, false, false, elements);
+    check_list(listB, reporter, true, 0, false, false, false, false, elements);
+
+    listB.addToTail(&elements[2]);
+    listB.addToTail(&elements[3]);
+    listA.concat(std::move(listB));
+    check_list(listA, reporter, false, 4, true, true, true, true, elements);
+    check_list(listB, reporter, true, 0, false, false, false, false, elements);
+
+    cur = iter.init(listA, Iter::kHead_IterStart);
+    for (int i = 0; cur; ++i, cur = iter.next()) {
+        REPORTER_ASSERT(reporter, cur->fID == i);
+    }
 }
 
 template <unsigned int N> static void test_tllist(skiatest::Reporter* reporter) {
