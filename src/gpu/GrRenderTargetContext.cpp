@@ -1446,8 +1446,11 @@ bool GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
     SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
     for (int i = 0; i < numSemaphores; ++i) {
         semaphores.push_back(fContext->resourceProvider()->makeSemaphore(false));
+        // Create signal semaphore ops and force the final one to call flush.
+        bool forceFlush = (i == (numSemaphores - 1));
         std::unique_ptr<GrOp> signalOp(GrSemaphoreOp::MakeSignal(semaphores.back(),
-                                                                 fRenderTargetProxy.get()));
+                                                                 fRenderTargetProxy.get(),
+                                                                 forceFlush));
         this->getOpList()->addOp(std::move(signalOp), *this->caps());
     }
 

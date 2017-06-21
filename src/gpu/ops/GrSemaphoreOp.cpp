@@ -15,20 +15,25 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrSignalSemaphoreOp> Make(sk_sp<GrSemaphore> semaphore,
-                                                     GrRenderTargetProxy* proxy) {
+                                                     GrRenderTargetProxy* proxy,
+                                                     bool forceFlush) {
         return std::unique_ptr<GrSignalSemaphoreOp>(new GrSignalSemaphoreOp(std::move(semaphore),
-                                                                            proxy));
+                                                                            proxy,
+                                                                            forceFlush));
     }
 
     const char* name() const override { return "SignalSemaphore"; }
 
 private:
-    explicit GrSignalSemaphoreOp(sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)
-            : INHERITED(ClassID(), std::move(semaphore), proxy) {}
+    explicit GrSignalSemaphoreOp(sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy,
+                                 bool forceFlush)
+            : INHERITED(ClassID(), std::move(semaphore), proxy), fForceFlush(forceFlush) {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->gpu()->insertSemaphore(fSemaphore);
+        state->gpu()->insertSemaphore(fSemaphore, fForceFlush);
     }
+
+    bool fForceFlush;
 
     typedef GrSemaphoreOp INHERITED;
 };
@@ -59,8 +64,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrSemaphoreOp> GrSemaphoreOp::MakeSignal(sk_sp<GrSemaphore> semaphore,
-                                                         GrRenderTargetProxy* proxy) {
-    return GrSignalSemaphoreOp::Make(std::move(semaphore), proxy);
+                                                         GrRenderTargetProxy* proxy,
+                                                         bool forceFlush) {
+    return GrSignalSemaphoreOp::Make(std::move(semaphore), proxy, forceFlush);
 }
 
 std::unique_ptr<GrSemaphoreOp> GrSemaphoreOp::MakeWait(sk_sp<GrSemaphore> semaphore,

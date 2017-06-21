@@ -17,7 +17,8 @@
 class GrSemaphoreOp : public GrOp {
 public:
     static std::unique_ptr<GrSemaphoreOp> MakeSignal(sk_sp<GrSemaphore> semaphore,
-                                                     GrRenderTargetProxy* proxy);
+                                                     GrRenderTargetProxy* proxy,
+                                                     bool forceFlush);
 
     static std::unique_ptr<GrSemaphoreOp> MakeWait(sk_sp<GrSemaphore> semaphore,
                                                    GrRenderTargetProxy* proxy);
