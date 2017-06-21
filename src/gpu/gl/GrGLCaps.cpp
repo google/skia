@@ -456,11 +456,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object")) {
             fTransferBufferType = kPBO_TransferBufferType;
         }
-    } else {
-        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_pixel_buffer_object")) {
+    } else if (kANGLE_GrGLDriver != ctxInfo.driver()) {  // TODO: re-enable for ANGLE
+        if (version >= GR_GL_VER(3, 0) ||
+            (ctxInfo.hasExtension("GL_NV_pixel_buffer_object") &&
+             // GL_EXT_unpack_subimage needed to support subtexture rectangles
+             ctxInfo.hasExtension("GL_EXT_unpack_subimage"))) {
             fTransferBufferType = kPBO_TransferBufferType;
-        } else if (ctxInfo.hasExtension("GL_CHROMIUM_pixel_transfer_buffer_object")) {
-            fTransferBufferType = kChromium_TransferBufferType;
+// TODO: get transfer buffers working in Chrome
+//        } else if (ctxInfo.hasExtension("GL_CHROMIUM_pixel_transfer_buffer_object")) {
+//            fTransferBufferType = kChromium_TransferBufferType;
         }
     }
 
