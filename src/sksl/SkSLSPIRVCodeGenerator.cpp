@@ -2677,7 +2677,9 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
 
 void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, OutputStream& out) {
     for (const auto& stmt : decl.fVars) {
-        ASSERT(stmt->fKind == Statement::kVarDeclaration_Kind);
+        if (stmt->fKind == Statement::kNop_Kind) {
+            continue;
+        }
         VarDeclaration& varDecl = (VarDeclaration&) *stmt;
         const Variable* var = varDecl.fVar;
         // These haven't been implemented in our SPIR-V generator yet and we only currently use them
