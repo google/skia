@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7478a41a_3c60b2b1",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-21T19:45:16Z",
+      "side": 1,
+      "message": "Ah, good suggestion.",
+      "parentUuid": "83f6115a_44df5008",
+      "range": {
+        "startLine": 238,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 28
+      },
+      "revId": "65f601a82d1dad2eb3f2e4b1ce3d3fbd2e652fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67e45aab_228d4b73",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-06-21T19:26:59Z",
       "side": 1,
       "message": "do we need to guard this for Chrome?",
+      "revId": "65f601a82d1dad2eb3f2e4b1ce3d3fbd2e652fef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf6aef09_855f0b57",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-21T19:45:16Z",
+      "side": 1,
+      "message": "I first wanted to see the damage, to see if its worth a guard or just a pre-emptive suppression. No doubt I\u0027ll break some images, just don\u0027t know how many... care to make a guess?",
+      "parentUuid": "67e45aab_228d4b73",
       "revId": "65f601a82d1dad2eb3f2e4b1ce3d3fbd2e652fef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
