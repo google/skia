@@ -100,11 +100,6 @@ Parser::Parser(String text, SymbolTable& types, ErrorReporter& errors)
     layoutlex_init(&fLayoutScanner);
     fBuffer = sksl_scan_string(text.c_str(), fScanner);
     skslset_lineno(1, fScanner);
-
-    if (false) {
-        // avoid unused warning
-        yyunput(0, nullptr, fScanner);
-    }
 }
 
 Parser::~Parser() {

@@ -35,7 +35,7 @@ const (
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
 	DEFAULT_OS       = DEFAULT_OS_LINUX
-	DEFAULT_OS_LINUX = "Ubuntu-14.04"
+	DEFAULT_OS_LINUX = "Debian-9.0"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"

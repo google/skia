@@ -24,3 +24,5 @@
 #pragma warning(push)
 #pragma warning(disable:4018)
 #endif
+
+#define YY_NO_UNPUT
