@@ -48,6 +48,22 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
+bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
+                                         SkShader::TileMode ty) {
+    if (ct != kN32_SkColorType) {
+        return true;
+    }
+    if (tx != SkShader::kClamp_TileMode || ty != SkShader::kClamp_TileMode) {
+        return true;
+    }
+    return false;
+}
+
+bool SkImageShader::isRasterPipelineOnly() const {
+    SkBitmapProvider provider(fImage.get(), nullptr);
+    return IsRasterPipelineOnly(provider.info().colorType(), fTileModeX, fTileModeY);
+}
+
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,

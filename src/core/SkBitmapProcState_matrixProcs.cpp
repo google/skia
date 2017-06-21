@@ -20,25 +20,6 @@
 #include "SkUtilsArm.h"
 #include "SkBitmapProcState_utils.h"
 
-/*  returns 0...(n-1) given any x (positive or negative).
-
-    As an example, if n (which is always positive) is 5...
-
-          x: -8 -7 -6 -5 -4 -3 -2 -1  0  1  2  3  4  5  6  7  8
-    returns:  2  3  4  0  1  2  3  4  0  1  2  3  4  0  1  2  3
- */
-static inline int sk_int_mod(int x, int n) {
-    SkASSERT(n > 0);
-    if ((unsigned)x >= (unsigned)n) {
-        if (x < 0) {
-            x = n + ~(~x % n);
-        } else {
-            x = x % n;
-        }
-    }
-    return x;
-}
-
 void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 
@@ -51,7 +32,6 @@ void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 
 // These are defined in src/opts/SkBitmapProcState_matrixProcs_neon.cpp
 extern const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs_neon[];
-extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 
 #endif // defined(SK_ARM_HAS_NEON)
 
@@ -93,136 +73,9 @@ static SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
     ClampX_ClampY_filter_persp
 };
 
-#define MAKENAME(suffix)         RepeatX_RepeatY ## suffix
-#define TILEX_PROCF(fx, max)     SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1))
-#define TILEY_PROCF(fy, max)     SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1))
-#define EXTRACT_LOW_BITS(v, max) (((unsigned)((v) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#include "SkBitmapProcState_matrix.h"
-
-struct RepeatTileProcs {
-    static unsigned X(const SkBitmapProcState&, SkFixed fx, int max) {
-        SkASSERT(max < 65535);
-        return SK_USHIFT16((unsigned)((fx) & 0xFFFF) * ((max) + 1));
-    }
-    static unsigned Y(const SkBitmapProcState&, SkFixed fy, int max) {
-        SkASSERT(max < 65535);
-        return SK_USHIFT16((unsigned)((fy) & 0xFFFF) * ((max) + 1));
-    }
-};
-
-static SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
-    NoFilterProc_Scale<RepeatTileProcs, false>,
-    RepeatX_RepeatY_filter_scale,
-    NoFilterProc_Affine<RepeatTileProcs>,
-    RepeatX_RepeatY_filter_affine,
-    NoFilterProc_Persp<RepeatTileProcs>,
-    RepeatX_RepeatY_filter_persp
-};
 #endif
-
-#define MAKENAME(suffix)        GeneralXY ## suffix
-#define PREAMBLE(state)         SkBitmapProcState::FixedTileProc tileProcX = (state).fTileProcX; (void) tileProcX; \
-                                SkBitmapProcState::FixedTileProc tileProcY = (state).fTileProcY; (void) tileProcY;
-#define PREAMBLE_PARAM_X        , SkBitmapProcState::FixedTileProc tileProcX
-#define PREAMBLE_PARAM_Y        , SkBitmapProcState::FixedTileProc tileProcY
-#define PREAMBLE_ARG_X          , tileProcX
-#define PREAMBLE_ARG_Y          , tileProcY
-#define TILEX_PROCF(fx, max)    SK_USHIFT16(tileProcX(fx) * ((max) + 1))
-#define TILEY_PROCF(fy, max)    SK_USHIFT16(tileProcY(fy) * ((max) + 1))
-#define EXTRACT_LOW_BITS(v, max) (((v * (max + 1)) >> 12) & 0xF)
-#include "SkBitmapProcState_matrix.h"
-
-struct GeneralTileProcs {
-    static unsigned X(const SkBitmapProcState& s, SkFixed fx, int max) {
-        return SK_USHIFT16(s.fTileProcX(fx) * ((max) + 1));
-    }
-    static unsigned Y(const SkBitmapProcState& s, SkFixed fy, int max) {
-        return SK_USHIFT16(s.fTileProcY(fy) * ((max) + 1));
-    }
-};
-
-static SkBitmapProcState::MatrixProc GeneralXY_Procs[] = {
-    NoFilterProc_Scale<GeneralTileProcs, false>,
-    GeneralXY_filter_scale,
-    NoFilterProc_Affine<GeneralTileProcs>,
-    GeneralXY_filter_affine,
-    NoFilterProc_Persp<GeneralTileProcs>,
-    GeneralXY_filter_persp
-};
 
 ///////////////////////////////////////////////////////////////////////////////
-
-static inline U16CPU fixed_clamp(SkFixed x) {
-    if (x < 0) {
-        x = 0;
-    }
-    if (x >> 16) {
-        x = 0xFFFF;
-    }
-    return x;
-}
-
-static inline U16CPU fixed_repeat(SkFixed x) {
-    return x & 0xFFFF;
-}
-
-static inline U16CPU fixed_mirror(SkFixed x) {
-    SkFixed s = SkLeftShift(x, 15) >> 31;
-    // s is FFFFFFFF if we're on an odd interval, or 0 if an even interval
-    return (x ^ s) & 0xFFFF;
-}
-
-static SkBitmapProcState::FixedTileProc choose_tile_proc(unsigned m) {
-    if (SkShader::kClamp_TileMode == m) {
-        return fixed_clamp;
-    }
-    if (SkShader::kRepeat_TileMode == m) {
-        return fixed_repeat;
-    }
-    SkASSERT(SkShader::kMirror_TileMode == m);
-    return fixed_mirror;
-}
-
-static inline U16CPU int_clamp(int x, int n) {
-    if (x >= n) {
-        x = n - 1;
-    }
-    if (x < 0) {
-        x = 0;
-    }
-    return x;
-}
-
-static inline U16CPU int_repeat(int x, int n) {
-    return sk_int_mod(x, n);
-}
-
-static inline U16CPU int_mirror(int x, int n) {
-    x = sk_int_mod(x, 2 * n);
-    if (x >= n) {
-        x = n + ~(x - n);
-    }
-    return x;
-}
-
-#if 0
-static void test_int_tileprocs() {
-    for (int i = -8; i <= 8; i++) {
-        SkDebugf(" int_mirror(%2d, 3) = %d\n", i, int_mirror(i, 3));
-    }
-}
-#endif
-
-static SkBitmapProcState::IntTileProc choose_int_tile_proc(unsigned tm) {
-    if (SkShader::kClamp_TileMode == tm)
-        return int_clamp;
-    if (SkShader::kRepeat_TileMode == tm)
-        return int_repeat;
-    SkASSERT(SkShader::kMirror_TileMode == tm);
-    return int_mirror;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 
 void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count) {
     int i;
@@ -349,118 +202,26 @@ static void clampx_nofilter_trans(const SkBitmapProcState& s,
     sk_memset16(xptr, width - 1, count);
 }
 
-static void repeatx_nofilter_trans(const SkBitmapProcState& s,
-                                   uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
-
-    int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fPixmap.width();
-    if (1 == width) {
-        // all of the following X values must be 0
-        memset(xy, 0, count * sizeof(uint16_t));
-        return;
-    }
-
-    uint16_t* xptr = reinterpret_cast<uint16_t*>(xy);
-    int start = sk_int_mod(xpos, width);
-    int n = width - start;
-    if (n > count) {
-        n = count;
-    }
-    fill_sequential(xptr, start, n);
-    xptr += n;
-    count -= n;
-
-    while (count >= width) {
-        fill_sequential(xptr, 0, width);
-        xptr += width;
-        count -= width;
-    }
-
-    if (count > 0) {
-        fill_sequential(xptr, 0, count);
-    }
-}
-
-static void fill_backwards(uint16_t xptr[], int pos, int count) {
-    for (int i = 0; i < count; i++) {
-        SkASSERT(pos >= 0);
-        xptr[i] = pos--;
-    }
-}
-
-static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
-                                   uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~SkMatrix::kTranslate_Mask) == 0);
-
-    int xpos = nofilter_trans_preamble(s, &xy, x, y);
-    const int width = s.fPixmap.width();
-    if (1 == width) {
-        // all of the following X values must be 0
-        memset(xy, 0, count * sizeof(uint16_t));
-        return;
-    }
-
-    uint16_t* xptr = reinterpret_cast<uint16_t*>(xy);
-    // need to know our start, and our initial phase (forward or backward)
-    bool forward;
-    int n;
-    int start = sk_int_mod(xpos, 2 * width);
-    if (start >= width) {
-        start = width + ~(start - width);
-        forward = false;
-        n = start + 1;  // [start .. 0]
-    } else {
-        forward = true;
-        n = width - start;  // [start .. width)
-    }
-    if (n > count) {
-        n = count;
-    }
-    if (forward) {
-        fill_sequential(xptr, start, n);
-    } else {
-        fill_backwards(xptr, start, n);
-    }
-    forward = !forward;
-    xptr += n;
-    count -= n;
-
-    while (count >= width) {
-        if (forward) {
-            fill_sequential(xptr, 0, width);
-        } else {
-            fill_backwards(xptr, width - 1, width);
-        }
-        forward = !forward;
-        xptr += width;
-        count -= width;
-    }
-
-    if (count > 0) {
-        if (forward) {
-            fill_sequential(xptr, 0, count);
-        } else {
-            fill_backwards(xptr, width - 1, count);
-        }
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
+static inline U16CPU int_clamp(int x, int n) {
+    if (x >= n) {
+        x = n - 1;
+    }
+    if (x < 0) {
+        x = 0;
+    }
+    return x;
+}
+
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
-//    test_int_tileprocs();
+    SkASSERT(fTileModeX == SkShader::kClamp_TileMode);
+    SkASSERT(fTileModeY == SkShader::kClamp_TileMode);
+
     // check for our special case when there is no scale/affine/perspective
     if (trivial_matrix && kNone_SkFilterQuality == fFilterQuality) {
-        fIntTileProcY = choose_int_tile_proc(fTileModeY);
-        switch (fTileModeX) {
-            case SkShader::kClamp_TileMode:
-                return clampx_nofilter_trans;
-            case SkShader::kRepeat_TileMode:
-                return repeatx_nofilter_trans;
-            case SkShader::kMirror_TileMode:
-                return mirrorx_nofilter_trans;
-        }
+        fIntTileProcY = int_clamp;
+        return clampx_nofilter_trans;
     }
 
     int index = 0;
@@ -473,22 +234,8 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_m
         index += 2;
     }
 
-    if (SkShader::kClamp_TileMode == fTileModeX && SkShader::kClamp_TileMode == fTileModeY) {
-        // clamp gets special version of filterOne
-        fFilterOneX = SK_Fixed1;
-        fFilterOneY = SK_Fixed1;
-        return SK_ARM_NEON_WRAP(ClampX_ClampY_Procs)[index];
-    }
-
-    // all remaining procs use this form for filterOne
-    fFilterOneX = SK_Fixed1 / fPixmap.width();
-    fFilterOneY = SK_Fixed1 / fPixmap.height();
-
-    if (SkShader::kRepeat_TileMode == fTileModeX && SkShader::kRepeat_TileMode == fTileModeY) {
-        return SK_ARM_NEON_WRAP(RepeatX_RepeatY_Procs)[index];
-    }
-
-    fTileProcX = choose_tile_proc(fTileModeX);
-    fTileProcY = choose_tile_proc(fTileModeY);
-    return GeneralXY_Procs[index];
+    // clamp gets special version of filterOne
+    fFilterOneX = SK_Fixed1;
+    fFilterOneY = SK_Fixed1;
+    return SK_ARM_NEON_WRAP(ClampX_ClampY_Procs)[index];
 }
