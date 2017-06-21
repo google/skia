@@ -615,12 +615,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (version >= GR_GL_VER(3, 0)) {
         fFenceSyncSupport = true;
     }
-#ifdef SK_BUILD_FOR_MAC
-    if (kIntel_GrGLVendor == ctxInfo.vendor()) {
-        // See skia:6770
-        fFenceSyncSupport = false;
-    }
-#endif
 
     // Safely moving textures between contexts requires fences.
     fCrossContextTextureSupport = fFenceSyncSupport;
