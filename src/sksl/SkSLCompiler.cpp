@@ -1024,11 +1024,11 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     } while (updated);
     ASSERT(!needsRescan);
 
-    // verify static ifs & switches, clean up dead variable decls
+    // verify static ifs & switches
     for (BasicBlock& b : cfg.fBlocks) {
         DefinitionMap definitions = b.fBefore;
 
-        for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan;) {
+        for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
             if (iter->fKind == BasicBlock::Node::kStatement_Kind) {
                 const Statement& s = **iter->statement();
                 switch (s.fKind) {
@@ -1036,36 +1036,15 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                         if (((const IfStatement&) s).fIsStatic) {
                             this->error(s.fPosition, "static if has non-static test");
                         }
-                        ++iter;
                         break;
                     case Statement::kSwitch_Kind:
                         if (((const SwitchStatement&) s).fIsStatic) {
                             this->error(s.fPosition, "static switch has non-static test");
                         }
-                        ++iter;
                         break;
-                    case Statement::kVarDeclarations_Kind: {
-                        VarDeclarations& decls = *((VarDeclarationsStatement&) s).fDeclaration;
-                        for (auto varIter = decls.fVars.begin(); varIter != decls.fVars.end();) {
-                            if ((*varIter)->fKind == Statement::kNop_Kind) {
-                                varIter = decls.fVars.erase(varIter);
-                            } else {
-                                ++varIter;
-                            }
-                        }
-                        if (!decls.fVars.size()) {
-                            iter = b.fNodes.erase(iter);
-                        } else {
-                            ++iter;
-                        }
-                        break;
-                    }
                     default:
-                        ++iter;
                         break;
                 }
-            } else {
-                ++iter;
             }
         }
     }
