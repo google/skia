@@ -247,7 +247,7 @@ private:
                        GrPixelConfig config,
                        const SkTArray<GrMipLevel>& texels) override;
 
-    bool onTransferPixels(GrTexture*,
+    bool onTransferPixels(GrSurface*,
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
@@ -373,8 +373,9 @@ private:
 
     // helper for onCreateTexture and writeTexturePixels
     enum UploadType {
-        kNewTexture_UploadType,   // we are creating a new texture
-        kWrite_UploadType,        // we are using TexSubImage2D to copy data to an existing texture
+        kNewTexture_UploadType,    // we are creating a new texture
+        kWrite_UploadType,         // we are using TexSubImage2D to copy data to an existing texture
+        kTransfer_UploadType,      // we are using a transfer buffer to copy data
     };
     bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
                        GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,

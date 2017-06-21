@@ -31,12 +31,6 @@
 
 GrGLBuffer* GrGLBuffer::Create(GrGLGpu* gpu, size_t size, GrBufferType intendedType,
                                GrAccessPattern accessPattern, const void* data) {
-    if (gpu->glCaps().transferBufferType() == GrGLCaps::kNone_TransferBufferType &&
-        (kXferCpuToGpu_GrBufferType == intendedType ||
-         kXferGpuToCpu_GrBufferType == intendedType)) {
-        return nullptr;
-    }
-
     sk_sp<GrGLBuffer> buffer(new GrGLBuffer(gpu, size, intendedType, accessPattern, data));
     if (0 == buffer->bufferID()) {
         return nullptr;
