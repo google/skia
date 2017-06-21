@@ -22,7 +22,8 @@ struct ASTDeclaration : public ASTPositionNode {
         kInterfaceBlock_Kind,
         kExtension_Kind,
         kPrecision_Kind,
-        kModifiers_Kind
+        kModifiers_Kind,
+        kSection_Kind
     };
 
     ASTDeclaration(Position position, Kind kind)
