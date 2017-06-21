@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5da98d42_ee566414",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-21T16:01:03Z",
+      "side": 1,
+      "message": "I\u0027m not sure -- it\u0027s been in the various forms of the patch for a while, but I don\u0027t remember the reason. It looks like you can use a persistently mapped buffer, but it\u0027s not really set up that way at the moment and requires multiple fences, so it\u0027s probably safer to require unmap for now.",
+      "parentUuid": "a623b39a_a4765ab6",
+      "range": {
+        "startLine": 831,
+        "startChar": 4,
+        "endLine": 831,
+        "endChar": 42
+      },
+      "revId": "f7037d003c936f59e4d02244821e223c2e7af8e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "54f4fd60_7880b0e6",
         "filename": "tests/TransferPixelsTest.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-21T15:47:09Z",
       "side": 1,
       "message": "Why do you need this check?",
+      "range": {
+        "startLine": 12,
+        "startChar": 19,
+        "endLine": 13,
+        "endChar": 0
+      },
+      "revId": "f7037d003c936f59e4d02244821e223c2e7af8e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d03f9863_d96b2f4c",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-21T16:01:03Z",
+      "side": 1,
+      "message": "Probably don\u0027t, any more. I think a previous version of the test might have had some statics.",
+      "parentUuid": "54f4fd60_7880b0e6",
       "range": {
         "startLine": 12,
         "startChar": 19,
