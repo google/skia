@@ -841,132 +841,145 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease, reporter, c
     ctxInfo.grContext()->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_MakeCrossContextRelease, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
-
-    // If we don't have proper support for this feature, the factory will fallback to returning
-    // codec-backed images. Those will "work", but some of our checks will fail because we expect
-    // the cross-context images not to work on multiple contexts at once.
-    if (!ctx->caps()->crossContextTextureSupport()) {
-        return;
-    }
-
-    // We test three lifetime patterns for a single context:
-    // 1) Create image, free image
-    // 2) Create image, draw, flush, free image
-    // 3) Create image, draw, free image, flush
-    // ... and then repeat the last two patterns with drawing on a second* context:
-    // 4) Create image, draw*, flush*, free image
-    // 5) Create image, draw*, free iamge, flush*
+DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
+    GrContextFactory testFactory;
 
     sk_sp<SkData> data = GetResourceAsData("mandrill_128.png");
     SkASSERT(data.get());
 
-    // Case #1: Create image, free image
-    {
-        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
-        refImg.reset(nullptr); // force a release of the image
-    }
+    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+        ContextInfo ctxInfo = testFactory.getContextInfo(ctxType);
+        GrContext* ctx = ctxInfo.grContext();
+        if (!ctx) {
+            continue;
+        }
 
-    SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
-    SkCanvas* canvas = surface->getCanvas();
+        // If we don't have proper support for this feature, the factory will fallback to returning
+        // codec-backed images. Those will "work", but some of our checks will fail because we
+        // expect the cross-context images not to work on multiple contexts at once.
+        if (!ctx->caps()->crossContextTextureSupport()) {
+            continue;
+        }
 
-    // Case #2: Create image, draw, flush, free image
-    {
-        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+        // We test three lifetime patterns for a single context:
+        // 1) Create image, free image
+        // 2) Create image, draw, flush, free image
+        // 3) Create image, draw, free image, flush
+        // ... and then repeat the last two patterns with drawing on a second* context:
+        // 4) Create image, draw*, flush*, free image
+        // 5) Create image, draw*, free iamge, flush*
 
-        canvas->drawImage(refImg, 0, 0);
-        canvas->flush();
+        // Case #1: Create image, free image
+        {
+            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+            refImg.reset(nullptr); // force a release of the image
+        }
 
-        refImg.reset(nullptr); // force a release of the image
-    }
+        SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
+        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
+        SkCanvas* canvas = surface->getCanvas();
 
-    // Case #3: Create image, draw, free image, flush
-    {
-        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+        // Case #2: Create image, draw, flush, free image
+        {
+            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
 
-        canvas->drawImage(refImg, 0, 0);
-        refImg.reset(nullptr); // force a release of the image
+            canvas->drawImage(refImg, 0, 0);
+            canvas->flush();
 
-        canvas->flush();
-    }
+            refImg.reset(nullptr); // force a release of the image
+        }
 
-    // Configure second context
-    sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
+        // Case #3: Create image, draw, free image, flush
+        {
+            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
 
-    GrContextFactory otherFactory;
-    ContextInfo otherContextInfo = otherFactory.getContextInfo(ctxInfo.type());
-    GrContext* otherCtx = otherContextInfo.grContext();
-    sk_gpu_test::TestContext* otherTestContext = otherContextInfo.testContext();
+            canvas->drawImage(refImg, 0, 0);
+            refImg.reset(nullptr); // force a release of the image
 
-    surface = SkSurface::MakeRenderTarget(otherCtx, SkBudgeted::kNo, info);
-    canvas = surface->getCanvas();
+            canvas->flush();
+        }
 
-    // Case #4: Create image, draw*, flush*, free image
-    {
-        testContext->makeCurrent();
-        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+        // Configure second context
+        sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
 
-        otherTestContext->makeCurrent();
-        canvas->drawImage(refImg, 0, 0);
-        canvas->flush();
+        ContextInfo otherContextInfo = testFactory.getSharedContextInfo(ctx);
+        GrContext* otherCtx = otherContextInfo.grContext();
+        sk_gpu_test::TestContext* otherTestContext = otherContextInfo.testContext();
 
-        testContext->makeCurrent();
-        refImg.reset(nullptr); // force a release of the image
-    }
+        // Creating a context in a share group may fail
+        if (!otherCtx) {
+            continue;
+        }
 
-    // Case #5: Create image, draw*, free image, flush*
-    {
-        testContext->makeCurrent();
-        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+        surface = SkSurface::MakeRenderTarget(otherCtx, SkBudgeted::kNo, info);
+        canvas = surface->getCanvas();
 
-        otherTestContext->makeCurrent();
-        canvas->drawImage(refImg, 0, 0);
+        // Case #4: Create image, draw*, flush*, free image
+        {
+            testContext->makeCurrent();
+            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
 
-        testContext->makeCurrent();
-        refImg.reset(nullptr); // force a release of the image
+            otherTestContext->makeCurrent();
+            canvas->drawImage(refImg, 0, 0);
+            canvas->flush();
 
-        otherTestContext->makeCurrent();
-        canvas->flush();
-    }
+            testContext->makeCurrent();
+            refImg.reset(nullptr); // force a release of the image
+        }
 
-    // Case #6: Verify that only one context can be using the image at a time
-    {
-        testContext->makeCurrent();
-        sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
+        // Case #5: Create image, draw*, free image, flush*
+        {
+            testContext->makeCurrent();
+            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
 
-        // Any context should be able to borrow the texture at this point
-        sk_sp<SkColorSpace> texColorSpace;
-        sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef(
-            ctx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
-        REPORTER_ASSERT(reporter, proxy);
+            otherTestContext->makeCurrent();
+            canvas->drawImage(refImg, 0, 0);
 
-        // But once it's borrowed, no other context should be able to borrow
-        otherTestContext->makeCurrent();
-        sk_sp<GrTextureProxy> otherProxy = as_IB(refImg)->asTextureProxyRef(
-            otherCtx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
-        REPORTER_ASSERT(reporter, !otherProxy);
+            testContext->makeCurrent();
+            refImg.reset(nullptr); // force a release of the image
 
-        // Original context (that's already borrowing) should be okay
-        testContext->makeCurrent();
-        sk_sp<GrTextureProxy> proxySecondRef = as_IB(refImg)->asTextureProxyRef(
-            ctx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
-        REPORTER_ASSERT(reporter, proxySecondRef);
+            otherTestContext->makeCurrent();
+            canvas->flush();
+        }
 
-        // Releae all refs from the original context
-        proxy.reset(nullptr);
-        proxySecondRef.reset(nullptr);
+        // Case #6: Verify that only one context can be using the image at a time
+        {
+            testContext->makeCurrent();
+            sk_sp<SkImage> refImg(SkImage::MakeCrossContextFromEncoded(ctx, data, false, nullptr));
 
-        // Now we should be able to borrow the texture from the other context
-        otherTestContext->makeCurrent();
-        otherProxy = as_IB(refImg)->asTextureProxyRef(
-            otherCtx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
-        REPORTER_ASSERT(reporter, otherProxy);
+            // Any context should be able to borrow the texture at this point
+            sk_sp<SkColorSpace> texColorSpace;
+            sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef(
+                ctx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, proxy);
 
-        // Release everything
-        otherProxy.reset(nullptr);
-        refImg.reset(nullptr);
+            // But once it's borrowed, no other context should be able to borrow
+            otherTestContext->makeCurrent();
+            sk_sp<GrTextureProxy> otherProxy = as_IB(refImg)->asTextureProxyRef(
+                otherCtx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, !otherProxy);
+
+            // Original context (that's already borrowing) should be okay
+            testContext->makeCurrent();
+            sk_sp<GrTextureProxy> proxySecondRef = as_IB(refImg)->asTextureProxyRef(
+                ctx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, proxySecondRef);
+
+            // Releae all refs from the original context
+            proxy.reset(nullptr);
+            proxySecondRef.reset(nullptr);
+
+            // Now we should be able to borrow the texture from the other context
+            otherTestContext->makeCurrent();
+            otherProxy = as_IB(refImg)->asTextureProxyRef(
+                otherCtx, GrSamplerParams::ClampNoFilter(), nullptr, &texColorSpace, nullptr);
+            REPORTER_ASSERT(reporter, otherProxy);
+
+            // Release everything
+            otherProxy.reset(nullptr);
+            refImg.reset(nullptr);
+        }
     }
 }
 
