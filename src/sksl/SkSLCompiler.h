@@ -98,6 +98,10 @@ private:
 
     void scanCFG(FunctionDefinition& f);
 
+    void internalConvertProgram(String text,
+                                Modifiers::Flag* defaultPrecision,
+                                std::vector<std::unique_ptr<ProgramElement>>* result);
+
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
     String fSkiaVertText; // FIXME store parsed version instead

@@ -7,9 +7,11 @@
 
 #include "SkSLCompiler.h"
 
+#include "ast/SkSLASTPrecision.h"
 #include "SkSLCFGGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
 #include "SkSLIRGenerator.h"
+#include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLExpression.h"
 #include "ir/SkSLExpressionStatement.h"
@@ -154,7 +156,7 @@ Compiler::Compiler()
 
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
-    fIRGenerator->convertProgram(String(SKSL_INCLUDE), *fTypes, &ignored1, &ignored2);
+    this->internalConvertProgram(String(SKSL_INCLUDE), &ignored1, &ignored2);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     ASSERT(!fErrorCount);
 }
@@ -1057,6 +1059,69 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     }
 }
 
+void Compiler::internalConvertProgram(String text,
+                                      Modifiers::Flag* defaultPrecision,
+                                      std::vector<std::unique_ptr<ProgramElement>>* result) {
+    Parser parser(text, *fTypes, *this);
+    std::vector<std::unique_ptr<ASTDeclaration>> parsed = parser.file();
+    if (fErrorCount) {
+        return;
+    }
+    *defaultPrecision = Modifiers::kHighp_Flag;
+    for (size_t i = 0; i < parsed.size(); i++) {
+        ASTDeclaration& decl = *parsed[i];
+        switch (decl.fKind) {
+            case ASTDeclaration::kVar_Kind: {
+                std::unique_ptr<VarDeclarations> s = fIRGenerator->convertVarDeclarations(
+                                                                         (ASTVarDeclarations&) decl,
+                                                                         Variable::kGlobal_Storage);
+                if (s) {
+                    result->push_back(std::move(s));
+                }
+                break;
+            }
+            case ASTDeclaration::kFunction_Kind: {
+                std::unique_ptr<FunctionDefinition> f = fIRGenerator->convertFunction(
+                                                                               (ASTFunction&) decl);
+                if (!fErrorCount && f) {
+                    this->scanCFG(*f);
+                    result->push_back(std::move(f));
+                }
+                break;
+            }
+            case ASTDeclaration::kModifiers_Kind: {
+                std::unique_ptr<ModifiersDeclaration> f = fIRGenerator->convertModifiersDeclaration(
+                                                                   (ASTModifiersDeclaration&) decl);
+                if (f) {
+                    result->push_back(std::move(f));
+                }
+                break;
+            }
+            case ASTDeclaration::kInterfaceBlock_Kind: {
+                std::unique_ptr<InterfaceBlock> i = fIRGenerator->convertInterfaceBlock(
+                                                                         (ASTInterfaceBlock&) decl);
+                if (i) {
+                    result->push_back(std::move(i));
+                }
+                break;
+            }
+            case ASTDeclaration::kExtension_Kind: {
+                std::unique_ptr<Extension> e = fIRGenerator->convertExtension((ASTExtension&) decl);
+                if (e) {
+                    result->push_back(std::move(e));
+                }
+                break;
+            }
+            case ASTDeclaration::kPrecision_Kind: {
+                *defaultPrecision = ((ASTPrecision&) decl).fPrecision;
+                break;
+            }
+            default:
+                ABORT("unsupported declaration: %s\n", decl.description().c_str());
+        }
+    }
+}
+
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
                                                   const Program::Settings& settings) {
     fErrorText = "";
@@ -1066,25 +1131,18 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     Modifiers::Flag ignored;
     switch (kind) {
         case Program::kVertex_Kind:
-            fIRGenerator->convertProgram(String(SKSL_VERT_INCLUDE), *fTypes, &ignored, &elements);
+            this->internalConvertProgram(String(SKSL_VERT_INCLUDE), &ignored, &elements);
             break;
         case Program::kFragment_Kind:
-            fIRGenerator->convertProgram(String(SKSL_FRAG_INCLUDE), *fTypes, &ignored, &elements);
+            this->internalConvertProgram(String(SKSL_FRAG_INCLUDE), &ignored, &elements);
             break;
         case Program::kGeometry_Kind:
-            fIRGenerator->convertProgram(String(SKSL_GEOM_INCLUDE), *fTypes, &ignored, &elements);
+            this->internalConvertProgram(String(SKSL_GEOM_INCLUDE), &ignored, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     Modifiers::Flag defaultPrecision;
-    fIRGenerator->convertProgram(text, *fTypes, &defaultPrecision, &elements);
-    if (!fErrorCount) {
-        for (auto& element : elements) {
-            if (element->fKind == ProgramElement::kFunction_Kind) {
-                this->scanCFG((FunctionDefinition&) *element);
-            }
-        }
-    }
+    this->internalConvertProgram(text, &defaultPrecision, &elements);
     auto result = std::unique_ptr<Program>(new Program(kind, settings, defaultPrecision, &fContext,
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
