@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c39242b0_f2068642",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-21T20:57:01Z",
+      "side": 1,
+      "message": "Why would you be insetting the midRect twice? (already done at line 155 above). This seems to be making the bounds-checked outer regions twice as large as they need to be. If the srcBounds passed in for the second pass are incorrect, we should fix them at the call site, not here.",
+      "revId": "12534f9f215fc4f33463ab4a414ccc0ca5418d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3d19e49_a4bc8f0d",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-21T20:57:01Z",
+      "side": 1,
+      "message": "Are you sure that you need a texture domain effect on every downsampling pass? This has a non-zero cost, and may affect performance (you may be correct, I\u0027d just like to see an example that proves it).",
+      "revId": "12534f9f215fc4f33463ab4a414ccc0ca5418d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
