@@ -195,6 +195,9 @@ struct SkBitmapFPOrigShader : public CommonBitmapFPBenchmark {
     }
 
     void onDraw(int loops, SkCanvas*) override {
+        if (as_SB(fPaint.getShader())->isRasterPipelineOnly()) {
+            return;
+        }
         int width = fSrcSize.fWidth;
         int height = fSrcSize.fHeight;
 
