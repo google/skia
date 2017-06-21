@@ -938,6 +938,11 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(ClientWaitSync);
         GET_PROC(WaitSync);
         GET_PROC(DeleteSync);
+    } else if (extensions.has("GL_APPLE_sync")) {
+        GET_PROC_SUFFIX(FenceSync, APPLE);
+        GET_PROC_SUFFIX(ClientWaitSync, APPLE);
+        GET_PROC_SUFFIX(WaitSync, APPLE);
+        GET_PROC_SUFFIX(DeleteSync, APPLE);
     }
 
     if (version >= GR_GL_VER(3, 1)) {

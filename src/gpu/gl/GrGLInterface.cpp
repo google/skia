@@ -764,7 +764,7 @@ bool GrGLInterface::validate() const {
             }
         }
     } else if (kGLES_GrGLStandard == fStandard) {
-        if (glVer >= GR_GL_VER(3, 0)) {
+        if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_APPLE_sync")) {
             if (nullptr == fFunctions.fFenceSync ||
                 nullptr == fFunctions.fClientWaitSync ||
                 nullptr == fFunctions.fWaitSync ||

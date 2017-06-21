@@ -612,7 +612,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         if (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync")) {
             fFenceSyncSupport = true;
         }
-    } else if (version >= GR_GL_VER(3, 0)) {
+    } else if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_APPLE_sync")) {
         fFenceSyncSupport = true;
     }
 
