@@ -51,9 +51,6 @@ protected:
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
     bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix* localM) const override;
-    bool isRasterPipelineOnly() const override {
-        return as_SB(fShader)->isRasterPipelineOnly();
-    }
 
 private:
     sk_sp<SkShader>      fShader;
