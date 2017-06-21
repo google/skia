@@ -562,7 +562,7 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages:     []*specs.CipdPackage{},
-		Dimensions:       []string{"pool:SkiaCT"},
+		Dimensions:       []string{"pool:SkiaCT", "id:skia-ct-gce-001"},
 		ExecutionTimeout: 24 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "ct_skps",

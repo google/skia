@@ -456,6 +456,7 @@ class SwarmingApi(recipe_api.RecipeApi):
       '--expiration', str(task.expiration),
       '--io-timeout', str(task.io_timeout),
       '--hard-timeout', str(task.hard_timeout),
+      '--service-account', 'bot',
     ]
     for name, value in sorted(task.dimensions.iteritems()):
       assert isinstance(value, basestring), value
