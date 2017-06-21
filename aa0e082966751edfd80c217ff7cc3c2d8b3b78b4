@@ -16,6 +16,24 @@
       "revId": "aa0e082966751edfd80c217ff7cc3c2d8b3b78b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a0993bb_011788ea",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-21T15:57:50Z",
+      "side": 1,
+      "message": "PictureShader doesn\u0027t know how to proxy down to its private shader for isPipeline yet.",
+      "parentUuid": "179f4346_cdf4d418",
+      "revId": "aa0e082966751edfd80c217ff7cc3c2d8b3b78b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
