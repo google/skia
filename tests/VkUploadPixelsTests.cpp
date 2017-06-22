@@ -9,7 +9,7 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS && defined(SK_VULKAN)
+#if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
