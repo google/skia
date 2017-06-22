@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cfbeeaa_82cadaa3",
+        "filename": "src/core/SkFindAndPlaceGlyph.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-22T00:06:24Z",
+      "side": 1,
+      "message": "here\u0027s another explicit if you like",
+      "range": {
+        "startLine": 340,
+        "startChar": 9,
+        "endLine": 340,
+        "endChar": 10
+      },
+      "revId": "e5fcb7033876a0a879c77451cc186afe3f6f025a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
