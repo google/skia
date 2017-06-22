@@ -65,6 +65,10 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
+    // To normalize the inbounds kernel weight when using bounds.
+    if (ce.useBounds()) {
+        fragBuilder->codeAppend("float inboundsKernelWeight = 0.0;");
+    }
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
@@ -88,9 +92,13 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
         fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
         if (ce.useBounds()) {
+            fragBuilder->codeAppendf("inboundsKernelWeight += %s;\n", kernelIndex.c_str());
             fragBuilder->codeAppend("}");
         }
         fragBuilder->codeAppendf("coord += %s;\n", imgInc);
+    }
+    if (ce.useBounds()) {
+        fragBuilder->codeAppendf("%s /= inboundsKernelWeight;\n", args.fOutputColor);
     }
     fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }

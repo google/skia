@@ -109,7 +109,7 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
 
     sk_sp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
             std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
-            srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
+            srcBounds ? GrTextureDomain::kClamp_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -245,7 +245,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                              std::move(srcProxy), radiusX, radiusY, sigmaX, sigmaY, srcBounds);
 
         return dstRenderTargetContext;
-    } 
+    }
 
     sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kBottomLeft_GrSurfaceOrigin));
@@ -270,7 +270,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                         nullptr,
                                                         SkMatrix::I(),
                                                         domain,
-                                                        GrTextureDomain::kDecal_Mode,
+                                                        GrTextureDomain::kClamp_Mode,
                                                         GrSamplerParams::kBilerp_FilterMode));
             paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-srcOffset);
@@ -282,10 +282,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
-
         dstRenderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                SkRect::Make(dstRect), SkRect::Make(srcRect));
-
         srcRenderTargetContext = dstRenderTargetContext;
         srcRect = dstRect;
         srcProxy = srcRenderTargetContext->asTextureProxyRef();
@@ -320,6 +318,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         srcRect.offsetTo(0, 0);
         dstRenderTargetContext.swap(tmpRenderTargetContext);
         localSrcBounds = srcRect;
+        // We need to adjust bounds because we only fill part of the srcRect in x-pass.
+        localSrcBounds.inset(0, static_cast<int>(ceilf(sigmaY * 3.0f)));
         srcOffset.set(0, 0);
     }
 
@@ -357,15 +357,22 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
-        // FIXME:  this should be mitchell, not bilinear.
-        GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
         sk_sp<GrTextureProxy> proxy(srcRenderTargetContext->asTextureProxyRef());
         if (!proxy) {
             return nullptr;
         }
 
-        paint.addColorTextureProcessor(std::move(proxy),
-                                       nullptr, SkMatrix::I(), params);
+        SkRect domain = SkRect::Make(*srcBounds);
+        domain.inset((1 < scaleFactorX) ? SK_ScalarHalf : 0.0f,
+                     (1 < scaleFactorY) ? SK_ScalarHalf : 0.0f);
+        sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
+                                                    std::move(proxy),
+                                                    nullptr,
+                                                    SkMatrix::I(),
+                                                    domain,
+                                                    GrTextureDomain::kClamp_Mode,
+                                                    GrSamplerParams::kBilerp_FilterMode));
+        paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkIRect dstRect(srcRect);
