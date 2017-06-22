@@ -298,17 +298,8 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
     gather->ctable  = pm.ctable() ? pm.ctable()->readColors() : nullptr;
     gather->stride  = pm.rowBytesAsPixels();
 
-    // Tiling stages (clamp_x, mirror_y, etc.) are inclusive of their limit,
-    // so we tick down our width and height by one float to make them exclusive.
-    auto ulp_before = [](float f) {
-        uint32_t bits;
-        memcpy(&bits, &f, 4);
-        bits--;
-        memcpy(&f, &bits, 4);
-        return f;
-    };
-    auto limit_x = alloc->make<float>(ulp_before((float)pm. width())),
-         limit_y = alloc->make<float>(ulp_before((float)pm.height()));
+    auto limit_x = alloc->make<float>(pm. width()),
+         limit_y = alloc->make<float>(pm.height());
 
     auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
