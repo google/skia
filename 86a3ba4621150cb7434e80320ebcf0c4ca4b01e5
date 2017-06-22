@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bad2ac81_dd246b57",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-22T17:52:06Z",
+      "side": 1,
+      "message": "can any of these be moved to es2 only?\n\nOn a side note, in our actual tests there are multiple spots where we bail on ANGLE configs. This may not be an issue cause it looks like many of them explicitly use es2 config names but might want to double check we are using the values we intend to there.",
+      "range": {
+        "startLine": 511,
+        "startChar": 3,
+        "endLine": 513,
+        "endChar": 54
+      },
+      "revId": "86a3ba4621150cb7434e80320ebcf0c4ca4b01e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
