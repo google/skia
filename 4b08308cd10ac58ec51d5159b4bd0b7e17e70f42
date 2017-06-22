@@ -48,6 +48,52 @@
     },
     {
       "key": {
+        "uuid": "668ab9ba_542d8130",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: none of the special treatment for colorSpaceXform seems to be tested.",
+      "range": {
+        "startLine": 19,
+        "startChar": 43,
+        "endLine": 19,
+        "endChar": 60
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ca6413c_0cace2a6",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: maybe add function is_parameter",
+      "range": {
+        "startLine": 33,
+        "startChar": 24,
+        "endLine": 34,
+        "endChar": 68
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb9cf626_1c4669d2",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -117,6 +163,29 @@
     },
     {
       "key": {
+        "uuid": "573e0d1f_221ade02",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: Most of this function doesn\u0027t seem to be tested.",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 71
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "45a54ea0_4e75f95f",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -168,6 +237,29 @@
     },
     {
       "key": {
+        "uuid": "b9215842_d91826c3",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Do we need to worry about the precision of %f? (Same for vec2 and vec4.)",
+      "range": {
+        "startLine": 170,
+        "startChar": 21,
+        "endLine": 170,
+        "endChar": 23
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0c5ed550_d6cdad79",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -191,6 +283,29 @@
     },
     {
       "key": {
+        "uuid": "98399a7b_450420f4",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Based on the tests, cppCode will be an SkRect; however, SkRect doesn\u0027t have fields fX, fY, fZ, and fW.",
+      "range": {
+        "startLine": 184,
+        "startChar": 41,
+        "endLine": 184,
+        "endChar": 44
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bbb91fa5_9a27e0a4",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -207,6 +322,75 @@
         "startChar": 8,
         "endLine": 195,
         "endChar": 49
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a946b14d_093b2150",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: is_parameter",
+      "range": {
+        "startLine": 255,
+        "startChar": 23,
+        "endLine": 256,
+        "endChar": 76
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11ae3dff_e788a287",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: static constexpr char* kPrefix \u003d \"sk_Args.\";",
+      "range": {
+        "startLine": 286,
+        "startChar": 34,
+        "endLine": 286,
+        "endChar": 44
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39d8147a_c4125963",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "I don\u0027t see how this works. Is there some magic that replaces sk_Caps in the GLSL?",
+      "range": {
+        "startLine": 291,
+        "startChar": 8,
+        "endLine": 291,
+        "endChar": 37
       },
       "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -260,6 +444,144 @@
     },
     {
       "key": {
+        "uuid": "1e4f0527_bfb281ba",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: maybe put generated variables inside a block so that they don\u0027t interfere with the code from this-\u003ewriteSection(SET_DATA_SECTION);",
+      "range": {
+        "startLine": 438,
+        "startChar": 38,
+        "endLine": 438,
+        "endChar": 75
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3d69ad2_a1605c41",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "need to substitute pdman",
+      "range": {
+        "startLine": 449,
+        "startChar": 68,
+        "endLine": 449,
+        "endChar": 73
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "014a4abc_34f1af5a",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "If there are multiple ColorSpaceXform uniforms, is it OK to use the same GrGLSLColorSpaceXformHelper for all of them?",
+      "range": {
+        "startLine": 449,
+        "startChar": 42,
+        "endLine": 449,
+        "endChar": 59
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd7ecc35_47751445",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: is_parameter",
+      "range": {
+        "startLine": 469,
+        "startChar": 31,
+        "endLine": 470,
+        "endChar": 68
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56fc46e5_796caff1",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: Seems like this will always be true.",
+      "range": {
+        "startLine": 512,
+        "startChar": 12,
+        "endLine": 513,
+        "endChar": 52
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70605638_ad27b10b",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Raw string literals might be useful. http://www.stroustrup.com/C++11FAQ.html#raw-strings\n\n(Also in SkSLFPTest.cpp)",
+      "range": {
+        "startLine": 579,
+        "startChar": 17,
+        "endLine": 579,
+        "endChar": 23
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "88393af5_fe629862",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -303,6 +625,30 @@
       "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ec04f86_39c3bda2",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Please ignore -- hadn\u0027t seen that \"Gr\" is removed from the filename in SkSLMain.cpp.",
+      "parentUuid": "87e04c4f_c272df50",
+      "range": {
+        "startLine": 594,
+        "startChar": 17,
+        "endLine": 594,
+        "endChar": 25
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -444,6 +790,29 @@
     },
     {
       "key": {
+        "uuid": "0f6fcff6_ee12c96e",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: Is this equivalent to the following?\n    for (const auto\u0026 param : fParameters) {\n        const char* name \u003d param-\u003efName.c_str();\n        if (param-\u003efType.fName \u003d\u003d \"sampler2D\") {\n\nIf not, it seems that the code in CPPCodeGenerator::writeVariableReference is wrong. If so, it seems simpler to iterate over fParameters.\n\nnit: consistently use either \u0027param-\u003efType.fName \u003d\u003d \"sampler2D\"\u0027 or \u0027param-\u003efType.kind() \u003d\u003d Type::kSampler_Kind\u0027.",
+      "range": {
+        "startLine": 243,
+        "startChar": 0,
+        "endLine": 248,
+        "endChar": 69
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d74ac00f_8c5be478",
         "filename": "src/sksl/SkSLHCodeGenerator.cpp",
         "patchSetId": 23
@@ -467,6 +836,30 @@
     },
     {
       "key": {
+        "uuid": "78cb13bd_e11705f2",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Please ignore -- hadn\u0027t seen that \"Gr\" is removed from the filename in SkSLMain.cpp.",
+      "parentUuid": "d74ac00f_8c5be478",
+      "range": {
+        "startLine": 280,
+        "startChar": 17,
+        "endLine": 280,
+        "endChar": 26
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c1c2ebb_0d12e910",
         "filename": "src/sksl/SkSLHCodeGenerator.h",
         "patchSetId": 23
@@ -483,6 +876,259 @@
         "startChar": 0,
         "endLine": 70,
         "endChar": 1
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ad3d1e_e456b9d9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Ok that this reverses fExtraVars?",
+      "range": {
+        "startLine": 684,
+        "startChar": 12,
+        "endLine": 684,
+        "endChar": 78
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ca8bcd_08727718",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: Not sure if it\u0027s important in this case, but this avoids repeated copies:\nbody-\u003efStatements.insert(body-\u003efStatements.begin(), fExtraVars.size(), nullptr);\nfor (int i \u003d 0; i \u003c fExtraVars.size(); ++i) {\n    body-\u003efStatements[i] \u003d std::move(fExtraVars[i]);\n}",
+      "range": {
+        "startLine": 683,
+        "startChar": 8,
+        "endLine": 685,
+        "endChar": 9
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d70e75_cbc7eeab",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: This method doesn\u0027t seem to be tested.",
+      "range": {
+        "startLine": 1395,
+        "startChar": 28,
+        "endLine": 1395,
+        "endChar": 56
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19f92771_9bce34cf",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 1410,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: FWIW, \"using std::move;\" would work too.",
+      "range": {
+        "startLine": 1410,
+        "startChar": 4,
+        "endLine": 1410,
+        "endChar": 26
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14f03b54_3316e6bd",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 1493,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Seems like this should be an error rather than an assert.",
+      "range": {
+        "startLine": 1493,
+        "startChar": 8,
+        "endLine": 1493,
+        "endChar": 73
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40f95dc9_59a40553",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: Why not use SkSL::String::endsWith?",
+      "range": {
+        "startLine": 12,
+        "startChar": 12,
+        "endLine": 12,
+        "endChar": 21
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7f5bd07_0fed14e8",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: missing argument",
+      "range": {
+        "startLine": 298,
+        "startChar": 3,
+        "endLine": 298,
+        "endChar": 11
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "059da26f_f01f5398",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: StringStream",
+      "range": {
+        "startLine": 319,
+        "startChar": 4,
+        "endLine": 319,
+        "endChar": 10
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72d6f6b9_4ecb343a",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: StringStream",
+      "range": {
+        "startLine": 601,
+        "startChar": 4,
+        "endLine": 601,
+        "endChar": 10
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32f779d6_83665782",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: layout",
+      "range": {
+        "startLine": 619,
+        "startChar": 80,
+        "endLine": 619,
+        "endChar": 87
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd2ef4ca_3d93e590",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Seems like this would leave off the final RPAREN.",
+      "range": {
+        "startLine": 624,
+        "startChar": 0,
+        "endLine": 629,
+        "endChar": 9
       },
       "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -523,6 +1169,236 @@
         "startChar": 4,
         "endLine": 294,
         "endChar": 13
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fba6f9cf_58220893",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: \"if (!program) return;\" before dereferencing",
+      "range": {
+        "startLine": 28,
+        "startChar": 32,
+        "endLine": 28,
+        "endChar": 40
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee77cd97_5944f146",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "I think you mean success, also below.",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 15
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2d09619_df4a5cd1",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: only call strstr once",
+      "range": {
+        "startLine": 35,
+        "startChar": 17,
+        "endLine": 35,
+        "endChar": 55
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e404837f_7e589722",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit indentation",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 14
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31b03288_f47af824",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "nit: remove comma, insert \\n",
+      "range": {
+        "startLine": 144,
+        "startChar": 69,
+        "endLine": 144,
+        "endChar": 70
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "553118c4_935fa1d1",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 146,
+        "startChar": 35,
+        "endLine": 146,
+        "endChar": 36
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "860548d2_45f47f94",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "In this and below tests, I\u0027m not sure there\u0027s enough context to prevent a regression.\n\nI\u0027m hesitant to suggest this, but maybe it makes sense to create a few different test .fp files and their expected .cpp and .h files, and, based on a flag, either validate that they match, or regenerate the .cpp and .h from the .fp.",
+      "range": {
+        "startLine": 150,
+        "startChar": 13,
+        "endLine": 151,
+        "endChar": 99
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b2c37e8_73290ba8",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Would be good to test the logic for splitting multiple params and passing the correct args to the constructor in Make. Maybe also test when there are auto-generated params in addition.",
+      "range": {
+        "startLine": 221,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 13
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52ebc1d8_4f3d23b9",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Would be nice to test with uniforms and private vars.",
+      "range": {
+        "startLine": 253,
+        "startChar": 9,
+        "endLine": 253,
+        "endChar": 41
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f4b9f2f_94503b96",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-22T20:29:54Z",
+      "side": 1,
+      "message": "Would be nice to test this with uniforms and parameters.",
+      "range": {
+        "startLine": 285,
+        "startChar": 9,
+        "endLine": 285,
+        "endChar": 26
       },
       "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
