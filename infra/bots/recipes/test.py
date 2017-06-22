@@ -414,6 +414,9 @@ def dm_flags(bot):
   if 'GalaxyS7_G930A' in bot:
     match.append('~WritePixels') # skia:6427
 
+  if 'NVIDIA_Shield' in bot:
+    match.append('~TransferPixels') # skia:6784
+
   if 'MSAN' in bot:
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
