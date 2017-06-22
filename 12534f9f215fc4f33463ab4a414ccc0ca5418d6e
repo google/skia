@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "81ee2bd2_08ba1e94",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-22T18:24:35Z",
+      "side": 1,
+      "message": "I fix the srcBounds in the call site.\nIn the x-pass, we only fill left, right, mid rects. The top/bottom of these rects are 3*sigmaY from edge and are empty. So in the y-pass, we should adjust the scrBounds by inset(0, 3*sigmaY).",
+      "parentUuid": "c39242b0_f2068642",
+      "revId": "12534f9f215fc4f33463ab4a414ccc0ca5418d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3d19e49_a4bc8f0d",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-21T20:57:01Z",
       "side": 1,
       "message": "Are you sure that you need a texture domain effect on every downsampling pass? This has a non-zero cost, and may affect performance (you may be correct, I\u0027d just like to see an example that proves it).",
+      "revId": "12534f9f215fc4f33463ab4a414ccc0ca5418d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8811b477_b0ba323b",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-22T18:24:35Z",
+      "side": 1,
+      "message": "You are absolutely right. Tested again, I do not need it.\nI might mess up some testing with different combinations.",
+      "parentUuid": "d3d19e49_a4bc8f0d",
       "revId": "12534f9f215fc4f33463ab4a414ccc0ca5418d6e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
