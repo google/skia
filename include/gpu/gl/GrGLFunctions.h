@@ -9,7 +9,6 @@
 #ifndef GrGLFunctions_DEFINED
 #define GrGLFunctions_DEFINED
 
-#include <functional>
 #include "GrGLTypes.h"
 #include "../private/SkTLogic.h"
 
@@ -17,369 +16,419 @@ extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLActiveTextureProc)(GrGLenum texture);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLAttachShaderProc)(GrGLuint program, GrGLuint shader);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBeginQueryProc)(GrGLenum target, GrGLuint id);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindAttribLocationProc)(GrGLuint program, GrGLuint index, const char* name);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFramebufferProc)(GrGLenum target, GrGLuint framebuffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindRenderbufferProc)(GrGLenum target, GrGLuint renderbuffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindImageTextureProc)(GrGLuint unit, GrGLuint texture, GrGLint level, GrGLboolean layered, GrGLint layer, GrGLenum access, GrGLenum format);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindVertexArrayProc)(GrGLuint array);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendBarrierProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendEquationProc)(GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBlitFramebufferProc)(GrGLint srcX0, GrGLint srcY0, GrGLint srcX1, GrGLint srcY1, GrGLint dstX0, GrGLint dstY0, GrGLint dstX1, GrGLint dstY1, GrGLbitfield mask, GrGLenum filter);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBufferSubDataProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data);
-typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLCheckFramebufferStatusProc)(GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearProc)(GrGLbitfield mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearStencilProc)(GrGLint s);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearTexImageProc)(GrGLuint texture, GrGLint level, GrGLenum format, GrGLenum type,const GrGLvoid * data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLClearTexSubImageProc)(GrGLuint texture, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLenum format, GrGLenum type,const GrGLvoid * data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLColorMaskProc)(GrGLboolean red, GrGLboolean green, GrGLboolean blue, GrGLboolean alpha);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompileShaderProc)(GrGLuint shader);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTexImage2DProc)(GrGLenum target, GrGLint level, GrGLenum internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid* data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLsizei imageSize, const GrGLvoid* data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateProgramProc)();
-typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLCreateShaderProc)(GrGLenum type);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCullFaceProc)(GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteBuffersProc)(GrGLsizei n, const GrGLuint* buffers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteFramebuffersProc)(GrGLsizei n, const GrGLuint *framebuffers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteProgramProc)(GrGLuint program);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteQueriesProc)(GrGLsizei n, const GrGLuint *ids);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteRenderbuffersProc)(GrGLsizei n, const GrGLuint *renderbuffers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteShaderProc)(GrGLuint shader);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteTexturesProc)(GrGLsizei n, const GrGLuint* textures);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteVertexArraysProc)(GrGLsizei n, const GrGLuint *arrays);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDepthMaskProc)(GrGLboolean flag);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableProc)(GrGLenum cap);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableVertexAttribArrayProc)(GrGLuint index);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawArraysProc)(GrGLenum mode, GrGLint first, GrGLsizei count);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawArraysInstancedProc)(GrGLenum mode, GrGLint first, GrGLsizei count, GrGLsizei primcount);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawArraysIndirectProc)(GrGLenum mode, const GrGLvoid* indirect);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawBufferProc)(GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawBuffersProc)(GrGLsizei n, const GrGLenum* bufs);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsInstancedProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid *indices, GrGLsizei primcount);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawRangeElementsProc)(GrGLenum mode, GrGLuint start, GrGLuint end, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableProc)(GrGLenum cap);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableVertexAttribArrayProc)(GrGLuint index);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEndQueryProc)(GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFinishProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFlushProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFlushMappedBufferRangeProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferRenderbufferProc)(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferTexture2DProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferTexture2DMultisampleProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLsizei samples);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFrontFaceProc)(GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenerateMipmapProc)(GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenQueriesProc)(GrGLsizei n, GrGLuint *ids);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenRenderbuffersProc)(GrGLsizei n, GrGLuint *renderbuffers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenTexturesProc)(GrGLsizei n, GrGLuint* textures);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenVertexArraysProc)(GrGLsizei n, GrGLuint *arrays);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetBufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
-typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLGetErrorProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetFramebufferAttachmentParameterivProc)(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetIntegervProc)(GrGLenum pname, GrGLint* params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetMultisamplefvProc)(GrGLenum pname, GrGLuint index, GrGLfloat* val);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetProgramInfoLogProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetProgramivProc)(GrGLuint program, GrGLenum pname, GrGLint* params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetQueryivProc)(GrGLenum GLtarget, GrGLenum pname, GrGLint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetQueryObjecti64vProc)(GrGLuint id, GrGLenum pname, GrGLint64 *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetQueryObjectivProc)(GrGLuint id, GrGLenum pname, GrGLint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetQueryObjectui64vProc)(GrGLuint id, GrGLenum pname, GrGLuint64 *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetQueryObjectuivProc)(GrGLuint id, GrGLenum pname, GrGLuint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetRenderbufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetShaderInfoLogProc)(GrGLuint shader, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetShaderivProc)(GrGLuint shader, GrGLenum pname, GrGLint* params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetShaderPrecisionFormatProc)(GrGLenum shadertype, GrGLenum precisiontype, GrGLint *range, GrGLint *precision);
-typedef const GrGLubyte* (GR_GL_FUNCTION_TYPE* GrGLGetStringProc)(GrGLenum name);
-typedef const GrGLubyte* (GR_GL_FUNCTION_TYPE* GrGLGetStringiProc)(GrGLenum name, GrGLuint index);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTexLevelParameterivProc)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
-typedef GrGLint (GR_GL_FUNCTION_TYPE* GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInsertEventMarkerProc)(GrGLsizei length, const char* marker);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateBufferDataProc)(GrGLuint buffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateFramebufferProc)(GrGLenum target, GrGLsizei numAttachments,  const GrGLenum *attachments);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateSubFramebufferProc)(GrGLenum target, GrGLsizei numAttachments, const GrGLenum *attachments, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateTexImageProc)(GrGLuint texture, GrGLint level);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateTexSubImageProc)(GrGLuint texture, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsTextureProc)(GrGLuint texture);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLineWidthProc)(GrGLfloat width);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLinkProgramProc)(GrGLuint program);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferRangeProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferSubDataProc)(GrGLuint target, GrGLintptr offset, GrGLsizeiptr size, GrGLenum access);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLenum access);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMemoryBarrierProc)(GrGLbitfield barriers);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMemoryBarrierByRegionProc)(GrGLbitfield barriers);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPolygonModeProc)(GrGLenum face, GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPopGroupMarkerProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPushGroupMarkerProc)(GrGLsizei length, const char* marker);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRasterSamplesProc)(GrGLuint samples, GrGLboolean fixedsamplelocations);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLReadBufferProc)(GrGLenum src);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLRenderbufferStorageMultisampleProc)(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLResolveMultisampleFramebufferProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLActiveTextureProc)(GrGLenum texture);
+typedef GrGLvoid (* GrGLAttachShaderProc)(GrGLuint program, GrGLuint shader);
+typedef GrGLvoid (* GrGLBeginQueryProc)(GrGLenum target, GrGLuint id);
+typedef GrGLvoid (* GrGLBindAttribLocationProc)(GrGLuint program, GrGLuint index, const char* name);
+typedef GrGLvoid (* GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);
+typedef GrGLvoid (* GrGLBindFramebufferProc)(GrGLenum target, GrGLuint framebuffer);
+typedef GrGLvoid (* GrGLBindRenderbufferProc)(GrGLenum target, GrGLuint renderbuffer);
+typedef GrGLvoid (* GrGLBindImageTextureProc)(GrGLuint unit, GrGLuint texture, GrGLint level, GrGLboolean layered, GrGLint layer, GrGLenum access, GrGLenum format);
+typedef GrGLvoid (* GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
+typedef GrGLvoid (* GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name);
+typedef GrGLvoid (* GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
+typedef GrGLvoid (* GrGLBindVertexArrayProc)(GrGLuint array);
+typedef GrGLvoid (* GrGLBlendBarrierProc)();
+typedef GrGLvoid (* GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
+typedef GrGLvoid (* GrGLBlendEquationProc)(GrGLenum mode);
+typedef GrGLvoid (* GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
+typedef GrGLvoid (* GrGLBlitFramebufferProc)(GrGLint srcX0, GrGLint srcY0, GrGLint srcX1, GrGLint srcY1, GrGLint dstX0, GrGLint dstY0, GrGLint dstX1, GrGLint dstY1, GrGLbitfield mask, GrGLenum filter);
+typedef GrGLvoid (* GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage);
+typedef GrGLvoid (* GrGLBufferSubDataProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data);
+typedef GrGLenum (* GrGLCheckFramebufferStatusProc)(GrGLenum target);
+typedef GrGLvoid (* GrGLClearProc)(GrGLbitfield mask);
+typedef GrGLvoid (* GrGLClearColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
+typedef GrGLvoid (* GrGLClearStencilProc)(GrGLint s);
+typedef GrGLvoid (* GrGLClearTexImageProc)(GrGLuint texture, GrGLint level, GrGLenum format, GrGLenum type,const GrGLvoid * data);
+typedef GrGLvoid (* GrGLClearTexSubImageProc)(GrGLuint texture, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLenum format, GrGLenum type,const GrGLvoid * data);
+typedef GrGLvoid (* GrGLColorMaskProc)(GrGLboolean red, GrGLboolean green, GrGLboolean blue, GrGLboolean alpha);
+typedef GrGLvoid (* GrGLCompileShaderProc)(GrGLuint shader);
+typedef GrGLvoid (* GrGLCompressedTexImage2DProc)(GrGLenum target, GrGLint level, GrGLenum internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid* data);
+typedef GrGLvoid (* GrGLCompressedTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLsizei imageSize, const GrGLvoid* data);
+typedef GrGLvoid (* GrGLCopyTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+typedef GrGLuint (* GrGLCreateProgramProc)();
+typedef GrGLuint (* GrGLCreateShaderProc)(GrGLenum type);
+typedef GrGLvoid (* GrGLCullFaceProc)(GrGLenum mode);
+typedef GrGLvoid (* GrGLDeleteBuffersProc)(GrGLsizei n, const GrGLuint* buffers);
+typedef GrGLvoid (* GrGLDeleteFramebuffersProc)(GrGLsizei n, const GrGLuint *framebuffers);
+typedef GrGLvoid (* GrGLDeleteProgramProc)(GrGLuint program);
+typedef GrGLvoid (* GrGLDeleteQueriesProc)(GrGLsizei n, const GrGLuint *ids);
+typedef GrGLvoid (* GrGLDeleteRenderbuffersProc)(GrGLsizei n, const GrGLuint *renderbuffers);
+typedef GrGLvoid (* GrGLDeleteShaderProc)(GrGLuint shader);
+typedef GrGLvoid (* GrGLDeleteTexturesProc)(GrGLsizei n, const GrGLuint* textures);
+typedef GrGLvoid (* GrGLDeleteVertexArraysProc)(GrGLsizei n, const GrGLuint *arrays);
+typedef GrGLvoid (* GrGLDepthMaskProc)(GrGLboolean flag);
+typedef GrGLvoid (* GrGLDisableProc)(GrGLenum cap);
+typedef GrGLvoid (* GrGLDisableVertexAttribArrayProc)(GrGLuint index);
+typedef GrGLvoid (* GrGLDrawArraysProc)(GrGLenum mode, GrGLint first, GrGLsizei count);
+typedef GrGLvoid (* GrGLDrawArraysInstancedProc)(GrGLenum mode, GrGLint first, GrGLsizei count, GrGLsizei primcount);
+typedef GrGLvoid (* GrGLDrawArraysIndirectProc)(GrGLenum mode, const GrGLvoid* indirect);
+typedef GrGLvoid (* GrGLDrawBufferProc)(GrGLenum mode);
+typedef GrGLvoid (* GrGLDrawBuffersProc)(GrGLsizei n, const GrGLenum* bufs);
+typedef GrGLvoid (* GrGLDrawElementsProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
+typedef GrGLvoid (* GrGLDrawElementsInstancedProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid *indices, GrGLsizei primcount);
+typedef GrGLvoid (* GrGLDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, const GrGLvoid* indirect);
+typedef GrGLvoid (* GrGLDrawRangeElementsProc)(GrGLenum mode, GrGLuint start, GrGLuint end, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
+typedef GrGLvoid (* GrGLEnableProc)(GrGLenum cap);
+typedef GrGLvoid (* GrGLEnableVertexAttribArrayProc)(GrGLuint index);
+typedef GrGLvoid (* GrGLEndQueryProc)(GrGLenum target);
+typedef GrGLvoid (* GrGLFinishProc)();
+typedef GrGLvoid (* GrGLFlushProc)();
+typedef GrGLvoid (* GrGLFlushMappedBufferRangeProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length);
+typedef GrGLvoid (* GrGLFramebufferRenderbufferProc)(GrGLenum target, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
+typedef GrGLvoid (* GrGLFramebufferTexture2DProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
+typedef GrGLvoid (* GrGLFramebufferTexture2DMultisampleProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLsizei samples);
+typedef GrGLvoid (* GrGLFrontFaceProc)(GrGLenum mode);
+typedef GrGLvoid (* GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
+typedef GrGLvoid (* GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);
+typedef GrGLvoid (* GrGLGenerateMipmapProc)(GrGLenum target);
+typedef GrGLvoid (* GrGLGenQueriesProc)(GrGLsizei n, GrGLuint *ids);
+typedef GrGLvoid (* GrGLGenRenderbuffersProc)(GrGLsizei n, GrGLuint *renderbuffers);
+typedef GrGLvoid (* GrGLGenTexturesProc)(GrGLsizei n, GrGLuint* textures);
+typedef GrGLvoid (* GrGLGenVertexArraysProc)(GrGLsizei n, GrGLuint *arrays);
+typedef GrGLvoid (* GrGLGetBufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
+typedef GrGLenum (* GrGLGetErrorProc)();
+typedef GrGLvoid (* GrGLGetFramebufferAttachmentParameterivProc)(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
+typedef GrGLvoid (* GrGLGetIntegervProc)(GrGLenum pname, GrGLint* params);
+typedef GrGLvoid (* GrGLGetMultisamplefvProc)(GrGLenum pname, GrGLuint index, GrGLfloat* val);
+typedef GrGLvoid (* GrGLGetProgramInfoLogProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
+typedef GrGLvoid (* GrGLGetProgramivProc)(GrGLuint program, GrGLenum pname, GrGLint* params);
+typedef GrGLvoid (* GrGLGetQueryivProc)(GrGLenum GLtarget, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLGetQueryObjecti64vProc)(GrGLuint id, GrGLenum pname, GrGLint64 *params);
+typedef GrGLvoid (* GrGLGetQueryObjectivProc)(GrGLuint id, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLGetQueryObjectui64vProc)(GrGLuint id, GrGLenum pname, GrGLuint64 *params);
+typedef GrGLvoid (* GrGLGetQueryObjectuivProc)(GrGLuint id, GrGLenum pname, GrGLuint *params);
+typedef GrGLvoid (* GrGLGetRenderbufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
+typedef GrGLvoid (* GrGLGetShaderInfoLogProc)(GrGLuint shader, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
+typedef GrGLvoid (* GrGLGetShaderivProc)(GrGLuint shader, GrGLenum pname, GrGLint* params);
+typedef GrGLvoid (* GrGLGetShaderPrecisionFormatProc)(GrGLenum shadertype, GrGLenum precisiontype, GrGLint *range, GrGLint *precision);
+typedef const GrGLubyte* (* GrGLGetStringProc)(GrGLenum name);
+typedef const GrGLubyte* (* GrGLGetStringiProc)(GrGLenum name, GrGLuint index);
+typedef GrGLvoid (* GrGLGetTexLevelParameterivProc)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
+typedef GrGLint (* GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
+typedef GrGLvoid (* GrGLInsertEventMarkerProc)(GrGLsizei length, const char* marker);
+typedef GrGLvoid (* GrGLInvalidateBufferDataProc)(GrGLuint buffer);
+typedef GrGLvoid (* GrGLInvalidateBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length);
+typedef GrGLvoid (* GrGLInvalidateFramebufferProc)(GrGLenum target, GrGLsizei numAttachments,  const GrGLenum *attachments);
+typedef GrGLvoid (* GrGLInvalidateSubFramebufferProc)(GrGLenum target, GrGLsizei numAttachments, const GrGLenum *attachments, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLInvalidateTexImageProc)(GrGLuint texture, GrGLint level);
+typedef GrGLvoid (* GrGLInvalidateTexSubImageProc)(GrGLuint texture, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth);
+typedef GrGLboolean (* GrGLIsTextureProc)(GrGLuint texture);
+typedef GrGLvoid (* GrGLLineWidthProc)(GrGLfloat width);
+typedef GrGLvoid (* GrGLLinkProgramProc)(GrGLuint program);
+typedef GrGLvoid* (* GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
+typedef GrGLvoid* (* GrGLMapBufferRangeProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
+typedef GrGLvoid* (* GrGLMapBufferSubDataProc)(GrGLuint target, GrGLintptr offset, GrGLsizeiptr size, GrGLenum access);
+typedef GrGLvoid* (* GrGLMapTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLenum access);
+typedef GrGLvoid* (* GrGLMemoryBarrierProc)(GrGLbitfield barriers);
+typedef GrGLvoid* (* GrGLMemoryBarrierByRegionProc)(GrGLbitfield barriers);
+typedef GrGLvoid (* GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
+typedef GrGLvoid (* GrGLPolygonModeProc)(GrGLenum face, GrGLenum mode);
+typedef GrGLvoid (* GrGLPopGroupMarkerProc)();
+typedef GrGLvoid (* GrGLPushGroupMarkerProc)(GrGLsizei length, const char* marker);
+typedef GrGLvoid (* GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
+typedef GrGLvoid (* GrGLRasterSamplesProc)(GrGLuint samples, GrGLboolean fixedsamplelocations);
+typedef GrGLvoid (* GrGLReadBufferProc)(GrGLenum src);
+typedef GrGLvoid (* GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
+typedef GrGLvoid (* GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLRenderbufferStorageMultisampleProc)(GrGLenum target, GrGLsizei samples, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLResolveMultisampleFramebufferProc)();
+typedef GrGLvoid (* GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
 // GL_CHROMIUM_bind_uniform_location
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindUniformLocationProc)(GrGLuint program, GrGLint location, const char* name);
+typedef GrGLvoid (* GrGLBindUniformLocationProc)(GrGLuint program, GrGLint location, const char* name);
 
 #if GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char* const * str, const GrGLint* length);
+typedef GrGLvoid (* GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char* const * str, const GrGLint* length);
 #else
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length);
+typedef GrGLvoid (* GrGLShaderSourceProc)(GrGLuint shader, GrGLsizei count, const char** str, const GrGLint* length);
 #endif
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFuncProc)(GrGLenum func, GrGLint ref, GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFuncSeparateProc)(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilMaskProc)(GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilMaskSeparateProc)(GrGLenum face, GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilOpProc)(GrGLenum fail, GrGLenum zfail, GrGLenum zpass);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilOpSeparateProc)(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexBufferProc)(GrGLenum target, GrGLenum internalformat, GrGLuint buffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexBufferRangeProc)(GrGLenum target, GrGLenum internalformat, GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr size);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexImage2DProc)(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexParameteriProc)(GrGLenum target, GrGLenum pname, GrGLint param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexParameterivProc)(GrGLenum target, GrGLenum pname, const GrGLint* params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexStorage2DProc)(GrGLenum target, GrGLsizei levels, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDiscardFramebufferProc)(GrGLenum target, GrGLsizei numAttachments, const GrGLenum* attachments);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureBarrierProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform1fProc)(GrGLint location, GrGLfloat v0);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform1iProc)(GrGLint location, GrGLint v0);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform1fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform1ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform2fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform2iProc)(GrGLint location, GrGLint v0, GrGLint v1);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform2fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform2ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform3fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform3iProc)(GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform3fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform3ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform4fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2, GrGLfloat v3);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform4iProc)(GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2, GrGLint v3);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform4fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniform4ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniformMatrix2fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniformMatrix3fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniformMatrix4fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLUnmapBufferProc)(GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUnmapBufferSubDataProc)(const GrGLvoid* mem);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUnmapTexSubImage2DProc)(const GrGLvoid* mem);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUseProgramProc)(GrGLuint program);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttrib1fProc)(GrGLuint indx, const GrGLfloat value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttrib2fvProc)(GrGLuint indx, const GrGLfloat* values);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttrib3fvProc)(GrGLuint indx, const GrGLfloat* values);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttrib4fvProc)(GrGLuint indx, const GrGLfloat* values);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttribDivisorProc)(GrGLuint index, GrGLuint divisor);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttribIPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLsizei stride, const GrGLvoid* ptr);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttribPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLViewportProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLStencilFuncProc)(GrGLenum func, GrGLint ref, GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilFuncSeparateProc)(GrGLenum face, GrGLenum func, GrGLint ref, GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilMaskProc)(GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilMaskSeparateProc)(GrGLenum face, GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilOpProc)(GrGLenum fail, GrGLenum zfail, GrGLenum zpass);
+typedef GrGLvoid (* GrGLStencilOpSeparateProc)(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass);
+typedef GrGLvoid (* GrGLTexBufferProc)(GrGLenum target, GrGLenum internalformat, GrGLuint buffer);
+typedef GrGLvoid (* GrGLTexBufferRangeProc)(GrGLenum target, GrGLenum internalformat, GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr size);
+typedef GrGLvoid (* GrGLTexImage2DProc)(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
+typedef GrGLvoid (* GrGLTexParameteriProc)(GrGLenum target, GrGLenum pname, GrGLint param);
+typedef GrGLvoid (* GrGLTexParameterivProc)(GrGLenum target, GrGLenum pname, const GrGLint* params);
+typedef GrGLvoid (* GrGLTexStorage2DProc)(GrGLenum target, GrGLsizei levels, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLDiscardFramebufferProc)(GrGLenum target, GrGLsizei numAttachments, const GrGLenum* attachments);
+typedef GrGLvoid (* GrGLTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
+typedef GrGLvoid (* GrGLTextureBarrierProc)();
+typedef GrGLvoid (* GrGLUniform1fProc)(GrGLint location, GrGLfloat v0);
+typedef GrGLvoid (* GrGLUniform1iProc)(GrGLint location, GrGLint v0);
+typedef GrGLvoid (* GrGLUniform1fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+typedef GrGLvoid (* GrGLUniform1ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+typedef GrGLvoid (* GrGLUniform2fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1);
+typedef GrGLvoid (* GrGLUniform2iProc)(GrGLint location, GrGLint v0, GrGLint v1);
+typedef GrGLvoid (* GrGLUniform2fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+typedef GrGLvoid (* GrGLUniform2ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+typedef GrGLvoid (* GrGLUniform3fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2);
+typedef GrGLvoid (* GrGLUniform3iProc)(GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2);
+typedef GrGLvoid (* GrGLUniform3fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+typedef GrGLvoid (* GrGLUniform3ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+typedef GrGLvoid (* GrGLUniform4fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2, GrGLfloat v3);
+typedef GrGLvoid (* GrGLUniform4iProc)(GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2, GrGLint v3);
+typedef GrGLvoid (* GrGLUniform4fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+typedef GrGLvoid (* GrGLUniform4ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+typedef GrGLvoid (* GrGLUniformMatrix2fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
+typedef GrGLvoid (* GrGLUniformMatrix3fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
+typedef GrGLvoid (* GrGLUniformMatrix4fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
+typedef GrGLboolean (* GrGLUnmapBufferProc)(GrGLenum target);
+typedef GrGLvoid (* GrGLUnmapBufferSubDataProc)(const GrGLvoid* mem);
+typedef GrGLvoid (* GrGLUnmapTexSubImage2DProc)(const GrGLvoid* mem);
+typedef GrGLvoid (* GrGLUseProgramProc)(GrGLuint program);
+typedef GrGLvoid (* GrGLVertexAttrib1fProc)(GrGLuint indx, const GrGLfloat value);
+typedef GrGLvoid (* GrGLVertexAttrib2fvProc)(GrGLuint indx, const GrGLfloat* values);
+typedef GrGLvoid (* GrGLVertexAttrib3fvProc)(GrGLuint indx, const GrGLfloat* values);
+typedef GrGLvoid (* GrGLVertexAttrib4fvProc)(GrGLuint indx, const GrGLfloat* values);
+typedef GrGLvoid (* GrGLVertexAttribDivisorProc)(GrGLuint index, GrGLuint divisor);
+typedef GrGLvoid (* GrGLVertexAttribIPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLsizei stride, const GrGLvoid* ptr);
+typedef GrGLvoid (* GrGLVertexAttribPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr);
+typedef GrGLvoid (* GrGLViewportProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
 
 /* GL_NV_path_rendering */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadfProc)(GrGLenum matrixMode, const GrGLfloat* m);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadIdentityProc)(GrGLenum);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCommandsProc)(GrGLuint path, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameteriProc)(GrGLuint path, GrGLenum pname, GrGLint value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathParameterfProc)(GrGLuint path, GrGLenum pname, GrGLfloat value);
-typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLGenPathsProc)(GrGLsizei range);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeletePathsProc)(GrGLuint path, GrGLsizei range);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsPathProc)(GrGLuint path);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathStencilFuncProc)(GrGLenum func, GrGLint ref, GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFillPathProc)(GrGLuint path, GrGLenum fillMode, GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilStrokePathProc)(GrGLuint path, GrGLint reference, GrGLuint mask);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverFillPathProc)(GrGLuint path, GrGLenum coverMode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverStrokePathProc)(GrGLuint name, GrGLenum coverMode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
+typedef GrGLvoid (* GrGLMatrixLoadfProc)(GrGLenum matrixMode, const GrGLfloat* m);
+typedef GrGLvoid (* GrGLMatrixLoadIdentityProc)(GrGLenum);
+typedef GrGLvoid (* GrGLPathCommandsProc)(GrGLuint path, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
+typedef GrGLvoid (* GrGLPathParameteriProc)(GrGLuint path, GrGLenum pname, GrGLint value);
+typedef GrGLvoid (* GrGLPathParameterfProc)(GrGLuint path, GrGLenum pname, GrGLfloat value);
+typedef GrGLuint (* GrGLGenPathsProc)(GrGLsizei range);
+typedef GrGLvoid (* GrGLDeletePathsProc)(GrGLuint path, GrGLsizei range);
+typedef GrGLboolean (* GrGLIsPathProc)(GrGLuint path);
+typedef GrGLvoid (* GrGLPathStencilFuncProc)(GrGLenum func, GrGLint ref, GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilFillPathProc)(GrGLuint path, GrGLenum fillMode, GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilStrokePathProc)(GrGLuint path, GrGLint reference, GrGLuint mask);
+typedef GrGLvoid (* GrGLStencilFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
+typedef GrGLvoid (* GrGLStencilStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum transformType, const GrGLfloat *transformValues);
+typedef GrGLvoid (* GrGLCoverFillPathProc)(GrGLuint path, GrGLenum coverMode);
+typedef GrGLvoid (* GrGLCoverStrokePathProc)(GrGLuint name, GrGLenum coverMode);
+typedef GrGLvoid (* GrGLCoverFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
+typedef GrGLvoid (* GrGLCoverStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat* transformValues);
 // NV_path_rendering v1.2
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilThenCoverFillPathProc)(GrGLuint path, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilThenCoverStrokePathProc)(GrGLuint path, GrGLint reference, GrGLuint mask, GrGLenum coverMode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilThenCoverFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilThenCoverStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
+typedef GrGLvoid (* GrGLStencilThenCoverFillPathProc)(GrGLuint path, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode);
+typedef GrGLvoid (* GrGLStencilThenCoverStrokePathProc)(GrGLuint path, GrGLint reference, GrGLuint mask, GrGLenum coverMode);
+typedef GrGLvoid (* GrGLStencilThenCoverFillPathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLenum fillMode, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
+typedef GrGLvoid (* GrGLStencilThenCoverStrokePathInstancedProc)(GrGLsizei numPaths, GrGLenum pathNameType, const GrGLvoid *paths, GrGLuint pathBase, GrGLint reference, GrGLuint mask, GrGLenum coverMode, GrGLenum transformType, const GrGLfloat *transformValues);
 // NV_path_rendering v1.3
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramPathFragmentInputGenProc)(GrGLuint program, GrGLint location, GrGLenum genMode, GrGLint components,const GrGLfloat *coeffs);
+typedef GrGLvoid (* GrGLProgramPathFragmentInputGenProc)(GrGLuint program, GrGLint location, GrGLenum genMode, GrGLint components,const GrGLfloat *coeffs);
 // CHROMIUM_path_rendering
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLBindFragmentInputLocationProc)(GrGLuint program, GrGLint location, const GrGLchar* name);
+typedef GrGLvoid (* GrGLBindFragmentInputLocationProc)(GrGLuint program, GrGLint location, const GrGLchar* name);
 
 /* ARB_program_interface_query */
-typedef GrGLint (GR_GL_FUNCTION_TYPE* GrGLGetProgramResourceLocationProc)(GrGLuint program, GrGLenum programInterface, const GrGLchar *name);
+typedef GrGLint (* GrGLGetProgramResourceLocationProc)(GrGLuint program, GrGLenum programInterface, const GrGLchar *name);
 
 /* GL_NV_framebuffer_mixed_samples */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCoverageModulationProc)(GrGLenum components);
+typedef GrGLvoid (* GrGLCoverageModulationProc)(GrGLenum components);
 
 /* EXT_multi_draw_indirect */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMultiDrawArraysIndirectProc)(GrGLenum mode, const GrGLvoid *indirect, GrGLsizei drawcount, GrGLsizei stride);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMultiDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, const GrGLvoid *indirect, GrGLsizei drawcount, GrGLsizei stride);
+typedef GrGLvoid (* GrGLMultiDrawArraysIndirectProc)(GrGLenum mode, const GrGLvoid *indirect, GrGLsizei drawcount, GrGLsizei stride);
+typedef GrGLvoid (* GrGLMultiDrawElementsIndirectProc)(GrGLenum mode, GrGLenum type, const GrGLvoid *indirect, GrGLsizei drawcount, GrGLsizei stride);
 
 /* NV_bindless_texture */
-typedef GrGLuint64 (GR_GL_FUNCTION_TYPE* GrGLGetTextureHandleProc)(GrGLuint texture);
-typedef GrGLuint64 (GR_GL_FUNCTION_TYPE* GrGLGetTextureSamplerHandleProc)(GrGLuint texture, GrGLuint sampler);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMakeTextureHandleResidentProc)(GrGLuint64 handle);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMakeTextureHandleNonResidentProc)(GrGLuint64 handle);
-typedef GrGLuint64 (GR_GL_FUNCTION_TYPE* GrGLGetImageHandleProc)(GrGLuint texture, GrGLint level, GrGLboolean layered, GrGLint layer, GrGLint format);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMakeImageHandleResidentProc)(GrGLuint64 handle, GrGLenum access);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMakeImageHandleNonResidentProc)(GrGLuint64 handle);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsTextureHandleResidentProc)(GrGLuint64 handle);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsImageHandleResidentProc)(GrGLuint64 handle);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniformHandleui64Proc)(GrGLint location, GrGLuint64 v0);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUniformHandleui64vProc)(GrGLint location, GrGLsizei count, const GrGLuint64 *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformHandleui64Proc)(GrGLuint program, GrGLint location, GrGLuint64 v0);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformHandleui64vProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLuint64 *value);
+typedef GrGLuint64 (* GrGLGetTextureHandleProc)(GrGLuint texture);
+typedef GrGLuint64 (* GrGLGetTextureSamplerHandleProc)(GrGLuint texture, GrGLuint sampler);
+typedef GrGLvoid (* GrGLMakeTextureHandleResidentProc)(GrGLuint64 handle);
+typedef GrGLvoid (* GrGLMakeTextureHandleNonResidentProc)(GrGLuint64 handle);
+typedef GrGLuint64 (* GrGLGetImageHandleProc)(GrGLuint texture, GrGLint level, GrGLboolean layered, GrGLint layer, GrGLint format);
+typedef GrGLvoid (* GrGLMakeImageHandleResidentProc)(GrGLuint64 handle, GrGLenum access);
+typedef GrGLvoid (* GrGLMakeImageHandleNonResidentProc)(GrGLuint64 handle);
+typedef GrGLboolean (* GrGLIsTextureHandleResidentProc)(GrGLuint64 handle);
+typedef GrGLboolean (* GrGLIsImageHandleResidentProc)(GrGLuint64 handle);
+typedef GrGLvoid (* GrGLUniformHandleui64Proc)(GrGLint location, GrGLuint64 v0);
+typedef GrGLvoid (* GrGLUniformHandleui64vProc)(GrGLint location, GrGLsizei count, const GrGLuint64 *value);
+typedef GrGLvoid (* GrGLProgramUniformHandleui64Proc)(GrGLuint program, GrGLint location, GrGLuint64 v0);
+typedef GrGLvoid (* GrGLProgramUniformHandleui64vProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLuint64 *value);
 
 /* ARB_sample_shading */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMinSampleShadingProc)(GrGLfloat value);
+typedef GrGLvoid (* GrGLMinSampleShadingProc)(GrGLfloat value);
 
 /* EXT_direct_state_access */
 // (In the future some of these methods may be omitted)
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureParameteriProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, GrGLint param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureParameterivProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, const GrGLint *param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureParameterfProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, float param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureParameterfvProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, const float *param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint GrGLinternalformat, GrGLsizei width, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureSubImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLsizei width, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureSubImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTextureImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLint x, GrGLint y, GrGLsizei width, GrGLint border);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTextureImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLint border);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTextureSubImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint x, GrGLint y, GrGLsizei width);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTextureSubImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTextureImageProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum format, GrGLenum type, GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTextureParameterfvProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, float *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTextureParameterivProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, GrGLint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTextureLevelParameterfvProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum pname, float *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTextureLevelParameterivProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLTextureParameteriProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, GrGLint param);
+typedef GrGLvoid (* GrGLTextureParameterivProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, const GrGLint *param);
+typedef GrGLvoid (* GrGLTextureParameterfProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, float param);
+typedef GrGLvoid (* GrGLTextureParameterfvProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, const float *param);
+typedef GrGLvoid (* GrGLTextureImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint GrGLinternalformat, GrGLsizei width, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLTextureImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLTextureSubImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLsizei width, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLTextureSubImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLCopyTextureImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLint x, GrGLint y, GrGLsizei width, GrGLint border);
+typedef GrGLvoid (* GrGLCopyTextureImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLint border);
+typedef GrGLvoid (* GrGLCopyTextureSubImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint x, GrGLint y, GrGLsizei width);
+typedef GrGLvoid (* GrGLCopyTextureSubImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLGetTextureImageProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum format, GrGLenum type, GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLGetTextureParameterfvProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, float *params);
+typedef GrGLvoid (* GrGLGetTextureParameterivProc)(GrGLuint texture, GrGLenum target, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLGetTextureLevelParameterfvProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum pname, float *params);
+typedef GrGLvoid (* GrGLGetTextureLevelParameterivProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum pname, GrGLint *params);
 // OpenGL 1.2
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureSubImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCopyTextureSubImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTextureImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLint border, GrGLsizei imageSize, const GrGLvoid *data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTextureImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid *data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTextureImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLint border, GrGLsizei imageSize, const GrGLvoid *data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTextureSubImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLenum format, GrGLsizei imageSize, const GrGLvoid *data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTextureSubImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLsizei imageSize, const GrGLvoid *data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLCompressedTextureSubImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLsizei width, GrGLenum format, GrGLsizei imageSize, const GrGLvoid *data);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetCompressedTextureImageProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLvoid *img);
+typedef GrGLvoid (* GrGLTextureImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLTextureSubImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLenum format, GrGLenum type, const GrGLvoid *pixels);
+typedef GrGLvoid (* GrGLCopyTextureSubImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLCompressedTextureImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLint border, GrGLsizei imageSize, const GrGLvoid *data);
+typedef GrGLvoid (* GrGLCompressedTextureImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLsizei imageSize, const GrGLvoid *data);
+typedef GrGLvoid (* GrGLCompressedTextureImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLint border, GrGLsizei imageSize, const GrGLvoid *data);
+typedef GrGLvoid (* GrGLCompressedTextureSubImage3DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth, GrGLenum format, GrGLsizei imageSize, const GrGLvoid *data);
+typedef GrGLvoid (* GrGLCompressedTextureSubImage2DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLsizei imageSize, const GrGLvoid *data);
+typedef GrGLvoid (* GrGLCompressedTextureSubImage1DProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLint xoffset, GrGLsizei width, GrGLenum format, GrGLsizei imageSize, const GrGLvoid *data);
+typedef GrGLvoid (* GrGLGetCompressedTextureImageProc)(GrGLuint texture, GrGLenum target, GrGLint level, GrGLvoid *img);
 // OpenGL 1.5
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedBufferDataProc)(GrGLuint buffer, GrGLsizeiptr size, const GrGLvoid *data, GrGLenum usage);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid *data);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapNamedBufferProc)(GrGLuint buffer, GrGLenum access);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLUnmapNamedBufferProc)(GrGLuint buffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetNamedBufferParameterivProc)(GrGLuint buffer, GrGLenum pname, GrGLint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetNamedBufferPointervProc)(GrGLuint buffer, GrGLenum pname, GrGLvoid* *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetNamedBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr size, GrGLvoid *data);
+typedef GrGLvoid (* GrGLNamedBufferDataProc)(GrGLuint buffer, GrGLsizeiptr size, const GrGLvoid *data, GrGLenum usage);
+typedef GrGLvoid (* GrGLNamedBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid *data);
+typedef GrGLvoid* (* GrGLMapNamedBufferProc)(GrGLuint buffer, GrGLenum access);
+typedef GrGLboolean (* GrGLUnmapNamedBufferProc)(GrGLuint buffer);
+typedef GrGLvoid (* GrGLGetNamedBufferParameterivProc)(GrGLuint buffer, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLGetNamedBufferPointervProc)(GrGLuint buffer, GrGLenum pname, GrGLvoid* *params);
+typedef GrGLvoid (* GrGLGetNamedBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr size, GrGLvoid *data);
 // OpenGL 2.0
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform1fProc)(GrGLuint program, GrGLint location, float v0);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform2fProc)(GrGLuint program, GrGLint location, float v0, float v1);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform3fProc)(GrGLuint program, GrGLint location, float v0, float v1, float v2);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform4fProc)(GrGLuint program, GrGLint location, float v0, float v1, float v2, float v3);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform1iProc)(GrGLuint program, GrGLint location, GrGLint v0);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform2iProc)(GrGLuint program, GrGLint location, GrGLint v0, GrGLint v1);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform3iProc)(GrGLuint program, GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform4iProc)(GrGLuint program, GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2, GrGLint v3);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform1fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform1ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform2ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform3ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniform4ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniform1fProc)(GrGLuint program, GrGLint location, float v0);
+typedef GrGLvoid (* GrGLProgramUniform2fProc)(GrGLuint program, GrGLint location, float v0, float v1);
+typedef GrGLvoid (* GrGLProgramUniform3fProc)(GrGLuint program, GrGLint location, float v0, float v1, float v2);
+typedef GrGLvoid (* GrGLProgramUniform4fProc)(GrGLuint program, GrGLint location, float v0, float v1, float v2, float v3);
+typedef GrGLvoid (* GrGLProgramUniform1iProc)(GrGLuint program, GrGLint location, GrGLint v0);
+typedef GrGLvoid (* GrGLProgramUniform2iProc)(GrGLuint program, GrGLint location, GrGLint v0, GrGLint v1);
+typedef GrGLvoid (* GrGLProgramUniform3iProc)(GrGLuint program, GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2);
+typedef GrGLvoid (* GrGLProgramUniform4iProc)(GrGLuint program, GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2, GrGLint v3);
+typedef GrGLvoid (* GrGLProgramUniform1fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
+typedef GrGLvoid (* GrGLProgramUniform2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
+typedef GrGLvoid (* GrGLProgramUniform3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
+typedef GrGLvoid (* GrGLProgramUniform4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, const float *value);
+typedef GrGLvoid (* GrGLProgramUniform1ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
+typedef GrGLvoid (* GrGLProgramUniform2ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
+typedef GrGLvoid (* GrGLProgramUniform3ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
+typedef GrGLvoid (* GrGLProgramUniform4ivProc)(GrGLuint program, GrGLint location, GrGLsizei count, const GrGLint *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
 // OpenGL 2.1
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix2x3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix3x2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix2x4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix4x2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix3x4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLProgramUniformMatrix4x3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix2x3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix3x2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix2x4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix4x2fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix3x4fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
+typedef GrGLvoid (* GrGLProgramUniformMatrix4x3fvProc)(GrGLuint program, GrGLint location, GrGLsizei count, GrGLboolean transpose, const float *value);
 // OpenGL 3.0
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedRenderbufferStorageProc)(GrGLuint renderbuffer, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetNamedRenderbufferParameterivProc)(GrGLuint renderbuffer, GrGLenum pname, GrGLint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedRenderbufferStorageMultisampleProc)(GrGLuint renderbuffer, GrGLsizei samples, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height);
-typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLCheckNamedFramebufferStatusProc)(GrGLuint framebuffer, GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedFramebufferTexture1DProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedFramebufferTexture2DProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedFramebufferTexture3DProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLint zoffset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedFramebufferRenderbufferProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetNamedFramebufferAttachmentParameterivProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum pname, GrGLint *params);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGenerateTextureMipmapProc)(GrGLuint texture, GrGLenum target);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferDrawBufferProc)(GrGLuint framebuffer, GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferDrawBuffersProc)(GrGLuint framebuffer, GrGLsizei n, const GrGLenum *bufs);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFramebufferReadBufferProc)(GrGLuint framebuffer, GrGLenum mode);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetFramebufferParameterivProc)(GrGLuint framebuffer, GrGLenum pname, GrGLint *param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLNamedCopyBufferSubDataProc)(GrGLuint readBuffer, GrGLuint writeBuffer, GrGLintptr readOffset, GrGLintptr writeOffset, GrGLsizeiptr size);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayVertexOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayColorOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayEdgeFlagOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayIndexOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayNormalOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayTexCoordOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayMultiTexCoordOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum texunit, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayFogCoordOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArraySecondaryColorOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayVertexAttribOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLuint index, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexArrayVertexAttribIOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLuint index, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableVertexArrayProc)(GrGLuint vaobj, GrGLenum array);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableVertexArrayProc)(GrGLuint vaobj, GrGLenum array);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableVertexArrayAttribProc)(GrGLuint vaobj, GrGLuint index);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableVertexArrayAttribProc)(GrGLuint vaobj, GrGLuint index);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetVertexArrayIntegervProc)(GrGLuint vaobj, GrGLenum pname, GrGLint *param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetVertexArrayPointervProc)(GrGLuint vaobj, GrGLenum pname, GrGLvoid **param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetVertexArrayIntegeri_vProc)(GrGLuint vaobj, GrGLuint index, GrGLenum pname, GrGLint *param);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetVertexArrayPointeri_vProc)(GrGLuint vaobj, GrGLuint index, GrGLenum pname, GrGLvoid **param);
-typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapNamedBufferRangeProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFlushMappedNamedBufferRangeProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length);
+typedef GrGLvoid (* GrGLNamedRenderbufferStorageProc)(GrGLuint renderbuffer, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height);
+typedef GrGLvoid (* GrGLGetNamedRenderbufferParameterivProc)(GrGLuint renderbuffer, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLNamedRenderbufferStorageMultisampleProc)(GrGLuint renderbuffer, GrGLsizei samples, GrGLenum GrGLinternalformat, GrGLsizei width, GrGLsizei height);
+typedef GrGLenum (* GrGLCheckNamedFramebufferStatusProc)(GrGLuint framebuffer, GrGLenum target);
+typedef GrGLvoid (* GrGLNamedFramebufferTexture1DProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
+typedef GrGLvoid (* GrGLNamedFramebufferTexture2DProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
+typedef GrGLvoid (* GrGLNamedFramebufferTexture3DProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLint zoffset);
+typedef GrGLvoid (* GrGLNamedFramebufferRenderbufferProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum renderbuffertarget, GrGLuint renderbuffer);
+typedef GrGLvoid (* GrGLGetNamedFramebufferAttachmentParameterivProc)(GrGLuint framebuffer, GrGLenum attachment, GrGLenum pname, GrGLint *params);
+typedef GrGLvoid (* GrGLGenerateTextureMipmapProc)(GrGLuint texture, GrGLenum target);
+typedef GrGLvoid (* GrGLFramebufferDrawBufferProc)(GrGLuint framebuffer, GrGLenum mode);
+typedef GrGLvoid (* GrGLFramebufferDrawBuffersProc)(GrGLuint framebuffer, GrGLsizei n, const GrGLenum *bufs);
+typedef GrGLvoid (* GrGLFramebufferReadBufferProc)(GrGLuint framebuffer, GrGLenum mode);
+typedef GrGLvoid (* GrGLGetFramebufferParameterivProc)(GrGLuint framebuffer, GrGLenum pname, GrGLint *param);
+typedef GrGLvoid (* GrGLNamedCopyBufferSubDataProc)(GrGLuint readBuffer, GrGLuint writeBuffer, GrGLintptr readOffset, GrGLintptr writeOffset, GrGLsizeiptr size);
+typedef GrGLvoid (* GrGLVertexArrayVertexOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayColorOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayEdgeFlagOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayIndexOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayNormalOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayTexCoordOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayMultiTexCoordOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum texunit, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayFogCoordOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArraySecondaryColorOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayVertexAttribOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLuint index, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLVertexArrayVertexAttribIOffsetProc)(GrGLuint vaobj, GrGLuint buffer, GrGLuint index, GrGLint size, GrGLenum type, GrGLsizei stride, GrGLintptr offset);
+typedef GrGLvoid (* GrGLEnableVertexArrayProc)(GrGLuint vaobj, GrGLenum array);
+typedef GrGLvoid (* GrGLDisableVertexArrayProc)(GrGLuint vaobj, GrGLenum array);
+typedef GrGLvoid (* GrGLEnableVertexArrayAttribProc)(GrGLuint vaobj, GrGLuint index);
+typedef GrGLvoid (* GrGLDisableVertexArrayAttribProc)(GrGLuint vaobj, GrGLuint index);
+typedef GrGLvoid (* GrGLGetVertexArrayIntegervProc)(GrGLuint vaobj, GrGLenum pname, GrGLint *param);
+typedef GrGLvoid (* GrGLGetVertexArrayPointervProc)(GrGLuint vaobj, GrGLenum pname, GrGLvoid **param);
+typedef GrGLvoid (* GrGLGetVertexArrayIntegeri_vProc)(GrGLuint vaobj, GrGLuint index, GrGLenum pname, GrGLint *param);
+typedef GrGLvoid (* GrGLGetVertexArrayPointeri_vProc)(GrGLuint vaobj, GrGLuint index, GrGLenum pname, GrGLvoid **param);
+typedef GrGLvoid* (* GrGLMapNamedBufferRangeProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length, GrGLbitfield access);
+typedef GrGLvoid (* GrGLFlushMappedNamedBufferRangeProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length);
 // OpenGL 3.1
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTextureBufferProc)(GrGLuint texture, GrGLenum target, GrGLenum internalformat, GrGLuint buffer);
+typedef GrGLvoid (* GrGLTextureBufferProc)(GrGLuint texture, GrGLenum target, GrGLenum internalformat, GrGLuint buffer);
 
 /* ARB_sync */
-typedef GrGLsync (GR_GL_FUNCTION_TYPE* GrGLFenceSyncProc)(GrGLenum condition, GrGLbitfield flags);
-typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsSyncProc)(GrGLsync sync);
-typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLClientWaitSyncProc)(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLWaitSyncProc)(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteSyncProc)(GrGLsync sync);
+typedef GrGLsync (* GrGLFenceSyncProc)(GrGLenum condition, GrGLbitfield flags);
+typedef GrGLboolean (* GrGLIsSyncProc)(GrGLsync sync);
+typedef GrGLenum (* GrGLClientWaitSyncProc)(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
+typedef GrGLvoid (* GrGLWaitSyncProc)(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
+typedef GrGLvoid (* GrGLDeleteSyncProc)(GrGLsync sync);
 
 /* ARB_internalformat_query */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetInternalformativProc)(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params);
+typedef GrGLvoid (* GrGLGetInternalformativProc)(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params);
 
 /* KHR_debug */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageControlProc)(GrGLenum source, GrGLenum type, GrGLenum severity, GrGLsizei count, const GrGLuint* ids, GrGLboolean enabled);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageInsertProc)(GrGLenum source, GrGLenum type, GrGLuint id, GrGLenum severity, GrGLsizei length,  const GrGLchar* buf);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageCallbackProc)(GRGLDEBUGPROC callback, const GrGLvoid* userParam);
-typedef GrGLuint (GR_GL_FUNCTION_TYPE* GrGLGetDebugMessageLogProc)(GrGLuint count, GrGLsizei bufSize, GrGLenum* sources, GrGLenum* types, GrGLuint* ids, GrGLenum* severities, GrGLsizei* lengths,  GrGLchar* messageLog);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPushDebugGroupProc)(GrGLenum source, GrGLuint id, GrGLsizei length,  const GrGLchar * message);
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPopDebugGroupProc)();
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLObjectLabelProc)(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label);
+typedef GrGLvoid (* GrGLDebugMessageControlProc)(GrGLenum source, GrGLenum type, GrGLenum severity, GrGLsizei count, const GrGLuint* ids, GrGLboolean enabled);
+typedef GrGLvoid (* GrGLDebugMessageInsertProc)(GrGLenum source, GrGLenum type, GrGLuint id, GrGLenum severity, GrGLsizei length,  const GrGLchar* buf);
+typedef GrGLvoid (* GrGLDebugMessageCallbackProc)(GRGLDEBUGPROC callback, const GrGLvoid* userParam);
+typedef GrGLuint (* GrGLGetDebugMessageLogProc)(GrGLuint count, GrGLsizei bufSize, GrGLenum* sources, GrGLenum* types, GrGLuint* ids, GrGLenum* severities, GrGLsizei* lengths,  GrGLchar* messageLog);
+typedef GrGLvoid (* GrGLPushDebugGroupProc)(GrGLenum source, GrGLuint id, GrGLsizei length,  const GrGLchar * message);
+typedef GrGLvoid (* GrGLPopDebugGroupProc)();
+typedef GrGLvoid (* GrGLObjectLabelProc)(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label);
 
 /** EXT_window_rectangles */
-typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLWindowRectanglesProc)(GrGLenum mode, GrGLsizei count, const GrGLint box[]);
+typedef GrGLvoid (* GrGLWindowRectanglesProc)(GrGLenum mode, GrGLsizei count, const GrGLint box[]);
 
 /** EGL functions */
-typedef const char* (GR_GL_FUNCTION_TYPE* GrEGLQueryStringProc)(GrEGLDisplay dpy, GrEGLint name);
-typedef GrEGLDisplay (GR_GL_FUNCTION_TYPE* GrEGLGetCurrentDisplayProc)();
-typedef GrEGLImage (GR_GL_FUNCTION_TYPE* GrEGLCreateImageProc)(GrEGLDisplay dpy, GrEGLContext ctx, GrEGLenum target, GrEGLClientBuffer buffer, const GrEGLint *attrib_list);
-typedef GrEGLBoolean (GR_GL_FUNCTION_TYPE* GrEGLDestroyImageProc)(GrEGLDisplay dpy, GrEGLImage image);
+typedef const char* (* GrEGLQueryStringProc)(GrEGLDisplay dpy, GrEGLint name);
+typedef GrEGLDisplay (* GrEGLGetCurrentDisplayProc)();
+typedef GrEGLImage (* GrEGLCreateImageProc)(GrEGLDisplay dpy, GrEGLContext ctx, GrEGLenum target, GrEGLClientBuffer buffer, const GrEGLint *attrib_list);
+typedef GrEGLBoolean (* GrEGLDestroyImageProc)(GrEGLDisplay dpy, GrEGLImage image);
 }  // extern "C"
 
-template <typename GLPTR> using GrGLFunction = std::function<skstd::remove_pointer_t<GLPTR>>;
+// This is a lighter-weight std::function, trying to reduce code size and compile time
+// by only supporting the exact use cases we require.
+template <typename T> class GrGLFunction;
+
+template <typename R, typename... Args>
+class GrGLFunction<R(*)(Args...)>{
+public:
+    // Construct empty.
+    GrGLFunction() : fCall(nullptr) {}
+    GrGLFunction(std::nullptr_t) : GrGLFunction() {}
+
+    // Construct from a simple function pointer.
+    GrGLFunction(R (GR_GL_FUNCTION_TYPE* fn_ptr)(Args...)) : GrGLFunction() {
+        if (fn_ptr) {
+            memcpy(fBuf, &fn_ptr, sizeof(fn_ptr));
+            fCall = [](const void* buf, Args... args) {
+                auto fn_ptr = *(R (GR_GL_FUNCTION_TYPE**)(Args...))buf;
+                return fn_ptr(args...);
+            };
+        }
+    }
+
+    // Construct from a small closure.
+    template <typename Closure>
+    GrGLFunction(Closure closure) : GrGLFunction() {
+        static_assert(sizeof(Closure) <= sizeof(fBuf), "fBuf is too small");
+    #if defined(__APPLE__)   // I am having serious trouble getting these to work with all STLs...
+        static_assert(std::is_trivially_copyable<Closure>::value, "");
+        static_assert(std::is_trivially_destructible<Closure>::value, "");
+    #endif
+
+        memcpy(fBuf, &closure, sizeof(closure));
+        fCall = [](const void* buf, Args... args) {
+            auto closure = (const Closure*)buf;
+            return (*closure)(args...);
+        };
+    }
+
+    R operator()(Args... args) const {
+        SkASSERT(fCall);
+        return fCall(fBuf, args...);
+    }
+
+    explicit operator bool() const {
+        return fCall != nullptr;
+    }
+
+private:
+    R (*fCall)(const void*, Args...);
+    size_t fBuf[4];
+};
 
 #endif
