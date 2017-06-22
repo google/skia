@@ -76,18 +76,18 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kBufferWidth, srcBuffer.get());
 
     // create and fill transfer buffer
-    size_t size = rowBytes*kBufferHeight;
+    size_t size = GrBytesPerPixel(config)*kBufferWidth*kBufferWidth;
     uint32_t bufferFlags = GrResourceProvider::kNoPendingIO_Flag;
     sk_sp<GrBuffer> buffer(context->resourceProvider()->createBuffer(size,
                                                                      kXferCpuToGpu_GrBufferType,
                                                                      kDynamic_GrAccessPattern,
                                                                      bufferFlags));
-    if (!buffer) {
-        return;
-    }
+    //if (!buffer) {
+    //    return;
+    //}
 
     void* data = buffer->map();
-    memcpy(data, srcBuffer.get(), size);
+    memcpy(data, srcBuffer.get(), rowBytes*kBufferHeight);
     buffer->unmap();
 
     // create texture
@@ -108,7 +108,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
                                                config, buffer.get(), 0, rowBytes);
     REPORTER_ASSERT(reporter, result);
 
-    memset(dstBuffer.get(), 0xCDCD, size);
+//    memset(dstBuffer.get(), 0xCDCD, size);
     result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
                                            dstBuffer.get(), rowBytes);
     REPORTER_ASSERT(reporter, result);
@@ -138,7 +138,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
                                                buffer.get(), offset, rowBytes);
     REPORTER_ASSERT(reporter, result);
 
-    memset(dstBuffer.get(), 0xCDCD, size);
+    memset(dstBuffer, 0, kWidth*kHeight*sizeof(GrColor));
     result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
                                            dstBuffer.get(), rowBytes);
     REPORTER_ASSERT(reporter, result);
