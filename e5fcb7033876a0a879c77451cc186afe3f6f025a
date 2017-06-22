@@ -22,6 +22,30 @@
       "revId": "e5fcb7033876a0a879c77451cc186afe3f6f025a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "562d86a5_61b24b88",
+        "filename": "src/core/SkFindAndPlaceGlyph.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-06-22T15:24:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cfbeeaa_82cadaa3",
+      "range": {
+        "startLine": 340,
+        "startChar": 9,
+        "endLine": 340,
+        "endChar": 10
+      },
+      "revId": "e5fcb7033876a0a879c77451cc186afe3f6f025a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
