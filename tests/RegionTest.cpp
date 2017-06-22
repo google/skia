@@ -328,6 +328,13 @@ DEF_TEST(Region_readFromMemory_bad, r) {
         REPORTER_ASSERT(r, 0 != region.readFromMemory(data, sizeof(data)));
     }
     {
+        // Example of valid data with 4 intervals
+        int32_t data[] = {19, 0, 0, 30, 30, 3, 4, 0, 10, 2, 0, 10, 20, 30,
+                          2147483647, 20, 0, 2147483647, 30, 2, 0, 10, 20, 30,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 != region.readFromMemory(data, sizeof(data)));
+    }
+    {
         // Short count
         int32_t data[] = {8, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
                           2147483647, 2147483647};
@@ -361,6 +368,31 @@ DEF_TEST(Region_readFromMemory_bad, r) {
         // bad row sentinal
         int32_t data[] = {9, 0, 0, 10, 10, 1, 2, 0, 10, 2, 0, 4, 6, 10,
                           -1, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // starts with empty yspan
+        int32_t data[] = {12, 0, 0, 10, 10, 2, 2, -5, 0, 0, 2147483647, 10,
+                          2, 0, 4, 6, 10, 2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // ends with empty yspan
+        int32_t data[] = {12, 0, 0, 10, 10, 2, 2, 0, 10, 2, 0, 4, 6, 10,
+                          2147483647, 15, 0, 2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // y intervals out of order
+        int32_t data[] = {19, 0, -20, 30, 10, 3, 4, 0, 10, 2, 0, 10, 20, 30,
+                          2147483647, -20, 0, 2147483647, -10, 2, 0, 10, 20, 30,
+                          2147483647, 2147483647};
+        REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
+    }
+    {
+        // x intervals out of order
+        int32_t data[] = {9, 0, 0, 10, 10, 1, 2, 0, 10, 2, 6, 10, 0, 4,
+                          2147483647, 2147483647};
         REPORTER_ASSERT(r, 0 == region.readFromMemory(data, sizeof(data)));
     }
 }
