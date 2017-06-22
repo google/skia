@@ -45,6 +45,30 @@
       "revId": "ced54cadee1458d31073393e79730fb407a0feeb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33de12d1_86ecb6ca",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-22T19:45:26Z",
+      "side": 1,
+      "message": "Yeah, we could try that if we want.  It\u0027s kind of a toss up actually whether it\u0027s faster to load and broadcast two floats or load one and do ulp_before() with math.  It\u0027s 2 very cheap instructions:\n\n    compare \u003d  xmmA,xmmA    // turn all bits on in xmmA\n    32-bit +   xmmA,xmmB    // xmmB \u003d xmmB - 1",
+      "parentUuid": "9ec4053f_241fd249",
+      "range": {
+        "startLine": 953,
+        "startChar": 21,
+        "endLine": 953,
+        "endChar": 26
+      },
+      "revId": "ced54cadee1458d31073393e79730fb407a0feeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
