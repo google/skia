@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5544564a_ead3bde8",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-22T19:23:11Z",
+      "side": 1,
+      "message": "Could we use radiusY here, instead of computing it from sigma? In fact, that seems like a more correct computation, since accommodates for scaling.\n\nAlso, if we\u0027re truly no longer accessing these pixels, we should probably change the clears to clear-to-pink-in-debug (see below).",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8209343_bf9ebfd7",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-22T19:23:11Z",
+      "side": 1,
+      "message": "Since we should no longer be accessing these pixels, I suggest we put these four lines of code behind #ifdef SK_DEBUG, and clear them to pink instead of transparent black, so errors are obvious. We should probably do the same for the other clears which should no longer be required.",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67912469_4d24f67c",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-22T19:23:11Z",
+      "side": 1,
+      "message": "What if srcBounds is null here? (E.g., the blur mask filter for shadows). I think we should only be setting a texture domain if srcBounds is non-null, as we do in the downsampling case above, and otherwise use addColorTextureProcessor() as before.",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f77857da_6d50bbd4",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-22T19:23:11Z",
+      "side": 1,
+      "message": "Nit: could you just call it \"kernelWeight\"?\n\n(Nice clean fix for this, BTW.)",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
