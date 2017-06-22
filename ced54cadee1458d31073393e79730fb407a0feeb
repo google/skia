@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "906cb18d_0c764812",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-22T19:15:58Z",
+      "side": 1,
+      "message": "Presumably the limit is constant - isn\u0027t this noticeably slower than applying ulp_before once, when setting up the context?",
+      "range": {
+        "startLine": 950,
+        "startChar": 18,
+        "endLine": 950,
+        "endChar": 28
+      },
+      "revId": "ced54cadee1458d31073393e79730fb407a0feeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ec4053f_241fd249",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-22T19:15:58Z",
+      "side": 1,
+      "message": "Ah, I just had my answer, we need both.\n\nWould it make sense to push both on the context?",
+      "range": {
+        "startLine": 953,
+        "startChar": 21,
+        "endLine": 953,
+        "endChar": 26
+      },
+      "revId": "ced54cadee1458d31073393e79730fb407a0feeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
