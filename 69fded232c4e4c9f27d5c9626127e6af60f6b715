@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9143d5c5_192a4339",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-22T15:09:34Z",
+      "side": 1,
+      "message": "Is there something particular going on with this that we don\u0027t just call it \"AVX2\" like the rest?",
+      "range": {
+        "startLine": 245,
+        "startChar": 18,
+        "endLine": 245,
+        "endChar": 33
+      },
+      "revId": "69fded232c4e4c9f27d5c9626127e6af60f6b715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
