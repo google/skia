@@ -81,8 +81,7 @@ GrGLPathRendering::GrGLPathRendering(GrGLGpu* gpu)
     : GrPathRendering(gpu)
     , fPreallocatedPathCount(0) {
     const GrGLInterface* glInterface = gpu->glInterface();
-    fCaps.bindFragmentInputSupport =
-        nullptr != glInterface->fFunctions.fBindFragmentInputLocation;
+    fCaps.bindFragmentInputSupport = (bool)glInterface->fFunctions.fBindFragmentInputLocation;
 }
 
 GrGLPathRendering::~GrGLPathRendering() {
