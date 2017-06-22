@@ -54,13 +54,15 @@ template <typename... T> using common_type_t = typename std::common_type<T...>::
 #if defined(__GLIBCXX__) && (__GLIBCXX__ <  SK_GLIBCXX_4_7_0 || \
                              __GLIBCXX__ == SK_GLIBCXX_4_5_4 || \
                              __GLIBCXX__ == SK_GLIBCXX_4_6_4)
-template <typename T> struct underlying_type {
-    using type = __underlying_type(T);
-};
-template <typename T> using is_trivially_destructible = std::has_trivial_destructor<T>;
+    template <typename T> struct underlying_type {
+        using type = __underlying_type(T);
+    };
+    template <typename T> using is_trivially_copyable     = std::has_trivial_copy_constructor<T>;
+    template <typename T> using is_trivially_destructible = std::has_trivial_destructor<T>;
 #else
-template <typename T> using underlying_type = std::underlying_type<T>;
-template <typename T> using is_trivially_destructible = std::is_trivially_destructible<T>;
+    template <typename T> using underlying_type = std::underlying_type<T>;
+    template <typename T> using is_trivially_copyable     = std::is_trivially_copyable<T>;
+    template <typename T> using is_trivially_destructible = std::is_trivially_destructible<T>;
 #endif
 template <typename T> using underlying_type_t = typename skstd::underlying_type<T>::type;
 
