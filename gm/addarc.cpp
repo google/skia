@@ -337,3 +337,20 @@ private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new TinyAngleBigRadiusArcsGM; )
+
+DEF_SIMPLE_GM(secvi, canvas, 256, 256) {
+        SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas->drawString("1st contour", 150, 100, paint);
+    canvas->drawString("2nd contour", 130, 160, paint);
+    canvas->drawString("3rd contour", 40, 30, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    SkPath path;
+    path.moveTo(124, 108);
+    path.lineTo(172, 24);
+    path.moveTo(36, 148);
+    path.quadTo(66, 188, 120, 136);
+    path.close();
+    path.conicTo(70, 20, 110, 40, 0.6f);
+    canvas->drawPath(path, paint);
+}
