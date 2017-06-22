@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "85cdf326_6abcd4ea",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-22T21:46:23Z",
+      "side": 1,
+      "message": "Will replace with radiusY. The value is the same though.",
+      "parentUuid": "5544564a_ead3bde8",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c8209343_bf9ebfd7",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c66aee_937b9447",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-22T21:46:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8209343_bf9ebfd7",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a4322b5_177b6fba",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-22T21:46:23Z",
+      "side": 1,
+      "message": "Done. Thanks.",
+      "parentUuid": "67912469_4d24f67c",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f77857da_6d50bbd4",
         "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
         "patchSetId": 2
@@ -67,6 +121,24 @@
       "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e00f757_86361a1a",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-22T21:46:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f77857da_6d50bbd4",
+      "revId": "57ed6e24a07f5c05537a4b50a3955bad4ada7cf5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
