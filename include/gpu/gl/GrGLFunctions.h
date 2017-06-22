@@ -9,7 +9,6 @@
 #ifndef GrGLFunctions_DEFINED
 #define GrGLFunctions_DEFINED
 
-#include <functional>
 #include "GrGLTypes.h"
 #include "../private/SkTLogic.h"
 
@@ -379,6 +378,53 @@ typedef GrEGLImage (GR_GL_FUNCTION_TYPE* GrEGLCreateImageProc)(GrEGLDisplay dpy,
 typedef GrEGLBoolean (GR_GL_FUNCTION_TYPE* GrEGLDestroyImageProc)(GrEGLDisplay dpy, GrEGLImage image);
 }  // extern "C"
 
-template <typename GLPTR> using GrGLFunction = std::function<skstd::remove_pointer_t<GLPTR>>;
+// This is a lighter-weight std::function, trying to reduce code size and compile time
+// by only supporting the exact use cases we require.
+template <typename T> class GrGLFunction;
+
+template <typename R, typename... Args>
+class GrGLFunction<R(GR_GL_FUNCTION_TYPE*)(Args...)>{
+public:
+    // Construct empty.
+    GrGLFunction()               : fCall(nullptr) {}
+    GrGLFunction(std::nullptr_t) : fCall(nullptr) {}
+
+    // Construct from a simple function pointer.
+    GrGLFunction(R (GR_GL_FUNCTION_TYPE* fn_ptr)(Args...)) {
+        memcpy(fBuf, &fn_ptr, sizeof(fn_ptr));
+        fCall = [](const void* buf, Args... args) {
+            auto fn_ptr = (R(GR_GL_FUNCTION_TYPE*)(Args...))buf;
+            return fn_ptr(args...);
+        };
+    }
+
+    // Construct from a small closure.
+    template <typename Closure>
+    GrGLFunction(Closure closure) {
+        static_assert(sizeof(Closure) <= sizeof(fBuf), "");
+    #if defined(__APPLE__)   // I am having serious trouble getting these to work with all STLs...
+        static_assert(std::is_trivially_copyable<Closure>::value, "");
+        static_assert(std::is_trivially_destructible<Closure>::value, "");
+    #endif
+
+        memcpy(fBuf, &closure, sizeof(closure));
+        fCall = [](const void* buf, Args... args) {
+            auto closure = (const Closure*)buf;
+            return (*closure)(args...);
+        };
+    }
+
+    R operator()(Args... args) const {
+        return fCall(fBuf, args...);
+    }
+
+    explicit operator bool() const {
+        return fCall != nullptr;
+    }
+
+private:
+    R (*fCall)(const void*, Args...);
+    size_t fBuf[3];
+};
 
 #endif
