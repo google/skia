@@ -2109,7 +2109,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
-    bool hasInternalformatFunction = gli->fFunctions.fGetInternalformativ != nullptr;
+    bool hasInternalformatFunction = (bool)gli->fFunctions.fGetInternalformativ;
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         if (ConfigInfo::kRenderableWithMSAA_Flag & fConfigTable[i].fFlags) {
             if (hasInternalformatFunction && // This check is temporary until chrome is updated
