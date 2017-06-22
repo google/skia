@@ -940,24 +940,34 @@ STAGE(store_f32) {
     store4(ptr,tail, r,g,b,a);
 }
 
-SI F clamp(F v, float limit) {
-    return min(max(0, v), limit);
+SI F ulp_before(F f) {
+    U32 bits = -1 + unaligned_load<U32>(&f);
+    return unaligned_load<F>(&bits);
 }
-SI F repeat(F v, float limit) {
-    return v - floor_(v/limit)*limit;
-}
-SI F mirror(F v, float limit) {
-    return abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
-}
-STAGE(clamp_x)  { r = clamp (r, *(const float*)ctx); }
-STAGE(clamp_y)  { g = clamp (g, *(const float*)ctx); }
-STAGE(repeat_x) { r = repeat(r, *(const float*)ctx); }
-STAGE(repeat_y) { g = repeat(g, *(const float*)ctx); }
-STAGE(mirror_x) { r = mirror(r, *(const float*)ctx); }
-STAGE(mirror_y) { g = mirror(g, *(const float*)ctx); }
 
-STAGE( clamp_x_1) { r = clamp (r, 1.0f); }
-STAGE(repeat_x_1) { r = repeat(r, 1.0f); }
+SI F exclusive_clamp(F v, float limit) {
+    v = max(0,v);
+    return min(v, ulp_before(limit));
+}
+SI F exclusive_repeat(F v, float limit) {
+    v = v - floor_(v/limit)*limit;
+    return min(v, ulp_before(limit));
+}
+SI F exclusive_mirror(F v, float limit) {
+    v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
+    return min(v, ulp_before(limit));
+}
+// Clamp x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
+STAGE(clamp_x)  { r = exclusive_clamp (r, *(const float*)ctx); }
+STAGE(clamp_y)  { g = exclusive_clamp (g, *(const float*)ctx); }
+STAGE(repeat_x) { r = exclusive_repeat(r, *(const float*)ctx); }
+STAGE(repeat_y) { g = exclusive_repeat(g, *(const float*)ctx); }
+STAGE(mirror_x) { r = exclusive_mirror(r, *(const float*)ctx); }
+STAGE(mirror_y) { g = exclusive_mirror(g, *(const float*)ctx); }
+
+// Clamp x to [0,1], both sides exclusive (think, gradients).
+STAGE( clamp_x_1) { r = min(max(0, r), 1.0f); }
+STAGE(repeat_x_1) { r = r - floor_(r); }
 STAGE(mirror_x_1) { r = abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f ); }
 
 STAGE(luminance_to_alpha) {

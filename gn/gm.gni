@@ -51,6 +51,7 @@ gm_sources = [
   "$_gm/bmpfilterqualityrepeat.cpp",
   "$_gm/bug5252.cpp",
   "$_gm/bug6643.cpp",
+  "$_gm/bug6783.cpp",
   "$_gm/bug530095.cpp",
   "$_gm/bug615686.cpp",
   "$_gm/cgm.c",
