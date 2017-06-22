@@ -82,6 +82,18 @@ bool SkPDFUnion::isName() const {
 }
 
 #ifdef SK_DEBUG
+const char* SkPDFUnion::name() const {
+    if (Type::kName == fType) {
+        return fStaticString;
+    } else if (Type::kNameSkS == fType) {
+        return pun(fSkString)->c_str();
+    } else {
+        return nullptr;
+    }
+}
+#endif
+
+#ifdef SK_DEBUG
 // Most names need no escaping.  Such names are handled as static
 // const strings.
 bool is_valid_name(const char* n) {
@@ -362,8 +374,21 @@ void SkPDFDict::emitObject(SkWStream* stream,
     stream->writeText(">>");
 }
 
+
+
 void SkPDFDict::emitAll(SkWStream* stream,
                         const SkPDFObjNumMap& objNumMap) const {
+#ifdef SK_DEBUG
+    for (int i = 1; i < fRecords.count(); ++i) {
+        const char* key = fRecords[i].fKey.name();
+        SkASSERT(key);
+        for (int j = 0; j < i ; ++j) {
+            const char* key2 = fRecords[j].fKey.name();
+            SkASSERT(key2);
+            SkASSERT(0 != strcmp(key, key2));
+        }
+    }
+#endif
     SkASSERT(!fDumped);
     for (int i = 0; i < fRecords.count(); i++) {
         fRecords[i].fKey.emitObject(stream, objNumMap);

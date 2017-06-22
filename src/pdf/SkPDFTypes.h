@@ -122,6 +122,7 @@ public:
     void addResources(SkPDFObjNumMap*) const;
 
     bool isName() const;
+    SkDEBUGCODE(const char* name() const;)
 
 private:
     union {
@@ -247,7 +248,8 @@ public:
      */
     int size() const;
 
-    /** Add the value to the dictionary with the given key.
+    /** Add the value to the dictionary with the given key.  It is an error to
+     *  use the same key twice on one dictionary.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
      */
@@ -255,11 +257,6 @@ public:
     void insertObject(const SkString& key, sk_sp<SkPDFObject>);
     void insertObjRef(const char key[], sk_sp<SkPDFObject>);
     void insertObjRef(const SkString& key, sk_sp<SkPDFObject>);
-
-    /** Add the value to the dictionary with the given key.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     */
     void insertBool(const char key[], bool value);
     void insertInt(const char key[], int32_t value);
     void insertInt(const char key[], size_t value);
