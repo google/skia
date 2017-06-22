@@ -36,10 +36,6 @@
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
-// Helper function to fix code gen bug on ARM64.
-// See SkFindAndPlaceGlyph.h for more details.
-void FixGCC49Arm64Bug(int v) { }
-
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
     SkPaint paint(origPaint);
