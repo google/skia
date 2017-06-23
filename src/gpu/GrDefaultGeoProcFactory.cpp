@@ -358,7 +358,6 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
     if (LocalCoords::kUnused_Type != localCoords.fType) {
         SkASSERT(LocalCoords::kUsePosition_Type == localCoords.fType);
         if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
-            SkDebugf("Could not invert\n");
             return nullptr;
         }
 

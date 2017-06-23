@@ -335,7 +335,6 @@ private:
                                                 SkScalarCeilToInt(desiredDimension),
                                                 scale)) {
                         delete shapeData;
-                        SkDebugf("Can't rasterize path\n");
                         continue;
                     }
                 }
@@ -359,7 +358,6 @@ private:
                                               args.fShape,
                                               this->viewMatrix())) {
                         delete shapeData;
-                        SkDebugf("Can't rasterize path\n");
                         continue;
                     }
                 }
