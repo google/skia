@@ -32,6 +32,7 @@ class GrRenderTargetOpList;
 class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
+class SkDrawable;
 class SkDrawFilter;
 struct SkDrawShadowRec;
 struct SkIPoint;
@@ -298,6 +299,11 @@ public:
                           int imageHeight,
                           std::unique_ptr<SkLatticeIter> iter,
                           const SkRect& dst);
+
+    /**
+     *
+     */
+    void drawDrawable(SkDrawable*, const SkMatrix&);
 
     /**
      * After this returns any pending surface IO will be issued to the backend 3D API and

@@ -91,10 +91,11 @@ private:
     static uint32_t CreateUniqueID();
 
     enum Flags {
-        kClosed_Flag    = 0x01,   //!< This GrOpList can't accept any more ops
+        kClosed_Flag    = 0x01,               //!< This GrOpList can't accept any more ops
 
-        kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
-        kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+        kWasOutput_Flag = 0x02,               //!< Flag for topological sorting
+        kTempMark_Flag  = 0x04,               //!< Flag for topological sorting
+        kIntentialSharedRenderTarget = 0x08,  //!< Flag for splitting oplist with semaphores between
     };
 
     void setFlag(uint32_t flag) {

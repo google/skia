@@ -106,7 +106,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
             GrRenderTargetOpList* curOpList = fOpLists[i]->asRenderTargetOpList();
 
             if (prevOpList && curOpList) {
-                SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
+                //SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
             }
 
             prevOpList = curOpList;
