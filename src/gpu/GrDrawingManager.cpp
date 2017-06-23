@@ -105,7 +105,8 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
         for (int i = 1; i < fOpLists.count(); ++i) {
             GrRenderTargetOpList* curOpList = fOpLists[i]->asRenderTargetOpList();
 
-            if (prevOpList && curOpList) {
+            if (prevOpList && curOpList &&
+                (!prevOpList->isSharedRT() || !curOpList->isSharedRT())) {
                 SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
             }
 
