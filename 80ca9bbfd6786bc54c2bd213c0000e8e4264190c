@@ -22,6 +22,30 @@
       "revId": "80ca9bbfd6786bc54c2bd213c0000e8e4264190c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c969d818_f747c434",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-06-23T13:59:26Z",
+      "side": 1,
+      "message": "Yep:  https://skia.googlesource.com/skia/+/06ca8ec%5E%21/#F28",
+      "parentUuid": "c2e95611_ecaddbdd",
+      "range": {
+        "startLine": 7,
+        "startChar": 52,
+        "endLine": 7,
+        "endChar": 59
+      },
+      "revId": "80ca9bbfd6786bc54c2bd213c0000e8e4264190c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
