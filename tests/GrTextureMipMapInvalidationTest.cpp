@@ -20,11 +20,11 @@
 // Tests that MIP maps are created and invalidated as expected when drawing to and from GrTextures.
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrTextureMipMapInvalidationTest, reporter, ctxInfo) {
     auto isMipped = [] (SkSurface* surf) {
-        return as_IB(surf->makeImageSnapshot())->peekTexture()->texturePriv().hasMipMaps();
+        return surf->makeImageSnapshot()->getTexture()->texturePriv().hasMipMaps();
     };
 
     auto mipsAreDirty = [] (SkSurface* surf) {
-        return as_IB(surf->makeImageSnapshot())->peekTexture()->texturePriv().mipMapsAreDirty();
+        return surf->makeImageSnapshot()->getTexture()->texturePriv().mipMapsAreDirty();
     };
 
     GrContext* context = ctxInfo.grContext();

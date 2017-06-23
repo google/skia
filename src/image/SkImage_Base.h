@@ -44,8 +44,7 @@ public:
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
-    // MDB TODO: this entry point needs to go away
-    virtual GrTexture* peekTexture() const { return nullptr; }
+    virtual GrContext* context() const { return nullptr; }
 #if SK_SUPPORT_GPU
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
     virtual sk_sp<GrTextureProxy> asTextureProxyRef() const { return nullptr; }

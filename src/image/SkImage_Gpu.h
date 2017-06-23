@@ -33,15 +33,9 @@ public:
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
 
+    GrContext* context() const override { return fContext; }
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
-    }
-    GrTexture* peekTexture() const override {
-        if (!fProxy->instantiate(fContext->resourceProvider())) {
-            return nullptr;
-        }
-
-        return fProxy->priv().peekTexture();
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const override {
         return fProxy;
@@ -61,7 +55,6 @@ public:
     bool onReadPixels(const SkImageInfo&, void* dstPixels, size_t dstRowBytes,
                       int srcX, int srcY, CachingHint) const override;
 
-    GrContext* context() { return fContext; }
     sk_sp<SkColorSpace> refColorSpace() { return fColorSpace; }
 
     sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
