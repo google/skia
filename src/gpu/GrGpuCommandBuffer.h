@@ -19,6 +19,8 @@ class GrMesh;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTarget;
+class GrSemaphore;
+class SkDrawable;
 struct SkIRect;
 struct SkRect;
 
@@ -91,6 +93,16 @@ public:
      */
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard(GrRenderTarget*) = 0;
+
+    /**
+     * Exectues the SkDrawable object for the underlying backend. Either both the signal and wait
+     * semaphores are nullptr, or they are both valid. If they are both valid, the client mush wait
+     * on the waitSemaphore before starting work and must signal the signalSemaphore when they are
+     * done work.
+     */
+    virtual void executeDrawable(GrRenderTarget*, SkDrawable*, const SkMatrix&,
+                                 GrSemaphore* waitSemaphore,
+                                 GrSemaphore* signalSemaphore) {}
 
 private:
     virtual GrGpu* gpu() = 0;

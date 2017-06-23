@@ -19,7 +19,9 @@
 #include "GrVkRenderPass.h"
 #include "GrVkRenderTarget.h"
 #include "GrVkResourceProvider.h"
+#include "GrVkSemaphore.h"
 #include "GrVkTexture.h"
+#include "SkDrawable.h"
 #include "SkRect.h"
 
 void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
@@ -180,6 +182,8 @@ void GrVkGpuCommandBuffer::onSubmit() {
         }
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuCommandBuffer::discard(GrRenderTarget* rt) {
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
@@ -368,6 +372,8 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* rt, const GrFixedClip& clip, 
     }
     return;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuCommandBuffer::addAdditionalCommandBuffer() {
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
@@ -645,5 +651,54 @@ void GrVkGpuCommandBuffer::sendIndexedInstancedMeshToGpu(const GrPrimitiveProces
     cbInfo.currentCmdBuf()->drawIndexed(fGpu, indexCount, instanceCount,
                                         baseIndex, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrVkGpuCommandBuffer::executeDrawable(GrRenderTarget* rt,
+                                           SkDrawable* drawable,
+                                           const SkMatrix& matrix,
+                                           GrSemaphore* semaphoreToWaitOn,
+                                           GrSemaphore* semaphoreToSignal) {
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
+    if (!fRenderTarget) {
+        this->init(target);
+    }
+
+    GrVkImage* targetImage = fRenderTarget->msaaImage() ? fRenderTarget->msaaImage()
+                                                        : fRenderTarget;
+
+    SkASSERT(drawable->isDrawVulkanSupported());
+    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+    SkRect bounds;
+    bounds.setEmpty();
+    GrVkClientDrawableInfo info;
+    info.fDevice = fGpu->device();
+    info.fQueue = fGpu->queue();
+    info.fQueueFamilyIndex = fGpu->queueFamilyIndex();
+    info.fImage = targetImage->image();
+    info.fLayout = targetImage->currentLayout();
+    info.fBounds = &bounds;
+    if (drawable->requiresFlushBeforeDraw()) {
+        SkASSERT(semaphoreToWaitOn && semaphoreToSignal);
+        GrVkSemaphore* vkWaitSem = static_cast<GrVkSemaphore*>(semaphoreToWaitOn);
+        GrVkSemaphore* vkSigSem = static_cast<GrVkSemaphore*>(semaphoreToSignal);
+        info.fWaitSemaphore = vkWaitSem->getResource()->semaphore();
+        info.fSignalSemaphore = vkSigSem->getResource()->semaphore();
+        info.fRenderPass = VK_NULL_HANDLE;
+        info.fCommandBuffer = VK_NULL_HANDLE;
+        info.fImageAttachmentIndex = 0; // Just initializing though this is not valid
+    } else {
+        info.fWaitSemaphore = VK_NULL_HANDLE;
+        info.fSignalSemaphore = VK_NULL_HANDLE;
+        info.fCommandBuffer = cbInfo.currentCmdBuf()->vkCommandBuffer();
+        info.fRenderPass = cbInfo.fRenderPass->vkRenderPass();
+        SkAssertResult(cbInfo.fRenderPass->colorAttachmentIndex(&info.fImageAttachmentIndex));
+    }
+    drawable->drawVulkan(&info);
+    if (bounds.isEmpty()) {
+        bounds.join(fRenderTarget->getBoundsRect());
+    }
+    cbInfo.fBounds.join(bounds);
 }
 
