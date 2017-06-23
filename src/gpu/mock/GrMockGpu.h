@@ -10,13 +10,32 @@
 
 class GrPipeline;
 
+struct GrMockOptions {
+    GrMockOptions() {
+        // By default the only valid config is RGBA_8888 with no MSAA support.
+        fConfigOptions[kRGBA_8888_GrPixelConfig].fRenderable[0] = true;
+        fConfigOptions[kRGBA_8888_GrPixelConfig].fTexturable = true;
+    }
+
+
+    struct ConfigOptions {
+        bool fRenderable[2] = {false, false};
+        bool fTexturable = false;
+    };
+    ConfigOptions fConfigOptions[kGrPixelConfigCnt];
+};
+
 class GrMockCaps : public GrCaps {
 public:
-    explicit GrMockCaps(const GrContextOptions& options) : INHERITED(options) {
+    GrMockCaps(const GrContextOptions& contextOptions, const GrMockOptions& options) : INHERITED(contextOptions), fOptions(options) {
         fBufferMapThreshold = SK_MaxS32;
     }
-    bool isConfigTexturable(GrPixelConfig) const override { return false; }
-    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
+    bool isConfigTexturable(GrPixelConfig config) const override {
+        return fOptions.fConfigOptions[config].fTexturable;
+    }
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override {
+        return fOptions.fConfigOptions[config].fTexturable;
+    }
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
@@ -24,15 +43,17 @@ public:
     }
 
 private:
+    GrMockOptions fOptions;
     typedef GrCaps INHERITED;
 };
 
 class GrMockGpu : public GrGpu {
 public:
-    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
+    static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& contextOptions,
                          GrContext* context) {
         SkASSERT((void*)backendContext == nullptr);
-        return new GrMockGpu(context, options);
+        static const GrMockOptions kOptions = GrMockOptions();
+        return new GrMockGpu(context, kOptions, contextOptions);
     }
 
     ~GrMockGpu() override {}
@@ -74,8 +95,8 @@ public:
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
 private:
-    GrMockGpu(GrContext* context, const GrContextOptions& options) : INHERITED(context) {
-        fCaps.reset(new GrMockCaps(options));
+    GrMockGpu(GrContext* context, const GrMockOptions& options, const GrContextOptions& contextOptions) : INHERITED(context) {
+        fCaps.reset(new GrMockCaps(contextOptions, options));
     }
 
     void onResetContext(uint32_t resetBits) override {}
