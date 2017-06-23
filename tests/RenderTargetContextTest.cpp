@@ -9,9 +9,8 @@
 
 #include "Test.h"
 
-// MDB TODO: With the move of the discard calls to the RenderTargetContext, deferred RTCs are being
-// instantiated early. This test can be re-enabled once discards do not force an instantiation
-// (i.e., when renderTargetProxies carry the op IORefs)
+// MDB TODO: the early instantiation of the renderTargetContext's backing GrRenderTargetProxy
+// mixes this test up. Re-enable once backing GPU resources are distributed by MDB at flush time.
 #if 0
 
 #if SK_SUPPORT_GPU
@@ -50,8 +49,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
         GrTextureProxy* tProxy = rtCtx->asTextureProxy();
         REPORTER_ASSERT(reporter, tProxy);
 
-        GrTexture* tex = tProxy->instantiate(ctx->resourceProvider());
-        REPORTER_ASSERT(reporter, tex);
+        REPORTER_ASSERT(reporter, tProxy->instantiate(ctx->resourceProvider()));
 
         check_is_wrapped_status(reporter, rtCtx.get(), true);
     }

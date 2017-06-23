@@ -105,26 +105,9 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
     // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
     // copy-on-write.
     if (!srcProxy || rtc->priv().refsWrappedObjects()) {
-        // MDB TODO: replace this with GrSurfaceProxy::Copy?
-        GrSurfaceDesc desc;
-        desc.fConfig = rtc->config();
-        desc.fWidth = rtc->width();
-        desc.fHeight = rtc->height();
-        desc.fOrigin = rtc->origin();
+        SkASSERT(rtc->origin() == rtc->asSurfaceProxy()->origin());
 
-        sk_sp<GrSurfaceContext> copyCtx = ctx->contextPriv().makeDeferredSurfaceContext(
-                                                                desc,
-                                                                SkBackingFit::kExact,
-                                                                budgeted);
-        if (!copyCtx) {
-            return nullptr;
-        }
-
-        if (!copyCtx->copy(rtc->asSurfaceProxy())) {
-            return nullptr;
-        }
-
-        srcProxy = copyCtx->asTextureProxyRef();
+        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), budgeted);
     }
 
     const SkImageInfo info = fDevice->imageInfo();
