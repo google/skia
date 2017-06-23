@@ -15,6 +15,7 @@
 class GrContext;
 class GrFragmentProcessor;
 class SkArenaAlloc;
+class SkBlitter;
 class SkColorSpace;
 class SkColorSpaceXformer;
 class SkImage;
@@ -157,6 +158,8 @@ public:
      */
     Context* makeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const;
 
+    SkBlitter* makeBlitter(const ContextRec&, SkArenaAlloc*) const;
+
 #if SK_SUPPORT_GPU
     struct AsFPArgs {
         AsFPArgs() {}
@@ -253,6 +256,10 @@ protected:
      * Overriden by shaders which prefer burst mode.
      */
     virtual Context* onMakeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const {
+        return nullptr;
+    }
+
+    virtual SkBlitter* onMakeBlitter(const ContextRec&, SkArenaAlloc*) const {
         return nullptr;
     }
 

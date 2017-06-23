@@ -35,6 +35,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc* storage) const override;
+    SkBlitter* onMakeBlitter(const ContextRec&, SkArenaAlloc* storage) const override;
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
 #endif

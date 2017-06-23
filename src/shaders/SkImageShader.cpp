@@ -66,6 +66,11 @@ bool SkImageShader::isRasterPipelineOnly() const {
     return IsRasterPipelineOnly(provider.info().colorType(), fTileModeX, fTileModeY);
 }
 
+SkBlitter* SkImageShader::onMakeBlitter(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    // TODO
+    return nullptr;
+}
+
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
