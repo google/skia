@@ -483,23 +483,26 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 ERRORF(reporter, "Error creating image.");
                 continue;
             }
-            GrTexture* origTexture = as_IB(image)->peekTexture();
 
             sk_sp<SkImage> texImage(image->makeTextureImage(context, dstColorSpace.get()));
             if (!texImage) {
+                GrContext* imageContext = as_IB(image)->context();
+
                 // We expect to fail if image comes from a different GrContext.
-                if (!origTexture || origTexture->getContext() == context) {
+                if (!image->isTextureBacked() || imageContext == context) {
                     ERRORF(reporter, "makeTextureImage failed.");
                 }
                 continue;
             }
-            GrTexture* copyTexture = as_IB(texImage)->peekTexture();
-            if (!copyTexture) {
+            if (!texImage->isTextureBacked()) {
                 ERRORF(reporter, "makeTextureImage returned non-texture image.");
                 continue;
             }
-            if (origTexture) {
-                if (origTexture != copyTexture) {
+            if (image->isTextureBacked()) {
+                GrSurfaceProxy* origProxy = as_IB(image)->peekProxy();
+                GrSurfaceProxy* copyProxy = as_IB(texImage)->peekProxy();
+
+                if (origProxy->underlyingUniqueID() != copyProxy->underlyingUniqueID()) {
                     ERRORF(reporter, "makeTextureImage made unnecessary texture copy.");
                 }
             }
@@ -546,7 +549,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
     auto image = create_gpu_image(context);
     auto info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));
-    as_IB(image)->peekTexture()->abandon();
+    image->getTexture()->abandon();
     surface->getCanvas()->drawImage(image, 0, 0);
 }
 

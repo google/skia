@@ -454,8 +454,8 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
     if (!context) {
         return nullptr;
     }
-    if (GrTexture* peek = as_IB(this)->peekTexture()) {
-        return peek->getContext() == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
+    if (GrContext* incumbent = as_IB(this)->context()) {
+        return incumbent == context ? sk_ref_sp(const_cast<SkImage*>(this)) : nullptr;
     }
 
     if (this->isLazyGenerated()) {
