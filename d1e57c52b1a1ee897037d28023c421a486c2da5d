@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a72895c1_f8ea5794",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "Should we make this work with GrBackend so that it could be extended to other backends without adding a pair of virtuals for each?",
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5e8031f_44606cf7",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "custom?",
+      "range": {
+        "startLine": 66,
+        "startChar": 23,
+        "endLine": 66,
+        "endChar": 29
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03262d9b_0544eba6",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "related to?",
+      "range": {
+        "startLine": 78,
+        "startChar": 90,
+        "endLine": 78,
+        "endChar": 92
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc26a6df_72ccf9ab",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "and must not?",
+      "range": {
+        "startLine": 82,
+        "startChar": 64,
+        "endLine": 82,
+        "endChar": 80
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19465818_e0837523",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "Maybe stick to client or caller",
+      "range": {
+        "startLine": 93,
+        "startChar": 7,
+        "endLine": 93,
+        "endChar": 13
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

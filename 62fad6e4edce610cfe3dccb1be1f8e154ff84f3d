@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfe324f2_3b5b551f",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2757,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "Do we really need this? It looks to me like with a default paint this won\u0027t actually do anything. If we know there is only one device then we could just make drawDrawable return false if it wasn\u0027t able to draw it instead of having a separate query.",
+      "range": {
+        "startLine": 2757,
+        "startChar": 8,
+        "endLine": 2757,
+        "endChar": 20
+      },
+      "revId": "62fad6e4edce610cfe3dccb1be1f8e154ff84f3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0c7e28b_bdb81873",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2764,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T20:54:20Z",
+      "side": 1,
+      "message": "I think you\u0027ll find this is gone and SkGpuDevice now owns the clip stack at HEAD.",
+      "range": {
+        "startLine": 2764,
+        "startChar": 61,
+        "endLine": 2764,
+        "endChar": 71
+      },
+      "revId": "62fad6e4edce610cfe3dccb1be1f8e154ff84f3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
