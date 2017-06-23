@@ -71,6 +71,11 @@ struct SkJumper_SamplerCtx {
     float scaley[SkJumper_kMaxStride];
 };
 
+struct SkJumper_TileCtx {
+    float scale;
+    float invScale; // cache of 1/scale
+};
+
 struct SkJumper_CallbackCtx {
     MAYBE_MSABI void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
 

@@ -945,25 +945,27 @@ SI F ulp_before(F f) {
     return unaligned_load<F>(&bits);
 }
 
-SI F exclusive_clamp(F v, float limit) {
+SI F exclusive_clamp(F v, const SkJumper_TileCtx* ctx) {
     v = max(0,v);
-    return min(v, ulp_before(limit));
+    return min(v, ulp_before(ctx->scale));
 }
-SI F exclusive_repeat(F v, float limit) {
-    v = v - floor_(v/limit)*limit;
-    return min(v, ulp_before(limit));
+SI F exclusive_repeat(F v, const SkJumper_TileCtx* ctx) {
+    v = v - floor_(v*ctx->invScale)*ctx->scale;
+    return min(v, ulp_before(ctx->scale));
 }
-SI F exclusive_mirror(F v, float limit) {
-    v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)/(limit+limit)) - limit );
+SI F exclusive_mirror(F v, const SkJumper_TileCtx* ctx) {
+    auto limit = ctx->scale;
+    auto invLimit = ctx->invScale;
+    v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
     return min(v, ulp_before(limit));
 }
 // Clamp x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
-STAGE(clamp_x)  { r = exclusive_clamp (r, *(const float*)ctx); }
-STAGE(clamp_y)  { g = exclusive_clamp (g, *(const float*)ctx); }
-STAGE(repeat_x) { r = exclusive_repeat(r, *(const float*)ctx); }
-STAGE(repeat_y) { g = exclusive_repeat(g, *(const float*)ctx); }
-STAGE(mirror_x) { r = exclusive_mirror(r, *(const float*)ctx); }
-STAGE(mirror_y) { g = exclusive_mirror(g, *(const float*)ctx); }
+STAGE(clamp_x)  { r = exclusive_clamp (r, (const SkJumper_TileCtx*)ctx); }
+STAGE(clamp_y)  { g = exclusive_clamp (g, (const SkJumper_TileCtx*)ctx); }
+STAGE(repeat_x) { r = exclusive_repeat(r, (const SkJumper_TileCtx*)ctx); }
+STAGE(repeat_y) { g = exclusive_repeat(g, (const SkJumper_TileCtx*)ctx); }
+STAGE(mirror_x) { r = exclusive_mirror(r, (const SkJumper_TileCtx*)ctx); }
+STAGE(mirror_y) { g = exclusive_mirror(g, (const SkJumper_TileCtx*)ctx); }
 
 // Clamp x to [0,1], both sides exclusive (think, gradients).
 STAGE( clamp_x_1) { r = min(max(0, r), 1.0f); }
