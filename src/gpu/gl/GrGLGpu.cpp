@@ -1041,6 +1041,9 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         return false;
     }
 
+    SkAutoTArray<int> widths(texelsShallowCopy.count());
+    SkAutoTArray<int> heights(texelsShallowCopy.count());
+
     for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
         int twoToTheMipLevel = 1 << currentMipLevel;
         int currentWidth = SkTMax(1, width / twoToTheMipLevel);
@@ -1059,6 +1062,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         if (currentWidth < 0 || currentHeight < 0) {
             return false;
         }
+        widths[currentMipLevel] = currentWidth;
+        heights[currentMipLevel] = currentHeight;
     }
 
     // Internal format comes from the texture desc.
@@ -1099,9 +1104,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     size_t combined_buffer_size = 0;
     SkTArray<size_t> individual_mip_offsets(texelsShallowCopy.count());
     for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+        int currentWidth = widths[currentMipLevel];
+        int currentHeight = heights[currentMipLevel];
         const size_t trimmedSize = currentWidth * bpp * currentHeight;
         individual_mip_offsets.push_back(combined_buffer_size);
         combined_buffer_size += trimmedSize;
@@ -1109,9 +1113,8 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     char* buffer = (char*)tempStorage.reset(combined_buffer_size);
 
     for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
-        int twoToTheMipLevel = 1 << currentMipLevel;
-        int currentWidth = SkTMax(1, width / twoToTheMipLevel);
-        int currentHeight = SkTMax(1, height / twoToTheMipLevel);
+        int currentWidth = widths[currentMipLevel];
+        int currentHeight = heights[currentMipLevel];
         const size_t trimRowBytes = currentWidth * bpp;
 
         /*
@@ -1123,7 +1126,7 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
         restoreGLRowLength = false;
 
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
-      
+
         // TODO: This optimization should be enabled with or without mips.
         // For use with mips, we must set GR_GL_UNPACK_ROW_LENGTH once per
         // mip level, before calling glTexImage2D.

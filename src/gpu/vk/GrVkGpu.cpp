@@ -654,10 +654,17 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         return false;
     }
     SkTArray<size_t> individualMipOffsets(texelsShallowCopy.count());
+    SkAutoTArray<int> widths(texelsShallowCopy.count());
+    SkAutoTArray<int> heights(texelsShallowCopy.count());
+
     individualMipOffsets.push_back(0);
     size_t combinedBufferSize = width * bpp * height;
     int currentWidth = width;
     int currentHeight = height;
+
+    widths[0] = currentWidth;
+    heights[0] = currentHeight;
+
     // The alignment must be at least 4 bytes and a multiple of the bytes per pixel of the image
     // config. This works with the assumption that the bytes in pixel config is always a power of 2.
     SkASSERT((bpp & (bpp - 1)) == 0);
@@ -678,6 +685,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         }
         individualMipOffsets.push_back(combinedBufferSize);
         combinedBufferSize += trimmedSize;
+        widths[currentMipLevel] = currentWidth;
+        heights[currentMipLevel] = currentHeight;
     }
 
     // allocate buffer to hold our mip data
@@ -689,10 +698,10 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     char* buffer = (char*) transferBuffer->map();
     SkTArray<VkBufferImageCopy> regions(texelsShallowCopy.count());
 
-    currentWidth = width;
-    currentHeight = height;
-    int layerHeight = tex->height();
     for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
+        currentWidth = widths[currentMipLevel];
+        currentHeight = heights[currentMipLevel];
+        int layerHeight = 0 == currentMipLevel ? tex->height() : currentHeight;
         SkASSERT(1 == texelsShallowCopy.count() || currentHeight == layerHeight);
         const size_t trimRowBytes = currentWidth * bpp;
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
@@ -719,10 +728,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(currentMipLevel), 0, 1 };
         region.imageOffset = { left, flipY ? layerHeight - top - currentHeight : top, 0 };
         region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
-
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
-        layerHeight = currentHeight;
     }
 
     // no need to flush non-coherent memory, unmap will do that for us
