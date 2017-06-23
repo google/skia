@@ -7,31 +7,26 @@
 
 
 #include "GrGpuFactory.h"
-
-#include "GrGpu.h"
-#include "gl/GrGLConfig.h"
 #include "gl/GrGLGpu.h"
+#include "mock/GrMockGpu.h"
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
-
-static CreateGpuProc gGpuFactories[kBackendCount] = { GrGLGpu::Create, nullptr };
-
-#ifdef SK_VULKAN
-GrGpuFactoryRegistrar gVkGpuFactoryProc(kVulkan_GrBackend, GrVkGpu::Create);
-#endif
-
-GrGpuFactoryRegistrar::GrGpuFactoryRegistrar(int i, CreateGpuProc proc) {
-    gGpuFactories[i] = proc;
-}
 
 GrGpu* GrGpu::Create(GrBackend backend,
                      GrBackendContext backendContext,
                      const GrContextOptions& options,
                      GrContext* context) {
-    SkASSERT((int)backend < kBackendCount);
-    if (!gGpuFactories[backend]) {
-        return nullptr;
+    switch (backend) {
+        case kOpenGL_GrBackend:
+            return GrGLGpu::Create(backendContext, options, context);
+#ifdef SK_VULKAN
+        case kVulkan_GrBackend:
+            return GrVkGpu::Create(backendContext, options, context);
+#endif
+        case kMock_GrBackend:
+            return GrMockGpu::Create(backendContext, options, context);
+        default:
+            return nullptr;
     }
-    return (gGpuFactories[backend])(backendContext, options, context);
 }
