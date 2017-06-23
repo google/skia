@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7c5b8e6_60e7cd73",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-23T18:23:05Z",
+      "side": 1,
+      "message": "You can cut out the casts here if you like.  It\u0027ll auto-cast to const SKJumper_TileCtx*.",
+      "range": {
+        "startLine": 963,
+        "startChar": 42,
+        "endLine": 963,
+        "endChar": 67
+      },
+      "revId": "3e807bb15e4ff1a455ee2ee94e0fd98e525e8688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
