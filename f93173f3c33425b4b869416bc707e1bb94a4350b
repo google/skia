@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f96e137_bdf89e63",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-23T19:12:47Z",
+      "side": 1,
+      "message": "Eliminating the 15-second output timer will likely cause \"idle\" timeouts on some of the Valgrind bots (and maybe even some other slow bots), because there will be no output for \u003e40m.\n\nSince we\u0027re already locking gMutex, could we also save the last time we printed output? Then we can keep the status_sec flag.",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 26
+      },
+      "revId": "f93173f3c33425b4b869416bc707e1bb94a4350b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29140e5c_9ae86d24",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-23T19:12:47Z",
+      "side": 1,
+      "message": "Would it make sense to read the globals in the block above so we\u0027re not locking gMutex twice?",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 40
+      },
+      "revId": "f93173f3c33425b4b869416bc707e1bb94a4350b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
