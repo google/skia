@@ -85,30 +85,24 @@ void GrPipeline::init(const InitArgs& args) {
     }
 }
 
-// MDB TODO: re-enable when TextureSamplers store texture proxies
-#if 0
 static void add_dependencies_for_processor(const GrFragmentProcessor* proc,
-                                           GrRenderTargetProxy* rtp) {
+                                           GrRenderTargetProxy* rtp,
+                                           const GrCaps& caps) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
         SkASSERT(rtp->getLastOpList());
-        rtp->getLastOpList()->addDependency(sampler->proxy());
+        rtp->getLastOpList()->addDependency(sampler->proxy(), caps);
     }
 }
-#endif
 
-void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
-    // MDB TODO: re-enable when TextureSamplers store texture proxies
-#if 0
+void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp, const GrCaps& caps) const {
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        add_dependencies_for_processor(fFragmentProcessors[i].get(), rtp);
+        add_dependencies_for_processor(fFragmentProcessors[i].get(), rtp, caps);
     }
-#endif
 
     if (fDstTextureProxy) {
-        //SkASSERT(rtp->getLastOpList());
-        // MDB TODO: re-enable when TextureSamplers store texture proxies
-        //rtp->getLastOpList()->addDependency(fDstTexture.get());
+        SkASSERT(rtp->getLastOpList());
+        rtp->getLastOpList()->addDependency(fDstTextureProxy.get(), caps);
     }
 }
 

@@ -119,8 +119,8 @@ public:
         this->applyPipelineOptimizations(PipelineOptimizations(analysis, overrideColor));
     }
 
-    void addDependenciesTo(GrRenderTargetProxy* rtp) {
-        fPipeline.addDependenciesTo(rtp);
+    void addDependenciesTo(GrRenderTargetProxy* rtp, const GrCaps& caps) {
+        fPipeline.addDependenciesTo(rtp, caps);
     }
 
     /**
