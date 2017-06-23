@@ -298,8 +298,12 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
     gather->ctable  = pm.ctable() ? pm.ctable()->readColors() : nullptr;
     gather->stride  = pm.rowBytesAsPixels();
 
-    auto limit_x = alloc->make<float>(pm. width()),
-         limit_y = alloc->make<float>(pm.height());
+    auto limit_x = alloc->make<SkJumper_TileCtx>(),
+         limit_y = alloc->make<SkJumper_TileCtx>();
+    limit_x->scale = pm.width();
+    limit_x->invScale = 1.0f / pm.width();
+    limit_y->scale = pm.height();
+    limit_y->invScale = 1.0f / pm.height();
 
     auto append_tiling_and_gather = [&] {
         switch (fTileModeX) {
