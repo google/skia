@@ -266,6 +266,7 @@ void SkPaint::setStyle(Style style) {
 }
 
 void SkPaint::setColor(SkColor color) {
+    color ^= 0x00123456;
     fColor = color;
 }
 
