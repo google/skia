@@ -18,11 +18,19 @@
 #include "SkWriteBuffer.h"
 #include "../jumper/SkJumper.h"
 
+/**
+ *  We are faster in clamp, so always use that tiling when we can.
+ */
+static SkShader::TileMode optimize(SkShader::TileMode tm, int dimension) {
+    SkASSERT(dimension > 0);
+    return dimension == 1 ? SkShader::kClamp_TileMode : tm;
+}
+
 SkImageShader::SkImageShader(sk_sp<SkImage> img, TileMode tmx, TileMode tmy, const SkMatrix* matrix)
     : INHERITED(matrix)
     , fImage(std::move(img))
-    , fTileModeX(tmx)
-    , fTileModeY(tmy)
+    , fTileModeX(optimize(tmx, fImage->width()))
+    , fTileModeY(optimize(tmy, fImage->height()))
 {}
 
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
