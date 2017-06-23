@@ -52,11 +52,6 @@ public:
     static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
     static GrContext* Create(GrBackend, GrBackendContext);
 
-    /**
-     * Only defined in test apps.
-     */
-    static GrContext* CreateMockContext();
-
     virtual ~GrContext();
 
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
@@ -333,9 +328,6 @@ private:
 
     GrContext(); // init must be called after the constructor.
     bool init(GrBackend, GrBackendContext, const GrContextOptions& options);
-
-    void initMockContext();
-    void initCommon(const GrContextOptions&);
 
     /**
      * These functions create premul <-> unpremul effects. If the second argument is 'true', they

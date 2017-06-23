@@ -53,14 +53,12 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
 
 GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
                              const GrContextOptions& options) {
-    GrContext* context = new GrContext;
+    sk_sp<GrContext> context(new GrContext);
 
-    if (context->init(backend, backendContext, options)) {
-        return context;
-    } else {
-        context->unref();
+    if (!context->init(backend, backendContext, options)) {
         return nullptr;
     }
+    return context.release();
 }
 
 static int32_t gNextID = 1;
@@ -91,12 +89,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
     if (!fGpu) {
         return false;
     }
-    this->initCommon(options);
-    return true;
-}
-
-void GrContext::initCommon(const GrContextOptions& options) {
-    ASSERT_SINGLE_OWNER
 
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps, fUniqueID);
@@ -113,6 +105,8 @@ void GrContext::initCommon(const GrContextOptions& options) {
     fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
+
+    return true;
 }
 
 GrContext::~GrContext() {

@@ -458,6 +458,9 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLXferProcessor.cpp",
   "$_src/gpu/glsl/GrGLSLXferProcessor.h",
 
+  # Mock
+  "$_src/gpu/mock/GrMockGpu.h",
+
   # Sk files
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",
