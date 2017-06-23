@@ -418,10 +418,6 @@
       "image",
       "_",
       ".SRW",
-      "_",
-      "gm",
-      "_",
-      "discard",
       "angle_d3d9_es2",
       "gm",
       "_",
@@ -481,9 +477,7 @@
       "angle_gl_es2",
       "gm",
       "_",
-      "multipicturedraw_rrectclip_simple",
-      "--match",
-      "~IntTexture"
+      "multipicturedraw_rrectclip_simple"
     ],
     "env": {
       "BUILDTYPE": "Debug_x64",
