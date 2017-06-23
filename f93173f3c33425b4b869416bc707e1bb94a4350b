@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "755cca88_504f47c0",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-23T19:41:13Z",
+      "side": 1,
+      "message": "Well, I\u0027m 95% sure it will be a problem, but if you want to watch the bots and revert if they turn purple, I won\u0027t argue.",
+      "parentUuid": "fe178974_e9d5543c",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 26
+      },
+      "revId": "f93173f3c33425b4b869416bc707e1bb94a4350b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "29140e5c_9ae86d24",
         "filename": "dm/DM.cpp",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "I\u0027m only seeing us lock once?  Or do you mean the lock on line 148?  If we only want to lock once, we need to make a local copy of gRunning.",
       "parentUuid": "29140e5c_9ae86d24",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 40
+      },
+      "revId": "f93173f3c33425b4b869416bc707e1bb94a4350b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69ec5057_6f0602e8",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-23T19:41:13Z",
+      "side": 1,
+      "message": "Ok, makes sense.",
+      "parentUuid": "75637329_1a074493",
       "range": {
         "startLine": 167,
         "startChar": 8,
