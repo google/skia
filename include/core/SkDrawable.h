@@ -11,6 +11,7 @@
 #include "SkFlattenable.h"
 #include "SkScalar.h"
 
+class GrVkClientDrawableInfo;
 class SkCanvas;
 class SkMatrix;
 class SkPicture;
@@ -25,8 +26,6 @@ struct SkRect;
  */
 class SkDrawable : public SkFlattenable {
 public:
-    SkDrawable();
-
     /**
      *  Draws into the specified content. The drawing sequence will be balanced upon return
      *  (i.e. the saveLevel() on the canvas will match what it was when draw() was called,
@@ -34,6 +33,18 @@ public:
      */
     void draw(SkCanvas*, const SkMatrix* = NULL);
     void draw(SkCanvas*, SkScalar x, SkScalar y);
+
+    /**
+     * Draws the SkDrawable using Vulkan specific calls. This will allow the drawable to emit vulkan
+     * calls directly into the stream of vulkan commands going to the GPU. See comment for
+     * GrVkClientDrawable for more detailed information on use.
+     */
+    // TODO: Update signature of this function once we figure out what vulkan handles we will need
+    // to pass in.
+    virtual void drawVulkan(GrVkClientDrawableInfo*) {}
+    bool isDrawVulkanSupported() { return SkToBool(fDrawSupportFlags & kVulkan_DrawSupportFlag); }
+
+    virtual bool requiresFlushBeforeDraw() { return false; }
 
     SkPicture* newPictureSnapshot();
 
@@ -64,9 +75,16 @@ public:
     Factory getFactory() const override { return nullptr; }
 
 protected:
+    SkDrawable();
+    explicit SkDrawable(uint32_t drawSupportFlags);
+
+    enum DrawSupportFlags {
+        kVulkan_DrawSupportFlag = 0x1,
+    };
+
     virtual SkRect onGetBounds() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-    
+
     /**
      *  Default implementation calls onDraw() with a canvas that records into a picture. Subclasses
      *  may override if they have a more efficient way to return a picture for the current state
@@ -76,7 +94,8 @@ protected:
     virtual SkPicture* onNewPictureSnapshot();
 
 private:
-    int32_t fGenerationID;
+    int32_t  fGenerationID;
+    uint32_t fDrawSupportFlags;
 };
 
 #endif
