@@ -725,6 +725,8 @@
       "dm",
       "--nocpu",
       "--randomProcessorTest",
+      "--threads",
+      "0",
       "--config",
       "8888",
       "srgb",

@@ -34,11 +34,15 @@ def dm_flags(bot):
   # 32-bit desktop bots tend to run out of memory, because they have relatively
   # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.
   if '-x86-' in bot and not 'NexusPlayer' in bot:
-    args.extend('--threads 4'.split(' '))
+    args.extend(['--threads', '4'])
 
   # Avoid issues with dynamically exceeding resource cache limits.
   if 'Test' in bot and 'DISCARDABLE' in bot:
-    args.extend('--threads 0'.split(' '))
+    args.extend(['--threads', '0'])
+
+  # See if staying on the main thread helps skia:6748.
+  if 'Test-iOS' in bot:
+    args.extend(['--threads', '0'])
 
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
