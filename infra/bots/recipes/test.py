@@ -516,15 +516,15 @@ def dm_flags(bot):
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
 
   if 'IntelIris540' in bot and 'ANGLE' in bot:
-    match.append('~IntTexture') # skia:6086
-    blacklist(['_', 'gm', '_', 'discard']) # skia:6141
-    # skia:6103
     for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
+      # skia:6103
       blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_noclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_pathclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
       blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
+      # skia:6141
+      blacklist([config, 'gm', '_', 'discard'])
 
   if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
     match.append('~ImageStorageLoad') # skia:6358
