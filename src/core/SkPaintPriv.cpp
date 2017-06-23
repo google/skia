@@ -75,7 +75,6 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
         return false;
     }
 
-#ifndef SK_SUPPORT_LEGACY_DITHERING
     // We always dither 565 when requested.
     if (dstCT == SkColorType::kRGB_565_SkColorType) {
         return true;
@@ -84,7 +83,4 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
     // Otherwise, dither is only needed for non-const paints.
     return p.getImageFilter() || p.getMaskFilter()
         || !p.getShader() || !as_SB(p.getShader())->isConstant();
-#else
-    return true;
-#endif
 }
