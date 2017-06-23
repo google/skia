@@ -115,6 +115,12 @@ public:
                                                         sk_sp<SkColorSpace>,
                                                         const SkSurfaceProps*);
 
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTarget&,
+                                                        GrSurfaceOrigin origin,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*);
+
     /**
      *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
      *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own

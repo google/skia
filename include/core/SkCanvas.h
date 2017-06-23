@@ -41,6 +41,52 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
+class SkSurface {
+    //...
+
+    //...
+};
+class SDFRenderer {
+public:
+    enum class AtlasFormat {
+        /** Unsigned normalized 8 bit single channel format. */
+        kA8
+    };
+
+    /**
+     * Create a texture of the provided format with dimensions 'width' x 'height'
+     * and return a unique handle.
+     */
+    virtual void* createTexture(AtlasFormat, int width, int height);
+
+    /**
+     * Delete this texture with the passed handle.
+     */
+    virtual void deleteTexture(void* texture);
+
+    /**
+     * Place the pixel data specified by 'data' in the texture with handle
+     * 'texture' in the rectangle ['x', 'x' + 'width') x ['y', 'y' + 'height').
+     * 'rowBytes' specifies the byte offset between successive rows in 'data'.
+     * The pixel format of data is the same as that of 'texture'.
+     */
+    virtual void* setTextureData(void* texture, void* data, int x, int y,
+                                 int width, int height, size_t rowBytes);
+
+    struct SDFVertex {
+        SkPoint fPosition;
+        SkPoint fTextureCoord;
+    };
+
+    /**
+     * Draws glyphs using SDFs. The SDF data resides in 'texture'. The array
+     * 'vertices' provides interleaved device-space positions and normalized
+     * texture coordinates. There are are 4 * 'quadCnt' entries in 'vertices'.
+     */
+    virtual void drawSDFGlyphs(void* texture, const SDFVertex vertices[],
+                               int quadCnt);
+};
+
 /** \class SkCanvas
 
     A Canvas encapsulates all of the state about drawing into a device (bitmap).
