@@ -54,7 +54,7 @@ bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
     if (ct != kN32_SkColorType) {
         return true;
     }
-    if (tx != SkShader::kClamp_TileMode || ty != SkShader::kClamp_TileMode) {
+    if (tx != ty) {
         return true;
     }
 #endif
