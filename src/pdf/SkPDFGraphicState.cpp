@@ -174,7 +174,6 @@ void SkPDFGraphicState::emitObject(
         SkWStream* stream,
         const SkPDFObjNumMap& objNumMap) const {
     auto dict = sk_make_sp<SkPDFDict>("ExtGState");
-    dict->insertName("Type", "ExtGState");
 
     SkScalar alpha = SkIntToScalar(fAlpha) / 0xFF;
     dict->insertScalar("CA", alpha);
