@@ -1734,14 +1734,14 @@ bool SkGpuDevice::isDrawableSupported(SkDrawable* drawable) const {
 
 void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
     SkASSERT(this->isDrawableSupported(drawable));
-    // TODO: Create a drawable Op here
+    fRenderTargetContext->drawDrawable(drawable, matrix);
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
-    return GrTextUtils::ShouldDisableLCD(paint);
-}
+    return GrTextUtils::ShouldDisableLCD(paint);}
 
 ///////////////////////////////////////////////////////////////////////////////
 
