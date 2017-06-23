@@ -22,6 +22,30 @@
       "revId": "86a3ba4621150cb7434e80320ebcf0c4ca4b01e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bac6c6d_80501244",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-06-23T14:02:22Z",
+      "side": 1,
+      "message": "I did see this one but wanted to try it as a follow up.\n\nI\u0027ll take a look at the unit tests.",
+      "parentUuid": "bad2ac81_dd246b57",
+      "range": {
+        "startLine": 511,
+        "startChar": 3,
+        "endLine": 513,
+        "endChar": 54
+      },
+      "revId": "86a3ba4621150cb7434e80320ebcf0c4ca4b01e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
