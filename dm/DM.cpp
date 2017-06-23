@@ -136,8 +136,8 @@ struct Running {
 };
 
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
-static SkSpinlock gMutex;
-static int32_t           gPending;
+static SkSpinlock        gMutex;
+static int               gPending;
 static SkTArray<Running> gRunning;
 
 static void done(const char* config, const char* src, const char* srcOptions, const char* name) {
@@ -154,10 +154,22 @@ static void done(const char* config, const char* src, const char* srcOptions, co
         }
         pending = --gPending;
     }
-    // We write our dm.json file every once in a while in case we crash.
-    // Notice this also handles the final dm.json when pending == 0.
+
+    // We write out dm.json file and print out a progress update every once in a while.
+    // Notice this also handles the final dm.json and progress update when pending == 0.
     if (pending % 500 == 0) {
         JsonWriter::DumpJson();
+
+        int curr = sk_tools::getCurrResidentSetSizeMB(),
+            peak = sk_tools::getMaxResidentSetSizeMB();
+        SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
+
+        SkAutoMutexAcquire lock(gMutex);
+        info("\n%dMB RAM, %dMB peak, %s elapsed, %d queued, %d active:\n",
+             curr, peak, elapsed.c_str(), gPending - gRunning.count(), gRunning.count());
+        for (auto& task : gRunning) {
+            task.dump();
+        }
     }
 }
 
@@ -166,19 +178,6 @@ static void start(const char* config, const char* src, const char* srcOptions, c
     vlog("start %s\n", id.c_str());
     SkAutoMutexAcquire lock(gMutex);
     gRunning.push_back({id,SkGetThreadID()});
-}
-
-static void print_status() {
-    int curr = sk_tools::getCurrResidentSetSizeMB(),
-        peak = sk_tools::getMaxResidentSetSizeMB();
-    SkString elapsed = HumanizeMs(SkTime::GetMSecs() - kStartMs);
-
-    SkAutoMutexAcquire lock(gMutex);
-    info("\n%s elapsed, %d active, %d queued, %dMB RAM, %dMB peak\n",
-         elapsed.c_str(), gRunning.count(), gPending - gRunning.count(), curr, peak);
-    for (auto& task : gRunning) {
-        task.dump();
-    }
 }
 
 static void find_culprit() {
@@ -1262,25 +1261,6 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-DEFINE_int32(status_sec, 15, "Print status this often (and if we crash).");
-
-static std::atomic<bool> gStopStatusThread{false};
-
-SkThread* start_status_thread() {
-    auto thread = new SkThread([] (void*) {
-        while (!gStopStatusThread.load()) {
-            print_status();
-        #if defined(SK_BUILD_FOR_WIN)
-            Sleep(FLAGS_status_sec * 1000);
-        #else
-            sleep(FLAGS_status_sec);
-        #endif
-        }
-    });
-    thread->start();
-    return thread;
-}
-
 #define PORTABLE_FONT_PREFIX "Toy Liberation "
 
 static sk_sp<SkTypeface> create_from_name(const char familyName[], SkFontStyle style) {
@@ -1346,7 +1326,6 @@ int main(int argc, char** argv) {
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     info("%d srcs * %d sinks + %d tests == %d tasks",
          gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
-    std::unique_ptr<SkThread> statusThread(start_status_thread());
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;
@@ -1402,14 +1381,6 @@ int main(int argc, char** argv) {
     SkPDFImageDumpStats();
 #endif  // SK_PDF_IMAGE_STATS
 
-    // An experiment to work around problems with libmobiledevice driving DM.
-    // Make sure the status thread has stopped completely before we exit.
-#if defined(SK_BUILD_FOR_IOS)
-    gStopStatusThread.store(true);
-    statusThread->join();
-#endif
-
-    print_status();
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
     return 0;
