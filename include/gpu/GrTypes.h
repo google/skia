@@ -187,6 +187,7 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
 enum GrBackend {
     kOpenGL_GrBackend,
     kVulkan_GrBackend,
+    kMock_GrBackend,
 
     kLast_GrBackend = kVulkan_GrBackend
 };
