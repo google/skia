@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2e95611_ecaddbdd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-23T13:55:49Z",
+      "side": 1,
+      "message": "You sure about that? https://skia.googlesource.com/skia/+/06ca8ec seems to be my sk_sp change for gpu. Probably want an actual link to the correct commit in the body of the commit message.",
+      "range": {
+        "startLine": 7,
+        "startChar": 52,
+        "endLine": 7,
+        "endChar": 59
+      },
+      "revId": "80ca9bbfd6786bc54c2bd213c0000e8e4264190c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
