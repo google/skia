@@ -206,7 +206,8 @@ void GrRenderTargetOpList::fullClear(const GrCaps& caps, GrColor color) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// MDB TODO: fuse with GrTextureOpList::copySurface
+// This closely parallels GrTextureOpList::copySurface but renderTargetOpLists
+// also store the applied clip and dest proxy with the op
 bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
                                        GrSurfaceProxy* dst,
                                        GrSurfaceProxy* src,

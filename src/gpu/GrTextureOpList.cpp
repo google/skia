@@ -77,7 +77,8 @@ void GrTextureOpList::reset() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// MDB TODO: fuse with GrRenderTargetOpList::copySurface
+// This closely parallels GrRenderTargetOpList::copySurface but renderTargetOpList
+// stores extra data with the op
 bool GrTextureOpList::copySurface(const GrCaps& caps,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
