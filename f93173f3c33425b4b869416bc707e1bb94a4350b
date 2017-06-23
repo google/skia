@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fe178974_e9d5543c",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-23T19:25:28Z",
+      "side": 1,
+      "message": "Let\u0027s find out?  Why would we want to keep --status_sec?",
+      "parentUuid": "6f96e137_bdf89e63",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 26
+      },
+      "revId": "f93173f3c33425b4b869416bc707e1bb94a4350b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "29140e5c_9ae86d24",
         "filename": "dm/DM.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-23T19:12:47Z",
       "side": 1,
       "message": "Would it make sense to read the globals in the block above so we\u0027re not locking gMutex twice?",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 40
+      },
+      "revId": "f93173f3c33425b4b869416bc707e1bb94a4350b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75637329_1a074493",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-23T19:25:28Z",
+      "side": 1,
+      "message": "I\u0027m only seeing us lock once?  Or do you mean the lock on line 148?  If we only want to lock once, we need to make a local copy of gRunning.",
+      "parentUuid": "29140e5c_9ae86d24",
       "range": {
         "startLine": 167,
         "startChar": 8,
