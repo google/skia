@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b93c29c1_ebe3f768",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-23T00:05:28Z",
+      "side": 1,
+      "message": "nit: FieldName x17",
+      "range": {
+        "startLine": 206,
+        "startChar": 41,
+        "endLine": 207,
+        "endChar": 57
+      },
+      "revId": "d6f145278e76099a189ce092112d1c964f9c2037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e18d4875_8088b8ad",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-23T00:05:28Z",
+      "side": 1,
+      "message": "This file needs to use some macros so that you can write code that generates code that generates code that generates code.",
+      "revId": "d6f145278e76099a189ce092112d1c964f9c2037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
