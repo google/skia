@@ -10,6 +10,7 @@
 #include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
@@ -1722,6 +1723,18 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
     fRenderTargetContext->drawTextBlob(this->clip(), paint, this->ctm(), blob, x, y, drawFilter,
                                        this->devClipBounds());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkGpuDevice::isDrawableSupported(SkDrawable* drawable) const {
+    return kVulkan_GrBackend == this->context()->contextPriv().getBackend() &&
+            drawable->isDrawVulkanSupported();
+}
+
+void SkGpuDevice::drawDrawable(SkDrawable* drawable, const SkMatrix& matrix) {
+    SkASSERT(this->isDrawableSupported(drawable));
+    // TODO: Create a drawable Op here
 }
 
 ///////////////////////////////////////////////////////////////////////////////
