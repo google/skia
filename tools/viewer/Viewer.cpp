@@ -684,7 +684,13 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
         fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
         fWindow->registerKeyFunc(on_key_handler, this);
         fWindow->registerCharFunc(on_char_handler, this);
-        fWindow->setRequestedDisplayParams(params);
+        // Don't allow the window to re-attach. If we're in MSAA mode, the params we grabbed above
+        // will still include our correct sample count. But the re-created fWindow will lose that
+        // information. On Windows, we need to re-create the window when changing sample count,
+        // so we'll incorrectly detect that situation, then re-initialize the window in GL mode,
+        // rendering this tear-down step pointless (and causing the Vulkan window context to fail
+        // as if we had never changed windows at all).
+        fWindow->setRequestedDisplayParams(params, false);
     }
 #endif
 

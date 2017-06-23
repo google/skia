@@ -128,7 +128,7 @@ int Window::height() {
     return fWindowContext->height();
 }
 
-void Window::setRequestedDisplayParams(const DisplayParams& params) {
+void Window::setRequestedDisplayParams(const DisplayParams& params, bool /* allowReattach */) {
     fRequestedDisplayParams = params;
     if (fWindowContext) {
         fWindowContext->setDisplayParams(fRequestedDisplayParams);

@@ -191,7 +191,7 @@ public:
     int height();
 
     virtual const DisplayParams& getRequestedDisplayParams() { return fRequestedDisplayParams; }
-    virtual void setRequestedDisplayParams(const DisplayParams&);
+    virtual void setRequestedDisplayParams(const DisplayParams&, bool allowReattach = true);
 
     // Actual parameters in effect, obtained from the native window.
     int sampleCount() const;
