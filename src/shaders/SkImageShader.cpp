@@ -28,8 +28,7 @@ static SkShader::TileMode optimize(SkShader::TileMode tm, int dimension) {
     // for transforming to clamp.
     return tm;
 #else
-//    return dimension == 1 ? SkShader::kClamp_TileMode : tm;
-    return tm;  // does this fix chrome?
+    return dimension == 1 ? SkShader::kClamp_TileMode : tm;
 #endif
 }
 
