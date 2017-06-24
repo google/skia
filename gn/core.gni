@@ -53,7 +53,6 @@ skia_core_sources = [
   "$_src/core/SkBlitMask.h",
   "$_src/core/SkBlitMask_D32.cpp",
   "$_src/core/SkBlitRow.h",
-  "$_src/core/SkBlitRow_D16.cpp",
   "$_src/core/SkBlitRow_D32.cpp",
   "$_src/core/SkBlitter.h",
   "$_src/core/SkBlitter.cpp",
