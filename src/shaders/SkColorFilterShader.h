@@ -52,6 +52,9 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix* localM) const override;
     bool isRasterPipelineOnly() const override {
+#ifndef SK_SUPPORT_LEGACY_COLORFILTER_FILTERSPAN
+        return true;
+#endif
         return as_SB(fShader)->isRasterPipelineOnly();
     }
 
