@@ -23,7 +23,13 @@
  */
 static SkShader::TileMode optimize(SkShader::TileMode tm, int dimension) {
     SkASSERT(dimension > 0);
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    // need to update frameworks/base/libs/hwui/tests/unit/SkiaBehaviorTests.cpp:55 to allow
+    // for transforming to clamp.
+    return tm;
+#else
     return dimension == 1 ? SkShader::kClamp_TileMode : tm;
+#endif
 }
 
 SkImageShader::SkImageShader(sk_sp<SkImage> img, TileMode tmx, TileMode tmy, const SkMatrix* matrix)
