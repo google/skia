@@ -795,6 +795,11 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly()) {
         return true;
     }
+#ifndef SK_SUPPORT_LEGACY_COLORFILTER_FILTERSPAN
+    if (paint.getColorFilter()) {
+        return true;
+    }
+#endif
     // ... or unless the blend mode is complicated enough.
     if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
         return true;
