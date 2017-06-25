@@ -13,6 +13,7 @@
 #include "SkRefCnt.h"
 #include "SkSpecialImage.h"
 #include "SkTDynamicHash.h"
+#include "SkTHash.h"
 #include "SkTInternalLList.h"
 
 #ifdef SK_BUILD_FOR_IOS
@@ -35,6 +36,7 @@ public:
             ++iter;
             delete v;
         }
+        fIdToKeys.foreach([](uint32_t, SkTArray<Key>** array) { delete *array; });
     }
     struct Value {
         Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset)
@@ -71,6 +73,13 @@ public:
             this->removeInternal(v);
         }
         Value* v = new Value(key, image, offset);
+        if (SkTArray<Key>** array = fIdToKeys.find(key.fUniqueID)) {
+            (*array)->push_back(key);
+        } else {
+            SkTArray<Key>* keyArray = new SkTArray<Key>();
+            keyArray->push_back(key);
+            fIdToKeys.set(key.fUniqueID, keyArray);
+        }
         fLookup.add(v);
         fLRU.addToHead(v);
         fCurrentBytes += image->getSize();
@@ -93,12 +102,16 @@ public:
         }
     }
 
-    void purgeByKeys(const Key keys[], int count) override {
+    void purgeByImageFilterId(uint32_t uniqueID) override {
         SkAutoMutexAcquire mutex(fMutex);
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
-                this->removeInternal(v);
+        if (SkTArray<Key>** array = fIdToKeys.find(uniqueID)) {
+            for (auto& key : **array) {
+                if (Value* v = fLookup.find(key)) {
+                    this->removeInternal(v);
+                }
             }
+            fIdToKeys.remove(uniqueID);
+             delete *array; // This can be deleted outside the lock
         }
     }
 
@@ -113,6 +126,7 @@ private:
     }
 private:
     SkTDynamicHash<Value, Key>            fLookup;
+    SkTHashMap<uint32_t, SkTArray<Key>*>  fIdToKeys;
     mutable SkTInternalLList<Value>       fLRU;
     size_t                                fMaxBytes;
     size_t                                fCurrentBytes;
