@@ -37,6 +37,7 @@
 #endif
 
 #include "SkBitmapFilter_opts.h"
+#include "SkBlend_opts.h"
 #include "SkBlitMask_opts.h"
 #include "SkBlitRow_opts.h"
 #include "SkBlurImageFilter_opts.h"
@@ -78,6 +79,8 @@ namespace SkOpts {
     DEFINE_DEFAULT(grayA_to_rgbA);
     DEFINE_DEFAULT(inverted_CMYK_to_RGB1);
     DEFINE_DEFAULT(inverted_CMYK_to_BGR1);
+
+    DEFINE_DEFAULT(srcover_srgb_srgb);
 
     DEFINE_DEFAULT(memset16);
     DEFINE_DEFAULT(memset32);
