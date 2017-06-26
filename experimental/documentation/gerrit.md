@@ -14,7 +14,7 @@ identify which review a change applies to.
       'https://gerrit-review.googlesource.com/tools/hooks/commit-msg'
     chmod +x "$(git rev-parse --git-dir)/hooks/commit-msg"
 
-If you aquired Skia from a mirror (such as github), you need to change the
+If you aquired Skia from a mirror (such as GitHub), you need to change the
 `origin` remote to point to point to googlesource.  Advanvced uses will note
 that there is nothing special about the string `origin` and that you could call
 this remote anything you want, as long as you use that name for `get push`.
