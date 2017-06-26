@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1462207a_0951cbe7",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-26T18:28:24Z",
+      "side": 1,
+      "message": "Probably should do this for transferPixels as well, and get rid of the AdjustWritePixelParams in the onTransferPixels routines.",
+      "range": {
+        "startLine": 358,
+        "startChar": 11,
+        "endLine": 358,
+        "endChar": 47
+      },
+      "revId": "5e7242b7961f7e4df9fbe0eb8fcdcfe9a485739c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
