@@ -368,7 +368,8 @@ static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
     if (in_shard() &&
         FLAGS_src.contains(tag) &&
-        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
+        !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str()) &&
+        !strcmp("TransferBufferTest", src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
         s.reset(src.release());
         s.tag = tag;
@@ -1229,6 +1230,9 @@ static void gather_tests() {
         // link-time static const POD data.
         const skiatest::Test& test = r->factory();
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+            continue;
+        }
+        if (strcmp("TransferBufferTest", test.name)) {
             continue;
         }
         if (test.needsGpu && gpu_supported()) {

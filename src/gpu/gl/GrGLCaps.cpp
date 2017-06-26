@@ -456,7 +456,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object")) {
             fTransferBufferType = kPBO_TransferBufferType;
         }
-    } else if (kANGLE_GrGLDriver != ctxInfo.driver()) {  // TODO: re-enable for ANGLE
+    } else if (kANGLE_GrGLDriver != ctxInfo.driver()) {
         if (version >= GR_GL_VER(3, 0) ||
             (ctxInfo.hasExtension("GL_NV_pixel_buffer_object") &&
              // GL_EXT_unpack_subimage needed to support subtexture rectangles

@@ -62,8 +62,8 @@ bool does_full_buffer_contain_correct_values(GrColor* srcBuffer,
     return true;
 }
 
-void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPixelConfig config,
-                         GrSurfaceOrigin origin, bool renderTarget) {
+void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrSurfaceOrigin origin,
+                         bool renderTarget) {
     // set up the data
     const int kTextureWidth = 16;
     const int kTextureHeight = 16;
@@ -76,7 +76,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     fill_transfer_data(0, 0, kTextureWidth, kTextureHeight, kBufferWidth, srcBuffer.get());
 
     // create and fill transfer buffer
-    size_t size = rowBytes*kBufferHeight;
+    size_t size = rowBytes*kBufferWidth*kBufferWidth;
     uint32_t bufferFlags = GrResourceProvider::kNoPendingIO_Flag;
     sk_sp<GrBuffer> buffer(context->resourceProvider()->createBuffer(size,
                                                                      kXferCpuToGpu_GrBufferType,
@@ -92,7 +92,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
 
     // create texture
     GrSurfaceDesc desc;
-    desc.fConfig = config;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fOrigin = origin;
     desc.fWidth = kTextureWidth;
@@ -105,12 +105,13 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
 
     bool result;
     result = context->getGpu()->transferPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
-                                               config, buffer.get(), 0, rowBytes);
+                                               kRGBA_8888_GrPixelConfig, buffer.get(), 0,
+                                               rowBytes);
     REPORTER_ASSERT(reporter, result);
 
     memset(dstBuffer.get(), 0xCDCD, size);
-    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
-                                           dstBuffer.get(), rowBytes);
+    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+                                           kRGBA_8888_GrPixelConfig, dstBuffer.get(), rowBytes);
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
                                                                       dstBuffer,
@@ -134,13 +135,14 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     buffer->unmap();
 
     size_t offset = sizeof(GrColor)*(kTop*kBufferWidth + kLeft);
-    result = context->getGpu()->transferPixels(tex.get(), kLeft, kTop, kWidth, kHeight, config,
-                                               buffer.get(), offset, rowBytes);
+    result = context->getGpu()->transferPixels(tex.get(), kLeft, kTop, kWidth, kHeight,
+                                               kRGBA_8888_GrPixelConfig, buffer.get(), offset,
+                                               rowBytes);
     REPORTER_ASSERT(reporter, result);
 
-    memset(dstBuffer.get(), 0xCDCD, size);
-    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
-                                           dstBuffer.get(), rowBytes);
+    memset(dstBuffer, 0xCDCD, size);
+    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+                                           kRGBA_8888_GrPixelConfig, dstBuffer.get(), rowBytes);
     REPORTER_ASSERT(reporter, result);
 
     REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
@@ -152,26 +154,11 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
                                                                       origin));
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsTest, reporter, ctxInfo) {
-    // RGBA
-    basic_transfer_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig,
-                        kTopLeft_GrSurfaceOrigin, false);
-    basic_transfer_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig,
-                        kTopLeft_GrSurfaceOrigin, true);
-    basic_transfer_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig,
-                        kBottomLeft_GrSurfaceOrigin, false);
-    basic_transfer_test(reporter, ctxInfo.grContext(), kRGBA_8888_GrPixelConfig,
-                        kBottomLeft_GrSurfaceOrigin, true);
-
-    // BGRA
-    basic_transfer_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig,
-                        kTopLeft_GrSurfaceOrigin, false);
-    basic_transfer_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig,
-                        kTopLeft_GrSurfaceOrigin, true);
-    basic_transfer_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig,
-                        kBottomLeft_GrSurfaceOrigin, false);
-    basic_transfer_test(reporter, ctxInfo.grContext(), kBGRA_8888_GrPixelConfig,
-                        kBottomLeft_GrSurfaceOrigin, true);
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferBufferTest, reporter, ctxInfo) {
+    basic_transfer_test(reporter, ctxInfo.grContext(), kTopLeft_GrSurfaceOrigin, false);
+    basic_transfer_test(reporter, ctxInfo.grContext(), kTopLeft_GrSurfaceOrigin, true);
+    basic_transfer_test(reporter, ctxInfo.grContext(), kBottomLeft_GrSurfaceOrigin, false);
+    basic_transfer_test(reporter, ctxInfo.grContext(), kBottomLeft_GrSurfaceOrigin, true);
 }
 
 #endif
