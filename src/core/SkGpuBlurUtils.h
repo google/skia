@@ -10,6 +10,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrRenderTargetContext.h"
+#include "SkImageFilter.h"
 
 class GrContext;
 class GrTexture;
@@ -40,7 +41,9 @@ namespace SkGpuBlurUtils {
                                               const SkIRect* srcBounds,
                                               float sigmaX,
                                               float sigmaY,
-                                              SkBackingFit fit = SkBackingFit::kApprox);
+                                              SkBackingFit fit = SkBackingFit::kApprox,
+                                              SkImageFilter::TileMode tileMode =
+                                                  SkImageFilter::TileMode::kClampToBlack_TileMode);
 };
 
 #endif

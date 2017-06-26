@@ -14,8 +14,10 @@ class SK_API SkBlurImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(SkScalar sigmaX, SkScalar sigmaY,
                                      sk_sp<SkImageFilter> input,
-                                     const SkImageFilter::CropRect* cropRect = nullptr) {
-        return SkImageFilter::MakeBlur(sigmaX, sigmaY, input, cropRect);
+                                     const SkImageFilter::CropRect* cropRect = nullptr,
+                                     SkImageFilter::TileMode tileMode =
+                                         SkImageFilter::TileMode::kClampToBlack_TileMode) {
+        return SkImageFilter::MakeBlur(sigmaX, sigmaY, input, cropRect, tileMode);
     }
 };
 

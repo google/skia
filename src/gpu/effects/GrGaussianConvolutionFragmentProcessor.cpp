@@ -65,6 +65,13 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
+    // To normalize the inbounds kernel weight when using bounds and
+    // SkImageFilter::TileMode::kClamp_TileMode.
+    bool clampTileMode =
+        ce.tileMode() == SkImageFilter::TileMode::kClamp_TileMode;
+    if (ce.useBounds() && clampTileMode) {
+        fragBuilder->codeAppend("float kernelWeight = 0.0;");
+    }
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
@@ -88,9 +95,15 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
         fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
         if (ce.useBounds()) {
+            if (clampTileMode) {
+                fragBuilder->codeAppendf("kernelWeight += %s;\n", kernelIndex.c_str());
+            }
             fragBuilder->codeAppend("}");
         }
         fragBuilder->codeAppendf("coord += %s;\n", imgInc);
+    }
+    if (ce.useBounds() && clampTileMode) {
+        fragBuilder->codeAppendf("%s /= kernelWeight;\n", args.fOutputColor);
     }
     fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }
@@ -140,7 +153,8 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
     const GrGaussianConvolutionFragmentProcessor& conv =
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
     uint32_t key = conv.radius();
-    key <<= 2;
+    key <<= 3;
+    key |= SkImageFilter::TileMode::kClamp_TileMode == conv.tileMode() ? 0x4 : 0x0;
     if (conv.useBounds()) {
         key |= 0x2;
         key |= GrGaussianConvolutionFragmentProcessor::kY_Direction == conv.direction() ? 0x1 : 0x0;
@@ -173,12 +187,14 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             int radius,
                                                             float gaussianSigma,
                                                             bool useBounds,
-                                                            int bounds[2])
+                                                            int bounds[2],
+                                                            SkImageFilter::TileMode tileMode)
         : INHERITED{ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     direction,
                     radius}
-        , fUseBounds(useBounds) {
+        , fUseBounds(useBounds)
+        , fTileMode(tileMode) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
 
@@ -202,6 +218,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
     const GrGaussianConvolutionFragmentProcessor& s =
             sBase.cast<GrGaussianConvolutionFragmentProcessor>();
     return (this->radius() == s.radius() && this->direction() == s.direction() &&
+            this->tileMode() == s.tileMode() &&
             this->useBounds() == s.useBounds() &&
             0 == memcmp(fBounds, s.fBounds, sizeof(fBounds)) &&
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
