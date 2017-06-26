@@ -29,6 +29,7 @@
 #include "SkAlphaThresholdFilter.h"
 #include "SkArcToPathEffect.h"
 #include "SkArithmeticImageFilter.h"
+#include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
@@ -699,7 +700,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             if (useCropRect) {
                 fuzz->next(&cropRect);
             }
-            return SkImageFilter::MakeBlur(sigmaX, sigmaY, std::move(input),
+            return SkBlurImageFilter::Make(sigmaX, sigmaY, std::move(input),
                                            useCropRect ? &cropRect : nullptr);
         }
         case 2: {
