@@ -48,6 +48,10 @@ bool GrAALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& arg
     if (args.fShape->inverseFilled()) {
         return false;
     }
+    if (args.fShape->bounds().width() <= 0 && args.fShape->bounds().height() <= 0) {
+        // Stroked zero length lines should draw, but this PR doesn't handle that case
+        return false;
+    }
     const SkStrokeRec& stroke = args.fShape->style().strokeRec();
 
     if (stroke.getStyle() == SkStrokeRec::kStroke_Style ||
