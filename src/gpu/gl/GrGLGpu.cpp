@@ -818,10 +818,12 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
 
     if (!check_write_and_transfer_input(glTex, texture, config)) {
+        SkDebugf("**** Failed check_write_and_transfer_input\n");
         return false;
     }
 
     if (width <= 0 || width > SK_MaxS32 || height <= 0 || height > SK_MaxS32) {
+        SkDebugf("**** Invalid size\n");
         return false;
     }
 
@@ -841,9 +843,11 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
                                                &width, &height,
                                                &pixels,
                                                &rowBytes)) {
+        SkDebugf("**** AdjustWritePixelParams failed\n");
         return false;
     }
     if (width < 0 || width < 0) {
+        SkDebugf("**** Negative size\n");
         return false;
     }
 
@@ -862,6 +866,7 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
     GrGLenum externalType;
     if (!this->glCaps().getTexImageFormats(texConfig, config, &internalFormat,
                                            &externalFormat, &externalType)) {
+        SkDebugf("**** getTexImageFormats failed\n");
         return false;
     }
 
@@ -2266,11 +2271,13 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
+        SkDebugf("ReadPixels: canConfigBeFBOColorAttachment\n");
         return false;
     }
 
     // OpenGL doesn't do sRGB <-> linear conversions when reading and writing pixels.
     if (requires_srgb_conversion(surface->config(), config)) {
+        SkDebugf("ReadPixels: requires_srgb_conversion\n");
         return false;
     }
 
@@ -2296,6 +2303,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                 return true;
             }
         }
+        SkDebugf("ReadPixels: not supported\n");
         return false;
     }
 
@@ -2303,6 +2311,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     GrGLenum externalType;
     if (!this->glCaps().getReadPixelsFormat(surface->config(), config, &externalFormat,
                                             &externalType)) {
+        SkDebugf("ReadPixels: getReadPixelsFormat\n");
         return false;
     }
     bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
@@ -2312,6 +2321,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         // resolve the render target if necessary
         switch (renderTarget->getResolveType()) {
             case GrGLRenderTarget::kCantResolve_ResolveType:
+                SkDebugf("ReadPixels: kCantResolve_ResolveType\n");
                 return false;
             case GrGLRenderTarget::kAutoResolves_ResolveType:
                 this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
