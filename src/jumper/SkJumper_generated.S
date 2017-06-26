@@ -37288,7 +37288,7 @@ FUNCTION(_sk_constant_color_ssse3_lowp)
 _sk_constant_color_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  15,16,24                            // movups        (%rax),%xmm3
-  .byte  15,88,29,208,16,0,0                 // addps         0x10d0(%rip),%xmm3        # 1190 <_sk_xor__ssse3_lowp+0xa7>
+  .byte  15,88,29,80,18,0,0                  // addps         0x1250(%rip),%xmm3        # 1310 <_sk_xor__ssse3_lowp+0xa3>
   .byte  242,15,112,195,0                    // pshuflw       $0x0,%xmm3,%xmm0
   .byte  102,15,112,192,80                   // pshufd        $0x50,%xmm0,%xmm0
   .byte  242,15,112,203,170                  // pshuflw       $0xaa,%xmm3,%xmm1
@@ -37305,7 +37305,7 @@ HIDDEN _sk_set_rgb_ssse3_lowp
 FUNCTION(_sk_set_rgb_ssse3_lowp)
 _sk_set_rgb_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  243,15,16,21,250,17,0,0             // movss         0x11fa(%rip),%xmm2        # 12f0 <_sk_xor__ssse3_lowp+0x207>
+  .byte  243,15,16,21,250,19,0,0             // movss         0x13fa(%rip),%xmm2        # 14f0 <_sk_xor__ssse3_lowp+0x283>
   .byte  243,15,16,0                         // movss         (%rax),%xmm0
   .byte  243,15,88,194                       // addss         %xmm2,%xmm0
   .byte  102,65,15,126,193                   // movd          %xmm0,%r9d
@@ -37346,78 +37346,91 @@ _sk_load_8888_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,113                             // jne           1e7 <_sk_load_8888_ssse3_lowp+0x7b>
-  .byte  69,15,16,76,147,16                  // movups        0x10(%r11,%rdx,4),%xmm9
-  .byte  69,15,16,4,147                      // movups        (%r11,%rdx,4),%xmm8
-  .byte  102,15,111,5,23,16,0,0              // movdqa        0x1017(%rip),%xmm0        # 11a0 <_sk_xor__ssse3_lowp+0xb7>
-  .byte  102,68,15,56,0,192                  // pshufb        %xmm0,%xmm8
-  .byte  102,68,15,56,0,200                  // pshufb        %xmm0,%xmm9
+  .byte  15,133,187,0,0,0                    // jne           235 <_sk_load_8888_ssse3_lowp+0xc9>
+  .byte  69,15,16,68,147,16                  // movups        0x10(%r11,%rdx,4),%xmm8
+  .byte  65,15,16,28,147                     // movups        (%r11,%rdx,4),%xmm3
+  .byte  102,15,111,13,147,17,0,0            // movdqa        0x1193(%rip),%xmm1        # 1320 <_sk_xor__ssse3_lowp+0xb3>
+  .byte  15,40,195                           // movaps        %xmm3,%xmm0
+  .byte  102,15,56,0,193                     // pshufb        %xmm1,%xmm0
   .byte  102,65,15,111,208                   // movdqa        %xmm8,%xmm2
-  .byte  102,65,15,98,209                    // punpckldq     %xmm9,%xmm2
-  .byte  102,15,239,219                      // pxor          %xmm3,%xmm3
-  .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
-  .byte  102,15,96,194                       // punpcklbw     %xmm2,%xmm0
-  .byte  102,15,239,201                      // pxor          %xmm1,%xmm1
-  .byte  102,15,104,202                      // punpckhbw     %xmm2,%xmm1
-  .byte  102,69,15,106,193                   // punpckhdq     %xmm9,%xmm8
-  .byte  102,15,239,210                      // pxor          %xmm2,%xmm2
-  .byte  102,65,15,96,208                    // punpcklbw     %xmm8,%xmm2
-  .byte  102,65,15,104,216                   // punpckhbw     %xmm8,%xmm3
-  .byte  102,68,15,111,5,225,15,0,0          // movdqa        0xfe1(%rip),%xmm8        # 11b0 <_sk_xor__ssse3_lowp+0xc7>
-  .byte  102,65,15,228,192                   // pmulhuw       %xmm8,%xmm0
-  .byte  102,65,15,228,200                   // pmulhuw       %xmm8,%xmm1
-  .byte  102,65,15,228,208                   // pmulhuw       %xmm8,%xmm2
-  .byte  102,65,15,228,216                   // pmulhuw       %xmm8,%xmm3
+  .byte  102,15,56,0,209                     // pshufb        %xmm1,%xmm2
+  .byte  102,15,108,194                      // punpcklqdq    %xmm2,%xmm0
+  .byte  102,15,113,240,8                    // psllw         $0x8,%xmm0
+  .byte  102,68,15,111,13,127,17,0,0         // movdqa        0x117f(%rip),%xmm9        # 1330 <_sk_xor__ssse3_lowp+0xc3>
+  .byte  102,65,15,228,193                   // pmulhuw       %xmm9,%xmm0
+  .byte  102,68,15,111,21,129,17,0,0         // movdqa        0x1181(%rip),%xmm10        # 1340 <_sk_xor__ssse3_lowp+0xd3>
+  .byte  15,40,203                           // movaps        %xmm3,%xmm1
+  .byte  102,65,15,56,0,202                  // pshufb        %xmm10,%xmm1
+  .byte  102,65,15,111,208                   // movdqa        %xmm8,%xmm2
+  .byte  102,65,15,56,0,210                  // pshufb        %xmm10,%xmm2
+  .byte  102,15,108,202                      // punpcklqdq    %xmm2,%xmm1
+  .byte  102,15,113,241,8                    // psllw         $0x8,%xmm1
+  .byte  102,65,15,228,201                   // pmulhuw       %xmm9,%xmm1
+  .byte  102,68,15,111,21,102,17,0,0         // movdqa        0x1166(%rip),%xmm10        # 1350 <_sk_xor__ssse3_lowp+0xe3>
+  .byte  15,40,211                           // movaps        %xmm3,%xmm2
+  .byte  102,65,15,56,0,210                  // pshufb        %xmm10,%xmm2
+  .byte  102,69,15,111,216                   // movdqa        %xmm8,%xmm11
+  .byte  102,69,15,56,0,218                  // pshufb        %xmm10,%xmm11
+  .byte  102,65,15,108,211                   // punpcklqdq    %xmm11,%xmm2
+  .byte  102,15,113,242,8                    // psllw         $0x8,%xmm2
+  .byte  102,65,15,228,209                   // pmulhuw       %xmm9,%xmm2
+  .byte  102,68,15,111,21,74,17,0,0          // movdqa        0x114a(%rip),%xmm10        # 1360 <_sk_xor__ssse3_lowp+0xf3>
+  .byte  102,65,15,56,0,218                  // pshufb        %xmm10,%xmm3
+  .byte  102,69,15,56,0,194                  // pshufb        %xmm10,%xmm8
+  .byte  102,65,15,108,216                   // punpcklqdq    %xmm8,%xmm3
+  .byte  102,15,113,243,8                    // psllw         $0x8,%xmm3
+  .byte  102,65,15,228,217                   // pmulhuw       %xmm9,%xmm3
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
   .byte  69,137,193                          // mov           %r8d,%r9d
   .byte  65,128,225,7                        // and           $0x7,%r9b
-  .byte  102,69,15,239,201                   // pxor          %xmm9,%xmm9
-  .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
+  .byte  102,69,15,239,192                   // pxor          %xmm8,%xmm8
+  .byte  15,87,219                           // xorps         %xmm3,%xmm3
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  119,129                             // ja            181 <_sk_load_8888_ssse3_lowp+0x15>
+  .byte  15,135,52,255,255,255               // ja            185 <_sk_load_8888_ssse3_lowp+0x19>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,133,0,0,0                 // lea           0x85(%rip),%r10        # 290 <_sk_load_8888_ssse3_lowp+0x124>
+  .byte  76,141,21,124,0,0,0                 // lea           0x7c(%rip),%r10        # 2d8 <_sk_load_8888_ssse3_lowp+0x16c>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
   .byte  102,65,15,110,68,147,24             // movd          0x18(%r11,%rdx,4),%xmm0
-  .byte  102,68,15,112,200,69                // pshufd        $0x45,%xmm0,%xmm9
-  .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
+  .byte  102,68,15,112,192,69                // pshufd        $0x45,%xmm0,%xmm8
+  .byte  15,87,219                           // xorps         %xmm3,%xmm3
   .byte  243,65,15,16,68,147,20              // movss         0x14(%r11,%rdx,4),%xmm0
-  .byte  65,15,198,193,0                     // shufps        $0x0,%xmm9,%xmm0
-  .byte  65,15,198,193,226                   // shufps        $0xe2,%xmm9,%xmm0
-  .byte  68,15,40,200                        // movaps        %xmm0,%xmm9
-  .byte  243,65,15,16,68,147,16              // movss         0x10(%r11,%rdx,4),%xmm0
-  .byte  243,68,15,16,200                    // movss         %xmm0,%xmm9
-  .byte  243,65,15,16,68,147,12              // movss         0xc(%r11,%rdx,4),%xmm0
-  .byte  65,15,198,192,32                    // shufps        $0x20,%xmm8,%xmm0
-  .byte  68,15,198,192,36                    // shufps        $0x24,%xmm0,%xmm8
-  .byte  243,65,15,16,68,147,8               // movss         0x8(%r11,%rdx,4),%xmm0
-  .byte  65,15,198,192,48                    // shufps        $0x30,%xmm8,%xmm0
-  .byte  68,15,198,192,132                   // shufps        $0x84,%xmm0,%xmm8
-  .byte  243,65,15,16,68,147,4               // movss         0x4(%r11,%rdx,4),%xmm0
   .byte  65,15,198,192,0                     // shufps        $0x0,%xmm8,%xmm0
   .byte  65,15,198,192,226                   // shufps        $0xe2,%xmm8,%xmm0
   .byte  68,15,40,192                        // movaps        %xmm0,%xmm8
-  .byte  243,65,15,16,4,147                  // movss         (%r11,%rdx,4),%xmm0
+  .byte  243,65,15,16,68,147,16              // movss         0x10(%r11,%rdx,4),%xmm0
   .byte  243,68,15,16,192                    // movss         %xmm0,%xmm8
-  .byte  233,244,254,255,255                 // jmpq          181 <_sk_load_8888_ssse3_lowp+0x15>
+  .byte  243,65,15,16,68,147,12              // movss         0xc(%r11,%rdx,4),%xmm0
+  .byte  15,198,195,32                       // shufps        $0x20,%xmm3,%xmm0
+  .byte  15,198,216,36                       // shufps        $0x24,%xmm0,%xmm3
+  .byte  243,65,15,16,68,147,8               // movss         0x8(%r11,%rdx,4),%xmm0
+  .byte  15,198,195,48                       // shufps        $0x30,%xmm3,%xmm0
+  .byte  15,198,216,132                      // shufps        $0x84,%xmm0,%xmm3
+  .byte  243,65,15,16,68,147,4               // movss         0x4(%r11,%rdx,4),%xmm0
+  .byte  15,198,195,0                        // shufps        $0x0,%xmm3,%xmm0
+  .byte  15,198,195,226                      // shufps        $0xe2,%xmm3,%xmm0
+  .byte  15,40,216                           // movaps        %xmm0,%xmm3
+  .byte  243,65,15,16,4,147                  // movss         (%r11,%rdx,4),%xmm0
+  .byte  243,15,16,216                       // movss         %xmm0,%xmm3
+  .byte  233,176,254,255,255                 // jmpq          185 <_sk_load_8888_ssse3_lowp+0x19>
   .byte  15,31,0                             // nopl          (%rax)
-  .byte  237                                 // in            (%dx),%eax
+  .byte  238                                 // out           %al,(%dx)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  216,255                             // fdivr         %st(7),%st
+  .byte  220,255                             // fdivr         %st,%st(7)
   .byte  255                                 // (bad)
-  .byte  255,199                             // inc           %edi
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,182,255,255,255,170             // pushq         -0x55000001(%rsi)
+  .byte  255,205                             // dec           %ebp
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,149,255,255,255,132             // callq         *-0x7b000001(%rbp)
+  .byte  255                                 // (bad)
+  .byte  190,255,255,255,178                 // mov           $0xb2ffffff,%esi
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,157,255,255,255,141             // lcall         *-0x72000001(%rbp)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // .byte         0xff
@@ -37428,43 +37441,65 @@ FUNCTION(_sk_store_8888_ssse3_lowp)
 _sk_store_8888_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
-  .byte  102,68,15,111,208                   // movdqa        %xmm0,%xmm10
-  .byte  102,65,15,113,210,7                 // psrlw         $0x7,%xmm10
-  .byte  102,68,15,111,194                   // movdqa        %xmm2,%xmm8
+  .byte  102,68,15,111,192                   // movdqa        %xmm0,%xmm8
   .byte  102,65,15,113,208,7                 // psrlw         $0x7,%xmm8
-  .byte  102,69,15,103,208                   // packuswb      %xmm8,%xmm10
-  .byte  102,68,15,111,193                   // movdqa        %xmm1,%xmm8
-  .byte  102,65,15,113,208,7                 // psrlw         $0x7,%xmm8
-  .byte  102,68,15,111,203                   // movdqa        %xmm3,%xmm9
+  .byte  102,68,15,111,21,99,16,0,0          // movdqa        0x1063(%rip),%xmm10        # 1370 <_sk_xor__ssse3_lowp+0x103>
+  .byte  102,69,15,234,194                   // pminsw        %xmm10,%xmm8
+  .byte  102,69,15,239,219                   // pxor          %xmm11,%xmm11
+  .byte  102,69,15,111,232                   // movdqa        %xmm8,%xmm13
+  .byte  102,69,15,97,235                    // punpcklwd     %xmm11,%xmm13
+  .byte  102,69,15,105,195                   // punpckhwd     %xmm11,%xmm8
+  .byte  102,68,15,111,201                   // movdqa        %xmm1,%xmm9
   .byte  102,65,15,113,209,7                 // psrlw         $0x7,%xmm9
-  .byte  102,69,15,103,193                   // packuswb      %xmm9,%xmm8
-  .byte  102,69,15,111,202                   // movdqa        %xmm10,%xmm9
-  .byte  102,69,15,96,200                    // punpcklbw     %xmm8,%xmm9
-  .byte  102,69,15,104,208                   // punpckhbw     %xmm8,%xmm10
-  .byte  102,69,15,111,193                   // movdqa        %xmm9,%xmm8
-  .byte  102,69,15,97,194                    // punpcklwd     %xmm10,%xmm8
-  .byte  102,69,15,105,202                   // punpckhwd     %xmm10,%xmm9
+  .byte  102,69,15,234,202                   // pminsw        %xmm10,%xmm9
+  .byte  102,69,15,111,225                   // movdqa        %xmm9,%xmm12
+  .byte  102,69,15,105,227                   // punpckhwd     %xmm11,%xmm12
+  .byte  102,69,15,97,203                    // punpcklwd     %xmm11,%xmm9
+  .byte  102,65,15,114,241,8                 // pslld         $0x8,%xmm9
+  .byte  102,65,15,114,244,8                 // pslld         $0x8,%xmm12
+  .byte  102,69,15,235,224                   // por           %xmm8,%xmm12
+  .byte  102,69,15,235,205                   // por           %xmm13,%xmm9
+  .byte  102,68,15,111,234                   // movdqa        %xmm2,%xmm13
+  .byte  102,65,15,113,213,7                 // psrlw         $0x7,%xmm13
+  .byte  102,69,15,234,234                   // pminsw        %xmm10,%xmm13
+  .byte  102,69,15,111,245                   // movdqa        %xmm13,%xmm14
+  .byte  102,69,15,97,243                    // punpcklwd     %xmm11,%xmm14
+  .byte  102,69,15,105,235                   // punpckhwd     %xmm11,%xmm13
+  .byte  102,65,15,114,245,16                // pslld         $0x10,%xmm13
+  .byte  102,65,15,114,246,16                // pslld         $0x10,%xmm14
+  .byte  102,68,15,111,195                   // movdqa        %xmm3,%xmm8
+  .byte  102,65,15,113,208,7                 // psrlw         $0x7,%xmm8
+  .byte  102,69,15,234,194                   // pminsw        %xmm10,%xmm8
+  .byte  102,69,15,111,208                   // movdqa        %xmm8,%xmm10
+  .byte  102,69,15,105,211                   // punpckhwd     %xmm11,%xmm10
+  .byte  102,69,15,97,195                    // punpcklwd     %xmm11,%xmm8
+  .byte  102,65,15,114,240,24                // pslld         $0x18,%xmm8
+  .byte  102,65,15,114,242,24                // pslld         $0x18,%xmm10
+  .byte  102,69,15,235,213                   // por           %xmm13,%xmm10
+  .byte  102,69,15,235,212                   // por           %xmm12,%xmm10
+  .byte  102,69,15,235,198                   // por           %xmm14,%xmm8
+  .byte  102,69,15,235,193                   // por           %xmm9,%xmm8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,17                              // jne           31b <_sk_store_8888_ssse3_lowp+0x6f>
-  .byte  243,69,15,127,76,147,16             // movdqu        %xmm9,0x10(%r11,%rdx,4)
+  .byte  117,17                              // jne           3db <_sk_store_8888_ssse3_lowp+0xe7>
   .byte  243,69,15,127,4,147                 // movdqu        %xmm8,(%r11,%rdx,4)
+  .byte  243,69,15,127,84,147,16             // movdqu        %xmm10,0x10(%r11,%rdx,4)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
   .byte  69,137,193                          // mov           %r8d,%r9d
   .byte  65,128,225,7                        // and           $0x7,%r9b
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  119,236                             // ja            317 <_sk_store_8888_ssse3_lowp+0x6b>
+  .byte  119,236                             // ja            3d7 <_sk_store_8888_ssse3_lowp+0xe3>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,90,0,0,0                  // lea           0x5a(%rip),%r10        # 390 <_sk_store_8888_ssse3_lowp+0xe4>
+  .byte  76,141,21,90,0,0,0                  // lea           0x5a(%rip),%r10        # 450 <_sk_store_8888_ssse3_lowp+0x15c>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
-  .byte  102,69,15,112,209,78                // pshufd        $0x4e,%xmm9,%xmm10
-  .byte  102,69,15,126,84,147,24             // movd          %xmm10,0x18(%r11,%rdx,4)
-  .byte  102,69,15,112,209,229               // pshufd        $0xe5,%xmm9,%xmm10
-  .byte  102,69,15,126,84,147,20             // movd          %xmm10,0x14(%r11,%rdx,4)
-  .byte  102,69,15,126,76,147,16             // movd          %xmm9,0x10(%r11,%rdx,4)
+  .byte  102,69,15,112,202,78                // pshufd        $0x4e,%xmm10,%xmm9
+  .byte  102,69,15,126,76,147,24             // movd          %xmm9,0x18(%r11,%rdx,4)
+  .byte  102,69,15,112,202,229               // pshufd        $0xe5,%xmm10,%xmm9
+  .byte  102,69,15,126,76,147,20             // movd          %xmm9,0x14(%r11,%rdx,4)
+  .byte  102,69,15,126,84,147,16             // movd          %xmm10,0x10(%r11,%rdx,4)
   .byte  102,69,15,112,200,231               // pshufd        $0xe7,%xmm8,%xmm9
   .byte  102,69,15,126,76,147,12             // movd          %xmm9,0xc(%r11,%rdx,4)
   .byte  102,69,15,112,200,78                // pshufd        $0x4e,%xmm8,%xmm9
@@ -37472,7 +37507,7 @@ _sk_store_8888_ssse3_lowp:
   .byte  102,69,15,112,200,229               // pshufd        $0xe5,%xmm8,%xmm9
   .byte  102,69,15,126,76,147,4              // movd          %xmm9,0x4(%r11,%rdx,4)
   .byte  102,69,15,126,4,147                 // movd          %xmm8,(%r11,%rdx,4)
-  .byte  235,136                             // jmp           317 <_sk_store_8888_ssse3_lowp+0x6b>
+  .byte  235,136                             // jmp           3d7 <_sk_store_8888_ssse3_lowp+0xe3>
   .byte  144                                 // nop
   .byte  247,255                             // idiv          %edi
   .byte  255                                 // (bad)
@@ -37502,11 +37537,11 @@ _sk_load_a8_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,37                              // jne           3db <_sk_load_a8_ssse3_lowp+0x2f>
+  .byte  117,37                              // jne           49b <_sk_load_a8_ssse3_lowp+0x2f>
   .byte  243,65,15,126,28,19                 // movq          (%r11,%rdx,1),%xmm3
   .byte  102,15,96,216                       // punpcklbw     %xmm0,%xmm3
   .byte  102,15,113,243,8                    // psllw         $0x8,%xmm3
-  .byte  102,15,228,29,243,13,0,0            // pmulhuw       0xdf3(%rip),%xmm3        # 11c0 <_sk_xor__ssse3_lowp+0xd7>
+  .byte  102,15,228,29,243,14,0,0            // pmulhuw       0xef3(%rip),%xmm3        # 1380 <_sk_xor__ssse3_lowp+0x113>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
   .byte  15,87,201                           // xorps         %xmm1,%xmm1
@@ -37517,9 +37552,9 @@ _sk_load_a8_ssse3_lowp:
   .byte  102,15,239,219                      // pxor          %xmm3,%xmm3
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  119,209                             // ja            3c0 <_sk_load_a8_ssse3_lowp+0x14>
+  .byte  119,209                             // ja            480 <_sk_load_a8_ssse3_lowp+0x14>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,94,0,0,0                  // lea           0x5e(%rip),%r10        # 458 <_sk_load_a8_ssse3_lowp+0xac>
+  .byte  76,141,21,94,0,0,0                  // lea           0x5e(%rip),%r10        # 518 <_sk_load_a8_ssse3_lowp+0xac>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -37538,7 +37573,7 @@ _sk_load_a8_ssse3_lowp:
   .byte  102,15,196,216,1                    // pinsrw        $0x1,%eax,%xmm3
   .byte  65,15,182,4,19                      // movzbl        (%r11,%rdx,1),%eax
   .byte  102,15,196,216,0                    // pinsrw        $0x0,%eax,%xmm3
-  .byte  233,104,255,255,255                 // jmpq          3c0 <_sk_load_a8_ssse3_lowp+0x14>
+  .byte  233,104,255,255,255                 // jmpq          480 <_sk_load_a8_ssse3_lowp+0x14>
   .byte  241                                 // icebp
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
@@ -37570,7 +37605,7 @@ _sk_store_a8_ssse3_lowp:
   .byte  102,65,15,113,208,7                 // psrlw         $0x7,%xmm8
   .byte  102,69,15,103,192                   // packuswb      %xmm8,%xmm8
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,10                              // jne           498 <_sk_store_a8_ssse3_lowp+0x24>
+  .byte  117,10                              // jne           558 <_sk_store_a8_ssse3_lowp+0x24>
   .byte  242,69,15,17,4,19                   // movsd         %xmm8,(%r11,%rdx,1)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  255,224                             // jmpq          *%rax
@@ -37578,10 +37613,10 @@ _sk_store_a8_ssse3_lowp:
   .byte  65,128,225,7                        // and           $0x7,%r9b
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  119,236                             // ja            494 <_sk_store_a8_ssse3_lowp+0x20>
+  .byte  119,236                             // ja            554 <_sk_store_a8_ssse3_lowp+0x20>
   .byte  102,68,15,96,192                    // punpcklbw     %xmm0,%xmm8
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,128,0,0,0                 // lea           0x80(%rip),%r10        # 538 <_sk_store_a8_ssse3_lowp+0xc4>
+  .byte  76,141,21,128,0,0,0                 // lea           0x80(%rip),%r10        # 5f8 <_sk_store_a8_ssse3_lowp+0xc4>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -37606,9 +37641,9 @@ _sk_store_a8_ssse3_lowp:
   .byte  102,68,15,127,68,36,136             // movdqa        %xmm8,-0x78(%rsp)
   .byte  138,68,36,136                       // mov           -0x78(%rsp),%al
   .byte  65,136,4,19                         // mov           %al,(%r11,%rdx,1)
-  .byte  233,95,255,255,255                  // jmpq          494 <_sk_store_a8_ssse3_lowp+0x20>
+  .byte  233,95,255,255,255                  // jmpq          554 <_sk_store_a8_ssse3_lowp+0x20>
   .byte  15,31,0                             // nopl          (%rax)
-  .byte  233,255,255,255,217                 // jmpq          ffffffffda00053c <_sk_xor__ssse3_lowp+0xffffffffd9fff453>
+  .byte  233,255,255,255,217                 // jmpq          ffffffffda0005fc <_sk_xor__ssse3_lowp+0xffffffffd9fff38f>
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255,201                             // dec           %ecx
@@ -37630,13 +37665,13 @@ _sk_load_g8_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,42                              // jne           588 <_sk_load_g8_ssse3_lowp+0x34>
+  .byte  117,42                              // jne           648 <_sk_load_g8_ssse3_lowp+0x34>
   .byte  243,65,15,126,4,19                  // movq          (%r11,%rdx,1),%xmm0
   .byte  102,15,96,192                       // punpcklbw     %xmm0,%xmm0
   .byte  102,15,113,240,8                    // psllw         $0x8,%xmm0
-  .byte  102,15,228,5,91,12,0,0              // pmulhuw       0xc5b(%rip),%xmm0        # 11d0 <_sk_xor__ssse3_lowp+0xe7>
+  .byte  102,15,228,5,91,13,0,0              // pmulhuw       0xd5b(%rip),%xmm0        # 1390 <_sk_xor__ssse3_lowp+0x123>
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  15,40,29,98,12,0,0                  // movaps        0xc62(%rip),%xmm3        # 11e0 <_sk_xor__ssse3_lowp+0xf7>
+  .byte  15,40,29,98,13,0,0                  // movaps        0xd62(%rip),%xmm3        # 13a0 <_sk_xor__ssse3_lowp+0x133>
   .byte  102,15,111,200                      // movdqa        %xmm0,%xmm1
   .byte  102,15,111,208                      // movdqa        %xmm0,%xmm2
   .byte  255,224                             // jmpq          *%rax
@@ -37645,9 +37680,9 @@ _sk_load_g8_ssse3_lowp:
   .byte  102,15,239,192                      // pxor          %xmm0,%xmm0
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  119,204                             // ja            568 <_sk_load_g8_ssse3_lowp+0x14>
+  .byte  119,204                             // ja            628 <_sk_load_g8_ssse3_lowp+0x14>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,97,0,0,0                  // lea           0x61(%rip),%r10        # 608 <_sk_load_g8_ssse3_lowp+0xb4>
+  .byte  76,141,21,97,0,0,0                  // lea           0x61(%rip),%r10        # 6c8 <_sk_load_g8_ssse3_lowp+0xb4>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -37666,7 +37701,7 @@ _sk_load_g8_ssse3_lowp:
   .byte  102,15,196,192,1                    // pinsrw        $0x1,%eax,%xmm0
   .byte  65,15,182,4,19                      // movzbl        (%r11,%rdx,1),%eax
   .byte  102,15,196,192,0                    // pinsrw        $0x0,%eax,%xmm0
-  .byte  233,99,255,255,255                  // jmpq          568 <_sk_load_g8_ssse3_lowp+0x14>
+  .byte  233,99,255,255,255                  // jmpq          628 <_sk_load_g8_ssse3_lowp+0x14>
   .byte  15,31,0                             // nopl          (%rax)
   .byte  238                                 // out           %al,(%dx)
   .byte  255                                 // (bad)
@@ -37692,33 +37727,46 @@ HIDDEN _sk_srcover_rgba_8888_ssse3_lowp
 .globl _sk_srcover_rgba_8888_ssse3_lowp
 FUNCTION(_sk_srcover_rgba_8888_ssse3_lowp)
 _sk_srcover_rgba_8888_ssse3_lowp:
+  .byte  102,68,15,111,225                   // movdqa        %xmm1,%xmm12
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  15,133,66,1,0,0                     // jne           774 <_sk_srcover_rgba_8888_ssse3_lowp+0x150>
-  .byte  69,15,16,76,147,16                  // movups        0x10(%r11,%rdx,4),%xmm9
-  .byte  69,15,16,4,147                      // movups        (%r11,%rdx,4),%xmm8
-  .byte  77,133,192                          // test          %r8,%r8
-  .byte  102,15,111,37,168,11,0,0            // movdqa        0xba8(%rip),%xmm4        # 11f0 <_sk_xor__ssse3_lowp+0x107>
-  .byte  102,68,15,56,0,196                  // pshufb        %xmm4,%xmm8
-  .byte  102,68,15,56,0,204                  // pshufb        %xmm4,%xmm9
+  .byte  15,133,11,2,0,0                     // jne           902 <_sk_srcover_rgba_8888_ssse3_lowp+0x21e>
+  .byte  69,15,16,68,147,16                  // movups        0x10(%r11,%rdx,4),%xmm8
+  .byte  65,15,16,60,147                     // movups        (%r11,%rdx,4),%xmm7
+  .byte  102,15,111,45,166,12,0,0            // movdqa        0xca6(%rip),%xmm5        # 13b0 <_sk_xor__ssse3_lowp+0x143>
+  .byte  15,40,231                           // movaps        %xmm7,%xmm4
+  .byte  102,15,56,0,229                     // pshufb        %xmm5,%xmm4
   .byte  102,65,15,111,240                   // movdqa        %xmm8,%xmm6
-  .byte  102,65,15,98,241                    // punpckldq     %xmm9,%xmm6
-  .byte  102,15,239,255                      // pxor          %xmm7,%xmm7
-  .byte  102,15,239,228                      // pxor          %xmm4,%xmm4
-  .byte  102,15,96,230                       // punpcklbw     %xmm6,%xmm4
-  .byte  102,15,239,237                      // pxor          %xmm5,%xmm5
-  .byte  102,15,104,238                      // punpckhbw     %xmm6,%xmm5
-  .byte  102,69,15,106,193                   // punpckhdq     %xmm9,%xmm8
-  .byte  102,15,239,246                      // pxor          %xmm6,%xmm6
-  .byte  102,65,15,96,240                    // punpcklbw     %xmm8,%xmm6
-  .byte  102,65,15,104,248                   // punpckhbw     %xmm8,%xmm7
-  .byte  102,68,15,111,5,114,11,0,0          // movdqa        0xb72(%rip),%xmm8        # 1200 <_sk_xor__ssse3_lowp+0x117>
-  .byte  102,65,15,228,224                   // pmulhuw       %xmm8,%xmm4
-  .byte  102,65,15,228,232                   // pmulhuw       %xmm8,%xmm5
-  .byte  102,65,15,228,240                   // pmulhuw       %xmm8,%xmm6
-  .byte  102,65,15,228,248                   // pmulhuw       %xmm8,%xmm7
-  .byte  102,68,15,111,29,101,11,0,0         // movdqa        0xb65(%rip),%xmm11        # 1210 <_sk_xor__ssse3_lowp+0x127>
+  .byte  102,15,56,0,245                     // pshufb        %xmm5,%xmm6
+  .byte  102,15,108,230                      // punpcklqdq    %xmm6,%xmm4
+  .byte  102,15,111,13,152,12,0,0            // movdqa        0xc98(%rip),%xmm1        # 13c0 <_sk_xor__ssse3_lowp+0x153>
+  .byte  102,15,113,244,8                    // psllw         $0x8,%xmm4
+  .byte  102,68,15,111,13,154,12,0,0         // movdqa        0xc9a(%rip),%xmm9        # 13d0 <_sk_xor__ssse3_lowp+0x163>
+  .byte  102,65,15,228,225                   // pmulhuw       %xmm9,%xmm4
+  .byte  102,68,15,111,21,156,12,0,0         // movdqa        0xc9c(%rip),%xmm10        # 13e0 <_sk_xor__ssse3_lowp+0x173>
+  .byte  15,40,239                           // movaps        %xmm7,%xmm5
+  .byte  102,65,15,56,0,234                  // pshufb        %xmm10,%xmm5
+  .byte  102,65,15,111,240                   // movdqa        %xmm8,%xmm6
+  .byte  102,65,15,56,0,242                  // pshufb        %xmm10,%xmm6
+  .byte  102,15,108,238                      // punpcklqdq    %xmm6,%xmm5
+  .byte  102,15,113,245,8                    // psllw         $0x8,%xmm5
+  .byte  102,65,15,228,233                   // pmulhuw       %xmm9,%xmm5
+  .byte  102,68,15,111,21,129,12,0,0         // movdqa        0xc81(%rip),%xmm10        # 13f0 <_sk_xor__ssse3_lowp+0x183>
+  .byte  15,40,247                           // movaps        %xmm7,%xmm6
+  .byte  102,65,15,56,0,242                  // pshufb        %xmm10,%xmm6
+  .byte  102,69,15,111,216                   // movdqa        %xmm8,%xmm11
+  .byte  102,69,15,56,0,218                  // pshufb        %xmm10,%xmm11
+  .byte  102,65,15,108,243                   // punpcklqdq    %xmm11,%xmm6
+  .byte  102,15,113,246,8                    // psllw         $0x8,%xmm6
+  .byte  102,65,15,228,241                   // pmulhuw       %xmm9,%xmm6
+  .byte  102,68,15,111,21,101,12,0,0         // movdqa        0xc65(%rip),%xmm10        # 1400 <_sk_xor__ssse3_lowp+0x193>
+  .byte  102,65,15,56,0,250                  // pshufb        %xmm10,%xmm7
+  .byte  102,69,15,56,0,194                  // pshufb        %xmm10,%xmm8
+  .byte  102,65,15,108,248                   // punpcklqdq    %xmm8,%xmm7
+  .byte  102,15,113,247,8                    // psllw         $0x8,%xmm7
+  .byte  102,65,15,228,249                   // pmulhuw       %xmm9,%xmm7
+  .byte  102,68,15,111,29,81,12,0,0          // movdqa        0xc51(%rip),%xmm11        # 1410 <_sk_xor__ssse3_lowp+0x1a3>
   .byte  102,68,15,249,219                   // psubw         %xmm3,%xmm11
   .byte  102,68,15,111,196                   // movdqa        %xmm4,%xmm8
   .byte  102,69,15,56,11,195                 // pmulhrsw      %xmm11,%xmm8
@@ -37727,80 +37775,103 @@ _sk_srcover_rgba_8888_ssse3_lowp:
   .byte  102,15,111,197                      // movdqa        %xmm5,%xmm0
   .byte  102,65,15,56,11,195                 // pmulhrsw      %xmm11,%xmm0
   .byte  102,68,15,56,29,200                 // pabsw         %xmm0,%xmm9
-  .byte  102,68,15,253,201                   // paddw         %xmm1,%xmm9
+  .byte  102,69,15,253,204                   // paddw         %xmm12,%xmm9
   .byte  102,15,111,198                      // movdqa        %xmm6,%xmm0
   .byte  102,65,15,56,11,195                 // pmulhrsw      %xmm11,%xmm0
-  .byte  102,68,15,56,29,208                 // pabsw         %xmm0,%xmm10
-  .byte  102,68,15,253,210                   // paddw         %xmm2,%xmm10
+  .byte  102,68,15,56,29,224                 // pabsw         %xmm0,%xmm12
+  .byte  102,68,15,253,226                   // paddw         %xmm2,%xmm12
   .byte  102,68,15,56,11,223                 // pmulhrsw      %xmm7,%xmm11
   .byte  102,69,15,56,29,219                 // pabsw         %xmm11,%xmm11
   .byte  102,68,15,253,219                   // paddw         %xmm3,%xmm11
-  .byte  102,65,15,111,208                   // movdqa        %xmm8,%xmm2
+  .byte  102,68,15,127,68,36,232             // movdqa        %xmm8,-0x18(%rsp)
+  .byte  102,65,15,111,216                   // movdqa        %xmm8,%xmm3
+  .byte  102,15,113,211,7                    // psrlw         $0x7,%xmm3
+  .byte  102,15,234,217                      // pminsw        %xmm1,%xmm3
+  .byte  102,69,15,239,255                   // pxor          %xmm15,%xmm15
+  .byte  102,68,15,111,235                   // movdqa        %xmm3,%xmm13
+  .byte  102,69,15,97,239                    // punpcklwd     %xmm15,%xmm13
+  .byte  102,65,15,105,223                   // punpckhwd     %xmm15,%xmm3
+  .byte  102,65,15,111,209                   // movdqa        %xmm9,%xmm2
   .byte  102,15,113,210,7                    // psrlw         $0x7,%xmm2
-  .byte  102,65,15,111,194                   // movdqa        %xmm10,%xmm0
+  .byte  102,15,234,209                      // pminsw        %xmm1,%xmm2
+  .byte  102,68,15,111,242                   // movdqa        %xmm2,%xmm14
+  .byte  102,69,15,105,247                   // punpckhwd     %xmm15,%xmm14
+  .byte  102,65,15,97,215                    // punpcklwd     %xmm15,%xmm2
+  .byte  102,69,15,111,212                   // movdqa        %xmm12,%xmm10
+  .byte  102,65,15,113,210,7                 // psrlw         $0x7,%xmm10
+  .byte  102,68,15,234,209                   // pminsw        %xmm1,%xmm10
+  .byte  102,69,15,111,194                   // movdqa        %xmm10,%xmm8
+  .byte  102,69,15,97,199                    // punpcklwd     %xmm15,%xmm8
+  .byte  102,69,15,105,215                   // punpckhwd     %xmm15,%xmm10
+  .byte  102,65,15,111,195                   // movdqa        %xmm11,%xmm0
   .byte  102,15,113,208,7                    // psrlw         $0x7,%xmm0
-  .byte  102,15,103,208                      // packuswb      %xmm0,%xmm2
-  .byte  102,65,15,111,193                   // movdqa        %xmm9,%xmm0
-  .byte  102,15,113,208,7                    // psrlw         $0x7,%xmm0
-  .byte  102,65,15,111,203                   // movdqa        %xmm11,%xmm1
-  .byte  102,15,113,209,7                    // psrlw         $0x7,%xmm1
-  .byte  102,15,103,193                      // packuswb      %xmm1,%xmm0
-  .byte  102,15,111,202                      // movdqa        %xmm2,%xmm1
-  .byte  102,15,96,200                       // punpcklbw     %xmm0,%xmm1
-  .byte  102,15,104,208                      // punpckhbw     %xmm0,%xmm2
-  .byte  102,15,111,193                      // movdqa        %xmm1,%xmm0
-  .byte  102,15,97,194                       // punpcklwd     %xmm2,%xmm0
-  .byte  102,15,105,202                      // punpckhwd     %xmm2,%xmm1
-  .byte  15,133,207,0,0,0                    // jne           81e <_sk_srcover_rgba_8888_ssse3_lowp+0x1fa>
-  .byte  243,65,15,127,76,147,16             // movdqu        %xmm1,0x10(%r11,%rdx,4)
+  .byte  102,15,234,193                      // pminsw        %xmm1,%xmm0
+  .byte  102,15,111,200                      // movdqa        %xmm0,%xmm1
+  .byte  102,65,15,105,207                   // punpckhwd     %xmm15,%xmm1
+  .byte  102,65,15,97,199                    // punpcklwd     %xmm15,%xmm0
+  .byte  102,65,15,114,246,8                 // pslld         $0x8,%xmm14
+  .byte  102,68,15,235,243                   // por           %xmm3,%xmm14
+  .byte  102,15,114,242,8                    // pslld         $0x8,%xmm2
+  .byte  102,65,15,235,213                   // por           %xmm13,%xmm2
+  .byte  102,65,15,114,242,16                // pslld         $0x10,%xmm10
+  .byte  102,15,114,241,24                   // pslld         $0x18,%xmm1
+  .byte  102,65,15,235,202                   // por           %xmm10,%xmm1
+  .byte  102,65,15,235,206                   // por           %xmm14,%xmm1
+  .byte  102,65,15,114,240,16                // pslld         $0x10,%xmm8
+  .byte  102,15,114,240,24                   // pslld         $0x18,%xmm0
+  .byte  102,65,15,235,192                   // por           %xmm8,%xmm0
+  .byte  102,15,235,194                      // por           %xmm2,%xmm0
+  .byte  77,133,192                          // test          %r8,%r8
+  .byte  15,133,197,0,0,0                    // jne           9a2 <_sk_srcover_rgba_8888_ssse3_lowp+0x2be>
   .byte  243,65,15,127,4,147                 // movdqu        %xmm0,(%r11,%rdx,4)
+  .byte  243,65,15,127,76,147,16             // movdqu        %xmm1,0x10(%r11,%rdx,4)
   .byte  72,173                              // lods          %ds:(%rsi),%rax
-  .byte  102,65,15,111,192                   // movdqa        %xmm8,%xmm0
+  .byte  15,40,68,36,232                     // movaps        -0x18(%rsp),%xmm0
   .byte  102,65,15,111,201                   // movdqa        %xmm9,%xmm1
-  .byte  102,65,15,111,210                   // movdqa        %xmm10,%xmm2
+  .byte  102,65,15,111,212                   // movdqa        %xmm12,%xmm2
   .byte  102,65,15,111,219                   // movdqa        %xmm11,%xmm3
   .byte  255,224                             // jmpq          *%rax
   .byte  69,137,193                          // mov           %r8d,%r9d
   .byte  65,128,225,7                        // and           $0x7,%r9b
-  .byte  102,69,15,239,201                   // pxor          %xmm9,%xmm9
-  .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
+  .byte  102,69,15,239,192                   // pxor          %xmm8,%xmm8
+  .byte  15,87,255                           // xorps         %xmm7,%xmm7
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  15,135,172,254,255,255              // ja            63d <_sk_srcover_rgba_8888_ssse3_lowp+0x19>
+  .byte  15,135,228,253,255,255              // ja            702 <_sk_srcover_rgba_8888_ssse3_lowp+0x1e>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,248,0,0,0                 // lea           0xf8(%rip),%r10        # 894 <_sk_srcover_rgba_8888_ssse3_lowp+0x270>
+  .byte  76,141,21,239,0,0,0                 // lea           0xef(%rip),%r10        # a18 <_sk_srcover_rgba_8888_ssse3_lowp+0x334>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
   .byte  102,65,15,110,100,147,24            // movd          0x18(%r11,%rdx,4),%xmm4
-  .byte  102,68,15,112,204,69                // pshufd        $0x45,%xmm4,%xmm9
-  .byte  69,15,87,192                        // xorps         %xmm8,%xmm8
+  .byte  102,68,15,112,196,69                // pshufd        $0x45,%xmm4,%xmm8
+  .byte  15,87,255                           // xorps         %xmm7,%xmm7
   .byte  243,65,15,16,100,147,20             // movss         0x14(%r11,%rdx,4),%xmm4
-  .byte  65,15,198,225,0                     // shufps        $0x0,%xmm9,%xmm4
-  .byte  65,15,198,225,226                   // shufps        $0xe2,%xmm9,%xmm4
-  .byte  68,15,40,204                        // movaps        %xmm4,%xmm9
-  .byte  243,65,15,16,100,147,16             // movss         0x10(%r11,%rdx,4),%xmm4
-  .byte  243,68,15,16,204                    // movss         %xmm4,%xmm9
-  .byte  243,65,15,16,100,147,12             // movss         0xc(%r11,%rdx,4),%xmm4
-  .byte  65,15,198,224,32                    // shufps        $0x20,%xmm8,%xmm4
-  .byte  68,15,198,196,36                    // shufps        $0x24,%xmm4,%xmm8
-  .byte  243,65,15,16,100,147,8              // movss         0x8(%r11,%rdx,4),%xmm4
-  .byte  65,15,198,224,48                    // shufps        $0x30,%xmm8,%xmm4
-  .byte  68,15,198,196,132                   // shufps        $0x84,%xmm4,%xmm8
-  .byte  243,65,15,16,100,147,4              // movss         0x4(%r11,%rdx,4),%xmm4
   .byte  65,15,198,224,0                     // shufps        $0x0,%xmm8,%xmm4
   .byte  65,15,198,224,226                   // shufps        $0xe2,%xmm8,%xmm4
   .byte  68,15,40,196                        // movaps        %xmm4,%xmm8
-  .byte  243,65,15,16,36,147                 // movss         (%r11,%rdx,4),%xmm4
+  .byte  243,65,15,16,100,147,16             // movss         0x10(%r11,%rdx,4),%xmm4
   .byte  243,68,15,16,196                    // movss         %xmm4,%xmm8
-  .byte  233,31,254,255,255                  // jmpq          63d <_sk_srcover_rgba_8888_ssse3_lowp+0x19>
+  .byte  243,65,15,16,100,147,12             // movss         0xc(%r11,%rdx,4),%xmm4
+  .byte  15,198,231,32                       // shufps        $0x20,%xmm7,%xmm4
+  .byte  15,198,252,36                       // shufps        $0x24,%xmm4,%xmm7
+  .byte  243,65,15,16,100,147,8              // movss         0x8(%r11,%rdx,4),%xmm4
+  .byte  15,198,231,48                       // shufps        $0x30,%xmm7,%xmm4
+  .byte  15,198,252,132                      // shufps        $0x84,%xmm4,%xmm7
+  .byte  243,65,15,16,100,147,4              // movss         0x4(%r11,%rdx,4),%xmm4
+  .byte  15,198,231,0                        // shufps        $0x0,%xmm7,%xmm4
+  .byte  15,198,231,226                      // shufps        $0xe2,%xmm7,%xmm4
+  .byte  15,40,252                           // movaps        %xmm4,%xmm7
+  .byte  243,65,15,16,36,147                 // movss         (%r11,%rdx,4),%xmm4
+  .byte  243,15,16,252                       // movss         %xmm4,%xmm7
+  .byte  233,96,253,255,255                  // jmpq          702 <_sk_srcover_rgba_8888_ssse3_lowp+0x1e>
   .byte  69,137,193                          // mov           %r8d,%r9d
   .byte  65,128,225,7                        // and           $0x7,%r9b
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  15,135,42,255,255,255               // ja            75c <_sk_srcover_rgba_8888_ssse3_lowp+0x138>
+  .byte  15,135,52,255,255,255               // ja            8ea <_sk_srcover_rgba_8888_ssse3_lowp+0x206>
   .byte  65,15,182,193                       // movzbl        %r9b,%eax
-  .byte  76,141,13,115,0,0,0                 // lea           0x73(%rip),%r9        # 8b0 <_sk_srcover_rgba_8888_ssse3_lowp+0x28c>
+  .byte  76,141,13,115,0,0,0                 // lea           0x73(%rip),%r9        # a34 <_sk_srcover_rgba_8888_ssse3_lowp+0x350>
   .byte  73,99,4,129                         // movslq        (%r9,%rax,4),%rax
   .byte  76,1,200                            // add           %r9,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -37816,21 +37887,23 @@ _sk_srcover_rgba_8888_ssse3_lowp:
   .byte  102,15,112,200,229                  // pshufd        $0xe5,%xmm0,%xmm1
   .byte  102,65,15,126,76,147,4              // movd          %xmm1,0x4(%r11,%rdx,4)
   .byte  102,65,15,126,4,147                 // movd          %xmm0,(%r11,%rdx,4)
-  .byte  233,200,254,255,255                 // jmpq          75c <_sk_srcover_rgba_8888_ssse3_lowp+0x138>
-  .byte  122,255                             // jp            895 <_sk_srcover_rgba_8888_ssse3_lowp+0x271>
+  .byte  233,210,254,255,255                 // jmpq          8ea <_sk_srcover_rgba_8888_ssse3_lowp+0x206>
+  .byte  123,255                             // jnp           a19 <_sk_srcover_rgba_8888_ssse3_lowp+0x335>
   .byte  255                                 // (bad)
-  .byte  255,101,255                         // jmpq          *-0x1(%rbp)
+  .byte  255,105,255                         // ljmp          *-0x1(%rcx)
   .byte  255                                 // (bad)
-  .byte  255,84,255,255                      // callq         *-0x1(%rdi,%rdi,8)
-  .byte  255,67,255                          // incl          -0x1(%rbx)
+  .byte  255,90,255                          // lcall         *-0x1(%rdx)
   .byte  255                                 // (bad)
-  .byte  255,55                              // pushq         (%rdi)
-  .byte  255                                 // (bad)
-  .byte  255                                 // (bad)
-  .byte  255,34                              // jmpq          *(%rdx)
+  .byte  255,75,255                          // decl          -0x1(%rbx)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
-  .byte  255,17                              // callq         *(%rcx)
+  .byte  63                                  // (bad)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,42                              // ljmp          *(%rdx)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,26                              // lcall         *(%rdx)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
   .byte  255                                 // (bad)
@@ -37856,7 +37929,7 @@ FUNCTION(_sk_scale_1_float_ssse3_lowp)
 _sk_scale_1_float_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
-  .byte  243,68,15,88,5,24,10,0,0            // addss         0xa18(%rip),%xmm8        # 12f4 <_sk_xor__ssse3_lowp+0x20b>
+  .byte  243,68,15,88,5,148,10,0,0           // addss         0xa94(%rip),%xmm8        # 14f4 <_sk_xor__ssse3_lowp+0x287>
   .byte  102,68,15,126,192                   // movd          %xmm8,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
   .byte  242,69,15,112,192,0                 // pshuflw       $0x0,%xmm8,%xmm8
@@ -37879,11 +37952,11 @@ _sk_scale_u8_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  117,74                              // jne           976 <_sk_scale_u8_ssse3_lowp+0x54>
+  .byte  117,74                              // jne           afa <_sk_scale_u8_ssse3_lowp+0x54>
   .byte  243,69,15,126,4,19                  // movq          (%r11,%rdx,1),%xmm8
   .byte  102,68,15,96,192                    // punpcklbw     %xmm0,%xmm8
   .byte  102,65,15,113,240,8                 // psllw         $0x8,%xmm8
-  .byte  102,68,15,228,5,218,8,0,0           // pmulhuw       0x8da(%rip),%xmm8        # 1220 <_sk_xor__ssse3_lowp+0x137>
+  .byte  102,68,15,228,5,86,9,0,0            // pmulhuw       0x956(%rip),%xmm8        # 1420 <_sk_xor__ssse3_lowp+0x1b3>
   .byte  102,65,15,56,11,192                 // pmulhrsw      %xmm8,%xmm0
   .byte  102,15,56,29,192                    // pabsw         %xmm0,%xmm0
   .byte  102,65,15,56,11,200                 // pmulhrsw      %xmm8,%xmm1
@@ -37899,9 +37972,9 @@ _sk_scale_u8_ssse3_lowp:
   .byte  102,69,15,239,192                   // pxor          %xmm8,%xmm8
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  119,172                             // ja            937 <_sk_scale_u8_ssse3_lowp+0x15>
+  .byte  119,172                             // ja            abb <_sk_scale_u8_ssse3_lowp+0x15>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,102,0,0,0                 // lea           0x66(%rip),%r10        # 9fc <_sk_scale_u8_ssse3_lowp+0xda>
+  .byte  76,141,21,102,0,0,0                 // lea           0x66(%rip),%r10        # b80 <_sk_scale_u8_ssse3_lowp+0xda>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -37920,7 +37993,7 @@ _sk_scale_u8_ssse3_lowp:
   .byte  102,68,15,196,192,1                 // pinsrw        $0x1,%eax,%xmm8
   .byte  65,15,182,4,19                      // movzbl        (%r11,%rdx,1),%eax
   .byte  102,68,15,196,192,0                 // pinsrw        $0x0,%eax,%xmm8
-  .byte  233,59,255,255,255                  // jmpq          937 <_sk_scale_u8_ssse3_lowp+0x15>
+  .byte  233,59,255,255,255                  // jmpq          abb <_sk_scale_u8_ssse3_lowp+0x15>
   .byte  240,255                             // lock          (bad)
   .byte  255                                 // (bad)
   .byte  255,228                             // jmpq          *%rsp
@@ -37945,14 +38018,14 @@ FUNCTION(_sk_lerp_1_float_ssse3_lowp)
 _sk_lerp_1_float_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  243,68,15,16,0                      // movss         (%rax),%xmm8
-  .byte  243,68,15,88,5,208,8,0,0            // addss         0x8d0(%rip),%xmm8        # 12f8 <_sk_xor__ssse3_lowp+0x20f>
+  .byte  243,68,15,88,5,76,9,0,0             // addss         0x94c(%rip),%xmm8        # 14f8 <_sk_xor__ssse3_lowp+0x28b>
   .byte  102,68,15,126,192                   // movd          %xmm8,%eax
   .byte  102,68,15,110,192                   // movd          %eax,%xmm8
   .byte  242,69,15,112,192,0                 // pshuflw       $0x0,%xmm8,%xmm8
   .byte  102,69,15,112,192,80                // pshufd        $0x50,%xmm8,%xmm8
   .byte  102,65,15,56,11,192                 // pmulhrsw      %xmm8,%xmm0
   .byte  102,68,15,56,29,200                 // pabsw         %xmm0,%xmm9
-  .byte  102,68,15,111,21,221,7,0,0          // movdqa        0x7dd(%rip),%xmm10        # 1230 <_sk_xor__ssse3_lowp+0x147>
+  .byte  102,68,15,111,21,89,8,0,0           // movdqa        0x859(%rip),%xmm10        # 1430 <_sk_xor__ssse3_lowp+0x1c3>
   .byte  102,69,15,249,208                   // psubw         %xmm8,%xmm10
   .byte  102,15,111,196                      // movdqa        %xmm4,%xmm0
   .byte  102,65,15,56,11,194                 // pmulhrsw      %xmm10,%xmm0
@@ -37985,14 +38058,14 @@ _sk_lerp_u8_ssse3_lowp:
   .byte  72,173                              // lods          %ds:(%rsi),%rax
   .byte  76,139,24                           // mov           (%rax),%r11
   .byte  77,133,192                          // test          %r8,%r8
-  .byte  15,133,169,0,0,0                    // jne           b84 <_sk_lerp_u8_ssse3_lowp+0xb7>
+  .byte  15,133,169,0,0,0                    // jne           d08 <_sk_lerp_u8_ssse3_lowp+0xb7>
   .byte  243,69,15,126,4,19                  // movq          (%r11,%rdx,1),%xmm8
   .byte  102,68,15,96,192                    // punpcklbw     %xmm0,%xmm8
   .byte  102,65,15,113,240,8                 // psllw         $0x8,%xmm8
-  .byte  102,68,15,228,5,75,7,0,0            // pmulhuw       0x74b(%rip),%xmm8        # 1240 <_sk_xor__ssse3_lowp+0x157>
+  .byte  102,68,15,228,5,199,7,0,0           // pmulhuw       0x7c7(%rip),%xmm8        # 1440 <_sk_xor__ssse3_lowp+0x1d3>
   .byte  102,65,15,56,11,192                 // pmulhrsw      %xmm8,%xmm0
   .byte  102,68,15,56,29,200                 // pabsw         %xmm0,%xmm9
-  .byte  102,68,15,111,21,70,7,0,0           // movdqa        0x746(%rip),%xmm10        # 1250 <_sk_xor__ssse3_lowp+0x167>
+  .byte  102,68,15,111,21,194,7,0,0          // movdqa        0x7c2(%rip),%xmm10        # 1450 <_sk_xor__ssse3_lowp+0x1e3>
   .byte  102,69,15,249,208                   // psubw         %xmm8,%xmm10
   .byte  102,15,111,196                      // movdqa        %xmm4,%xmm0
   .byte  102,65,15,56,11,194                 // pmulhrsw      %xmm10,%xmm0
@@ -38022,9 +38095,9 @@ _sk_lerp_u8_ssse3_lowp:
   .byte  102,69,15,239,192                   // pxor          %xmm8,%xmm8
   .byte  65,254,201                          // dec           %r9b
   .byte  65,128,249,6                        // cmp           $0x6,%r9b
-  .byte  15,135,73,255,255,255               // ja            ae6 <_sk_lerp_u8_ssse3_lowp+0x19>
+  .byte  15,135,73,255,255,255               // ja            c6a <_sk_lerp_u8_ssse3_lowp+0x19>
   .byte  69,15,182,201                       // movzbl        %r9b,%r9d
-  .byte  76,141,21,104,0,0,0                 // lea           0x68(%rip),%r10        # c10 <_sk_lerp_u8_ssse3_lowp+0x143>
+  .byte  76,141,21,104,0,0,0                 // lea           0x68(%rip),%r10        # d94 <_sk_lerp_u8_ssse3_lowp+0x143>
   .byte  75,99,4,138                         // movslq        (%r10,%r9,4),%rax
   .byte  76,1,208                            // add           %r10,%rax
   .byte  255,224                             // jmpq          *%rax
@@ -38043,7 +38116,7 @@ _sk_lerp_u8_ssse3_lowp:
   .byte  102,68,15,196,192,1                 // pinsrw        $0x1,%eax,%xmm8
   .byte  65,15,182,4,19                      // movzbl        (%r11,%rdx,1),%eax
   .byte  102,68,15,196,192,0                 // pinsrw        $0x0,%eax,%xmm8
-  .byte  233,216,254,255,255                 // jmpq          ae6 <_sk_lerp_u8_ssse3_lowp+0x19>
+  .byte  233,216,254,255,255                 // jmpq          c6a <_sk_lerp_u8_ssse3_lowp+0x19>
   .byte  102,144                             // xchg          %ax,%ax
   .byte  238                                 // out           %al,(%dx)
   .byte  255                                 // (bad)
@@ -38135,7 +38208,7 @@ FUNCTION(_sk_srcatop_ssse3_lowp)
 _sk_srcatop_ssse3_lowp:
   .byte  102,15,56,11,199                    // pmulhrsw      %xmm7,%xmm0
   .byte  102,68,15,56,29,192                 // pabsw         %xmm0,%xmm8
-  .byte  102,68,15,111,13,177,5,0,0          // movdqa        0x5b1(%rip),%xmm9        # 1260 <_sk_xor__ssse3_lowp+0x177>
+  .byte  102,68,15,111,13,45,6,0,0           // movdqa        0x62d(%rip),%xmm9        # 1460 <_sk_xor__ssse3_lowp+0x1f3>
   .byte  102,68,15,249,203                   // psubw         %xmm3,%xmm9
   .byte  102,15,111,196                      // movdqa        %xmm4,%xmm0
   .byte  102,65,15,56,11,193                 // pmulhrsw      %xmm9,%xmm0
@@ -38168,7 +38241,7 @@ _sk_dstatop_ssse3_lowp:
   .byte  102,68,15,111,196                   // movdqa        %xmm4,%xmm8
   .byte  102,68,15,56,11,195                 // pmulhrsw      %xmm3,%xmm8
   .byte  102,69,15,56,29,192                 // pabsw         %xmm8,%xmm8
-  .byte  102,68,15,111,13,48,5,0,0           // movdqa        0x530(%rip),%xmm9        # 1270 <_sk_xor__ssse3_lowp+0x187>
+  .byte  102,68,15,111,13,172,5,0,0          // movdqa        0x5ac(%rip),%xmm9        # 1470 <_sk_xor__ssse3_lowp+0x203>
   .byte  102,68,15,249,207                   // psubw         %xmm7,%xmm9
   .byte  102,65,15,56,11,193                 // pmulhrsw      %xmm9,%xmm0
   .byte  102,15,56,29,192                    // pabsw         %xmm0,%xmm0
@@ -38231,7 +38304,7 @@ HIDDEN _sk_srcout_ssse3_lowp
 .globl _sk_srcout_ssse3_lowp
 FUNCTION(_sk_srcout_ssse3_lowp)
 _sk_srcout_ssse3_lowp:
-  .byte  102,68,15,111,5,86,4,0,0            // movdqa        0x456(%rip),%xmm8        # 1280 <_sk_xor__ssse3_lowp+0x197>
+  .byte  102,68,15,111,5,210,4,0,0           // movdqa        0x4d2(%rip),%xmm8        # 1480 <_sk_xor__ssse3_lowp+0x213>
   .byte  102,68,15,249,199                   // psubw         %xmm7,%xmm8
   .byte  102,65,15,56,11,192                 // pmulhrsw      %xmm8,%xmm0
   .byte  102,15,56,29,192                    // pabsw         %xmm0,%xmm0
@@ -38248,7 +38321,7 @@ HIDDEN _sk_dstout_ssse3_lowp
 .globl _sk_dstout_ssse3_lowp
 FUNCTION(_sk_dstout_ssse3_lowp)
 _sk_dstout_ssse3_lowp:
-  .byte  102,68,15,111,5,39,4,0,0            // movdqa        0x427(%rip),%xmm8        # 1290 <_sk_xor__ssse3_lowp+0x1a7>
+  .byte  102,68,15,111,5,163,4,0,0           // movdqa        0x4a3(%rip),%xmm8        # 1490 <_sk_xor__ssse3_lowp+0x223>
   .byte  102,68,15,249,195                   // psubw         %xmm3,%xmm8
   .byte  102,15,111,196                      // movdqa        %xmm4,%xmm0
   .byte  102,65,15,56,11,192                 // pmulhrsw      %xmm8,%xmm0
@@ -38268,7 +38341,7 @@ HIDDEN _sk_srcover_ssse3_lowp
 .globl _sk_srcover_ssse3_lowp
 FUNCTION(_sk_srcover_ssse3_lowp)
 _sk_srcover_ssse3_lowp:
-  .byte  102,68,15,111,5,236,3,0,0           // movdqa        0x3ec(%rip),%xmm8        # 12a0 <_sk_xor__ssse3_lowp+0x1b7>
+  .byte  102,68,15,111,5,104,4,0,0           // movdqa        0x468(%rip),%xmm8        # 14a0 <_sk_xor__ssse3_lowp+0x233>
   .byte  102,68,15,249,195                   // psubw         %xmm3,%xmm8
   .byte  102,68,15,111,204                   // movdqa        %xmm4,%xmm9
   .byte  102,69,15,56,11,200                 // pmulhrsw      %xmm8,%xmm9
@@ -38292,7 +38365,7 @@ HIDDEN _sk_dstover_ssse3_lowp
 .globl _sk_dstover_ssse3_lowp
 FUNCTION(_sk_dstover_ssse3_lowp)
 _sk_dstover_ssse3_lowp:
-  .byte  102,68,15,111,5,151,3,0,0           // movdqa        0x397(%rip),%xmm8        # 12b0 <_sk_xor__ssse3_lowp+0x1c7>
+  .byte  102,68,15,111,5,19,4,0,0            // movdqa        0x413(%rip),%xmm8        # 14b0 <_sk_xor__ssse3_lowp+0x243>
   .byte  102,68,15,249,199                   // psubw         %xmm7,%xmm8
   .byte  102,65,15,56,11,192                 // pmulhrsw      %xmm8,%xmm0
   .byte  102,15,56,29,192                    // pabsw         %xmm0,%xmm0
@@ -38328,7 +38401,7 @@ HIDDEN _sk_multiply_ssse3_lowp
 .globl _sk_multiply_ssse3_lowp
 FUNCTION(_sk_multiply_ssse3_lowp)
 _sk_multiply_ssse3_lowp:
-  .byte  102,68,15,111,5,44,3,0,0            // movdqa        0x32c(%rip),%xmm8        # 12c0 <_sk_xor__ssse3_lowp+0x1d7>
+  .byte  102,68,15,111,5,168,3,0,0           // movdqa        0x3a8(%rip),%xmm8        # 14c0 <_sk_xor__ssse3_lowp+0x253>
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,68,15,249,207                   // psubw         %xmm7,%xmm9
   .byte  102,68,15,111,208                   // movdqa        %xmm0,%xmm10
@@ -38377,7 +38450,7 @@ HIDDEN _sk_screen_ssse3_lowp
 .globl _sk_screen_ssse3_lowp
 FUNCTION(_sk_screen_ssse3_lowp)
 _sk_screen_ssse3_lowp:
-  .byte  102,68,15,111,5,82,2,0,0            // movdqa        0x252(%rip),%xmm8        # 12d0 <_sk_xor__ssse3_lowp+0x1e7>
+  .byte  102,68,15,111,5,206,2,0,0           // movdqa        0x2ce(%rip),%xmm8        # 14d0 <_sk_xor__ssse3_lowp+0x263>
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,68,15,249,200                   // psubw         %xmm0,%xmm9
   .byte  102,68,15,56,11,204                 // pmulhrsw      %xmm4,%xmm9
@@ -38404,7 +38477,7 @@ HIDDEN _sk_xor__ssse3_lowp
 .globl _sk_xor__ssse3_lowp
 FUNCTION(_sk_xor__ssse3_lowp)
 _sk_xor__ssse3_lowp:
-  .byte  102,68,15,111,5,238,1,0,0           // movdqa        0x1ee(%rip),%xmm8        # 12e0 <_sk_xor__ssse3_lowp+0x1f7>
+  .byte  102,68,15,111,5,106,2,0,0           // movdqa        0x26a(%rip),%xmm8        # 14e0 <_sk_xor__ssse3_lowp+0x273>
   .byte  102,69,15,111,200                   // movdqa        %xmm8,%xmm9
   .byte  102,68,15,249,207                   // psubw         %xmm7,%xmm9
   .byte  102,65,15,56,11,193                 // pmulhrsw      %xmm9,%xmm0
@@ -38439,26 +38512,91 @@ BALIGN16
   .byte  128,67,0,0                          // addb          $0x0,0x0(%rbx)
   .byte  128,67,0,0                          // addb          $0x0,0x0(%rbx)
   .byte  128,67,0,0                          // addb          $0x0,0x0(%rbx)
-  .byte  128,67,0,4                          // addb          $0x4,0x0(%rbx)
-  .byte  8,12,1                              // or            %cl,(%rcx,%rax,1)
-  .byte  5,9,13,2,6                          // add           $0x6020d09,%eax
-  .byte  10,14                               // or            (%rsi),%cl
-  .byte  3,7                                 // add           (%rdi),%eax
-  .byte  11,15                               // or            (%rdi),%ecx
+  .byte  128,67,0,1                          // addb          $0x1,0x0(%rbx)
+  .byte  4,5                                 // add           $0x5,%al
+  .byte  8,9                                 // or            %cl,(%rcx)
+  .byte  12,13                               // or            $0xd,%al
+  .byte  8,9                                 // or            %cl,(%rcx)
+  .byte  12,13                               // or            $0xd,%al
+  .byte  12,13                               // or            $0xd,%al
+  .byte  14                                  // (bad)
+  .byte  15,129,128,129,128,129              // jno           ffffffff818094b5 <_sk_xor__ssse3_lowp+0xffffffff81808248>
+  .byte  128,129,128,129,128,129,128         // addb          $0x80,-0x7e7f7e80(%rcx)
+  .byte  129,128,129,128,1,2,5,6,9,10        // addl          $0xa090605,0x2018081(%rax)
+  .byte  13,14,9,10,13                       // or            $0xd0a090e,%eax
+  .byte  14                                  // (bad)
+  .byte  13,14,15,255,2                      // or            $0x2ff0f0e,%eax
+  .byte  3,6                                 // add           (%rsi),%eax
+  .byte  7                                   // (bad)
+  .byte  10,11                               // or            (%rbx),%cl
+  .byte  14                                  // (bad)
+  .byte  15,10                               // (bad)
+  .byte  11,14                               // or            (%rsi),%ecx
+  .byte  15,14                               // femms
+  .byte  15,255                              // (bad)
+  .byte  255,3                               // incl          (%rbx)
+  .byte  255,7                               // incl          (%rdi)
+  .byte  255,11                              // decl          (%rbx)
+  .byte  255,15                              // decl          (%rdi)
+  .byte  255,11                              // decl          (%rbx)
+  .byte  255,15                              // decl          (%rdi)
+  .byte  255,15                              // decl          (%rdi)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
+  .byte  255,0                               // incl          (%rax)
   .byte  129,128,129,128,129,128,129,128,129,128// addl          $0x80818081,-0x7f7e7f7f(%rax)
   .byte  129,128,129,128,129,128,129,128,129,128// addl          $0x80818081,-0x7f7e7f7f(%rax)
   .byte  129,128,129,128,129,128,129,128,129,128// addl          $0x80818081,-0x7f7e7f7f(%rax)
-  .byte  129,128,129,128,129,128,129,128,129,128// addl          $0x80818081,-0x7f7e7f7f(%rax)
-  .byte  129,128,129,128,129,128,129,128,0,128// addl          $0x80008081,-0x7f7e7f7f(%rax)
+  .byte  129,128,0,128,0,128,0,128,0,128     // addl          $0x80008000,-0x7fff8000(%rax)
   .byte  0,128,0,128,0,128                   // add           %al,-0x7fff8000(%rax)
-  .byte  0,128,0,128,0,128                   // add           %al,-0x7fff8000(%rax)
-  .byte  0,128,0,4,8,12                      // add           %al,0xc080400(%rax)
-  .byte  1,5,9,13,2,6                        // add           %eax,0x6020d09(%rip)        # 6021f03 <_sk_xor__ssse3_lowp+0x6020e1a>
-  .byte  10,14                               // or            (%rsi),%cl
-  .byte  3,7                                 // add           (%rdi),%eax
-  .byte  11,15                               // or            (%rdi),%ecx
-  .byte  129,128,129,128,129,128,129,128,129,128// addl          $0x80818081,-0x7f7e7f7f(%rax)
-  .byte  129,128,129,128,129,128,0,128,0,128 // addl          $0x80008000,-0x7f7e7f7f(%rax)
+  .byte  0,128,0,1,4,5                       // add           %al,0x5040100(%rax)
+  .byte  8,9                                 // or            %cl,(%rcx)
+  .byte  12,13                               // or            $0xd,%al
+  .byte  8,9                                 // or            %cl,(%rcx)
+  .byte  12,13                               // or            $0xd,%al
+  .byte  12,13                               // or            $0xd,%al
+  .byte  14                                  // (bad)
+  .byte  15,255                              // (bad)
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,255                               // add           %bh,%bh
+  .byte  0,129,128,129,128,129               // add           %al,-0x7e7f7e80(%rcx)
+  .byte  128,129,128,129,128,129,128         // addb          $0x80,-0x7e7f7e80(%rcx)
+  .byte  129,128,129,128,1,2,5,6,9,10        // addl          $0xa090605,0x2018081(%rax)
+  .byte  13,14,9,10,13                       // or            $0xd0a090e,%eax
+  .byte  14                                  // (bad)
+  .byte  13,14,15,255,2                      // or            $0x2ff0f0e,%eax
+  .byte  3,6                                 // add           (%rsi),%eax
+  .byte  7                                   // (bad)
+  .byte  10,11                               // or            (%rbx),%cl
+  .byte  14                                  // (bad)
+  .byte  15,10                               // (bad)
+  .byte  11,14                               // or            (%rsi),%ecx
+  .byte  15,14                               // femms
+  .byte  15,255                              // (bad)
+  .byte  255,3                               // incl          (%rbx)
+  .byte  255,7                               // incl          (%rdi)
+  .byte  255,11                              // decl          (%rbx)
+  .byte  255,15                              // decl          (%rdi)
+  .byte  255,11                              // decl          (%rbx)
+  .byte  255,15                              // decl          (%rdi)
+  .byte  255,15                              // decl          (%rdi)
+  .byte  255                                 // (bad)
+  .byte  255                                 // (bad)
+  .byte  255,0                               // incl          (%rax)
+  .byte  128,0,128                           // addb          $0x80,(%rax)
   .byte  0,128,0,128,0,128                   // add           %al,-0x7fff8000(%rax)
   .byte  0,128,0,128,0,128                   // add           %al,-0x7fff8000(%rax)
   .byte  129,128,129,128,129,128,129,128,129,128// addl          $0x80818081,-0x7f7e7f7f(%rax)
