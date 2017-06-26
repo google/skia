@@ -87,14 +87,14 @@ SI V load(const T* src, size_t tail) {
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
-        switch (tail-1) {
-            case 6: v[6] = src[6];
-            case 5: v[5] = src[5];
-            case 4: v[4] = src[4];
-            case 3: v[3] = src[3];
-            case 2: v[2] = src[2];
-            case 1: v[1] = src[1];
-            case 0: v[0] = src[0];
+        switch (tail) {
+            case 7: v[6] = src[6];
+            case 6: v[5] = src[5];
+            case 5: v[4] = src[4];
+            case 4: memcpy(&v, src, 4*sizeof(T)); break;
+            case 3: v[2] = src[2];
+            case 2: memcpy(&v, src, 2*sizeof(T)); break;
+            case 1: memcpy(&v, src, 1*sizeof(T)); break;
         }
         return v;
     }
@@ -105,14 +105,14 @@ template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
-        switch (tail-1) {
-            case 6: dst[6] = v[6];
-            case 5: dst[5] = v[5];
-            case 4: dst[4] = v[4];
-            case 3: dst[3] = v[3];
-            case 2: dst[2] = v[2];
-            case 1: dst[1] = v[1];
-            case 0: dst[0] = v[0];
+        switch (tail) {
+            case 7: dst[6] = v[6];
+            case 6: dst[5] = v[5];
+            case 5: dst[4] = v[4];
+            case 4: memcpy(dst, &v, 4*sizeof(T)); break;
+            case 3: dst[2] = v[2];
+            case 2: memcpy(dst, &v, 2*sizeof(T)); break;
+            case 1: memcpy(dst, &v, 1*sizeof(T)); break;
         }
         return;
     }
