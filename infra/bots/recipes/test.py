@@ -556,6 +556,12 @@ def dm_flags(bot):
   if 'Valgrind' in bot and 'PreAbandonGpuContext' in bot:
     args.append('--verbose')
 
+  if 'NexusPlayer' in bot and 'CPU' in bot:
+    # The Nexus Player's image decoding tests are slow enough that swarming
+    # times it out for not printing anything frequently enough.  --verbose
+    # makes dm print something every time we start or complete a task.
+    args.append('--verbose')
+
   return args
 
 
