@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43902aa6_9a9df09e",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "I think this would be better to have this in SkBlurImageFilter since it only applies there.\n\nI also think this would be better named \u0027BorderHandling\u0027, \u0027EdgeMode\u0027, etc. \"TileMode\" is already used in Skia for Repeat, Mirror, etc in SkShader.h. Although the concepts are related I don\u0027t think we should use the same enum/names.",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96044ff6_10c27ce2",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Expand the comment a bit with something like:\n\n/* This re-weights the filter so samples outside have no effect */\n\n?",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc245252_c29179d3",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "don\u0027t need the \u0027this-\u003e\u0027 on member variable accesses",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3242262_10414b03",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "switch to Yoda speak i.e., \"SkImageFilter::TileMode::kClamp_TileMode \u003d\u003d tileMode\"",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acb79847_79b796ba",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Yoda speak here too",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f43500d5_10b67825",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Yoda speak here too",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6585170f_b9848385",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Can this fit on one line?",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e245445a_19c6c0a2",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Add entry for new parameter:\n\n* @param tileMode ...",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "052b0402_24ac4ca5",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Expand this comment with the prefix \"Add a running sum of the used weights ...\"",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c450bf82_f0b7d96b",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T17:28:38Z",
+      "side": 1,
+      "message": "Can this fit on one line?",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
