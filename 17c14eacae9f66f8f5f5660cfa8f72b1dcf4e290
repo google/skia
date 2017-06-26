@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff2bffbf_8ad31088",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "// Sometimes adjacent opLists are explicitly split for semaphores. In this case they both have \u0027isSharedRT\u0027 set.",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f2dcd48_7ec35e33",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "rm \"work\" ?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ecdc1c0_66ab1aa2",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1441,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "What?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e59d435_925e2868",
+        "filename": "src/gpu/ops/GrDrawableOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "I\u0027m a bit surprised \u0027drawable\u0027 isn\u0027t an sk_sp",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f2a5e90_f5eb5bb6",
+        "filename": "src/gpu/ops/GrDrawableOp.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "assert either both semaphores exist or don\u0027t exist together ?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fff0320_dfc454ac",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "Does it really rely on static initializers ?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54ac507e_4b0a715b",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "override ?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf3d796d_86631603",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "Magenta ?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36ec8e40_4e2d2cae",
+        "filename": "tests/VkDrawableTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T16:04:21Z",
+      "side": 1,
+      "message": "Magenta ?",
+      "revId": "17c14eacae9f66f8f5f5660cfa8f72b1dcf4e290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
