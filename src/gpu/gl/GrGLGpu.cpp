@@ -818,10 +818,12 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
     SkASSERT(this->caps()->isConfigTexturable(texConfig));
 
     if (!check_write_and_transfer_input(glTex, texture, config)) {
+        SkDebugf("**** Failed check_write_and_transfer_input\n");
         return false;
     }
 
     if (width <= 0 || width > SK_MaxS32 || height <= 0 || height > SK_MaxS32) {
+        SkDebugf("**** Invalid size\n");
         return false;
     }
 
@@ -841,9 +843,11 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
                                                &width, &height,
                                                &pixels,
                                                &rowBytes)) {
+        SkDebugf("**** AdjustWritePixelParams failed\n");
         return false;
     }
     if (width < 0 || width < 0) {
+        SkDebugf("**** Negative size\n");
         return false;
     }
 
@@ -862,6 +866,7 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
     GrGLenum externalType;
     if (!this->glCaps().getTexImageFormats(texConfig, config, &internalFormat,
                                            &externalFormat, &externalType)) {
+        SkDebugf("**** getTexImageFormats failed\n");
         return false;
     }
 

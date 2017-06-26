@@ -397,6 +397,7 @@ bool GrGpu::transferPixels(GrTexture* texture,
 
     // We don't allow conversion between integer configs and float/fixed configs.
     if (GrPixelConfigIsSint(texture->config()) != GrPixelConfigIsSint(config)) {
+        SkDebugf("**** Failed config check\n");
         return false;
     }
 
@@ -409,6 +410,7 @@ bool GrGpu::transferPixels(GrTexture* texture,
 
         return true;
     }
+    SkDebugf("**** Failed onTransferPixels\n");
     return false;
 }
 
