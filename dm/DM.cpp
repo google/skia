@@ -1289,11 +1289,13 @@ int main(int argc, char** argv) {
         gSkForceAnalyticAA = true;
     }
 
-    if (FLAGS_verbose) {
-        gVLog = stderr;
-    } else if (!FLAGS_writePath.isEmpty()) {
+    // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
+    if (!FLAGS_writePath.isEmpty()) {
         sk_mkdir(FLAGS_writePath[0]);
         gVLog = fopen(SkOSPath::Join(FLAGS_writePath[0], "verbose.log").c_str(), "w");
+    }
+    if (FLAGS_verbose) {
+        gVLog = stderr;
     }
 
     GrContextOptions grCtxOptions;
