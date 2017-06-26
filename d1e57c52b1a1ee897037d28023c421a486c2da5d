@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e4aef3d8_cc1269c5",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-06-26T18:03:08Z",
+      "side": 1,
+      "message": "are thinking of something like:\n\n// client would implement this with some switch/if block based on the GrBackend which would be queryable off the GrBackendDrawable. GrBackendDrawable would have getter functions that return infos appropriate for different backends.\nvirtual void drawBackend(GrBackendDrawable*) {}\n\n// Internally can still store flags, but we\u0027ll restrict setting the flags to Vulkan only for now so clients don\u0027t try to do other backends we haven\u0027t implemented. \nbool isBackendSupport(GrBackend);",
+      "parentUuid": "a72895c1_f8ea5794",
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5e8031f_44606cf7",
         "filename": "include/gpu/vk/GrVkTypes.h",
         "patchSetId": 9
