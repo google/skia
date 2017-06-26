@@ -203,7 +203,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     return nullptr;
 }
 
-static bool gPrintStartupSpew;
+static bool gPrintStartupSpew = true;
 
 GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     : GrGpu(context)
@@ -257,14 +257,17 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
         const GrGLubyte* vendor;
         const GrGLubyte* renderer;
         const GrGLubyte* version;
+        const GrGLubyte* glslVersion;
         GL_CALL_RET(vendor, GetString(GR_GL_VENDOR));
         GL_CALL_RET(renderer, GetString(GR_GL_RENDERER));
         GL_CALL_RET(version, GetString(GR_GL_VERSION));
+        GL_CALL_RET(glslVersion, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
         SkDebugf("------------------------- create GrGLGpu %p --------------\n",
                  this);
         SkDebugf("------ VENDOR %s\n", vendor);
         SkDebugf("------ RENDERER %s\n", renderer);
         SkDebugf("------ VERSION %s\n",  version);
+        SkDebugf("------ SHADING LANGUAGE VERSION %s\n", glslVersion);
         SkDebugf("------ EXTENSIONS\n");
         this->glContext().extensions().print();
         SkDebugf("\n");
