@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c45e64e_237bc081",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Huh, I didn\u0027t think it was possible to use constexpr and const together.",
+      "range": {
+        "startLine": 240,
+        "startChar": 11,
+        "endLine": 240,
+        "endChar": 26
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03323b4e_0b43c7bd",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "nit: simplify",
+      "range": {
+        "startLine": 244,
+        "startChar": 32,
+        "endLine": 244,
+        "endChar": 93
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07703095_48b4c9ba",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "nit: fErrors.error(Position(), \"Only a single colorspace uniform is supported.\");",
+      "range": {
+        "startLine": 355,
+        "startChar": 12,
+        "endLine": 355,
+        "endChar": 43
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5010edb2_33e14d9c",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 1402,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "It seems like sampling a texture and then applying a xform would give a different result than xforming the texture and then sampling. It seems like xform-then-sample would give a more-correct result. Does it matter?",
+      "range": {
+        "startLine": 1402,
+        "startChar": 27,
+        "endLine": 1402,
+        "endChar": 47
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1f114df_273da77b",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Seems like it would be easy to miss the SkDebugf output since it wouldn\u0027t cause a test failure.",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 15
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

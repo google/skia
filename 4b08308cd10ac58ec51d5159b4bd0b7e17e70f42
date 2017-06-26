@@ -1010,6 +1010,30 @@
     },
     {
       "key": {
+        "uuid": "064b75a5_ccf62bda",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Oooh!! I thought we were doing the GLSL compilation in advance so that we don\u0027t need to run the SkSL compiler at runtime.",
+      "parentUuid": "3c82c272_49783482",
+      "range": {
+        "startLine": 291,
+        "startChar": 8,
+        "endLine": 291,
+        "endChar": 37
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b289e07_499ad78e",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -1054,6 +1078,30 @@
       "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51f3c60c_7b02f39c",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Well, if I were a jerk, I would ask you to add a virtual method Expression::asCpp(), change Expression::description() to return the result of Expression::asCpp(), and rename all the description methods for subclasses to asCpp. If you sent me that CL, I would probably review the asCpp implementations more carefully.",
+      "parentUuid": "71297eba_297fd8ce",
+      "range": {
+        "startLine": 383,
+        "startChar": 33,
+        "endLine": 383,
+        "endChar": 67
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -1386,6 +1434,30 @@
     },
     {
       "key": {
+        "uuid": "7063b734_2f8b4ba5",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Just curious what you mean by \"they can\u0027t contain newlines\" -- the string will contain exactly what appears in the source code, including newlines. Indentation is an issue, however.\n\nFTR, I think not using raw strings is fine.",
+      "parentUuid": "62bdb0f9_fe043c35",
+      "range": {
+        "startLine": 579,
+        "startChar": 17,
+        "endLine": 579,
+        "endChar": 23
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88393af5_fe629862",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -1634,6 +1706,30 @@
       "side": 1,
       "message": "Well, an expression of some kind, at least. I have clarified the comment.",
       "parentUuid": "333b1efb_e657fa3e",
+      "range": {
+        "startLine": 45,
+        "startChar": 77,
+        "endLine": 45,
+        "endChar": 93
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e6ab6fe_10daba79",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "My comment was about multiple evaluation. The implementation outputs \u003ccppCode\u003e.fX, \u003ccppCode\u003e.fY, so if cppCode is \"*(array++)\" it might not work as expected. Probably not worth worrying about though.",
+      "parentUuid": "39341059_2c712be5",
       "range": {
         "startLine": 45,
         "startChar": 77,
@@ -2189,6 +2285,30 @@
     },
     {
       "key": {
+        "uuid": "f42e7ce4_9b074b6e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Hmm, I guess it must be creating a unique_ptr from nullptr and trying to copy that. Oh well.",
+      "parentUuid": "d6fcce3b_d730feb1",
+      "range": {
+        "startLine": 683,
+        "startChar": 8,
+        "endLine": 685,
+        "endChar": 9
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7d70e75_cbc7eeab",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 23
@@ -2576,6 +2696,30 @@
       "side": 1,
       "message": "It\u0027s right, I added a test to confirm.",
       "parentUuid": "dd2ef4ca_3d93e590",
+      "range": {
+        "startLine": 624,
+        "startChar": 0,
+        "endLine": 629,
+        "endChar": 9
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78b0c936_32f10528",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 629,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Ah, level is initialized to 1, so getting to level 0 means we are at the end of the layout.",
+      "parentUuid": "10fb8f98_445796d1",
       "range": {
         "startLine": 624,
         "startChar": 0,
@@ -2993,6 +3137,30 @@
     },
     {
       "key": {
+        "uuid": "182fc8f0_3a23397a",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "sgtm, although the generated code wouldn\u0027t be checked in, so it\u0027s not as easy to review.",
+      "parentUuid": "797e85a5_282520bb",
+      "range": {
+        "startLine": 150,
+        "startChar": 13,
+        "endLine": 151,
+        "endChar": 99
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b2c37e8_73290ba8",
         "filename": "tests/SkSLFPTest.cpp",
         "patchSetId": 23
@@ -3084,6 +3252,30 @@
       "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6c9d7ca_0fa95881",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-26T22:06:38Z",
+      "side": 1,
+      "message": "Looks like you covered it.",
+      "parentUuid": "2818365e_46dc61b8",
+      "range": {
+        "startLine": 253,
+        "startChar": 9,
+        "endLine": 253,
+        "endChar": 41
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
