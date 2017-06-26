@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab13e217_0442749d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-06-26T13:35:42Z",
+      "side": 1,
+      "message": "Why isn\u0027t this currentHeight?",
+      "range": {
+        "startLine": 704,
+        "startChar": 49,
+        "endLine": 704,
+        "endChar": 62
+      },
+      "revId": "e71d6aad0208bb8be1e252b2aaa435f8ea9d94fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
