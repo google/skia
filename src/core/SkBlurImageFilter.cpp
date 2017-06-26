@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkBlurImageFilter.h"
+
 #include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
 #include "SkGpuBlurUtils.h"
@@ -51,9 +53,9 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImageFilter> SkImageFilter::MakeBlur(SkScalar sigmaX, SkScalar sigmaY,
+sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
-                                             const CropRect* cropRect) {
+                                             const SkImageFilter::CropRect* cropRect) {
     if (0 == sigmaX && 0 == sigmaY && !cropRect) {
         return input;
     }
@@ -83,7 +85,7 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    return SkImageFilter::MakeBlur(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
+    return SkBlurImageFilter::Make(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
 }
 
 void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
@@ -276,7 +278,7 @@ const {
     }
 
     sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkImageFilter::MakeBlur(fSigma.width(), fSigma.height(), std::move(input),
+    return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
                                    this->getCropRectIfSet());
 }
 
