@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "898ac4c2_7fb89d0a",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-26T22:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8e37ba7_9e627aeb",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2f444780_0d2cd2d2",
         "filename": "gm/imageblurclampmode.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-26T14:43:46Z",
       "side": 1,
       "message": "Is this clipRect actually doing anything?",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "566760e1_258405bc",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-26T22:04:58Z",
+      "side": 1,
+      "message": "Yes, this clip will remove the extended 3*sigma area in skia. Without this clip, the extended 3*sigma area will have the same value as the edge, which makes it looks weird.\n\nIn the case I try to fix in ChromeOS, we should always clip. IIRC, Chrome passes in a src_image already with 3*sigma expanding and intersected with the viewport.",
+      "parentUuid": "2f444780_0d2cd2d2",
       "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "9ed89f67_7fad1b90",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-26T22:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "532becc4_ee36e9d6",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b52b8bc_01d0c27b",
         "filename": "gm/imageblurclampmode.cpp",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "501eb990_3e86ee8c",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-26T22:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b52b8bc_01d0c27b",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "bc43ec50_2bba0748",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-26T22:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3965fb22_acfd2125",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b274df3_b1520aec",
         "filename": "gm/imageblurclampmode.cpp",
         "patchSetId": 1
@@ -101,6 +191,24 @@
       "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19a40ff3_2e2cbf5c",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-26T22:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b274df3_b1520aec",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
