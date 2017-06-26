@@ -444,6 +444,11 @@ bool GrVkGpu::onTransferPixels(GrTexture* texture,
         return false;
     }
 
+    SkDEBUGCODE(
+        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+        SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
+        SkASSERT(bounds.contains(subRect));
+    )
     size_t bpp = GrBytesPerPixel(config);
     if (rowBytes == 0) {
         rowBytes = bpp*width;
@@ -555,13 +560,16 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
     SkASSERT(data);
     SkASSERT(tex->isLinearTiled());
 
+    SkDEBUGCODE(
+        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+        SkIRect bounds = SkIRect::MakeWH(tex->width(), tex->height());
+        SkASSERT(bounds.contains(subRect));
+    )
     size_t bpp = GrBytesPerPixel(dataConfig);
-
-    if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
-                                               &width, &height, &data, &rowBytes)) {
-        return false;
-    }
     size_t trimRowBytes = width * bpp;
+    if (!rowBytes) {
+        rowBytes = trimRowBytes;
+    }
 
     SkASSERT(VK_IMAGE_LAYOUT_PREINITIALIZED == tex->currentLayout() ||
              VK_IMAGE_LAYOUT_GENERAL == tex->currentLayout());
@@ -643,16 +651,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     // Determine whether we need to flip when we copy into the buffer
     bool flipY = (kBottomLeft_GrSurfaceOrigin == tex->origin() && !texelsShallowCopy.empty());
 
-    // adjust any params (left, top, currentWidth, currentHeight
-    // find the combined size of all the mip levels and the relative offset of
-    // each into the collective buffer
-    // Do the first level separately because we may need to adjust width and height
-    // (for the non-mipped case).
-    if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
-                                               &width, &height, &texelsShallowCopy[0].fPixels,
-                                               &texelsShallowCopy[0].fRowBytes)) {
-        return false;
-    }
     SkTArray<size_t> individualMipOffsets(texelsShallowCopy.count());
     individualMipOffsets.push_back(0);
     size_t combinedBufferSize = width * bpp * height;
@@ -665,12 +663,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     for (int currentMipLevel = 1; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
-        if (!GrSurfacePriv::AdjustWritePixelParams(tex->width(), tex->height(), bpp, &left, &top,
-                                                   &currentWidth, &currentHeight,
-                                                   &texelsShallowCopy[currentMipLevel].fPixels,
-                                                   &texelsShallowCopy[currentMipLevel].fRowBytes)) {
-            return false;
-        }
+
         const size_t trimmedSize = currentWidth * bpp * currentHeight;
         const size_t alignmentDiff = combinedBufferSize & alignmentMask;
         if (alignmentDiff != 0) {
@@ -695,7 +688,9 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
         SkASSERT(1 == texelsShallowCopy.count() || currentHeight == layerHeight);
         const size_t trimRowBytes = currentWidth * bpp;
-        const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
+        const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes ?
+                                texelsShallowCopy[currentMipLevel].fRowBytes :
+                                trimRowBytes;
 
         // copy data into the buffer, skipping the trailing bytes
         char* dst = buffer + individualMipOffsets[currentMipLevel];
