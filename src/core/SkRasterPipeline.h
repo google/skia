@@ -106,7 +106,7 @@ struct SkJumper_constants;
     M(gauss_a_to_rgba) M(gradient)                               \
     M(evenly_spaced_2_stop_gradient)                             \
     M(xy_to_unit_angle)                                          \
-    M(xy_to_radius)                                              \
+    M(xy_to_radius) M(xy_to_2pt_radius)                          \
     M(byte_tables) M(byte_tables_rgb)                            \
     M(rgb_to_hsl)                                                \
     M(hsl_to_rgb)

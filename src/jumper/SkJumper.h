@@ -102,4 +102,10 @@ struct SkJumper_GradientCtx {
     float* ts;
 };
 
+struct SkJumper_2PtConicalCtx {
+    float fA;
+    float fDCenterX, fDCenterY;
+    float fRadius, fRadius2, fDRadius, fRDR;
+};
+
 #endif//SkJumper_DEFINED

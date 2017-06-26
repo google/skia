@@ -7,6 +7,8 @@
 
 #include "SkTwoPointConicalGradient.h"
 
+#include "../../jumper/SkJumper.h"
+
 struct TwoPtRadialContext {
     const TwoPtRadial&  fRec;
     float               fRelX, fRelY;
@@ -422,3 +424,26 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
     str->append(")");
 }
 #endif
+
+bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                                            SkMatrix* matrix,
+                                                            SkRasterPipeline* p) const {
+    matrix->postTranslate(-fCenter1.x(), -fCenter1.y());
+
+    auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
+    ctx->fDCenterX = fCenter2.x() - fCenter1.x();
+    ctx->fDCenterY = fCenter2.y() - fCenter1.y();
+
+    ctx->fRadius   = fRadius1;
+    ctx->fRadius2  = fRadius1 * fRadius1;
+    ctx->fDRadius  = fRadius2 - fRadius1;
+    ctx->fRDR      = ctx->fRadius * ctx->fDRadius;
+
+    ctx->fA = ctx->fDCenterX * ctx->fDCenterX +
+              ctx->fDCenterY * ctx->fDCenterY -
+              ctx->fDRadius  * ctx->fDRadius;
+
+    p->append(SkRasterPipeline::xy_to_2pt_radius, ctx);
+
+    return true;
+}

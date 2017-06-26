@@ -79,6 +79,10 @@ protected:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
+    bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                     SkMatrix* matrix,
+                                     SkRasterPipeline* p) const final;
+
 private:
     SkPoint fCenter1;
     SkPoint fCenter2;

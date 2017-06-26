@@ -1127,6 +1127,26 @@ STAGE(xy_to_radius) {
     r = sqrt_(X2 + Y2);
 }
 
+STAGE(xy_to_2pt_radius) {
+    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
+
+    const F A = c->fA;
+    //const F B = -2 * (r * c->fDCenterX + g * c->fDCenterY + c->fRDR);
+    const F B = -2 * mad(r, c->fDCenterX, mad(g, c->fDCenterY, c->fRDR));
+    //const F C = r * r + g * g - c->fRadius2;
+    const F C = mad(r, r, mad(g, g, -c->fRadius2));
+    const F D = mad(B, B, -4 * A * C);
+
+    // TODO: handle no roots.
+    const F sD = sqrt_(D);
+    auto Q = if_then_else(B < 0, B - sD, B + sD) * -0.5f;
+
+    auto r0 = Q / A;
+    auto r1 = C / Q;
+
+    r = max(r0, r1);
+}
+
 STAGE(save_xy) {
     auto c = (SkJumper_SamplerCtx*)ctx;
 
