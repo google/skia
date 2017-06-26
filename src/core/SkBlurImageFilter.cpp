@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "SkBlurImageFilter.h"
+
 #include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
 #include "SkGpuBlurUtils.h"
@@ -51,9 +53,9 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkImageFilter> SkImageFilter::MakeBlur(SkScalar sigmaX, SkScalar sigmaY,
+sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
-                                             const CropRect* cropRect) {
+                                             const SkImageFilter::CropRect* cropRect) {
     if (0 == sigmaX && 0 == sigmaY && !cropRect) {
         return input;
     }
