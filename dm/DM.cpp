@@ -1231,6 +1231,9 @@ static void gather_tests() {
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }
+        if (strcmp("TransferBufferTest", test.name)) {
+            continue;
+        }
         if (test.needsGpu && gpu_supported()) {
             (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
