@@ -13,6 +13,53 @@
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
 
+static void do_caps(SkCanvas* canvas, int x, int y, SkPaint::Cap cap, bool addLine, bool close) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(16);
+    paint.setStrokeCap(cap);
+    SkColor c = SK_ColorBLACK;
+    if (addLine) {
+        c |= SK_ColorRED;
+    }
+    if (close) {
+        c |= SK_ColorGREEN;
+    }
+    paint.setColor(c);
+    SkPath path;
+    path.moveTo(x, y);
+    if (addLine) {
+        path.lineTo(x, y);
+    }
+    if (close) {
+        path.close();
+    }
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(bug_6781, canvas, 850, 200) {
+    do_caps(canvas, 20, 20, SkPaint::kRound_Cap, false, false);
+    do_caps(canvas, 40, 20, SkPaint::kRound_Cap, true, false);
+
+    do_caps(canvas, 20, 40, SkPaint::kSquare_Cap, false, false);
+    do_caps(canvas, 40, 40, SkPaint::kSquare_Cap, true, false);
+
+    do_caps(canvas, 20, 60, SkPaint::kButt_Cap, false, false);
+    do_caps(canvas, 40, 60, SkPaint::kButt_Cap, true, false);
+
+    canvas->translate(60, 0);
+
+    do_caps(canvas, 20, 20, SkPaint::kRound_Cap, false, true);
+    do_caps(canvas, 40, 20, SkPaint::kRound_Cap, true, true);
+
+    do_caps(canvas, 20, 40, SkPaint::kSquare_Cap, false, true);
+    do_caps(canvas, 40, 40, SkPaint::kSquare_Cap, true, true);
+
+    do_caps(canvas, 20, 60, SkPaint::kButt_Cap, false, true);
+    do_caps(canvas, 40, 60, SkPaint::kButt_Cap, true, true);
+}
+
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
     const SkScalar sz = 50.0f;
