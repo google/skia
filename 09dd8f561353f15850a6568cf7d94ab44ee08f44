@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1f50534_545b1338",
+        "filename": "src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-26T19:17:05Z",
+      "side": 1,
+      "message": "I opted for this check (rather than bounds().isEmpty()) so that stroked vertical and horizontal lines would still be picked up. Not sure how important that case is (as a path, rather than drawLine).",
+      "revId": "09dd8f561353f15850a6568cf7d94ab44ee08f44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
