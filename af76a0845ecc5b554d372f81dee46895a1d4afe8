@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8e37ba7_9e627aeb",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T14:43:46Z",
+      "side": 1,
+      "message": "Skia typically uses \"static\" on static local methods rather than anonymous namespaces.",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f444780_0d2cd2d2",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T14:43:46Z",
+      "side": 1,
+      "message": "Is this clipRect actually doing anything?",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "532becc4_ee36e9d6",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T14:43:46Z",
+      "side": 1,
+      "message": "You could also do \"for (auto sigma: {  0.6f, 3.0f, 8.0f, 20.0f }) {\" here if you prefer.",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b52b8bc_01d0c27b",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T14:43:46Z",
+      "side": 1,
+      "message": "std::move(filter) ?",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3965fb22_acfd2125",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T14:43:46Z",
+      "side": 1,
+      "message": "std::move(filter) ?",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b274df3_b1520aec",
+        "filename": "gm/imageblurclampmode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-26T14:43:46Z",
+      "side": 1,
+      "message": "std::move(filter) ?",
+      "revId": "af76a0845ecc5b554d372f81dee46895a1d4afe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
