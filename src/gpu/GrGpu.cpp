@@ -354,6 +354,17 @@ bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
     SkASSERT(surface);
+    if (1 == texels.count()) {
+        // We require that if we are not mipped, than the write region is contained in the surface
+        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+        SkIRect bounds = SkIRect::MakeWH(surface->width(), surface->height());
+        if (!bounds.contains(subRect)) {
+            return false;
+        }
+    } else if (0 != left || 0 != top || width != surface->width() || height != surface->height()) {
+        // We require that if the texels are mipped, than the write region is the entire surface
+        return false;
+    }
 
     for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
         if (!texels[currentMipLevel].fPixels ) {
