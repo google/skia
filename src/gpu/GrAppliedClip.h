@@ -12,6 +12,8 @@
 #include "GrScissorState.h"
 #include "GrWindowRectsState.h"
 
+#include "SkClipStack.h"
+
 /**
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
  * create the final GrPipeline for a GrOp.
@@ -51,9 +53,10 @@ public:
         fClipCoverageFP = fp;
     }
 
-    void addStencilClip() {
+    void addStencilClip(int32_t clipStackID) {
         SkASSERT(!fHasStencilClip);
         fHasStencilClip = true;
+        fClipStackID = clipStackID;
     }
 
     bool doesClip() const {
@@ -62,7 +65,8 @@ public:
     }
 
     bool operator==(const GrAppliedClip& that) const {
-        if (fScissorState != that.fScissorState || fHasStencilClip != that.fHasStencilClip) {
+        if (fScissorState != that.fScissorState || fHasStencilClip != that.fHasStencilClip ||
+            fClipStackID != that.fClipStackID) {
             return false;
         }
         if (SkToBool(fClipCoverageFP)) {
@@ -82,6 +86,7 @@ private:
     GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
     bool                       fHasStencilClip = false;
+    int32_t                    fClipStackID = SkClipStack::kInvalidGenID;
 };
 
 #endif
