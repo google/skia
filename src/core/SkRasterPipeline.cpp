@@ -75,3 +75,10 @@ void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
         this->append(SkRasterPipeline::clamp_a);
     }
 }
+
+void SkRasterPipeline::append_from_srgb_dst(SkAlphaType at) {
+    this->unchecked_append(from_srgb_dst, nullptr);
+    if (at == kPremul_SkAlphaType) {
+        this->append(SkRasterPipeline::clamp_a_dst);
+    }
+}
