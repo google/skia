@@ -26,7 +26,8 @@ public:
     SkBlurImageFilterImpl(SkScalar sigmaX,
                       SkScalar sigmaY,
                       sk_sp<SkImageFilter> input,
-                      const CropRect* cropRect);
+                      const CropRect* cropRect,
+                      SkImageFilter::TileMode tileMode);
 
     SkRect computeFastBounds(const SkRect&) const override;
 
@@ -42,6 +43,7 @@ protected:
 
 private:
     SkSize   fSigma;
+    SkImageFilter::TileMode fTileMode;
     typedef SkImageFilter INHERITED;
 
     friend class SkImageFilter;
@@ -55,11 +57,13 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 sk_sp<SkImageFilter> SkBlurImageFilter::Make(SkScalar sigmaX, SkScalar sigmaY,
                                              sk_sp<SkImageFilter> input,
-                                             const SkImageFilter::CropRect* cropRect) {
+                                             const SkImageFilter::CropRect* cropRect,
+                                             SkImageFilter::TileMode tileMode) {
     if (0 == sigmaX && 0 == sigmaY && !cropRect) {
         return input;
     }
-    return sk_sp<SkImageFilter>(new SkBlurImageFilterImpl(sigmaX, sigmaY, input, cropRect));
+    return sk_sp<SkImageFilter>(
+          new SkBlurImageFilterImpl(sigmaX, sigmaY, input, cropRect, tileMode));
 }
 
 // This rather arbitrary-looking value results in a maximum box blur kernel size
@@ -77,9 +81,12 @@ static SkVector map_sigma(const SkSize& localSigma, const SkMatrix& ctm) {
     return sigma;
 }
 
-SkBlurImageFilterImpl::SkBlurImageFilterImpl(
-        SkScalar sigmaX, SkScalar sigmaY, sk_sp<SkImageFilter> input, const CropRect* cropRect)
-        : INHERITED(&input, 1, cropRect), fSigma{sigmaX, sigmaY} {}
+SkBlurImageFilterImpl::SkBlurImageFilterImpl(SkScalar sigmaX,
+                                             SkScalar sigmaY,
+                                             sk_sp<SkImageFilter> input,
+                                             const CropRect* cropRect,
+                                             SkImageFilter::TileMode tileMode)
+        : INHERITED(&input, 1, cropRect), fSigma{sigmaX, sigmaY}, fTileMode(tileMode) {}
 
 sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
@@ -167,7 +174,9 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
                                                                 dstBounds,
                                                                 &inputBounds,
                                                                 sigma.x(),
-                                                                sigma.y()));
+                                                                sigma.y(),
+                                                                SkBackingFit::kApprox,
+                                                                fTileMode));
         if (!renderTargetContext) {
             return nullptr;
         }
@@ -279,7 +288,7 @@ const {
 
     sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
     return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
-                                   this->getCropRectIfSet());
+                                   this->getCropRectIfSet(), fTileMode);
 }
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {

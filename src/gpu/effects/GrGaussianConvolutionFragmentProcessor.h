@@ -9,6 +9,7 @@
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
 #include "Gr1DKernelEffect.h"
+#include "SkImageFilter.h"
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.
@@ -23,9 +24,11 @@ public:
                                            int halfWidth,
                                            float gaussianSigma,
                                            bool useBounds,
-                                           int* bounds) {
+                                           int* bounds,
+                                           SkImageFilter::TileMode tileMode =
+                                               SkImageFilter::TileMode::kClampToBlack_TileMode) {
         return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-            std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds));
+            std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds, tileMode));
     }
 
     ~GrGaussianConvolutionFragmentProcessor() override;
@@ -34,6 +37,8 @@ public:
 
     const int* bounds() const { return fBounds; }
     bool useBounds() const { return fUseBounds; }
+
+    SkImageFilter::TileMode tileMode() const { return fTileMode; }
 
     const char* name() const override { return "GaussianConvolution"; }
 
@@ -50,7 +55,7 @@ private:
     /// Convolve with a Gaussian kernel
     GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, Direction,
                                            int halfWidth, float gaussianSigma, bool useBounds,
-                                           int bounds[2]);
+                                           int bounds[2], SkImageFilter::TileMode tileMode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -65,6 +70,7 @@ private:
     float fKernel[kMaxKernelWidth];
     bool  fUseBounds;
     int   fBounds[2];
+    SkImageFilter::TileMode fTileMode;
 
     typedef Gr1DKernelEffect INHERITED;
 };

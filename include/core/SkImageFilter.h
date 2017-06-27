@@ -35,6 +35,13 @@ struct SkImageFilterCacheKey;
  */
 class SK_API SkImageFilter : public SkFlattenable {
 public:
+    /*! \enum TileMode */
+    enum TileMode {
+      kClamp_TileMode = 0,    /*!< Clamp to the image's edge pixels. */
+      kClampToBlack_TileMode, /*!< Fill with transparent black. */
+      kMax_TileMode = kClampToBlack_TileMode
+    };
+
     // Extra information about the output of a filter DAG. For now, this is just the color space
     // (of the original requesting device). This is used when constructing intermediate rendering
     // surfaces, so that we ensure we land in a surface that's similar/compatible to the final
