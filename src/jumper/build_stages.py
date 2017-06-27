@@ -32,6 +32,9 @@ subprocess.check_call(clang + cflags + sse2 + win +
 subprocess.check_call(clang + cflags + sse2 + x86 +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'x86_sse2.o'])
+subprocess.check_call(clang + cflags + sse2 + win + x86 +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'win_x86_sse2.o'])
 
 ssse3 = ['-mssse3', '-mno-sse4.1']
 subprocess.check_call(clang + cflags + ssse3 +
@@ -226,8 +229,8 @@ print '''; Copyright 2017 Google Inc.
 ;   $ src/jumper/build_stages.py
 '''
 
-print 'IFDEF RAX'
 print "_text32 SEGMENT ALIGN(32) 'CODE'"
+print 'IFDEF RAX'
 print 'ALIGN 32'
 parse_object_file('win_hsw.o',   'DB')
 print 'ALIGN 32'
@@ -240,5 +243,10 @@ print 'ALIGN 32'
 parse_object_file('win_lowp_hsw.o',  'DB')
 print 'ALIGN 32'
 parse_object_file('win_lowp_ssse3.o',  'DB')
+
+print 'ELSE'
+print 'ALIGN 32'
+parse_object_file('win_x86_sse2.o', 'DB')
+
 print 'ENDIF'
 print 'END'

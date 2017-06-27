@@ -60,7 +60,12 @@ static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 // We can't express the real types of most stage functions portably, so we use a stand-in.
 // We'll only ever call start_pipeline(), which then chains into the rest for us.
 using StageFn = void(void);
-using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
+
+#if defined(_M_IX86)
+    using StartPipelineFn = __fastcall void(size_t,size_t,size_t,void**,K*);
+#else
+    using StartPipelineFn =            void(size_t,size_t,size_t,void**,K*);
+#endif
 
 // Some platforms expect C "name" maps to asm "_name", others to "name".
 #if defined(__APPLE__)
@@ -156,7 +161,7 @@ extern "C" {
         LOWP_STAGES(M)
     #undef M
 
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(_M_IX86)
     StartPipelineFn ASM(start_pipeline,sse2);
     StageFn ASM(just_return,sse2);
     #define M(st) StageFn ASM(st,sse2);
@@ -265,7 +270,7 @@ static SkJumper_Engine choose_engine() {
         };
     }
 
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(_M_IX86)
     if (1 && SkCpu::Supports(SkCpu::SSE2)) {
         return {
         #define M(stage) ASM(stage, sse2),
