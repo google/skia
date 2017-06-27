@@ -12,9 +12,11 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
-// Sometimes we need to make sure externally facing functions are called with MS' ABI, not System V.
-#if defined(JUMPER) && defined(WIN)
-    #define MAYBE_MSABI __attribute__((ms_abi))
+// Externally facing functions (start_pipeline) are called a little specially on Windows.
+#if defined(JUMPER) && defined(WIN) && defined(__x86_64__)
+    #define MAYBE_MSABI __attribute__((ms_abi))                   // Use MS' ABI, not System V.
+#elif defined(JUMPER) && defined(WIN) && defined(__i386__)
+    #define MAYBE_MSABI __attribute__((force_align_arg_pointer))  // Re-align stack 4 -> 16 bytes.
 #else
     #define MAYBE_MSABI
 #endif

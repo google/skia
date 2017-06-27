@@ -154,7 +154,8 @@ extern "C" {
         LOWP_STAGES(M)
     #undef M
 
-#elif defined(__i386__) && !defined(_MSC_VER)
+#elif (defined(__i386__) || defined(_M_IX86)) && \
+        !(defined(_MSC_VER) && defined(SK_SUPPORT_LEGACY_WIN32_JUMPER))
     StartPipelineFn ASM(start_pipeline,sse2);
     StageFn ASM(just_return,sse2);
     #define M(st) StageFn ASM(st,sse2);
@@ -263,7 +264,8 @@ static SkJumper_Engine choose_engine() {
         };
     }
 
-#elif defined(__i386__) && !defined(_MSC_VER)
+#elif (defined(__i386__) || defined(_M_IX86)) && \
+        !(defined(_MSC_VER) && defined(SK_SUPPORT_LEGACY_WIN32_JUMPER))
     if (1 && SkCpu::Supports(SkCpu::SSE2)) {
         return {
         #define M(stage) ASM(stage, sse2),
