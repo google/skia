@@ -579,7 +579,8 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
