@@ -6,12 +6,13 @@
  */
 #include "SkTypes.h"
 
-//TODO: This define is temporary and we will compile with NDK after
-//TODO: Skia bug 6672 is resolved.
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 #include "GrAHardwareBufferImageGenerator.h"
+
+#include <android/hardware_buffer.h>
 
 #include "GrBackendSurface.h"
 #include "GrContext.h"
@@ -65,8 +66,7 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
 GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageInfo& info,
         AHardwareBuffer* graphicBuffer, SkAlphaType alphaType)
     : INHERITED(info)
-    , fGraphicBuffer(graphicBuffer)
-    , fAlphaType(alphaType) {
+    , fGraphicBuffer(graphicBuffer) {
     AHardwareBuffer_acquire(fGraphicBuffer);
 }
 
