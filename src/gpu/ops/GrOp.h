@@ -42,7 +42,7 @@ class GrRenderTargetOpList;
  * The bounds are used in determining which clip elements must be applied and thus the bounds cannot
  * in turn depend upon the clip.
  */
-#define GR_OP_SPEW 0
+#define GR_OP_SPEW 1
 #if GR_OP_SPEW
     #define GrOP_SPEW(code) code
     #define GrOP_INFO(...) SkDebugf(__VA_ARGS__)
