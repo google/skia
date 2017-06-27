@@ -111,14 +111,16 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     memset(dstBuffer.get(), 0xCDCD, size);
     result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
                                            dstBuffer.get(), rowBytes);
-    REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
-                                                                      dstBuffer,
-                                                                      kTextureWidth,
-                                                                      kTextureHeight,
-                                                                      kBufferWidth,
-                                                                      kBufferHeight,
-                                                                      origin));
+    if (result) {
+        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
+                                                                          dstBuffer,
+                                                                          kTextureWidth,
+                                                                          kTextureHeight,
+                                                                          kBufferWidth,
+                                                                          kBufferHeight,
+                                                                          origin));
+    }
+    
     //////////////////////////
     // transfer partial data
 
@@ -141,15 +143,15 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     memset(dstBuffer.get(), 0xCDCD, size);
     result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
                                            dstBuffer.get(), rowBytes);
-    REPORTER_ASSERT(reporter, result);
-
-    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
-                                                                      dstBuffer,
-                                                                      kTextureWidth,
-                                                                      kTextureHeight,
-                                                                      kBufferWidth,
-                                                                      kBufferHeight,
-                                                                      origin));
+    if (result) {
+        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
+                                                                          dstBuffer,
+                                                                          kTextureWidth,
+                                                                          kTextureHeight,
+                                                                          kBufferWidth,
+                                                                          kBufferHeight,
+                                                                          origin));
+    }
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsTest, reporter, ctxInfo) {
