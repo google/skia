@@ -93,12 +93,9 @@ public:
         }
     }
 
-    void purgeByKeys(const Key keys[], int count) override {
-        SkAutoMutexAcquire mutex(fMutex);
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
-                this->removeInternal(v);
-            }
+    void purgeByKey(const Key key) override {
+        if (Value* v = fLookup.find(key)) {
+            this->removeInternal(v);
         }
     }
 

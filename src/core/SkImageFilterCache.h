@@ -57,7 +57,7 @@ public:
     virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
                      const SkIPoint& offset) = 0;
     virtual void purge() = 0;
-    virtual void purgeByKeys(const SkImageFilterCacheKey[], int) = 0;
+    virtual void purgeByKey(const SkImageFilterCacheKey) = 0;
     SkDEBUGCODE(virtual int count() const = 0;)
 };
 
