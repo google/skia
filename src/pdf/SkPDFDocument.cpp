@@ -215,8 +215,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
     }
     SkISize pageSize = SkISize::Make(
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-    fPageDevice.reset(
-            SkPDFDevice::Create(pageSize, fRasterDpi, this));
+    fPageDevice = SkPDFDevice::Make(pageSize, fRasterDpi, this);
     fCanvas.reset(new SkPDFCanvas(fPageDevice));
     if (SkRect::MakeWH(width, height) != trimBox) {
         fCanvas->clipRect(trimBox);
