@@ -84,6 +84,9 @@ protected:
         bkgrnd.setColor(SK_ColorWHITE);
         canvas->drawRect(SkRect::MakeIWH(onISize().fWidth, onISize().fHeight), bkgrnd);
 
+        // Move to pixel centers. The non-AA parts of this test are really poorly defined otherwise.
+        canvas->translate(0.5f, 0.5f);
+
          auto drawPaths = [&](SkPaint& paint, int indexMask) {
             canvas->translate(0, 30.0f);
             int index = 0;
