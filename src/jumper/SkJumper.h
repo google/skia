@@ -13,7 +13,7 @@
 // Keep it simple!
 
 // Sometimes we need to make sure externally facing functions are called with MS' ABI, not System V.
-#if defined(JUMPER) && defined(WIN)
+#if defined(JUMPER) && defined(WIN) && defined(__x86_64__)
     #define MAYBE_MSABI __attribute__((ms_abi))
 #else
     #define MAYBE_MSABI
