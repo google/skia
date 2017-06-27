@@ -868,6 +868,25 @@ STAGE(store_8888) {
     store(ptr, px, tail);
 }
 
+STAGE(load_bgra) {
+    auto ptr = *(const uint32_t**)ctx + x;
+    from_8888(load<U32>(ptr, tail), &b,&g,&r,&a);
+}
+STAGE(gather_bgra) {
+    const uint32_t* ptr;
+    U32 ix = ix_and_ptr(&ptr, ctx, r,g);
+    from_8888(gather(ptr, ix), &b,&g,&r,&a);
+}
+STAGE(store_bgra) {
+    auto ptr = *(uint32_t**)ctx + x;
+
+    U32 px = round(b, 255.0f)
+           | round(g, 255.0f) <<  8
+           | round(r, 255.0f) << 16
+           | round(a, 255.0f) << 24;
+    store(ptr, px, tail);
+}
+
 STAGE(load_f16) {
     auto ptr = *(const uint64_t**)ctx + x;
 

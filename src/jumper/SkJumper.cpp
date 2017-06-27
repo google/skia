@@ -76,6 +76,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(premul)            \
     M(load_8888)         \
     M(store_8888)        \
+    M(load_bgra)         \
+    M(store_bgra)        \
     M(load_a8)           \
     M(store_a8)          \
     M(load_g8)           \
