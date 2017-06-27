@@ -34,7 +34,7 @@ void GLSLCodeGenerator::write(const char* s) {
 
 void GLSLCodeGenerator::writeLine(const char* s) {
     this->write(s);
-    fOut->write8('\n');
+    fOut->writeText(fLineEnding);
     fAtLineStart = true;
 }
 
@@ -107,6 +107,9 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             break;
         case Expression::kPostfix_Kind:
             this->writePostfixExpression((PostfixExpression&) expr, parentPrecedence);
+            break;
+        case Expression::kSetting_Kind:
+            this->writeSetting((Setting&) expr);
             break;
         case Expression::kSwizzle_Kind:
             this->writeSwizzle((Swizzle&) expr);
@@ -371,7 +374,7 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
-static GLSLCodeGenerator::Precedence get_binary_precedence(Token::Kind op) {
+GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind op) {
     switch (op) {
         case Token::STAR:         // fall through
         case Token::SLASH:        // fall through
@@ -413,7 +416,7 @@ static GLSLCodeGenerator::Precedence get_binary_precedence(Token::Kind op) {
 
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
-    Precedence precedence = get_binary_precedence(b.fOperator);
+    Precedence precedence = GetBinaryPrecedence(b.fOperator);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
@@ -480,6 +483,10 @@ void GLSLCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write(to_string(f.fValue));
 }
 
+void GLSLCodeGenerator::writeSetting(const Setting& s) {
+    ABORT("internal error; setting was not folded to a constant during compilation\n");
+}
+
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->writeType(f.fDeclaration.fReturnType);
     this->write(" " + f.fDeclaration.fName + "(");
@@ -517,7 +524,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     fOut = oldOut;
     this->write(fFunctionHeader);
-    this->write(String(buffer.data(), buffer.size()));
+    this->write(buffer.str());
 }
 
 void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
@@ -617,6 +624,10 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(";");
 }
 
+void GLSLCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
+    this->writeExpression(value, kTopLevel_Precedence);
+}
+
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
@@ -640,7 +651,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
         }
         if (var.fValue) {
             this->write(" = ");
-            this->writeExpression(*var.fValue, kTopLevel_Precedence);
+            this->writeVarInitializer(*var.fVar, *var.fValue);
         }
         if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
             if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
@@ -797,10 +808,7 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write(";");
 }
 
-bool GLSLCodeGenerator::generateCode() {
-    OutputStream* rawOut = fOut;
-    fOut = &fHeader;
-    fProgramKind = fProgram.fKind;
+void GLSLCodeGenerator::writeHeader() {
     this->write(fProgram.fSettings.fCaps->versionDeclString());
     this->writeLine();
     for (const auto& e : fProgram.fElements) {
@@ -808,8 +816,6 @@ bool GLSLCodeGenerator::generateCode() {
             this->writeExtension((Extension&) *e);
         }
     }
-    StringStream body;
-    fOut = &body;
     if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
         this->write("precision ");
         switch (fProgram.fDefaultPrecision) {
@@ -828,47 +834,58 @@ bool GLSLCodeGenerator::generateCode() {
         }
         this->writeLine(" float;");
     }
-    for (const auto& e : fProgram.fElements) {
-        switch (e->fKind) {
-            case ProgramElement::kExtension_Kind:
-                break;
-            case ProgramElement::kVar_Kind: {
-                VarDeclarations& decl = (VarDeclarations&) *e;
-                if (decl.fVars.size() > 0) {
-                    ASSERT(decl.fVars[0]->fKind == Statement::kVarDeclaration_Kind);
-                    int builtin =
-                               ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
-                    if (builtin == -1) {
-                        // normal var
-                        this->writeVarDeclarations(decl, true);
-                        this->writeLine();
-                    } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
-                               fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
-                        this->write("out ");
-                        if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
-                            this->write("mediump ");
-                        }
-                        this->writeLine("vec4 sk_FragColor;");
+}
+
+void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
+    switch (e.fKind) {
+        case ProgramElement::kExtension_Kind:
+            break;
+        case ProgramElement::kVar_Kind: {
+            VarDeclarations& decl = (VarDeclarations&) e;
+            if (decl.fVars.size() > 0) {
+                int builtin = ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
+                if (builtin == -1) {
+                    // normal var
+                    this->writeVarDeclarations(decl, true);
+                    this->writeLine();
+                } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
+                           fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
+                    this->write("out ");
+                    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
+                        this->write("mediump ");
                     }
+                    this->writeLine("vec4 sk_FragColor;");
                 }
-                break;
             }
-            case ProgramElement::kInterfaceBlock_Kind:
-                this->writeInterfaceBlock((InterfaceBlock&) *e);
-                break;
-            case ProgramElement::kFunction_Kind:
-                this->writeFunction((FunctionDefinition&) *e);
-                break;
-            case ProgramElement::kModifiers_Kind:
-                this->writeModifiers(((ModifiersDeclaration&) *e).fModifiers, true);
-                this->writeLine(";");
-                break;
-            default:
-                printf("%s\n", e->description().c_str());
-                ABORT("unsupported program element");
+            break;
         }
+        case ProgramElement::kInterfaceBlock_Kind:
+            this->writeInterfaceBlock((InterfaceBlock&) e);
+            break;
+        case ProgramElement::kFunction_Kind:
+            this->writeFunction((FunctionDefinition&) e);
+            break;
+        case ProgramElement::kModifiers_Kind:
+            this->writeModifiers(((ModifiersDeclaration&) e).fModifiers, true);
+            this->writeLine(";");
+            break;
+        default:
+            printf("%s\n", e.description().c_str());
+            ABORT("unsupported program element");
     }
-    fOut = nullptr;
+}
+
+bool GLSLCodeGenerator::generateCode() {
+    OutputStream* rawOut = fOut;
+    fOut = &fHeader;
+    fProgramKind = fProgram.fKind;
+    this->writeHeader();
+    StringStream body;
+    fOut = &body;
+    for (const auto& e : fProgram.fElements) {
+        this->writeProgramElement(*e);
+    }
+    fOut = rawOut;
 
     write_stringstream(fHeader, *rawOut);
     write_stringstream(body, *rawOut);

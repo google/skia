@@ -17,9 +17,21 @@ declare_args() {
     ndk_api = 21
   }
   sanitize = ""
+
+  ar = "ar"
+  cc = "cc"
+  cxx = "c++"
+
+  msvc = 2015
 }
 declare_args() {
   is_debug = !is_official_build
+
+  if (msvc == 2015) {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio 14.0"
+  } else {
+    windk = "C:/Program Files (x86)/Microsoft Visual Studio/2017/Professional"
+  }
 }
 
 assert(!(is_debug && is_official_build))
@@ -164,8 +176,12 @@ set_defaults("component") {
 
 if (is_win) {
   # Windows tool chain
-  set_default_toolchain("//gn:msvc")
+  set_default_toolchain("//gn/toolchain:msvc")
+  default_toolchain_name = "msvc"
+  host_toolchain = "msvc"
 } else {
   # GCC-like toolchains, including Clang.
-  set_default_toolchain("//gn:gcc_like")
+  set_default_toolchain("//gn/toolchain:gcc_like")
+  default_toolchain_name = "gcc_like"
+  host_toolchain = "gcc_like_host"
 }
