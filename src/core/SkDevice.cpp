@@ -183,7 +183,7 @@ void SkBaseDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     SkBitmap bm;
     if (as_IB(image)->getROPixels(&bm, this->imageInfo().colorSpace())) {
-        this->drawBitmap(bm, SkMatrix::MakeTrans(x, y), paint);
+        this->drawBitmap(bm, x, y, paint);
     }
 }
 
