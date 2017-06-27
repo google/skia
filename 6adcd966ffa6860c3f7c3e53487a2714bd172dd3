@@ -22,6 +22,30 @@
       "revId": "6adcd966ffa6860c3f7c3e53487a2714bd172dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e4ee39c_fd712e0c",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-27T17:40:13Z",
+      "side": 1,
+      "message": "We certainly do not want as much information as we can get.  Let\u0027s reduce this to its absurd extreme.  We could easily output much more with --verbose.  For example, we could log each color we draw, and all the choices leading to that color.  That\u0027d be a couple TB per run though, and rather difficult to sift through.\n\nAs it is, it\u0027s a pain in the ass to even just download --verbose logs, and Chrome doesn\u0027t do a good job of displaying files that large.  And once you\u0027ve got the file, we need to make sure that the bits people are reading as much signal and as little noise as possible.  Today\u0027s --verbose is largely noise for most use cases, and that makes it hard to find real information.",
+      "parentUuid": "67bed50d_163d7bb7",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 42
+      },
+      "revId": "6adcd966ffa6860c3f7c3e53487a2714bd172dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
