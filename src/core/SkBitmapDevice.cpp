@@ -233,8 +233,9 @@ void SkBitmapDevice::drawPath(const SkPath& path,
     BDDraw(this).drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 
-void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap,
-                                const SkMatrix& matrix, const SkPaint& paint) {
+void SkBitmapDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
+                                const SkPaint& paint) {
+    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
     BDDraw(this).drawBitmap(bitmap, matrix, nullptr, paint);
 }

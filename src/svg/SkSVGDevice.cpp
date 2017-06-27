@@ -704,11 +704,11 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 }
 
-void SkSVGDevice::drawBitmap(const SkBitmap& bitmap,
-                             const SkMatrix& matrix, const SkPaint& paint) {
+void SkSVGDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
+                             const SkPaint& paint) {
     MxCp mc(this);
     SkMatrix adjustedMatrix = *mc.fMatrix;
-    adjustedMatrix.preConcat(matrix);
+    adjustedMatrix.preTranslate(x, y);
     mc.fMatrix = &adjustedMatrix;
 
     drawBitmapCommon(mc, bitmap, paint);

@@ -1045,7 +1045,8 @@ void SkPDFDevice::drawBitmapRect(const SkBitmap& bitmap,
 }
 
 void SkPDFDevice::drawBitmap(const SkBitmap& bitmap,
-                             const SkMatrix& matrix,
+                             SkScalar x,
+                             SkScalar y,
                              const SkPaint& srcPaint) {
     if (bitmap.drawsNothing() || this->cs().isEmpty(size(*this))) {
         return;
@@ -1058,7 +1059,7 @@ void SkPDFDevice::drawBitmap(const SkBitmap& bitmap,
     if (!imageSubset.isValid()) {
         return;
     }
-    SkMatrix transform = matrix;
+    SkMatrix transform = SkMatrix::MakeTrans(x, y);
     transform.postConcat(this->ctm());
     this->internalDrawImage(transform, this->cs(), std::move(imageSubset), paint);
 }
