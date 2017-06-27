@@ -169,7 +169,10 @@ SkImageFilter::SkImageFilter(sk_sp<SkImageFilter> const* inputs,
 }
 
 SkImageFilter::~SkImageFilter() {
-    SkImageFilterCache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
+    fCacheKeys.foreach ([] (SkImageFilterCacheKey key) {
+        SkImageFilterCache::Get()->purgeByKey(key);
+    });
+    fCacheKeys.reset();
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
@@ -221,12 +224,18 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 #endif
 
     if (result && context.cache()) {
-        context.cache()->set(key, result.get(), *offset);
+        context.cache()->set(key, result.get(), *offset, this);
         SkAutoMutexAcquire mutex(fMutex);
-        fCacheKeys.push_back(key);
+        fCacheKeys.add(key);
     }
 
     return result;
+}
+
+void SkImageFilter::removeKey(SkImageFilterCacheKey& key) const {
+    if (fCacheKeys.find(key)) {
+        fCacheKeys.remove(key);
+    }
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
