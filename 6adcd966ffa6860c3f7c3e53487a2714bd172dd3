@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67bed50d_163d7bb7",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-06-27T17:32:50Z",
+      "side": 1,
+      "message": "Honestly, I don\u0027t understand this mindset.  We only ever read logs if something went wrong, and in that case we want as much information as we can get.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 42
+      },
+      "revId": "6adcd966ffa6860c3f7c3e53487a2714bd172dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
