@@ -9,7 +9,6 @@
 #define SKSL_CODEGENERATOR
 
 #include "ir/SkSLProgram.h"
-#include "SkSLOutputStream.h"
 
 namespace SkSL {
 
