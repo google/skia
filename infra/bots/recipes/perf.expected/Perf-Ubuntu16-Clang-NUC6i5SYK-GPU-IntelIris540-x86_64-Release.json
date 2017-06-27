@@ -199,6 +199,7 @@
       "~inc14.png",
       "~inc0.webp",
       "~inc1.webp",
+      "--verbose",
       "--outResultsFile",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release/data/nanobench_abc123_1337000001.json",
       "--properties",
