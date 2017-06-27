@@ -6,7 +6,6 @@
 ; This file is generated semi-automatically with this command:
 ;   $ src/jumper/build_stages.py
 
-IFDEF RAX
 _text32 SEGMENT ALIGN(32) 'CODE'
 ALIGN 32
 
@@ -29805,5 +29804,4 @@ ALIGN 4
   DB  128,67,0,0                          ; addb          $0x0,0x0(%rbx)
   DB  128                                 ; .byte         0x80
   DB  67                                  ; rex.XB
-ENDIF
 END
