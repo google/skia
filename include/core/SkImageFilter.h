@@ -8,7 +8,7 @@
 #ifndef SkImageFilter_DEFINED
 #define SkImageFilter_DEFINED
 
-#include "../private/SkTArray.h"
+#include "../private/SkTHash.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkMutex.h"
 #include "SkColorSpace.h"
@@ -172,6 +172,8 @@ public:
     bool asColorFilter(SkColorFilter** filterPtr) const {
         return this->isColorFilterNode(filterPtr);
     }
+
+    void removeKey(SkImageFilterCacheKey& key);
 
     /**
      *  Returns true (and optionally returns a ref'd filter) if this imagefilter can be completely
@@ -441,7 +443,7 @@ private:
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
-    mutable SkTArray<SkImageFilterCacheKey> fCacheKeys;
+    mutable SkTHashSet<SkImageFilterCacheKey> fCacheKeys;
     mutable SkMutex fMutex;
     typedef SkFlattenable INHERITED;
 };
