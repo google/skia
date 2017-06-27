@@ -23,8 +23,7 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
     SkRasterPipeline_<256> pipeline;
     switch (srcFormat) {
         case kBGRA_8888_ColorFormat:
-            pipeline.append(SkRasterPipeline::load_8888, &src);
-            pipeline.append(SkRasterPipeline::swap_rb);
+            pipeline.append(SkRasterPipeline::load_bgra, &src);
             break;
         case kRGBA_8888_ColorFormat:
             pipeline.append(SkRasterPipeline::load_8888, &src);
@@ -48,8 +47,7 @@ bool SkColorSpaceXform_A2B::onApply(ColorFormat dstFormat, void* dst, ColorForma
 
     switch (dstFormat) {
         case kBGRA_8888_ColorFormat:
-            pipeline.append(SkRasterPipeline::swap_rb);
-            pipeline.append(SkRasterPipeline::store_8888, &dst);
+            pipeline.append(SkRasterPipeline::store_bgra, &dst);
             break;
         case kRGBA_8888_ColorFormat:
             pipeline.append(SkRasterPipeline::store_8888, &dst);

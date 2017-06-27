@@ -122,17 +122,14 @@ public:
             case kGray_8_SkColorType:    p.append(SkRasterPipeline::load_g8,   &fSrcPtr); break;
             case kRGB_565_SkColorType:   p.append(SkRasterPipeline::load_565,  &fSrcPtr); break;
             case kARGB_4444_SkColorType: p.append(SkRasterPipeline::load_4444, &fSrcPtr); break;
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType: p.append(SkRasterPipeline::load_8888, &fSrcPtr); break;
+            case kBGRA_8888_SkColorType: p.append(SkRasterPipeline::load_bgra, &fSrcPtr); break;
+            case kRGBA_8888_SkColorType: p.append(SkRasterPipeline::load_8888, &fSrcPtr); break;
             case kRGBA_F16_SkColorType:  p.append(SkRasterPipeline::load_f16,  &fSrcPtr); break;
             default: SkASSERT(false);
         }
         if (fDst.colorSpace() &&
                 (!fSource.colorSpace() || fSource.colorSpace()->gammaCloseToSRGB())) {
             p.append_from_srgb(fSource.alphaType());
-        }
-        if (fSource.colorType() == kBGRA_8888_SkColorType) {
-            p.append(SkRasterPipeline::swap_rb);
         }
         if (fSource.colorType() == kAlpha_8_SkColorType) {
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);

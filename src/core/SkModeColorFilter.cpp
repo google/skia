@@ -87,15 +87,17 @@ void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColo
             SkSTArenaAlloc<256> alloc;
             SkRasterPipeline p(&alloc);
 
-            p.append(SkRasterPipeline::load_8888, &shader);
             if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-                p.append(SkRasterPipeline::swap_rb);
+                p.append(SkRasterPipeline::load_bgra, &shader);
+            } else {
+                p.append(SkRasterPipeline::load_8888, &shader);
             }
             this->appendStages(&p, nullptr, &alloc, false);
             if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-                p.append(SkRasterPipeline::swap_rb);
+                p.append(SkRasterPipeline::store_bgra, &result);
+            } else {
+                p.append(SkRasterPipeline::store_8888, &result);
             }
-            p.append(SkRasterPipeline::store_8888, &result);
             p.run(0, 0, count);
         } break;
     }

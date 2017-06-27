@@ -34,19 +34,14 @@ public:
                 const SkAlpha aa[]) const override {
         SkASSERT(dst && src && count >= 0);
 
-        bool needs_swap = (kN32_SkColorType == kBGRA_8888_SkColorType) &&
-                          SkBlendMode_CaresAboutRBOrder(fMode);
-
         SkRasterPipeline_<256> p;
 
-        p.append(SkRasterPipeline::load_8888, &dst);
-        if (needs_swap) {
-            p.append(SkRasterPipeline::swap_rb);
-        }
-        p.append(SkRasterPipeline::move_src_dst);
-        p.append(SkRasterPipeline::load_8888, &src);
-        if (needs_swap) {
-            p.append(SkRasterPipeline::swap_rb);
+        if (kN32_SkColorType == kBGRA_8888_SkColorType) {
+            p.append(SkRasterPipeline::load_bgra_dst, &dst);
+            p.append(SkRasterPipeline::load_bgra    , &src);
+        } else {
+            p.append(SkRasterPipeline::load_8888_dst, &dst);
+            p.append(SkRasterPipeline::load_8888,     &src);
         }
 
         SkBlendMode_AppendStagesNoClamp(fMode, &p);
@@ -55,10 +50,11 @@ public:
         }
         SkBlendMode_AppendClampIfNeeded(fMode, &p);
 
-        if (needs_swap) {
-            p.append(SkRasterPipeline::swap_rb);
+        if (kN32_SkColorType == kBGRA_8888_SkColorType) {
+            p.append(SkRasterPipeline::store_bgra, &dst);
+        } else {
+            p.append(SkRasterPipeline::store_8888, &dst);
         }
-        p.append(SkRasterPipeline::store_8888, &dst);
         p.run(0, 0, count);
     }
 

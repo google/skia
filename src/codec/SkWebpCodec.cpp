@@ -320,9 +320,12 @@ static void pick_memory_stages(SkColorType ct, SkRasterPipeline::StockStage* loa
             if (store) *store = SkRasterPipeline::store_565;
             break;
         case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
             if (load) *load = SkRasterPipeline::load_8888;
             if (store) *store = SkRasterPipeline::store_8888;
+            break;
+        case kBGRA_8888_SkColorType:
+            if (load) *load = SkRasterPipeline::load_bgra;
+            if (store) *store = SkRasterPipeline::store_bgra;
             break;
         case kRGBA_F16_SkColorType:
             if (load) *load = SkRasterPipeline::load_f16;
@@ -358,10 +361,6 @@ static void blend_line(SkColorType dstCT, void* dst,
     SkRasterPipeline::StockStage load_src;
     pick_memory_stages(srcCT, &load_src, nullptr);
     p.append(load_src, src);
-    if (dstCT != srcCT) {
-        SkASSERT(kBGRA_8888_SkColorType == srcCT);
-        p.append(SkRasterPipeline::swap_rb);
-    }
     p.extend(convert_to_linear_premul);
 
     p.append(SkRasterPipeline::srcover);
