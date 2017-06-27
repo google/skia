@@ -487,8 +487,7 @@ DEF_TEST(SkSLDerivatives, r) {
          "void main() { sk_FragColor.r = 1; }",
          *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
-         "precision highp float;\n"
-         "out mediump vec4 sk_FragColor;\n"
+         "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor.x = 1.0;\n"
          "}\n");
@@ -497,8 +496,7 @@ DEF_TEST(SkSLDerivatives, r) {
          *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
          "#version 400\n"
          "#extension GL_OES_standard_derivatives : require\n"
-         "precision highp float;\n"
-         "out mediump vec4 sk_FragColor;\n"
+         "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor.x = dFdx(1.0);\n"
          "}\n");

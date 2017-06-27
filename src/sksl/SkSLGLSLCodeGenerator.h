@@ -13,7 +13,6 @@
 #include <unordered_map>
 
 #include "SkSLCodeGenerator.h"
-#include "SkSLStringStream.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
 #include "ir/SkSLConstructor.h"
@@ -33,7 +32,6 @@
 #include "ir/SkSLPostfixExpression.h"
 #include "ir/SkSLProgramElement.h"
 #include "ir/SkSLReturnStatement.h"
-#include "ir/SkSLSetting.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLSwitchStatement.h"
 #include "ir/SkSLSwizzle.h"
@@ -76,12 +74,11 @@ public:
     GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
                       OutputStream* out)
     : INHERITED(program, errors, out)
-    , fLineEnding("\n")
     , fContext(*context) {}
 
-    bool generateCode() override;
+    virtual bool generateCode() override;
 
-protected:
+private:
     void write(const char* s);
 
     void writeLine();
@@ -91,10 +88,6 @@ protected:
     void write(const String& s);
 
     void writeLine(const String& s);
-
-    virtual void writeHeader();
-
-    virtual void writePrecisionModifier();
 
     void writeType(const Type& type);
 
@@ -106,7 +99,7 @@ protected:
 
     void writeFunctionDeclaration(const FunctionDeclaration& f);
 
-    virtual void writeFunction(const FunctionDefinition& f);
+    void writeFunction(const FunctionDefinition& f);
 
     void writeLayout(const Layout& layout);
 
@@ -114,13 +107,11 @@ protected:
 
     void writeGlobalVars(const VarDeclaration& vs);
 
-    virtual void writeVarInitializer(const Variable& var, const Expression& value);
-
     void writeVarDeclarations(const VarDeclarations& decl, bool global);
 
     void writeFragCoord();
 
-    virtual void writeVariableReference(const VariableReference& ref);
+    void writeVariableReference(const VariableReference& ref);
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
 
@@ -136,13 +127,11 @@ protected:
 
     void writeSwizzle(const Swizzle& swizzle);
 
-    static Precedence GetBinaryPrecedence(Token::Kind op);
-
-    virtual void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
+    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
 
-    virtual void writeIndexExpression(const IndexExpression& expr);
+    void writeIndexExpression(const IndexExpression& expr);
 
     void writePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
 
@@ -153,8 +142,6 @@ protected:
     void writeIntLiteral(const IntLiteral& i);
 
     void writeFloatLiteral(const FloatLiteral& f);
-
-    virtual void writeSetting(const Setting& s);
 
     void writeStatement(const Statement& s);
 
@@ -174,9 +161,6 @@ protected:
 
     void writeReturnStatement(const ReturnStatement& r);
 
-    virtual void writeProgramElement(const ProgramElement& e);
-
-    const char* fLineEnding;
     const Context& fContext;
     StringStream fHeader;
     String fFunctionHeader;

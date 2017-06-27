@@ -9,7 +9,6 @@ in GLSL "in the wild", but it does bring a few of its own changes to the table.
 Skia uses the SkSL compiler to convert SkSL code to GLSL, GLSL ES, or SPIR-V
 before handing it over to the graphics driver.
 
-
 Differences from GLSL
 =====================
 
@@ -57,58 +56,3 @@ following differences between SkSL and GLSL:
 
 SkSL is still under development, and is expected to diverge further from GLSL
 over time.
-
-
-SkSL Fragment Processors
-========================
-
-An extension of SkSL allows for the creation of fragment processors in pure
-SkSL. The program defines its inputs similarly to a normal SkSL program (with
-'in' and 'uniform' variables), but the 'main()' function represents only this
-fragment processor's portion of the overall fragment shader.
-
-Within an '.fp' fragment processor file:
-
-* C++ code can be embedded in sections of the form:
-
-  @section_name { <arbitrary C++ code> }
-
-  Supported section are:
-    @header            (in the .h file, outside the class declaration)
-    @class             (in the .h file, inside the class declaration)
-    @cpp               (in the .cpp file)
-    @constructorParams (extra parameters to the constructor, comma-separated)
-    @constructor       (replaces the default constructor)
-    @initializers      (constructor initializer list, comma-separated)
-    @emitCode          (extra code for the emitCode function)
-    @fields            (extra private fields, each terminated with a semicolon)
-    @make              (replaces the default Make function)
-    @setData(<pdman>)  (extra code for the setData function, where <pdman> is
-                        the name of the GrGLSLProgramDataManager)
-    @test(<testData>)  (the body of the TestCreate function, where <testData> is
-                        the name of the GrProcessorTestData* parameter)
-* global 'in' variables represent data passed to the fragment processor at
-  construction time. These variables become constructor parameters and are
-  stored in fragment processor fields. vec2s map to SkPoints, and vec4s map to
-  SkRects (in x, y, width, height) order.
-* 'uniform' variables become, as one would expect, top-level uniforms. By
-  default they do not have any data provided to them; you will need to provide
-  them with data via the @setData section.
-* 'in uniform' variables are uniforms that are automatically wired up to
-  fragment processor constructor parameters
-* the 'sk_TransformedCoords2D' array provides access to 2D transformed
-  coordinates. sk_TransformedCoords2D[0] is equivalent to calling
-  fragBuilder->ensureCoords2D(args.fTransformedCoords[0]) (and the result is
-  cached, so you need not worry about using the value repeatedly).
-* 'colorSpaceXform' is a supported type. It is reflected within SkSL as a mat4,
-  and on the C++ side as sk_sp<GrColorSpaceXform>.
-* the texture() function can be passed a colorSpaceXform as an additional
-  parameter
-* Uniform variables support an additional 'when' layout key.
-  'layout(when=foo) uniform int x;' means that this uniform will only be
-  emitted when the 'foo' expression is true.
-* 'in' variables support an additional 'key' layout key.
-  'layout(key) uniform int x;' means that this uniform should be included in
-  the program's key. Matrix variables additionally support 'key=identity',
-  which causes the key to consider only whether or not the matrix is an
-  identity matrix.
