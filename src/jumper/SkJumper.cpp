@@ -83,7 +83,6 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(lerp_u8)           \
     M(scale_1_float)     \
     M(scale_u8)          \
-    M(swap)              \
     M(move_src_dst)      \
     M(move_dst_src)      \
     M(clear)             \

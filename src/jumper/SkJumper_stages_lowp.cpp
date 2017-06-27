@@ -340,17 +340,6 @@ STAGE(swap_rb_dst) {
     db = tmp;
 }
 
-STAGE(swap) {
-    auto swap = [](F& v, F& dv) {
-        auto tmp = v;
-        v = dv;
-        dv = tmp;
-    };
-    swap(r, dr);
-    swap(g, dg);
-    swap(b, db);
-    swap(a, da);
-}
 STAGE(move_src_dst) {
     dr = r;
     dg = g;
