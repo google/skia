@@ -70,6 +70,30 @@
       "revId": "6adcd966ffa6860c3f7c3e53487a2714bd172dd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1976efb1_90736a67",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-06-27T18:31:06Z",
+      "side": 1,
+      "message": "Sure, we don\u0027t want terabytes of logs. I don\u0027t have the answer, and there are lots of cases where logging that was useful last week is just noise this week, but it seems like I often see no information other than \"step returned non-zero exit code: 1\".  There has to be some middle ground here.",
+      "parentUuid": "4bd876a9_e9fadec5",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 42
+      },
+      "revId": "6adcd966ffa6860c3f7c3e53487a2714bd172dd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
