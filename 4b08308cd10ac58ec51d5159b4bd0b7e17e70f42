@@ -1034,6 +1034,30 @@
     },
     {
       "key": {
+        "uuid": "6f83fde3_4da5659e",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "Unfortunately we don\u0027t know what hardware we\u0027re going to end up on, so we still have to be able to specialize the code for the current hardware :-(.",
+      "parentUuid": "064b75a5_ccf62bda",
+      "range": {
+        "startLine": 291,
+        "startChar": 8,
+        "endLine": 291,
+        "endChar": 37
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b289e07_499ad78e",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -1458,6 +1482,30 @@
     },
     {
       "key": {
+        "uuid": "d1f47aac_f5f66461",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "Ah, I know what I did. I accidentally tried it with the intuitive and incorrect R(\" instead of the unintuitive, but correct, R\"( (who puts the \"(\" *inside* the quotes? Honestly.) and naturally received a complaint about an unterminated literal. Oops.\n\nStill don\u0027t think I want to switch, given the indentation issues. Good to know about the feature, though!",
+      "parentUuid": "7063b734_2f8b4ba5",
+      "range": {
+        "startLine": 579,
+        "startChar": 17,
+        "endLine": 579,
+        "endChar": 23
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "88393af5_fe629862",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 23
@@ -1730,6 +1778,30 @@
       "side": 1,
       "message": "My comment was about multiple evaluation. The implementation outputs \u003ccppCode\u003e.fX, \u003ccppCode\u003e.fY, so if cppCode is \"*(array++)\" it might not work as expected. Probably not worth worrying about though.",
       "parentUuid": "39341059_2c712be5",
+      "range": {
+        "startLine": 45,
+        "startChar": 77,
+        "endLine": 45,
+        "endChar": 93
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "577e2f8f_3a1c651b",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "Oh, gotcha. Yeah, I won\u0027t be producing code like that.",
+      "parentUuid": "0e6ab6fe_10daba79",
       "range": {
         "startLine": 45,
         "startChar": 77,
@@ -3149,6 +3221,30 @@
       "side": 1,
       "message": "sgtm, although the generated code wouldn\u0027t be checked in, so it\u0027s not as easy to review.",
       "parentUuid": "797e85a5_282520bb",
+      "range": {
+        "startLine": 150,
+        "startChar": 13,
+        "endLine": 151,
+        "endChar": 99
+      },
+      "revId": "4b08308cd10ac58ec51d5159b4bd0b7e17e70f42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e713c9d0_a908005c",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "It won\u0027t be checked in, but it will still cause very visible problems (likely compile errors) if I break anything. We\u0027ll see how it goes.",
+      "parentUuid": "182fc8f0_3a23397a",
       "range": {
         "startLine": 150,
         "startChar": 13,

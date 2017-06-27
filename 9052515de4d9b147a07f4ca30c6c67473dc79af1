@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "15c04664_95e32db7",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "I didn\u0027t either, until the compiler told me I couldn\u0027t assign a string literal to a non-const char* :-)",
+      "parentUuid": "3c45e64e_237bc081",
+      "range": {
+        "startLine": 240,
+        "startChar": 11,
+        "endLine": 240,
+        "endChar": 26
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03323b4e_0b43c7bd",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 26
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-26T22:06:38Z",
       "side": 1,
       "message": "nit: simplify",
+      "range": {
+        "startLine": 244,
+        "startChar": 32,
+        "endLine": 244,
+        "endChar": 93
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1c9ffc2_4b67d55c",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "If it helps, I\u0027m disappointed in me too.",
+      "parentUuid": "03323b4e_0b43c7bd",
       "range": {
         "startLine": 244,
         "startChar": 32,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "296d6cad_8306cac0",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07703095_48b4c9ba",
+      "range": {
+        "startLine": 355,
+        "startChar": 12,
+        "endLine": 355,
+        "endChar": 43
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5010edb2_33e14d9c",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 26
@@ -82,6 +154,30 @@
       "writtenOn": "2017-06-26T22:06:38Z",
       "side": 1,
       "message": "It seems like sampling a texture and then applying a xform would give a different result than xforming the texture and then sampling. It seems like xform-then-sample would give a more-correct result. Does it matter?",
+      "range": {
+        "startLine": 1402,
+        "startChar": 27,
+        "endLine": 1402,
+        "endChar": 47
+      },
+      "revId": "9052515de4d9b147a07f4ca30c6c67473dc79af1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49cc4ad8_6ba16065",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 1402,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-06-27T13:39:39Z",
+      "side": 1,
+      "message": "This is just an automated application of how we\u0027re currently doing color transforms (see GrGLSLShaderBuilder::appendColorGamutXform, where I got the formula from). It results in the exact same output as we\u0027re currently producing (I\u0027ve naturally got a bunch of fragment processors working in this system already; they\u0027re just being held back for future changelists).",
+      "parentUuid": "5010edb2_33e14d9c",
       "range": {
         "startLine": 1402,
         "startChar": 27,
