@@ -109,16 +109,18 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     REPORTER_ASSERT(reporter, result);
 
     memset(dstBuffer.get(), 0xCDCD, size);
-    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
-                                           dstBuffer.get(), rowBytes);
-    REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
-                                                                      dstBuffer,
-                                                                      kTextureWidth,
-                                                                      kTextureHeight,
-                                                                      kBufferWidth,
-                                                                      kBufferHeight,
-                                                                      origin));
+    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+                                           config, dstBuffer.get(), rowBytes);
+    if (result) {
+        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
+                                                                          dstBuffer,
+                                                                          kTextureWidth,
+                                                                          kTextureHeight,
+                                                                          kBufferWidth,
+                                                                          kBufferHeight,
+                                                                          origin));
+    }
+
     //////////////////////////
     // transfer partial data
 
@@ -134,22 +136,22 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     buffer->unmap();
 
     size_t offset = sizeof(GrColor)*(kTop*kBufferWidth + kLeft);
-    result = context->getGpu()->transferPixels(tex.get(), kLeft, kTop, kWidth, kHeight, config,
-                                               buffer.get(), offset, rowBytes);
+    result = context->getGpu()->transferPixels(tex.get(), kLeft, kTop, kWidth, kHeight,
+                                               config, buffer.get(), offset, rowBytes);
     REPORTER_ASSERT(reporter, result);
 
-    memset(dstBuffer.get(), 0xCDCD, size);
-    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
-                                           dstBuffer.get(), rowBytes);
-    REPORTER_ASSERT(reporter, result);
-
-    REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
-                                                                      dstBuffer,
-                                                                      kTextureWidth,
-                                                                      kTextureHeight,
-                                                                      kBufferWidth,
-                                                                      kBufferHeight,
-                                                                      origin));
+    memset(dstBuffer, 0xCDCD, size);
+    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight,
+                                           config, dstBuffer.get(), rowBytes);
+    if (result) {
+        REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
+                                                                          dstBuffer,
+                                                                          kTextureWidth,
+                                                                          kTextureHeight,
+                                                                          kBufferWidth,
+                                                                          kBufferHeight,
+                                                                          origin));
+    }
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsTest, reporter, ctxInfo) {
