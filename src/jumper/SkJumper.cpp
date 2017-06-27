@@ -74,17 +74,15 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
     M(constant_color)    \
     M(set_rgb)           \
     M(premul)            \
-    M(load_8888)         \
-    M(store_8888)        \
-    M(load_a8)           \
-    M(store_a8)          \
-    M(load_g8)           \
+    M(load_8888) M(load_8888_dst) M(store_8888) \
+    M(load_a8)   M(load_a8_dst)   M(store_a8)   \
+    M(load_g8)   M(load_g8_dst)                 \
+    M(swap_rb)   M(swap_rb_dst)                 \
     M(srcover_rgba_8888) \
     M(lerp_1_float)      \
     M(lerp_u8)           \
     M(scale_1_float)     \
     M(scale_u8)          \
-    M(swap_rb)           \
     M(swap)              \
     M(move_src_dst)      \
     M(move_dst_src)      \

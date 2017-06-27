@@ -240,6 +240,10 @@ STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load<U32>(ptr, tail), &r,&g,&b,&a);
 }
+STAGE(load_8888_dst) {
+    auto ptr = *(const uint32_t**)ctx + x;
+    from_8888(load<U32>(ptr, tail), &dr,&dg,&db,&da);
+}
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
     store(ptr, to_8888(r,g,b,a), tail);
@@ -250,6 +254,11 @@ STAGE(load_a8) {
     r = g = b = 0.0f;
     a = from_byte(load<U8>(ptr, tail));
 }
+STAGE(load_a8_dst) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    dr = dg = db = 0.0f;
+    da = from_byte(load<U8>(ptr, tail));
+}
 STAGE(store_a8) {
     auto ptr = *(uint8_t**)ctx + x;
     store(ptr, to_byte(a), tail);
@@ -259,6 +268,12 @@ STAGE(load_g8) {
     auto ptr = *(const uint8_t**)ctx + x;
     r = g = b = from_byte(load<U8>(ptr, tail));
     a = 1.0f;
+}
+
+STAGE(load_g8_dst) {
+    auto ptr = *(const uint8_t**)ctx + x;
+    dr = dg = db = from_byte(load<U8>(ptr, tail));
+    da = 1.0f;
 }
 
 STAGE(srcover_rgba_8888) {
@@ -318,6 +333,11 @@ STAGE(swap_rb) {
     auto tmp = r;
     r = b;
     b = tmp;
+}
+STAGE(swap_rb_dst) {
+    auto tmp = dr;
+    dr = db;
+    db = tmp;
 }
 
 STAGE(swap) {

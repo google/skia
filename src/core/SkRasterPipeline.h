@@ -62,18 +62,18 @@ struct SkJumper_constants;
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
     M(callback)                                                  \
     M(move_src_dst) M(move_dst_src) M(swap)                      \
-    M(clamp_0) M(clamp_1) M(clamp_a)                             \
+    M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst)              \
     M(unpremul) M(premul)                                        \
-    M(set_rgb) M(swap_rb)                                        \
-    M(from_srgb) M(to_srgb)                                      \
+    M(set_rgb) M(swap_rb) M(swap_rb_dst)                         \
+    M(from_srgb) M(from_srgb_dst) M(to_srgb)                     \
     M(constant_color) M(seed_shader) M(dither)                   \
-    M(load_a8)   M(store_a8)                                     \
-    M(load_g8)                                                   \
-    M(load_565)  M(store_565)                                    \
-    M(load_4444) M(store_4444)                                   \
-    M(load_f16)  M(store_f16)                                    \
-    M(load_f32)  M(store_f32)                                    \
-    M(load_8888) M(store_8888)                                   \
+    M(load_a8)   M(load_a8_dst)   M(store_a8)                    \
+    M(load_g8)   M(load_g8_dst)                                  \
+    M(load_565)  M(load_565_dst)  M(store_565)                   \
+    M(load_4444) M(load_4444_dst) M(store_4444)                  \
+    M(load_f16)  M(load_f16_dst)  M(store_f16)                   \
+    M(load_f32)  M(load_f32_dst)  M(store_f32)                   \
+    M(load_8888) M(load_8888_dst) M(store_8888)                  \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)            \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be)              \
     M(load_tables) M(load_rgba) M(store_rgba)                    \
@@ -145,6 +145,7 @@ public:
     // Conversion from sRGB can be subtly tricky when premultiplication is involved.
     // Use these helpers to keep things sane.
     void append_from_srgb(SkAlphaType);
+    void append_from_srgb_dst(SkAlphaType);
 
     bool empty() const { return fStages == nullptr; }
 

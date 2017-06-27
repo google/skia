@@ -501,6 +501,13 @@ STAGE(clamp_a) {
     b = min(b, a);
 }
 
+STAGE(clamp_a_dst) {
+    da = min(da, 1.0f);
+    dr = min(dr, da);
+    dg = min(dg, da);
+    db = min(db, da);
+}
+
 STAGE(set_rgb) {
     auto rgb = (const float*)ctx;
     r = rgb[0];
@@ -511,6 +518,12 @@ STAGE(swap_rb) {
     auto tmp = r;
     r = b;
     b = tmp;
+}
+
+STAGE(swap_rb_dst) {
+    auto tmp = dr;
+    dr = db;
+    db = tmp;
 }
 
 STAGE(swap) {
@@ -549,15 +562,21 @@ STAGE(unpremul) {
     b *= scale;
 }
 
+SI F from_srgb(F s) {
+    auto lo = s * (1/12.92f);
+    auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
+    return if_then_else(s < 0.055f, lo, hi);
+}
+
 STAGE(from_srgb) {
-    auto fn = [&](F s) {
-        auto lo = s * (1/12.92f);
-        auto hi = mad(s*s, mad(s, 0.3000f, 0.6975f), 0.0025f);
-        return if_then_else(s < 0.055f, lo, hi);
-    };
-    r = fn(r);
-    g = fn(g);
-    b = fn(b);
+    r = from_srgb(r);
+    g = from_srgb(g);
+    b = from_srgb(b);
+}
+STAGE(from_srgb_dst) {
+    dr = from_srgb(dr);
+    dg = from_srgb(dg);
+    db = from_srgb(db);
 }
 STAGE(to_srgb) {
     auto fn = [&](F l) {
@@ -780,6 +799,12 @@ STAGE(load_a8) {
     r = g = b = 0.0f;
     a = from_byte(load<U8>(ptr, tail));
 }
+STAGE(load_a8_dst) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    dr = dg = db = 0.0f;
+    da = from_byte(load<U8>(ptr, tail));
+}
 STAGE(gather_a8) {
     const uint8_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
@@ -798,6 +823,12 @@ STAGE(load_g8) {
 
     r = g = b = from_byte(load<U8>(ptr, tail));
     a = 1.0f;
+}
+STAGE(load_g8_dst) {
+    auto ptr = *(const uint8_t**)ctx + x;
+
+    dr = dg = db = from_byte(load<U8>(ptr, tail));
+    da = 1.0f;
 }
 STAGE(gather_g8) {
     const uint8_t* ptr;
@@ -820,6 +851,12 @@ STAGE(load_565) {
     from_565(load<U16>(ptr, tail), &r,&g,&b);
     a = 1.0f;
 }
+STAGE(load_565_dst) {
+    auto ptr = *(const uint16_t**)ctx + x;
+
+    from_565(load<U16>(ptr, tail), &dr,&dg,&db);
+    da = 1.0f;
+}
 STAGE(gather_565) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
@@ -839,6 +876,10 @@ STAGE(load_4444) {
     auto ptr = *(const uint16_t**)ctx + x;
     from_4444(load<U16>(ptr, tail), &r,&g,&b,&a);
 }
+STAGE(load_4444_dst) {
+    auto ptr = *(const uint16_t**)ctx + x;
+    from_4444(load<U16>(ptr, tail), &dr,&dg,&db,&da);
+}
 STAGE(gather_4444) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
@@ -856,6 +897,10 @@ STAGE(store_4444) {
 STAGE(load_8888) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load<U32>(ptr, tail), &r,&g,&b,&a);
+}
+STAGE(load_8888_dst) {
+    auto ptr = *(const uint32_t**)ctx + x;
+    from_8888(load<U32>(ptr, tail), &dr,&dg,&db,&da);
 }
 STAGE(gather_8888) {
     const uint32_t* ptr;
@@ -881,6 +926,16 @@ STAGE(load_f16) {
     g = from_half(G);
     b = from_half(B);
     a = from_half(A);
+}
+STAGE(load_f16_dst) {
+    auto ptr = *(const uint64_t**)ctx + x;
+
+    U16 R,G,B,A;
+    load4((const uint16_t*)ptr,tail, &R,&G,&B,&A);
+    dr = from_half(R);
+    dg = from_half(G);
+    db = from_half(B);
+    da = from_half(A);
 }
 STAGE(gather_f16) {
     const uint64_t* ptr;
@@ -938,6 +993,10 @@ STAGE(store_u16_be) {
 STAGE(load_f32) {
     auto ptr = *(const float**)ctx + 4*x;
     load4(ptr,tail, &r,&g,&b,&a);
+}
+STAGE(load_f32_dst) {
+    auto ptr = *(const float**)ctx + 4*x;
+    load4(ptr,tail, &dr,&dg,&db,&da);
 }
 STAGE(store_f32) {
     auto ptr = *(float**)ctx + 4*x;
