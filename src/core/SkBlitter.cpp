@@ -795,7 +795,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly()) {
         return true;
     }
-#ifndef SK_SUPPORT_LEGACY_COLORFILTER_FILTERSPAN
+#ifdef SK_SUPPORT_LEGACY_COLORFILTER_FILTERSPAN
     if (paint.getColorFilter()) {
         return true;
     }
