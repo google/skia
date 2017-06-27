@@ -93,13 +93,15 @@ public:
         }
     }
 
-    void purgeByKeys(const Key keys[], int count) override {
+    void purgeByKeys(const SkTHashSet<Key>& keys) override {
+        int i = 0;
+        int n = keys.count();
         SkAutoMutexAcquire mutex(fMutex);
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
+        keys.foreach ([&i, n] (Key key) {
+            if (Value* v = fLookup.find(key)) {
                 this->removeInternal(v);
             }
-        }
+        });
     }
 
     SkDEBUGCODE(int count() const override { return fLookup.count(); })

@@ -99,7 +99,7 @@ static void test_internal_purge(skiatest::Reporter* reporter, const sk_sp<SkSpec
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));
 }
 
-// Exercise the purgeByKeys and purge methods
+// Exercise the purgeByKey and purge methods
 static void test_explicit_purging(skiatest::Reporter* reporter,
                                   const sk_sp<SkSpecialImage>& image,
                                   const sk_sp<SkSpecialImage>& subset) {
@@ -120,7 +120,7 @@ static void test_explicit_purging(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, cache->get(key1, &foundOffset));
     REPORTER_ASSERT(reporter, cache->get(key2, &foundOffset));
 
-    cache->purgeByKeys(&key1, 1);
+    cache->purgeByKey(&key1);
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 1 == cache->count());)
 
     REPORTER_ASSERT(reporter, !cache->get(key1, &foundOffset));

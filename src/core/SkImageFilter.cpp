@@ -169,7 +169,7 @@ SkImageFilter::SkImageFilter(sk_sp<SkImageFilter> const* inputs,
 }
 
 SkImageFilter::~SkImageFilter() {
-    SkImageFilterCache::Get()->purgeByKeys(fCacheKeys.begin(), fCacheKeys.count());
+    SkImageFilterCache::Get()->purgeByKeys(fCacheKeys);
 }
 
 SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer)
@@ -223,7 +223,7 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
     if (result && context.cache()) {
         context.cache()->set(key, result.get(), *offset);
         SkAutoMutexAcquire mutex(fMutex);
-        fCacheKeys.push_back(key);
+        fCacheKeys.add(key);
     }
 
     return result;
