@@ -20,6 +20,7 @@ cflags = ['-std=c++11', '-Os', '-DJUMPER',
           '-momit-leaf-frame-pointer', '-ffp-contract=fast',
           '-fno-exceptions', '-fno-rtti', '-fno-unwind-tables']
 
+x86 = [ '-m32' ]
 win = ['-DWIN', '-mno-red-zone']
 sse2 = ['-msse2', '-mno-sse3', '-mno-ssse3', '-mno-sse4.1']
 subprocess.check_call(clang + cflags + sse2 +
@@ -28,6 +29,9 @@ subprocess.check_call(clang + cflags + sse2 +
 subprocess.check_call(clang + cflags + sse2 + win +
                       ['-c', 'src/jumper/SkJumper_stages.cpp'] +
                       ['-o', 'win_sse2.o'])
+subprocess.check_call(clang + cflags + sse2 + x86 +
+                      ['-c', 'src/jumper/SkJumper_stages.cpp'] +
+                      ['-o', 'x86_sse2.o'])
 
 ssse3 = ['-mssse3', '-mno-sse4.1']
 subprocess.check_call(clang + cflags + ssse3 +
@@ -205,6 +209,10 @@ print 'BALIGN32'
 parse_object_file('lowp_hsw.o',  '.byte')
 print 'BALIGN32'
 parse_object_file('lowp_ssse3.o',  '.byte')
+
+print '#elif defined(__i386__)'
+print 'BALIGN32'
+parse_object_file('x86_sse2.o', '.byte')
 
 print '#endif'
 
