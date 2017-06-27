@@ -27,7 +27,6 @@
 #include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
-#include "ast/SkSLASTSection.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
 #include "ast/SkSLASTSwitchStatement.h"
@@ -43,7 +42,6 @@
 #include "ir/SkSLModifiers.h"
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLProgram.h"
-#include "ir/SkSLSection.h"
 #include "ir/SkSLSymbolTable.h"
 #include "ir/SkSLStatement.h"
 #include "ir/SkSLType.h"
@@ -51,6 +49,28 @@
 #include "ir/SkSLVarDeclarations.h"
 
 namespace SkSL {
+
+struct CapValue {
+    CapValue()
+    : fKind(kInt_Kind)
+    , fValue(-1) {
+        ASSERT(false);
+    }
+
+    CapValue(bool b)
+    : fKind(kBool_Kind)
+    , fValue(b) {}
+
+    CapValue(int i)
+    : fKind(kInt_Kind)
+    , fValue(i) {}
+
+    enum {
+        kBool_Kind,
+        kInt_Kind,
+    } fKind;
+    int fValue;
+};
 
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding
@@ -75,7 +95,6 @@ public:
                                              Token::Kind op,
                                              const Expression& right) const;
     Program::Inputs fInputs;
-    const Program::Settings* fSettings;
     const Context& fContext;
 
 private:
@@ -141,9 +160,7 @@ private:
     Modifiers convertModifiers(const Modifiers& m);
     std::unique_ptr<Expression> convertPrefixExpression(const ASTPrefixExpression& expression);
     std::unique_ptr<Statement> convertReturn(const ASTReturnStatement& r);
-    std::unique_ptr<Section> convertSection(const ASTSection& e);
     std::unique_ptr<Expression> getCap(Position position, String name);
-    std::unique_ptr<Expression> getArg(Position position, String name);
     std::unique_ptr<Expression> convertSuffixExpression(const ASTSuffixExpression& expression);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
                                              const String& field);
@@ -156,26 +173,16 @@ private:
                                                  std::unique_ptr<Block> main,
                                                  std::vector<std::unique_ptr<ProgramElement>>* out);
 
-    /**
-     * Wraps an expression in code that applies a colorspace transformation to it. This is used
-     * to implement texture(sampler, coord, colorSpaceXForm).
-     */
-    std::unique_ptr<Expression> applyColorSpace(std::unique_ptr<Expression> texture,
-                                                const Variable* xform);
     void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);
 
     const FunctionDeclaration* fCurrentFunction;
-    std::unordered_map<String, Program::Settings::Value> fCapsMap;
-    std::shared_ptr<SymbolTable> fRootSymbolTable;
+    const Program::Settings* fSettings;
+    std::unordered_map<String, CapValue> fCapsMap;
     std::shared_ptr<SymbolTable> fSymbolTable;
-    // holds extra temp variable declarations needed for the current function
-    std::vector<std::unique_ptr<Statement>> fExtraVars;
     int fLoopLevel;
     int fSwitchLevel;
-    // count of temporary variables we have created
-    int fTmpCount;
     ErrorReporter& fErrors;
     int fInvocations;
 

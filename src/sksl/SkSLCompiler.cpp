@@ -8,9 +8,7 @@
 #include "SkSLCompiler.h"
 
 #include "SkSLCFGGenerator.h"
-#include "SkSLCPPCodeGenerator.h"
 #include "SkSLGLSLCodeGenerator.h"
-#include "SkSLHCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLExpression.h"
@@ -46,11 +44,6 @@ static const char* SKSL_FRAG_INCLUDE =
 static const char* SKSL_GEOM_INCLUDE =
 #include "sksl_geom.include"
 ;
-
-static const char* SKSL_FP_INCLUDE =
-#include "sksl_fp.include"
-;
-
 
 namespace SkSL {
 
@@ -153,17 +146,11 @@ Compiler::Compiler()
     ADD_TYPE(SamplerCubeArrayShadow);
     ADD_TYPE(GSampler2DArrayShadow);
     ADD_TYPE(GSamplerCubeArrayShadow);
-    ADD_TYPE(ColorSpaceXform);
 
     String skCapsName("sk_Caps");
     Variable* skCaps = new Variable(Position(), Modifiers(), skCapsName,
                                     *fContext.fSkCaps_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
-
-    String skArgsName("sk_Args");
-    Variable* skArgs = new Variable(Position(), Modifiers(), skArgsName,
-                                    *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
-    fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
     Modifiers::Flag ignored1;
     std::vector<std::unique_ptr<ProgramElement>> ignored2;
@@ -791,6 +778,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
 }
 
+
 // returns true if this statement could potentially execute a break at the current level (we ignore
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch)
 static bool contains_break(Statement& s) {
@@ -1109,9 +1097,6 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
         case Program::kGeometry_Kind:
             fIRGenerator->convertProgram(String(SKSL_GEOM_INCLUDE), *fTypes, &ignored, &elements);
             break;
-        case Program::kFragmentProcessor_Kind:
-            fIRGenerator->convertProgram(String(SKSL_FP_INCLUDE), *fTypes, &ignored, &elements);
-            break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     Modifiers::Flag defaultPrecision;
@@ -1142,16 +1127,15 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
     bool result = cg.generateCode();
     if (result) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
-        const String& data = buffer.str();
-        ASSERT(0 == data.size() % 4);
+        ASSERT(0 == buffer.size() % 4);
         auto dumpmsg = [](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
             SkDebugf("SPIR-V validation error: %s\n", m);
         };
         tools.SetMessageConsumer(dumpmsg);
         // Verify that the SPIR-V we produced is valid. If this assert fails, check the logs prior
         // to the failure to see the validation errors.
-        ASSERT_RESULT(tools.Validate((const uint32_t*) data.c_str(), data.size() / 4));
-        out.write(data.c_str(), data.size());
+        ASSERT_RESULT(tools.Validate((const uint32_t*) buffer.data(), buffer.size() / 4));
+        out.write(buffer.data(), buffer.size());
     }
 #else
     SPIRVCodeGenerator cg(&fContext, &program, this, &out);
@@ -1165,7 +1149,7 @@ bool Compiler::toSPIRV(const Program& program, String* out) {
     StringStream buffer;
     bool result = this->toSPIRV(program, buffer);
     if (result) {
-        *out = buffer.str();
+        *out = String(buffer.data(), buffer.size());
     }
     return result;
 }
@@ -1181,24 +1165,11 @@ bool Compiler::toGLSL(const Program& program, String* out) {
     StringStream buffer;
     bool result = this->toGLSL(program, buffer);
     if (result) {
-        *out = buffer.str();
+        *out = String(buffer.data(), buffer.size());
     }
     return result;
 }
 
-bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
-    CPPCodeGenerator cg(&fContext, &program, this, name, &out);
-    bool result = cg.generateCode();
-    this->writeErrorCount();
-    return result;
-}
-
-bool Compiler::toH(const Program& program, String name, OutputStream& out) {
-    HCodeGenerator cg(&program, this, name, &out);
-    bool result = cg.generateCode();
-    this->writeErrorCount();
-    return result;
-}
 
 void Compiler::error(Position position, String msg) {
     fErrorCount++;
