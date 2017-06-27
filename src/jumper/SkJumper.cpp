@@ -155,6 +155,14 @@ extern "C" {
     #define M(st) StageFn ASM(st,ssse3_lowp);
         LOWP_STAGES(M)
     #undef M
+
+#elif defined(__i386__)
+    StartPipelineFn ASM(start_pipeline,sse2);
+    StageFn ASM(just_return,sse2);
+    #define M(st) StageFn ASM(st,sse2);
+        SK_RASTER_PIPELINE_STAGES(M)
+    #undef M
+
 #endif
 
     // Portable, single-pixel stages.
@@ -256,6 +264,17 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
+
+#elif defined(__i386__)
+    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+        return {
+        #define M(stage) ASM(stage, sse2),
+            { SK_RASTER_PIPELINE_STAGES(M) },
+            M(start_pipeline) M(just_return)
+        #undef M
+        };
+    }
+
 #endif
     return kPortable;
 }
