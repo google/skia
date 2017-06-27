@@ -289,12 +289,24 @@ enum GradCaseType { // these must match the order in gGradCases
 
 class ConicalGradientsGM : public GM {
 public:
-    ConicalGradientsGM(GradCaseType gradCaseType, bool dither)
+    ConicalGradientsGM(GradCaseType gradCaseType, bool dither,
+                       SkShader::TileMode mode = SkShader::kClamp_TileMode)
         : fGradCaseType(gradCaseType)
-        , fDither(dither) {
+        , fDither(dither)
+        , fMode(mode) {
         this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
         fName.printf("gradients_2pt_conical_%s%s", gGradCases[gradCaseType].fName,
                      fDither ? "" : "_nodither");
+        switch (mode) {
+        case SkShader::kRepeat_TileMode:
+            fName.appendf("_repeat");
+            break;
+        case SkShader::kMirror_TileMode:
+            fName.appendf("_mirror");
+            break;
+        default:
+            break;
+        }
     }
 
 protected:
@@ -310,7 +322,6 @@ protected:
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }
         };
-        SkShader::TileMode tm = SkShader::kClamp_TileMode;
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -331,7 +342,7 @@ protected:
                     scale.postTranslate(25.f, 25.f);
                 }
 
-                paint.setShader(gradMaker[j](pts, gGradData[i], tm, scale));
+                paint.setShader(gradMaker[j](pts, gGradData[i], fMode, scale));
                 canvas->drawRect(r, paint);
                 canvas->translate(0, SkIntToScalar(120));
             }
@@ -346,12 +357,21 @@ private:
     GradCaseType fGradCaseType;
     SkString fName;
     bool fDither;
+    SkShader::TileMode fMode;
 };
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true); )
 DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true); )
 DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true); )
+
+DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true, SkShader::kRepeat_TileMode); )
+DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true, SkShader::kRepeat_TileMode); )
+DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true, SkShader::kRepeat_TileMode); )
+
+DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, true, SkShader::kMirror_TileMode); )
+DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, true, SkShader::kMirror_TileMode); )
+DEF_GM( return new ConicalGradientsGM(kEdge_GradCaseType, true, SkShader::kMirror_TileMode); )
 
 DEF_GM( return new ConicalGradientsGM(kInside_GradCaseType, false); )
 DEF_GM( return new ConicalGradientsGM(kOutside_GradCaseType, false); )
