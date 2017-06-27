@@ -7,6 +7,7 @@
 
 #include "SkImageFilterCache.h"
 
+#include "SkImageFilter.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkOpts.h"
@@ -37,12 +38,13 @@ public:
         }
     }
     struct Value {
-        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset)
-            : fKey(key), fImage(SkRef(image)), fOffset(offset) {}
+        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset, SkImageFilter* filter)
+            : fKey(key), fImage(SkRef(image)), fOffset(offset), fFilter(filter) {}
 
         Key fKey;
         sk_sp<SkSpecialImage> fImage;
         SkIPoint fOffset;
+        SkImageFilter* fFilter;
         static const Key& GetKey(const Value& v) {
             return v.fKey;
         }
@@ -65,12 +67,12 @@ public:
         return nullptr;
     }
 
-    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) override {
+    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, SkImageFilter* filter) override {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);
         }
-        Value* v = new Value(key, image, offset);
+        Value* v = new Value(key, image, offset, filter);
         fLookup.add(v);
         fLRU.addToHead(v);
         fCurrentBytes += image->getSize();
@@ -93,12 +95,10 @@ public:
         }
     }
 
-    void purgeByKeys(const Key keys[], int count) override {
+    void purgeByKey(const Key& key) override {
         SkAutoMutexAcquire mutex(fMutex);
-        for (int i = 0; i < count; i++) {
-            if (Value* v = fLookup.find(keys[i])) {
-                this->removeInternal(v);
-            }
+        if (Value* v = fLookup.find(key)) {
+            this->removeInternal(v);
         }
     }
 
@@ -106,6 +106,8 @@ public:
 private:
     void removeInternal(Value* v) {
         SkASSERT(v->fImage);
+        SkASSERT(v->fFilter);
+        v->fFilter->removeKey(v->fKey);
         fCurrentBytes -= v->fImage->getSize();
         fLRU.remove(v);
         fLookup.remove(v->fKey);
