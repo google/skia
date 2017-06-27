@@ -422,3 +422,31 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
     str->append(")");
 }
 #endif
+
+bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                                            SkMatrix* matrix,
+                                                            SkRasterPipeline* p) const {
+    // When the two circles are concentric, we can pretend we're radial (with a tiny *twist).
+    if (SkScalarNearlyZero((fCenter1 - fCenter2).length())) {
+        matrix->postTranslate(-fCenter1.fX, -fCenter1.fY);
+        matrix->postScale(1 / fRadius2, 1 / fRadius2);
+        p->append(SkRasterPipeline::xy_to_radius);
+
+        // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
+        auto dR = fRadius2 - fRadius1;
+        SkASSERT(dR > 0);
+        auto scale =  fRadius2 / dR;
+        auto bias  = -fRadius1 / dR;
+
+        auto mad_matrix = SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
+                                           SkMatrix::MakeScale(scale, 1));
+        auto m = alloc->makeArrayDefault<float>(6);
+        SkAssertResult(mad_matrix.asAffine(m));
+        p->append(SkRasterPipeline::matrix_2x3, m);
+
+        return true;
+    }
+
+    // TODO
+    return false;
+}
