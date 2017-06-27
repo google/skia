@@ -157,6 +157,24 @@
     },
     {
       "key": {
+        "uuid": "6cab1cd3_e2f79073",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-27T16:44:52Z",
+      "side": 1,
+      "message": "Yes, clear-to-magenta-in-debug code will fail ~60 GM image tests.\nI will run GM test again before uploading another patch to see if we can run this code on all tile modes.",
+      "parentUuid": "f81560d8_259c10a0",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6585170f_b9848385",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 4
@@ -236,6 +254,24 @@
       "writtenOn": "2017-06-27T09:57:08Z",
       "side": 1,
       "message": "After thinking about this code some more, I think the math may be wrong here and will overweight the interior pixels and underweight the edge. Assume an (approximated and non-normalized) 5-element Gaussian kernel of 1 4 5 4 1. If we\u0027re processing the leftmost pixel, the \u00275\u0027 will be centered on the leftmost pixel. This will give the pixels a weight of 5/10, 4/10, and 1/10. They should really be (1 + 4 + 5)/15 \u003d 10/15, 4/15 and 1/15.",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6d6f281_977f1806",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-27T16:44:52Z",
+      "side": 1,
+      "message": "You are right. In my fix, I just simply re-weight the kernel in-bounds.\n\nYour method should be the correct clamping to edge mode.\nI tried your original method: coord.%s \u003d clamp(coord.%s, bounds.x, bounds.y), but it seems does not give a desired result. I will try again to see why. Or I can manually calculate the value here: 1) get bounds_x_value, bounds_y_value. 2) if coord.direction \u003c bounds.x, then color +\u003d bounds_x_value. 3) if coord.direction \u003e bounds.y, then color +\u003d bounds_y_value. 4) others, use current code.",
+      "parentUuid": "b8f872ac_9b217b14",
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
