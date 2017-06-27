@@ -9,7 +9,7 @@
 
 #include "SkImageGenerator.h"
 
-#include <android/hardware_buffer.h>
+struct AHardwareBuffer;
 
 /**
  *  GrAHardwareBufferImageGenerator allows to create an SkImage attached to
@@ -45,7 +45,6 @@ private:
     static void deleteImageTexture(void* ctx);
 
     AHardwareBuffer* fGraphicBuffer;
-    SkAlphaType fAlphaType;
 
     typedef SkImageGenerator INHERITED;
 };

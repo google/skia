@@ -29,9 +29,7 @@ class GrContext;
 class GrContextThreadSafeProxy;
 class GrTexture;
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 struct AHardwareBuffer;
-#endif
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
@@ -236,7 +234,7 @@ public:
                                           const SkMatrix*, const SkPaint*, BitDepth,
                                           sk_sp<SkColorSpace>);
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
     /**
      *  Create a new image from the an Android hardware buffer.
      *  The new image takes a reference on the buffer.

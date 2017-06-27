@@ -486,6 +486,11 @@ optional("gpu") {
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/android/GrGLCreateNativeInterface_android.cpp" ]
+
+    # this lib is required to link against AHardwareBuffer
+    if (defined(ndk_api) && ndk_api >= 26) {
+      libs += [ "android" ]
+    }
   } else if (skia_use_egl) {
     sources += [ "src/gpu/gl/egl/GrGLCreateNativeInterface_egl.cpp" ]
     libs += [ "EGL" ]
