@@ -8,7 +8,7 @@
 #ifndef SkImageFilter_DEFINED
 #define SkImageFilter_DEFINED
 
-#include "../private/SkTArray.h"
+#include "../private/SkTHash.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkMutex.h"
 #include "SkColorSpace.h"
@@ -445,7 +445,7 @@ private:
     bool fUsesSrcInput;
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
-    mutable SkTArray<SkImageFilterCacheKey> fCacheKeys;
+    mutable SkTHashSet<SkImageFilterCacheKey> fCacheKeys;
     mutable SkMutex fMutex;
     typedef SkFlattenable INHERITED;
 };

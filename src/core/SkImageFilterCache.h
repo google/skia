@@ -8,6 +8,7 @@
 #ifndef SkImageFilterCache_DEFINED
 #define SkImageFilterCache_DEFINED
 
+#include "../../include/private/SkTHash.h"
 #include "SkMatrix.h"
 #include "SkRefCnt.h"
 
@@ -27,6 +28,11 @@ struct SkImageFilterCacheKey {
                                      sizeof(SkIRect) + sizeof(uint32_t) + 4 * sizeof(int32_t),
                                      "image_filter_key_tight_packing");
         fMatrix.getType();  // force initialization of type, so hashes match
+    }
+
+    SkImageFilterCacheKey() {
+        fUniqueID = 0;
+        fSrcGenID = 0;
     }
 
     uint32_t fUniqueID;
@@ -57,7 +63,7 @@ public:
     virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
                      const SkIPoint& offset) = 0;
     virtual void purge() = 0;
-    virtual void purgeByKeys(const SkImageFilterCacheKey[], int) = 0;
+    virtual void purgeByKey(const SkImageFilterCacheKey&) = 0;
     SkDEBUGCODE(virtual int count() const = 0;)
 };
 
