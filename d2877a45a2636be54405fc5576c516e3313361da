@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "020d401a_d2a0310c",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-27T09:57:08Z",
+      "side": 1,
+      "message": "SkMatrixConvolutionImageFilter has a TileMode parameter with exactly the same options, and the same functionality, so I do think we should harmonize it.\n\nAgreed that it would be nice to scope this one to SkBlurImageFilter, but unfortunately there\u0027s an SkImageFilter::MakeBlur() (see below) that was added in e1e5c74086ceb7143bf2f7968a324e8c06d33914, so either the enum has to be here, or MakeBlur() can\u0027t support it.",
+      "parentUuid": "43902aa6_9a9df09e",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96044ff6_10c27ce2",
         "filename": "include/core/SkImageFilter.h",
         "patchSetId": 4
@@ -104,6 +122,23 @@
     },
     {
       "key": {
+        "uuid": "f81560d8_259c10a0",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-27T09:57:08Z",
+      "side": 1,
+      "message": "I would actually prefer that we use this code on all tile modes, and remove the clears as before (ie., put back the clear-to-magenta-in-debug code). Does that cause problems for the default path?",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6585170f_b9848385",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 4
@@ -166,6 +201,23 @@
       "writtenOn": "2017-06-26T17:28:38Z",
       "side": 1,
       "message": "Can this fit on one line?",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8f872ac_9b217b14",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-27T09:57:08Z",
+      "side": 1,
+      "message": "After thinking about this code some more, I think the math may be wrong here and will overweight the interior pixels and underweight the edge. Assume an (approximated and non-normalized) 5-element Gaussian kernel of 1 4 5 4 1. If we\u0027re processing the leftmost pixel, the \u00275\u0027 will be centered on the leftmost pixel. This will give the pixels a weight of 5/10, 4/10, and 1/10. They should really be (1 + 4 + 5)/15 \u003d 10/15, 4/15 and 1/15.",
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
