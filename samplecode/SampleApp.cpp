@@ -2026,23 +2026,19 @@ void SampleWindow::resetFPS() {
 }
 
 void SampleWindow::toggleDistanceFieldFonts() {
-    // reset backend
-    fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fBackendOptions);
-
     SkSurfaceProps props = this->getSurfaceProps();
     uint32_t flags = props.flags() ^ SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
     this->setSurfaceProps(SkSurfaceProps(flags, props.pixelGeometry()));
+
+    // reset backend
+    fDevManager->tearDownBackend(this);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     this->updateTitle();
     this->inval(nullptr);
 }
 
 void SampleWindow::setPixelGeometry(int pixelGeometryIndex) {
-    // reset backend
-    fDevManager->tearDownBackend(this);
-    fDevManager->setUpBackend(this, fBackendOptions);
-
     const SkSurfaceProps& oldProps = this->getSurfaceProps();
     SkSurfaceProps newProps(oldProps.flags(), SkSurfaceProps::kLegacyFontHost_InitType);
     if (pixelGeometryIndex > 0) {
@@ -2050,6 +2046,10 @@ void SampleWindow::setPixelGeometry(int pixelGeometryIndex) {
                                   gPixelGeometryStates[pixelGeometryIndex].pixelGeometry);
     }
     this->setSurfaceProps(newProps);
+
+    // reset backend
+    fDevManager->tearDownBackend(this);
+    fDevManager->setUpBackend(this, fBackendOptions);
 
     this->updateTitle();
     this->inval(nullptr);
