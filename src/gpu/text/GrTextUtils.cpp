@@ -197,27 +197,24 @@ void GrTextUtils::BmpAppendGlyph(GrAtlasTextBlob* blob, int runIndex,
 
 bool GrTextUtils::CanDrawAsDistanceFields(const SkPaint& skPaint, const SkMatrix& viewMatrix,
                                           const SkSurfaceProps& props, const GrShaderCaps& caps) {
-    // TODO: support perspective (need getMaxScale replacement)
-    if (viewMatrix.hasPerspective()) {
-        return false;
-    }
+    if (!viewMatrix.hasPerspective()) {
+        SkScalar maxScale = viewMatrix.getMaxScale();
+        SkScalar scaledTextSize = maxScale * skPaint.getTextSize();
+        // Hinted text looks far better at small resolutions
+        // Scaling up beyond 2x yields undesireable artifacts
+        if (scaledTextSize < kMinDFFontSize ||
+            scaledTextSize > kLargeDFFontLimit) {
+            return false;
+        }
 
-    SkScalar maxScale = viewMatrix.getMaxScale();
-    SkScalar scaledTextSize = maxScale * skPaint.getTextSize();
-    // Hinted text looks far better at small resolutions
-    // Scaling up beyond 2x yields undesireable artifacts
-    if (scaledTextSize < kMinDFFontSize ||
-        scaledTextSize > kLargeDFFontLimit) {
-        return false;
-    }
-
-    bool useDFT = props.isUseDeviceIndependentFonts();
+        bool useDFT = props.isUseDeviceIndependentFonts();
 #if SK_FORCE_DISTANCE_FIELD_TEXT
-    useDFT = true;
+        useDFT = true;
 #endif
 
-    if (!useDFT && scaledTextSize < kLargeDFFontSize) {
-        return false;
+        if (!useDFT && scaledTextSize < kLargeDFFontSize) {
+            return false;
+        }
     }
 
     // rasterizers and mask filters modify alpha, which doesn't
@@ -238,16 +235,21 @@ void GrTextUtils::InitDistanceFieldPaint(GrAtlasTextBlob* blob,
                                          SkPaint* skPaint,
                                          SkScalar* textRatio,
                                          const SkMatrix& viewMatrix) {
-    // getMaxScale doesn't support perspective, so neither do we at the moment
-    SkASSERT(!viewMatrix.hasPerspective());
-    SkScalar maxScale = viewMatrix.getMaxScale();
     SkScalar textSize = skPaint->getTextSize();
     SkScalar scaledTextSize = textSize;
-    // if we have non-unity scale, we need to choose our base text size
-    // based on the SkPaint's text size multiplied by the max scale factor
-    // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
-    if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
-        scaledTextSize *= maxScale;
+
+    if (viewMatrix.hasPerspective()) {
+        // for perspective, we simply force to the medium size
+        // TODO: compute a size based on approximate screen area
+        scaledTextSize = kMediumDFFontLimit;
+    } else {
+        SkScalar maxScale = viewMatrix.getMaxScale();
+        // if we have non-unity scale, we need to choose our base text size
+        // based on the SkPaint's text size multiplied by the max scale factor
+        // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
+        if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
+            scaledTextSize *= maxScale;
+        }
     }
 
     // We have three sizes of distance field text, and within each size 'bucket' there is a floor
