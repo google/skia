@@ -991,8 +991,7 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
 
     SkISize size = SkISize::Make(SkScalarRoundToInt(deviceBounds.width()),
                                  SkScalarRoundToInt(deviceBounds.height()));
-    sk_sp<SkPDFDevice> patternDevice(
-            SkPDFDevice::CreateUnflipped(size, dpi, doc));
+    sk_sp<SkPDFDevice> patternDevice = SkPDFDevice::MakeUnflipped(size, dpi, doc);
     SkCanvas canvas(patternDevice.get());
 
     SkRect patternBBox;

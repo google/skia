@@ -59,17 +59,19 @@ public:
      *         for early serializing of large immutable objects, such
      *         as images (via SkPDFDocument::serialize()).
      */
-    static SkPDFDevice* Create(SkISize pageSize,
-                               SkScalar rasterDpi,
-                               SkPDFDocument* doc) {
-        return new SkPDFDevice(pageSize, rasterDpi, doc, true);
+    static sk_sp<SkPDFDevice> Make(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* doc) {
+        return sk_sp<SkPDFDevice>(new SkPDFDevice(pageSize, rasterDpi, doc, true));
     }
 
     /** Create a PDF drawing context without fipping the y-axis. */
-    static SkPDFDevice* CreateUnflipped(SkISize pageSize,
-                                        SkScalar rasterDpi,
-                                        SkPDFDocument* doc) {
-        return new SkPDFDevice(pageSize, rasterDpi, doc, false);
+    static sk_sp<SkPDFDevice> MakeUnflipped(SkISize pageSize,
+                                            SkScalar rasterDpi,
+                                            SkPDFDocument* doc) {
+        return sk_sp<SkPDFDevice>(new SkPDFDevice(pageSize, rasterDpi, doc, false));
+    }
+
+    sk_sp<SkPDFDevice> makeCongruentDevice() {
+        return sk_sp<SkPDFDevice>(new SkPDFDevice(fPageSize, fRasterDpi, fDocument, false));
     }
 
     ~SkPDFDevice() override;
@@ -283,12 +285,10 @@ private:
                            const SkPaint& paint, bool pathIsMutable,
                            const SkMatrix* prePathMatrix = nullptr);
 
-    typedef SkClipStackDevice INHERITED;
+    void addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice, SkDynamicMemoryWStream*);
+    void clearMaskOnGraphicState(SkDynamicMemoryWStream*);
 
-    // TODO(edisonn): Only SkDocument_PDF and SkPDFImageShader should be able to create
-    // an SkPDFDevice
-    //friend class SkDocument_PDF;
-    //friend class SkPDFImageShader;
+    typedef SkClipStackDevice INHERITED;
 };
 
 #endif
