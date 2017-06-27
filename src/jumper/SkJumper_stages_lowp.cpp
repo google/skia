@@ -71,7 +71,11 @@ using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,
 #endif
 MAYBE_MSABI
 extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
+#if defined(JUMPER)
+    F v;
+#else
     F v{};
+#endif
     auto start = (Stage*)load_and_inc(program);
     while (x + kStride <= limit) {
         start(k,program,x,y,0,    v,v,v,v, v,v,v,v);
