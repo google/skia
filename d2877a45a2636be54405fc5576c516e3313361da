@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "12f87a60_3990736e",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-27T11:46:17Z",
+      "side": 1,
+      "message": "I\u0027m trying to remove SkImageFilter::MakeBlur here: https://skia-review.googlesource.com/c/20837/",
+      "parentUuid": "020d401a_d2a0310c",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96044ff6_10c27ce2",
         "filename": "include/core/SkImageFilter.h",
         "patchSetId": 4
