@@ -329,8 +329,9 @@ void SkThreadedBMPDevice::drawPath(const SkPath& path, const SkPaint& paint,
     THREADED_DRAW(drawBounds, drawPath(path, paint, prePathMatrix, false));
 }
 
-void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
+void SkThreadedBMPDevice::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
         const SkPaint& paint) {
+    SkMatrix matrix = SkMatrix::MakeTrans(x, y);
     LogDrawScaleFactor(SkMatrix::Concat(this->ctm(), matrix), paint.getFilterQuality());
     SkRect drawBounds = SkRect::MakeWH(bitmap.width(), bitmap.height());
     matrix.mapRect(&drawBounds);

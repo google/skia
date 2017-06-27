@@ -200,7 +200,9 @@ protected:
                           const SkMatrix* prePathMatrix = NULL,
                           bool pathIsMutable = false) = 0;
     virtual void drawBitmap(const SkBitmap& bitmap,
-                            const SkMatrix& matrix, const SkPaint& paint) = 0;
+                            SkScalar x,
+                            SkScalar y,
+                            const SkPaint& paint) = 0;
     virtual void drawSprite(const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint) = 0;
 

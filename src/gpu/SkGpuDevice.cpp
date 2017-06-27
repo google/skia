@@ -819,8 +819,10 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
 }
 
 void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
-                             const SkMatrix& m,
+                             SkScalar x,
+                             SkScalar y,
                              const SkPaint& paint) {
+    SkMatrix m = SkMatrix::MakeTrans(x, y);
     ASSERT_SINGLE_OWNER
     CHECK_SHOULD_DRAW();
     SkMatrix viewMatrix;
@@ -1346,14 +1348,14 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
             if (!as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
                 return;
             }
-            this->drawBitmap(bm, SkMatrix::MakeTrans(x, y), paint);
+            this->drawBitmap(bm, x, y, paint);
         } else if (image->isLazyGenerated()) {
             CHECK_SHOULD_DRAW();
             GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
             this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                       viewMatrix, this->clip(), paint);
         } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-            this->drawBitmap(bm, SkMatrix::MakeTrans(x, y), paint);
+            this->drawBitmap(bm, x, y, paint);
         }
     }
 }
