@@ -1173,16 +1173,16 @@ bool SkColorSpaceXform_XYZ<kCSM>
             break;
         case kBGRA_8888_ColorFormat:
             if (kLinear_SrcGamma == fSrcGamma) {
-                pipeline.append(SkRasterPipeline::load_8888, &src);
+                pipeline.append(SkRasterPipeline::load_bgra, &src);
             } else {
                 loadTables.fSrc = src;
                 loadTables.fR = fSrcGammaTables[2];
                 loadTables.fG = fSrcGammaTables[1];
                 loadTables.fB = fSrcGammaTables[0];
                 pipeline.append(SkRasterPipeline::load_tables, &loadTables);
+                pipeline.append(SkRasterPipeline::swap_rb);
             }
 
-            pipeline.append(SkRasterPipeline::swap_rb);
             break;
         case kRGBA_F16_ColorFormat:
             if (kLinear_SrcGamma != fSrcGamma) {
@@ -1288,8 +1288,7 @@ bool SkColorSpaceXform_XYZ<kCSM>
              pipeline.append(SkRasterPipeline::store_8888, &dst);
             break;
         case kBGRA_8888_ColorFormat:
-            pipeline.append(SkRasterPipeline::swap_rb);
-            pipeline.append(SkRasterPipeline::store_8888, &dst);
+            pipeline.append(SkRasterPipeline::store_bgra, &dst);
             break;
         case kRGBA_F16_ColorFormat:
             if (kLinear_DstGamma != fDstGamma) {

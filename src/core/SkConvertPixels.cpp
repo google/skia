@@ -283,8 +283,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             pipeline.append(SkRasterPipeline::load_8888, &srcRow);
             break;
         case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::load_8888, &srcRow);
-            pipeline.append(SkRasterPipeline::swap_rb);
+            pipeline.append(SkRasterPipeline::load_bgra, &srcRow);
             break;
         case kRGB_565_SkColorType:
             pipeline.append(SkRasterPipeline::load_565, &srcRow);
@@ -376,8 +375,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             pipeline.append(SkRasterPipeline::store_8888, &dstRow);
             break;
         case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::swap_rb);
-            pipeline.append(SkRasterPipeline::store_8888, &dstRow);
+            pipeline.append(SkRasterPipeline::store_bgra, &dstRow);
             break;
         case kRGB_565_SkColorType:
             pipeline.append(SkRasterPipeline::store_565, &dstRow);

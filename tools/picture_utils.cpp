@@ -89,16 +89,13 @@ namespace sk_tools {
         SkRasterPipeline_<256> p;
         switch (bitmap.colorType()) {
             case  kRGBA_F16_SkColorType: p.append(SkRasterPipeline::load_f16,  &src); break;
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType: p.append(SkRasterPipeline::load_8888, &src); break;
+            case kBGRA_8888_SkColorType: p.append(SkRasterPipeline::load_bgra, &src); break;
+            case kRGBA_8888_SkColorType: p.append(SkRasterPipeline::load_8888, &src); break;
             case   kRGB_565_SkColorType: p.append(SkRasterPipeline::load_565,  &src); break;
             default: SkASSERT(false);  // DM doesn't support any other formats, does it?
         }
         if (bitmap.info().gammaCloseToSRGB()) {
             p.append_from_srgb(kUnpremul_SkAlphaType);
-        }
-        if (bitmap.colorType() == kBGRA_8888_SkColorType) {
-            p.append(SkRasterPipeline::swap_rb);
         }
         p.append(SkRasterPipeline::unpremul);
         p.append(SkRasterPipeline::clamp_0);

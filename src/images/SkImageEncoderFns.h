@@ -154,9 +154,10 @@ static inline void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK
 template <bool kIsRGBA>
 static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* src, int width) {
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_8888, &src);
-    if (!kIsRGBA) {
-        p.append(SkRasterPipeline::swap_rb);
+    if (kIsRGBA) {
+        p.append(SkRasterPipeline::load_8888, &src);
+    } else {
+        p.append(SkRasterPipeline::load_bgra, &src);
     }
 
     p.append_from_srgb(kPremul_SkAlphaType);

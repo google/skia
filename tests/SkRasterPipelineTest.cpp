@@ -216,8 +216,7 @@ DEF_TEST(SkRasterPipeline_lowp, r) {
     void* ptr = rgba;
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_8888,  &ptr);
-    p.append(SkRasterPipeline::swap_rb);
+    p.append(SkRasterPipeline::load_bgra,  &ptr);
     p.append(SkRasterPipeline::store_8888, &ptr);
     p.run(0,0,64);
 
