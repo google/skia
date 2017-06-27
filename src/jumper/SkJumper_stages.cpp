@@ -476,6 +476,39 @@ STAGE(srcover_rgba_8888) {
     store(ptr, dst, tail);
 }
 
+SI F lerp(F from, F to, F t) {
+    return mad(to-from, t, from);
+}
+
+STAGE(src_mask_rgba_8888) {
+    void** ctxArray = (void**)ctx;
+    auto ptr = *(uint32_t**)ctxArray[0] + x;
+    U32 dst = load<U32>(ptr, tail);
+    dr = cast((dst      ) & 0xff);
+    dg = cast((dst >>  8) & 0xff);
+    db = cast((dst >> 16) & 0xff);
+    da = cast((dst >> 24)       );
+    // {dr,dg,db,da} are in [0,255]
+    // { r, g, b, a} are in [0,  1]
+
+
+    auto mask = *(const uint8_t**)ctxArray[1] + x;
+    auto scales = load<U8>(mask, tail);
+    auto c = from_byte(scales);
+
+    r = lerp(dr, r*255.0f, c);
+    g = lerp(dg, g*255.0f, c);
+    b = lerp(db, b*255.0f, c);
+    a = lerp(da, a*255.0f, c);
+    // { r, g, b, a} are now in [0,255]
+
+    dst = round(r, 1.0f)
+    | round(g, 1.0f) <<  8
+    | round(b, 1.0f) << 16
+    | round(a, 1.0f) << 24;
+    store(ptr, dst, tail);
+}
+
 STAGE(clamp_0) {
     r = max(r, 0);
     g = max(g, 0);
@@ -640,10 +673,6 @@ STAGE(scale_u8) {
     g = g * c;
     b = b * c;
     a = a * c;
-}
-
-SI F lerp(F from, F to, F t) {
-    return mad(to-from, t, from);
 }
 
 STAGE(lerp_1_float) {

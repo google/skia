@@ -377,17 +377,27 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend == SkBlendMode::kSrcOver) {
-            p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
-            this->append_load_d(&p);
-            this->append_blend(&p);
+        if (fBlend == SkBlendMode::kSrc
+            && fDst.info().colorType() == kRGBA_8888_SkColorType
+            && !fDst.colorSpace()
+            && fDitherRate == 0.0f) {
+            auto ctx = fAlloc->makeArray<void*>(2);
+            ctx[0] = &fDstPtr;
+            ctx[1] = &fMaskPtr;
+            p.append(SkRasterPipeline::src_mask_rgba_8888, ctx);
         } else {
-            this->append_load_d(&p);
-            this->append_blend(&p);
-            p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+            if (fBlend == SkBlendMode::kSrcOver) {
+                p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
+                this->append_load_d(&p);
+                this->append_blend(&p);
+            } else {
+                this->append_load_d(&p);
+                this->append_blend(&p);
+                p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+            }
+            this->maybe_clamp(&p);
+            this->append_store(&p);
         }
-        this->maybe_clamp(&p);
-        this->append_store(&p);
         fBlitMaskA8 = p.compile();
     }
 
