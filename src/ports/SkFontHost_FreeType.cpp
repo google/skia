@@ -1474,6 +1474,7 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
             FT_Outline_Embolden(&glyph->outline, strength);
             break;
         case FT_GLYPH_FORMAT_BITMAP:
+            SkDebugf("Can't get here!!!\n");
             if (!fFace->glyph->bitmap.buffer) {
                 FT_Load_Glyph(fFace, gid, fLoadGlyphFlags);
             }
