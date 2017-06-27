@@ -107,6 +107,9 @@ def nanobench_flags(bot):
     # Ensure that the bot framework does not think we have timed out.
     args.extend(['--keepAlive', 'true'])
 
+  # Some people don't like verbose output.
+  verbose = False
+
   match = []
   if 'Android' in bot:
     # Segfaults when run as GPU bench. Very large texture?
@@ -145,6 +148,9 @@ def nanobench_flags(bot):
     match.append('~text_16_LCD_BK')
     match.append('~text_16_LCD_FF')
     match.append('~text_16_LCD_WT')
+  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
     match.append('~Xfermode') # skia:6691
   if 'ANGLE' in bot and 'Radeon' in bot and 'Release' in bot:
@@ -185,6 +191,9 @@ def nanobench_flags(bot):
   if match:
     args.append('--match')
     args.extend(match)
+
+  if verbose:
+    args.append('--verbose')
 
   return args
 
