@@ -7,7 +7,41 @@
 
 #include "gm.h"
 #include "sk_tool_utils.h"
-#include "SkRandom.h"
+#include "SkModeColorFilter.h"
+#include "SkImage.h"
+#include "SkPath.h"
+
+#include "Resources.h"
+
+static const int kSkipped = 0;
+static const int kNumSteps = 3;
+static const int kSize = 128 / kNumSteps;
+static const int kPad = 3;
+static const int kSmSize = kSize - 2 * kPad;
+
+static SkPath draw_path() {
+    SkPath p;
+    p.moveTo(kSmSize/2.0f, 2.0f*kPad);
+    p.lineTo(kSmSize-2.0f*kPad, kSmSize-2.0f*kPad);
+    p.lineTo(2.0f*kPad, kSmSize-2.0f*kPad);
+    p.close();    
+    return p;
+}
+
+static SkPath clip_path() {
+    SkPath p;
+    p.moveTo(kSmSize/2.0f, kPad);
+    p.lineTo(kSmSize-kPad, kSmSize-kPad);
+    p.lineTo(kPad, kSmSize-kPad);
+    p.close();
+
+    p.moveTo(kSmSize/2.0f+kPad, kPad-kPad);
+    p.lineTo(kSmSize-kPad+kPad, kSmSize-kPad-kPad);
+    p.lineTo(kPad+kPad, kSmSize-kPad-kPad);
+    p.close();
+
+    return p;
+}
 
 namespace skiagm {
 
@@ -27,54 +61,69 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
+       return SkISize::Make(128, 128);
+    }
+
+    void onOnceBeforeDraw() override {
+#if 0
+        for (int y = 0; y < kNumSteps; ++y) {
+            for (int x = 0; x < kNumSteps; ++x) {
+                fImages1[x][y] = GetResourceAsImage("mandrill_128.png");
+            }
+        }
+#endif
+
+        fImage = GetResourceAsImage("mandrill_128.png");
+        fDrawPath = draw_path();
+        fClipPath = clip_path();
+    }
+
+    void draw(SkCanvas* canvas, sk_sp<SkImage> img, const SkIPoint& xlate, const SkIRect& src, bool drawPaths) {
+        const SkRect dst = SkRect::MakeWH(src.width(), src.height());
+
+        canvas->save();
+            canvas->translate(xlate.fX, xlate.fY);
+            canvas->clipRect(dst, false);
+            if (drawPaths) {
+                SkPaint paint;
+                paint.setColor(0x61000000);
+                paint.setAntiAlias(true);
+                canvas->drawPath(fDrawPath, paint);
+                canvas->clipPath(fClipPath, kDifference_SkClipOp, false);
+
+                SkPaint imagePaint;
+//                imagePaint.setColorFilter(SkModeColorFilter::Make(0x61000000, SkBlendMode::kSrcIn));
+                imagePaint.setAntiAlias(false);
+                canvas->drawImageRect(img, src, dst, &imagePaint);
+            } else {
+                canvas->drawImageRect(img, src, dst, nullptr);
+            }
+        canvas->restore();    
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
+        int count = 0;
+        for (int y = 0; y < 1; ++y) {// kNumSteps; ++y) {
+            for (int x = 0; x < 2; ++x) { //kNumSteps; ++x) {
+                SkIRect src = SkIRect::MakeXYWH(x*kSize, y*kSize, kSize, kSize);
+                src.inset(kPad, kPad);
 
-        SkPaint p;
-
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
-
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
-
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
-            canvas->restore();
-
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
+                this->draw(canvas, fImage, SkIPoint::Make(x*kSize+kPad, y*kSize+kPad), src, true); //kSkipped != count);
+                ++count;
             }
         }
-
     }
 
 private:
+#if 0
+    sk_sp<SkImage> fImages1[kNumSteps][kNumSteps];
+#endif
+
+    sk_sp<SkImage> fImage;
+    SkPath fDrawPath;
+    SkPath fClipPath;
+
     typedef GM INHERITED;
 };
 
