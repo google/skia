@@ -28,8 +28,12 @@ public:
         fBuffer.append((const char*) s, size);
     }
 
-    const String& str() const {
-        return fBuffer;
+    const char* data() const {
+        return fBuffer.c_str();
+    }
+
+    size_t size() const {
+        return fBuffer.size();
     }
 
     void reset() {
@@ -50,33 +54,42 @@ namespace SkSL {
 class StringStream : public OutputStream {
 public:
     void write8(uint8_t b) override {
+        SkASSERT(!fData);
         fStream.write8(b);
     }
 
     void writeText(const char* s) override {
+        SkASSERT(!fData);
         fStream.writeText(s);
     }
 
     void write(const void* s, size_t size) override {
+        SkASSERT(!fData);
         fStream.write(s, size);
     }
 
-    const String& str() const {
-        if (!fString.size()) {
-            sk_sp<SkData> data = fStream.detachAsData();
-            fString = String((const char*) data->data(), data->size());
+    const char* data() const {
+        if (!fData) {
+            fData = fStream.detachAsData();
         }
-        return fString;
+        return (const char*) fData->data();
+    }
+
+    size_t size() const {
+        if (!fData) {
+            fData = fStream.detachAsData();
+        }
+        return fData->size();
     }
 
     void reset() {
         fStream.reset();
-        fString = "";
+        fData = nullptr;
     }
 
 private:
     mutable SkDynamicMemoryWStream fStream;
-    mutable String fString;
+    mutable sk_sp<SkData> fData;
 };
 
 #endif // SKSL_STANDALONE

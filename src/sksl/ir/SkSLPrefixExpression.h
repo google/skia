@@ -33,8 +33,9 @@ struct PrefixExpression : public Expression {
                fOperand->hasSideEffects();
     }
 
-    std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                  const DefinitionMap& definitions) override {
+    virtual std::unique_ptr<Expression> constantPropagate(
+                                                        const IRGenerator& irGenerator,
+                                                        const DefinitionMap& definitions) override {
         if (fOperand->fKind == Expression::kFloatLiteral_Kind) {
             return std::unique_ptr<Expression>(new FloatLiteral(
                                                               irGenerator.fContext,

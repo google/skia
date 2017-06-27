@@ -135,10 +135,6 @@ public:
         return false;
     }
 
-    bool floatPrecisionVaries() const {
-        return false;
-    }
-
     const char* shaderDerivativeExtensionString() const {
         return nullptr;
     }

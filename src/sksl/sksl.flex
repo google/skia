@@ -115,8 +115,6 @@ precision { return SkSL::Token::PRECISION; }
 
 "#"{LETTER}({DIGIT}|{LETTER})* { return SkSL::Token::DIRECTIVE; }
 
-"@"{LETTER}({DIGIT}|{LETTER})* { return SkSL::Token::SECTION; }
-
 "(" { return SkSL::Token::LPAREN; }
 
 ")" { return SkSL::Token::RPAREN; }
@@ -213,15 +211,11 @@ precision { return SkSL::Token::PRECISION; }
 
 ";" { return SkSL::Token::SEMICOLON; }
 
-"->" { return SkSL::Token::ARROW; }
-
-"::" { return SkSL::Token::COLONCOLON; }
-
-[ \t\r\n]+ { return SkSL::Token::WHITESPACE; }
-
 "//".* /* line comment */
 
 "/*"([^*]|"*"[^/])*"*/" /* block comment */
+
+[ \t\r\n]+  /* whitespace */
 
 .    { return SkSL::Token::INVALID_TOKEN; }
 
