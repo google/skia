@@ -53,7 +53,9 @@ def skpbench_steps(api):
         api.path.join(api.vars.android_data_dir, 'skps'),
         '--adb',
         '--resultsfile', table,
-        '--config', config]
+        '--config', config,
+        # TODO(dogben): Track down what's causing bots to die.
+        '-v', '5']
 
   api.run(api.python, 'skpbench',
       script=skpbench_dir.join('skpbench.py'),
