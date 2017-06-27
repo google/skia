@@ -167,10 +167,10 @@ config("default") {
       "-mthumb",
     ]
   } else if (current_cpu == "mipsel") {
-    cflags += [
-      "-no-integrated-as",  # Clang <4.0 doesn't understand 'usw' mnemonic.
-      "-march=mips32r2",
-    ]
+    cflags += [ "-march=mips32r2" ]
+  } else if (current_cpu == "mips64el") {
+    asmflags += [ "-integrated-as" ]
+    cflags += [ "-integrated-as" ]
   } else if (current_cpu == "x86" && !is_win) {
     asmflags += [ "-m32" ]
     cflags += [
@@ -192,14 +192,12 @@ config("default") {
   }
 
   if (is_android) {
-    asmflags += [
-      "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
-    ]
+    asmflags += [ "--target=$ndk_target" ]
     cflags += [
-      "--sysroot=$ndk/platforms/$ndk_platform",
+      "--sysroot=$ndk/sysroot",
+      "-isystem$ndk/sysroot/usr/include/$ndk_target",
+      "-D__ANDROID_API__=$ndk_api",
       "--target=$ndk_target",
-      "-B$ndk/toolchains/$ndk_gccdir-4.9/prebuilt/$ndk_host/$ndk_target/bin",
     ]
     cflags_cc += [
       "-isystem$ndk/sources/android/support/include",
@@ -217,9 +215,8 @@ config("default") {
     ]
 
     if (current_cpu == "mips64el") {
-      # The r13 NDK omits /usr/lib from the MIPS64 sysroots, but Clang searches
-      # for /usr/lib64 as $PATH_TO_USR_LIB/../lib64.  If there's no /usr/lib,
-      # it can't find /usr/lib64.  We must point Clang at /usr/lib64 manually.
+      # The r15b NDK deployed on our bots fails to find /usr/lib64 in  the
+      # MIPS64 sysroots, so we must point Clang at /usr/lib64 manually.
       lib_dirs += [ "$ndk/platforms/$ndk_platform/usr/lib64" ]
       ldflags += [ "-B$ndk/platforms/$ndk_platform/usr/lib64" ]
     }
