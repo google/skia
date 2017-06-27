@@ -64,16 +64,18 @@ struct SkJumper_constants;
     M(move_src_dst) M(move_dst_src)                              \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst)              \
     M(unpremul) M(premul)                                        \
-    M(set_rgb) M(swap_rb) M(swap_rb_dst)                         \
+    M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                     \
     M(constant_color) M(seed_shader) M(dither)                   \
-    M(load_a8)   M(load_a8_dst)   M(store_a8)                    \
-    M(load_g8)   M(load_g8_dst)                                  \
-    M(load_565)  M(load_565_dst)  M(store_565)                   \
-    M(load_4444) M(load_4444_dst) M(store_4444)                  \
-    M(load_f16)  M(load_f16_dst)  M(store_f16)                   \
+                                                M(gather_i8)     \
+    M(load_a8)   M(load_a8_dst)   M(store_a8)   M(gather_a8)     \
+    M(load_g8)   M(load_g8_dst)                 M(gather_g8)     \
+    M(load_565)  M(load_565_dst)  M(store_565)  M(gather_565)    \
+    M(load_4444) M(load_4444_dst) M(store_4444) M(gather_4444)   \
+    M(load_f16)  M(load_f16_dst)  M(store_f16)  M(gather_f16)    \
     M(load_f32)  M(load_f32_dst)  M(store_f32)                   \
-    M(load_8888) M(load_8888_dst) M(store_8888)                  \
+    M(load_8888) M(load_8888_dst) M(store_8888) M(gather_8888)   \
+    M(load_bgra) M(load_bgra_dst) M(store_bgra) M(gather_bgra)   \
     M(load_u16_be) M(load_rgb_u16_be) M(store_u16_be)            \
     M(load_tables_u16_be) M(load_tables_rgb_u16_be)              \
     M(load_tables) M(load_rgba) M(store_rgba)                    \
@@ -96,8 +98,6 @@ struct SkJumper_constants;
     M(clamp_x)   M(mirror_x)   M(repeat_x)                       \
     M(clamp_y)   M(mirror_y)   M(repeat_y)                       \
     M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                     \
-    M(gather_a8) M(gather_g8) M(gather_i8)                       \
-    M(gather_565) M(gather_4444) M(gather_8888) M(gather_f16)    \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)  \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)  \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)  \

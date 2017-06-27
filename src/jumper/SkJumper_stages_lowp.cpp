@@ -249,6 +249,19 @@ STAGE(store_8888) {
     store(ptr, to_8888(r,g,b,a), tail);
 }
 
+STAGE(load_bgra) {
+    auto ptr = *(const uint32_t**)ctx + x;
+    from_8888(load<U32>(ptr, tail), &b,&g,&r,&a);
+}
+STAGE(load_bgra_dst) {
+    auto ptr = *(const uint32_t**)ctx + x;
+    from_8888(load<U32>(ptr, tail), &db,&dg,&dr,&da);
+}
+STAGE(store_bgra) {
+    auto ptr = *(uint32_t**)ctx + x;
+    store(ptr, to_8888(b,g,r,a), tail);
+}
+
 STAGE(load_a8) {
     auto ptr = *(const uint8_t**)ctx + x;
     r = g = b = 0.0f;
@@ -334,12 +347,6 @@ STAGE(swap_rb) {
     r = b;
     b = tmp;
 }
-STAGE(swap_rb_dst) {
-    auto tmp = dr;
-    dr = db;
-    db = tmp;
-}
-
 STAGE(move_src_dst) {
     dr = r;
     dg = g;
