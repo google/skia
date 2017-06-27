@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4729319a_b0ec191f",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-27T17:42:39Z",
+      "side": 1,
+      "message": "I think this\u0027ll call SkImageFilterCache::removeInternal(), which will call back into SkImageFilter::removeKey(), which will mess up the count above (unless foreach is removal-safe; I haven\u0027t checked). Another approach would be to continuously purge element zero (and allow it to call removeKey()) until the count is zero.",
+      "revId": "6f3f3d810b1a1dc327fd2d670d8db80062bc2d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4135be05_50907ff3",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-27T17:42:39Z",
+      "side": 1,
+      "message": "BTW, since fCacheKeys is mutable, you should be able to make SkImageFilter::removeKey() const. Then you can make the SkImageFilter* inside Value const, and you wouldn\u0027t need this cast.",
+      "range": {
+        "startLine": 228,
+        "startChar": 68,
+        "endLine": 228,
+        "endChar": 81
+      },
+      "revId": "6f3f3d810b1a1dc327fd2d670d8db80062bc2d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
