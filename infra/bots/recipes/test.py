@@ -24,7 +24,7 @@ DEPS = [
 ]
 
 
-def dm_flags(bot):
+def dm_flags(api, bot):
   args = []
 
   # This enables non-deterministic random seeding of the GPU FP optimization
@@ -103,7 +103,7 @@ def dm_flags(bot):
 
   # We want to test both the OpenGL config and the GLES config on Linux Intel:
   # GL is used by Chrome, GLES is used by ChromeOS.
-  if 'Intel' in bot and 'Ubuntu' in bot:
+  if 'Intel' in bot and api.vars.is_linux:
     configs.extend(['gles', 'glesdft', 'glessrgb'])
 
   # NP is running out of RAM when we run all these modes.  skia:3255
@@ -442,10 +442,10 @@ def dm_flags(bot):
                   '~bitmapfilters', # skia:6132
                   '~GrContextFactory_abandon']) #skia:6209
 
-  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Ubuntu' in bot:
+  if 'Vulkan' in bot and 'IntelIris540' in bot and api.vars.is_linux:
     match.extend(['~VkHeapTests']) # skia:6245
 
-  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
+  if 'Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot:
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
 
@@ -530,7 +530,7 @@ def dm_flags(bot):
       # skia:6141
       blacklist([config, 'gm', '_', 'discard'])
 
-  if 'IntelBayTrail' in bot and 'Ubuntu' in bot:
+  if 'IntelBayTrail' in bot and api.vars.is_linux:
     match.append('~ImageStorageLoad') # skia:6358
 
   if 'Ci20' in bot:
@@ -700,7 +700,7 @@ def test_steps(api):
     skip_flag = '--nocpu'
   if skip_flag:
     args.append(skip_flag)
-  args.extend(dm_flags(api.vars.builder_name))
+  args.extend(dm_flags(api, api.vars.builder_name))
 
   env = {}
   if 'Ubuntu16' in api.vars.builder_name:

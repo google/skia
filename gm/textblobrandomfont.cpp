@@ -69,7 +69,7 @@ protected:
         sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface();
         const char* osName = sk_tool_utils::platform_os_name();
         // The mac emoji string will break us
-        if (origEmoji && (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu"))) {
+        if (origEmoji && (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu") || !strcmp(osName, "Debian"))) {
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
             offset += bounds.height();

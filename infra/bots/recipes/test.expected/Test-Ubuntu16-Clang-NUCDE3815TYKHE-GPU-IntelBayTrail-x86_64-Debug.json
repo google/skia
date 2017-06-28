@@ -225,6 +225,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
+      "catchsegv",
       "[START_DIR]/out/Debug/dm",
       "--undefok",
       "--resourcePath",

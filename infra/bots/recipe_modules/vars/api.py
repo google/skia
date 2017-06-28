@@ -143,6 +143,10 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.chromeos_homedir = '/home/chronos/user/'
 
   @property
+  def is_linux(self):
+    return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
+
+  @property
   def upload_dm_results(self):
     # TODO(borenet): Move this into the swarm_test recipe.
     skip_upload_bots = [

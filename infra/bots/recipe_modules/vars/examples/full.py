@@ -17,7 +17,8 @@ def RunSteps(api):
     api.vars.swarming_bot_id,
     api.vars.swarming_task_id,
   ]
-  assert len(info) == 4  # Make pylint happy.
+  if api.vars.is_linux:
+    assert len(info) == 4  # Make pylint happy.
 
 
 TEST_BUILDERS = [
