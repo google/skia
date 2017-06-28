@@ -43,6 +43,7 @@ CQ_INCLUDE_CHROMIUM_TRYBOTS = [
         'win_chromium_compile_rel_ng',
         'win_chromium_dbg_ng',
         'win_chromium_rel_ng',
+        'win_clang_rel',
         'win_optional_gpu_tests_rel',
     ]),
     ('master.tryserver.chromium.android', [
