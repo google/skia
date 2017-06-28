@@ -934,10 +934,13 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         pdfShader->insertObject("Domain", domain);
 
         std::unique_ptr<SkStreamAsset> functionStream(functionCode.detachAsStream());
-        sk_sp<SkPDFArray> rangeObject =
-                SkPDFUtils::GetCachedT(&canon->fRangeObject, &make_range_object);
+
+        sk_sp<SkPDFArray>& rangeObject = canon->fRangeObject;
+        if (!rangeObject) {
+            rangeObject = make_range_object();
+        }
         sk_sp<SkPDFStream> function = make_ps_function(std::move(functionStream), std::move(domain),
-                                                       std::move(rangeObject));
+                                                       rangeObject);
         pdfShader->insertObjRef("Function", std::move(function));
     }
 

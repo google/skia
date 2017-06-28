@@ -103,15 +103,6 @@ inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
     }
 }
 
-template <class T>
-static sk_sp<T> GetCachedT(sk_sp<T>* cachedT, sk_sp<T> (*makeNewT)()) {
-    if (*cachedT) {
-        return *cachedT;
-    }
-    *cachedT = (*makeNewT)();
-    return *cachedT;
-}
-
 inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
     SkMatrix localMatrix;
     if (sk_sp<SkShader> s = shader->makeAsALocalMatrixShader(&localMatrix)) {
