@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f4b09a48_872ed4e9",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-28T14:23:56Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "4ac62ee8_5a7013eb",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8afd916d_4413918e",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97392f2c_e52d370b",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-28T14:23:56Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "8afd916d_4413918e",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "50234ce6_0d03dce9",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-28T14:23:56Z",
+      "side": 1,
+      "message": "quite shorter code indeed. done.",
+      "parentUuid": "26ec5d14_ec8ffc96",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28f4ad1d_ca111400",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 2
@@ -67,6 +121,24 @@
       "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b495b89_610c37d2",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-28T14:23:56Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "28f4ad1d_ca111400",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
