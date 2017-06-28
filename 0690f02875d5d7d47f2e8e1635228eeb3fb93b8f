@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "39fcd656_ca867360",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-28T20:46:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b9d0c77_a76d55fb",
+      "revId": "0690f02875d5d7d47f2e8e1635228eeb3fb93b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a459158_38e4fb3d",
         "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-06-28T16:58:51Z",
       "side": 1,
       "message": "Note: CPU renders \"caps\" even for hairlines (unless they\u0027re butt capped). I\u0027m tempted to change this logic just so we match. (SVG doesn\u0027t have the hairline concept, so Skia is free to decide what the semantics are, but the consistency would be nice).",
+      "revId": "0690f02875d5d7d47f2e8e1635228eeb3fb93b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa75497_6aab4556",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-28T20:46:07Z",
+      "side": 1,
+      "message": "Made this consistent with CPU, and also used hairlineCoverage, which is essentially the stroke width scaled by the CTM.",
+      "parentUuid": "7a459158_38e4fb3d",
       "revId": "0690f02875d5d7d47f2e8e1635228eeb3fb93b8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
