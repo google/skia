@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b389e54_53768e2e",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-28T20:29:57Z",
+      "side": 1,
+      "message": "nit: sort",
+      "revId": "04a9ba86c35dfc8605ead5f64c13b9693c557271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
