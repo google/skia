@@ -364,7 +364,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
 
-static void create_clip_mask_key(int32_t clipGenID, const SkIRect& bounds, GrUniqueKey* key) {
+static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 3, GrClipStackClip::kMaskTestTag);
     builder[0] = clipGenID;
@@ -374,7 +374,7 @@ static void create_clip_mask_key(int32_t clipGenID, const SkIRect& bounds, GrUni
     builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
 }
 
-static void add_invalidate_on_pop_message(const SkClipStack& stack, int32_t clipGenID,
+static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t clipGenID,
                                           const GrUniqueKey& clipMaskKey) {
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     while (const Element* element = iter.prev()) {

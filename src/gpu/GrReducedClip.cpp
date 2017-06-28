@@ -662,7 +662,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 
 class StencilClip final : public GrClip {
 public:
-    StencilClip(const SkIRect& scissorRect, int32_t clipStackID)
+    StencilClip(const SkIRect& scissorRect, uint32_t clipStackID)
         : fFixedClip(scissorRect)
         , fClipStackID(clipStackID) {
     }
@@ -694,7 +694,7 @@ private:
     }
 
     GrFixedClip fFixedClip;
-    int32_t     fClipStackID;
+    uint32_t    fClipStackID;
 
     typedef GrClip INHERITED;
 };

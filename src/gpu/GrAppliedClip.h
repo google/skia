@@ -53,7 +53,7 @@ public:
         fClipCoverageFP = fp;
     }
 
-    void addStencilClip(int32_t clipStackID) {
+    void addStencilClip(uint32_t clipStackID) {
         SkASSERT(SkClipStack::kInvalidGenID == fClipStackID);
         fClipStackID = clipStackID;
     }
@@ -83,7 +83,7 @@ private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
-    int32_t                    fClipStackID = SkClipStack::kInvalidGenID;
+    uint32_t                   fClipStackID = SkClipStack::kInvalidGenID;
 };
 
 #endif
