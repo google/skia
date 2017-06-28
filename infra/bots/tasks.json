@@ -6949,7 +6949,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-340.96",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7001,7 +7001,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-340.96",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7289,7 +7289,7 @@
       ],
       "dimensions": [
         "gpu:10de:1244-340.76",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -7341,7 +7341,7 @@
       ],
       "dimensions": [
         "gpu:10de:1244-340.76",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -7388,7 +7388,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7435,7 +7435,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7482,7 +7482,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7529,7 +7529,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13085,7 +13085,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-340.96",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13137,7 +13137,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-340.96",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13189,7 +13189,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-340.96",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13542,7 +13542,7 @@
       ],
       "dimensions": [
         "gpu:10de:104a-340.96",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13594,7 +13594,7 @@
       ],
       "dimensions": [
         "gpu:10de:1244-340.76",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -13646,7 +13646,7 @@
       ],
       "dimensions": [
         "gpu:10de:1244-340.76",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -13698,7 +13698,7 @@
       ],
       "dimensions": [
         "gpu:10de:1244-340.76",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 32400000000000,
@@ -13745,7 +13745,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13792,7 +13792,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13839,7 +13839,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13886,7 +13886,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-367.57",
-        "os:Debian-9.0",
+        "os:Ubuntu-14.04",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
