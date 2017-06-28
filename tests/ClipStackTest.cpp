@@ -1107,16 +1107,16 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 
         stack.clipRect(SkRect::MakeXYWH(0, 0, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
                        kReplace_SkClipOp, true);
-        int32_t genIDA = stack.getTopmostGenID();
+        uint32_t genIDA = stack.getTopmostGenID();
         stack.clipRect(SkRect::MakeXYWH(50, 0, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
                        kUnion_SkClipOp, true);
-        int32_t genIDB = stack.getTopmostGenID();
+        uint32_t genIDB = stack.getTopmostGenID();
         stack.clipRect(SkRect::MakeXYWH(0, 50, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
                        kUnion_SkClipOp, true);
-        int32_t genIDC = stack.getTopmostGenID();
+        uint32_t genIDC = stack.getTopmostGenID();
         stack.clipRect(SkRect::MakeXYWH(50, 50, SkScalar(25.3), SkScalar(25.3)), SkMatrix::I(),
                        kUnion_SkClipOp, true);
-        int32_t genIDD = stack.getTopmostGenID();
+        uint32_t genIDD = stack.getTopmostGenID();
 
 
 #define IXYWH SkIRect::MakeXYWH
@@ -1135,7 +1135,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         static const struct SUPPRESS_VISIBILITY_WARNING {
             SkRect testBounds;
             int reducedClipCount;
-            int32_t reducedGenID;
+            uint32_t reducedGenID;
             InitialState initialState;
             SkIRect clipIRect;
             // parameter.

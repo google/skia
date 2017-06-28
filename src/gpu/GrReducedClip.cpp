@@ -80,7 +80,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
 
         // Implement the clip with an AA rect element.
         fElements.addToHead(stackBounds, kReplace_SkClipOp, true/*doAA*/);
-        fElementsGenID = stack.getTopmostGenID();
+        fElementsGenID1 = stack.getTopmostGenID();
         fRequiresAA = true;
 
         fInitialState = InitialState::kAllOut;
@@ -328,7 +328,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         if (!skippable) {
             if (0 == fElements.count()) {
                 // This will be the last element. Record the stricter genID.
-                fElementsGenID = element->getGenID();
+                fElementsGenID1 = element->getGenID();
             }
 
             // if it is a flip, change it to a bounds-filling rect
@@ -662,7 +662,7 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 
 class StencilClip final : public GrClip {
 public:
-    StencilClip(const SkIRect& scissorRect, int32_t clipStackID)
+    StencilClip(const SkIRect& scissorRect, uint32_t clipStackID)
         : fFixedClip(scissorRect)
         , fClipStackID(clipStackID) {
     }
@@ -694,7 +694,7 @@ private:
     }
 
     GrFixedClip fFixedClip;
-    int32_t     fClipStackID;
+    uint32_t    fClipStackID;
 
     typedef GrClip INHERITED;
 };
