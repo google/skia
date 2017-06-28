@@ -237,6 +237,7 @@ static int num_quad_subdivs(const SkPoint p[3]) {
 static int gather_lines_and_quads(const SkPath& path,
                                   const SkMatrix& m,
                                   const SkIRect& devClipBounds,
+                                  SkScalar capLength,
                                   GrAAHairLinePathRenderer::PtArray* lines,
                                   GrAAHairLinePathRenderer::PtArray* quads,
                                   GrAAHairLinePathRenderer::PtArray* conics,
@@ -250,10 +251,13 @@ static int gather_lines_and_quads(const SkPath& path,
 
     bool persp = m.hasPerspective();
 
+    int contourStartLine = -1;
+    int verbsInContour = 0; // Does not count moves
+
     for (;;) {
         SkPoint pathPts[4];
         SkPoint devPts[4];
-        SkPath::Verb verb = iter.next(pathPts);
+        SkPath::Verb verb = iter.next(pathPts, false);
         switch (verb) {
             case SkPath::kConic_Verb: {
                 SkConic dst[4];
@@ -285,9 +289,21 @@ static int gather_lines_and_quads(const SkPath& path,
                         }
                     }
                 }
+                verbsInContour++;
                 break;
             }
             case SkPath::kMove_Verb:
+                // New contour (and last one was unclosed). If it was just a degenerate line, and
+                // we're supposed to draw caps, then grow the line.
+                if (verbsInContour == 1 && contourStartLine >= 0 && capLength > 0) {
+                    SkPoint* pts = lines->begin() + contourStartLine;
+                    if (pts[0] == pts[1]) {
+                        pts[0].fX -= capLength;
+                        pts[1].fX += capLength;
+                    }
+                }
+                verbsInContour = 0;
+                contourStartLine = -1;
                 break;
             case SkPath::kLine_Verb:
                 m.mapPoints(devPts, pathPts, 2);
@@ -295,10 +311,16 @@ static int gather_lines_and_quads(const SkPath& path,
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                    // This line is the first (non-move) verb in the contour. Remember it so we can
+                    // adjust p[0] for capping if the contour ends up not being closed.
+                    if (verbsInContour == 0) {
+                        contourStartLine = lines->count();
+                    }
                     SkPoint* pts = lines->push_back_n(2);
                     pts[0] = devPts[0];
                     pts[1] = devPts[1];
                 }
+                verbsInContour++;
                 break;
             case SkPath::kQuad_Verb: {
                 SkPoint choppedPts[5];
@@ -336,6 +358,7 @@ static int gather_lines_and_quads(const SkPath& path,
                         }
                     }
                 }
+                verbsInContour++;
                 break;
             }
             case SkPath::kCubic_Verb:
@@ -391,10 +414,45 @@ static int gather_lines_and_quads(const SkPath& path,
                         }
                     }
                 }
+                verbsInContour++;
                 break;
             case SkPath::kClose_Verb:
+                // Contour is closed, so we don't need to grow the starting line, unless it's
+                // *just* a zero length subpath. (SVG Spec 11.4, 'stroke').
+                // TODO: Need to handle zero length quads/cubics/conics
+
+                if (capLength > 0) {
+                    if (verbsInContour == 0) {
+                        // Contour was (moveTo, close). Add a line to draw the "square" or "circle".
+                        m.mapPoints(devPts, pathPts, 1);
+                        devPts[1] = devPts[0];
+                        bounds.setBounds(devPts, 2);
+                        bounds.outset(SK_Scalar1, SK_Scalar1);
+                        bounds.roundOut(&ibounds);
+                        if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                            SkPoint* pts = lines->push_back_n(2);
+                            pts[0] = SkPoint::Make(devPts[0].fX - capLength, devPts[0].fY);
+                            pts[1] = SkPoint::Make(devPts[1].fX + capLength, devPts[1].fY);
+                        }
+                    } else if (verbsInContour == 1 && contourStartLine >= 0) {
+                        SkPoint* pts = lines->begin() + contourStartLine;
+                        if (pts[0] == pts[1]) {
+                            pts[0].fX -= capLength;
+                            pts[1].fX += capLength;
+                        }
+                    }
+                }
                 break;
             case SkPath::kDone_Verb:
+                if (capLength > 0 && verbsInContour == 1 && contourStartLine >= 0) {
+                    // Path ended with a dangling (moveTo, lineTo). If the final line is degenerate,
+                    // we need to expand it to draw the caps.
+                    SkPoint* pts = lines->begin() + contourStartLine;
+                    if (pts[0] == pts[1]) {
+                        pts[0].fX -= capLength;
+                        pts[1].fX += capLength;
+                    }
+                }
                 return totalQuadCount;
         }
     }
@@ -683,8 +741,15 @@ public:
             newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
         }
 
+        const SkStrokeRec& stroke = style.strokeRec();
+        SkScalar capLength = 0.0f;
+        if (SkStrokeRec::kStroke_Style == stroke.getStyle() &&
+                SkPaint::kButt_Cap != stroke.getCap()) {
+            capLength = stroke.getWidth() * 0.5f;
+        }
+
         return std::unique_ptr<GrLegacyMeshDrawOp>(
-                new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds));
+                new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds, capLength));
     }
 
     const char* name() const override { return "AAHairlineOp"; }
@@ -702,9 +767,10 @@ private:
                  uint8_t coverage,
                  const SkMatrix& viewMatrix,
                  const SkPath& path,
-                 SkIRect devClipBounds)
+                 SkIRect devClipBounds,
+                 SkScalar capLength)
             : INHERITED(ClassID()), fColor(color), fCoverage(coverage) {
-        fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds});
+        fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds, capLength});
 
         this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
                                    IsZeroArea::kYes);
@@ -775,6 +841,7 @@ private:
         SkMatrix fViewMatrix;
         SkPath fPath;
         SkIRect fDevClipBounds;
+        SkScalar fCapLength;
     };
 
     GrColor fColor;
@@ -818,7 +885,8 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
     for (int i = 0; i < instanceCount; i++) {
         const PathData& args = fPaths[i];
         quadCount += gather_lines_and_quads(args.fPath, args.fViewMatrix, args.fDevClipBounds,
-                                            &lines, &quads, &conics, &qSubdivs, &cWeights);
+                                            args.fCapLength, &lines, &quads, &conics, &qSubdivs,
+                                            &cWeights);
     }
 
     int lineCount = lines.count() / 2;
