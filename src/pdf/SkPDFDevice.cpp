@@ -653,7 +653,9 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     SkPaint passedPaint = srcPaint;
     remove_color_filter(&passedPaint);
     replace_srcmode_on_opaque_paint(&passedPaint);
-
+    if (SkCanvas::kPoints_PointMode != mode) {
+        passedPaint.setStyle(SkPaint::kStroke_Style);
+    }
     if (count == 0) {
         return;
     }
@@ -2188,7 +2190,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         }
     }
 
-    sk_sp<SkPDFGraphicState> newGraphicState;
+    sk_sp<SkPDFDict> newGraphicState;
     if (color == paint.getColor()) {
         newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), paint);
     } else {
