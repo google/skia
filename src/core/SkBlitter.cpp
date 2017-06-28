@@ -800,6 +800,11 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 #endif
+#ifndef SK_SUPPORT_LEGACY_HQ_SCALER
+    if (paint.getFilterQuality() == kHigh_SkFilterQuality) {
+        return true;
+    }
+#endif
     // ... or unless the blend mode is complicated enough.
     if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
         return true;
