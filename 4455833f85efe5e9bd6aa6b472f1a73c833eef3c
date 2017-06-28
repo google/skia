@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8e338009_86053856",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-28T18:26:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "666e45b1_eb060c59",
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37aa4c02_e390cd94",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 2
@@ -62,6 +80,54 @@
       "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9a9afa8_a9868b2e",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-28T18:26:51Z",
+      "side": 1,
+      "message": "No luck:\n\nIn file included from src/jumper/SkJumper_stages.cpp:9:\nsrc/jumper/SkJumper_misc.h:37:5: error: static_assert failed \"\"\n    static_assert(sizeof(Dst) \u003d\u003d sizeof(Src), \"\");\n    ^             ~~~~~~~~~~~~~~~~~~~~~~~~~~\nsrc/jumper/SkJumper_vectors.h:674:40: note: in instantiation of function template specialization \u0027bit_cast\u003cfloat __attribute__((ext_vector_type(4))), float\u003e\u0027 requested here\n    return bit_cast\u003cV\u003e(if_then_else(c, bit_cast\u003cF\u003e(t), bit_cast\u003cF\u003e(e)));\n                                       ^\nsrc/jumper/SkJumper_stages.cpp:1267:13: note: in instantiation of function template specialization \u0027if_then_else\u003cfloat\u003e\u0027 requested here\n    g \u003d     if_then_else(mad(r, c-\u003efDR, c-\u003efR0) \u003c 0, 0.0f, 1.0f); // R(t) \u003c 0",
+      "parentUuid": "37aa4c02_e390cd94",
+      "range": {
+        "startLine": 1267,
+        "startChar": 50,
+        "endLine": 1267,
+        "endChar": 54
+      },
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8305b49_51a0d793",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-28T18:26:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb389af1_d82af6fe",
+      "range": {
+        "startLine": 1267,
+        "startChar": 21,
+        "endLine": 1267,
+        "endChar": 48
+      },
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
