@@ -107,11 +107,16 @@ struct SkJumper_GradientCtx {
     float* ts;
 };
 
+struct SkJumper_VectorScaleCtx {
+    float scale[SkJumper_kMaxStride];
+};
+
 struct SkJumper_2PtConicalCtx {
-    float fCoeffA,
-          fInvCoeffA,
-          fR0,
-          fDR;
+    SkJumper_VectorScaleCtx fMaskContext;
+    float                   fCoeffA,
+                            fInvCoeffA,
+                            fR0,
+                            fDR;
 };
 
 #endif//SkJumper_DEFINED

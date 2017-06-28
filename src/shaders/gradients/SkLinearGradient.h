@@ -66,7 +66,8 @@ protected:
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
-                                     SkRasterPipeline* p) const final;
+                                     SkRasterPipeline* tPipeline,
+                                     SkRasterPipeline* postPipeline) const final;
 
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
