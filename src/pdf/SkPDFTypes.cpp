@@ -384,6 +384,10 @@ void SkPDFDict::addResources(SkPDFObjNumMap* catalog) const {
 
 int SkPDFDict::size() const { return fRecords.count(); }
 
+void SkPDFDict::reserve(int n) {
+    fRecords.reserve(n);
+}
+
 void SkPDFDict::insertObjRef(const char key[], sk_sp<SkPDFObject> objSp) {
     fRecords.emplace_back(Record{SkPDFUnion::Name(key), SkPDFUnion::ObjRef(std::move(objSp))});
 }

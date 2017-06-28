@@ -12,9 +12,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFCanon::~SkPDFCanon() {
-    fGraphicStateRecords.foreach ([](WrapGS w) { w.fPtr->unref(); });
-}
+SkPDFCanon::~SkPDFCanon() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,19 +54,3 @@ void SkPDFCanon::addImageShader(sk_sp<SkPDFObject> pdfShader,
                                 SkPDFShader::State state) {
     fImageShaderRecords.emplace_back(ShaderRec{std::move(state), std::move(pdfShader)});
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-const SkPDFGraphicState* SkPDFCanon::findGraphicState(
-        const SkPDFGraphicState& key) const {
-    const WrapGS* ptr = fGraphicStateRecords.find(WrapGS(&key));
-    return ptr ? ptr->fPtr : nullptr;
-}
-
-void SkPDFCanon::addGraphicState(const SkPDFGraphicState* state) {
-    SkASSERT(state);
-    WrapGS w(SkRef(state));
-    SkASSERT(!fGraphicStateRecords.contains(w));
-    fGraphicStateRecords.add(w);
-}
-
