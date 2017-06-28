@@ -51,8 +51,6 @@ public:
                                                  SkPDFSMaskMode sMaskMode,
                                                  SkPDFCanon* canon);
 
-    /** Make a graphic state that only unsets the soft mask. */
-    static sk_sp<SkPDFDict> MakeNoSmaskGraphicState();
     static sk_sp<SkPDFStream> MakeInvertFunction();
 
     bool operator==(const SkPDFGraphicState& rhs) const {

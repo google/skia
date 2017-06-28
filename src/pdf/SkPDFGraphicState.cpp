@@ -155,19 +155,16 @@ sk_sp<SkPDFDict> SkPDFGraphicState::GetSMaskGraphicState(
     if (invert) {
         // Instead of calling SkPDFGraphicState::MakeInvertFunction,
         // let the canon deduplicate this object.
-        sMaskDict->insertObjRef(
-                "TR", SkPDFUtils::GetCachedT(&canon->fInvertFunction, &make_invert_function));
+        sk_sp<SkPDFStream>& invertFunction = canon->fInvertFunction;
+        if (!invertFunction) {
+            invertFunction = make_invert_function();
+        }
+        sMaskDict->insertObjRef("TR", invertFunction);
     }
 
     auto result = sk_make_sp<SkPDFDict>("ExtGState");
     result->insertObject("SMask", std::move(sMaskDict));
     return result;
-}
-
-sk_sp<SkPDFDict> SkPDFGraphicState::MakeNoSmaskGraphicState() {
-    auto noSMaskGS = sk_make_sp<SkPDFDict>("ExtGState");
-    noSMaskGS->insertName("SMask", "None");
-    return noSMaskGS;
 }
 
 void SkPDFGraphicState::emitObject(
