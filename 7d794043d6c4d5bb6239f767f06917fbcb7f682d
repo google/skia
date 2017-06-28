@@ -46,6 +46,30 @@
       "revId": "7d794043d6c4d5bb6239f767f06917fbcb7f682d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd5db21d_c4b55d6f",
+        "filename": "src/core/SkICC.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-06-28T16:12:24Z",
+      "side": 1,
+      "message": ".",
+      "parentUuid": "7861b0cd_024fc846",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 2
+      },
+      "revId": "7d794043d6c4d5bb6239f767f06917fbcb7f682d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
