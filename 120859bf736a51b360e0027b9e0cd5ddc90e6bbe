@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98dadb23_30693382",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-28T17:04:16Z",
+      "side": 1,
+      "message": "This is fine as is, but you might want to also break to make it clear we\u0027re only expecting to find one copy of any particular key?",
+      "revId": "120859bf736a51b360e0027b9e0cd5ddc90e6bbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
