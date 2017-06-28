@@ -662,7 +662,11 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 
 class StencilClip final : public GrClip {
 public:
-    StencilClip(const SkIRect& scissorRect) : fFixedClip(scissorRect) {}
+    StencilClip(const SkIRect& scissorRect, int32_t clipStackID)
+        : fFixedClip(scissorRect)
+        , fClipStackID(clipStackID) {
+    }
+
     const GrFixedClip& fixedClip() const { return fFixedClip; }
 
     void setWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
@@ -685,11 +689,12 @@ private:
                               bounds)) {
             return false;
         }
-        out->addStencilClip();
+        out->addStencilClip(fClipStackID);
         return true;
     }
 
     GrFixedClip fFixedClip;
+    int32_t     fClipStackID;
 
     typedef GrClip INHERITED;
 };
@@ -697,7 +702,7 @@ private:
 bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                         GrRenderTargetContext* renderTargetContext) const {
     // We set the current clip to the bounds so that our recursive draws are scissored to them.
-    StencilClip stencilClip(fIBounds);
+    StencilClip stencilClip(fIBounds, this->elementsGenID());
 
     if (!fWindowRects.empty()) {
         stencilClip.setWindowRectangles(fWindowRects, GrWindowRectsState::Mode::kExclusive);

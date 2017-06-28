@@ -357,7 +357,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         reducedClip.drawStencilClipMask(context, renderTargetContext);
         renderTargetContext->priv().setLastClip(reducedClip.elementsGenID(), reducedClip.ibounds());
     }
-    out->addStencilClip();
+    out->addStencilClip(reducedClip.elementsGenID());
     return true;
 }
 
