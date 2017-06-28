@@ -34,8 +34,8 @@ const (
 	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
-	DEFAULT_OS       = DEFAULT_OS_LINUX
-	DEFAULT_OS_LINUX = "Debian-9.0"
+	DEFAULT_OS_DEBIAN = "Debian-9.0"
+	DEFAULT_OS_UBUNTU = "Ubuntu-14.04"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -88,7 +88,7 @@ func linuxGceDimensions() []string {
 	return []string{
 		"cpu:x86-64-avx2",
 		"gpu:none",
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX),
+		fmt.Sprintf("os:%s", DEFAULT_OS_DEBIAN),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
 }
@@ -97,7 +97,7 @@ func linuxGceDimensions() []string {
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
 	if parts["role"] == "Housekeeper" {
-		return "Build-Ubuntu-GCC-x86_64-Release-Shared"
+		return "Build-Debian9-GCC-x86_64-Release-Shared"
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
 		ec := []string{}
@@ -116,20 +116,20 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			if !util.In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = "Ubuntu"
+			task_os = "Debian9"
 		} else if task_os == "Chromecast" {
-			task_os = "Ubuntu"
+			task_os = "Debian9"
 			ec = append([]string{"Chromecast"}, ec...)
 		} else if strings.Contains(task_os, "ChromeOS") {
 			ec = append([]string{"Chromebook", "ARM", "GLES"}, ec...)
-			task_os = "Ubuntu"
+			task_os = "Debian9"
 		} else if task_os == "iOS" {
 			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
-		} else if strings.Contains(task_os, "Ubuntu") {
-			task_os = "Ubuntu"
+		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
+			task_os = "Debian9"
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
@@ -169,8 +169,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Android":    "Android",
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
+			"Debian9":    DEFAULT_OS_DEBIAN,
 			"Mac":        "Mac-10.11",
-			"Ubuntu":     DEFAULT_OS_LINUX,
+			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Win":        "Windows-2008ServerR2-SP1",
 			"Win10":      "Windows-10-15063",
@@ -187,7 +188,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["os"] = "Windows-10-10586"
 		}
 	} else {
-		d["os"] = DEFAULT_OS
+		d["os"] = DEFAULT_OS_DEBIAN
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
@@ -280,7 +281,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				if ok {
 					d["cpu"] = cpu
 				}
-			} else if strings.Contains(parts["os"], "Ubuntu") {
+			} else if strings.Contains(parts["os"], "Ubuntu") || strings.Contains(parts["os"], "Debian") {
 				gpu, ok := map[string]string{
 					"GT610":    "10de:104a-340.96",
 					"GTX550Ti": "10de:1244-340.76",
@@ -322,7 +323,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_LINUX {
+		if d["os"] == DEFAULT_OS_DEBIAN {
 			return linuxGceDimensions()
 		}
 	}
@@ -454,7 +455,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
-	} else if strings.Contains(name, "Ubuntu") {
+	} else if strings.Contains(name, "Debian") {
 		if strings.Contains(name, "Clang") {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		}
@@ -924,7 +925,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if name == "Housekeeper-Weekly-RecreateSKPs" {
 		j.Trigger = "weekly"
 	}
-	if name == "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
+	if name == "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
 		j.Trigger = "weekly"
 	}
 	b.MustAddJob(name, j)
