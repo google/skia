@@ -924,12 +924,15 @@ bool SkClipStack::isRRect(const SkRect& bounds, SkRRect* rrect, bool* aa) const 
     return false;
 }
 
-int32_t SkClipStack::GetNextGenID() {
-    // TODO: handle overflow.
-    return sk_atomic_inc(&gGenID);
+uint32_t SkClipStack::GetNextGenID() {
+    uint32_t id;
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gGenID));
+    } while (id < kFirstUnreservedGenID);
+    return id;
 }
 
-int32_t SkClipStack::getTopmostGenID() const {
+uint32_t SkClipStack::getTopmostGenID() const {
     if (fDeque.empty()) {
         return kWideOpenGenID;
     }
