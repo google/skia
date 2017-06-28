@@ -893,9 +893,12 @@ void SkPDFDevice::addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice,
 
 void SkPDFDevice::clearMaskOnGraphicState(SkDynamicMemoryWStream* contentStream) {
     // The no-softmask graphic state is used to "turn off" the mask for later draw calls.
-    auto noSMaskGS = SkPDFUtils::GetCachedT(&this->getCanon()->fNoSmaskGraphicState,
-                                            &SkPDFGraphicState::MakeNoSmaskGraphicState);
-    SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(noSMaskGS.get()), contentStream);
+    sk_sp<SkPDFDict>* noSMaskGS = &this->getCanon()->fNoSmaskGraphicState;
+    if (!noSMaskGS->get()) {
+        *noSMaskGS = sk_make_sp<SkPDFDict>("ExtGState");
+        (*noSMaskGS)->insertName("SMask", "None");
+    }
+    SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(noSMaskGS->get()), contentStream);
 }
 
 void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
@@ -1923,10 +1926,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     }
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()), content.stream());
     SkPDFUtils::DrawFormXObject(xObjectIndex, content.stream());
-
-    sMaskGS = SkPDFUtils::GetCachedT(&fDocument->canon()->fNoSmaskGraphicState,
-                                     &SkPDFGraphicState::MakeNoSmaskGraphicState);
-    SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()), content.stream());
+    this->clearMaskOnGraphicState(content.stream());
 }
 
 SkPDFDevice::ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack& clipStack,
