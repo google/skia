@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f91a773_6d6092f9",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-28T18:13:29Z",
+      "side": 1,
+      "message": "Would sk_sp\u003cSkPDFDict\u003e\u0026 be clearer? It look like you\u0027re just using \u0027noSMaskGS\u0027 so you don\u0027t have to write out the long name.",
+      "range": {
+        "startLine": 896,
+        "startChar": 4,
+        "endLine": 896,
+        "endChar": 21
+      },
+      "revId": "4cacd58d1542345211ce27055361fb3f0091896e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35c57928_1f0b0c5e",
+        "filename": "src/pdf/SkPDFGraphicState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-28T18:13:29Z",
+      "side": 1,
+      "message": "sk_sp\u003cSkPDFStream\u003e\u0026 for same reason?",
+      "range": {
+        "startLine": 158,
+        "startChar": 8,
+        "endLine": 158,
+        "endChar": 27
+      },
+      "revId": "4cacd58d1542345211ce27055361fb3f0091896e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f81d7c5e_22b7f8ff",
+        "filename": "src/pdf/SkPDFShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 938,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-28T18:13:29Z",
+      "side": 1,
+      "message": "Reference?",
+      "range": {
+        "startLine": 938,
+        "startChar": 8,
+        "endLine": 938,
+        "endChar": 26
+      },
+      "revId": "4cacd58d1542345211ce27055361fb3f0091896e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
