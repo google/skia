@@ -26,7 +26,7 @@ DEPS = [
 ]
 
 
-def nanobench_flags(bot):
+def nanobench_flags(api, bot):
   args = ['--pre_log']
 
   if 'GPU' in bot:
@@ -74,7 +74,7 @@ def nanobench_flags(bot):
 
   # We want to test both the OpenGL config and the GLES config on Linux Intel:
   # GL is used by Chrome, GLES is used by ChromeOS.
-  if 'Intel' in bot and 'Ubuntu' in bot:
+  if 'Intel' in bot and api.vars.is_linux:
     configs.append('gles')
 
   # Bench instanced rendering on a limited number of platforms
@@ -148,7 +148,7 @@ def nanobench_flags(bot):
     match.append('~text_16_LCD_BK')
     match.append('~text_16_LCD_FF')
     match.append('~text_16_LCD_WT')
-  if 'Intel' in bot and 'Ubuntu' in bot and not 'Vulkan' in bot:
+  if ('Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
@@ -241,7 +241,7 @@ def perf_steps(api):
     skip_flag = '--nocpu'
   if skip_flag:
     args.append(skip_flag)
-  args.extend(nanobench_flags(api.vars.builder_name))
+  args.extend(nanobench_flags(api, api.vars.builder_name))
 
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, run a watered down perf run on Chromecast.
