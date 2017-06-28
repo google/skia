@@ -64,10 +64,12 @@ bool SkImageShader::isOpaque() const {
 
 bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
                                          SkShader::TileMode ty) {
-#ifndef SK_SUPPORT_LEGACY_TILED_BITMAPS
+#ifndef SK_SUPPORT_LEGACY_SWIZZLE_SHADER
     if (ct != kN32_SkColorType) {
         return true;
     }
+#endif
+#ifndef SK_SUPPORT_LEGACY_TILED_BITMAPS
     if (tx != ty) {
         return true;
     }
