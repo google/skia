@@ -603,7 +603,7 @@ static void sort_and_orient_t_s(double t[2], double s[2]) {
 static SkCubicType classify_cubic(const double d[4], double t[2], double s[2]) {
     double tolerance = SkTMax(fabs(d[1]), fabs(d[2]));
     tolerance = SkTMax(tolerance, fabs(d[3]));
-    tolerance = tolerance * 1e-5;
+    tolerance = tolerance * 1e-4;
     if (fabs(d[1]) > tolerance) {
         const double discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
         if (discr > 0) {
