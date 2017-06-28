@@ -128,6 +128,30 @@
       "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1b11e29_c6b4b40e",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-28T18:39:01Z",
+      "side": 1,
+      "message": "Oops.  Looks like I was lazy here.  Thanks for trying this out.",
+      "parentUuid": "d9a9afa8_a9868b2e",
+      "range": {
+        "startLine": 1267,
+        "startChar": 50,
+        "endLine": 1267,
+        "endChar": 54
+      },
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

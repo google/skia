@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c0a7eda_29a409e1",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1268,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-28T18:39:01Z",
+      "side": 1,
+      "message": "Alternatively,\n\n  F g \u003d 1.0f;\n  g \u003d if_then_else(..., F(0), g);\n  g \u003d if_then_else(..., F(0), g);\n\nThis avoids the multiply.",
+      "range": {
+        "startLine": 1268,
+        "startChar": 4,
+        "endLine": 1268,
+        "endChar": 65
+      },
+      "revId": "041c63d6a67d41b36b388b2bcb4b304e9a360769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
