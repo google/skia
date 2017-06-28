@@ -1208,9 +1208,8 @@ STAGE(xy_to_radius) {
     r = sqrt_(X2 + Y2);
 }
 
-STAGE(xy_to_2pt_conical_quadratic) {
-    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
-
+template <typename Selector>
+SI F solve_2pt_conical_quadratic(const SkJumper_2PtConicalCtx* c, F x, F y, Selector&& select) {
     // At this point, (x, y) is mapped into a synthetic gradient space with
     // the start circle centerd on (0, 0), and the end circle centered on (1, 0)
     // (see the stage setup).
@@ -1230,38 +1229,41 @@ STAGE(xy_to_2pt_conical_quadratic) {
     //
     // Since the start/end circle centers are the extremes of the [0, 1] interval
     // on the X axis, the solution (x') is exactly the t we are looking for.
-    //
-    // The setup code also ensures that we only use this stage when the discriminant
-    // is positive.  So off we go...
 
     const F coeffA = c->fCoeffA,
-            coeffB = -2 * (r + c->fDR * c->fR0),
-            coeffC = r * r + g * g - c->fR0 * c->fR0;
+            coeffB = -2 * (x + c->fDR * c->fR0),
+            coeffC = x * x + y * y - c->fR0 * c->fR0;
 
     const F disc   = mad(coeffB, coeffB, -4 * coeffA * coeffC);
     // SkASSERT(disc >= 0);
     const F sqrt_disc = sqrt_(disc);
 
     const F invCoeffA = c->fInvCoeffA;
-    // We want the larger root, per spec:
-    //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
-    //    to positive infinity and ending with the value of ω nearest to negative
-    //    infinity, draw the circumference of the circle with radius r(ω) at position
-    //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
-    //    bitmap that have not yet been painted on by earlier circles in this step for
-    //    this rendering of the gradient."
-    // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
-    r = max((-coeffB + sqrt_disc) * invCoeffA * .5f,
-            (-coeffB - sqrt_disc) * invCoeffA * .5f);
+    return select((-coeffB + sqrt_disc) * invCoeffA * .5f,
+                  (-coeffB - sqrt_disc) * invCoeffA * .5f);
+}
+
+STAGE(xy_to_2pt_conical_quadratic_max) {
+    r = solve_2pt_conical_quadratic((const SkJumper_2PtConicalCtx*)ctx, r, g,
+                                    [](F a, F b) { return max(a, b); });
+}
+
+STAGE(xy_to_2pt_conical_quadratic_min) {
+    r = solve_2pt_conical_quadratic((const SkJumper_2PtConicalCtx*)ctx, r, g,
+                                    [](F a, F b) { return min(a, b); });
 }
 
 STAGE(xy_to_2pt_conical_linear) {
-    auto* c = (SkJumper_2PtConicalCtx*)ctx;
+    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
 
     const F coeffB = -2 * (r + c->fDR * c->fR0),
             coeffC = r * r + g * g - c->fR0 * c->fR0;
 
     r = -coeffC / coeffB;
+}
+
+STAGE(mask_2pt_conical_degenerates) {
+    auto* c = (SkJumper_2PtConicalCtx*)ctx;
 
     // Compute and save a mask for degenerate values.
     g = 1.0f;
@@ -1271,13 +1273,13 @@ STAGE(xy_to_2pt_conical_linear) {
     unaligned_store(&c->fMask, g);
 }
 
-STAGE(vector_scale) {
-    const F scale = unaligned_load<F>((const float*)ctx);
+STAGE(apply_vector_mask) {
+    const F mask = unaligned_load<F>((const float*)ctx);
 
-    r = r * scale;
-    g = g * scale;
-    b = b * scale;
-    a = a * scale;
+    r = if_then_else(mask != 0, r, F(0));
+    g = if_then_else(mask != 0, g, F(0));
+    b = if_then_else(mask != 0, b, F(0));
+    a = if_then_else(mask != 0, a, F(0));
 }
 
 STAGE(save_xy) {
