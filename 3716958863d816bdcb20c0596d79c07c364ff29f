@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "32a98e1f_7ebdd799",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2017-06-28T13:32:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77a439c8_03b989a0",
+      "range": {
+        "startLine": 235,
+        "startChar": 30,
+        "endLine": 235,
+        "endChar": 51
+      },
+      "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f4b7b88_f4d46f17",
         "filename": "src/core/SkImageFilter.cpp",
         "patchSetId": 11
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "f2c3ed68_006c9ca0",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2017-06-28T13:32:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f4b7b88_f4d46f17",
+      "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4e3e0798_20cc9963",
         "filename": "src/core/SkImageFilterCache.cpp",
         "patchSetId": 11
@@ -53,6 +95,30 @@
       "writtenOn": "2017-06-28T12:57:17Z",
       "side": 1,
       "message": "It\u0027s kind of conceptually hard to mutate elements of a hash set... their hash will change.  You might just want to keep using an array instead?  What\u0027s the expected size of those key sets?",
+      "range": {
+        "startLine": 102,
+        "startChar": 40,
+        "endLine": 102,
+        "endChar": 75
+      },
+      "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fea976f_97a6874b",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2017-06-28T13:32:22Z",
+      "side": 1,
+      "message": "senorblanco@: I don\u0027t really have an estimate for the size of keys in a typical use case, could you take this question?",
+      "parentUuid": "4e3e0798_20cc9963",
       "range": {
         "startLine": 102,
         "startChar": 40,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "693190c5_e6b53c27",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2017-06-28T13:32:22Z",
+      "side": 1,
+      "message": "Yes, this is the fix. Basically we want to call SkImageFilter::removeKey() in all the cases except the purgeByKey().",
+      "parentUuid": "30cab5dd_094c55c2",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 9
+      },
+      "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe1ab264_fdca95a8",
         "filename": "src/core/SkImageFilterCache.h",
         "patchSetId": 11
@@ -99,6 +189,24 @@
       "writtenOn": "2017-06-28T12:57:17Z",
       "side": 1,
       "message": "It looks like the constructor above is trying to be careful to initialize every byte in SkImageFilterCacheKey, but we\u0027re not here.  This is for use by SkTHashSet right?  Are we certain this is only used in situations where it\u0027s never hashed?\n\nIt might feel cozier if this default constructor delegated to the existing one or explicitly zeroed itself completely?",
+      "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24080004_e64f3947",
+        "filename": "src/core/SkImageFilterCache.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2017-06-28T13:32:22Z",
+      "side": 1,
+      "message": "Good point. Yes, this is just for the hash set. I made it delegate to the existing constructor.",
+      "parentUuid": "fe1ab264_fdca95a8",
       "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
