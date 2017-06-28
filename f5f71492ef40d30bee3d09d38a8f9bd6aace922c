@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ac62ee8_5a7013eb",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-28T11:32:27Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8afd916d_4413918e",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-28T11:32:27Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26ec5d14_ec8ffc96",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-28T11:32:27Z",
+      "side": 1,
+      "message": "This should be replaced with something like:\n   return GrSurfaceProxy::Copy(context, src,\n                               SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height())\n                               SkBudgeted::kYes);",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28f4ad1d_ca111400",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-28T11:32:27Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "f5f71492ef40d30bee3d09d38a8f9bd6aace922c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
