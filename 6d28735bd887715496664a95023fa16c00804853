@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4ebb014_bb503258",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-28T17:25:01Z",
+      "side": 1,
+      "message": "debug-code that searches and confirms that there are no more keys that match?",
+      "range": {
+        "startLine": 239,
+        "startChar": 5,
+        "endLine": 239,
+        "endChar": 0
+      },
+      "revId": "6d28735bd887715496664a95023fa16c00804853",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
