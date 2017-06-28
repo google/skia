@@ -34,8 +34,8 @@ const (
 	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
-	DEFAULT_OS       = DEFAULT_OS_LINUX
-	DEFAULT_OS_LINUX = "Debian-9.0"
+	DEFAULT_OS_LINUX_GCE   = "Debian-9.0"
+	DEFAULT_OS_LINUX_LOCAL = "Ubuntu-14.04"
 
 	// Name prefix for upload jobs.
 	PREFIX_UPLOAD = "Upload"
@@ -88,7 +88,7 @@ func linuxGceDimensions() []string {
 	return []string{
 		"cpu:x86-64-avx2",
 		"gpu:none",
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX),
+		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
 	}
 }
@@ -170,7 +170,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
 			"Mac":        "Mac-10.11",
-			"Ubuntu":     DEFAULT_OS_LINUX,
+			"Ubuntu":     DEFAULT_OS_LINUX_LOCAL,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Win":        "Windows-2008ServerR2-SP1",
 			"Win10":      "Windows-10-15063",
@@ -187,7 +187,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["os"] = "Windows-10-10586"
 		}
 	} else {
-		d["os"] = DEFAULT_OS
+		d["os"] = DEFAULT_OS_LINUX_GCE
 	}
 	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
@@ -322,7 +322,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 	} else {
 		d["gpu"] = "none"
-		if d["os"] == DEFAULT_OS_LINUX {
+		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			return linuxGceDimensions()
 		}
 	}
