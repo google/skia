@@ -40,7 +40,8 @@ protected:
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
-                                     SkRasterPipeline* p) const final;
+                                     SkRasterPipeline* tPipeline,
+                                     SkRasterPipeline* postPipeline) const final;
 
     bool isRasterPipelineOnly() const final;
 
