@@ -1208,6 +1208,22 @@ STAGE(xy_to_radius) {
     r = sqrt_(X2 + Y2);
 }
 
+STAGE(xy_to_2pt_conical) {
+    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
+
+    const F coeffA = c->fCoeffA,
+            coeffB = mad(r, -2, -2 * c->fDR * c->fR0),
+            coeffC = mad(r, r, mad(g, g, -c->fR0 * c->fR0));
+
+    const F disc   = mad(coeffB, coeffB, -4 * coeffA * coeffC);
+    // SkASSERT(disc >= 0);
+    const F sqrt_disc = sqrt_(disc);
+
+    const F invCoeffA = c->fInvCoeffA;
+    r = max((-coeffB + sqrt_disc) * invCoeffA * .5f,
+            (-coeffB - sqrt_disc) * invCoeffA * .5f);
+}
+
 STAGE(save_xy) {
     auto c = (SkJumper_SamplerCtx*)ctx;
 
