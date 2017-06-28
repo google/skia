@@ -200,6 +200,32 @@ bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
+#include "SkNoDrawCanvas.h"
+
+class SkNullSurface : public SkSurface_Base {
+public:
+    SkNullSurface(int width, int height) : SkSurface_Base(width, height, nullptr) {}
+
+protected:
+    SkCanvas* onNewCanvas() override {
+        return new SkNoDrawCanvas(this->width(), this->height());
+    }
+    sk_sp<SkSurface> onNewSurface(const SkImageInfo& info) override {
+        return MakeNull(info.width(), info.height());
+    }
+    sk_sp<SkImage> onNewImageSnapshot() override { return nullptr; }
+    void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) override {}
+    void onCopyOnWrite(ContentChangeMode) override {}
+};
+
+sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
+    if (width < 1 || height < 1) {
+        return nullptr;
+    }
+    return sk_sp<SkSurface>(new SkNullSurface(width, height));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 #if !SK_SUPPORT_GPU
 

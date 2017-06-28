@@ -176,6 +176,12 @@ public:
         return MakeRenderTarget(gr, b, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr);
     }
 
+    /**
+     *  Returns a surface that stores no pixels. It can be drawn to via its canvas, but that
+     *  canvas does not draw anything. Calling makeImageSnapshot() will return nullptr.
+     */
+    static sk_sp<SkSurface> MakeNull(int width, int height);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 

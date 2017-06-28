@@ -948,3 +948,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(OverdrawSurface_Gpu, r, ctxInfo) {
     test_overdraw_surface(r, surface.get());
 }
 #endif
+
+DEF_TEST(Surface_null, r) {
+    REPORTER_ASSERT(r, SkSurface::MakeNull(0, 0) == nullptr);
+
+    const int w = 37;
+    const int h = 1000;
+    auto surf = SkSurface::MakeNull(w, h);
+    auto canvas = surf->getCanvas();
+
+    canvas->drawPaint(SkPaint());   // should not crash, but don't expect anything to draw
+    REPORTER_ASSERT(r, surf->makeImageSnapshot() == nullptr);
+}
