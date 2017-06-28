@@ -143,7 +143,7 @@ private:
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
-    int32_t                        fLastClipStackGenID;
+    uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
 
     // For ops/opList we have mean: 5 stdDev: 28

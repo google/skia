@@ -80,7 +80,7 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
 
         // Implement the clip with an AA rect element.
         fElements.addToHead(stackBounds, kReplace_SkClipOp, true/*doAA*/);
-        fElementsGenID = stack.getTopmostGenID();
+        fElementsGenID1 = stack.getTopmostGenID();
         fRequiresAA = true;
 
         fInitialState = InitialState::kAllOut;
@@ -328,7 +328,7 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         if (!skippable) {
             if (0 == fElements.count()) {
                 // This will be the last element. Record the stricter genID.
-                fElementsGenID = element->getGenID();
+                fElementsGenID1 = element->getGenID();
             }
 
             // if it is a flip, change it to a bounds-filling rect
@@ -662,7 +662,11 @@ bool GrReducedClip::drawAlphaClipMask(GrRenderTargetContext* rtc) const {
 
 class StencilClip final : public GrClip {
 public:
-    StencilClip(const SkIRect& scissorRect) : fFixedClip(scissorRect) {}
+    StencilClip(const SkIRect& scissorRect, uint32_t clipStackID)
+        : fFixedClip(scissorRect)
+        , fClipStackID(clipStackID) {
+    }
+
     const GrFixedClip& fixedClip() const { return fFixedClip; }
 
     void setWindowRectangles(const GrWindowRectangles& windows, GrWindowRectsState::Mode mode) {
@@ -685,11 +689,12 @@ private:
                               bounds)) {
             return false;
         }
-        out->addStencilClip();
+        out->addStencilClip(fClipStackID);
         return true;
     }
 
     GrFixedClip fFixedClip;
+    uint32_t    fClipStackID;
 
     typedef GrClip INHERITED;
 };
@@ -697,7 +702,7 @@ private:
 bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                         GrRenderTargetContext* renderTargetContext) const {
     // We set the current clip to the bounds so that our recursive draws are scissored to them.
-    StencilClip stencilClip(fIBounds);
+    StencilClip stencilClip(fIBounds, this->elementsGenID());
 
     if (!fWindowRects.empty()) {
         stencilClip.setWindowRectangles(fWindowRects, GrWindowRectsState::Mode::kExclusive);

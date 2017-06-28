@@ -12,6 +12,8 @@
 #include "GrScissorState.h"
 #include "GrWindowRectsState.h"
 
+#include "SkClipStack.h"
+
 /**
  * Produced by GrClip. It provides a set of modifications to the drawing state that are used to
  * create the final GrPipeline for a GrOp.
@@ -25,7 +27,7 @@ public:
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
-    bool hasStencilClip() const { return fHasStencilClip; }
+    bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fClipStackID; }
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
@@ -51,18 +53,18 @@ public:
         fClipCoverageFP = fp;
     }
 
-    void addStencilClip() {
-        SkASSERT(!fHasStencilClip);
-        fHasStencilClip = true;
+    void addStencilClip(uint32_t clipStackID) {
+        SkASSERT(SkClipStack::kInvalidGenID == fClipStackID);
+        fClipStackID = clipStackID;
     }
 
     bool doesClip() const {
-        return fScissorState.enabled() || fClipCoverageFP || fHasStencilClip ||
+        return fScissorState.enabled() || fClipCoverageFP || this->hasStencilClip() ||
                fWindowRectsState.enabled();
     }
 
     bool operator==(const GrAppliedClip& that) const {
-        if (fScissorState != that.fScissorState || fHasStencilClip != that.fHasStencilClip) {
+        if (fScissorState != that.fScissorState || fClipStackID != that.fClipStackID) {
             return false;
         }
         if (SkToBool(fClipCoverageFP)) {
@@ -81,7 +83,7 @@ private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
     sk_sp<GrFragmentProcessor> fClipCoverageFP;
-    bool                       fHasStencilClip = false;
+    uint32_t                   fClipStackID = SkClipStack::kInvalidGenID;
 };
 
 #endif
