@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "5b9d0c77_a76d55fb",
+        "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-28T18:20:31Z",
+      "side": 1,
+      "message": "// Whenever a degenerate, zero-length contour is encountered, this code will insert a \u0027capLength\u0027 x-aligned line segment. Since this rendering hairlines it is hoped this will suffice for AA square \u0026 circle capping.\n\n?",
+      "revId": "0690f02875d5d7d47f2e8e1635228eeb3fb93b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7a459158_38e4fb3d",
         "filename": "src/gpu/ops/GrAAHairLinePathRenderer.cpp",
         "patchSetId": 3
