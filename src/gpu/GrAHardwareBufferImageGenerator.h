@@ -41,10 +41,14 @@ protected:
 
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType);
+    sk_sp<GrTextureProxy> makeProxy(GrContext* context);
+    void clear();
 
     static void deleteImageTexture(void* ctx);
 
     AHardwareBuffer* fGraphicBuffer;
+    GrTexture* fOriginalTexture = nullptr;
+    uint32_t fOwningContextID;
 
     typedef SkImageGenerator INHERITED;
 };
