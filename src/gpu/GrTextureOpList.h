@@ -55,7 +55,7 @@ public:
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
+                     const SkIPoint& dstPoint) override;
 
     GrTextureOpList* asTextureOpList() override { return this; }
 

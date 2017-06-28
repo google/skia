@@ -15,6 +15,7 @@
 class GrAuditTrail;
 class GrContext;
 class GrDrawingManager;
+class GrOpList;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
@@ -52,14 +53,12 @@ public:
      *       The end result is only valid src pixels and dst pixels will be touched but the copied
      *       regions will not be shifted.
      */
-    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
-        return this->onCopy(src, srcRect, dstPoint);
-    }
+    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     bool copy(GrSurfaceProxy* src) {
-        return this->onCopy(src,
-                            SkIRect::MakeWH(src->width(), src->height()),
-                            SkIPoint::Make(0, 0));
+        return this->copy(src,
+                          SkIRect::MakeWH(src->width(), src->height()),
+                          SkIPoint::Make(0, 0));
     }
 
     /**
@@ -119,6 +118,9 @@ protected:
     GrDrawingManager* drawingManager() { return fDrawingManager; }
     const GrDrawingManager* drawingManager() const { return fDrawingManager; }
 
+    virtual GrOpList* getOpList() = 0;
+    SkDEBUGCODE(virtual void validate() const = 0;)
+
     SkDEBUGCODE(GrSingleOwner* singleOwner() { return fSingleOwner; })
 
     GrContext*            fContext;
@@ -126,8 +128,6 @@ protected:
     GrAuditTrail*         fAuditTrail;
 
 private:
-    virtual bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) = 0;
-
     GrDrawingManager*     fDrawingManager;
 
     // In debug builds we guard against improper thread handling

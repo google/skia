@@ -126,7 +126,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
     // world we need to get the correct opList here so that it, in turn, can grab and hold
     // its rendertarget.
-    this->getOpList();
+    this->getRTOpList();
     SkDEBUGCODE(this->validate();)
 }
 
@@ -153,7 +153,7 @@ sk_sp<GrTextureProxy> GrRenderTargetContext::asTextureProxyRef() {
     return sk_ref_sp(fRenderTargetProxy->asTextureProxy());
 }
 
-GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
+GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
@@ -164,17 +164,8 @@ GrRenderTargetOpList* GrRenderTargetContext::getOpList() {
     return fOpList.get();
 }
 
-// MDB TODO: move this (and GrTextContext::copy) to GrSurfaceContext?
-bool GrRenderTargetContext::onCopy(GrSurfaceProxy* srcProxy,
-                                   const SkIRect& srcRect,
-                                   const SkIPoint& dstPoint) {
-    ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrRenderTargetContext::onCopy");
-
-    return this->getOpList()->copySurface(*this->caps(),
-                                          this->asSurfaceProxy(), srcProxy, srcRect, dstPoint);
+GrOpList* GrRenderTargetContext::getOpList() {
+    return this->getRTOpList();
 }
 
 void GrRenderTargetContext::drawText(const GrClip& clip, const SkPaint& skPaint,
@@ -235,7 +226,7 @@ void GrRenderTargetContext::discard() {
         if (!op) {
             return;
         }
-        this->getOpList()->addOp(std::move(op), *this->caps());
+        this->getRTOpList()->addOp(std::move(op), *this->caps());
     }
 }
 
@@ -297,7 +288,7 @@ void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor
         if (!op) {
             return;
         }
-        fRenderTargetContext->getOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+        fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
     }
 }
 
@@ -341,13 +332,13 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
 
         this->drawRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), SkRect::Make(clearRect));
     } else if (isFull) {
-        this->getOpList()->fullClear(*this->caps(), color);
+        this->getRTOpList()->fullClear(*this->caps(), color);
     } else {
         std::unique_ptr<GrOp> op(GrClearOp::Make(clip, color, this->asSurfaceProxy()));
         if (!op) {
             return;
         }
-        this->getOpList()->addOp(std::move(op), *this->caps());
+        this->getRTOpList()->addOp(std::move(op), *this->caps());
     }
 }
 
@@ -621,7 +612,7 @@ void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool i
     if (!op) {
         return;
     }
-    fRenderTargetContext->getOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
@@ -678,7 +669,7 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
         return;
     }
     op->setClippedBounds(bounds);
-    fRenderTargetContext->getOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
+    fRenderTargetContext->getRTOpList()->addOp(std::move(op), *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::stencilRect(const GrClip& clip,
@@ -1451,7 +1442,7 @@ bool GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
         std::unique_ptr<GrOp> signalOp(GrSemaphoreOp::MakeSignal(semaphores.back(),
                                                                  fRenderTargetProxy.get(),
                                                                  forceFlush));
-        this->getOpList()->addOp(std::move(signalOp), *this->caps());
+        this->getRTOpList()->addOp(std::move(signalOp), *this->caps());
     }
 
     this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
@@ -1480,7 +1471,7 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
         sk_sp<GrSemaphore> sema = fContext->resourceProvider()->wrapBackendSemaphore(
                 waitSemaphores[i], kAdopt_GrWrapOwnership);
         std::unique_ptr<GrOp> waitOp(GrSemaphoreOp::MakeWait(sema, fRenderTargetProxy.get()));
-        this->getOpList()->addOp(std::move(waitOp), *this->caps());
+        this->getRTOpList()->addOp(std::move(waitOp), *this->caps());
     }
     return true;
 }
@@ -1811,8 +1802,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     }
 
     op->setClippedBounds(bounds);
-    return this->getOpList()->addOp(std::move(op), *this->caps(),
-                                    std::move(appliedClip), dstProxy);
+    return this->getRTOpList()->addOp(std::move(op), *this->caps(),
+                                      std::move(appliedClip), dstProxy);
 }
 
 uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipelineBuilder,
@@ -1875,7 +1866,7 @@ uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipeline
     op->addDependenciesTo(this->getOpList(), *this->caps());
 
     op->setClippedBounds(bounds);
-    return this->getOpList()->addOp(std::move(op), *this->caps());
+    return this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,

@@ -356,7 +356,7 @@ protected:
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, GrAuditTrail*,
                           GrSingleOwner*, bool managedOpList = true);
 
-    SkDEBUGCODE(void validate() const;)
+    SkDEBUGCODE(void validate() const override;)
 
 private:
     inline GrAAType chooseAAType(GrAA aa, GrAllowMixedSamples allowMixedSamples) {
@@ -406,8 +406,6 @@ private:
     void internalDrawPath(
             const GrClip&, GrPaint&&, GrAA, const SkMatrix&, const SkPath&, const GrStyle&);
 
-    bool onCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
-
     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
     // dropped (e.g., due to clipping).
@@ -423,7 +421,8 @@ private:
                                              const SkRect& opBounds,
                                              GrXferProcessor::DstProxy* result);
 
-    GrRenderTargetOpList* getOpList();
+    GrRenderTargetOpList* getRTOpList();
+    GrOpList* getOpList() override;
 
     sk_sp<GrRenderTargetProxy>        fRenderTargetProxy;
 

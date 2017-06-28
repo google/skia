@@ -140,7 +140,7 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
             }
 
             for (int j = 0; j < renderTargetContexts.count(); ++j) {
-                GrRenderTargetOpList* opList = renderTargetContexts[j]->getOpList();
+                GrOpList* opList = renderTargetContexts[j]->getOpList();
                 if (!opList) {
                     continue;   // Odd - but not a big deal
                 }
