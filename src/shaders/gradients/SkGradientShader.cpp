@@ -375,8 +375,9 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         return false;
     }
 
-    SkRasterPipeline_<256> subclass;
-    if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &subclass)) {
+    SkRasterPipeline_<256> tPipeline;
+    SkRasterPipeline_<256> postPipeline;
+    if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &tPipeline, &postPipeline)) {
         return this->INHERITED::onAppendStages(p, dstCS, alloc, ctm, paint, localM);
     }
 
@@ -390,7 +391,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         p->append(SkRasterPipeline::matrix_perspective, m);
     }
 
-    p->extend(subclass);
+    p->extend(tPipeline);
 
     switch(fTileMode) {
         case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
@@ -495,6 +496,8 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     if (!premulGrad && !this->colorsAreOpaque()) {
         p->append(SkRasterPipeline::premul);
     }
+
+    p->extend(postPipeline);
 
     return true;
 }

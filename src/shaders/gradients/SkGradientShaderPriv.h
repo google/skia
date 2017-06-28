@@ -239,7 +239,10 @@ protected:
 
     virtual bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                              SkMatrix* matrix,
-                                             SkRasterPipeline* p) const { return false; }
+                                             SkRasterPipeline* tPipeline,
+                                             SkRasterPipeline* postPipeline) const {
+        return false;
+    }
 
     template <typename T, typename... Args>
     static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {

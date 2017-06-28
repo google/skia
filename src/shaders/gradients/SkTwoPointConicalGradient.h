@@ -81,7 +81,8 @@ protected:
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
-                                     SkRasterPipeline* p) const final;
+                                     SkRasterPipeline* tPipeline,
+                                     SkRasterPipeline* postPipeline) const final;
 
 private:
     SkPoint fCenter1;

@@ -301,7 +301,8 @@ void SkSweepGradient::toString(SkString* str) const {
 
 bool SkSweepGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                   SkMatrix* matrix,
-                                                  SkRasterPipeline* p) const {
+                                                  SkRasterPipeline* p,
+                                                  SkRasterPipeline*) const {
     matrix->postTranslate(-fCenter.fX, -fCenter.fY);
     p->append(SkRasterPipeline::xy_to_unit_angle);
 

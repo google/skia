@@ -81,7 +81,8 @@ SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
 
 bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                    SkMatrix* matrix,
-                                                   SkRasterPipeline* p) const {
+                                                   SkRasterPipeline* p,
+                                                   SkRasterPipeline*) const {
     *matrix = SkMatrix::Concat(fPtsToUnit, *matrix);
     // If the gradient is less than a quarter of a pixel, this falls into the
     // subpixel gradient code handled on a different path.

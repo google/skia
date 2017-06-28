@@ -1208,7 +1208,7 @@ STAGE(xy_to_radius) {
     r = sqrt_(X2 + Y2);
 }
 
-STAGE(xy_to_2pt_conical) {
+STAGE(xy_to_2pt_conical_quadratic) {
     auto* c = (const SkJumper_2PtConicalCtx*)ctx;
 
     // At this point, (x, y) is mapped into a synthetic gradient space with
@@ -1253,6 +1253,31 @@ STAGE(xy_to_2pt_conical) {
     // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
     r = max((-coeffB + sqrt_disc) * invCoeffA * .5f,
             (-coeffB - sqrt_disc) * invCoeffA * .5f);
+}
+
+STAGE(xy_to_2pt_conical_linear) {
+    auto* c = (SkJumper_2PtConicalCtx*)ctx;
+
+    const F coeffB = -2 * (r + c->fDR * c->fR0),
+            coeffC = r * r + g * g - c->fR0 * c->fR0;
+
+    r = -coeffC / coeffB;
+
+    // Compute and save a mask for degenerate values.
+    g = 1.0f;
+    g = if_then_else(mad(r, c->fDR, c->fR0) < 0, F(0), g); // R(t) < 0
+    g = if_then_else(r != r                    , F(0), g); // NaN
+
+    unaligned_store(&c->fMask, g);
+}
+
+STAGE(vector_scale) {
+    const F scale = unaligned_load<F>((const float*)ctx);
+
+    r = r * scale;
+    g = g * scale;
+    b = b * scale;
+    a = a * scale;
 }
 
 STAGE(save_xy) {

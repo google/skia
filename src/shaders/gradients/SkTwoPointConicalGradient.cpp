@@ -428,7 +428,8 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
 
 bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                             SkMatrix* matrix,
-                                                            SkRasterPipeline* p) const {
+                                                            SkRasterPipeline* p,
+                                                            SkRasterPipeline* postPipeline) const {
     const auto dCenter = (fCenter1 - fCenter2).length();
     const auto dRadius = fRadius2 - fRadius1;
     SkASSERT(dRadius >= 0);
@@ -468,17 +469,21 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
     // Since we've squashed the centers into a unit vector, we must also scale
     // all the coefficient variables by (1 / dCenter).
     const auto coeffA = 1 - dRadius * dRadius / (dCenter * dCenter);
-    if (SkScalarNearlyZero(coeffA)) {
-        // We only handle well behaved quadratic cases for now.
-        return false;
-    }
-
     auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
     ctx->fCoeffA    = coeffA;
     ctx->fInvCoeffA = 1 / coeffA;
     ctx->fR0        = fRadius1 / dCenter;
     ctx->fDR        = dRadius  / dCenter;
 
-    p->append(SkRasterPipeline::xy_to_2pt_conical, ctx);
+    if (SkScalarNearlyZero(coeffA)) {
+        // The focal point is on the edge of the end circle.
+        p->append(SkRasterPipeline::xy_to_2pt_conical_linear, ctx);
+        // To handle degenerate values (NaN, r < 0), the t stage sets up a scale/mask
+        // context, which we post-apply to force transparent black.
+        postPipeline->append(SkRasterPipeline::vector_scale, &ctx->fMask);
+    } else {
+        p->append(SkRasterPipeline::xy_to_2pt_conical_quadratic, ctx);
+    }
+
     return true;
 }
