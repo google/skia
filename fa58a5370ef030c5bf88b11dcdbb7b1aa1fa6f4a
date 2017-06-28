@@ -16,6 +16,24 @@
       "revId": "fa58a5370ef030c5bf88b11dcdbb7b1aa1fa6f4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a218e52d_4f33623c",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-06-28T17:27:39Z",
+      "side": 1,
+      "message": "added the assert and a comment (it had to be before we call clear)",
+      "parentUuid": "bb0766d1_f9cbda51",
+      "revId": "fa58a5370ef030c5bf88b11dcdbb7b1aa1fa6f4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
