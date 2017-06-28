@@ -131,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "ab8bb375_20299197",
+        "filename": "src/core/SkImageFilterCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-28T14:23:03Z",
+      "side": 1,
+      "message": "I don\u0027t have any hard data. In general, since it\u0027s keyed by clip rect, it should be roughly equal to the number of compositor tiles onscreen, but may also depend on the original primitive size (if it animates a lot, the cache could have a larger number of entries).\n\nI suppose we could go back to an array, and just watch the perf bots (option 1 on the bug). That would be less complex, we could remove the fFilter \u003d nullptr business, and just do \"while (!fCacheKeys.empty()) purgeByKey(fCacheKeys[0])\" or something like that.",
+      "parentUuid": "1fea976f_97a6874b",
+      "range": {
+        "startLine": 102,
+        "startChar": 40,
+        "endLine": 102,
+        "endChar": 75
+      },
+      "revId": "3716958863d816bdcb20c0596d79c07c364ff29f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "30cab5dd_094c55c2",
         "filename": "src/core/SkImageFilterCache.cpp",
         "patchSetId": 11
