@@ -35,9 +35,11 @@ def python_unit_tests(train):
 
 def recipe_test(train):
   cmd = [
-      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test', 'run']
+      'python', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
   if train:
-    cmd.append('--train')
+    cmd.append('train')
+  else:
+    cmd.append('run')
   return test(cmd, SKIA_DIR)
 
 

@@ -90,7 +90,7 @@ const char* platform_font_name(const char* name) {
     if (platform.equals("Win")) {
         return gStandardFontNames[2][index];
     }
-    if (platform.equals("Ubuntu")) {
+    if (platform.equals("Ubuntu") || platform.equals("Debian")) {
         return gStandardFontNames[3][index];
     }
     if (platform.equals("Android")) {
@@ -104,7 +104,7 @@ const char* platform_font_name(const char* name) {
 
 const char* platform_os_emoji() {
     const char* osName = platform_os_name();
-    if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu")) {
+    if (!strcmp(osName, "Android") || !strcmp(osName, "Ubuntu") || !strcmp(osName, "Debian")) {
         return "CBDT";
     }
     if (!strncmp(osName, "Mac", 3) || !strncmp(osName, "iOS", 3)) {
