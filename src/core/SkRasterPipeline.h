@@ -107,8 +107,10 @@ struct SkJumper_constants;
     M(evenly_spaced_2_stop_gradient)                             \
     M(xy_to_unit_angle)                                          \
     M(xy_to_radius)                                              \
-    M(xy_to_2pt_conical_quadratic) M(xy_to_2pt_conical_linear)   \
-    M(vector_scale)                                              \
+    M(xy_to_2pt_conical_quadratic_min)                           \
+    M(xy_to_2pt_conical_quadratic_max)                           \
+    M(xy_to_2pt_conical_linear)                                  \
+    M(mask_2pt_conical_degenerates) M(apply_vector_mask)         \
     M(byte_tables) M(byte_tables_rgb)                            \
     M(rgb_to_hsl)                                                \
     M(hsl_to_rgb)
