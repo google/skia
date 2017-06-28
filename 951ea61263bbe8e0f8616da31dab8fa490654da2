@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7febb7f_6097f407",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-28T14:22:37Z",
+      "side": 1,
+      "message": "Maybe we should just rename the jobs?",
+      "range": {
+        "startLine": 173,
+        "startChar": 4,
+        "endLine": 173,
+        "endChar": 10
+      },
+      "revId": "951ea61263bbe8e0f8616da31dab8fa490654da2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
