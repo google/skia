@@ -170,7 +170,7 @@ class StencilOnlyClip final : public MaskOnlyClipBase {
 private:
     bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
-        out->addStencilClip();
+        out->addStencilClip(SkClipStack::kEmptyGenID);
         return true;
     }
 };
