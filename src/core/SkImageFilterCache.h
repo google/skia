@@ -12,6 +12,7 @@
 #include "SkRefCnt.h"
 
 struct SkIPoint;
+class SkImageFilter;
 class SkSpecialImage;
 
 struct SkImageFilterCacheKey {
@@ -55,7 +56,7 @@ public:
     static SkImageFilterCache* Get();
     virtual sk_sp<SkSpecialImage> get(const SkImageFilterCacheKey& key, SkIPoint* offset) const = 0;
     virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
-                     const SkIPoint& offset) = 0;
+                     const SkIPoint& offset, const SkImageFilter* filter) = 0;
     virtual void purge() = 0;
     virtual void purgeByKeys(const SkImageFilterCacheKey[], int) = 0;
     SkDEBUGCODE(virtual int count() const = 0;)
