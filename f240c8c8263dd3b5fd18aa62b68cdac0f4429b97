@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "478af49b_be03ef29",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-28T15:44:14Z",
+      "side": 1,
+      "message": "This is no longer the correct name.",
+      "revId": "f240c8c8263dd3b5fd18aa62b68cdac0f4429b97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
