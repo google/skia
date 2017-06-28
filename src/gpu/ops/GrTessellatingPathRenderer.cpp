@@ -144,15 +144,11 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
         return false;
     }
     if (GrAAType::kCoverage == args.fAAType) {
-#ifdef SK_DISABLE_SCREENSPACE_TESS_AA_PATH_RENDERER
-        return false;
-#else
         SkPath path;
         args.fShape->asPath(&path);
         if (path.countVerbs() > 10) {
             return false;
         }
-#endif
     } else if (!args.fShape->hasUnstyledKey()) {
         return false;
     }
