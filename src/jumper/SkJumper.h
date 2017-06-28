@@ -107,4 +107,11 @@ struct SkJumper_GradientCtx {
     float* ts;
 };
 
+struct SkJumper_2PtConicalCtx {
+    float fCoeffA,
+          fInvCoeffA,
+          fR0,
+          fDR;
+};
+
 #endif//SkJumper_DEFINED

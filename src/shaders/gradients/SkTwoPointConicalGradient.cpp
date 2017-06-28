@@ -7,6 +7,9 @@
 
 #include "SkTwoPointConicalGradient.h"
 
+#include "SkRasterPipeline.h"
+#include "../../jumper/SkJumper.h"
+
 struct TwoPtRadialContext {
     const TwoPtRadial&  fRec;
     float               fRelX, fRelY;
@@ -426,17 +429,19 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
 bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                             SkMatrix* matrix,
                                                             SkRasterPipeline* p) const {
+    const auto dCenter = (fCenter1 - fCenter2).length();
+    const auto dRadius = fRadius2 - fRadius1;
+    SkASSERT(dRadius >= 0);
+
     // When the two circles are concentric, we can pretend we're radial (with a tiny *twist).
-    if (SkScalarNearlyZero((fCenter1 - fCenter2).length())) {
+    if (SkScalarNearlyZero(dCenter)) {
         matrix->postTranslate(-fCenter1.fX, -fCenter1.fY);
         matrix->postScale(1 / fRadius2, 1 / fRadius2);
         p->append(SkRasterPipeline::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
-        auto dR = fRadius2 - fRadius1;
-        SkASSERT(dR > 0);
-        auto scale =  fRadius2 / dR;
-        auto bias  = -fRadius1 / dR;
+        auto scale =  fRadius2 / dRadius;
+        auto bias  = -fRadius1 / dRadius;
 
         auto mad_matrix = SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
                                            SkMatrix::MakeScale(scale, 1));
@@ -447,6 +452,33 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
         return true;
     }
 
-    // TODO
-    return false;
+    if (dCenter + fRadius1 > fRadius2) {
+        // We only handle well behaved cases for now.
+        return false;
+    }
+
+    // To simplify the stage math, we transform the universe (translate/scale/rotate)
+    // such that fCenter1 -> (0, 0) and fCenter2 -> (1, 0).
+    SkMatrix map_to_unit_vector;
+    const SkPoint centers[2] = { fCenter1, fCenter2 };
+    const SkPoint unitvec[2] = { {0, 0}, {1, 0} };
+    SkAssertResult(map_to_unit_vector.setPolyToPoly(centers, unitvec, 2));
+    matrix->postConcat(map_to_unit_vector);
+
+    // Since we've squashed the centers into a unit vector, we must also scale
+    // all the coefficient variables by (1 / dCenter).
+    const auto coeffA = 1 - dRadius * dRadius / (dCenter * dCenter);
+    if (SkScalarNearlyZero(coeffA)) {
+        // We only handle well behaved quadratic cases for now.
+        return false;
+    }
+
+    auto* ctx = alloc->make<SkJumper_2PtConicalCtx>();
+    ctx->fCoeffA    = coeffA;
+    ctx->fInvCoeffA = 1 / coeffA;
+    ctx->fR0        = fRadius1 / dCenter;
+    ctx->fDR        = dRadius  / dCenter;
+
+    p->append(SkRasterPipeline::xy_to_2pt_conical, ctx);
+    return true;
 }

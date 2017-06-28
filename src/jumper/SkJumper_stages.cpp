@@ -1208,6 +1208,53 @@ STAGE(xy_to_radius) {
     r = sqrt_(X2 + Y2);
 }
 
+STAGE(xy_to_2pt_conical) {
+    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
+
+    // At this point, (x, y) is mapped into a synthetic gradient space with
+    // the start circle centerd on (0, 0), and the end circle centered on (1, 0)
+    // (see the stage setup).
+    //
+    // We're searching along X-axis for x', such that
+    //
+    //   1) r(x') is a linear interpolation between r0 and r1
+    //   2) (x, y) is on the circle C(x', 0, r(x'))
+    //
+    // Solving this system boils down to a quadratic equation with coefficients
+    //
+    //   a = 1 - (r1 - r0)^2             <- constant, precomputed in ctx->fCoeffA)
+    //
+    //   b = -2 * (x + (r1 - r0) * r0)
+    //
+    //   c = x^2 + y^2 - r0^2
+    //
+    // Since the start/end circle centers are the extremes of the [0, 1] interval
+    // on the X axis, the solution (x') is exactly the t we are looking for.
+    //
+    // The setup code also ensures that we only use this stage when the discriminant
+    // is positive.  So off we go...
+
+    const F coeffA = c->fCoeffA,
+            coeffB = -2 * (r + c->fDR * c->fR0),
+            coeffC = r * r + g * g - c->fR0 * c->fR0;
+
+    const F disc   = mad(coeffB, coeffB, -4 * coeffA * coeffC);
+    // SkASSERT(disc >= 0);
+    const F sqrt_disc = sqrt_(disc);
+
+    const F invCoeffA = c->fInvCoeffA;
+    // We want the larger root, per spec:
+    //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
+    //    to positive infinity and ending with the value of ω nearest to negative
+    //    infinity, draw the circumference of the circle with radius r(ω) at position
+    //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
+    //    bitmap that have not yet been painted on by earlier circles in this step for
+    //    this rendering of the gradient."
+    // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
+    r = max((-coeffB + sqrt_disc) * invCoeffA * .5f,
+            (-coeffB - sqrt_disc) * invCoeffA * .5f);
+}
+
 STAGE(save_xy) {
     auto c = (SkJumper_SamplerCtx*)ctx;
 
