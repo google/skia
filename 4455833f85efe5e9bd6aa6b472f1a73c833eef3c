@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "666e45b1_eb060c59",
+        "filename": "src/jumper/SkJumper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-28T18:10:09Z",
+      "side": 1,
+      "message": "We can probably do all this with a little less boilerplate and fanfare:\n\nstruct SkJumper_2PtConicalCtx {\n   float fMask[SkJumper_kMaxStride];\n   float fCoeffA, \n         ...;\n};\n\nPass \u0026ctx-\u003efMask as vector_scale\u0027s context, and loads it like\n\nSTAGE(vector_scale) {\n   const F scale \u003d unaligned_load\u003cF\u003e((const float*)ctx);\n   r *\u003d scale;\n   ...\n}",
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37aa4c02_e390cd94",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-28T18:10:09Z",
+      "side": 1,
+      "message": "Try writing just 1.0f and 0.0f?",
+      "range": {
+        "startLine": 1267,
+        "startChar": 50,
+        "endLine": 1267,
+        "endChar": 54
+      },
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb389af1_d82af6fe",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-06-28T18:10:09Z",
+      "side": 1,
+      "message": "Might want to write this condition the other way around so that both then-else cases read then-0 else-1?",
+      "range": {
+        "startLine": 1267,
+        "startChar": 21,
+        "endLine": 1267,
+        "endChar": 48
+      },
+      "revId": "4455833f85efe5e9bd6aa6b472f1a73c833eef3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
