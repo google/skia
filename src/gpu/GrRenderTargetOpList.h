@@ -96,7 +96,7 @@ public:
                      GrSurfaceProxy* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
+                     const SkIPoint& dstPoint) override;
 
     gr_instanced::InstancedRendering* instancedRendering() const {
         SkASSERT(fInstancedRendering);

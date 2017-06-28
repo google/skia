@@ -8,11 +8,16 @@
 #include "GrSurfaceContext.h"
 
 #include "GrContextPriv.h"
+#include "GrDrawingManager.h"
+#include "GrOpList.h"
 #include "SkColorSpace_Base.h"
 #include "SkGr.h"
 
 #include "../private/GrAuditTrail.h"
 
+#define ASSERT_SINGLE_OWNER \
+    SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(this->singleOwner());)
+#define RETURN_FALSE_IF_ABANDONED  if (this->drawingManager()->wasAbandoned()) { return false; }
 
 // In MDB mode the reffing of the 'getLastOpList' call's result allows in-progress
 // GrOpLists to be picked up and added to by renderTargetContexts lower in the call
@@ -35,6 +40,11 @@ GrSurfaceContext::GrSurfaceContext(GrContext* context,
 
 bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
                                   size_t dstRowBytes, int x, int y, uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::readPixels");
+
     // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
     GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo, *fContext->caps());
     if (kUnknown_GrPixelConfig == config) {
@@ -54,6 +64,11 @@ bool GrSurfaceContext::readPixels(const SkImageInfo& dstInfo, void* dstBuffer,
 
 bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBuffer,
                                    size_t srcRowBytes, int x, int y, uint32_t flags) {
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::writePixels");
+
     // TODO: teach GrRenderTarget to take ImageInfo directly to specify the src pixels
     GrPixelConfig config = SkImageInfo2GrPixelConfig(srcInfo, *fContext->caps());
     if (kUnknown_GrPixelConfig == config) {
@@ -67,4 +82,14 @@ bool GrSurfaceContext::writePixels(const SkImageInfo& srcInfo, const void* srcBu
                                                       srcInfo.width(), srcInfo.height(),
                                                       config, srcInfo.colorSpace(),
                                                       srcBuffer, srcRowBytes, flags);
+}
+
+bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::onCopy");
+
+    return this->getOpList()->copySurface(*fContext->caps(),
+                                          this->asSurfaceProxy(), src, srcRect, dstPoint);
 }

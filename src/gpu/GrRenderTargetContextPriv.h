@@ -22,13 +22,13 @@ struct GrUserStencilSettings;
 class GrRenderTargetContextPriv {
 public:
     gr_instanced::InstancedRendering* accessInstancedRendering() const {
-        return fRenderTargetContext->getOpList()->instancedRendering();
+        return fRenderTargetContext->getRTOpList()->instancedRendering();
     }
 
     // called to note the last clip drawn to the stencil buffer.
     // TODO: remove after clipping overhaul.
     void setLastClip(int32_t clipStackGenID, const SkIRect& devClipBounds) {
-        GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
+        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
         opList->fLastClipStackGenID = clipStackGenID;
         opList->fLastDevClipBounds = devClipBounds;
     }
@@ -36,7 +36,7 @@ public:
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
     bool mustRenderClip(int32_t clipStackGenID, const SkIRect& devClipBounds) const {
-        GrRenderTargetOpList* opList = fRenderTargetContext->getOpList();
+        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
         return opList->fLastClipStackGenID != clipStackGenID ||
                !opList->fLastDevClipBounds.contains(devClipBounds);
     }

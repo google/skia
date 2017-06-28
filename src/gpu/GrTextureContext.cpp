@@ -56,7 +56,7 @@ sk_sp<GrRenderTargetProxy> GrTextureContext::asRenderTargetProxyRef() {
     return nullptr;
 }
 
-GrTextureOpList* GrTextureContext::getOpList() {
+GrOpList* GrTextureContext::getOpList() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
@@ -66,17 +66,3 @@ GrTextureOpList* GrTextureContext::getOpList() {
 
     return fOpList.get();
 }
-
-// MDB TODO: move this (and GrRenderTargetContext::copy) to GrSurfaceContext?
-bool GrTextureContext::onCopy(GrSurfaceProxy* srcProxy,
-                              const SkIRect& srcRect,
-                              const SkIPoint& dstPoint) {
-    ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrTextureContext::onCopy");
-
-    return this->getOpList()->copySurface(*fContext->caps(),
-                                          fTextureProxy.get(), srcProxy, srcRect, dstPoint);
-}
-
