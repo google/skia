@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb0766d1_f9cbda51",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-06-28T17:03:19Z",
+      "side": 1,
+      "message": "Because this doesn\u0027t fully handle the case where the previous context is destroyed, but we also don\u0027t think that happens in Android - I\u0027d like to see an assert here: SkASSERT(!fOriginalTexture). That way we will at least know if the bad case is happening, and if we need to work on skbug.com/6812 sooner.",
+      "revId": "fa58a5370ef030c5bf88b11dcdbb7b1aa1fa6f4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
