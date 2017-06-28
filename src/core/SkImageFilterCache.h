@@ -12,6 +12,7 @@
 #include "SkRefCnt.h"
 
 struct SkIPoint;
+class SkImageFilter;
 class SkSpecialImage;
 
 struct SkImageFilterCacheKey {
@@ -28,6 +29,10 @@ struct SkImageFilterCacheKey {
                                      "image_filter_key_tight_packing");
         fMatrix.getType();  // force initialization of type, so hashes match
     }
+
+    SkImageFilterCacheKey()
+        : SkImageFilterCacheKey(0, SkMatrix::MakeScale(1), SkIRect::MakeEmpty(),
+                                0, SkIRect::MakeEmpty()) { }
 
     uint32_t fUniqueID;
     SkMatrix fMatrix;
@@ -55,9 +60,9 @@ public:
     static SkImageFilterCache* Get();
     virtual sk_sp<SkSpecialImage> get(const SkImageFilterCacheKey& key, SkIPoint* offset) const = 0;
     virtual void set(const SkImageFilterCacheKey& key, SkSpecialImage* image,
-                     const SkIPoint& offset) = 0;
+                     const SkIPoint& offset, const SkImageFilter* filter) = 0;
     virtual void purge() = 0;
-    virtual void purgeByKeys(const SkImageFilterCacheKey[], int) = 0;
+    virtual void purgeByKey(const SkImageFilterCacheKey&) = 0;
     SkDEBUGCODE(virtual int count() const = 0;)
 };
 
