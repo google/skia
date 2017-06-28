@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "832cc079_6ae0c8e6",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-28T17:52:24Z",
+      "side": 1,
+      "message": "Are you sure this is still removal-safe? It looks like we\u0027ll be passing a count which may become invalid, since removeKey() will call back to remove it. We should either put the nullptr thing back in the cache, or do the while (!fCacheKeys.empty()) cache-\u003epurge(fCacheKeys[0]) thing.",
+      "revId": "0c7494dbe2d31b4d9491e8f3eee728b6eb10d5f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
