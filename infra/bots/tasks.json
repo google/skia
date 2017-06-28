@@ -927,42 +927,6 @@
         "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs"
       ]
     },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
-      ]
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
-      ]
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
-      ]
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ]
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
-      ]
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
-      ]
-    },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -1021,6 +985,42 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release"
+      ]
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
+      ]
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
+      ]
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
+      ]
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ]
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
+      ]
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
       ]
     },
     "Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
@@ -1816,48 +1816,6 @@
         "Test-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-PreAbandonGpuContext"
       ]
     },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
-      ]
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
-      ]
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
-      "priority": 0.8,
-      "tasks": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext"
-      ]
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
-      ]
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ]
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
-      ]
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
-      ]
-    },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -1916,6 +1874,48 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
+      ]
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
       ]
     },
     "Test-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug": {
@@ -7245,298 +7245,6 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:6"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244-340.76",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:6"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244-340.76",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Debug",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Debug",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1401-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1401-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "perf",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "perf_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -8055,6 +7763,328 @@
         "perf",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244-340.76",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244-340.76",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_debug",
+          "path": "linux_vulkan_intel_driver_debug",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_debug",
+          "path": "linux_vulkan_intel_driver_debug",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1401-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "perf_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1401-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "perf",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -13530,350 +13560,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:6"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244-340.76",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:6"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244-340.76",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:6"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1244-340.76",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 3600000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Debug",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:11c0-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Debug",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1401-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:26"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:62"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:5"
-        }
-      ],
-      "dependencies": [
-        "Build-Debian9-GCC-x86_64-Release",
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "gpu:10de:1401-367.57",
-        "os:Ubuntu-14.04",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
       "cipd_packages": [
         {
@@ -14392,6 +14078,385 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244-340.76",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244-340.76",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_AbandonGpuContext",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1244-340.76",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind_PreAbandonGpuContext",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 3600000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_debug",
+          "path": "linux_vulkan_intel_driver_debug",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:11c0-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_debug",
+          "path": "linux_vulkan_intel_driver_debug",
+          "version": "version:4"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1401-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:26"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:62"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/linux_vulkan_intel_driver_release",
+          "path": "linux_vulkan_intel_driver_release",
+          "version": "version:6"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-GCC-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1401-367.57",
+        "os:Ubuntu-16.10",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -18196,60 +18261,6 @@
       "isolate": "upload_nano_results.isolate",
       "priority": 0.8
     },
-    "Upload-Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "dependencies": [
-        "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
-      "dependencies": [
-        "Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_nano_results",
-        "repository=<(REPO)",
-        "buildername=Perf-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-perf"
-      ],
-      "isolate": "upload_nano_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release": {
       "dependencies": [
         "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release"
@@ -18374,6 +18385,60 @@
         "upload_nano_results",
         "repository=<(REPO)",
         "buildername=Perf-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "dependencies": [
+        "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-perf"
+      ],
+      "isolate": "upload_nano_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
+      "dependencies": [
+        "Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_nano_results",
+        "repository=<(REPO)",
+        "buildername=Perf-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -20815,114 +20880,6 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
-    "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
-      "dependencies": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
-      "dependencies": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
-      "dependencies": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
-      "dependencies": [
-        "Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Ubuntu14-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
     "Upload-Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
       "dependencies": [
         "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug"
@@ -21182,6 +21139,114 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu16-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug": {
+      "dependencies": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release": {
+      "dependencies": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX660-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug": {
+      "dependencies": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Debug",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release": {
+      "dependencies": [
+        "Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu16-GCC-ShuttleA-GPU-GTX960-x86_64-Release",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
