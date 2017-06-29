@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "25326efc_1de67cf9",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-29T14:25:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "894af80f_6826e52f",
+      "range": {
+        "startLine": 1212,
+        "startChar": 76,
+        "endLine": 1212,
+        "endChar": 93
+      },
+      "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "896a07a5_8898ac7d",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2017-06-29T13:21:44Z",
       "side": 1,
       "message": "Is this still logically correct?  I thought the idea was that disc was now sometimes negative, sqrt_disc becomes NaN, and that\u0027s why we need to fix up this case with a mask?",
+      "range": {
+        "startLine": 1238,
+        "startChar": 4,
+        "endLine": 1238,
+        "endChar": 27
+      },
+      "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b062021c_a69451a6",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1238,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-29T14:25:59Z",
+      "side": 1,
+      "message": "Yeah, this invariant is no longer enforced now, for the outside case.  Removed.",
+      "parentUuid": "896a07a5_8898ac7d",
       "range": {
         "startLine": 1238,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "eef4d409_c63dadeb",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-29T14:25:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85d0f312_506d7e77",
+      "range": {
+        "startLine": 1242,
+        "startChar": 42,
+        "endLine": 1242,
+        "endChar": 57
+      },
+      "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a7a834d_a64873b8",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2017-06-29T13:21:44Z",
       "side": 1,
       "message": "This is fine if you like it, but it\u0027ll also auto-cast, so you can just pass ctx.",
+      "range": {
+        "startLine": 1247,
+        "startChar": 36,
+        "endLine": 1247,
+        "endChar": 67
+      },
+      "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe6e8652_c7183ea4",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-29T14:25:59Z",
+      "side": 1,
+      "message": "I very much don\u0027t like it :)\n\nRemoved.",
+      "parentUuid": "1a7a834d_a64873b8",
       "range": {
         "startLine": 1247,
         "startChar": 36,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "184ad529_9ea50544",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1260,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-29T14:25:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bfcbf48_5e953529",
+      "range": {
+        "startLine": 1260,
+        "startChar": 21,
+        "endLine": 1260,
+        "endChar": 53
+      },
+      "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cbd5dd7_177b7abe",
         "filename": "src/jumper/SkJumper_stages.cpp",
         "patchSetId": 3
@@ -128,6 +248,24 @@
       "writtenOn": "2017-06-29T13:21:44Z",
       "side": 1,
       "message": "I think I overlooked this last time, but there\u0027s no reason to use g now.  There\u0027s nothing downstream that\u0027s expecting to read it out of g, so we\u0027re stomping on the register for no good reason.  It\u0027s an unnecessary constraint on the code generation, and mostly just good to avoid for clarity.\n\nNow that we\u0027re also treating it as a mask, let\u0027s go all the way and do it bitwise?\n\n  U32 mask \u003d 0xffffffff;\n  mask \u003d mask \u0026 (mad(r, c-\u003efDR, c-\u003efR0) \u003e\u003d 0);\n  mask \u003d mask \u0026 (r \u003d\u003d r);\n  unaligned_store((uint32_t*)ctx, mask);\n\n  ...\n\n  const U32 mask \u003d unalgined_load\u003cU32\u003e((const uint32_t*)ctx);\n  r \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(r) \u0026 mask);\n  g \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(g) \u0026 mask);\n  b \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(b) \u0026 mask);\n  a \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(a) \u0026 mask);",
+      "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd0782ef_0497d245",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1269,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-06-29T14:25:59Z",
+      "side": 1,
+      "message": "\u003e I think I overlooked this last time, but there\u0027s no reason to use g now.  There\u0027s nothing downstream that\u0027s expecting to read it out of g, so we\u0027re stomping on the register for no good reason.  It\u0027s an unnecessary constraint on the code generation, and mostly just good to avoid for clarity.\n\u003e \n\u003e Now that we\u0027re also treating it as a mask, let\u0027s go all the way and do it bitwise?\n\u003e \n\u003e   U32 mask \u003d 0xffffffff;\n\u003e   mask \u003d mask \u0026 (mad(r, c-\u003efDR, c-\u003efR0) \u003e\u003d 0);\n\nHmm, that\u0027ll only let through the low bit in every lane - we want something like\n\n  mask \u003d mask \u0026 ((mad(r, c-\u003efDR, c-\u003efR0) \u003e\u003d 0) * 0xffffffff);\n\nright?\n\n...\n\nMoar hmm: actually the thing above is weird: works for portable code, but not with generated stages (MBP)?!\n\nI ended up with \n\n mask \u003d mask \u0026 if_then_else(..., U32(0xffffffff), U32(0));\n\nfor now.\n\n\u003e   mask \u003d mask \u0026 (r \u003d\u003d r);\n\u003e   unaligned_store((uint32_t*)ctx, mask);\n\u003e \n\u003e   ...\n\u003e \n\u003e   const U32 mask \u003d unalgined_load\u003cU32\u003e((const uint32_t*)ctx);\n\u003e   r \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(r) \u0026 mask);\n\u003e   g \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(g) \u0026 mask);\n\u003e   b \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(b) \u0026 mask);\n\u003e   a \u003d bit_cast\u003cF\u003e(bit_cast\u003cU32\u003e(a) \u0026 mask);\n\nDone.",
+      "parentUuid": "3cbd5dd7_177b7abe",
       "revId": "c52ae680ead2b1734acdb6f940505ccaea3d32aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
