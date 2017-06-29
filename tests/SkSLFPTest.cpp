@@ -117,7 +117,6 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
              "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
              "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
-             "#include \"GrResourceProvider.h\"\n"
              "#include \"SkSLCPP.h\"\n"
              "#include \"SkSLUtil.h\"\n"
              "class GrGLSLTest : public GrGLSLFragmentProcessor {\n"

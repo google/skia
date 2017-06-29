@@ -23,4 +23,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLType.cpp",
 ]
 
-skia_gpu_processor_sources = [ "$_src/gpu/effects/GrDitherEffect.fp" ]
+skia_gpu_processor_sources = [
+  "$_src/effects/GrAlphaThresholdFragmentProcessor.fp",
+  "$_src/gpu/effects/GrDitherEffect.fp",
+]
