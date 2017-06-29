@@ -49,9 +49,17 @@ void SkColorFilter::appendStages(SkRasterPipeline* p,
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
-    SkPMColor dst, src = SkPreMultiplyColor(c);
-    this->filterSpan(&src, 1, &dst);
-    return SkUnPreMultiply::PMColorToColor(dst);
+    const float inv255 = 1.0f / 255;
+    SkColor4f c4 = this->filterColor4f({
+        SkColorGetR(c) * inv255,
+        SkColorGetG(c) * inv255,
+        SkColorGetB(c) * inv255,
+        SkColorGetA(c) * inv255,
+    });
+    return SkColorSetARGB(sk_float_round2int(c4.fA*255),
+                          sk_float_round2int(c4.fR*255),
+                          sk_float_round2int(c4.fG*255),
+                          sk_float_round2int(c4.fB*255));
 }
 
 #include "SkRasterPipeline.h"
