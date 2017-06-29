@@ -173,6 +173,8 @@ public:
         return this->isColorFilterNode(filterPtr);
     }
 
+    void removeKey(const SkImageFilterCacheKey& key) const;
+
     /**
      *  Returns true (and optionally returns a ref'd filter) if this imagefilter can be completely
      *  replaced by the returned colorfilter. i.e. the two effects will affect drawing in the

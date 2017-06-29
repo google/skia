@@ -7,6 +7,7 @@
 
 #include "SkImageFilterCache.h"
 
+#include "SkImageFilter.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkOpts.h"
@@ -37,12 +38,13 @@ public:
         }
     }
     struct Value {
-        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset)
-            : fKey(key), fImage(SkRef(image)), fOffset(offset) {}
+        Value(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter)
+            : fKey(key), fImage(SkRef(image)), fOffset(offset), fFilter(filter) {}
 
         Key fKey;
         sk_sp<SkSpecialImage> fImage;
         SkIPoint fOffset;
+        const SkImageFilter* fFilter;
         static const Key& GetKey(const Value& v) {
             return v.fKey;
         }
@@ -65,12 +67,12 @@ public:
         return nullptr;
     }
 
-    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset) override {
+    void set(const Key& key, SkSpecialImage* image, const SkIPoint& offset, const SkImageFilter* filter) override {
         SkAutoMutexAcquire mutex(fMutex);
         if (Value* v = fLookup.find(key)) {
             this->removeInternal(v);
         }
-        Value* v = new Value(key, image, offset);
+        Value* v = new Value(key, image, offset, filter);
         fLookup.add(v);
         fLRU.addToHead(v);
         fCurrentBytes += image->getSize();
@@ -95,8 +97,13 @@ public:
 
     void purgeByKeys(const Key keys[], int count) override {
         SkAutoMutexAcquire mutex(fMutex);
+        // This function is only called in the destructor of SkImageFilter.
+        // Because the destructor will destroy the fCacheKeys anyway, we set the
+        // filter to be null so that removeInternal() won't call the
+        // SkImageFilter::removeKey() function.
         for (int i = 0; i < count; i++) {
             if (Value* v = fLookup.find(keys[i])) {
+                v->fFilter = nullptr;
                 this->removeInternal(v);
             }
         }
@@ -106,6 +113,9 @@ public:
 private:
     void removeInternal(Value* v) {
         SkASSERT(v->fImage);
+        if (v->fFilter) {
+            v->fFilter->removeKey(v->fKey);
+        }
         fCurrentBytes -= v->fImage->getSize();
         fLRU.remove(v);
         fLookup.remove(v->fKey);
