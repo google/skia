@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50347170_86456c38",
+        "filename": "src/core/SkBlitter_Sprite.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-29T13:25:22Z",
+      "side": 1,
+      "message": "I don\u0027t actually think this is the right thing to do.  It\u0027ll have us fall into the general shader case when we could be taking the SkRasterPipelineSpriteBlitter case below.\n\nI think the right thing to do here is to make SkSpriteBlitter::ChooseL32() reject color filters.",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 5
+      },
+      "revId": "4a0f180211dbcf5c400f797aafe6cc3ff6fc021f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
