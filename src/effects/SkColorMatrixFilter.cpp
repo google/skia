@@ -44,9 +44,7 @@ public:
     }
 
     // Let fMatrixFilter handle all the other calls directly.
-    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
-        fMatrixFilter->filterSpan(src, count, dst);
-    }
+
     uint32_t getFlags() const override {
         return fMatrixFilter->getFlags();
     }

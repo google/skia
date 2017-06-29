@@ -37,9 +37,6 @@ public:
         return GrSRGBEffect::Make(fMode);
     }
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override {
-        SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
-    }
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool) const override {
         SK_ABORT("SkSRGBColorFilter is only implemented for GPU");
     }
