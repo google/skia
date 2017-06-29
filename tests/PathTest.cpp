@@ -4775,3 +4775,20 @@ DEF_TEST(skbug_6450, r) {
     orr.setRectRadii(ro, rdo);
     SkMakeNullCanvas()->drawDRRect(orr, irr, SkPaint());
 }
+
+DEF_TEST(path_rawiter_peek, r) {
+      SkPath path;
+      path.quadTo(10, 20, 30, 40);
+      path.conicTo(1, 2, 3, 4, .5f);
+      path.cubicTo(1, 2, 3, 4, .5, 6);
+      SkPath::RawIter iter(path);
+      SkPath::Verb verb, peek;
+      SkPath::Verb peekCheck = SkPath::kMove_Verb;
+        do {
+              SkPoint points[4];
+              verb = iter.next(points);
+              peek = iter.peek();
+              REPORTER_ASSERT(r, peekCheck == verb);
+              peekCheck = peek;
+        } while (SkPath::kDone_Verb != verb);
+}
