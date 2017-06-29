@@ -22,6 +22,30 @@
       "revId": "4a0f180211dbcf5c400f797aafe6cc3ff6fc021f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6f381d0_b2165c3f",
+        "filename": "src/core/SkBlitter_Sprite.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-06-29T13:35:28Z",
+      "side": 1,
+      "message": "Ah, so it may have been wrong when I added the flag earlier. I\u0027ll try your idea now in a separate CL.",
+      "parentUuid": "50347170_86456c38",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 5
+      },
+      "revId": "4a0f180211dbcf5c400f797aafe6cc3ff6fc021f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
