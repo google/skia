@@ -215,7 +215,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
     }
     SkISize pageSize = SkISize::Make(
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-    fPageDevice = SkPDFDevice::Make(pageSize, fRasterDpi, this);
+    fPageDevice = SkPDFDevice::Make(pageSize, this);
     fCanvas.reset(new SkPDFCanvas(fPageDevice));
     if (SkRect::MakeWH(width, height) != trimBox) {
         fCanvas->clipRect(trimBox);
@@ -439,6 +439,9 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
                                     const SkDocument::PDFMetadata& metadata,
                                     sk_sp<SkPixelSerializer> jpeg,
                                     bool pdfa) {
+    if (dpi <= 0) {
+        dpi = 72.0f;
+    }
     return stream ? sk_make_sp<SkPDFDocument>(stream, proc, dpi, metadata,
                                               std::move(jpeg), pdfa)
                   : nullptr;
