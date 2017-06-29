@@ -505,3 +505,11 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
 
     return true;
 }
+
+bool SkTwoPointConicalGradient::isRasterPipelineOnly() const {
+#ifdef SK_SUPPORT_LEGACY_2PTCONICAL_GRADIENT
+    return false;
+#else
+    return true;
+#endif
+}
