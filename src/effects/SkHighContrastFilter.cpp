@@ -22,111 +22,6 @@
 
 using InvertStyle = SkHighContrastConfig::InvertStyle;
 
-namespace {
-
-SkScalar Hue2RGB(SkScalar p, SkScalar q, SkScalar t) {
-    if (t < 0) {
-        t += 1;
-    } else if (t > 1) {
-        t -= 1;
-    }
-
-    if (t < 1/6.f) {
-        return p + (q - p) * 6 * t;
-    }
-
-    if (t < 1/2.f) {
-        return q;
-    }
-
-    if (t < 2/3.f) {
-        return p + (q - p) * (2/3.f - t) * 6;
-    }
-
-    return p;
-}
-
-SkScalar IncreaseContrast(SkScalar f, SkScalar contrast) {
-    SkScalar m = (1 + contrast) / (1 - contrast);
-    SkScalar b = (-0.5f * m + 0.5f);
-    return m * f + b;
-}
-
-SkColor4f ApplyHighContrastFilter(const SkHighContrastConfig& config, const SkColor4f& src) {
-    // Apply a gamma of 2.0 so that the rest of the calculations
-    // happen roughly in linear space.
-    float rf = src.fR * src.fR;
-    float gf = src.fG * src.fG;
-    float bf = src.fB * src.fB;
-
-    // Convert to grayscale using luminance coefficients.
-    if (config.fGrayscale) {
-        SkScalar lum =
-            rf * SK_LUM_COEFF_R + gf * SK_LUM_COEFF_G + bf * SK_LUM_COEFF_B;
-        rf = lum;
-        gf = lum;
-        bf = lum;
-    }
-
-    // Now invert.
-    if (config.fInvertStyle == InvertStyle::kInvertBrightness) {
-        rf = 1 - rf;
-        gf = 1 - gf;
-        bf = 1 - bf;
-    } else if (config.fInvertStyle == InvertStyle::kInvertLightness) {
-        // Convert to HSL
-        SkScalar max = SkTMax(SkTMax(rf, gf), bf);
-        SkScalar min = SkTMin(SkTMin(rf, gf), bf);
-        SkScalar l = (max + min) / 2;
-        SkScalar h, s;
-
-        if (max == min) {
-            h = 0;
-            s = 0;
-        } else {
-            SkScalar d = max - min;
-            s = l > 0.5f ? d / (2 - max - min) : d / (max + min);
-            if (max == rf) {
-                h = (gf - bf) / d + (gf < bf ? 6 : 0);
-            } else if (max == gf) {
-                h = (bf - rf) / d + 2;
-            } else {
-                h = (rf - gf) / d + 4;
-            }
-            h /= 6;
-        }
-
-        // Invert lightness.
-        l = 1 - l;
-
-        // Now convert back to RGB.
-        if (s == 0) {
-            // Grayscale
-            rf = l;
-            gf = l;
-            bf = l;
-        } else {
-            SkScalar q = l < 0.5f ? l * (1 + s) : l + s - l * s;
-            SkScalar p = 2 * l - q;
-            rf = Hue2RGB(p, q, h + 1/3.f);
-            gf = Hue2RGB(p, q, h);
-            bf = Hue2RGB(p, q, h - 1/3.f);
-        }
-    }
-
-    // Increase contrast.
-    if (config.fContrast != 0.0f) {
-        rf = IncreaseContrast(rf, config.fContrast);
-        gf = IncreaseContrast(gf, config.fContrast);
-        bf = IncreaseContrast(bf, config.fContrast);
-    }
-
-    // Convert back from linear to a color space with a gamma of ~2.0.
-    return SkColor4f::Pin(SkScalarSqrt(rf), SkScalarSqrt(gf), SkScalarSqrt(bf), src.fA);
-}
-
-}  // namespace
-
 class SkHighContrast_Filter : public SkColorFilter {
 public:
     SkHighContrast_Filter(const SkHighContrastConfig& config) {
@@ -143,7 +38,6 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
  #endif
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
     void onAppendStages(SkRasterPipeline* p,
                         SkColorSpace* dst,
                         SkArenaAlloc* scratch,
@@ -163,20 +57,6 @@ private:
 
     typedef SkColorFilter INHERITED;
 };
-
-void SkHighContrast_Filter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
-    const float oneOver255 = 1.0f / 255;
-    for (int i = 0; i < count; ++i) {
-        SkColor color = SkUnPreMultiply::PMColorToColor(src[i]);
-        // be sure to NOT treat color as sRGB, as we are in legacy mode here
-        SkColor4f s4 {
-            SkColorGetR(color) * oneOver255, SkColorGetG(color) * oneOver255,
-            SkColorGetB(color) * oneOver255, SkColorGetA(color) * oneOver255,
-        };
-        SkColor4f d4 = ApplyHighContrastFilter(fConfig, s4);
-        dst[i] = d4.premul().toPMColor();
-    }
-}
 
 void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dstCS,

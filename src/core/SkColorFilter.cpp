@@ -49,9 +49,17 @@ void SkColorFilter::appendStages(SkRasterPipeline* p,
 }
 
 SkColor SkColorFilter::filterColor(SkColor c) const {
-    SkPMColor dst, src = SkPreMultiplyColor(c);
-    this->filterSpan(&src, 1, &dst);
-    return SkUnPreMultiply::PMColorToColor(dst);
+    const float inv255 = 1.0f / 255;
+    SkColor4f c4 = this->filterColor4f({
+        SkColorGetR(c) * inv255,
+        SkColorGetG(c) * inv255,
+        SkColorGetB(c) * inv255,
+        SkColorGetA(c) * inv255,
+    });
+    return SkColorSetARGB(sk_float_round2int(c4.fA*255),
+                          sk_float_round2int(c4.fR*255),
+                          sk_float_round2int(c4.fG*255),
+                          sk_float_round2int(c4.fB*255));
 }
 
 #include "SkRasterPipeline.h"
@@ -87,11 +95,6 @@ public:
     uint32_t getFlags() const override {
         // Can only claim alphaunchanged and SkPM4f support if both our proxys do.
         return fOuter->getFlags() & fInner->getFlags();
-    }
-
-    void filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const override {
-        fInner->filterSpan(shader, count, result);
-        fOuter->filterSpan(result, count, result);
     }
 
 #ifndef SK_IGNORE_TO_STRING

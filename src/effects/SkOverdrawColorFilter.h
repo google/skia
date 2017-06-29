@@ -31,7 +31,6 @@ public:
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
 #endif
 
-    void filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const override;
     void toString(SkString* str) const override;
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer);

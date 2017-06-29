@@ -39,21 +39,6 @@ void SkColorFilterShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fFilter.get());
 }
 
-uint32_t SkColorFilterShader::FilterShaderContext::getFlags() const {
-    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
-
-    uint32_t shaderF = fShaderContext->getFlags();
-    uint32_t filterF = filterShader.fFilter->getFlags();
-
-    // If the filter does not support a given feature, but sure to clear the corresponding flag
-    // in the shader flags.
-    //
-    if (!(filterF & SkColorFilter::kAlphaUnchanged_Flag)) {
-        shaderF &= ~kOpaqueAlpha_Flag;
-    }
-    return shaderF;
-}
-
 bool SkColorFilterShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* dstCS,
                                          SkArenaAlloc* alloc, const SkMatrix& ctm,
                                          const SkPaint& paint, const SkMatrix* localM) const {
@@ -64,53 +49,8 @@ bool SkColorFilterShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpac
     return true;
 }
 
-SkShaderBase::Context* SkColorFilterShader::onMakeContext(const ContextRec& rec,
-                                                          SkArenaAlloc* alloc) const {
-    auto* shaderContext = as_SB(fShader)->makeContext(rec, alloc);
-    if (nullptr == shaderContext) {
-        return nullptr;
-    }
-    return alloc->make<FilterShaderContext>(*this, shaderContext, rec);
-}
-
 sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     return xformer->apply(fShader.get())->makeWithColorFilter(xformer->apply(fFilter.get()));
-}
-
-SkColorFilterShader::FilterShaderContext::FilterShaderContext(
-                                                         const SkColorFilterShader& filterShader,
-                                                         SkShaderBase::Context* shaderContext,
-                                                         const ContextRec& rec)
-    : INHERITED(filterShader, rec)
-    , fShaderContext(shaderContext)
-{}
-
-void SkColorFilterShader::FilterShaderContext::shadeSpan(int x, int y, SkPMColor result[],
-                                                         int count) {
-    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
-
-    fShaderContext->shadeSpan(x, y, result, count);
-    filterShader.fFilter->filterSpan(result, count, result);
-}
-
-#include "SkRasterPipeline.h"
-void SkColorFilterShader::FilterShaderContext::shadeSpan4f(int x, int y, SkPM4f result[],
-                                                           int count) {
-    const SkColorFilterShader& filterShader = static_cast<const SkColorFilterShader&>(fShader);
-
-    fShaderContext->shadeSpan4f(x, y, result, count);
-
-    // now apply the filter
-
-    SkSTArenaAlloc<128> alloc;
-    SkRasterPipeline    pipeline(&alloc);
-
-    const SkPM4f* src = result;
-    pipeline.append(SkRasterPipeline::load_f32, &src);
-    filterShader.fFilter->appendStages(&pipeline, nullptr, &alloc, filterShader.isOpaque());
-    SkPM4f* dst = result;
-    pipeline.append(SkRasterPipeline::store_f32, &dst);
-    pipeline.run(0,y, count);
 }
 
 #if SK_SUPPORT_GPU
