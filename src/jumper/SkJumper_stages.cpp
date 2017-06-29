@@ -1208,9 +1208,7 @@ STAGE(xy_to_radius) {
     r = sqrt_(X2 + Y2);
 }
 
-STAGE(xy_to_2pt_conical_quadratic) {
-    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
-
+SI F solve_2pt_conical_quadratic(const SkJumper_2PtConicalCtx* c, F x, F y, F (*select)(F, F)) {
     // At this point, (x, y) is mapped into a synthetic gradient space with
     // the start circle centerd on (0, 0), and the end circle centered on (1, 0)
     // (see the stage setup).
@@ -1230,54 +1228,62 @@ STAGE(xy_to_2pt_conical_quadratic) {
     //
     // Since the start/end circle centers are the extremes of the [0, 1] interval
     // on the X axis, the solution (x') is exactly the t we are looking for.
-    //
-    // The setup code also ensures that we only use this stage when the discriminant
-    // is positive.  So off we go...
 
     const F coeffA = c->fCoeffA,
-            coeffB = -2 * (r + c->fDR * c->fR0),
-            coeffC = r * r + g * g - c->fR0 * c->fR0;
+            coeffB = -2 * (x + c->fDR*c->fR0),
+            coeffC = x*x + y*y - c->fR0*c->fR0;
 
-    const F disc   = mad(coeffB, coeffB, -4 * coeffA * coeffC);
-    // SkASSERT(disc >= 0);
+    const F disc      = mad(coeffB, coeffB, -4 * coeffA * coeffC);
     const F sqrt_disc = sqrt_(disc);
 
     const F invCoeffA = c->fInvCoeffA;
-    // We want the larger root, per spec:
-    //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
-    //    to positive infinity and ending with the value of ω nearest to negative
-    //    infinity, draw the circumference of the circle with radius r(ω) at position
-    //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
-    //    bitmap that have not yet been painted on by earlier circles in this step for
-    //    this rendering of the gradient."
-    // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
-    r = max((-coeffB + sqrt_disc) * invCoeffA * .5f,
-            (-coeffB - sqrt_disc) * invCoeffA * .5f);
+    return select((-coeffB + sqrt_disc) * (invCoeffA * 0.5f),
+                  (-coeffB - sqrt_disc) * (invCoeffA * 0.5f));
+}
+
+STAGE(xy_to_2pt_conical_quadratic_max) {
+    r = solve_2pt_conical_quadratic(ctx, r, g, max);
+}
+
+STAGE(xy_to_2pt_conical_quadratic_min) {
+    r = solve_2pt_conical_quadratic(ctx, r, g, min);
 }
 
 STAGE(xy_to_2pt_conical_linear) {
-    auto* c = (SkJumper_2PtConicalCtx*)ctx;
+    auto* c = (const SkJumper_2PtConicalCtx*)ctx;
 
-    const F coeffB = -2 * (r + c->fDR * c->fR0),
-            coeffC = r * r + g * g - c->fR0 * c->fR0;
+    const F coeffB = -2 * (r + c->fDR*c->fR0),
+            coeffC = r*r + g*g - c->fR0*c->fR0;
 
     r = -coeffC / coeffB;
-
-    // Compute and save a mask for degenerate values.
-    g = 1.0f;
-    g = if_then_else(mad(r, c->fDR, c->fR0) < 0, F(0), g); // R(t) < 0
-    g = if_then_else(r != r                    , F(0), g); // NaN
-
-    unaligned_store(&c->fMask, g);
 }
 
-STAGE(vector_scale) {
-    const F scale = unaligned_load<F>((const float*)ctx);
+STAGE(mask_2pt_conical_degenerates) {
+    auto* c = (SkJumper_2PtConicalCtx*)ctx;
 
-    r = r * scale;
-    g = g * scale;
-    b = b * scale;
-    a = a * scale;
+    // Compute and save a mask for degenerate values.
+    U32 mask = 0xffffffff;
+
+    // TODO: mtklein kindly volunteered to revisit this at some point.
+#if defined(JUMPER)
+    // Vector comparisons set all bits, so we can use something like this.
+    mask = mask & (mad(r, c->fDR, c->fR0) >= 0);  // R(t) >= 0
+    mask = mask & (r == r);                       // t != NaN
+#else
+    // The portable version is more involved, 'cause we only get one bit back.
+    mask = mask & if_then_else(mad(r, c->fDR, c->fR0) >= 0, U32(0xffffffff), U32(0)); // R(t) >= 0
+    mask = mask & if_then_else(r == r,                      U32(0xffffffff), U32(0)); // t != NaN
+#endif
+
+    unaligned_store(&c->fMask, mask);
+}
+
+STAGE(apply_vector_mask) {
+    const U32 mask = unaligned_load<U32>((const uint32_t*)ctx);
+    r = bit_cast<F>(bit_cast<U32>(r) & mask);
+    g = bit_cast<F>(bit_cast<U32>(g) & mask);
+    b = bit_cast<F>(bit_cast<U32>(b) & mask);
+    a = bit_cast<F>(bit_cast<U32>(a) & mask);
 }
 
 STAGE(save_xy) {

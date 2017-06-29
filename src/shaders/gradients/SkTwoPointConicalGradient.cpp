@@ -453,11 +453,6 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
         return true;
     }
 
-    if (dCenter + fRadius1 > fRadius2) {
-        // We only handle well behaved cases for now.
-        return false;
-    }
-
     // To simplify the stage math, we transform the universe (translate/scale/rotate)
     // such that fCenter1 -> (0, 0) and fCenter2 -> (1, 0).
     SkMatrix map_to_unit_vector;
@@ -475,14 +470,37 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
     ctx->fR0        = fRadius1 / dCenter;
     ctx->fDR        = dRadius  / dCenter;
 
+    // Is the solver guaranteed to not produce degenerates?
+    bool isWellBehaved = true;
+
     if (SkScalarNearlyZero(coeffA)) {
         // The focal point is on the edge of the end circle.
         p->append(SkRasterPipeline::xy_to_2pt_conical_linear, ctx);
-        // To handle degenerate values (NaN, r < 0), the t stage sets up a scale/mask
-        // context, which we post-apply to force transparent black.
-        postPipeline->append(SkRasterPipeline::vector_scale, &ctx->fMask);
+        isWellBehaved = false;
     } else {
-        p->append(SkRasterPipeline::xy_to_2pt_conical_quadratic, ctx);
+        if (dCenter + fRadius1 > fRadius2) {
+            // The focal point is outside the end circle.
+
+            // We want the larger root, per spec:
+            //   "For all values of ω where r(ω) > 0, starting with the value of ω nearest
+            //    to positive infinity and ending with the value of ω nearest to negative
+            //    infinity, draw the circumference of the circle with radius r(ω) at position
+            //    (x(ω), y(ω)), with the color at ω, but only painting on the parts of the
+            //    bitmap that have not yet been painted on by earlier circles in this step for
+            //    this rendering of the gradient."
+            // (https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-createradialgradient)
+            p->append(fFlippedGrad ? SkRasterPipeline::xy_to_2pt_conical_quadratic_min
+                                   : SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
+            isWellBehaved = false;
+        } else {
+            // The focal point is inside (well-behaved case).
+            p->append(SkRasterPipeline::xy_to_2pt_conical_quadratic_max, ctx);
+        }
+    }
+
+    if (!isWellBehaved) {
+        p->append(SkRasterPipeline::mask_2pt_conical_degenerates, ctx);
+        postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
     }
 
     return true;
