@@ -38,7 +38,7 @@ struct TwoPtRadial {
 };
 
 
-class SkTwoPointConicalGradient : public SkGradientShaderBase {
+class SkTwoPointConicalGradient final : public SkGradientShaderBase {
     TwoPtRadial fRec;
 public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
@@ -82,7 +82,9 @@ protected:
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
                                      SkRasterPipeline* tPipeline,
-                                     SkRasterPipeline* postPipeline) const final;
+                                     SkRasterPipeline* postPipeline) const override;
+
+    bool isRasterPipelineOnly() const override;
 
 private:
     SkPoint fCenter1;
