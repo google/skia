@@ -35,6 +35,8 @@ struct SkRect;
 
 namespace SkPDFUtils {
 
+constexpr float kDpiForRasterScaleOne = 72.0f;
+
 sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
 sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
 void AppendTransform(const SkMatrix& matrix, SkWStream* content);

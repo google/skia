@@ -39,39 +39,23 @@ class SkRRect;
 */
 class SkPDFDevice final : public SkClipStackDevice {
 public:
-    /** Create a PDF drawing context.  SkPDFDevice applies a
-     *  scale-and-translate transform to move the origin from the
-     *  bottom left (PDF default) to the top left (Skia default).
-     *  @param pageSize Page size in point units.
+    /** Create a PDF drawing context.  
+     * @param pageSize Page size in point units.
      *         1 point == 127/360 mm == 1/72 inch
-     *  @param rasterDpi the DPI at which features without native PDF
-     *         support will be rasterized (e.g. draw image with
-     *         perspective, draw text with perspective, ...).  A
-     *         larger DPI would create a PDF that reflects the
-     *         original intent with better fidelity, but it can make
-     *         for larger PDF files too, which would use more memory
-     *         while rendering, and it would be slower to be processed
-     *         or sent online or to printer.  A good choice is
-     *         SK_ScalarDefaultRasterDPI(72.0f).
-     *  @param SkPDFDocument.  A non-null pointer back to the
-     *         document.  The document is repsonsible for
+     *  @param document  A non-null pointer back to the
+     *         PDFDocument object.  The document is repsonsible for
      *         de-duplicating across pages (via the SkPDFCanon) and
      *         for early serializing of large immutable objects, such
      *         as images (via SkPDFDocument::serialize()).
      */
-    static sk_sp<SkPDFDevice> Make(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* doc) {
-        return sk_sp<SkPDFDevice>(new SkPDFDevice(pageSize, rasterDpi, doc, true));
-    }
+    SkPDFDevice(SkISize pageSize, SkPDFDocument* document);
 
-    /** Create a PDF drawing context without fipping the y-axis. */
-    static sk_sp<SkPDFDevice> MakeUnflipped(SkISize pageSize,
-                                            SkScalar rasterDpi,
-                                            SkPDFDocument* doc) {
-        return sk_sp<SkPDFDevice>(new SkPDFDevice(pageSize, rasterDpi, doc, false));
-    }
+    /* Apply a * scale-and-translate transform to move the origin from the
+     * bottom left (PDF default) to the top left (Skia default). */
+    void setFlip();
 
     sk_sp<SkPDFDevice> makeCongruentDevice() {
-        return sk_sp<SkPDFDevice>(new SkPDFDevice(fPageSize, fRasterDpi, fDocument, false));
+        return sk_make_sp<SkPDFDevice>(fPageSize, fDocument);
     }
 
     ~SkPDFDevice() override;
@@ -212,15 +196,9 @@ private:
     };
     SkSinglyLinkedList<ContentEntry> fContentEntries;
 
-    SkScalar fRasterDpi;
-
     SkPDFDocument* fDocument;
-    ////////////////////////////////////////////////////////////////////////////
 
-    SkPDFDevice(SkISize pageSize,
-                SkScalar rasterDpi,
-                SkPDFDocument* doc,
-                bool flip);
+    ////////////////////////////////////////////////////////////////////////////
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
