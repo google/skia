@@ -58,63 +58,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Sprite_D32_XferFilter : public SkSpriteBlitter {
+class Sprite_D32_S32A_Xfer: public SkSpriteBlitter {
 public:
-    Sprite_D32_XferFilter(const SkPixmap& source, const SkPaint& paint) : SkSpriteBlitter(source) {
-        fColorFilter = paint.getColorFilter();
-        SkSafeRef(fColorFilter);
-
+    Sprite_D32_S32A_Xfer(const SkPixmap& source, const SkPaint& paint) : SkSpriteBlitter(source) {
         fXfermode = SkXfermode::Peek(paint.getBlendMode());
-
-        fBufferSize = 0;
-        fBuffer = nullptr;
-
-        unsigned flags32 = 0;
-        if (255 != paint.getAlpha()) {
-            flags32 |= SkBlitRow::kGlobalAlpha_Flag32;
-        }
-        if (!source.isOpaque()) {
-            flags32 |= SkBlitRow::kSrcPixelAlpha_Flag32;
-        }
-
-        fProc32 = SkBlitRow::Factory32(flags32);
-        fAlpha = paint.getAlpha();
+        SkASSERT(fXfermode);
     }
-
-    ~Sprite_D32_XferFilter() override {
-        delete[] fBuffer;
-        SkSafeUnref(fColorFilter);
-    }
-
-    void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
-        this->INHERITED::setup(dst, left, top, paint);
-
-        int width = dst.width();
-        if (width > fBufferSize) {
-            fBufferSize = width;
-            delete[] fBuffer;
-            fBuffer = new SkPMColor[width];
-        }
-    }
-
-protected:
-    SkColorFilter*      fColorFilter;
-    SkXfermode*         fXfermode;
-    int                 fBufferSize;
-    SkPMColor*          fBuffer;
-    SkBlitRow::Proc32   fProc32;
-    U8CPU               fAlpha;
-
-private:
-    typedef SkSpriteBlitter INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class Sprite_D32_S32A_XferFilter : public Sprite_D32_XferFilter {
-public:
-    Sprite_D32_S32A_XferFilter(const SkPixmap& source, const SkPaint& paint)
-        : Sprite_D32_XferFilter(source, paint) {}
 
     void blitRect(int x, int y, int width, int height) override {
         SkASSERT(width > 0 && height > 0);
@@ -122,30 +71,21 @@ public:
         const uint32_t* SK_RESTRICT src = fSource.addr32(x - fLeft, y - fTop);
         size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
-        SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
 
         do {
-            const SkPMColor* tmp = src;
-
-            if (colorFilter) {
-                colorFilter->filterSpan(src, width, fBuffer);
-                tmp = fBuffer;
-            }
-
-            if (xfermode) {
-                xfermode->xfer32(dst, tmp, width, nullptr);
-            } else {
-                fProc32(dst, tmp, width, fAlpha);
-            }
+            xfermode->xfer32(dst, src, width, nullptr);
 
             dst = (uint32_t* SK_RESTRICT)((char*)dst + dstRB);
             src = (const uint32_t* SK_RESTRICT)((const char*)src + srcRB);
         } while (--height != 0);
     }
 
+protected:
+    SkXfermode* fXfermode;
+
 private:
-    typedef Sprite_D32_XferFilter INHERITED;
+    typedef SkSpriteBlitter INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,25 +94,24 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
                                             SkArenaAlloc* allocator) {
     SkASSERT(allocator != nullptr);
 
+    if (paint.getColorFilter() != nullptr) {
+        return nullptr;
+    }
     if (paint.getMaskFilter() != nullptr) {
         return nullptr;
     }
 
-    U8CPU       alpha = paint.getAlpha();
-    bool isSrcOver = paint.isSrcOver();
-    SkColorFilter* filter = paint.getColorFilter();
-    SkSpriteBlitter* blitter = nullptr;
+    U8CPU alpha = paint.getAlpha();
 
     if (source.colorType() == kN32_SkColorType) {
-        if (!isSrcOver || filter) {
-            if (255 == alpha) {
-                // this can handle xfermode or filter, but not alpha
-                blitter = allocator->make<Sprite_D32_S32A_XferFilter>(source, paint);
-            }
-        } else {
-            // this can handle alpha, but not xfermode or filter
-            blitter = allocator->make<Sprite_D32_S32>(source, alpha);
+        if (paint.isSrcOver()) {
+            // this can handle alpha, but not xfermode
+            return allocator->make<Sprite_D32_S32>(source, alpha);
+        }
+        if (255 == alpha) {
+            // this can handle an xfermode, but not alpha
+            return allocator->make<Sprite_D32_S32A_Xfer>(source, paint);
         }
     }
-    return blitter;
+    return nullptr;
 }
