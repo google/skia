@@ -55,7 +55,7 @@ struct VarDeclaration : public Statement {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
-    VarDeclarations(Position position, const Type* baseType, 
+    VarDeclarations(Position position, const Type* baseType,
                     std::vector<std::unique_ptr<VarDeclaration>> vars)
     : INHERITED(position, kVar_Kind)
     , fBaseType(*baseType) {

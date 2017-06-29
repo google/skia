@@ -41,6 +41,7 @@ declare_args() {
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
   skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_compile_processors = false
 
   skia_jumper_clang = ""
   skia_jumper_objdump = ""
@@ -349,6 +350,9 @@ template("optional") {
 
 optional("effects") {
   enabled = skia_enable_effects
+  deps = [
+    ":compile_processors",
+  ]
   sources =
       skia_effects_sources + [ "src/ports/SkGlobalInitialization_default.cpp" ]
   sources_when_disabled = [ "src/ports/SkGlobalInitialization_none.cpp" ]
@@ -414,12 +418,70 @@ optional("fontmgr_fuchsia") {
   ]
 }
 
+if (skia_compile_processors) {
+  executable("skslc") {
+    defines = [ "SKSL_STANDALONE" ]
+    sources = [
+      "src/sksl/SkSLMain.cpp",
+    ]
+    sources += skia_sksl_sources
+    include_dirs = [
+      "src/gpu",
+      "src/sksl",
+    ]
+    deps = [
+      "//third_party/spirv-tools",
+    ]
+  }
+
+  skia_gpu_processor_outputs = []
+  foreach(src, skia_gpu_processor_sources) {
+    dir = get_path_info(src, "dir")
+    name = get_path_info(src, "name")
+
+    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
+    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
+    skia_gpu_processor_outputs += [
+      "$target_out_dir/" + rebase_path("$dir/$name.h", target_out_dir),
+      # the script also modifies the corresponding .cpp file, but if we tell GN that it gets
+      # confused due to the same file being named by two different paths
+    ]
+  }
+
+  action("compile_processors") {
+    script = "gn/compile_processors.py"
+    deps = [
+      ":skslc(//gn/toolchain:$host_toolchain)",
+    ]
+    sources = skia_gpu_processor_sources
+    outputs = skia_gpu_processor_outputs
+    skslc_path = "$root_out_dir/"
+    if (host_toolchain != default_toolchain_name) {
+      skslc_path += "$host_toolchain/"
+    }
+    skslc_path += "skslc"
+    if (host_os == "win") {
+      skslc_path += ".exe"
+    }
+    args = [ rebase_path(skslc_path) ]
+    args += rebase_path(skia_gpu_processor_sources)
+  }
+} else {
+  skia_gpu_processor_outputs = []
+  group("compile_processors") {
+  }
+}
+
 optional("gpu") {
   enabled = skia_enable_gpu
+  deps = [
+    ":compile_processors",
+  ]
   public_defines = []
 
   sources = skia_gpu_sources + skia_sksl_sources +
-            [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ]
+            [ "src/gpu/gl/GrGLDefaultInterface_native.cpp" ] +
+            skia_gpu_processor_outputs
 
   # These paths need to be absolute to match the ones produced by shared_sources.gni.
   sources -= get_path_info([
@@ -463,9 +525,7 @@ optional("gpu") {
     }
   }
   if (skia_enable_spirv_validation) {
-    deps = [
-      "//third_party/spirv-tools",
-    ]
+    deps += [ "//third_party/spirv-tools" ]
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 }
@@ -1532,17 +1592,6 @@ if (skia_enable_tools) {
       outputs = [
         "$root_out_dir/gdbserver",
       ]
-    }
-  }
-
-  if (skia_enable_gpu) {
-    test_app("skslc") {
-      defines = [ "SKSL_STANDALONE" ]
-      sources = [
-        "src/sksl/SkSLMain.cpp",
-      ]
-      sources += skia_sksl_sources
-      include_dirs = [ "src/sksl" ]
     }
   }
 }

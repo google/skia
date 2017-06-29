@@ -11,11 +11,16 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLCompiler.cpp",
   "$_src/sksl/SkSLIRGenerator.cpp",
   "$_src/sksl/SkSLParser.cpp",
+  "$_src/sksl/SkSLCPPCodeGenerator.cpp",
+  "$_src/sksl/SkSLHCodeGenerator.cpp",
   "$_src/sksl/SkSLGLSLCodeGenerator.cpp",
   "$_src/sksl/SkSLSPIRVCodeGenerator.cpp",
   "$_src/sksl/SkSLString.cpp",
   "$_src/sksl/SkSLUtil.cpp",
   "$_src/sksl/lex.layout.cpp",
   "$_src/sksl/ir/SkSLSymbolTable.cpp",
+  "$_src/sksl/ir/SkSLSetting.cpp",
   "$_src/sksl/ir/SkSLType.cpp",
 ]
+
+skia_gpu_processor_sources = [ "$_src/gpu/effects/GrDitherEffect.fp" ]

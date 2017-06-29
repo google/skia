@@ -52,6 +52,7 @@ static_assert(YY_FLEX_MAJOR_VERSION * 10000 + YY_FLEX_MINOR_VERSION * 100 +
 #include "ast/SkSLASTPrecision.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
+#include "ast/SkSLASTSection.h"
 #include "ast/SkSLASTStatement.h"
 #include "ast/SkSLASTSuffixExpression.h"
 #include "ast/SkSLASTSwitchCase.h"
@@ -108,7 +109,7 @@ Parser::~Parser() {
     layoutlex_destroy(fLayoutScanner);
 }
 
-/* (precision | directive | declaration)* END_OF_FILE */
+/* (precision | directive | section | declaration)* END_OF_FILE */
 std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
     std::vector<std::unique_ptr<ASTDeclaration>> result;
     for (;;) {
@@ -129,6 +130,13 @@ std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
                 }
                 break;
             }
+            case Token::SECTION: {
+                std::unique_ptr<ASTDeclaration> section = this->section();
+                if (section) {
+                    result.push_back(std::move(section));
+                }
+                break;
+            }
             default: {
                 std::unique_ptr<ASTDeclaration> decl = this->declaration();
                 if (!decl) {
@@ -140,7 +148,7 @@ std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
     }
 }
 
-Token Parser::nextToken() {
+Token Parser::nextRawToken() {
     if (fPushback.fKind != Token::INVALID_TOKEN) {
         Token result = fPushback;
         fPushback.fKind = Token::INVALID_TOKEN;
@@ -148,25 +156,16 @@ Token Parser::nextToken() {
         return result;
     }
     int token = sksllex(fScanner);
-    String text;
-    switch ((Token::Kind) token) {
-        case Token::IDENTIFIER:    // fall through
-        case Token::INT_LITERAL:   // fall through
-        case Token::FLOAT_LITERAL: // fall through
-        case Token::DIRECTIVE:
-            text = String(skslget_text(fScanner));
-            break;
-        default:
-#ifdef SK_DEBUG
-            text = String(skslget_text(fScanner));
-#endif
-            break;
-    }
-    Position p = Position(skslget_lineno(fScanner), -1);
-    if (token == Token::INVALID_TOKEN) {
-        this->error(p, "invalid token: '" + text + "'");
-    }
-    return Token(p, (Token::Kind) token, text);
+    return Token(Position(skslget_lineno(fScanner), -1), (Token::Kind) token,
+                 String(skslget_text(fScanner)));
+}
+
+Token Parser::nextToken() {
+    Token token;
+    do {
+        token = this->nextRawToken();
+    } while (token.fKind == Token::WHITESPACE);
+    return token;
 }
 
 void Parser::pushback(Token t) {
@@ -289,6 +288,56 @@ std::unique_ptr<ASTDeclaration> Parser::directive() {
         this->error(start.fPosition, "unsupported directive '" + start.fText + "'");
         return nullptr;
     }
+}
+
+/* SECTION LBRACE (LPAREN IDENTIFIER RPAREN)? <any sequence of tokens with balanced braces>
+   RBRACE */
+std::unique_ptr<ASTDeclaration> Parser::section() {
+    Token start;
+    if (!this->expect(Token::SECTION, "a section token", &start)) {
+        return nullptr;
+    }
+    String argument;
+    if (this->peek().fKind == Token::LPAREN) {
+        this->nextToken();
+        Token argToken;
+        if (!this->expect(Token::IDENTIFIER, "an identifier", &argToken)) {
+            return nullptr;
+        }
+        argument = argToken.fText;
+        if (!this->expect(Token::RPAREN, "')'")) {
+            return nullptr;
+        }
+    }
+    if (!this->expect(Token::LBRACE, "'{'")) {
+        return nullptr;
+    }
+    String text;
+    int level = 1;
+    for (;;) {
+        Token next = this->nextRawToken();
+        switch (next.fKind) {
+            case Token::LBRACE:
+                ++level;
+                break;
+            case Token::RBRACE:
+                --level;
+                break;
+            case Token::END_OF_FILE:
+                this->error(start.fPosition, "reached end of file while parsing section");
+                return nullptr;
+            default:
+                break;
+        }
+        if (!level) {
+            break;
+        }
+        text += next.fText;
+    }
+    return std::unique_ptr<ASTDeclaration>(new ASTSection(start.fPosition,
+                                                          String(start.fText.c_str() + 1),
+                                                          argument,
+                                                          text));
 }
 
 /* modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
@@ -539,6 +588,61 @@ int Parser::layoutInt() {
     return -1;
 }
 
+/** EQ <any sequence of tokens with balanced parentheses and no top-level comma> */
+String Parser::layoutCode() {
+    if (!this->expect(Token::EQ, "'='")) {
+        return "";
+    }
+    Token start = this->peek();
+    String code;
+    int level = 1;
+    bool done = false;
+    while (!done) {
+        Token next = this->peek();
+        switch (next.fKind) {
+            case Token::LPAREN:
+                ++level;
+                break;
+            case Token::RPAREN:
+                --level;
+                break;
+            case Token::COMMA:
+                if (level == 1) {
+                    done = true;
+                }
+                break;
+            case Token::END_OF_FILE:
+                this->error(start.fPosition, "reached end of file while parsing layout");
+                return nullptr;
+            default:
+                break;
+        }
+        if (!level) {
+            done = true;
+        }
+        if (!done) {
+            code += this->nextRawToken().fText;
+        }
+    }
+    return code;
+}
+
+/** (EQ IDENTIFIER('identity'))? */
+Layout::Key Parser::layoutKey() {
+    if (this->peek().fKind == Token::EQ) {
+        this->expect(Token::EQ, "'='");
+        Token key;
+        if (this->expect(Token::IDENTIFIER, "an identifer", &key)) {
+            if (key.fText == "identity") {
+                return Layout::kIdentity_Key;
+            } else {
+                this->error(key.fPosition, "unsupported layout key");
+            }
+        }
+    }
+    return Layout::kKey_Key;
+}
+
 /* LAYOUT LPAREN IDENTIFIER (EQ INT_LITERAL)? (COMMA IDENTIFIER (EQ INT_LITERAL)?)* RPAREN */
 Layout Parser::layout() {
     int location = -1;
@@ -556,11 +660,13 @@ Layout Parser::layout() {
     Layout::Primitive primitive = Layout::kUnspecified_Primitive;
     int maxVertices = -1;
     int invocations = -1;
+    String when;
+    Layout::Key key = Layout::kNo_Key;
     if (this->checkNext(Token::LAYOUT)) {
         if (!this->expect(Token::LPAREN, "'('")) {
             return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                           originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                          pushConstant, primitive, maxVertices, invocations);
+                          pushConstant, primitive, maxVertices, invocations, when, key);
         }
         for (;;) {
             Token t = this->nextToken();
@@ -630,6 +736,12 @@ Layout Parser::layout() {
                     case Token::INVOCATIONS:
                         invocations = this->layoutInt();
                         break;
+                    case Token::WHEN:
+                        when = this->layoutCode();
+                        break;
+                    case Token::KEY:
+                        key = this->layoutKey();
+                        break;
                 }
             } else if (Layout::ReadFormat(t.fText, &format)) {
                // AST::ReadFormat stored the result in 'format'.
@@ -647,7 +759,7 @@ Layout Parser::layout() {
     }
     return Layout(location, offset, binding, index, set, builtin, inputAttachmentIndex,
                   originUpperLeft, overrideCoverage, blendSupportAllEquations, format,
-                  pushConstant, primitive, maxVertices, invocations);
+                  pushConstant, primitive, maxVertices, invocations, when, key);
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |

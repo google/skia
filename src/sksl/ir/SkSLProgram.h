@@ -11,7 +11,9 @@
 #include <vector>
 #include <memory>
 
-#include "SkSLContext.h"
+#include "SkSLBoolLiteral.h"
+#include "SkSLExpression.h"
+#include "SkSLIntLiteral.h"
 #include "SkSLModifiers.h"
 #include "SkSLProgramElement.h"
 #include "SkSLSymbolTable.h"
@@ -21,11 +23,46 @@
 
 namespace SkSL {
 
+class Context;
+
 /**
  * Represents a fully-digested program, ready for code generation.
  */
 struct Program {
     struct Settings {
+        struct Value {
+            Value(bool b)
+            : fKind(kBool_Kind)
+            , fValue(b) {}
+
+            Value(int i)
+            : fKind(kInt_Kind)
+            , fValue(i) {}
+
+            std::unique_ptr<Expression> literal(const Context& context, Position position) const {
+                switch (fKind) {
+                    case Program::Settings::Value::kBool_Kind:
+                        return std::unique_ptr<Expression>(new BoolLiteral(context,
+                                                                           position,
+                                                                           fValue));
+                    case Program::Settings::Value::kInt_Kind:
+                        return std::unique_ptr<Expression>(new IntLiteral(context,
+                                                                          position,
+                                                                          fValue));
+                    default:
+                        ASSERT(false);
+                        return nullptr;
+                }
+            }
+
+            enum {
+                kBool_Kind,
+                kInt_Kind,
+            } fKind;
+
+            int fValue;
+        };
+
 #ifdef SKSL_STANDALONE
         const StandaloneShaderCaps* fCaps = &standaloneCaps;
 #else
@@ -34,6 +71,10 @@ struct Program {
         // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
         // must be flipped.
         bool fFlipY = false;
+        // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
+        // constant equivalents during compilation
+        bool fReplaceSettings = true;
+        std::unordered_map<String, Value> fArgs;
     };
 
     struct Inputs {
@@ -57,7 +98,8 @@ struct Program {
     enum Kind {
         kFragment_Kind,
         kVertex_Kind,
-        kGeometry_Kind
+        kGeometry_Kind,
+        kFragmentProcessor_Kind
     };
 
     Program(Kind kind,

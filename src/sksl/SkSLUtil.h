@@ -135,6 +135,10 @@ public:
         return false;
     }
 
+    bool floatPrecisionVaries() const {
+        return false;
+    }
+
     const char* shaderDerivativeExtensionString() const {
         return nullptr;
     }
@@ -210,6 +214,7 @@ public:
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
         result->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
+        result->fUsesPrecisionModifiers = true;
         return result;
     }
 
