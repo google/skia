@@ -27,7 +27,7 @@ void sksl_abort() {
 }
 
 void write_stringstream(const StringStream& s, OutputStream& out) {
-    out.write(s.data(), s.size());
+    out.write(s.str().c_str(), s.str().size());
 }
 
 } // namespace
