@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1131b0c4_8d69dccb",
+        "filename": "src/gpu/effects/GrDitherEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-06-29T14:33:21Z",
+      "side": 1,
+      "message": "Ok to omit this?",
+      "range": {
+        "startLine": 84,
+        "startChar": 3,
+        "endLine": 84,
+        "endChar": 43
+      },
+      "revId": "cef2074ff44796c7e6c78b0539ec477ed5881f64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
