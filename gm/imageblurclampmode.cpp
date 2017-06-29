@@ -65,6 +65,8 @@ protected:
         return SkISize::Make(850, 920);
     }
 
+    bool runAsBench() const override { return true; }
+
     void onDraw(SkCanvas* canvas) override {
         sk_sp<SkImage> image(make_image(canvas));
 
@@ -73,15 +75,19 @@ protected:
         // blur.
         for (auto sigma: { 0.6f, 3.0f, 8.0f, 20.0f }) {
             canvas->save();
-            sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(sigma, 0.0f, nullptr));
+            sk_sp<SkImageFilter> filter(
+                  SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
+                                          SkBlurImageFilter::TileMode::kClamp_TileMode));
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr);
+            filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
+                                             SkBlurImageFilter::TileMode::kClamp_TileMode);
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
-            filter = SkBlurImageFilter::Make(sigma, sigma, nullptr);
+            filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
+                                             SkBlurImageFilter::TileMode::kClamp_TileMode);
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 

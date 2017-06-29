@@ -9,6 +9,7 @@
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
 #include "Gr1DKernelEffect.h"
+#include "SkBlurImageFilter.h"
 
 /**
  * A 1D Gaussian convolution effect. The kernel is computed as an array of 2 * half-width weights.
@@ -22,10 +23,11 @@ public:
                                            Direction dir,
                                            int halfWidth,
                                            float gaussianSigma,
-                                           bool useBounds,
-                                           int* bounds) {
+                                           int* bounds,
+                                           SkBlurImageFilter::TileMode tileMode =
+                                               SkBlurImageFilter::TileMode::kClampToBlack_TileMode) {
         return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-            std::move(proxy), dir, halfWidth, gaussianSigma, useBounds, bounds));
+            std::move(proxy), dir, halfWidth, gaussianSigma, bounds, tileMode));
     }
 
     ~GrGaussianConvolutionFragmentProcessor() override;
@@ -33,7 +35,9 @@ public:
     const float* kernel() const { return fKernel; }
 
     const int* bounds() const { return fBounds; }
-    bool useBounds() const { return fUseBounds; }
+    bool useBounds() const { return fTileMode != SkBlurImageFilter::TileMode::kIgnore_TileMode; }
+
+    SkBlurImageFilter::TileMode tileMode() const { return fTileMode; }
 
     const char* name() const override { return "GaussianConvolution"; }
 
@@ -49,8 +53,8 @@ public:
 private:
     /// Convolve with a Gaussian kernel
     GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, Direction,
-                                           int halfWidth, float gaussianSigma, bool useBounds,
-                                           int bounds[2]);
+                                           int halfWidth, float gaussianSigma,
+                                           int bounds[2], SkBlurImageFilter::TileMode tileMode);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -63,8 +67,8 @@ private:
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
     float fKernel[kMaxKernelWidth];
-    bool  fUseBounds;
     int   fBounds[2];
+    SkBlurImageFilter::TileMode fTileMode;
 
     typedef Gr1DKernelEffect INHERITED;
 };
