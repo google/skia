@@ -1232,20 +1232,23 @@ GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(DashOp) {
         kCloseOpen_Intervals,
     };
 
-    Intervals intervalType = SkPaint::kRound_Cap ?
+    Intervals intervalType = SkPaint::kRound_Cap == cap ?
                              kOpenClose_Intervals :
                              Intervals(random->nextULessThan(kCloseOpen_Intervals + 1));
     static const SkScalar kIntervalMin = 0.1f;
+    static const SkScalar kIntervalMinCircles = 1.f; // Must be >= to stroke width
     static const SkScalar kIntervalMax = 10.f;
     switch (intervalType) {
         case kOpenOpen_Intervals:
             intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
             intervals[1] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
             break;
-        case kOpenClose_Intervals:
+        case kOpenClose_Intervals: {
             intervals[0] = 0.f;
-            intervals[1] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
+            SkScalar min = SkPaint::kRound_Cap == cap ? kIntervalMinCircles : kIntervalMin;
+            intervals[1] = random->nextRangeScalar(min, kIntervalMax);
             break;
+        }
         case kCloseOpen_Intervals:
             intervals[0] = random->nextRangeScalar(kIntervalMin, kIntervalMax);
             intervals[1] = 0.f;
