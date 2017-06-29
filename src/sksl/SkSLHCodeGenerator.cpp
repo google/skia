@@ -48,13 +48,15 @@ String HCodeGenerator::FieldType(const Type& type) {
 
 void HCodeGenerator::writef(const char* s, va_list va) {
     static constexpr int BUFFER_SIZE = 1024;
+    va_list copy;
+    va_copy(copy, va);
     char buffer[BUFFER_SIZE];
     int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
     if (length < BUFFER_SIZE) {
         fOut->write(buffer, length);
     } else {
         std::unique_ptr<char[]> heap(new char[length + 1]);
-        vsprintf(heap.get(), s, va);
+        vsprintf(heap.get(), s, copy);
         fOut->write(heap.get(), length);
     }
 }
@@ -166,7 +168,7 @@ void HCodeGenerator::writeConstructor() {
     for (const auto& param : fSectionAndParameterHelper.fParameters) {
         const char* name = param->fName.c_str();
         if (param->fType.kind() == Type::kSampler_Kind) {
-            this->writef("\n    , %s(resourceProvider, std::move(%s))", FieldName(name).c_str(),
+            this->writef("\n    , %s(std::move(%s))", FieldName(name).c_str(),
                          name);
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);

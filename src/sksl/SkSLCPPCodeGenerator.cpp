@@ -28,13 +28,15 @@ CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* progra
 
 void CPPCodeGenerator::writef(const char* s, va_list va) {
     static constexpr int BUFFER_SIZE = 1024;
+    va_list copy;
+    va_copy(copy, va);
     char buffer[BUFFER_SIZE];
     int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
     if (length < BUFFER_SIZE) {
         fOut->write(buffer, length);
     } else {
         std::unique_ptr<char[]> heap(new char[length + 1]);
-        vsprintf(heap.get(), s, va);
+        vsprintf(heap.get(), s, copy);
         fOut->write(heap.get(), length);
     }
 }
@@ -545,7 +547,6 @@ bool CPPCodeGenerator::generateCode() {
                  "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
                  "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
-                 "#include \"GrResourceProvider.h\"\n"
                  "#include \"SkSLCPP.h\"\n"
                  "#include \"SkSLUtil.h\"\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"
