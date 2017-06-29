@@ -164,52 +164,27 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
             blitter->blitAntiH(r.left(), outerR.bottom() - y - 1, alpha, runs);
         }
     }
-#ifdef SK_SUPPORT_BLITV_FOR_BLUR_NINE
-    const bool useBlitV = true;
-#else
-    const bool useBlitV = false;
-#endif
     // left
     r.set(outerR.left(), innerR.top(), innerR.left(), innerR.bottom());
     if (r.intersect(clipR)) {
-        int startX = r.left() - outerR.left();
-        int stopX = startX + r.width();
-        int height = r.height();
-        if (useBlitV) {
-            for (int x = startX; x < stopX; ++x) {
-                blitter->blitV(outerR.left() + x, r.top(), height,
-                               *mask.getAddr8(mask.fBounds.left() + x, mask.fBounds.top() + cy));
-            }
-        } else {
-            SkMask m;
-            m.fImage = mask.getAddr8(mask.fBounds.left() + r.left() - outerR.left(),
-                                     mask.fBounds.top() + cy);
-            m.fBounds = r;
-            m.fRowBytes = 0;    // so we repeat the scanline for our height
-            m.fFormat = SkMask::kA8_Format;
-            blitter->blitMask(m, r);
-        }
+        SkMask m;
+        m.fImage = mask.getAddr8(mask.fBounds.left() + r.left() - outerR.left(),
+                                 mask.fBounds.top() + cy);
+        m.fBounds = r;
+        m.fRowBytes = 0;    // so we repeat the scanline for our height
+        m.fFormat = SkMask::kA8_Format;
+        blitter->blitMask(m, r);
     }
     // right
     r.set(innerR.right(), innerR.top(), outerR.right(), innerR.bottom());
     if (r.intersect(clipR)) {
-        int startX = outerR.right() - r.right();
-        int stopX = startX + r.width();
-        int height = r.height();
-        if (useBlitV) {
-            for (int x = startX; x < stopX; ++x) {
-                blitter->blitV(outerR.right() - x - 1, r.top(), height,
-                               *mask.getAddr8(mask.fBounds.right() - x - 1, mask.fBounds.top() + cy));
-            }
-        } else {
-            SkMask m;
-            m.fImage = mask.getAddr8(mask.fBounds.right() - outerR.right() + r.left(),
-                                     mask.fBounds.top() + cy);
-            m.fBounds = r;
-            m.fRowBytes = 0;    // so we repeat the scanline for our height
-            m.fFormat = SkMask::kA8_Format;
-            blitter->blitMask(m, r);
-        }
+        SkMask m;
+        m.fImage = mask.getAddr8(mask.fBounds.right() - outerR.right() + r.left(),
+                                 mask.fBounds.top() + cy);
+        m.fBounds = r;
+        m.fRowBytes = 0;    // so we repeat the scanline for our height
+        m.fFormat = SkMask::kA8_Format;
+        blitter->blitMask(m, r);
     }
 }
 
