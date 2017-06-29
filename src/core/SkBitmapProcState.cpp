@@ -21,12 +21,6 @@
 #if defined(SK_ARM_HAS_NEON)
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
 extern const SkBitmapProcState::SampleProc32 gSkBitmapProcStateSample32_neon[];
-extern void  S16_D16_filter_DX_neon(const SkBitmapProcState&, const uint32_t*, int, uint16_t*);
-extern void  Clamp_S16_D16_filter_DX_shaderproc_neon(const void *, int, int, uint16_t*, int);
-extern void  Repeat_S16_D16_filter_DX_shaderproc_neon(const void *, int, int, uint16_t*, int);
-extern void  SI8_opaque_D32_filter_DX_neon(const SkBitmapProcState&, const uint32_t*, int, SkPMColor*);
-extern void  SI8_opaque_D32_filter_DX_shaderproc_neon(const void *, int, int, uint32_t*, int);
-extern void  Clamp_SI8_opaque_D32_filter_DX_shaderproc_neon(const void*, int, int, uint32_t*, int);
 #endif
 
 extern void Clamp_S32_opaque_D32_nofilter_DX_shaderproc(const void*, int, int, uint32_t*, int);
@@ -215,22 +209,24 @@ bool SkBitmapProcState::chooseProcs() {
 }
 
 bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp) {
+    SkASSERT(fPixmap.colorType() == kN32_SkColorType);
+
     fMatrixProc = this->chooseMatrixProc(trivialMatrix);
     // TODO(dominikg): SkASSERT(fMatrixProc) instead? chooseMatrixProc never returns nullptr.
     if (nullptr == fMatrixProc) {
         return false;
     }
 
-    ///////////////////////////////////////////////////////////////////////
-
     const SkAlphaType at = fPixmap.alphaType();
+    if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
+        return false;
+    }
 
     // No need to do this if we're doing HQ sampling; if filter quality is
     // still set to HQ by the time we get here, then we must have installed
     // the shader procs above and can skip all this.
 
     if (fFilterQuality < kHigh_SkFilterQuality) {
-
         int index = 0;
         if (fAlphaScale < 256) {  // note: this distinction is not used for D16
             index |= 1;
@@ -240,41 +236,6 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
         }
         if (fFilterQuality > kNone_SkFilterQuality) {
             index |= 4;
-        }
-        // bits 3,4,5 encoding the source bitmap format
-        switch (fPixmap.colorType()) {
-            case kN32_SkColorType:
-                if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
-                    return false;
-                }
-                index |= 0;
-                break;
-            case kRGB_565_SkColorType:
-                index |= 8;
-                break;
-            case kIndex_8_SkColorType:
-                if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
-                    return false;
-                }
-                index |= 16;
-                break;
-            case kARGB_4444_SkColorType:
-                if (kPremul_SkAlphaType != at && kOpaque_SkAlphaType != at) {
-                    return false;
-                }
-                index |= 24;
-                break;
-            case kAlpha_8_SkColorType:
-                index |= 32;
-                fPaintPMColor = SkPreMultiplyColor(fPaintColor);
-                break;
-            case kGray_8_SkColorType:
-                index |= 40;
-                fPaintPMColor = SkPreMultiplyColor(fPaintColor);
-                break;
-            default:
-                // TODO(dominikg): Should we ever get here? SkASSERT(false) instead?
-                return false;
         }
 
 #if !defined(SK_ARM_HAS_NEON)
@@ -287,62 +248,13 @@ bool SkBitmapProcState::chooseScanlineProcs(bool trivialMatrix, bool clampClamp)
             S32_alpha_D32_filter_DXDY,
             S32_opaque_D32_filter_DX,
             S32_alpha_D32_filter_DX,
-
-            S16_opaque_D32_nofilter_DXDY,
-            S16_alpha_D32_nofilter_DXDY,
-            S16_opaque_D32_nofilter_DX,
-            S16_alpha_D32_nofilter_DX,
-            S16_opaque_D32_filter_DXDY,
-            S16_alpha_D32_filter_DXDY,
-            S16_opaque_D32_filter_DX,
-            S16_alpha_D32_filter_DX,
-
-            SI8_opaque_D32_nofilter_DXDY,
-            SI8_alpha_D32_nofilter_DXDY,
-            SI8_opaque_D32_nofilter_DX,
-            SI8_alpha_D32_nofilter_DX,
-            SI8_opaque_D32_filter_DXDY,
-            SI8_alpha_D32_filter_DXDY,
-            SI8_opaque_D32_filter_DX,
-            SI8_alpha_D32_filter_DX,
-
-            S4444_opaque_D32_nofilter_DXDY,
-            S4444_alpha_D32_nofilter_DXDY,
-            S4444_opaque_D32_nofilter_DX,
-            S4444_alpha_D32_nofilter_DX,
-            S4444_opaque_D32_filter_DXDY,
-            S4444_alpha_D32_filter_DXDY,
-            S4444_opaque_D32_filter_DX,
-            S4444_alpha_D32_filter_DX,
-
-            // A8 treats alpha/opaque the same (equally efficient)
-            SA8_alpha_D32_nofilter_DXDY,
-            SA8_alpha_D32_nofilter_DXDY,
-            SA8_alpha_D32_nofilter_DX,
-            SA8_alpha_D32_nofilter_DX,
-            SA8_alpha_D32_filter_DXDY,
-            SA8_alpha_D32_filter_DXDY,
-            SA8_alpha_D32_filter_DX,
-            SA8_alpha_D32_filter_DX,
-
-            // todo: possibly specialize on opaqueness
-            SG8_alpha_D32_nofilter_DXDY,
-            SG8_alpha_D32_nofilter_DXDY,
-            SG8_alpha_D32_nofilter_DX,
-            SG8_alpha_D32_nofilter_DX,
-            SG8_alpha_D32_filter_DXDY,
-            SG8_alpha_D32_filter_DXDY,
-            SG8_alpha_D32_filter_DX,
-            SG8_alpha_D32_filter_DX
         };
 #endif
 
         fSampleProc32 = SK_ARM_NEON_WRAP(gSkBitmapProcStateSample32)[index];
 
         // our special-case shaderprocs
-        if (SK_ARM_NEON_WRAP(SI8_opaque_D32_filter_DX) == fSampleProc32 && clampClamp) {
-            fShaderProc32 = SK_ARM_NEON_WRAP(Clamp_SI8_opaque_D32_filter_DX_shaderproc);
-        } else if (S32_opaque_D32_nofilter_DX == fSampleProc32 && clampClamp) {
+        if (S32_opaque_D32_nofilter_DX == fSampleProc32 && clampClamp) {
             fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
         }
 
