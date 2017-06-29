@@ -284,9 +284,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			} else if strings.Contains(parts["os"], "Ubuntu") || strings.Contains(parts["os"], "Debian") {
 				gpu, ok := map[string]string{
 					"GT610":    "10de:104a-340.96",
-					"GTX550Ti": "10de:1244-340.76",
-					"GTX660":   "10de:11c0-367.57",
-					"GTX960":   "10de:1401-367.57",
+					"GTX550Ti": "10de:1244-375.66",
+					"GTX660":   "10de:11c0-375.66",
+					"GTX960":   "10de:1401-375.66",
 					// Intel drivers come from CIPD, so no need to specify the version here.
 					"IntelBayTrail": "8086:0f31",
 					"IntelHD2000":   "8086:0102",
