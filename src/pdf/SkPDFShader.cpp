@@ -275,7 +275,7 @@ static sk_sp<SkPDFDict> gradientStitchCode(const SkShader::GradientInfo& info) {
 
         encode->appendScalar(0);
         encode->appendScalar(1.0f);
-    
+
         functions->appendObject(createInterpolationFunction(colorData[i-1], colorData[i]));
     }
 
@@ -525,19 +525,16 @@ static void drawBitmapMatrix(SkCanvas* canvas, const SkBitmap& bm, const SkMatri
 ////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
-                                                     SkScalar dpi,
                                                      const SkPDFShader::State& state);
 static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
                                              const SkPDFShader::State& state);
 
 static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
-                                            SkScalar dpi,
                                             const SkPDFShader::State& state,
                                             SkBitmap image);
 
 static sk_sp<SkPDFObject> get_pdf_shader_by_state(
         SkPDFDocument* doc,
-        SkScalar dpi,
         SkPDFShader::State state,
         SkBitmap image) {
     SkPDFCanon* canon = doc->canon();
@@ -550,14 +547,14 @@ static sk_sp<SkPDFObject> get_pdf_shader_by_state(
     } else if (state.fType == SkShader::kNone_GradientType) {
         sk_sp<SkPDFObject> shader = canon->findImageShader(state);
         if (!shader) {
-            shader = make_image_shader(doc, dpi, state, std::move(image));
+            shader = make_image_shader(doc, state, std::move(image));
             canon->addImageShader(shader, std::move(state));
         }
         return shader;
     } else if (state.GradientHasAlpha()) {
         sk_sp<SkPDFObject> shader = canon->findAlphaShader(state);
         if (!shader) {
-            shader = make_alpha_function_shader(doc, dpi, state);
+            shader = make_alpha_function_shader(doc, state);
             canon->addAlphaShader(shader, std::move(state));
         }
         return shader;
@@ -572,18 +569,17 @@ static sk_sp<SkPDFObject> get_pdf_shader_by_state(
 }
 
 sk_sp<SkPDFObject> SkPDFShader::GetPDFShader(SkPDFDocument* doc,
-                                             SkScalar dpi,
                                              SkShader* shader,
                                              const SkMatrix& matrix,
-                                             const SkIRect& surfaceBBox,
-                                             SkScalar rasterScale) {
+                                             const SkIRect& surfaceBBox) {
     if (surfaceBBox.isEmpty()) {
         return nullptr;
     }
+    SkScalar rasterDpi = doc->rasterDpi();
+    SkScalar rasterScale = SkIntToScalar(rasterDpi) / SkPDFUtils::kDpiForRasterScaleOne;
     SkBitmap image;
     State state(shader, matrix, surfaceBBox, rasterScale, &image);
-    return get_pdf_shader_by_state(
-            doc, dpi, std::move(state), std::move(image));
+    return get_pdf_shader_by_state(doc, std::move(state), std::move(image));
 }
 
 static sk_sp<SkPDFDict> get_gradient_resource_dict(
@@ -644,14 +640,13 @@ static std::unique_ptr<SkStreamAsset> create_pattern_fill_content(
  * Creates a ExtGState with the SMask set to the luminosityShader in
  * luminosity mode. The shader pattern extends to the bbox.
  */
-static sk_sp<SkPDFObject> create_smask_graphic_state(
-        SkPDFDocument* doc, SkScalar dpi, const SkPDFShader::State& state) {
+static sk_sp<SkPDFObject> create_smask_graphic_state(SkPDFDocument* doc,
+                                                     const SkPDFShader::State& state) {
     SkRect bbox;
     bbox.set(state.fBBox);
 
     sk_sp<SkPDFObject> luminosityShader(
-            get_pdf_shader_by_state(doc, dpi, state.MakeAlphaToLuminosityState(),
-                                    SkBitmap()));
+            get_pdf_shader_by_state(doc, state.MakeAlphaToLuminosityState(), SkBitmap()));
 
     std::unique_ptr<SkStreamAsset> alphaStream(create_pattern_fill_content(-1, bbox));
 
@@ -670,7 +665,6 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(
 }
 
 static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
-                                                     SkScalar dpi,
                                                      const SkPDFShader::State& state) {
     SkRect bbox;
     bbox.set(state.fBBox);
@@ -678,14 +672,14 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
     SkPDFShader::State opaqueState(state.MakeOpaqueState());
 
     sk_sp<SkPDFObject> colorShader(
-            get_pdf_shader_by_state(doc, dpi, std::move(opaqueState), SkBitmap()));
+            get_pdf_shader_by_state(doc, std::move(opaqueState), SkBitmap()));
     if (!colorShader) {
         return nullptr;
     }
 
     // Create resource dict with alpha graphics state as G0 and
     // pattern shader as P0, then write content stream.
-    sk_sp<SkPDFObject> alphaGs = create_smask_graphic_state(doc, dpi, state);
+    sk_sp<SkPDFObject> alphaGs = create_smask_graphic_state(doc, state);
 
     sk_sp<SkPDFDict> resourceDict =
             get_gradient_resource_dict(colorShader.get(), alphaGs.get());
@@ -695,7 +689,7 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
     auto alphaFunctionShader = sk_make_sp<SkPDFStream>(std::move(colorStream));
 
     populate_tiling_pattern_dict(alphaFunctionShader->dict(), bbox,
-                                 std::move(resourceDict), SkMatrix::I()); 
+                                 std::move(resourceDict), SkMatrix::I());
     return alphaFunctionShader;
 }
 
@@ -912,9 +906,9 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         domain->appendScalar(bbox.fRight);
         domain->appendScalar(bbox.fTop);
         domain->appendScalar(bbox.fBottom);
-        
+
         SkDynamicMemoryWStream functionCode;
-        
+
         if (state.fType == SkShader::kConical_GradientType) {
             SkShader::GradientInfo twoPointRadialInfo = *info;
             SkMatrix inverseMapperMatrix;
@@ -930,7 +924,7 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         } else {
             codeFunction(*info, perspectiveInverseOnly, &functionCode);
         }
-        
+
         pdfShader->insertObject("Domain", domain);
 
         std::unique_ptr<SkStreamAsset> functionStream(functionCode.detachAsStream());
@@ -957,7 +951,6 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
 }
 
 static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
-                                            SkScalar dpi,
                                             const SkPDFShader::State& state,
                                             SkBitmap image) {
     SkASSERT(state.fBitmapKey ==
@@ -994,7 +987,7 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
 
     SkISize size = SkISize::Make(SkScalarRoundToInt(deviceBounds.width()),
                                  SkScalarRoundToInt(deviceBounds.height()));
-    sk_sp<SkPDFDevice> patternDevice = SkPDFDevice::MakeUnflipped(size, dpi, doc);
+    auto patternDevice = sk_make_sp<SkPDFDevice>(size, doc);
     SkCanvas canvas(patternDevice.get());
 
     SkRect patternBBox;

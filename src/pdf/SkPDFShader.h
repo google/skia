@@ -37,15 +37,11 @@ public:
      *                     positioned, relative to where the page is drawn.)
      *  @param surfceBBox  The bounding box of the drawing surface (with matrix
      *                     already applied).
-     *  @param rasterScale Additional scale to be applied for early
-     *                     rasterization.
      */
     static sk_sp<SkPDFObject> GetPDFShader(SkPDFDocument* doc,
-                                           SkScalar dpi,
                                            SkShader* shader,
                                            const SkMatrix& matrix,
-                                           const SkIRect& surfaceBBox,
-                                           SkScalar rasterScale);
+                                           const SkIRect& surfaceBBox);
 
     static sk_sp<SkPDFArray> MakeRangeObject();
 

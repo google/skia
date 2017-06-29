@@ -58,8 +58,6 @@
     // encoding.
 #endif
 
-#define DPI_FOR_RASTER_SCALE_ONE 72
-
 // Utility functions
 
 // This function destroys the mask and either frees or takes the pixels.
@@ -460,12 +458,10 @@ SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
         return SkBitmapDevice::Create(cinfo.fInfo, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     }
     SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
-    return SkPDFDevice::Make(size, fRasterDpi, fDocument).release();
+    return new SkPDFDevice(size, fDocument);
 }
 
 SkPDFCanon* SkPDFDevice::getCanon() const { return fDocument->canon(); }
-
-
 
 // A helper class to automatically finish a ContentEntry at the end of a
 // drawing method and maintain the state needed between set up and finish.
@@ -549,25 +545,24 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFDevice::SkPDFDevice(SkISize pageSize, SkScalar rasterDpi, SkPDFDocument* doc, bool flip)
+SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc)
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
-    , fRasterDpi(rasterDpi)
-    , fDocument(doc) {
+    , fInitialTransform(SkMatrix::I())
+    , fDocument(doc)
+{
     SkASSERT(pageSize.width() > 0);
     SkASSERT(pageSize.height() > 0);
+}
 
-    if (flip) {
-        // Skia generally uses the top left as the origin but PDF
-        // natively has the origin at the bottom left. This matrix
-        // corrects for that.  But that only needs to be done once, we
-        // don't do it when layering.
-        fInitialTransform.setTranslate(0, SkIntToScalar(pageSize.fHeight));
-        fInitialTransform.preScale(SK_Scalar1, -SK_Scalar1);
-    } else {
-        fInitialTransform.setIdentity();
-    }
+void SkPDFDevice::setFlip() {
+    // Skia generally uses the top left as the origin but PDF
+    // natively has the origin at the bottom left. This matrix
+    // corrects for that.  But that only needs to be done once, we
+    // don't do it when layering.
+    fInitialTransform.setTranslate(0, SkIntToScalar(fPageSize.fHeight));
+    fInitialTransform.preScale(SK_Scalar1, -SK_Scalar1);
 }
 
 SkPDFDevice::~SkPDFDevice() {
@@ -845,8 +840,8 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
                                      : SkStrokeRec::kHairline_InitStyle;
     path.transform(ctm, &path);
 
-    // TODO(halcanary): respect fRasterDpi.
-    //        SkScalar rasterScale = (float)fRasterDpi / DPI_FOR_RASTER_SCALE_ONE;
+    // TODO(halcanary): respect fDocument->rasterDpi().
+    //        SkScalar rasterScale = (float)rasterDpi / SkPDFUtils::kDpiForRasterScaleOne;
     // Would it be easier to just change the device size (and pre-scale the canvas)?
     SkIRect bounds = clipStack.bounds(size(*this)).roundOut();
     SkMask sourceMask;
@@ -2177,10 +2172,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
             SkIRect bounds;
             clipStackBounds.roundOut(&bounds);
 
-            SkScalar rasterScale =
-                    SkIntToScalar(fRasterDpi) / DPI_FOR_RASTER_SCALE_ONE;
-            pdfShader = SkPDFShader::GetPDFShader(
-                    fDocument, fRasterDpi, shader, transform, bounds, rasterScale);
+            pdfShader = SkPDFShader::GetPDFShader(fDocument, shader, transform, bounds);
 
             if (pdfShader.get()) {
                 // pdfShader has been canonicalized so we can directly compare
@@ -2284,9 +2276,7 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
 
     // Rasterize the bitmap using perspective in a new bitmap.
     if (origMatrix.hasPerspective()) {
-        if (fRasterDpi == 0) {
-            return;
-        }
+        SkASSERT(fDocument->rasterDpi() > 0);
         // Transform the bitmap in the new space, without taking into
         // account the initial transform.
         SkPath perspectiveOutline;
@@ -2302,8 +2292,8 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
         // account the initial transform.
         SkMatrix total = origMatrix;
         total.postConcat(fInitialTransform);
-        SkScalar dpiScale = SkIntToScalar(fRasterDpi) /
-                            SkIntToScalar(DPI_FOR_RASTER_SCALE_ONE);
+        SkScalar dpiScale = SkIntToScalar(fDocument->rasterDpi()) /
+                            SkIntToScalar(SkPDFUtils::kDpiForRasterScaleOne);
         total.postScale(dpiScale, dpiScale);
 
         SkPath physicalPerspectiveOutline;
