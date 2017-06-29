@@ -6396,6 +6396,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
@@ -6444,6 +6449,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
@@ -6540,6 +6550,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
@@ -12368,6 +12383,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
@@ -12416,6 +12436,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
@@ -12512,6 +12537,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
@@ -12752,6 +12782,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:5"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
         }
       ],
       "dependencies": [
