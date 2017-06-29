@@ -130,7 +130,7 @@ protected:
         const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
         SkRect* domainRect);
 
-    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter1(
         sk_sp<GrTextureProxy> proxy,
         sk_sp<GrColorSpaceXform>,
         const SkMatrix& textureMatrix,

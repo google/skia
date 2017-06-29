@@ -146,7 +146,7 @@ sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
         GrConstColorProcessor::Make(SkColorToPremulGrColor4f(fColor, dstColorSpace),
                                     GrConstColorProcessor::kIgnore_InputMode));
     sk_sp<GrFragmentProcessor> fp(
-        GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(constFP), fMode));
+        GrXfermodeFragmentProcessor::MakeFromSrcProcessor1(std::move(constFP), fMode));
     if (!fp) {
         return nullptr;
     }

@@ -143,7 +143,7 @@ sk_sp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& 
         return nullptr;
     }
     // TODO: account for fLerpT when it is < 1
-    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(fpB),
+    return GrXfermodeFragmentProcessor::MakeFromTwoProcessors1(std::move(fpB),
                                                               std::move(fpA), fMode);
 }
 #endif

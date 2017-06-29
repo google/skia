@@ -272,7 +272,7 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
     if (!inner) {
         return nullptr;
     }
-    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+    return GrFragmentProcessor::MulOutputByInputAlpha1(std::move(inner));
 }
 
 #endif

@@ -56,9 +56,12 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
         // This would cause us to read values from outside the subset. Surely, the caller knows
         // better!
         SkASSERT(copyParams.fFilter != GrSamplerParams::kMipMap_FilterMode);
-        paint.addColorFragmentProcessor(
-            GrTextureDomainEffect::Make(std::move(inputProxy), nullptr, SkMatrix::I(),
-                                        domain, GrTextureDomain::kClamp_Mode, copyParams.fFilter));
+        sk_sp<GrFragmentProcessor> texDomainFP(GrTextureDomainEffect::Make(std::move(inputProxy), nullptr, SkMatrix::I(),
+                                                                           domain, GrTextureDomain::kClamp_Mode, copyParams.fFilter));
+        if (!texDomainFP) {
+            return nullptr;
+        }
+        paint.addColorFragmentProcessor(std::move(texDomainFP));
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, copyParams.fFilter);
         paint.addColorTextureProcessor(std::move(inputProxy), nullptr, SkMatrix::I(), params);
@@ -217,7 +220,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     return kDomain_DomainMode;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
+sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter1(
                                         sk_sp<GrTextureProxy> proxy,
                                         sk_sp<GrColorSpaceXform> colorSpaceXform,
                                         const SkMatrix& textureMatrix,

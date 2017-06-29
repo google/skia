@@ -157,6 +157,9 @@ public:
 private:
     bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
+        if (!fFP) {
+            return false;        
+        }
         out->addCoverageFP(fFP);
         return true;
     }

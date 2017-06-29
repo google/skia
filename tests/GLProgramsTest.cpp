@@ -198,11 +198,11 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
                                                                (int)SkBlendMode::kLastMode));
     sk_sp<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
-        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors1(std::move(minLevelsChild),
                                                                 std::move(otherChild), mode);
         SkASSERT(fp);
     } else {
-        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(otherChild),
+        fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors1(std::move(otherChild),
                                                                 std::move(minLevelsChild), mode);
         SkASSERT(fp);
     }
@@ -217,7 +217,9 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
         sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
-        paint->addColorFragmentProcessor(std::move(fp));
+        if (fp) {
+            paint->addColorFragmentProcessor(std::move(fp));
+        }
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);

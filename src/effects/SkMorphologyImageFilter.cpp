@@ -395,9 +395,13 @@ static void apply_morphology_rect(GrRenderTargetContext* renderTargetContext,
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy),
-                                                             direction, radius, morphType,
-                                                             bounds));
+    sk_sp<GrFragmentProcessor> morphFP(GrMorphologyEffect::Make(std::move(proxy),
+                                                                direction, radius, morphType,
+                                                                bounds));
+    if (!morphFP) {
+        return;
+    }
+    paint.addColorFragmentProcessor(std::move(morphFP));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(dstRect), SkRect::Make(srcRect));
@@ -414,8 +418,13 @@ static void apply_morphology_rect_no_bounds(GrRenderTargetContext* renderTargetC
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    paint.addColorFragmentProcessor(GrMorphologyEffect::Make(std::move(proxy),
-                                                             direction, radius, morphType));
+    sk_sp<GrFragmentProcessor> morphFP(GrMorphologyEffect::Make(std::move(proxy),
+                                                                direction, radius, morphType));
+    if (!morphFP) {
+        return;
+    }
+
+    paint.addColorFragmentProcessor(std::move(morphFP));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                         SkRect::Make(dstRect), SkRect::Make(srcRect));

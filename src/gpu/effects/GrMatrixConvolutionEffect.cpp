@@ -224,7 +224,7 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
 
 // Static function to create a 2D convolution
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
+sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian1(
                                                             sk_sp<GrTextureProxy> proxy,
                                                             const SkIRect& bounds,
                                                             const SkISize& kernelSize,

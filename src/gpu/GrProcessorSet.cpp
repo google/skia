@@ -128,6 +128,11 @@ bool GrProcessorSet::operator==(const GrProcessorSet& that) const {
     return thisXP.isEqual(thatXP);
 }
 
+
+#include "SkRandom.h"
+
+SkRandom gRand;
+
 GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor& colorInput,
                                                   const GrProcessorAnalysisCoverage coverageInput,
                                                   const GrAppliedClip* clip, bool isMixedSamples,
@@ -141,7 +146,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
     GrColorFragmentProcessorAnalysis colorAnalysis(colorInput);
     analysis.fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
 
-    const GrFragmentProcessor* const* fps = fFragmentProcessors.get() + fFragmentProcessorOffset;
+    GrFragmentProcessor** fps = (GrFragmentProcessor**)fFragmentProcessors.get() + fFragmentProcessorOffset;
     colorAnalysis.analyzeProcessors(fps, fColorFragmentProcessorCnt);
     analysis.fCompatibleWithCoverageAsAlpha &=
             colorAnalysis.allProcessorsCompatibleWithCoverageAsAlpha();

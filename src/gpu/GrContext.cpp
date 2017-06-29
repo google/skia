@@ -378,10 +378,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
                 tempProxy, nullptr, SkMatrix::I());
         if (premulOnGpu) {
-            fp = fContext->createUPMToPMEffect(std::move(fp), useConfigConversionEffect);
+            fp = fContext->createUPMToPMEffect1(std::move(fp), useConfigConversionEffect);
         }
-        fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-        SkASSERT(fp);
+        fp = GrFragmentProcessor::SwizzleOutput1(std::move(fp), tempDrawInfo.fSwizzle);
+        if (!fp) {
+            return false;
+        }
 
         if (tempProxy->priv().hasPendingIO()) {
             this->flush(tempProxy.get());
@@ -503,12 +505,14 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
             sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
                     std::move(proxy), nullptr, textureMatrix);
             if (unpremulOnGpu) {
-                fp = fContext->createPMToUPMEffect(std::move(fp), useConfigConversionEffect);
+                fp = fContext->createPMToUPMEffect1(std::move(fp), useConfigConversionEffect);
                 // We no longer need to do this on CPU after the read back.
                 unpremul = false;
             }
-            fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-            SkASSERT(fp);
+            fp = GrFragmentProcessor::SwizzleOutput1(std::move(fp), tempDrawInfo.fSwizzle);
+            if (!fp) {
+                return false;
+            }
 
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
@@ -812,7 +816,7 @@ bool GrContext::abandoned() const {
     return fDrawingManager->wasAbandoned();
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProcessor> fp,
+sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect1(sk_sp<GrFragmentProcessor> fp,
                                                           bool useConfigConversionEffect) {
     ASSERT_SINGLE_OWNER
     // We have specialized effects that guarantee round-trip conversion for some formats
@@ -831,7 +835,7 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProces
     }
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProcessor> fp,
+sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect1(sk_sp<GrFragmentProcessor> fp,
                                                           bool useConfigConversionEffect) {
     ASSERT_SINGLE_OWNER
     // We have specialized effects that guarantee round-trip conversion for these formats
