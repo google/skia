@@ -53,9 +53,16 @@ bool GrDashOp::CanDrawDashLine(const SkPoint pts[2], const GrStyle& style,
     }
 
     SkPaint::Cap cap = style.strokeRec().getCap();
-    // Current we do don't handle Round or Square cap dashes
-    if (SkPaint::kRound_Cap == cap && intervals[0] != 0.f) {
-        return false;
+    if (SkPaint::kRound_Cap == cap) {
+        // Current we don't support round caps unless the on interval is zero
+        if (intervals[0] != 0.f) {
+            return false;
+        }
+        // If the width of the circle caps in greater than the off interval we will pick up unwanted
+        // segments of circles at the start and end of the dash line.
+        if (style.strokeRec().getWidth() > intervals[1]) {
+            return false;
+        }
     }
 
     return true;
@@ -137,9 +144,6 @@ static SkScalar calc_end_adjustment(const SkScalar intervals[2], const SkPoint p
         *endingInt = srcIntervalLen;
     }
     if (*endingInt > intervals[0]) {
-        if (0 == intervals[0]) {
-            *endingInt -= 0.01f; // make sure we capture the last zero size pnt (used if has caps)
-        }
         return *endingInt - intervals[0];
     }
     return 0;
