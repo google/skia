@@ -380,8 +380,10 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         if (premulOnGpu) {
             fp = fContext->createUPMToPMEffect(std::move(fp), useConfigConversionEffect);
         }
-        fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-        SkASSERT(fp);
+        fp = GrFragmentProcessor::SwizzleOutput1(std::move(fp), tempDrawInfo.fSwizzle);
+        if (!fp) {
+            return false;
+        }
 
         if (tempProxy->priv().hasPendingIO()) {
             this->flush(tempProxy.get());
@@ -507,8 +509,10 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                 // We no longer need to do this on CPU after the read back.
                 unpremul = false;
             }
-            fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-            SkASSERT(fp);
+            fp = GrFragmentProcessor::SwizzleOutput1(std::move(fp), tempDrawInfo.fSwizzle);
+            if (!fp) {
+                return false;
+            }
 
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));

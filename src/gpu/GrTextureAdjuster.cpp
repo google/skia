@@ -164,7 +164,7 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace,
                                                                        dstColorSpace);
-    return CreateFragmentProcessorForDomainAndFilter(std::move(proxy),
+    return CreateFragmentProcessorForDomainAndFilter1(std::move(proxy),
                                                      std::move(colorSpaceXform),
                                                      textureMatrix, domainMode, domain,
                                                      filterOrNullForBicubic);

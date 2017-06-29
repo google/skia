@@ -1384,7 +1384,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const As
             sk_sp<GrFragmentProcessor> inner(
                 GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
                                             GrConstColorProcessor::kModulateRGBA_InputMode));
-            return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+            return GrFragmentProcessor::MulOutputByInputAlpha1(std::move(inner));
         }
         // Emit zero.
         return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
@@ -1406,7 +1406,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const As
                                        std::move(permutationsProxy),
                                        std::move(noiseProxy),
                                        m));
-        return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
+        return GrFragmentProcessor::MulOutputByInputAlpha1(std::move(inner));
     }
     return nullptr;
 }

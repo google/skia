@@ -107,7 +107,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSRGBEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSRGBEffect::TestCreate(GrProcessorTestData* d) {
     Mode testMode = static_cast<Mode>(d->fRandom->nextRangeU(0, 1));
-    return sk_sp<GrFragmentProcessor>(new GrSRGBEffect(testMode));
+    return GrSRGBEffect::Make(testMode);
 }
 #endif
 
@@ -122,6 +122,3 @@ GrGLSLFragmentProcessor* GrSRGBEffect::onCreateGLSLInstance() const {
     return new GrGLSRGBEffect();
 }
 
-sk_sp<GrFragmentProcessor> GrSRGBEffect::Make(Mode mode) {
-    return sk_sp<GrFragmentProcessor>(new GrSRGBEffect(mode));
-}

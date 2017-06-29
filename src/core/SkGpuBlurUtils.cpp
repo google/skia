@@ -81,6 +81,9 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
 
     sk_sp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(proxy), direction, radius, sigma, useBounds, bounds));
+    if (!conv) {
+        return;
+    }
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
@@ -111,6 +114,9 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
             std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
             srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
+    if (!conv) {
+        return;
+    }
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
@@ -272,6 +278,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                         domain,
                                                         GrTextureDomain::kDecal_Mode,
                                                         GrSamplerParams::kBilerp_FilterMode));
+            if (!fp) {
+                return nullptr;
+            }
             paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-srcOffset);
             srcOffset.set(0, 0);

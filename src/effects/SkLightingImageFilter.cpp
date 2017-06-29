@@ -446,7 +446,9 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
     sk_sp<GrFragmentProcessor> fp(this->makeFragmentProcessor(std::move(srcProxy),
                                                               matrix, srcBounds,
                                                               boundaryMode));
-    paint.addColorFragmentProcessor(std::move(fp));
+    if (fp) {
+        paint.addColorFragmentProcessor(std::move(fp));
+    }
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     renderTargetContext->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), dstRect,
                                         srcRect);
@@ -595,9 +597,6 @@ private:
 
 class GrLightingEffect : public GrSingleTextureEffect {
 public:
-    GrLightingEffect(sk_sp<GrTextureProxy>,
-                     const SkImageFilterLight* light, SkScalar surfaceScale,
-                     const SkMatrix& matrix, BoundaryMode boundaryMode, const SkIRect* srcBounds);
     ~GrLightingEffect() override;
 
     const SkImageFilterLight* light() const { return fLight; }
@@ -607,8 +606,11 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
 
 protected:
-    bool onIsEqual(const GrFragmentProcessor&) const override;
+    GrLightingEffect(sk_sp<GrTextureProxy>,
+                     const SkImageFilterLight* light, SkScalar surfaceScale,
+                     const SkMatrix& matrix, BoundaryMode boundaryMode, const SkIRect* srcBounds);
 
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
 private:
     const SkImageFilterLight* fLight;

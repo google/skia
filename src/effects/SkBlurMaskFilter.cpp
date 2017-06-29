@@ -1068,7 +1068,6 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
-
     static sk_sp<GrFragmentProcessor> Make(GrContext*,
                                            float sigma, float xformedSigma,
                                            const SkRRect& srcRRect, const SkRRect& devRRect);
@@ -1509,8 +1508,12 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
     if (!isNormalBlur) {
         GrPaint paint;
         // Blend pathTexture over blurTexture.
-        paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(srcProxy),
-                                                                       nullptr, SkMatrix::I()));
+        sk_sp<GrFragmentProcessor> texFP(GrSimpleTextureEffect::Make(std::move(srcProxy),
+                                                                     nullptr, SkMatrix::I()));
+        if (!texFP) {
+            return nullptr;
+        }
+        paint.addCoverageFragmentProcessor(std::move(texFP));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);

@@ -326,7 +326,11 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         if (result) {
             // The mask's top left coord should be pinned to the rounded-out top left corner of
             // the clip's device space bounds.
-            out->addCoverageFP(create_fp_for_mask(std::move(result), reducedClip.ibounds()));
+            sk_sp<GrFragmentProcessor> maskFP(create_fp_for_mask(std::move(result), reducedClip.ibounds()));
+            if (!maskFP) {
+                return true;
+            }
+            out->addCoverageFP(std::move(maskFP));
             return true;
         }
 

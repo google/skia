@@ -456,7 +456,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
             // The above may return null if compose results in a pass through of the prim color.
             if (shaderFP) {
-                grPaint->addColorFragmentProcessor(shaderFP);
+                grPaint->addColorFragmentProcessor(std::move(shaderFP));
             }
 
             // We can ignore origColor here - alpha is unchanged by gamma
@@ -464,9 +464,12 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             if (GrColor_WHITE != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    GrColor4f::FromGrColor(paintAlpha),
-                    GrConstColorProcessor::kModulateRGBA_InputMode));
+                sk_sp<GrFragmentProcessor> constFP(GrConstColorProcessor::Make(
+                                                            GrColor4f::FromGrColor(paintAlpha),
+                                                            GrConstColorProcessor::kModulateRGBA_InputMode));
+                if (constFP) {
+                    grPaint->addColorFragmentProcessor(std::move(constFP));
+                }
             }
         } else {
             // The shader's FP sees the paint unpremul color
@@ -493,9 +496,12 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             if (GrColor_WHITE != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
-                grPaint->addColorFragmentProcessor(GrConstColorProcessor::Make(
-                    GrColor4f::FromGrColor(paintAlpha),
-                    GrConstColorProcessor::kModulateRGBA_InputMode));
+                sk_sp<GrFragmentProcessor> constFP(GrConstColorProcessor::Make(
+                                                        GrColor4f::FromGrColor(paintAlpha),
+                                                        GrConstColorProcessor::kModulateRGBA_InputMode));
+                if (constFP) {
+                    grPaint->addColorFragmentProcessor(std::move(constFP));
+                }
             }
         } else {
             // No shader, no primitive color.
@@ -615,10 +621,10 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
             sk_sp<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
             shaderFP = GrFragmentProcessor::RunInSeries(fpSeries, 2);
         } else {
-            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(fp);
+            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput1(fp);
         }
     } else {
-        shaderFP = GrFragmentProcessor::MulOutputByInputAlpha(fp);
+        shaderFP = GrFragmentProcessor::MulOutputByInputAlpha1(fp);
     }
 
     return SkPaintToGrPaintReplaceShader(context, rtc, paint, std::move(shaderFP), grPaint);

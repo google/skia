@@ -33,7 +33,7 @@ public:
     *  does so by returning a parent FP that multiplies the passed in FPs output by the parent's
     *  input alpha. The passed in FP will not receive an input color.
     */
-    static sk_sp<GrFragmentProcessor> MulOutputByInputAlpha(sk_sp<GrFragmentProcessor>);
+    static sk_sp<GrFragmentProcessor> MulOutputByInputAlpha1(sk_sp<GrFragmentProcessor>);
 
     /**
      *  This assumes that the input color to the returned processor will be unpremul and that the
@@ -41,7 +41,7 @@ public:
      *  The result of the returned processor is a premul of its input color modulated by the child
      *  processor's premul output.
      */
-    static sk_sp<GrFragmentProcessor> MakeInputPremulAndMulByOutput(sk_sp<GrFragmentProcessor>);
+    static sk_sp<GrFragmentProcessor> MakeInputPremulAndMulByOutput1(sk_sp<GrFragmentProcessor>);
 
     /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
@@ -72,7 +72,7 @@ public:
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */
-    static sk_sp<GrFragmentProcessor> SwizzleOutput(sk_sp<GrFragmentProcessor>, const GrSwizzle&);
+    static sk_sp<GrFragmentProcessor> SwizzleOutput1(sk_sp<GrFragmentProcessor>, const GrSwizzle&);
 
     /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a

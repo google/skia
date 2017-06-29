@@ -42,9 +42,13 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
     SkMatrix matrix = SkMatrix::MakeTrans(-SkIntToScalar(maskRect.fLeft),
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(mask),
-                                                                   nullptr, matrix));
+    sk_sp<GrFragmentProcessor> maskFP(GrSimpleTextureEffect::Make(std::move(mask),
+                                                                  nullptr, matrix));
+    if (!maskFP) {
+        return false;
+    }
 
+    paint.addCoverageFragmentProcessor(std::move(maskFP));
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(maskRect), inverse);
     return true;

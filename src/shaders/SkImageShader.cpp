@@ -215,7 +215,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     if (isAlphaOnly) {
         return inner;
     }
-    return sk_sp<GrFragmentProcessor>(GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner)));
+    return sk_sp<GrFragmentProcessor>(GrFragmentProcessor::MulOutputByInputAlpha1(std::move(inner)));
 }
 
 #endif
