@@ -65,6 +65,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
 
     fragBuilder->codeAppendf("vec2 coord = %s - %d.0 * %s;", coords2D.c_str(), ce.radius(), imgInc);
+    fragBuilder->codeAppend("vec2 coordSampled = vec2(0, 0);");
 
     // Manually unroll loop because some drivers don't; yields 20-30% speedup.
     const char* kVecSuffix[4] = {".x", ".y", ".z", ".w"};
@@ -75,19 +76,40 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
         kernel.appendArrayAccess(index.c_str(), &kernelIndex);
         kernelIndex.append(kVecSuffix[i & 0x3]);
 
+        fragBuilder->codeAppend("coordSampled = coord;");
         if (ce.useBounds()) {
             // We used to compute a bool indicating whether we're in bounds or not, cast it to a
             // float, and then mul weight*texture_sample by the float. However, the Adreno 430 seems
             // to have a bug that caused corruption.
             const char* bounds = uniformHandler->getUniformCStr(fBoundsUni);
             const char* component = ce.direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";
-            fragBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {", component,
-                                     bounds, component, bounds);
+
+            switch (ce.tileMode()) {
+                case SkBlurImageFilter::TileMode::kClamp_TileMode: {
+                    fragBuilder->codeAppendf("coordSampled.%s = clamp(coord.%s, %s.x, %s.y);\n",
+                                             component, component, bounds, bounds);
+                    break;
+                }
+                case SkBlurImageFilter::TileMode::kRepeat_TileMode: {
+                    fragBuilder->codeAppendf("coordSampled.%s = "
+                                             "mod(coord.%s - %s.x, %s.y - %s.x) + %s.x;\n",
+                                             component, component, bounds, bounds, bounds, bounds);
+                    break;
+                }
+                case SkBlurImageFilter::TileMode::kClampToBlack_TileMode: {
+                    fragBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
+                                             component, bounds, component, bounds);
+                    break;
+                }
+                default: {
+                    SkFAIL("Unsupported operation.");
+                }
+            }
         }
         fragBuilder->codeAppendf("%s += ", args.fOutputColor);
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coord");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "coordSampled");
         fragBuilder->codeAppendf(" * %s;\n", kernelIndex.c_str());
-        if (ce.useBounds()) {
+        if (SkBlurImageFilter::TileMode::kClampToBlack_TileMode == ce.tileMode()) {
             fragBuilder->codeAppend("}");
         }
         fragBuilder->codeAppendf("coord += %s;\n", imgInc);
@@ -115,7 +137,13 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     if (conv.useBounds()) {
-        const int* bounds = conv.bounds();
+        float bounds[2] = {0};
+        bounds[0] = conv.bounds()[0];
+        bounds[1] = conv.bounds()[1];
+        if (SkBlurImageFilter::TileMode::kClamp_TileMode == conv.tileMode()) {
+            bounds[0] += SK_ScalarHalf;
+            bounds[1] -= SK_ScalarHalf;
+        }
         if (Gr1DKernelEffect::kX_Direction == conv.direction()) {
             SkScalar inv = SkScalarInvert(SkIntToScalar(texture.width()));
             pdman.set2f(fBoundsUni, inv * bounds[0], inv * bounds[1]);
@@ -140,11 +168,9 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
     const GrGaussianConvolutionFragmentProcessor& conv =
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
     uint32_t key = conv.radius();
-    key <<= 2;
-    if (conv.useBounds()) {
-        key |= 0x2;
-        key |= GrGaussianConvolutionFragmentProcessor::kY_Direction == conv.direction() ? 0x1 : 0x0;
-    }
+    key <<= 3;
+    key |= GrGaussianConvolutionFragmentProcessor::kY_Direction == conv.direction() ? 0x4 : 0x0;
+    key |= static_cast<uint32_t>(conv.tileMode());
     b->add32(key);
 }
 
@@ -172,13 +198,13 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             Direction direction,
                                                             int radius,
                                                             float gaussianSigma,
-                                                            bool useBounds,
-                                                            int bounds[2])
+                                                            int bounds[2],
+                                                            SkBlurImageFilter::TileMode tileMode)
         : INHERITED{ModulationFlags(proxy->config()),
                     GR_PROXY_MOVE(proxy),
                     direction,
                     radius}
-        , fUseBounds(useBounds) {
+        , fTileMode(tileMode) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
 
@@ -202,7 +228,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
     const GrGaussianConvolutionFragmentProcessor& s =
             sBase.cast<GrGaussianConvolutionFragmentProcessor>();
     return (this->radius() == s.radius() && this->direction() == s.direction() &&
-            this->useBounds() == s.useBounds() &&
+            this->tileMode() == s.tileMode() &&
             0 == memcmp(fBounds, s.fBounds, sizeof(fBounds)) &&
             0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
 }
@@ -218,8 +244,8 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
 
-    bool useBounds = d->fRandom->nextBool();
     int bounds[2];
+    int tileModeIdx = d->fRandom->nextRangeU(0, SkBlurImageFilter::TileMode::kMax_TileMode-1);
 
     Direction dir;
     if (d->fRandom->nextBool()) {
@@ -235,7 +261,9 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
 
-    return GrGaussianConvolutionFragmentProcessor::Make(d->textureProxy(texIdx),
-                                                        dir, radius, sigma, useBounds, bounds);
+    return GrGaussianConvolutionFragmentProcessor::Make(
+            d->textureProxy(texIdx),
+            dir, radius, sigma, bounds,
+            static_cast<SkBlurImageFilter::TileMode>(tileModeIdx));
 }
 #endif

@@ -66,6 +66,24 @@ static float adjust_sigma(float sigma, int maxTextureSize, int *scaleFactor, int
     return sigma;
 }
 
+static GrTextureDomain::Mode ToTextureDomainMode(
+        SkBlurImageFilter::TileMode tileMode) {
+    switch (tileMode) {
+      case SkBlurImageFilter::TileMode::kIgnore_TileMode:
+        return GrTextureDomain::kIgnore_Mode;
+      case SkBlurImageFilter::TileMode::kClamp_TileMode:
+        return GrTextureDomain::kClamp_Mode;
+      case SkBlurImageFilter::TileMode::kClampToBlack_TileMode:
+        return GrTextureDomain::kDecal_Mode;
+      case SkBlurImageFilter::TileMode::kRepeat_TileMode:
+        // GrTextureDomainEffect does not support kRepeat_TileMode.
+        return GrTextureDomain::kDecal_Mode;
+      default:
+        SkFAIL("Unsupported tile mode.");
+        return GrTextureDomain::kDecal_Mode;
+    }
+}
+
 static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  const GrClip& clip,
                                  const SkIRect& dstRect,
@@ -74,13 +92,13 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  Gr1DKernelEffect::Direction direction,
                                  int radius,
                                  float sigma,
-                                 bool useBounds,
-                                 int bounds[2]) {
+                                 int bounds[2],
+                                 SkBlurImageFilter::TileMode tileMode) {
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
     sk_sp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
-            std::move(proxy), direction, radius, sigma, useBounds, bounds));
+            std::move(proxy), direction, radius, sigma, bounds, tileMode));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
@@ -98,7 +116,8 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
                                  int radiusY,
                                  SkScalar sigmaX,
                                  SkScalar sigmaY,
-                                 const SkIRect* srcBounds) {
+                                 const SkIRect* srcBounds,
+                                 SkBlurImageFilter::TileMode tileMode) {
     SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
                                                -SkIntToScalar(srcOffset.y()));
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
@@ -109,7 +128,7 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
 
     sk_sp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
             std::move(proxy), bounds, size, 1.0, 0.0, kernelOffset,
-            srcBounds ? GrTextureDomain::kDecal_Mode : GrTextureDomain::kIgnore_Mode,
+            srcBounds ? ToTextureDomainMode(tileMode) : GrTextureDomain::kIgnore_Mode,
             true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -125,12 +144,14 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
                               int radius,
                               float sigma,
                               const SkIRect* srcBounds,
-                              const SkIPoint& srcOffset) {
+                              const SkIPoint& srcOffset,
+                              SkBlurImageFilter::TileMode tileMode) {
     int bounds[2] = { 0, 0 };
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
     if (!srcBounds) {
         convolve_gaussian_1d(renderTargetContext, clip, dstRect, srcOffset,
-                             std::move(proxy), direction, radius, sigma, false, bounds);
+                             std::move(proxy), direction, radius, sigma, bounds,
+                             SkBlurImageFilter::TileMode::kIgnore_TileMode);
         return;
     }
     SkIRect midRect = *srcBounds, leftRect, rightRect;
@@ -166,18 +187,20 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
     if (!bottomRect.isEmpty()) {
         renderTargetContext->clear(&bottomRect, 0, false);
     }
+
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
         convolve_gaussian_1d(renderTargetContext, clip, dstRect, srcOffset,
-                             std::move(proxy), direction, radius, sigma, true, bounds);
+                             std::move(proxy), direction, radius, sigma, bounds, tileMode);
     } else {
         // Draw right and left margins with bounds; middle without.
         convolve_gaussian_1d(renderTargetContext, clip, leftRect, srcOffset,
-                             proxy, direction, radius, sigma, true, bounds);
+                             proxy, direction, radius, sigma, bounds, tileMode);
         convolve_gaussian_1d(renderTargetContext, clip, rightRect, srcOffset,
-                             proxy, direction, radius, sigma, true, bounds);
+                             proxy, direction, radius, sigma, bounds, tileMode);
         convolve_gaussian_1d(renderTargetContext, clip, midRect, srcOffset,
-                             std::move(proxy), direction, radius, sigma, false, bounds);
+                             std::move(proxy), direction, radius, sigma, bounds,
+                             SkBlurImageFilter::TileMode::kIgnore_TileMode);
     }
 }
 
@@ -190,9 +213,9 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           const SkIRect* srcBounds,
                                           float sigmaX,
                                           float sigmaY,
-                                          SkBackingFit fit) {
+                                          SkBackingFit fit,
+                                          SkBlurImageFilter::TileMode tileMode) {
     SkASSERT(context);
-
     SkIRect clearRect;
     int scaleFactorX, radiusX;
     int scaleFactorY, radiusY;
@@ -242,10 +265,11 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
 
         convolve_gaussian_2d(dstRenderTargetContext.get(), clip, localDstBounds, srcOffset,
-                             std::move(srcProxy), radiusX, radiusY, sigmaX, sigmaY, srcBounds);
+                             std::move(srcProxy), radiusX, radiusY, sigmaX, sigmaY,
+                             srcBounds, tileMode);
 
         return dstRenderTargetContext;
-    } 
+    }
 
     sk_sp<GrRenderTargetContext> tmpRenderTargetContext(context->makeDeferredRenderTargetContext(
         fit, width, height, config, colorSpace, 0, kBottomLeft_GrSurfaceOrigin));
@@ -270,7 +294,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                         nullptr,
                                                         SkMatrix::I(),
                                                         domain,
-                                                        GrTextureDomain::kDecal_Mode,
+                                                        ToTextureDomainMode(tileMode),
                                                         GrSamplerParams::kBilerp_FilterMode));
             paint.addColorFragmentProcessor(std::move(fp));
             srcRect.offset(-srcOffset);
@@ -311,7 +335,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
         convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect,
                           std::move(srcProxy), Gr1DKernelEffect::kX_Direction, radiusX, sigmaX,
-                          srcBounds, srcOffset);
+                          srcBounds, srcOffset, tileMode);
         srcRenderTargetContext = dstRenderTargetContext;
         srcProxy = srcRenderTargetContext->asTextureProxyRef();
         if (!srcProxy) {
@@ -320,6 +344,10 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         srcRect.offsetTo(0, 0);
         dstRenderTargetContext.swap(tmpRenderTargetContext);
         localSrcBounds = srcRect;
+        if (SkBlurImageFilter::TileMode::kClamp_TileMode == tileMode) {
+            // We need to adjust bounds because we only fill part of the srcRect in x-pass.
+            localSrcBounds.inset(0, radiusY);
+        }
         srcOffset.set(0, 0);
     }
 
@@ -336,7 +364,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
         convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect,
                           std::move(srcProxy), Gr1DKernelEffect::kY_Direction, radiusY, sigmaY,
-                          srcBounds, srcOffset);
+                          srcBounds, srcOffset, tileMode);
 
         srcRenderTargetContext = dstRenderTargetContext;
         srcRect.offsetTo(0, 0);
@@ -357,15 +385,26 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
         GrPaint paint;
         paint.setGammaCorrect(dstRenderTargetContext->isGammaCorrect());
-        // FIXME:  this should be mitchell, not bilinear.
-        GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
         sk_sp<GrTextureProxy> proxy(srcRenderTargetContext->asTextureProxyRef());
         if (!proxy) {
             return nullptr;
         }
 
-        paint.addColorTextureProcessor(std::move(proxy),
-                                       nullptr, SkMatrix::I(), params);
+        if (srcBounds) {
+            SkRect domain = SkRect::Make(*srcBounds);
+            sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
+                                                        std::move(proxy),
+                                                        nullptr,
+                                                        SkMatrix::I(),
+                                                        domain,
+                                                        ToTextureDomainMode(tileMode),
+                                                        GrSamplerParams::kBilerp_FilterMode));
+            paint.addColorFragmentProcessor(std::move(fp));
+        } else {
+            // FIXME:  this should be mitchell, not bilinear.
+            GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kBilerp_FilterMode);
+            paint.addColorTextureProcessor(std::move(proxy), nullptr, SkMatrix::I(), params);
+        }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         SkIRect dstRect(srcRect);
