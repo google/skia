@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df353049_7cba293c",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-29T12:24:38Z",
+      "side": 1,
+      "message": "Well, it does have GrTextureDomain::kRepeat_Mode, but it seems it only works when there\u0027s no filtering. :( I guess that would be a problem for the upsamping/downsampling.",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31229ba9_85d4c892",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-29T12:24:38Z",
+      "side": 1,
+      "message": "Nit: could you put the tileMode first (before the bounds)?",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66b5cafd_8993575a",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-29T12:24:38Z",
+      "side": 1,
+      "message": "Would it be possible to have GaussianBlur() take a GrTextureDomain::Mode, and do the conversion from SkBlurImageFilter::TileMode outside SkGpuBlurUtils? It\u0027d make the dependencies less cyclic.",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c217990f_d267ea58",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-29T12:24:38Z",
+      "side": 1,
+      "message": "For the shadow case, we pass null srcBounds, and this should be Ignore_TileMode, otherwise we\u0027re technically saying use the bounds, and clamp to black. (I think it works in your patch now, because we still check for null.)\n\nThis is because we used to use a null srcBounds to signal \"ignore\". I think we should change the srcBounds parameter to const-ref, and just let the tile mode signal whether the bounds should be used or not. It does mean we\u0027ll have to pass a dummy value from the shadow mask, but I think that\u0027s ok.",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94e30ec1_725c56a7",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-29T12:24:38Z",
+      "side": 1,
+      "message": "Swap these in the parameter order?",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3ab5baf_fd26150e",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-29T12:24:38Z",
+      "side": 1,
+      "message": "I\u0027d prefer that this dependency be removed (see above).",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
