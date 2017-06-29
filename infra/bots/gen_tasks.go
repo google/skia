@@ -887,7 +887,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		}
 	}
 
-	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
+	if (strings.Contains(name, "Ubuntu") || strings.Contains(name, "Debian")) && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 	}
 	if strings.Contains(name, "Ubuntu16") {
