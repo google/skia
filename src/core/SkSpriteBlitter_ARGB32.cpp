@@ -61,9 +61,7 @@ private:
 class Sprite_D32_XferFilter : public SkSpriteBlitter {
 public:
     Sprite_D32_XferFilter(const SkPixmap& source, const SkPaint& paint) : SkSpriteBlitter(source) {
-        fColorFilter = paint.getColorFilter();
-        SkSafeRef(fColorFilter);
-
+        SkASSERT(!paint.getColorFilter());
         fXfermode = SkXfermode::Peek(paint.getBlendMode());
 
         fBufferSize = 0;
@@ -83,7 +81,6 @@ public:
 
     ~Sprite_D32_XferFilter() override {
         delete[] fBuffer;
-        SkSafeUnref(fColorFilter);
     }
 
     void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
@@ -98,7 +95,6 @@ public:
     }
 
 protected:
-    SkColorFilter*      fColorFilter;
     SkXfermode*         fXfermode;
     int                 fBufferSize;
     SkPMColor*          fBuffer;
@@ -122,16 +118,10 @@ public:
         const uint32_t* SK_RESTRICT src = fSource.addr32(x - fLeft, y - fTop);
         size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
-        SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
 
         do {
             const SkPMColor* tmp = src;
-
-            if (colorFilter) {
-                colorFilter->filterSpan(src, width, fBuffer);
-                tmp = fBuffer;
-            }
 
             if (xfermode) {
                 xfermode->xfer32(dst, tmp, width, nullptr);
@@ -169,15 +159,11 @@ public:
         size_t dstRB = fDst.rowBytes();
         size_t srcRB = fSource.rowBytes();
         SkPMColor* SK_RESTRICT buffer = fBuffer;
-        SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
 
         do {
             fillbuffer(buffer, src, width);
 
-            if (colorFilter) {
-                colorFilter->filterSpan(buffer, width, buffer);
-            }
             if (xfermode) {
                 xfermode->xfer32(dst, buffer, width, nullptr);
             } else {

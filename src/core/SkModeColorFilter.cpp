@@ -62,47 +62,6 @@ uint32_t SkModeColorFilter::getFlags() const {
     return flags;
 }
 
-void SkModeColorFilter::filterSpan(const SkPMColor shader[], int count, SkPMColor result[]) const {
-    SkPMColor color = fPMColor;
-
-    switch (fMode) {
-        case SkBlendMode::kSrc:
-            sk_memset32(result, color, count);
-            break;
-        case SkBlendMode::kSrcIn:
-            for (int i = 0; i < count; ++i) {
-                result[i] = SkAlphaMulQ(color, SkAlpha255To256(SkGetPackedA32(shader[i])));
-            }
-            break;
-        case SkBlendMode::kModulate:
-            for (int i = 0; i < count; ++i) {
-                int a = SkMulDiv255Round(SkGetPackedA32(color), SkGetPackedA32(shader[i]));
-                int r = SkMulDiv255Round(SkGetPackedR32(color), SkGetPackedR32(shader[i]));
-                int g = SkMulDiv255Round(SkGetPackedG32(color), SkGetPackedG32(shader[i]));
-                int b = SkMulDiv255Round(SkGetPackedB32(color), SkGetPackedB32(shader[i]));
-                result[i] = SkPackARGB32(a, r, g, b);
-            }
-            break;
-        default: {
-            SkSTArenaAlloc<256> alloc;
-            SkRasterPipeline p(&alloc);
-
-            if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-                p.append(SkRasterPipeline::load_bgra, &shader);
-            } else {
-                p.append(SkRasterPipeline::load_8888, &shader);
-            }
-            this->appendStages(&p, nullptr, &alloc, false);
-            if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-                p.append(SkRasterPipeline::store_bgra, &result);
-            } else {
-                p.append(SkRasterPipeline::store_8888, &result);
-            }
-            p.run(0, 0, count);
-        } break;
-    }
-}
-
 void SkModeColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
     buffer.writeUInt((int)fMode);

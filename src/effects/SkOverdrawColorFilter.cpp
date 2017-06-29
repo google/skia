@@ -12,17 +12,6 @@
 #include "SkReadBuffer.h"
 #include "../jumper/SkJumper.h"
 
-void SkOverdrawColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
-    for (int x = 0; x < count; x++) {
-        uint8_t alpha = SkGetPackedA32(src[x]);
-        if (alpha >= kNumColors) {
-            alpha = kNumColors - 1;
-        }
-
-        dst[x] = fColors[alpha];
-    }
-}
-
 void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dstCS,
                                            SkArenaAlloc* alloc,
