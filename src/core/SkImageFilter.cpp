@@ -221,12 +221,29 @@ sk_sp<SkSpecialImage> SkImageFilter::filterImage(SkSpecialImage* src, const Cont
 #endif
 
     if (result && context.cache()) {
-        context.cache()->set(key, result.get(), *offset);
+        context.cache()->set(key, result.get(), *offset, this);
         SkAutoMutexAcquire mutex(fMutex);
         fCacheKeys.push_back(key);
     }
 
     return result;
+}
+
+void SkImageFilter::removeKey(const SkImageFilterCacheKey& key) const {
+    SkAutoMutexAcquire mutex(fMutex);
+    for (int i = 0; i < fCacheKeys.count(); i++) {
+        if (fCacheKeys[i] == key) {
+            fCacheKeys.removeShuffle(i);
+            break;
+        }
+    }
+#ifdef SK_DEBUG
+    for (int i = 0; i < fCacheKeys.count(); i++) {
+        if (fCacheKeys[i] == key) {
+            SkASSERT(false);
+        }
+    }
+#endif
 }
 
 SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
