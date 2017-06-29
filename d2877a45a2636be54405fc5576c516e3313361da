@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "d28cb1d5_641a85fa",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Rebased.",
+      "parentUuid": "12f87a60_3990736e",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96044ff6_10c27ce2",
         "filename": "include/core/SkImageFilter.h",
         "patchSetId": 4
@@ -69,6 +87,24 @@
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67563765_977772ef",
+        "filename": "include/core/SkImageFilter.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96044ff6_10c27ce2",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -89,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "5d4cd31e_8cf33500",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc245252_c29179d3",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3242262_10414b03",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 4
@@ -103,6 +157,24 @@
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c808490_b117b56c",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3242262_10414b03",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -123,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "a729e6f3_75170ec7",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acb79847_79b796ba",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f43500d5_10b67825",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 4
@@ -137,6 +227,24 @@
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "863c2562_eb80159a",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f43500d5_10b67825",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -192,6 +300,24 @@
     },
     {
       "key": {
+        "uuid": "26b00e06_e0e0100c",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6585170f_b9848385",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e245445a_19c6c0a2",
         "filename": "src/core/SkGpuBlurUtils.h",
         "patchSetId": 4
@@ -206,6 +332,24 @@
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36e4b3e9_84177d2f",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e245445a_19c6c0a2",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -226,6 +370,24 @@
     },
     {
       "key": {
+        "uuid": "34e7071d_273175e7",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Used another method mentioned above: clamp to edge if the sample is outside.",
+      "parentUuid": "052b0402_24ac4ca5",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c450bf82_f0b7d96b",
         "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
         "patchSetId": 4
@@ -240,6 +402,24 @@
       "revId": "d2877a45a2636be54405fc5576c516e3313361da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0655634_020f6cb9",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T06:34:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c450bf82_f0b7d96b",
+      "revId": "d2877a45a2636be54405fc5576c516e3313361da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
