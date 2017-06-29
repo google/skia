@@ -185,11 +185,9 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     if (source.alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
-#ifndef SK_SUPPORT_LEGACY_COLORFILTER_FILTERSPAN
     if (paint.getColorFilter()) {
         return nullptr;
     }
-#endif
 
     SkSpriteBlitter* blitter = nullptr;
 
