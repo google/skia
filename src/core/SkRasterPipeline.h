@@ -27,37 +27,13 @@ struct SkJumper_constants;
  * end up bloating our code size dramatically.  SkRasterPipeline stages can be chained together
  * at runtime, so we can scale this problem linearly rather than combinatorically.
  *
- * Each stage is represented by a function conforming to a common interface, SkRasterPipeline::Fn,
- * and by an arbitrary context pointer.  Fn's arguments, and sometimes custom calling convention,
- * are designed to maximize the amount of data we can pass along the pipeline cheaply.
- * On many machines all arguments stay in registers the entire time.
+ * Each stage is represented by a function conforming to a common interface and by an
+ * arbitrary context pointer.  The stage funciton arguments and calling convention are
+ * designed to maximize the amount of data we can pass along the pipeline cheaply, and
+ * vary depending on CPU feature detection.
  *
- * The meaning of the arguments to Fn are sometimes fixed:
- *    - The Stage* always represents the current stage, mainly providing access to ctx().
- *    - The first size_t is always the destination x coordinate.
- *      (If you need y, put it in your context.)
- *    - The second size_t is always tail: 0 when working on a full 4-pixel slab,
- *      or 1..3 when using only the bottom 1..3 lanes of each register.
- *    - By the time the shader's done, the first four vectors should hold source red,
- *      green, blue, and alpha, up to 4 pixels' worth each.
- *
- * Sometimes arguments are flexible:
- *    - In the shader, the first four vectors can be used for anything, e.g. sample coordinates.
- *    - The last four vectors are scratch registers that can be used to communicate between
- *      stages; transfer modes use these to hold the original destination pixel components.
- *
- * On some platforms the last four vectors are slower to work with than the other arguments.
- *
- * When done mutating its arguments and/or context, a stage can either:
- *   1) call st->next() with its mutated arguments, chaining to the next stage of the pipeline; or
- *   2) return, indicating the pipeline is complete for these pixels.
- *
- * Some stages that typically return are those that write a color to a destination pointer,
- * but any stage can short-circuit the rest of the pipeline by returning instead of calling next().
+ * If you'd like to see how this works internally, you want to start digging around src/jumper.
  */
-
-// TODO: There may be a better place to stuff tail, e.g. in the bottom alignment bits of
-// the Stage*.  This mostly matters on 64-bit Windows where every register is precious.
 
 #define SK_RASTER_PIPELINE_STAGES(M)                             \
     M(callback)                                                  \
