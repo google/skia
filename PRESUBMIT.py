@@ -42,11 +42,11 @@ GOLD_TRYBOT_URL = 'https://gold.skia.org/search?issue='
 
 # Path to CQ bots feature is described in https://bug.skia.org/4364
 PATH_PREFIX_TO_EXTRA_TRYBOTS = {
-    'src/opts/':
-        'skia.primary:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD',
+    'src/opts/': ('skia.primary:'
+      'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-SKNX_NO_SIMD'),
     'include/private/SkAtomics.h': ('skia.primary:'
-      'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN,'
-      'Test-Ubuntu-Clang-Golo-GPU-GT610-x86_64-Release-TSAN-Trybot'
+      'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN,'
+      'Test-Ubuntu14-Clang-Golo-GPU-GT610-x86_64-Release-TSAN'
     ),
 
     # Below are examples to show what is possible with this feature.
