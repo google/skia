@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6ca26654_bd47f166",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T19:59:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "df353049_7cba293c",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31229ba9_85d4c892",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cdb7ad0_dded70a9",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T19:59:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31229ba9_85d4c892",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a858f070_e2a379ea",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T19:59:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66b5cafd_8993575a",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c217990f_d267ea58",
         "filename": "src/core/SkGpuBlurUtils.h",
         "patchSetId": 7
@@ -67,6 +121,24 @@
       "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e8d3964_0ff78484",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T19:59:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c217990f_d267ea58",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "58f78b62_deb874d0",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T19:59:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94e30ec1_725c56a7",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3ab5baf_fd26150e",
         "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2017-06-29T12:24:38Z",
       "side": 1,
       "message": "I\u0027d prefer that this dependency be removed (see above).",
+      "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e17718c9_10c0b54b",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-29T19:59:19Z",
+      "side": 1,
+      "message": "Done, Replaced it with GrTextureDomain.h",
+      "parentUuid": "a3ab5baf_fd26150e",
       "revId": "7ea75296aff7908096dfbd9038e4d8e2d3107c1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
