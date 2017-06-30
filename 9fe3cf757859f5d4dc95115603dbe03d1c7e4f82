@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bae78dc9_8b4d25be",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-06-30T18:36:17Z",
+      "side": 1,
+      "message": "append_from_srgb(kPremul_SkAlphaType)  (i.e. from_srgb, then clamp_a).",
+      "range": {
+        "startLine": 572,
+        "startChar": 35,
+        "endLine": 572,
+        "endChar": 70
+      },
+      "revId": "9fe3cf757859f5d4dc95115603dbe03d1c7e4f82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
