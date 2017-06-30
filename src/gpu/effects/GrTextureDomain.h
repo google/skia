@@ -151,7 +151,6 @@ protected:
  * A basic texture effect that uses GrTextureDomain.
  */
 class GrTextureDomainEffect : public GrSingleTextureEffect {
-
 public:
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
                                            sk_sp<GrColorSpaceXform>,

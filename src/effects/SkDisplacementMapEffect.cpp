@@ -287,7 +287,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(color->getColorSpace(),
                                                                            colorSpace);
         GrPaint paint;
-        paint.addColorFragmentProcessor(
+        sk_sp<GrFragmentProcessor> dispFP(
             GrDisplacementMapEffect::Make(fXChannelSelector,
                                           fYChannelSelector,
                                           scale,
@@ -296,6 +296,9 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                           std::move(colorProxy),
                                           std::move(colorSpaceXform),
                                           SkISize::Make(color->width(), color->height())));
+        if (dispFP) {
+            paint.addColorFragmentProcessor(std::move(dispFP));
+        }
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));

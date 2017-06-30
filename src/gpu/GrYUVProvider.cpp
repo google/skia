@@ -136,6 +136,9 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
                                   yuvTextureContexts[1]->asTextureProxyRef(),
                                   yuvTextureContexts[2]->asTextureProxyRef(),
                                   yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false));
+    if (!yuvToRgbProcessor) {
+        return nullptr;
+    }
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 
     // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already
@@ -148,7 +151,11 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
         if (ctx->caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {
-            paint.addColorFragmentProcessor(GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear));
+            sk_sp<GrFragmentProcessor> srgbProcessor(
+                                            GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear));
+            if (srgbProcessor) {
+                paint.addColorFragmentProcessor(std::move(srgbProcessor));
+            }
         }
     }
 

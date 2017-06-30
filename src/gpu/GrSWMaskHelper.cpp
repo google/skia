@@ -168,9 +168,13 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
     SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            std::move(proxy), nullptr, maskMatrix,
-            GrSamplerParams::kNone_FilterMode));
+    sk_sp<GrFragmentProcessor> maskFP(GrSimpleTextureEffect::Make(
+                                                        std::move(proxy), nullptr, maskMatrix,
+                                                        GrSamplerParams::kNone_FilterMode));
+    if (!maskFP) {
+        return;
+    }
+    paint.addCoverageFragmentProcessor(std::move(maskFP));
     renderTargetContext->addDrawOp(clip,
                                    GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
                                            std::move(paint), SkMatrix::I(), invert, dstRect,

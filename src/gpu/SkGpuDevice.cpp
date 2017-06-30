@@ -1066,6 +1066,10 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
                                          std::move(colorSpaceXform), texMatrix, params);
     }
 
+    if (!fp) {
+        return;
+    }
+
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint, viewMatrix,
                                      std::move(fp), kAlpha_8_SkColorType == bitmap.colorType(),
@@ -1141,6 +1145,10 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
     } else {
         fp = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
+    }
+
+    if (!fp) {
+        return;
     }
 
     GrPaint grPaint;
@@ -1423,6 +1431,9 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fRenderTargetContext->getColorSpace()));
+    if (!fp) {
+        return;
+    }
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint,
                                      this->ctm(), std::move(fp), producer->isAlphaOnly(),
@@ -1478,6 +1489,9 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fRenderTargetContext->getColorSpace()));
+    if (!fp) {
+        return;
+    }
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint,
                                      this->ctm(), std::move(fp), producer->isAlphaOnly(),

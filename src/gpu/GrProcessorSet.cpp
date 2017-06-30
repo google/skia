@@ -141,7 +141,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
     GrColorFragmentProcessorAnalysis colorAnalysis(colorInput);
     analysis.fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
 
-    const GrFragmentProcessor* const* fps = fFragmentProcessors.get() + fFragmentProcessorOffset;
+    const GrFragmentProcessor* const * fps = fFragmentProcessors.get() + fFragmentProcessorOffset;
     colorAnalysis.analyzeProcessors(fps, fColorFragmentProcessorCnt);
     analysis.fCompatibleWithCoverageAsAlpha &=
             colorAnalysis.allProcessorsCompatibleWithCoverageAsAlpha();
