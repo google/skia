@@ -33,19 +33,8 @@ static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, int i
     record.visit(index, reader);
     REPORTER_ASSERT(r, T::kType == reader.type);
     REPORTER_ASSERT(r, SkToBool(reader.ptr));
-
-    // This appears to be a bug in GCC 6.3. There's no problem here.
-#if defined(__GNUC__) && !defined(__clang__)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wreturn-local-addr"
-#endif
     return reader.ptr;
-#if defined(__GNUC__) && !defined(__clang__)
-  #pragma GCC diagnostic pop
-#endif
 }
-
-
 
 template <typename DrawT> struct MatchType {
     template <typename T> int operator()(const T&) { return 0; }
