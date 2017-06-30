@@ -84,6 +84,7 @@ bench_sources = [
   "$_bench/PatchBench.cpp",
   "$_bench/PathBench.cpp",
   "$_bench/PathIterBench.cpp",
+  "$_bench/PathTextBench.cpp",
   "$_bench/PDFBench.cpp",
   "$_bench/PerlinNoiseBench.cpp",
   "$_bench/PictureNestingBench.cpp",
