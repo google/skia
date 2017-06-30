@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "ddf674e7_2bccf77b",
+        "filename": "gm/imageblurrepeatmode.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-06-30T14:09:17Z",
+      "side": 1,
+      "message": "Actually, I retract this nit.",
+      "parentUuid": "24fd4669_336cd0e4",
+      "revId": "8d76fcffd3b82f006f64614bf26363661b281160",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b7b21413_d05bb55d",
         "filename": "src/core/SkBlurImageFilter.cpp",
         "patchSetId": 10
