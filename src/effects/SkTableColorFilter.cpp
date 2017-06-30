@@ -544,7 +544,57 @@ sk_sp<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* c
 
 #endif // SK_SUPPORT_GPU
 
-///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkSRGBGammaColorFilter : public SkColorFilter {
+public:
+    enum Direction {
+        kLinearToSRGB,
+        kSRGBToLinear,
+    };
+    SkSRGBGammaColorFilter(Direction dir) : fDir(dir) {}
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override {
+        // TODO:
+        return nullptr;
+    }
+#endif
+
+    SK_TO_STRING_OVERRIDE()
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
+
+    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
+                        bool shaderIsOpaque) const override {
+        switch (fDir) {
+            case kLinearToSRGB: p->append(SkRasterPipeline::to_srgb); break;
+            case kSRGBToLinear: p->append(SkRasterPipeline::from_srgb); break;
+        }
+    }
+
+protected:
+    void flatten(SkWriteBuffer&) const override {}
+
+private:
+    const Direction fDir;
+
+    friend class SkTableColorFilter;
+
+    typedef SkColorFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
+    return nullptr;
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void SkSRGBGammaColorFilter::toString(SkString* str) const {
+    str->append("srgbgamma");
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_CPU_BENDIAN
 #else
@@ -565,6 +615,14 @@ sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
                                                   const uint8_t tableG[256],
                                                   const uint8_t tableB[256]) {
     return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
+}
+
+sk_sp<SkColorFilter> SkTableColorFilter::MakeLinearToSRGBGamma() {
+    return sk_make_sp<SkSRGBGammaColorFilter>(SkSRGBGammaColorFilter::kLinearToSRGB);
+}
+
+sk_sp<SkColorFilter> SkTableColorFilter::MakeSRGBToLinearGamma() {
+    return sk_make_sp<SkSRGBGammaColorFilter>(SkSRGBGammaColorFilter::kSRGBToLinear);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkTableColorFilter)
