@@ -296,6 +296,7 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8
 DEF_TEST(Image_NewRasterCopy, reporter) {
     const SkPMColor red =   SkPackARGB32(0xFF, 0xFF, 0, 0);
     const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
@@ -322,6 +323,7 @@ DEF_TEST(Image_NewRasterCopy, reporter) {
     REPORTER_ASSERT(reporter, blue == pixels[2]);
     REPORTER_ASSERT(reporter, 0 == pixels[3]);
 }
+#endif
 
 // Test that a draw that only partially covers the drawing surface isn't
 // interpreted as covering the entire drawing surface (i.e., exercise one of the
@@ -555,6 +557,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
 
 #endif
 
+
+#ifdef SK_SUPPORT_LEGACY_INDEX_8
 // https://bug.skia.org/4390
 DEF_TEST(ImageFromIndex8Bitmap, r) {
     SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
@@ -565,6 +569,7 @@ DEF_TEST(ImageFromIndex8Bitmap, r) {
     sk_sp<SkImage> img(SkImage::MakeFromBitmap(bm));
     REPORTER_ASSERT(r, img != nullptr);
 }
+#endif
 
 class EmptyGenerator : public SkImageGenerator {
 public:
