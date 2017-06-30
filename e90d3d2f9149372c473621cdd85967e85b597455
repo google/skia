@@ -22,6 +22,30 @@
       "revId": "e90d3d2f9149372c473621cdd85967e85b597455",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a49ada_521384da",
+        "filename": "tests/ICCTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-06-30T15:17:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68836159_49a25c27",
+      "range": {
+        "startLine": 145,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 19
+      },
+      "revId": "e90d3d2f9149372c473621cdd85967e85b597455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
