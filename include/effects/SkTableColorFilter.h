@@ -36,6 +36,9 @@ public:
                                          const uint8_t tableG[256],
                                          const uint8_t tableB[256]);
 
+    static sk_sp<SkColorFilter> MakeLinearToSRGBGamma();
+    static sk_sp<SkColorFilter> MakeSRGBToLinearGamma();
+
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
 
