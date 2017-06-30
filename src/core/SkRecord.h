@@ -165,7 +165,8 @@ private:
             switch(this->type()) { SK_RECORD_TYPES(CASE) }
         #undef CASE
             SkDEBUGFAIL("Unreachable");
-            return f(SkRecords::NoOp());
+            static const SkRecords::NoOp noop{};
+            return f(noop);
         }
 
         // Mutate this record with functor F (see public API above).
@@ -175,7 +176,8 @@ private:
             switch(this->type()) { SK_RECORD_TYPES(CASE) }
         #undef CASE
             SkDEBUGFAIL("Unreachable");
-            return f((SkRecords::NoOp*)nullptr);
+            static const SkRecords::NoOp noop{};
+            return f(const_cast<SkRecords::NoOp*>(&noop));
         }
     };
 
