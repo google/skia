@@ -217,7 +217,9 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
         sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
-        paint->addColorFragmentProcessor(std::move(fp));
+        if (fp) {
+            paint->addColorFragmentProcessor(std::move(fp));
+        }
     } else {
         int numProcs = d->fRandom->nextULessThan(maxStages + 1);
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
