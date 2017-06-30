@@ -381,7 +381,9 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             fp = fContext->createUPMToPMEffect(std::move(fp), useConfigConversionEffect);
         }
         fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-        SkASSERT(fp);
+        if (!fp) {
+            return false;
+        }
 
         if (tempProxy->priv().hasPendingIO()) {
             this->flush(tempProxy.get());
@@ -508,7 +510,9 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
                 unpremul = false;
             }
             fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), tempDrawInfo.fSwizzle);
-            SkASSERT(fp);
+            if (!fp) {
+                return false;
+            }
 
             GrPaint paint;
             paint.addColorFragmentProcessor(std::move(fp));
