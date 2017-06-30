@@ -19,8 +19,8 @@
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:
-    NormalFlatFP() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
-        this->initClassID<NormalFlatFP>();
+    static sk_sp<GrFragmentProcessor> Make() {
+        return sk_sp<GrFragmentProcessor>(new NormalFlatFP());
     }
 
     class GLSLNormalFlatFP : public GrGLSLFragmentProcessor {
@@ -40,6 +40,10 @@ public:
     const char* name() const override { return "NormalFlatFP"; }
 
 private:
+    NormalFlatFP() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
+        this->initClassID<NormalFlatFP>();
+    }
+
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
 
     GrColor4f constantOutputForConstantInput(GrColor4f) const override {
@@ -55,7 +59,7 @@ private:
 sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(
         const SkShaderBase::AsFPArgs&) const {
 
-    return sk_make_sp<NormalFlatFP>();
+    return NormalFlatFP::Make();
 }
 
 #endif // SK_SUPPORT_GPU

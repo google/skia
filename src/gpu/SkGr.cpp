@@ -456,7 +456,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
             // The above may return null if compose results in a pass through of the prim color.
             if (shaderFP) {
-                grPaint->addColorFragmentProcessor(shaderFP);
+                grPaint->addColorFragmentProcessor(std::move(shaderFP));
             }
 
             // We can ignore origColor here - alpha is unchanged by gamma

@@ -1068,7 +1068,6 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
 class GrRRectBlurEffect : public GrFragmentProcessor {
 public:
-
     static sk_sp<GrFragmentProcessor> Make(GrContext*,
                                            float sigma, float xformedSigma,
                                            const SkRRect& srcRRect, const SkRRect& devRRect);

@@ -28,13 +28,6 @@ public:
         kY_Direction,
     };
 
-    Gr1DKernelEffect(OptimizationFlags optFlags,
-                     sk_sp<GrTextureProxy> proxy, Direction direction, int radius)
-        : INHERITED(optFlags, std::move(proxy), nullptr, SkMatrix::I())
-        , fDirection(direction)
-        , fRadius(radius) {
-    }
-
     ~Gr1DKernelEffect() override {}
 
     static int WidthFromRadius(int radius) { return 2 * radius + 1; }
@@ -48,6 +41,14 @@ public:
         str.appendf("Direction: %s, Radius: %d ", kX_Direction == fDirection ? "X" : "Y", fRadius);
         str.append(INHERITED::dumpInfo());
         return str;
+    }
+
+protected:
+    Gr1DKernelEffect(OptimizationFlags optFlags,
+                     sk_sp<GrTextureProxy> proxy, Direction direction, int radius)
+        : INHERITED(optFlags, std::move(proxy), nullptr, SkMatrix::I())
+        , fDirection(direction)
+        , fRadius(radius) {
     }
 
 private:
