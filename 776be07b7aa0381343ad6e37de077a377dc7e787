@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80a63263_0d4ceee6",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-30T01:40:46Z",
+      "side": 1,
+      "message": "Wrap at 100 cols, please.",
+      "revId": "776be07b7aa0381343ad6e37de077a377dc7e787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bdf64b67_7ebc5a28",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2017-06-30T01:40:46Z",
+      "side": 1,
+      "message": "Could you refactor this out into a \"modeForScaling\" local var or something, and use it both here and below?",
+      "revId": "776be07b7aa0381343ad6e37de077a377dc7e787",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
