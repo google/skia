@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a5f86c4a_dc68365b",
+        "filename": "gm/imageblurrepeatmode.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-30T17:22:49Z",
+      "side": 1,
+      "message": "Talked offline. Will land this in one cl.",
+      "parentUuid": "187e8fdb_8337b3e5",
+      "revId": "8d76fcffd3b82f006f64614bf26363661b281160",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "24fd4669_336cd0e4",
         "filename": "gm/imageblurrepeatmode.cpp",
         "patchSetId": 10
@@ -71,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e34176ba_a2d31448",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-30T17:22:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7b21413_d05bb55d",
+      "revId": "8d76fcffd3b82f006f64614bf26363661b281160",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bdda247_2487dc01",
         "filename": "src/effects/SkBlurMaskFilter.cpp",
         "patchSetId": 10
@@ -85,6 +121,24 @@
       "revId": "8d76fcffd3b82f006f64614bf26363661b281160",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57ddf4ec_43168817",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7520
+      },
+      "writtenOn": "2017-06-30T17:22:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4bdda247_2487dc01",
+      "revId": "8d76fcffd3b82f006f64614bf26363661b281160",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
