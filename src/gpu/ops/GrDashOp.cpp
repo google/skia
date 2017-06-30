@@ -199,7 +199,6 @@ static void setup_dashed_rect(const SkRect& rect, void* vertices, int idx,
             verts[idx + i].fRadius = radius;
             verts[idx + i].fCenterX = centerX;
         }
-
     } else {
         SkASSERT(kNonRound_DashCap == cap && vertexStride == sizeof(DashLineVertex));
         DashLineVertex* verts = reinterpret_cast<DashLineVertex*>(vertices);
@@ -379,7 +378,7 @@ private:
 
             DashDraw& draw = draws.push_back(args);
 
-            bool hasCap = SkPaint::kButt_Cap != cap && 0 != args.fSrcStrokeWidth;
+            bool hasCap = SkPaint::kButt_Cap != cap;
 
             // We always want to at least stroke out half a pixel on each side in device space
             // so 0.5f / perpScale gives us this min in src space
@@ -479,7 +478,7 @@ private:
 
             SkScalar halfDevStroke = strokeWidth * 0.5f;
 
-            if (SkPaint::kSquare_Cap == cap && 0 != args.fSrcStrokeWidth) {
+            if (SkPaint::kSquare_Cap == cap) {
                 // add cap to on interval and remove from off interval
                 devIntervals[0] += strokeWidth;
                 devIntervals[1] -= strokeWidth;

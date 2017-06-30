@@ -348,7 +348,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
-        canvas->translate(0, SK_ScalarHalf);
+        canvas->translate(SK_ScalarHalf, SK_ScalarHalf);
 
         for (int width = 0; width <= 2; ++width) {
             for (size_t data = 0; data < SK_ARRAY_COUNT(gData); ++data) {
