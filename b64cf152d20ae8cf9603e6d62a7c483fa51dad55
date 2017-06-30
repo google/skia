@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00417b45_a69c5572",
+        "filename": "src/pdf/SkPDFDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-30T14:22:12Z",
+      "side": 1,
+      "message": "trailing whitespace",
+      "range": {
+        "startLine": 42,
+        "startChar": 37,
+        "endLine": 42,
+        "endChar": 39
+      },
+      "revId": "b64cf152d20ae8cf9603e6d62a7c483fa51dad55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "175a3044_095d94ec",
+        "filename": "src/pdf/SkPDFDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-06-30T14:22:12Z",
+      "side": 1,
+      "message": "Maybe this \u0027*\u0027 was supposed to go before \u0027Apply\u0027?",
+      "range": {
+        "startLine": 53,
+        "startChar": 15,
+        "endLine": 53,
+        "endChar": 16
+      },
+      "revId": "b64cf152d20ae8cf9603e6d62a7c483fa51dad55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
