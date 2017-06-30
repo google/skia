@@ -94,6 +94,13 @@
     obj:/usr/lib*/libGL.so*
 }
 {
+   nv_driver_bug_4
+   Memcheck:Param
+   sendmsg(msg.msg_iov[0])
+   fun:sendmsg
+   obj:*/libGLX_nvidia.so*
+}
+{
     #Fixed by FontConfig 2.9.0
     #http://cgit.freedesktop.org/fontconfig/commit/?id=1c475d5c8cb265ac939d6b9e097666e300162511
     font_config_bug_1
@@ -131,6 +138,21 @@
     ...
     fun:FcValue*
     fun:FcFontRenderPrepare
+}
+{
+   font_config_bug_5
+   Memcheck:Leak
+   fun:malloc
+   obj:*/libfontconfig.so.1.8.0
+   fun:FcConfigSubstituteWithPat
+}
+{
+   font_config_bug_6
+   Memcheck:Leak
+   fun:*alloc
+   ...
+   obj:*/libfontconfig.so.1.8.0
+   fun:FcFont*
 }
 {
     zlib_bug_1
