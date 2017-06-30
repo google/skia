@@ -20,7 +20,9 @@ public:
     /**
      * Creates an effect that applies the sRGB transfer function (or its inverse)
      */
-    static sk_sp<GrFragmentProcessor> Make(Mode mode);
+    static sk_sp<GrFragmentProcessor> Make(Mode mode) {
+        return sk_sp<GrFragmentProcessor>(new GrSRGBEffect(mode));
+    }
 
     const char* name() const override { return "sRGB"; }
 

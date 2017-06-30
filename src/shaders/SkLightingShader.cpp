@@ -114,21 +114,9 @@ private:
 // premul'd.
 class LightingFP : public GrFragmentProcessor {
 public:
-    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights)
-            : INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
-        // fuse all ambient lights into a single one
-        fAmbientColor = lights->ambientLightColor();
-        for (int i = 0; i < lights->numLights(); ++i) {
-            if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
-                fDirectionalLights.push_back(lights->light(i));
-                // TODO get the handle to the shadow map if there is one
-            } else {
-                SkDEBUGFAIL("Unimplemented Light Type passed to LightingFP");
-            }
-        }
-
-        this->registerChildProcessor(std::move(normalFP));
-        this->initClassID<LightingFP>();
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> normalFP,
+                                           sk_sp<SkLights> lights) {
+        return sk_sp<GrFragmentProcessor>(new LightingFP(std::move(normalFP), std::move(lights)));
     }
 
     class GLSLLightingFP : public GrGLSLFragmentProcessor {
@@ -247,6 +235,23 @@ public:
     const SkColor3f& ambientColor() const { return fAmbientColor; }
 
 private:
+    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
+        // fuse all ambient lights into a single one
+        fAmbientColor = lights->ambientLightColor();
+        for (int i = 0; i < lights->numLights(); ++i) {
+            if (SkLights::Light::kDirectional_LightType == lights->light(i).type()) {
+                fDirectionalLights.push_back(lights->light(i));
+                // TODO get the handle to the shadow map if there is one
+            } else {
+                SkDEBUGFAIL("Unimplemented Light Type passed to LightingFP");
+            }
+        }
+
+        this->registerChildProcessor(std::move(normalFP));
+        this->initClassID<LightingFP>();
+    }
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLLightingFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override {
@@ -272,9 +277,9 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPA
     if (fDiffuseShader) {
         sk_sp<GrFragmentProcessor> fpPipeline[] = {
             as_SB(fDiffuseShader)->asFragmentProcessor(args),
-            sk_make_sp<LightingFP>(std::move(normalFP), fLights)
+            LightingFP::Make(std::move(normalFP), fLights)
         };
-        if(!fpPipeline[0]) {
+        if (!fpPipeline[0] || !fpPipeline[1]) {
             return nullptr;
         }
 
@@ -284,8 +289,7 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPA
     } else {
         // FP is wrapped because paint comes in unpremul'd to fragment shader, but LightingFP
         // expects premul'd color.
-        return GrFragmentProcessor::PremulInput(sk_make_sp<LightingFP>(std::move(normalFP),
-                                                                       fLights));
+        return GrFragmentProcessor::PremulInput(LightingFP::Make(std::move(normalFP), fLights));
     }
 }
 
