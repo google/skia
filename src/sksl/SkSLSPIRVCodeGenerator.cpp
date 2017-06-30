@@ -2063,6 +2063,9 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         lhs = this->writeExpression(*b.fLeft, out);
     }
     SpvId rhs = this->writeExpression(*b.fRight, out);
+    if (b.fOperator == Token::COMMA) {
+        return rhs;
+    }
     // component type we are operating on: float, int, uint
     const Type* operandType;
     // IR allows mismatched types in expressions (e.g. vec2 * float), but they need special handling
