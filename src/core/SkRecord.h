@@ -175,7 +175,8 @@ private:
             switch(this->type()) { SK_RECORD_TYPES(CASE) }
         #undef CASE
             SkDEBUGFAIL("Unreachable");
-            return f((SkRecords::NoOp*)nullptr);
+            static const SkRecords::NoOp noop;
+            return f(&noop);
         }
     };
 
