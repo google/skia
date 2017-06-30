@@ -24,11 +24,9 @@
 
 class NormalMapFP : public GrFragmentProcessor {
 public:
-    NormalMapFP(sk_sp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
-            : INHERITED(kNone_OptimizationFlags), fInvCTM(invCTM) {
-        this->registerChildProcessor(mapFP);
-
-        this->initClassID<NormalMapFP>();
+    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> mapFP,
+                                           const SkMatrix& invCTM) {
+        return sk_sp<GrFragmentProcessor>(new NormalMapFP(std::move(mapFP), invCTM));
     }
 
     class GLSLNormalMapFP : public GrGLSLFragmentProcessor {
@@ -104,6 +102,13 @@ public:
     const SkMatrix& invCTM() const { return fInvCTM; }
 
 private:
+    NormalMapFP(sk_sp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
+            : INHERITED(kNone_OptimizationFlags), fInvCTM(invCTM) {
+        this->registerChildProcessor(mapFP);
+
+        this->initClassID<NormalMapFP>();
+    }
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLSLNormalMapFP; }
 
     bool onIsEqual(const GrFragmentProcessor& proc) const override {
@@ -123,7 +128,7 @@ sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
         return nullptr;
     }
 
-    return sk_make_sp<NormalMapFP>(std::move(mapFP), fInvCTM);
+    return NormalMapFP::Make(std::move(mapFP), fInvCTM);
 }
 
 #endif // SK_SUPPORT_GPU

@@ -204,15 +204,9 @@ public:
         kSimpleCircular_Mode,
     };
 
-    RRectsGaussianEdgeFP(const SkRRect& first, const SkRRect& second, SkScalar radius)
-            : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-            , fFirst(first)
-            , fSecond(second)
-            , fRadius(radius) {
-        this->initClassID<RRectsGaussianEdgeFP>();
-
-        fFirstMode = ComputeMode(fFirst);
-        fSecondMode = ComputeMode(fSecond);
+    static sk_sp<GrFragmentProcessor> Make(const SkRRect& first, const SkRRect& second,
+                                           SkScalar radius) {
+        return sk_sp<GrFragmentProcessor>(new RRectsGaussianEdgeFP(first, second, radius));
     }
 
     class GLSLRRectsGaussianEdgeFP : public GrGLSLFragmentProcessor {
@@ -462,6 +456,17 @@ public:
     SkScalar radius() const { return fRadius; }
 
 private:
+    RRectsGaussianEdgeFP(const SkRRect& first, const SkRRect& second, SkScalar radius)
+            : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            , fFirst(first)
+            , fSecond(second)
+            , fRadius(radius) {
+        this->initClassID<RRectsGaussianEdgeFP>();
+
+        fFirstMode = ComputeMode(fFirst);
+        fSecondMode = ComputeMode(fSecond);
+    }
+
     static Mode ComputeMode(const SkRRect& rr) {
         if (rr.isCircle()) {
             return kCircle_Mode;
@@ -496,7 +501,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 bool SkRRectsGaussianEdgeMaskFilterImpl::asFragmentProcessor(GrFragmentProcessor** fp) const {
     if (fp) {
-        *fp = new RRectsGaussianEdgeFP(fFirst, fSecond, fRadius);
+        *fp = RRectsGaussianEdgeFP::Make(fFirst, fSecond, fRadius).release();
     }
 
     return true;

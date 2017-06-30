@@ -595,9 +595,6 @@ private:
 
 class GrLightingEffect : public GrSingleTextureEffect {
 public:
-    GrLightingEffect(sk_sp<GrTextureProxy>,
-                     const SkImageFilterLight* light, SkScalar surfaceScale,
-                     const SkMatrix& matrix, BoundaryMode boundaryMode, const SkIRect* srcBounds);
     ~GrLightingEffect() override;
 
     const SkImageFilterLight* light() const { return fLight; }
@@ -607,8 +604,11 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
 
 protected:
-    bool onIsEqual(const GrFragmentProcessor&) const override;
+    GrLightingEffect(sk_sp<GrTextureProxy>,
+                     const SkImageFilterLight* light, SkScalar surfaceScale,
+                     const SkMatrix& matrix, BoundaryMode boundaryMode, const SkIRect* srcBounds);
 
+    bool onIsEqual(const GrFragmentProcessor&) const override;
 
 private:
     const SkImageFilterLight* fLight;

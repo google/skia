@@ -1423,6 +1423,9 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fRenderTargetContext->getColorSpace()));
+    if (!fp) {
+        return;
+    }
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint,
                                      this->ctm(), std::move(fp), producer->isAlphaOnly(),
@@ -1478,6 +1481,9 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
                                           &kMode, fRenderTargetContext->getColorSpace()));
+    if (!fp) {
+        return;
+    }
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext.get(), paint,
                                      this->ctm(), std::move(fp), producer->isAlphaOnly(),

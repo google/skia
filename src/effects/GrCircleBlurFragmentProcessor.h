@@ -22,6 +22,8 @@ class GrResourceProvider;
 // profile that is just rotated about the origin of the circle.
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
+    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, const SkRect& circle, float sigma);
+
     ~GrCircleBlurFragmentProcessor() override {}
 
     const char* name() const override { return "CircleBlur"; }
@@ -33,8 +35,6 @@ public:
                     fSolidRadius, fTextureRadius);
         return str;
     }
-
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider*, const SkRect& circle, float sigma);
 
 private:
     // This nested GLSL processor implementation is defined in the cpp file.
