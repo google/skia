@@ -161,6 +161,7 @@ gm_sources = [
   "$_gm/imageblur.cpp",
   "$_gm/imageblur2.cpp",
   "$_gm/imageblurclampmode.cpp",
+  "$_gm/imageblurrepeatmode.cpp",
   "$_gm/imageblurtiled.cpp",
   "$_gm/imagefilters.cpp",
   "$_gm/imagefiltersbase.cpp",

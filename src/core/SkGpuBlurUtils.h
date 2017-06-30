@@ -10,6 +10,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrRenderTargetContext.h"
+#include "effects/GrTextureDomain.h"
 
 class GrContext;
 class GrTexture;
@@ -30,17 +31,20 @@ namespace SkGpuBlurUtils {
     *                        no pixels will be sampled outside of this rectangle.
     * @param sigmaX          The blur's standard deviation in X.
     * @param sigmaY          The blur's standard deviation in Y.
+    * @param mode            The mode to handle samples outside bounds.
     * @param fit             backing fit for the returned render target context
     * @return                The renderTargetContext containing the blurred result.
     */
-    sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
-                                              sk_sp<GrTextureProxy> src,
-                                              sk_sp<SkColorSpace> colorSpace,
-                                              const SkIRect& dstBounds,
-                                              const SkIRect* srcBounds,
-                                              float sigmaX,
-                                              float sigmaY,
-                                              SkBackingFit fit = SkBackingFit::kApprox);
+    sk_sp<GrRenderTargetContext> GaussianBlur(
+            GrContext* context,
+            sk_sp<GrTextureProxy> src,
+            sk_sp<SkColorSpace> colorSpace,
+            const SkIRect& dstBounds,
+            const SkIRect& srcBounds,
+            float sigmaX,
+            float sigmaY,
+            GrTextureDomain::Mode mode,
+            SkBackingFit fit = SkBackingFit::kApprox);
 };
 
 #endif

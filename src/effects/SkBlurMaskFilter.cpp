@@ -27,6 +27,7 @@
 #include "GrStyle.h"
 #include "GrTextureProxy.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
@@ -1135,15 +1136,16 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
         if (!srcProxy) {
             return nullptr;
         }
-        sk_sp<GrRenderTargetContext> rtc2(SkGpuBlurUtils::GaussianBlur(context,
-                                                                       std::move(srcProxy),
-                                                                       nullptr,
-                                                                       SkIRect::MakeWH(
-                                                                                    size.fWidth,
-                                                                                    size.fHeight),
-                                                                       nullptr,
-                                                                       xformedSigma, xformedSigma,
-                                                                       SkBackingFit::kExact));
+        sk_sp<GrRenderTargetContext> rtc2(
+                  SkGpuBlurUtils::GaussianBlur(context,
+                                               std::move(srcProxy),
+                                               nullptr,
+                                               SkIRect::MakeWH(size.fWidth, size.fHeight),
+                                               SkIRect::EmptyIRect(),
+                                               xformedSigma,
+                                               xformedSigma,
+                                               GrTextureDomain::kIgnore_Mode,
+                                               SkBackingFit::kExact));
         if (!rtc2) {
             return nullptr;
         }
@@ -1495,12 +1497,15 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
-    sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(context,
-                                                                                  srcProxy,
-                                                                                  nullptr, clipRect,
-                                                                                  nullptr,
-                                                                                  xformedSigma,
-                                                                                  xformedSigma));
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+              SkGpuBlurUtils::GaussianBlur(context,
+                                           srcProxy,
+                                           nullptr,
+                                           clipRect,
+                                           SkIRect::EmptyIRect(),
+                                           xformedSigma,
+                                           xformedSigma,
+                                           GrTextureDomain::kIgnore_Mode));
     if (!renderTargetContext) {
         return nullptr;
     }
