@@ -117,16 +117,24 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
     return surf->makeImageSnapshot();
 }
 
+template <typename T> sk_sp<SkImageFilter> refme(const T* ptr) {
+    return sk_sp<SkImageFilter>(const_cast<T*>(ptr));
+}
+
 sk_sp<SkImageFilter> SkColorFilterImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(1 == this->countInputs());
 
-    sk_sp<SkImageFilter> input =
-            this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
+    sk_sp<SkImageFilter> input;
+    if (this->getInput(0)) {
+        input = this->getInput(0)->makeColorSpace(xformer);
+    }
     sk_sp<SkColorFilter> colorFilter = xformer->apply(fColorFilter.get());
-
-    return SkColorFilterImageFilter::Make(std::move(colorFilter), std::move(input),
-                                          this->getCropRectIfSet());
+    if (this->getInput(0) != input.get() || fColorFilter.get() != colorFilter.get()) {
+        return SkColorFilterImageFilter::Make(std::move(colorFilter), std::move(input),
+                                              this->getCropRectIfSet());
+    }
+    return refme(this);
 }
 
 bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const {

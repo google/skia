@@ -297,16 +297,24 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
                                           dst, &source->props());
 }
 
+template <typename T> sk_sp<T> refme(const T* ptr) {
+    return sk_sp<T>(const_cast<T*>(ptr));
+}
+
 sk_sp<SkImageFilter> SkBlurImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkBlurImageFilterImpl*>(this));
-    }
 
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
-                                   this->getCropRectIfSet(), fTileMode);
+    if (this->getInput(0)) {
+        sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
+        // Since we may have been cached, only return a new instance if the xformer has actually
+        // changed us.
+        if (this->getInput(0) != input.get()) {
+            return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
+                                           this->getCropRectIfSet(), fTileMode);
+        }
+    }
+    return refme(this);
 }
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
