@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkCanvas.h"
 #include "SkDocument.h"
 #include "SkStream.h"
 
@@ -37,9 +38,15 @@ SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
 
     for (;;) {
         switch (fState) {
-            case kBetweenPages_State:
+            case kBetweenPages_State: {
                 fState = kInPage_State;
-                return this->onBeginPage(width, height, inner);
+                SkCanvas* canvas = this->onBeginPage(width, height);
+                if (content) {
+                    canvas->clipRect(inner);
+                    canvas->translate(inner.x(), inner.y());
+                }
+                return canvas;
+            }
             case kInPage_State:
                 this->endPage();
                 break;

@@ -208,8 +208,7 @@ protected:
     // cannot do this for them.
     virtual ~SkDocument();
 
-    virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
-                                  const SkRect& content) = 0;
+    virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height) = 0;
     virtual void onEndPage() = 0;
     virtual void onClose(SkWStream*) = 0;
     virtual void onAbort() = 0;

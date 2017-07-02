@@ -44,19 +44,6 @@ static SkSize join(const SkTArray<SkSize>& sizes) {
     return joined;
 }
 
-static SkCanvas* trim(SkCanvas* canvas,
-                      SkScalar w, SkScalar h,
-                      const SkRect& trimBox) {
-    // Only trim if necessary.
-    if (trimBox != SkRect::MakeWH(w, h)) {
-        // All SkDocument implementations implement trimBox using a
-        // clip+translate.
-        canvas->clipRect(trimBox);
-        canvas->translate(trimBox.x(), trimBox.y());
-    }
-    return canvas;
-}
-
 struct MultiPictureDocument final : public SkDocument {
     SkPictureRecorder fPictureRecorder;
     SkSize fCurrentPageSize;
@@ -66,9 +53,9 @@ struct MultiPictureDocument final : public SkDocument {
         : SkDocument(s, d) {}
     ~MultiPictureDocument() override { this->close(); }
 
-    SkCanvas* onBeginPage(SkScalar w, SkScalar h, const SkRect& c) override {
+    SkCanvas* onBeginPage(SkScalar w, SkScalar h) override {
         fCurrentPageSize.set(w, h);
-        return trim(fPictureRecorder.beginRecording(w, h), w, h, c);
+        return fPictureRecorder.beginRecording(w, h);
     }
     void onEndPage() override {
         fSizes.push_back(fCurrentPageSize);

@@ -24,7 +24,7 @@ public:
     virtual ~SkXPSDocument();
 
 protected:
-    SkCanvas* onBeginPage(SkScalar w, SkScalar h, const SkRect&) override;
+    SkCanvas* onBeginPage(SkScalar w, SkScalar h) override;
     void onEndPage() override;
     void onClose(SkWStream*) override;
     void onAbort() override;
