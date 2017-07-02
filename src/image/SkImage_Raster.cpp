@@ -59,9 +59,15 @@ public:
         }
 
         const bool needsCT = kIndex_8_SkColorType == info.colorType();
+#ifdef SK_SUPPORT_LEGACY_INDEX_8
         if (needsCT != hasColorTable) {
             return false;
         }
+#else
+        if (needsCT) {
+            return false;
+        }
+#endif
 
         if (rowBytes < info.minRowBytes()) {
             return false;

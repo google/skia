@@ -589,7 +589,9 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
             kARGB_4444_SkColorType,
             kRGBA_8888_SkColorType,
             kBGRA_8888_SkColorType,
+#ifdef SK_SUPPORT_LEGACY_INDEX_8
             kIndex_8_SkColorType,
+#endif
             kGray_8_SkColorType,
             kRGBA_F16_SkColorType,
     };
