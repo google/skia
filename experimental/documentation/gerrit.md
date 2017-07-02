@@ -126,14 +126,20 @@ If your branch's upstream branch (set with `git branch --set-upstream-to=...`)
 is set, you can use that to automatically push to that branch:
 
     gerrit_push_upstream() {
-        local UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name @{u})"
+        local UPSTREAM_FULL="$(git rev-parse --symbolic-full-name @{upstream})"
+        case "$UPSTREAM_FULL" in
+            (refs/remotes/*) :;;
+            (*) echo "Set your remote upstream branch."; return 2;;
+        esac
+        local UPSTREAM="${UPSTREAM_FULL#refs/remotes/}"
         local REMOTE="${UPSTREAM%%/*}"
         local REMOTE_BRANCH="${UPSTREAM#*/}"
         local MESSAGE="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')"
+        echo git push $R @:refs/for/${B}%m=${M};
         git push "$REMOTE" "@:refs/for/${REMOTE_BRANCH}%m=${MESSAGE}"
     }
 
 As a Git alias:
 
-    git config alias.gerrit-push-upstream '!f()(U="$(git rev-parse --abbrev-ref --symbolic-full-name @{u})";R="${U%%/*}";B="${U#*/}";M="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')";git push "$R" "@:refs/for/${B}%m=$M");f'
+    git config alias.gerrit-push '!f()(F="$(git rev-parse --symbolic-full-name @{u})";case "$F" in (refs/remotes/*);;(*)echo "Set your remote upstream branch.";return 2;;esac;U="${F#refs/remotes/}";R="${U%%/*}";B="${U#*/}";M="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')";echo git push $R @:refs/for/${B}%m=$M;git push "$R" "@:refs/for/${B}%m=$M");f'
 
