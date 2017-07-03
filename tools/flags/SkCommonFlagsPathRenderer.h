@@ -28,6 +28,9 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
         return GpuPathRenderers::kAll;
     } else if (!strcmp(name, "dashline")) {
         return GpuPathRenderers::kDashLine;
+    } else if (!strcmp(name, "ccpr")) {
+        // TODOOOOOOO::::: reorder
+        return GpuPathRenderers::kCoverageCounting;
     } else if (!strcmp(name, "nvpr")) {
         return GpuPathRenderers::kStencilAndCover;
     } else if (!strcmp(name, "msaa")) {

@@ -185,6 +185,15 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
         // TODO: figure out how to use am start with extra params to pass in additional arguments at
         // runtime. Or better yet make an in app switch to enable
         // "--atrace",
+        "-b",
+        "gl",
+        "--pr",
+        "ccpr",
+        "--skps",
+        "/data/local/tmp/skia/skps",
+        "--match",
+        "PathText",
+        "svg"
     };
 
     skiaAndroidApp->fApp = Application::Create(SK_ARRAY_COUNT(gCmdLine),
