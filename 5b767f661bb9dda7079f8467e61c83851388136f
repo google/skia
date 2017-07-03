@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35658bb9_f35e6e66",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-03T22:52:51Z",
+      "side": 1,
+      "message": "// Appends a stage for the given matrix.",
+      "range": {
+        "startLine": 130,
+        "startChar": 7,
+        "endLine": 130,
+        "endChar": 52
+      },
+      "revId": "5b767f661bb9dda7079f8467e61c83851388136f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
