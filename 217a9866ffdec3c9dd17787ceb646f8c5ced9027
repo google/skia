@@ -16,6 +16,24 @@
       "revId": "217a9866ffdec3c9dd17787ceb646f8c5ced9027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61235ece_c046d157",
+        "filename": "src/core/SkSpriteBlitter_ARGB32.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-03T16:51:30Z",
+      "side": 1,
+      "message": "null just means fall through to other blitters...\n- rasterpipeline\n- general blits",
+      "parentUuid": "1b6ce3a3_6d822a3c",
+      "revId": "217a9866ffdec3c9dd17787ceb646f8c5ced9027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
