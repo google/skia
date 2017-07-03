@@ -12,6 +12,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
+#include "GrRenderTargetProxy.h"
 
 class GrClearStencilClipOp final : public GrOp {
 public:

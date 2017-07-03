@@ -8,6 +8,8 @@
 #ifndef SkUtils_opts_DEFINED
 #define SkUtils_opts_DEFINED
 
+#include "stdint.h"
+
 namespace SK_OPTS_NS {
 
     static void memset16(uint16_t buffer[], uint16_t value, int count) {

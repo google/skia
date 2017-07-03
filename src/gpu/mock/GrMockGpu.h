@@ -4,9 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef GrMockGpu_DEFINED
+#define GrMockGpu_DEFINED
 
+#include "GrCaps.h"
 #include "GrGpu.h"
 #include "GrSemaphore.h"
+#include "GrTexture.h"
 
 class GrPipeline;
 
@@ -152,3 +156,4 @@ private:
 
     typedef GrGpu INHERITED;
 };
+#endif  // GrMockGpu_DEFINED

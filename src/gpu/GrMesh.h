@@ -9,6 +9,7 @@
 #define GrMesh_DEFINED
 
 #include "GrBuffer.h"
+#include "GrGpuResourceRef.h"
 
 class GrPrimitiveProcessor;
 
