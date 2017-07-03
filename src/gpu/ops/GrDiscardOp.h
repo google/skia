@@ -8,6 +8,7 @@
 #ifndef GrDiscardOp_DEFINED
 #define GrDiscardOp_DEFINED
 
+#include "GrGpuCommandBuffer.h"
 #include "GrOp.h"
 #include "GrOpFlushState.h"
 #include "GrRenderTargetProxy.h"

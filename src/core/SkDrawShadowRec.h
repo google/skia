@@ -8,7 +8,9 @@
 #ifndef SkDrawShadowRec_DEFINED
 #define SkDrawShadowRec_DEFINED
 
+#include "SkColor.h"
 #include "SkPath.h"
+#include "SkPoint3.h"
 
 struct SkDrawShadowRec {
     SkPoint3    fZPlaneParams;

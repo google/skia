@@ -8,6 +8,7 @@
 #ifndef SkICCPriv_DEFINED
 #define SkICCPriv_DEFINED
 
+#include "SkColorSpace.h"
 #include "SkTypes.h"
 
 // This is equal to the header size according to the ICC specification (128)
