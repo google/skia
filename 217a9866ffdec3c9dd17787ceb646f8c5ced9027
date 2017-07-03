@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b6ce3a3_6d822a3c",
+        "filename": "src/core/SkSpriteBlitter_ARGB32.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-03T14:44:54Z",
+      "side": 1,
+      "message": "hmm, who handles kSrc + alpha now?",
+      "revId": "217a9866ffdec3c9dd17787ceb646f8c5ced9027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
