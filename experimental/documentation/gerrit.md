@@ -128,14 +128,14 @@ is set, you can use that to automatically push to that branch:
     gerrit_push_upstream() {
         local UPSTREAM_FULL="$(git rev-parse --symbolic-full-name @{upstream})"
         case "$UPSTREAM_FULL" in
-            (refs/remotes/*) :;;
+            (refs/remotes/*);;
             (*) echo "Set your remote upstream branch."; return 2;;
         esac
         local UPSTREAM="${UPSTREAM_FULL#refs/remotes/}"
         local REMOTE="${UPSTREAM%%/*}"
         local REMOTE_BRANCH="${UPSTREAM#*/}"
         local MESSAGE="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')"
-        echo git push $R @:refs/for/${B}%m=${M};
+        echo git push $REMOTE @:refs/for/${REMOTE_BRANCH}%m=${MESSAGE}
         git push "$REMOTE" "@:refs/for/${REMOTE_BRANCH}%m=${MESSAGE}"
     }
 
