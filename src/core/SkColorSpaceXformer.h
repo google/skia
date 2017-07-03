@@ -11,10 +11,15 @@
 #include "SkColorSpaceXform.h"
 #include "SkImage.h"
 #include "SkShader.h"
+#include "SkImageFilter.h"
 
 class SkColorSpaceXformer : public SkNoncopyable {
 public:
     static std::unique_ptr<SkColorSpaceXformer> Make(sk_sp<SkColorSpace> dst);
+
+    sk_sp<SkImageFilter> applyIf(const SkImageFilter* imf) {
+        return imf ? imf->makeColorSpace(this) : nullptr;
+    }
 
     sk_sp<SkImage> apply(const SkImage*);
     sk_sp<SkImage> apply(const SkBitmap&);

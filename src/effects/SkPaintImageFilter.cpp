@@ -70,7 +70,11 @@ sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
 }
 
 sk_sp<SkImageFilter> SkPaintImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return SkPaintImageFilter::Make(xformer->apply(fPaint), this->getCropRectIfSet());
+    SkPaint paint = xformer->apply(fPaint);
+    if (paint != fPaint) {
+        return SkPaintImageFilter::Make(paint, this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 bool SkPaintImageFilter::affectsTransparentBlack() const {

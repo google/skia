@@ -155,8 +155,12 @@ private:
     }
 
     sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return SkColorFilter::MakeComposeFilter(xformer->apply(fOuter.get()),
-                                                xformer->apply(fInner.get()));
+        auto outer = xformer->apply(fOuter.get());
+        auto inner = xformer->apply(fInner.get());
+        if (outer != fOuter || inner != fInner) {
+            return SkColorFilter::MakeComposeFilter(outer, inner);
+        }
+        return this->INHERITED::onMakeColorSpace(xformer);
     }
 
     sk_sp<SkColorFilter> fOuter;

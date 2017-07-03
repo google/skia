@@ -116,9 +116,12 @@ sk_sp<SkImageFilter> SkDropShadowImageFilter::onMakeColorSpace(SkColorSpaceXform
 
     sk_sp<SkImageFilter> input =
             this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
-
-    return SkDropShadowImageFilter::Make(fDx, fDy, fSigmaX, fSigmaY, xformer->apply(fColor),
-                                         fShadowMode, std::move(input), this->getCropRectIfSet());
+    SkColor color = xformer->apply(fColor);
+    if (input.get() != this->getInput(0) || color != fColor) {
+        return SkDropShadowImageFilter::Make(fDx, fDy, fSigmaX, fSigmaY, color,
+                                             fShadowMode, input, this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 SkRect SkDropShadowImageFilter::computeFastBounds(const SkRect& src) const {
