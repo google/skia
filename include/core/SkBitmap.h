@@ -121,12 +121,7 @@ public:
     /** Return true iff drawing this bitmap has no effect.
      */
     bool drawsNothing() const {
-#ifndef SK_SUPPORT_LEGACY_INDEX_8
-        if (this->colorType() == kIndex_8_SkColorType) {
-            return true;
-        }
-#endif
-        return this->empty() || this->isNull();
+        return this->colorType() == kIndex_8_SkColorType || this->empty() || this->isNull();
     }
 
     /** Return the number of bytes between subsequent rows of the bitmap. */
