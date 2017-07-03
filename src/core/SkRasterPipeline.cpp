@@ -82,3 +82,13 @@ void SkRasterPipeline::append_from_srgb_dst(SkAlphaType at) {
         this->append(SkRasterPipeline::clamp_a_dst);
     }
 }
+
+void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix) {
+    float* storage = alloc->makeArray<float>(9);
+    if (matrix.asAffine(storage)) {
+        this->append(SkRasterPipeline::matrix_2x3, storage);
+    } else {
+        matrix.get9(storage);
+        this->append(SkRasterPipeline::matrix_perspective, storage);
+    }
+}

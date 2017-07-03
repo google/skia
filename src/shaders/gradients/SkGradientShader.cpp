@@ -382,15 +382,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     }
 
     p->append(SkRasterPipeline::seed_shader);
-
-    auto* m = alloc->makeArrayDefault<float>(9);
-    if (matrix.asAffine(m)) {
-        p->append(SkRasterPipeline::matrix_2x3, m);
-    } else {
-        matrix.get9(m);
-        p->append(SkRasterPipeline::matrix_perspective, m);
-    }
-
+    p->append_matrix(alloc, matrix);
     p->extend(tPipeline);
 
     switch(fTileMode) {
