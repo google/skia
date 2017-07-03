@@ -78,7 +78,9 @@
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
+#if !defined(HWCAP_CRC32)
         const uint32_t HWCAP_CRC32 = (1<<7);
+#endif
 
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
