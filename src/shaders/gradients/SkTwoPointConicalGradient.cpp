@@ -204,7 +204,9 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
     SkMatrix map_to_unit_vector;
     const SkPoint centers[2] = { fCenter1, fCenter2 };
     const SkPoint unitvec[2] = { {0, 0}, {1, 0} };
-    SkAssertResult(map_to_unit_vector.setPolyToPoly(centers, unitvec, 2));
+    if (!map_to_unit_vector.setPolyToPoly(centers, unitvec, 2)) {
+        return false;
+    }
     matrix->postConcat(map_to_unit_vector);
 
     // Since we've squashed the centers into a unit vector, we must also scale
