@@ -227,6 +227,6 @@ bool GrVkBuffer::vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInByt
 
 void GrVkBuffer::validate() const {
     SkASSERT(!fResource || kVertex_Type == fDesc.fType || kIndex_Type == fDesc.fType
-             || kCopyRead_Type == fDesc.fType || kCopyWrite_Type == fDesc.fType
-             || kUniform_Type == fDesc.fType);
+             || kTexel_Type == fDesc.fType || kCopyRead_Type == fDesc.fType
+             || kCopyWrite_Type == fDesc.fType || kUniform_Type == fDesc.fType);
 }
