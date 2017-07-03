@@ -259,6 +259,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     static SkOnce initPathRendererNames;
     initPathRendererNames([]() {
         gPathRendererNames[GpuPathRenderers::kAll] = "Default Ganesh Behavior (best path renderer)";
+        // TODOOOOOOO::::: reorder
+        gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
         gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
         gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
         gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
@@ -1304,6 +1306,8 @@ void Viewer::updateUIState() {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     } else {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
+        // TODOOOOOOO::::: reorder
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kCoverageCounting]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kSmall]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);

@@ -18,7 +18,11 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
 
 // Print the source code for all shaders generated.
+#ifdef SK_DEBUG
+static const bool c_PrintShaders{true};
+#else
 static const bool c_PrintShaders{false};
+#endif
 
 static SkString list_source_with_line_numbers(const char* source) {
     SkTArray<SkString> lines;

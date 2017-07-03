@@ -24,8 +24,8 @@ extern "C" {
     #include "keysym2ucs.h"
 }
 
-const int WIDTH = 500;
-const int HEIGHT = 500;
+const int WIDTH = 1500;
+const int HEIGHT = 1500;
 
 // Determine which events to listen for.
 const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask

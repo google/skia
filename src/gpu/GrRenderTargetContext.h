@@ -20,7 +20,9 @@
 #include "SkSurfaceProps.h"
 
 class GrBackendSemaphore;
+class GrCCPRAtlas;
 class GrClip;
+class GrCoverageCountingPathRenderer;
 class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
@@ -373,6 +375,8 @@ private:
     // All the path renderers currently make their own ops
     friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAConvexPathRenderer;             // for access to add[Mesh]DrawOp
+    friend class GrCCPRAtlas;                        // for access to addDrawOp
+    friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     friend class GrDashLinePathRenderer;             // for access to add[Mesh]DrawOp
     friend class GrAAHairLinePathRenderer;           // for access to add[Mesh]DrawOp
     friend class GrAALinearizingConvexPathRenderer;  // for access to add[Mesh]DrawOp

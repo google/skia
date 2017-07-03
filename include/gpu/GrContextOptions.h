@@ -85,14 +85,15 @@ struct GrContextOptions {
     enum class GpuPathRenderers {
         kNone              = 0, // Always use sofware masks.
         kDashLine          = 1 << 0,
-        kStencilAndCover   = 1 << 1,
-        kMSAA              = 1 << 2,
-        kAAHairline        = 1 << 3,
-        kAAConvex          = 1 << 4,
-        kAALinearizing     = 1 << 5,
-        kSmall             = 1 << 6,
-        kTessellating      = 1 << 7,
-        kDefault           = 1 << 8,
+        kCoverageCounting  = 1 << 1,
+        kStencilAndCover   = 1 << 2,
+        kMSAA              = 1 << 3,
+        kAAHairline        = 1 << 4,
+        kAAConvex          = 1 << 5,
+        kAALinearizing     = 1 << 6,
+        kSmall             = 1 << 7,
+        kTessellating      = 1 << 8,
+        kDefault           = 1 << 9,
 
         kAll               = kDefault | (kDefault - 1),
 

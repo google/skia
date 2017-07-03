@@ -1752,6 +1752,9 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    if (SkPaint::kFill_Style != paint.getStyle()) {
+        return;
+    }
     this->onDrawPath(path, paint);
 }
 

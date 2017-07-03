@@ -476,11 +476,42 @@ static void filter_coverage(const uint8_t* map, int len, uint8_t min, uint8_t ma
 
 static void construct_path(SkPath& path) {
     path.reset();
-    path.moveTo(442, 101.5f);
-    path.quadTo(413.5f, 691, 772, 514);
-    path.lineTo(346, 721.5f);
-    path.lineTo(154, 209);
-    path.lineTo(442, 101.5f);
+#if 0
+path.moveTo(887.526f, 849.8f);
+path.lineTo(910.813f, 727.287f);
+path.cubicTo(911.826f, 709.063f, 917.901f, 599.713f, 917.901f, 599.713f);
+#elif 0
+path.moveTo(947.263f, 917.638f);
+path.cubicTo(892.589f, 879.162f, 887.526f, 849.8f, 887.526f, 849.8f);
+path.cubicTo(951.313f, 808.287f, 909.802f, 745.513f, 910.813f, 727.287f);
+path.cubicTo(911.826f, 709.063f, 917.901f, 599.713f, 917.901f, 599.713f);
+path.cubicTo(907.776f, 568.325f, 892.589f, 499.475f, 892.589f, 499.475f);
+path.cubicTo(785.263f, 676.662f, 849.052f, 723.237f, 849.052f, 723.237f);
+path.cubicTo(849.052f, 723.237f, 845.001f, 713.112f, 846.013f, 722.225f);
+path.cubicTo(847.026f, 731.338f, 862.214f, 752.6f, 866.263f, 762.725f);
+path.cubicTo(870.313f, 772.85f, 850.063f, 773.862f, 850.063f, 773.862f);
+path.cubicTo(853.101f, 822.463f, 775.138f, 801.2f, 775.138f, 801.2f);
+#elif 0 // infinite cusp
+path.moveTo(670.594f, 477.978f);
+path.cubicTo(657.198f, 433.839f, 649.669f, 387.923f, 629.599f, 345.846f);
+#elif 1
+path.moveTo(848.634f, 348.487f);
+path.cubicTo(848.634f, 348.487f, 654.679f, 287.18f, 315.552f, 735.131f);
+#elif 1
+path.moveTo(899.759f, 904.337f);
+path.cubicTo(1164.63f, 1125.22f, 1006.06f, 723.606f, 1006.06f, 723.606f);
+#elif 1
+path.moveTo(899.759f, 904.337f);
+path.cubicTo(1103.63f, 1102.22f, 1006.06f, 723.606f, 1006.06f, 723.606f);
+#elif 1
+path.moveTo(1102, 570.5f);
+path.cubicTo(1022, 822.5f, 1073, 329, 1313, 545);
+#else
+path.moveTo(758, 896.5f);
+path.cubicTo(1502, 1264.5f, 568, 729, 1177, 1341);
+// path.moveTo(758, 896.5f);
+// path.cubicTo(1061, 830.5f, 1391, 853, 1177, 1341);
+#endif
     path.close();
 }
 
@@ -832,7 +863,7 @@ public:
         , fDeleteButton('x')
         , fFillButton('p')
         , fSkeletonButton('s')
-        , fFilterButton('f', 3)
+        , fFilterButton('M', 3)
         , fBisectButton('b')
         , fJoinButton('j')
         , fInOutButton('|')
@@ -866,7 +897,7 @@ public:
         construct_path(fPath);
         fFillButton.fVisible = fSkeletonButton.fVisible = fFilterButton.fVisible
                 = fBisectButton.fVisible = fJoinButton.fVisible = fInOutButton.fVisible = true;
-        fSkeletonButton.setEnabled(true);
+        fFillButton.setEnabled(true);
         fInOutButton.setEnabled(true);
         fJoinButton.setEnabled(true);
         fFilterControl.fValLo = 120;
@@ -1043,6 +1074,7 @@ public:
 
     void draw_bisect(SkCanvas* canvas, const SkVector& lastVector, const SkVector& vector,
                 const SkPoint& pt) {
+        return;
         SkVector lastV = lastVector;
         SkScalar lastLen = lastVector.length();
         SkVector nextV = vector;
@@ -1807,10 +1839,10 @@ static struct KeyCommand {
     { ' ',  0,  "space",   "center path", &AAGeometryView::scaleToFit },   
     { '-',  0,  "-",          "zoom out", &AAGeometryView::scaleDown },   
     { '+', '=', "+/=",         "zoom in", &AAGeometryView::scaleUp },   
-    { 'd',  0,  "d",   "dump to console", &AAGeometryView::pathDump },
+    { 'D',  0,  "d",   "dump to console", &AAGeometryView::pathDump },
     { 'h',  0,  "h",     "hide controls", &AAGeometryView::hideAll },
-    { 'r',  0,  "r",        "reset path", &AAGeometryView::constructPath },
-    { 'z',  0,  "z",              "undo", &AAGeometryView::undo },
+    { 'R',  0,  "r",        "reset path", &AAGeometryView::constructPath },
+    { 'Z',  0,  "z",              "undo", &AAGeometryView::undo },
     { '?',  0,  "?",       "show legend", &AAGeometryView::showLegend },
 };
 
