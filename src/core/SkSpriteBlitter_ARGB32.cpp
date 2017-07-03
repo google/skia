@@ -108,10 +108,12 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
             // this can handle alpha, but not xfermode
             return allocator->make<Sprite_D32_S32>(source, alpha);
         }
+#ifdef SK_SUPPORT_NONSTD_BLENDMODES
         if (255 == alpha) {
             // this can handle an xfermode, but not alpha
             return allocator->make<Sprite_D32_S32A_Xfer>(source, paint);
         }
+#endif
     }
     return nullptr;
 }

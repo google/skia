@@ -803,6 +803,15 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
 #endif
+#ifndef SK_SUPPORT_NONSTD_BLENDMODES
+    switch (paint.getBlendMode()) {
+        case SkBlendMode::kSrc:
+        case SkBlendMode::kSrcOver:
+            break;
+        default:
+            return true;
+    }
+#endif
     // ... or unless the blend mode is complicated enough.
     if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
         return true;
