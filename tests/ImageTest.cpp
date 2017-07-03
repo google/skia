@@ -296,35 +296,6 @@ DEF_TEST(Image_Serialize_Encoding_Failure, reporter) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_INDEX_8
-DEF_TEST(Image_NewRasterCopy, reporter) {
-    const SkPMColor red =   SkPackARGB32(0xFF, 0xFF, 0, 0);
-    const SkPMColor green = SkPackARGB32(0xFF, 0, 0xFF, 0);
-    const SkPMColor blue =  SkPackARGB32(0xFF, 0, 0, 0xFF);
-    SkPMColor colors[] = { red, green, blue, 0 };
-    sk_sp<SkColorTable> ctable(new SkColorTable(colors, SK_ARRAY_COUNT(colors)));
-    // The colortable made a copy, so we can trash the original colors
-    memset(colors, 0xFF, sizeof(colors));
-
-    const SkImageInfo srcInfo = SkImageInfo::Make(2, 2, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    const size_t srcRowBytes = 2 * sizeof(uint8_t);
-    uint8_t indices[] = { 0, 1, 2, 3 };
-    auto image = SkImage::MakeRasterCopy(SkPixmap(srcInfo, indices, srcRowBytes, ctable.get()));
-    // The image made a copy, so we can trash the original indices
-    memset(indices, 0xFF, sizeof(indices));
-
-    const SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(2, 2);
-    const size_t dstRowBytes = 2 * sizeof(SkPMColor);
-    SkPMColor pixels[4];
-    memset(pixels, 0xFF, sizeof(pixels));   // init with values we don't expect
-    image->readPixels(dstInfo, pixels, dstRowBytes, 0, 0);
-    REPORTER_ASSERT(reporter, red == pixels[0]);
-    REPORTER_ASSERT(reporter, green == pixels[1]);
-    REPORTER_ASSERT(reporter, blue == pixels[2]);
-    REPORTER_ASSERT(reporter, 0 == pixels[3]);
-}
-#endif
-
 // Test that a draw that only partially covers the drawing surface isn't
 // interpreted as covering the entire drawing surface (i.e., exercise one of the
 // conditions of SkCanvas::wouldOverwriteEntireSurface()).
@@ -555,20 +526,6 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_drawAbandonedGpuImage, reporter, c
     surface->getCanvas()->drawImage(image, 0, 0);
 }
 
-#endif
-
-
-#ifdef SK_SUPPORT_LEGACY_INDEX_8
-// https://bug.skia.org/4390
-DEF_TEST(ImageFromIndex8Bitmap, r) {
-    SkPMColor pmColors[1] = {SkPreMultiplyColor(SK_ColorWHITE)};
-    SkBitmap bm;
-    SkImageInfo info = SkImageInfo::Make(1, 1, kIndex_8_SkColorType, kPremul_SkAlphaType);
-    bm.allocPixels(info, SkColorTable::Make(pmColors, SK_ARRAY_COUNT(pmColors)));
-    *bm.getAddr8(0, 0) = 0;
-    sk_sp<SkImage> img(SkImage::MakeFromBitmap(bm));
-    REPORTER_ASSERT(r, img != nullptr);
-}
 #endif
 
 class EmptyGenerator : public SkImageGenerator {

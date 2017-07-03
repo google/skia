@@ -14,48 +14,6 @@
 #include "SkString.h"
 #include "sk_tool_utils.h"
 
-static int conv6ToByte(int x) {
-    return x * 0xFF / 5;
-}
-
-static int convByteTo6(int x) {
-    return x * 5 / 255;
-}
-
-static uint8_t compute666Index(SkPMColor c) {
-    int r = SkGetPackedR32(c);
-    int g = SkGetPackedG32(c);
-    int b = SkGetPackedB32(c);
-
-    return convByteTo6(r) * 36 + convByteTo6(g) * 6 + convByteTo6(b);
-}
-
-static void convertToIndex666(const SkBitmap& src, SkBitmap* dst, SkAlphaType aType) {
-    SkPMColor storage[216];
-    SkPMColor* colors = storage;
-    // rrr ggg bbb
-    for (int r = 0; r < 6; r++) {
-        int rr = conv6ToByte(r);
-        for (int g = 0; g < 6; g++) {
-            int gg = conv6ToByte(g);
-            for (int b = 0; b < 6; b++) {
-                int bb = conv6ToByte(b);
-                *colors++ = SkPreMultiplyARGB(0xFF, rr, gg, bb);
-            }
-        }
-    }
-    dst->allocPixels(SkImageInfo::Make(src.width(), src.height(), kIndex_8_SkColorType, aType),
-                     SkColorTable::Make(storage, 216));
-
-    for (int y = 0; y < src.height(); y++) {
-        const SkPMColor* srcP = src.getAddr32(0, y);
-        uint8_t* dstP = dst->getAddr8(0, y);
-        for (int x = src.width() - 1; x >= 0; --x) {
-            *dstP++ = compute666Index(*srcP++);
-        }
-    }
-}
-
 /*  Variants for bitmaps
 
     - src depth (32 w+w/o alpha), 565, 4444, index, a8
@@ -108,21 +66,12 @@ protected:
     void onDelayedSetup() override {
         SkBitmap bm;
 
-        if (kIndex_8_SkColorType == fColorType) {
-            bm.allocPixels(SkImageInfo::MakeN32(W, H, fAlphaType));
-        } else {
-            bm.allocPixels(SkImageInfo::Make(W, H, fColorType, fAlphaType));
-        }
+        bm.allocPixels(SkImageInfo::Make(W, H, fColorType, fAlphaType));
         bm.eraseColor(kOpaque_SkAlphaType == fAlphaType ? SK_ColorBLACK : 0);
 
         this->onDrawIntoBitmap(bm);
 
-        if (kIndex_8_SkColorType == fColorType) {
-            convertToIndex666(bm, &fBitmap, fAlphaType);
-        } else {
-            fBitmap = bm;
-        }
-
+        fBitmap = bm;
         fBitmap.setIsVolatile(fIsVolatile);
     }
 
@@ -355,8 +304,6 @@ DEF_BENCH( return new BitmapBench(kN32_SkColorType, kPremul_SkAlphaType, false, 
 DEF_BENCH( return new BitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, false, false, false); )
 DEF_BENCH( return new BitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, false, false, true); )
 DEF_BENCH( return new BitmapBench(kRGB_565_SkColorType, kOpaque_SkAlphaType, false, false, false); )
-DEF_BENCH( return new BitmapBench(kIndex_8_SkColorType, kPremul_SkAlphaType, false, false, false); )
-DEF_BENCH( return new BitmapBench(kIndex_8_SkColorType, kOpaque_SkAlphaType, false, false, false); )
 DEF_BENCH( return new BitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, true, true, false); )
 DEF_BENCH( return new BitmapBench(kN32_SkColorType, kOpaque_SkAlphaType, true, false, false); )
 
