@@ -34,6 +34,24 @@
       "revId": "217a9866ffdec3c9dd17787ceb646f8c5ced9027",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5d72af3_57acb9a6",
+        "filename": "src/core/SkSpriteBlitter_ARGB32.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-03T18:16:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "61235ece_c046d157",
+      "revId": "217a9866ffdec3c9dd17787ceb646f8c5ced9027",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
