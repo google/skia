@@ -17,7 +17,7 @@ class XfermodeBench : public Benchmark {
 public:
     XfermodeBench(SkBlendMode mode, bool aa) : fBlendMode(mode) {
         fAA = aa;
-        fName.printf("Xfermode_%s%s", SkBlendMode_Name(mode), aa ? "_aa" : "");
+        fName.printf("blendmode_%s_%s", aa ? "mask" : "rect", SkBlendMode_Name(mode));
     }
 
 protected:
