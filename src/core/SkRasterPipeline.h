@@ -42,7 +42,7 @@ struct SkJumper_constants;
     M(unpremul) M(premul)                                        \
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                     \
-    M(constant_color) M(seed_shader) M(dither)                   \
+    M(black_color) M(constant_color) M(seed_shader) M(dither)    \
                                                 M(gather_i8)     \
     M(load_a8)   M(load_a8_dst)   M(store_a8)   M(gather_a8)     \
     M(load_g8)   M(load_g8_dst)                 M(gather_g8)     \
