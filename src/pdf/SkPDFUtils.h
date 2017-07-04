@@ -19,6 +19,9 @@ class SkMatrix;
 class SkPDFArray;
 struct SkRect;
 
+template <typename T>
+bool SkArrayEqual(T* u, T* v, size_t n) { return 0 == memcmp(u, v, n * sizeof(T)); }
+
 #if 0
 #define PRINT_NOT_IMPL(str) fprintf(stderr, str)
 #else
@@ -112,6 +115,11 @@ inline SkMatrix GetShaderLocalMatrix(const SkShader* shader) {
     }
     return shader->getLocalMatrix();
 }
+bool InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox);
+void PopulateTilingPatternDict(SkPDFDict* pattern,
+                               SkRect& bbox,
+                               sk_sp<SkPDFDict> resources,
+                               const SkMatrix& matrix);
 }  // namespace SkPDFUtils
 
 #endif
