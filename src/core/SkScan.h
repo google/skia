@@ -89,6 +89,8 @@ private:
     static void AntiHairLineRgn(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     static void AAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
                             bool forceRLE = false); // SkAAClip uses forceRLE
+    static void DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter,
+                            bool forceRLE = false);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates
