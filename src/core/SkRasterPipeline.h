@@ -127,6 +127,10 @@ public:
     void append_from_srgb(SkAlphaType);
     void append_from_srgb_dst(SkAlphaType);
 
+    // Appends a stage for the specified matrix. Tries to optimize the stage by analyzing
+    // the type of matrix.
+    void append_matrix(SkArenaAlloc*, const SkMatrix&);
+
     bool empty() const { return fStages == nullptr; }
 
 private:

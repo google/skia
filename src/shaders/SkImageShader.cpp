@@ -295,17 +295,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
     struct MiscCtx {
         std::unique_ptr<SkBitmapController::State> state;
         SkColor4f paint_color;
-        float     matrix[9];
     };
     auto misc = alloc->make<MiscCtx>();
     misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
     misc->paint_color = SkColor4f_from_SkColor(paint.getColor(), dstCS);
-    if (matrix.asAffine(misc->matrix)) {
-        p->append(SkRasterPipeline::matrix_2x3, misc->matrix);
-    } else {
-        matrix.get9(misc->matrix);
-        p->append(SkRasterPipeline::matrix_perspective, misc->matrix);
-    }
+    p->append_matrix(alloc, matrix);
 
     auto gather = alloc->make<SkJumper_GatherCtx>();
     gather->pixels  = pm.addr();
