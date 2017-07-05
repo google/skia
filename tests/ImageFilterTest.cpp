@@ -1828,11 +1828,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
-
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.grContext(),
-                                                      SkBudgeted::kNo,
-                                                      SkImageInfo::MakeN32Premul(1, 1)));
-
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
+            ctxInfo.grContext(),
+            SkBudgeted::kNo,
+            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
 
     SkCanvas* canvas = surf->getCanvas();
 
@@ -1840,8 +1839,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.grContext(), SkBudgeted::kYes,
-                                             SkImageInfo::MakeN32Premul(100, 100)));
+    auto surface(SkSurface::MakeRenderTarget(
+            ctxInfo.grContext(), SkBudgeted::kYes,
+            SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
     test_large_blur_input(reporter, surface->getCanvas());
 }
 #endif
