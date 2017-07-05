@@ -22,6 +22,30 @@
       "revId": "dc60512c869d07e89ccd2666ec88e16eb78087d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7005406a_44f047e0",
+        "filename": "src/pdf/SkPDFGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 926,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T19:31:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2ec73ae_e143a42e",
+      "range": {
+        "startLine": 926,
+        "startChar": 47,
+        "endLine": 926,
+        "endChar": 55
+      },
+      "revId": "dc60512c869d07e89ccd2666ec88e16eb78087d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
