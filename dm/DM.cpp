@@ -414,9 +414,6 @@ static void push_codec_src(Path path, CodecSrc::Mode mode, CodecSrc::DstColorTyp
         case CodecSrc::kGrayscale_Always_DstColorType:
             folder.append("_kGray8");
             break;
-        case CodecSrc::kIndex8_Always_DstColorType:
-            folder.append("_kIndex8");
-            break;
         case CodecSrc::kNonNative8888_Always_DstColorType:
             folder.append("_kNonNative");
             break;
@@ -451,9 +448,6 @@ static void push_android_codec_src(Path path, CodecSrc::DstColorType dstColorTyp
     switch (dstColorType) {
         case CodecSrc::kGrayscale_Always_DstColorType:
             folder.append("_kGray8");
-            break;
-        case CodecSrc::kIndex8_Always_DstColorType:
-            folder.append("_kIndex8");
             break;
         case CodecSrc::kNonNative8888_Always_DstColorType:
             folder.append("_kNonNative");
@@ -557,12 +551,6 @@ static void push_codec_srcs(Path path) {
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
             colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
-            if (SkEncodedImageFormat::kWBMP == codec->getEncodedFormat()) {
-                colorTypes.push_back(CodecSrc::kIndex8_Always_DstColorType);
-            }
-            break;
-        case kIndex_8_SkColorType:
-            colorTypes.push_back(CodecSrc::kIndex8_Always_DstColorType);
             break;
         default:
             break;
@@ -687,9 +675,6 @@ static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc:
     switch (dstColorType) {
         case CodecSrc::kGetFromCanvas_DstColorType:
             break;
-        case CodecSrc::kIndex8_Always_DstColorType:
-            folder.append("_kIndex");
-            break;
         case CodecSrc::kGrayscale_Always_DstColorType:
             folder.append("_kGray");
             break;
@@ -707,14 +692,11 @@ static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc:
 }
 
 static void push_brd_srcs(Path path) {
-    // Only run Index8 and grayscale to one sampleSize and Mode. Though interesting
-    // to test these color types, they should not reveal anything across various
+    // Only run grayscale to one sampleSize and Mode. Though interesting
+    // to test grayscale, it should not reveal anything across various
     // sampleSizes and Modes
-    for (auto type : { CodecSrc::kIndex8_Always_DstColorType,
-                       CodecSrc::kGrayscale_Always_DstColorType }) {
-        // Arbitrarily choose Mode and sampleSize.
-        push_brd_src(path, type, BRDSrc::kFullImage_Mode, 2);
-    }
+    // Arbitrarily choose Mode and sampleSize.
+    push_brd_src(path, CodecSrc::kGrayscale_Always_DstColorType, BRDSrc::kFullImage_Mode, 2);
 
 
     // Test on a variety of sampleSizes, making sure to include:
