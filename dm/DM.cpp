@@ -54,6 +54,8 @@ extern void SkPDFImageDumpStats();
     #include <unistd.h>
 #endif
 
+extern bool gSkForceRasterPipelineBlitter;
+
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
@@ -79,6 +81,7 @@ DEFINE_int32(shards, 1, "We're splitting source data into this many shards.");
 DEFINE_int32(shard,  0, "Which shard do I run?");
 
 DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
+DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
 #if SK_SUPPORT_GPU
 DEFINE_pathrenderer_flag;
@@ -1269,6 +1272,9 @@ int main(int argc, char** argv) {
 
     if (FLAGS_forceAnalyticAA) {
         gSkForceAnalyticAA = true;
+    }
+    if (FLAGS_forceRasterPipeline) {
+        gSkForceRasterPipelineBlitter = true;
     }
 
     // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
