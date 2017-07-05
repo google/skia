@@ -12,6 +12,9 @@
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
+#ifdef SK_METAL
+#include "mtl/GrMtlTrampoline.h"
+#endif
 
 GrGpu* GrGpu::Create(GrBackend backend,
                      GrBackendContext backendContext,
@@ -23,6 +26,10 @@ GrGpu* GrGpu::Create(GrBackend backend,
 #ifdef SK_VULKAN
         case kVulkan_GrBackend:
             return GrVkGpu::Create(backendContext, options, context);
+#endif
+#ifdef SK_METAL
+        case kMetal_GrBackend:
+            return GrMtlTrampoline::CreateGpu(backendContext, options, context);
 #endif
         case kMock_GrBackend:
             return GrMockGpu::Create(backendContext, options, context);

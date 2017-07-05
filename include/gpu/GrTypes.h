@@ -185,6 +185,7 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
  * Possible 3D APIs that may be used by Ganesh.
  */
 enum GrBackend {
+    kMetal_GrBackend,
     kOpenGL_GrBackend,
     kVulkan_GrBackend,
     kMock_GrBackend,
