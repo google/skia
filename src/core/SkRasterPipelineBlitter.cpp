@@ -91,21 +91,21 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc* alloc) {
     SkColorSpace* dstCS = dst.colorSpace();
-    auto paintColor = alloc->make<SkPM4f>(SkPM4f_from_SkColor(paint.getColor(), dstCS));
+    SkPM4f paintColor = SkPM4f_from_SkColor(paint.getColor(), dstCS);
     auto shader = as_SB(paint.getShader());
 
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
-        shaderPipeline.append(SkRasterPipeline::constant_color, paintColor);
-        bool is_opaque    = paintColor->a() == 1.0f,
+        shaderPipeline.append_uniform_color(alloc, paintColor);
+        bool is_opaque    = paintColor.a() == 1.0f,
              is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, nullptr,
                                                is_opaque, is_constant);
     }
 
-    bool is_opaque    = shader->isOpaque() && paintColor->a() == 1.0f;
+    bool is_opaque    = shader->isOpaque() && paintColor.a() == 1.0f;
     bool is_constant  = shader->isConstant();
 
     // Check whether the shader prefers to run in burst mode.
@@ -118,8 +118,9 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     }
 
     if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
-        if (paintColor->a() != 1.0f) {
-            shaderPipeline.append(SkRasterPipeline::scale_1_float, &paintColor->fVec[SkPM4f::A]);
+        if (paintColor.a() != 1.0f) {
+            shaderPipeline.append(SkRasterPipeline::scale_1_float,
+                                  alloc->make<float>(paintColor.a()));
         }
         return SkRasterPipelineBlitter::Create(dst, paint, alloc, shaderPipeline, nullptr,
                                                is_opaque, is_constant);
@@ -190,11 +191,12 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // A pipeline that's still constant here can collapse back into a constant color.
     if (is_constant) {
-        auto constantColor = alloc->make<SkPM4f>();
+        SkPM4f storage;
+        SkPM4f* constantColor = &storage;
         colorPipeline->append(SkRasterPipeline::store_f32, &constantColor);
         colorPipeline->run(0,0,1);
         colorPipeline->reset();
-        colorPipeline->append(SkRasterPipeline::constant_color, constantColor);
+        colorPipeline->append_uniform_color(alloc, *constantColor);
 
         is_opaque = constantColor->a() == 1.0f;
     }
