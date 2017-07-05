@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b7c90fb4_86c57df0",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "The only reason there\u0027s even a copyright header in the first place is to satisfy the prechecks; this is generated code, so I\u0027m not personally of the opinion that it really matters whether the date matches the .fp file.",
+      "parentUuid": "541c779f_74b43b16",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cd8918f5_2439edf2",
         "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-05T18:56:16Z",
       "side": 1,
       "message": "What is this doing?",
+      "range": {
+        "startLine": 35,
+        "startChar": 15,
+        "endLine": 35,
+        "endChar": 21
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "284a8123_e8ed6d3c",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "Avoiding complaints about the variable being unused, in the event it ends up unused (which in this case it obviously didn\u0027t).",
+      "parentUuid": "cd8918f5_2439edf2",
       "range": {
         "startLine": 35,
         "startChar": 15,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "023cd09c_8d32f61b",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "I never intended that we would review the generated code; my hope was that we would treat these the same as compiled binaries. I have to check them in solely because of build system complications.",
+      "parentUuid": "16205aed_8c2c73f3",
+      "range": {
+        "startLine": 41,
+        "startChar": 21,
+        "endLine": 41,
+        "endChar": 32
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "47b0d934_c352da63",
         "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2017-07-05T18:56:16Z",
       "side": 1,
       "message": "Do we need a new scope here?",
+      "range": {
+        "startLine": 46,
+        "startChar": 9,
+        "endLine": 46,
+        "endChar": 0
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87ffde49_fc1e5e4b",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "There are several spots where we create a new scope solely because there is a possibility that name conflicts will happen based on other factors in the generated code; obviously in this case it wasn\u0027t actually necessary.",
+      "parentUuid": "47b0d934_c352da63",
       "range": {
         "startLine": 46,
         "startChar": 9,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "a1836ac8_63e1c85e",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "I\u0027ll continue to improve the compiler\u0027s output over time, but realistically it\u0027s probably not ever going to fully adhere to our standards.",
+      "parentUuid": "0d90ebf4_cde6342c",
+      "range": {
+        "startLine": 9,
+        "startChar": 3,
+        "endLine": 9,
+        "endChar": 72
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "abb75a3e_2c0c9d78",
         "filename": "src/effects/GrAlphaThresholdFragmentProcessor.h",
         "patchSetId": 6
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "84daa136_3c3ef658",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "abb75a3e_2c0c9d78",
+      "range": {
+        "startLine": 22,
+        "startChar": 29,
+        "endLine": 22,
+        "endChar": 37
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ec6c329_a39c587d",
         "filename": "src/effects/GrAlphaThresholdFragmentProcessor.h",
         "patchSetId": 6
@@ -183,6 +327,30 @@
       "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9ec6f1c_87110f6d",
+        "filename": "src/effects/GrAlphaThresholdFragmentProcessor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-05T20:26:35Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "6ec6c329_a39c587d",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 5
+      },
+      "revId": "b3146d05c6cbb9db494836a6bd28075d5e6b58a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
