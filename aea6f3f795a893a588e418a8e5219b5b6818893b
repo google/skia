@@ -22,6 +22,30 @@
       "revId": "aea6f3f795a893a588e418a8e5219b5b6818893b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3163419e_dac9f344",
+        "filename": "src/core/SkRasterPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-05T14:41:30Z",
+      "side": 1,
+      "message": "Good point. Since all clients today don\u0027t change the color after they build the pipeline, but it\u0027s cool to let them, I could offer a specialized append API that makes it clear that we will handle any payload allocations, and that the color can\u0027t be changed afterwards.\n\ne.g.\n\nappend_color(SkAlloc*, SkColor or other forms)\n\nthis would match append_matrix, which also makes it clear the caller can\u0027t modify the matrix after the fact...",
+      "parentUuid": "ae7bb529_b4064106",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 31
+      },
+      "revId": "aea6f3f795a893a588e418a8e5219b5b6818893b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
