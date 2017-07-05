@@ -139,9 +139,6 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
     switch (fDstColorType) {
         case CodecSrc::kGetFromCanvas_DstColorType:
             break;
-        case CodecSrc::kIndex8_Always_DstColorType:
-            colorType = kIndex_8_SkColorType;
-            break;
         case CodecSrc::kGrayscale_Always_DstColorType:
             colorType = kGray_8_SkColorType;
             break;
@@ -365,12 +362,6 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
 static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
                             CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType) {
     switch (dstColorType) {
-        case CodecSrc::kIndex8_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType) {
-                return false;
-            }
-            *decodeInfo = decodeInfo->makeColorType(kIndex_8_SkColorType);
-            break;
         case CodecSrc::kGrayscale_Always_DstColorType:
             if (kRGB_565_SkColorType == canvasColorType) {
                 return false;
