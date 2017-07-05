@@ -223,6 +223,11 @@ STAGE(constant_color) {
     a = (U16)bits[6];
 }
 
+STAGE(black_color) {
+    r = g = b = 0.0f;
+    a = 1.0f;
+}
+
 STAGE(set_rgb) {
     auto rgb = (const float*)ctx;
     r = rgb[0];

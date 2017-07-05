@@ -17,6 +17,13 @@ void SkRasterPipeline::reset() {
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
+    if (stage == constant_color) {
+        const float* c = (const float*)ctx;
+        if (c[0] == 0 && c[1] == 0 && c[2] == 0 && c[3] == 1) {
+            this->append(black_color);
+            return;
+        }
+    }
     SkASSERT(stage != from_srgb);
     this->unchecked_append(stage, ctx);
 }

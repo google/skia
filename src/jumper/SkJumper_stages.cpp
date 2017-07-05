@@ -251,6 +251,12 @@ STAGE(constant_color) {
     a = rgba[3];
 }
 
+// splats opaque-black into r,g,b,a
+STAGE(black_color) {
+    r = g = b = 0;
+    a = 1.0f;
+}
+
 // load registers r,g,b,a from context (mirrors store_rgba)
 STAGE(load_rgba) {
     auto ptr = (const float*)ctx;
