@@ -848,7 +848,7 @@ bool GrGLGpu::onTransferPixels(GrTexture* texture,
         rowBytes = trimRowBytes;
     }
     const void* pixels = (void*)offset;
-    if (width < 0 || width < 0) {
+    if (width < 0 || height < 0) {
         return false;
     }
 
