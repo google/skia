@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "d9bfecf1_7c99ece0",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-05T15:43:41Z",
+      "side": 1,
+      "message": "How about: /** Currently backend GPU drawables are only supported for Vulkan. */",
+      "parentUuid": "709e5229_36189c7e",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5e8031f_44606cf7",
         "filename": "include/gpu/vk/GrVkTypes.h",
         "patchSetId": 9
