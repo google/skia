@@ -22,6 +22,30 @@
       "revId": "7860284d0da718afda86244dcdfd2b7f1ff26869",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b517967c_36b8c2df",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-05T21:43:11Z",
+      "side": 1,
+      "message": "good catch.",
+      "parentUuid": "53581ccd_2ae5a45d",
+      "range": {
+        "startLine": 239,
+        "startChar": 75,
+        "endLine": 239,
+        "endChar": 94
+      },
+      "revId": "7860284d0da718afda86244dcdfd2b7f1ff26869",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
