@@ -30,6 +30,7 @@ declare_args() {
   skia_use_mesa = false
   skia_use_piex = !is_win
   skia_use_zlib = true
+  skia_use_metal = false
 
   skia_android_serial = ""
   skia_enable_android_framework_defines = false
@@ -95,6 +96,9 @@ skia_public_includes = [
 
 if (skia_use_vulkan) {
   skia_public_includes += [ "include/gpu/vk" ]
+}
+if (skia_use_metal) {
+  skia_public_includes += [ "include/gpu/mtl" ]
 }
 
 # Skia public API, generally provided by :skia.
@@ -527,6 +531,12 @@ optional("gpu") {
   if (skia_enable_spirv_validation) {
     deps += [ "//third_party/spirv-tools" ]
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
+  }
+
+  if (skia_use_metal) {
+    public_defines += [ "SK_METAL" ]
+    sources += skia_metal_sources
+    libs += [ "Metal.framework" ]
   }
 }
 

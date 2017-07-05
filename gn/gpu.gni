@@ -559,6 +559,13 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkVertexBuffer.h",
 ]
 
+skia_metal_sources = [
+  "$_src/gpu/mtl/GrMtlGpu.h",
+  "$_src/gpu/mtl/GrMtlGpu.mm",
+  "$_src/gpu/mtl/GrMtlTrampoline.h",
+  "$_src/gpu/mtl/GrMtlTrampoline.mm",
+]
+
 skia_native_gpu_sources = [
   "$_src/gpu/gl/GrGLDefaultInterface_native.cpp",
   "$_src/gpu/gl/mac/GrGLCreateNativeInterface_mac.cpp",
