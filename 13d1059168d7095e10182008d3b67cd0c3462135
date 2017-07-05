@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7706379_a3b4b897",
+        "filename": "src/core/SkRasterPipeline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-07-05T15:33:36Z",
+      "side": 1,
+      "message": "makeArrayDefault, here and below. It may not matter, but I think you don\u0027t want zeroing allocation.",
+      "range": {
+        "startLine": 104,
+        "startChar": 30,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "13d1059168d7095e10182008d3b67cd0c3462135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
