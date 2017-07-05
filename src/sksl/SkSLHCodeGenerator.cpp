@@ -48,13 +48,15 @@ String HCodeGenerator::FieldType(const Type& type) {
 
 void HCodeGenerator::writef(const char* s, va_list va) {
     static constexpr int BUFFER_SIZE = 1024;
+    va_list copy;
+    va_copy(copy, va);
     char buffer[BUFFER_SIZE];
     int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
     if (length < BUFFER_SIZE) {
         fOut->write(buffer, length);
     } else {
         std::unique_ptr<char[]> heap(new char[length + 1]);
-        vsprintf(heap.get(), s, va);
+        vsprintf(heap.get(), s, copy);
         fOut->write(heap.get(), length);
     }
 }
@@ -166,7 +168,7 @@ void HCodeGenerator::writeConstructor() {
     for (const auto& param : fSectionAndParameterHelper.fParameters) {
         const char* name = param->fName.c_str();
         if (param->fType.kind() == Type::kSampler_Kind) {
-            this->writef("\n    , %s(resourceProvider, std::move(%s))", FieldName(name).c_str(),
+            this->writef("\n    , %s(std::move(%s))", FieldName(name).c_str(),
                          name);
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
@@ -196,12 +198,13 @@ void HCodeGenerator::writeFields() {
 bool HCodeGenerator::generateCode() {
     this->writef(kFragmentProcessorHeader, fFullName.c_str());
     this->writef("#ifndef %s_DEFINED\n"
-                 "#define %s_DEFINED\n"
-                 "#include \"GrFragmentProcessor.h\"\n"
-                 "#include \"GrCoordTransform.h\"\n"
-                 "#include \"effects/GrProxyMove.h\"\n",
-                 fFullName.c_str(), fFullName.c_str());
+                 "#define %s_DEFINED\n",
+                 fFullName.c_str(),
+                 fFullName.c_str());
     this->writeSection(HEADER_SECTION);
+    this->writef("#include \"GrFragmentProcessor.h\"\n"
+                 "#include \"GrCoordTransform.h\"\n"
+                 "#include \"effects/GrProxyMove.h\"\n");
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());
@@ -211,7 +214,7 @@ bool HCodeGenerator::generateCode() {
             continue;
         }
         const char* name = param->fName.c_str();
-        this->writef("%s %s() const { return %s; }\n",
+        this->writef("    %s %s() const { return %s; }\n",
                      FieldType(param->fType).c_str(), name, FieldName(name).c_str());
     }
     this->writeMake();
@@ -226,8 +229,9 @@ bool HCodeGenerator::generateCode() {
                  "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;\n");
     this->writeFields();
     this->writef("    typedef GrFragmentProcessor INHERITED;\n"
-                 "};\n"
-                 "#endif\n");
+                "};\n");
+    this->writeSection(HEADER_END_SECTION);
+    this->writef("#endif\n");
     return 0 == fErrors.errorCount();
 }
 
