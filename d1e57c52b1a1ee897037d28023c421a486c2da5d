@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "ec7b70ae_94376952",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-05T14:49:25Z",
+      "side": 1,
+      "message": "Yeah the BackendDrawableInfo would be like BackendTexture. Do you like explicitly passing in the GrBackend here verses having it be part of GrBackendDrawableInfo?",
+      "parentUuid": "3873022d_8bae0a3e",
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "96c87da6_d98c7b9d",
         "filename": "include/core/SkDrawable.h",
         "patchSetId": 9
@@ -66,6 +84,30 @@
       "writtenOn": "2017-07-05T14:36:15Z",
       "side": 1,
       "message": "Could this be integrated into the supported call?\n\ni.e.\n\nenum class GpuDrawableSupport { kNone, kInline, kWithFlush };\n\nGpuDrawableSupport backendGpuDrawableSupport() const;\n\n(somewhat hastily chosen naming)",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "709e5229_36189c7e",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-05T14:49:25Z",
+      "side": 1,
+      "message": "This could work but I think we\u0027d want to pass in the GrBackended or have the return be a more complex set of flags to show support for each backend. The former being cleaner imo. \n\nGpuDrawableSupport backendGpuDrawableSupport(GrBackend backend) const;\n\nWe just need to figure out a clean way for clients to know that this feature is currently only supported for the vulkan backend.",
+      "parentUuid": "96c87da6_d98c7b9d",
       "range": {
         "startLine": 45,
         "startChar": 17,
