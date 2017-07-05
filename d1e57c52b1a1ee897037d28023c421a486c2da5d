@@ -37,6 +37,47 @@
     },
     {
       "key": {
+        "uuid": "3873022d_8bae0a3e",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-05T14:36:15Z",
+      "side": 1,
+      "message": "Sure or something like:\n\nvoid drawBackendGpu(GrBackend backend, GrBackendDrawableInfo*);\n\nwhere GrBackendDrawableInfo is structured like GrBackendTexture et al.",
+      "parentUuid": "e4aef3d8_cc1269c5",
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96c87da6_d98c7b9d",
+        "filename": "include/core/SkDrawable.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-05T14:36:15Z",
+      "side": 1,
+      "message": "Could this be integrated into the supported call?\n\ni.e.\n\nenum class GpuDrawableSupport { kNone, kInline, kWithFlush };\n\nGpuDrawableSupport backendGpuDrawableSupport() const;\n\n(somewhat hastily chosen naming)",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 40
+      },
+      "revId": "d1e57c52b1a1ee897037d28023c421a486c2da5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5e8031f_44606cf7",
         "filename": "include/gpu/vk/GrVkTypes.h",
         "patchSetId": 9
