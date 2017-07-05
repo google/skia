@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71414ee8_eff84283",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6605
+      },
+      "writtenOn": "2017-07-05T19:34:35Z",
+      "side": 1,
+      "message": "BTW, the extra space confused bugdroid: https://bugs.chromium.org/p/chromium/issues/detail?id\u003d6828#c15",
+      "range": {
+        "startLine": 11,
+        "startChar": 5,
+        "endLine": 11,
+        "endChar": 15
+      },
+      "revId": "bace7a940a6d83051eaa98b73dfa8867ed16ac2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
