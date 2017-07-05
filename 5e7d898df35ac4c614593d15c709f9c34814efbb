@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e99588d2_cf4e7ddc",
+        "filename": "src/pdf/SkPDFGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T15:31:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "877384f7_d858c724",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 27
+      },
+      "revId": "5e7d898df35ac4c614593d15c709f9c34814efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d3c9890_2168426e",
         "filename": "src/pdf/SkPDFGradientShader.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "5e7d898df35ac4c614593d15c709f9c34814efbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a289c70_68d323a8",
+        "filename": "src/pdf/SkPDFGradientShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T15:31:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d3c9890_2168426e",
+      "range": {
+        "startLine": 38,
+        "startChar": 8,
+        "endLine": 38,
+        "endChar": 31
+      },
+      "revId": "5e7d898df35ac4c614593d15c709f9c34814efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "99b381ca_1b2465c1",
+        "filename": "src/pdf/SkPDFGradientShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T15:31:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7302eb5d_f67b01b2",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 59
+      },
+      "revId": "5e7d898df35ac4c614593d15c709f9c34814efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01f867c2_b98ab6f9",
         "filename": "src/pdf/SkPDFUtils.h",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "5e7d898df35ac4c614593d15c709f9c34814efbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70356610_f9153e7b",
+        "filename": "src/pdf/SkPDFUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T15:31:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01f867c2_b98ab6f9",
+      "range": {
+        "startLine": 23,
+        "startChar": 5,
+        "endLine": 23,
+        "endChar": 17
+      },
+      "revId": "5e7d898df35ac4c614593d15c709f9c34814efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
