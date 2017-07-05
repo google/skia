@@ -31,8 +31,7 @@ public:
 
     SkTHashMap<SkPDFShader::State, sk_sp<SkPDFObject>> fImageShaderMap;
 
-    SkPDFGradientShader::HashMap fAlphaGradientMap;
-    SkPDFGradientShader::HashMap fOpaqueGradientMap;
+    SkPDFGradientShader::HashMap fGradientPatternMap;
 
     SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
 

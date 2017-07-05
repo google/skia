@@ -783,17 +783,9 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
     return pdfFunctionShader;
 }
 
-
-static sk_sp<SkPDFObject> find_function_shader(SkPDFDocument* doc,
-                                               SkPDFGradientShader::Key key) {
-    SkPDFCanon* canon = doc->canon();
-    if (sk_sp<SkPDFObject>* ptr = canon->fOpaqueGradientMap.find(key)) {
-        return *ptr;
-    }
-    sk_sp<SkPDFObject> pdfShader = make_function_shader(doc->canon(), key);
-    canon->fOpaqueGradientMap.set(std::move(key), pdfShader);
-    return pdfShader;
-}
+static sk_sp<SkPDFObject> find_pdf_shader(SkPDFDocument* doc,
+                                          SkPDFGradientShader::Key key,
+                                          bool keyHasAlpha);
 
 static sk_sp<SkPDFDict> get_gradient_resource_dict(SkPDFObject* functionShader,
                                                    SkPDFObject* gState) {
@@ -862,7 +854,7 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(SkPDFDocument* doc,
     luminosityState.fHash = hash(luminosityState);
 
     SkASSERT(!gradient_has_alpha(luminosityState));
-    sk_sp<SkPDFObject> luminosityShader = find_function_shader(doc, std::move(luminosityState));
+    sk_sp<SkPDFObject> luminosityShader = find_pdf_shader(doc, std::move(luminosityState), false);
     sk_sp<SkPDFDict> resources = get_gradient_resource_dict(luminosityShader.get(), nullptr);
     SkRect bbox = SkRect::Make(state.fBBox);
     sk_sp<SkPDFObject> alphaMask = SkPDFMakeFormXObject(create_pattern_fill_content(-1, bbox),
@@ -886,7 +878,7 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
 
     SkASSERT(!gradient_has_alpha(opaqueState));
     SkRect bbox = SkRect::Make(state.fBBox);
-    sk_sp<SkPDFObject> colorShader = find_function_shader(doc, std::move(opaqueState));
+    sk_sp<SkPDFObject> colorShader = find_pdf_shader(doc, std::move(opaqueState), false);
     if (!colorShader) {
         return nullptr;
     }
@@ -905,8 +897,6 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
                                  std::move(resourceDict), SkMatrix::I());
     return alphaFunctionShader;
 }
-
-
 
 static SkPDFGradientShader::Key make_key(const SkShader* shader,
                                          const SkMatrix& canvasTransform,
@@ -931,6 +921,24 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
     return key;
 }
 
+static sk_sp<SkPDFObject> find_pdf_shader(SkPDFDocument* doc,
+                                          SkPDFGradientShader::Key key,
+                                          bool keyHasAlpha) {
+    SkASSERT(gradient_has_alpha(key) == keyHasAlpha);
+    SkPDFCanon* canon = doc->canon();
+    if (sk_sp<SkPDFObject>* ptr = canon->fGradientPatternMap.find(key)) {
+        return *ptr;
+    }
+    sk_sp<SkPDFObject> pdfShader;
+    if (keyHasAlpha) {
+        pdfShader = make_alpha_function_shader(doc, key);
+    } else {
+        pdfShader = make_function_shader(canon, key);
+    }
+    canon->fGradientPatternMap.set(std::move(key), pdfShader);
+    return pdfShader;
+}
+
 sk_sp<SkPDFObject> SkPDFGradientShader::Make(SkPDFDocument* doc,
                                              SkShader* shader,
                                              const SkMatrix& canvasTransform,
@@ -938,18 +946,6 @@ sk_sp<SkPDFObject> SkPDFGradientShader::Make(SkPDFDocument* doc,
     SkASSERT(shader);
     SkASSERT(SkShader::kNone_GradientType != shader->asAGradient(nullptr));
     SkPDFGradientShader::Key key = make_key(shader, canvasTransform, bbox);
-    // TODO(halcanary): measure to see if one hashmap is as fast as two.
-    if (gradient_has_alpha(key)) {
-        SkPDFCanon* canon = doc->canon();
-        if (sk_sp<SkPDFObject>* ptr = canon->fAlphaGradientMap.find(key)) {
-            return *ptr;
-        }
-        sk_sp<SkPDFObject> pdfShader = make_alpha_function_shader(doc, key);
-        canon->fAlphaGradientMap.set(std::move(key), pdfShader);
-        return pdfShader;
-    } else {
-        return find_function_shader(doc, std::move(key));
-    }
+    bool alpha = gradient_has_alpha(key);
+    return find_pdf_shader(doc, std::move(key), alpha);
 }
-
-
