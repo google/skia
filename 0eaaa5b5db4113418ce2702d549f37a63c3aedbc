@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "11883665_34021f50",
+        "filename": "src/pdf/SkPDFGradientShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T16:05:30Z",
+      "side": 1,
+      "message": "Done\n\nI made it clear with asserts.",
+      "parentUuid": "36621df2_8e123a14",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 40
+      },
+      "revId": "0eaaa5b5db4113418ce2702d549f37a63c3aedbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9676e7c3_6b17e107",
         "filename": "src/pdf/SkPDFShader.h",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-05T15:56:15Z",
       "side": 1,
       "message": "Doesn\u0027t this make your operator\u003d\u003d non-symmetric?",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "0eaaa5b5db4113418ce2702d549f37a63c3aedbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35df892c_3a2a9f12",
+        "filename": "src/pdf/SkPDFShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2017-07-05T16:05:30Z",
+      "side": 1,
+      "message": "Right.  I don\u0027t need this.  the ID is never zero.",
+      "parentUuid": "9676e7c3_6b17e107",
       "range": {
         "startLine": 64,
         "startChar": 8,
