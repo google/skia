@@ -71,7 +71,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,void**,K*);
 
 // Some stages have low-precision (~15 bit) versions from SkJumper_stages_lowp.cpp.
 #define LOWP_STAGES(M)   \
-    M(constant_color)    \
+    M(black_color) M(white_color) M(uniform_color) \
     M(set_rgb)           \
     M(premul)            \
     M(load_8888) M(load_8888_dst) M(store_8888) \

@@ -211,7 +211,7 @@ SI U32 to_8888(F r, F g, F b, F a) {
 
 // Stages!
 
-STAGE(constant_color) {
+STAGE(uniform_color) {
     // We're converting to fixed point, which lets us play some IEEE representation tricks,
     // replacing a naive *32768 and float->int conversion with a simple float add.
     using F32x4 = float    __attribute__((ext_vector_type(4)));
@@ -221,6 +221,15 @@ STAGE(constant_color) {
     g = (U16)bits[2];
     b = (U16)bits[4];
     a = (U16)bits[6];
+}
+
+STAGE(black_color) {
+    r = g = b = 0.0f;
+    a = 1.0f;
+}
+
+STAGE(white_color) {
+    r = g = b = a = 1.0f;
 }
 
 STAGE(set_rgb) {
