@@ -513,16 +513,6 @@ static bool canSubset(FT_Face face) {
     return (fsType & FT_FSTYPE_NO_SUBSETTING) == 0;
 }
 
-static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
-    const FT_UInt glyph_id = FT_Get_Char_Index(face, letter);
-    if (!glyph_id)
-        return false;
-    if (FT_Load_Glyph(face, glyph_id, FT_LOAD_NO_SCALE) != 0)
-        return false;
-    FT_Outline_Get_CBox(&face->glyph->outline, bbox);
-    return true;
-}
-
 static void populate_glyph_to_unicode(FT_Face& face, SkTDArray<SkUnichar>* glyphToUnicode) {
     FT_Long numGlyphs = face->num_glyphs;
     glyphToUnicode->setCount(SkToInt(numGlyphs));
@@ -594,22 +584,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     info->fAscent = face->ascender;
     info->fDescent = face->descender;
 
-    // Figure out a good guess for StemV - Min width of i, I, !, 1.
-    // This probably isn't very good with an italic font.
-    int16_t min_width = SHRT_MAX;
-    info->fStemV = 0;
-    char stem_chars[] = {'i', 'I', '!', '1'};
-    for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
-        FT_BBox bbox;
-        if (GetLetterCBox(face, stem_chars[i], &bbox)) {
-            int16_t width = bbox.xMax - bbox.xMin;
-            if (width > 0 && width < min_width) {
-                min_width = width;
-                info->fStemV = min_width;
-            }
-        }
-    }
-
     TT_PCLT* pcltTable;
     TT_OS2* os2Table;
     if ((pcltTable = (TT_PCLT*)FT_Get_Sfnt_Table(face, ft_sfnt_pclt)) != nullptr) {
@@ -626,24 +600,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
                os2Table->version >= 2)
     {
         info->fCapHeight = os2Table->sCapHeight;
-    } else {
-        // Figure out a good guess for CapHeight: average the height of M and X.
-        FT_BBox m_bbox, x_bbox;
-        bool got_m, got_x;
-        got_m = GetLetterCBox(face, 'M', &m_bbox);
-        got_x = GetLetterCBox(face, 'X', &x_bbox);
-        if (got_m && got_x) {
-            info->fCapHeight = ((m_bbox.yMax - m_bbox.yMin) + (x_bbox.yMax - x_bbox.yMin)) / 2;
-        } else if (got_m && !got_x) {
-            info->fCapHeight = m_bbox.yMax - m_bbox.yMin;
-        } else if (!got_m && got_x) {
-            info->fCapHeight = x_bbox.yMax - x_bbox.yMin;
-        } else {
-            // Last resort, use the ascent.
-            info->fCapHeight = info->fAscent;
-        }
     }
-
     info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
 
