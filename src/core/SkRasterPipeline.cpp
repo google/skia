@@ -6,6 +6,7 @@
  */
 
 #include "SkRasterPipeline.h"
+#include "SkPM4f.h"
 
 SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
     this->reset();
@@ -59,6 +60,16 @@ void SkRasterPipeline::dump() const {
         SkDebugf("\t%s\n", name);
     }
     SkDebugf("\n");
+}
+
+void SkRasterPipeline::append_uniform_color(SkArenaAlloc* alloc, const SkPM4f& c) {
+    if (c.r() == 0 && c.g() == 0 && c.b() == 0 && c.a() == 1) {
+        this->append(black_color);
+    } else {
+        float* storage = alloc->makeArray<float>(4);
+        memcpy(storage, c.fVec, 4 * sizeof(float));
+        this->append(uniform_color, storage);
+    }
 }
 
 // It's pretty easy to start with sound premultiplied linear floats, pack those

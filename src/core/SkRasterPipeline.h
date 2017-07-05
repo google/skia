@@ -17,6 +17,7 @@
 #include <vector>
 
 struct SkJumper_constants;
+struct SkPM4f;
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -42,7 +43,7 @@ struct SkJumper_constants;
     M(unpremul) M(premul)                                        \
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                     \
-    M(constant_color) M(seed_shader) M(dither)                   \
+    M(black_color) M(uniform_color) M(seed_shader) M(dither)     \
                                                 M(gather_i8)     \
     M(load_a8)   M(load_a8_dst)   M(store_a8)   M(gather_a8)     \
     M(load_g8)   M(load_g8_dst)                 M(gather_g8)     \
@@ -130,6 +131,9 @@ public:
     // Appends a stage for the specified matrix. Tries to optimize the stage by analyzing
     // the type of matrix.
     void append_matrix(SkArenaAlloc*, const SkMatrix&);
+
+    // Appends a stage for the uniform color. Tries to optimize the stage based on the color.
+    void append_uniform_color(SkArenaAlloc*, const SkPM4f& color);
 
     bool empty() const { return fStages == nullptr; }
 
