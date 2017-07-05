@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53581ccd_2ae5a45d",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-05T21:35:22Z",
+      "side": 1,
+      "message": "kUnpremul?  Or skip the unpremul stage for this case.",
+      "range": {
+        "startLine": 239,
+        "startChar": 75,
+        "endLine": 239,
+        "endChar": 94
+      },
+      "revId": "7860284d0da718afda86244dcdfd2b7f1ff26869",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
