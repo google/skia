@@ -6,6 +6,7 @@
  */
 
 #include "SkRasterPipeline.h"
+#include "SkPM4f.h"
 
 SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
     this->reset();
@@ -60,6 +61,43 @@ void SkRasterPipeline::dump() const {
     }
     SkDebugf("\n");
 }
+
+//#define TRACK_COLOR_HISTOGRAM
+#ifdef TRACK_COLOR_HISTOGRAM
+    static int gBlack;
+    static int gWhite;
+    static int gColor;
+    #define INC_BLACK   gBlack++
+    #define INC_WHITE   gWhite++
+    #define INC_COLOR   gColor++
+#else
+    #define INC_BLACK
+    #define INC_WHITE
+    #define INC_COLOR
+#endif
+
+void SkRasterPipeline::append_uniform_color(SkArenaAlloc* alloc, const SkPM4f& c) {
+    if (c.r() == 0 && c.g() == 0 && c.b() == 0 && c.a() == 1) {
+        this->append(black_color);
+        INC_BLACK;
+    } else if (c.r() == 1 && c.g() == 1 && c.b() == 1 && c.a() == 1) {
+        this->append(white_color);
+        INC_WHITE;
+    } else {
+        float* storage = alloc->makeArray<float>(4);
+        memcpy(storage, c.fVec, 4 * sizeof(float));
+        this->append(uniform_color, storage);
+        INC_COLOR;
+    }
+
+#ifdef TRACK_COLOR_HISTOGRAM
+    SkDebugf("B=%d W=%d C=%d\n", gBlack, gWhite, gColor);
+#endif
+}
+
+#undef INC_BLACK
+#undef INC_WHITE
+#undef INC_COLOR
 
 // It's pretty easy to start with sound premultiplied linear floats, pack those
 // to sRGB encoded bytes, then read them back to linear floats and find them not

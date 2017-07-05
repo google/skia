@@ -70,7 +70,7 @@ DEF_TEST(sk_pipeline_srgb_edge_cases, r) {
     void* dst = &color;
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::constant_color, &color);
+    p.append(SkRasterPipeline::uniform_color, &color);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_f32, &dst);
     p.run(0,0,4);

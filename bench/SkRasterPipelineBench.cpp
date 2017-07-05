@@ -123,7 +123,7 @@ public:
         SkColorSpaceTransferFn from_2dot2 = gamma(  2.2f),
                                  to_2dot2 = gamma(1/2.2f);
         SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline::constant_color, &c);
+        p.append(SkRasterPipeline::uniform_color, &c);
         p.append(SkRasterPipeline::parametric_r, &from_2dot2);
         p.append(SkRasterPipeline::parametric_g, &from_2dot2);
         p.append(SkRasterPipeline::parametric_b, &from_2dot2);

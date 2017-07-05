@@ -77,10 +77,8 @@ void SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkArenaAlloc* scratch,
                                        bool shaderIsOpaque) const {
-    auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
-
     p->append(SkRasterPipeline::move_src_dst);
-    p->append(SkRasterPipeline::constant_color, color);
+    p->append_uniform_color(scratch, SkPM4f_from_SkColor(fColor, dst));
     SkBlendMode_AppendStages(fMode, p);
 }
 
