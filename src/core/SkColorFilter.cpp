@@ -228,6 +228,9 @@ public:
 
     void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
                         bool shaderIsOpaque) const override {
+        if (!shaderIsOpaque) {
+            p->append(SkRasterPipeline::unpremul);
+        }
         switch (fDir) {
             case Direction::kLinearToSRGB:
                 p->append(SkRasterPipeline::to_srgb);
@@ -235,6 +238,9 @@ public:
             case Direction::kSRGBToLinear:
                 p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
                 break;
+        }
+        if (!shaderIsOpaque) {
+            p->append(SkRasterPipeline::premul);
         }
     }
 
