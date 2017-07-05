@@ -243,12 +243,22 @@ STAGE(dither) {
 }
 
 // load 4 floats from memory, and splat them into r,g,b,a
-STAGE(constant_color) {
+STAGE(uniform_color) {
     auto rgba = (const float*)ctx;
     r = rgba[0];
     g = rgba[1];
     b = rgba[2];
     a = rgba[3];
+}
+
+// splats opaque-black into r,g,b,a
+STAGE(black_color) {
+    r = g = b = 0.0f;
+    a = 1.0f;
+}
+
+STAGE(white_color) {
+    r = g = b = a = 1.0f;
 }
 
 // load registers r,g,b,a from context (mirrors store_rgba)
