@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3653aab2_04271f8b",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-05T13:55:39Z",
+      "side": 1,
+      "message": "either _Direction, or (prefereably) \u0027enum class\u0027?",
+      "revId": "ac28068f8fbf8360a94a3ce060ce89ff4e6b7af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab36abed_1f3c54d4",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-05T13:55:39Z",
+      "side": 1,
+      "message": "GrSRGBEffect::Mode mode \u003d kLinearToSRGB \u003d\u003d fDir ? GrSRGBEffect::Mode::kLinearToSRGB\n                                                : GrSRGBEffect::Mode::kSRGBToLinear;\nreturn GrSRGBEffect::Make(mode);",
+      "revId": "ac28068f8fbf8360a94a3ce060ce89ff4e6b7af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
