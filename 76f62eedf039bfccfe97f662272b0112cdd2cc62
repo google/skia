@@ -22,6 +22,30 @@
       "revId": "76f62eedf039bfccfe97f662272b0112cdd2cc62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e1b03a_1289a23f",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-05T21:54:15Z",
+      "side": 1,
+      "message": "I ran a test with that change, and some layout tests break - so never mind, my suggestion doesn\u0027t work,",
+      "parentUuid": "85cf3204_8efea8fd",
+      "range": {
+        "startLine": 239,
+        "startChar": 75,
+        "endLine": 239,
+        "endChar": 96
+      },
+      "revId": "76f62eedf039bfccfe97f662272b0112cdd2cc62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
