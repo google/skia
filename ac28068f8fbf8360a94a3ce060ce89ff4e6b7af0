@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "64e35d69_46922ad9",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-05T19:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3653aab2_04271f8b",
+      "revId": "ac28068f8fbf8360a94a3ce060ce89ff4e6b7af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ab36abed_1f3c54d4",
         "filename": "src/effects/SkTableColorFilter.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "ac28068f8fbf8360a94a3ce060ce89ff4e6b7af0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "793549ed_b2acbac9",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-05T19:42:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab36abed_1f3c54d4",
+      "revId": "ac28068f8fbf8360a94a3ce060ce89ff4e6b7af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
