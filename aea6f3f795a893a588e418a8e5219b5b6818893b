@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae7bb529_b4064106",
+        "filename": "src/core/SkRasterPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-05T14:21:41Z",
+      "side": 1,
+      "message": "What if they change the color and rerun this pipeline?\n\n(constant_color really should be called uniform_color).",
+      "range": {
+        "startLine": 20,
+        "startChar": 7,
+        "endLine": 20,
+        "endChar": 31
+      },
+      "revId": "aea6f3f795a893a588e418a8e5219b5b6818893b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
