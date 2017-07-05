@@ -403,6 +403,8 @@ std::unique_ptr<GrDrawOp> MakeNonAAFillWithLocalRect(GrPaint&& paint, const SkMa
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if GR_TEST_UTILS
+
 GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
     SkRect rect = GrTest::TestRect(random);
     SkRect localRect = GrTest::TestRect(random);
@@ -422,3 +424,5 @@ GR_DRAW_OP_TEST_DEFINE(NonAAFillRectOp) {
         return NonAAFillRectOp::Make(std::move(paint), viewMatrix, rect, lr, lm, aaType, stencil);
     }
 }
+
+#endif
