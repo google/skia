@@ -193,6 +193,14 @@ void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
     fObjectSerializer.serializeObjects(this->getStream());
 }
 
+static SkCanvas* trim(SkCanvas* canvas, SkScalar w, SkScalar h, const SkRect& trimBox) {
+    if (canvas && trimBox != SkRect::MakeWH(w, h)) {
+        canvas->clipRect(trimBox);
+        canvas->translate(trimBox.x(), trimBox.y());
+    }
+    return canvas;
+}
+
 SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
                                      const SkRect& trimBox) {
     SkASSERT(!fCanvas.get());  // endPage() was called before this.
@@ -218,11 +226,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
     fCanvas.reset(new SkPDFCanvas(fPageDevice));
-    if (SkRect::MakeWH(width, height) != trimBox) {
-        fCanvas->clipRect(trimBox);
-        fCanvas->translate(trimBox.x(), trimBox.y());
-    }
-    return fCanvas.get();
+    return trim(fCanvas.get(), width, height, trimBox);
 }
 
 void SkPDFDocument::onEndPage() {

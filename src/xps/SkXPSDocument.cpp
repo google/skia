@@ -33,14 +33,20 @@ SkXPSDocument::~SkXPSDocument() {
     this->close();
 }
 
+static SkCanvas* trim(SkCanvas* canvas, SkScalar w, SkScalar h, const SkRect& trimBox) {
+    if (canvas && trimBox != SkRect::MakeWH(w, h)) {
+        canvas->clipRect(trimBox);
+        canvas->translate(trimBox.x(), trimBox.y());
+    }
+    return canvas;
+}
+
 SkCanvas* SkXPSDocument::onBeginPage(SkScalar width,
                                      SkScalar height,
                                      const SkRect& trimBox) {
     fDevice.beginSheet(fUnitsPerMeter, fPixelsPerMeter, {width, height});
     fCanvas.reset(new SkCanvas(&fDevice));
-    fCanvas->clipRect(trimBox);
-    fCanvas->translate(trimBox.x(), trimBox.y());
-    return fCanvas.get();
+    return trim(fCanvas.get(), width, height, trimBox);
 }
 
 void SkXPSDocument::onEndPage() {
