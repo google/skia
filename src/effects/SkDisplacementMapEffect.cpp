@@ -204,7 +204,7 @@ private:
                             sk_sp<GrTextureProxy> color, sk_sp<GrColorSpaceXform> colorSpaceXform,
                             const SkISize& colorDimensions);
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     GrCoordTransform            fDisplacementTransform;
     TextureSampler              fDisplacementSampler;
