@@ -2236,6 +2236,23 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         case Token::PERCENT:
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMod,
                                               SpvOpSMod, SpvOpUMod, SpvOpUndef, out);
+        case Token::SHL:
+            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
+                                              SpvOpShiftLeftLogical, SpvOpShiftLeftLogical,
+                                              SpvOpUndef, out);
+        case Token::SHR:
+            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
+                                              SpvOpShiftRightArithmetic, SpvOpShiftRightLogical,
+                                              SpvOpUndef, out);
+        case Token::BITWISEAND:
+            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
+                                              SpvOpBitwiseAnd, SpvOpBitwiseAnd, SpvOpUndef, out);
+        case Token::BITWISEOR:
+            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
+                                              SpvOpBitwiseOr, SpvOpBitwiseOr, SpvOpUndef, out);
+        case Token::BITWISEXOR:
+            return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpUndef,
+                                              SpvOpBitwiseXor, SpvOpBitwiseXor, SpvOpUndef, out);
         case Token::PLUSEQ: {
             SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                                       SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
@@ -2281,8 +2298,47 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
             lvalue->store(result, out);
             return result;
         }
+        case Token::SHLEQ: {
+            SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                      SpvOpUndef, SpvOpShiftLeftLogical,
+                                                      SpvOpShiftLeftLogical, SpvOpUndef, out);
+            ASSERT(lvalue);
+            lvalue->store(result, out);
+            return result;
+        }
+        case Token::SHREQ: {
+            SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                      SpvOpUndef, SpvOpShiftRightArithmetic,
+                                                      SpvOpShiftRightLogical, SpvOpUndef, out);
+            ASSERT(lvalue);
+            lvalue->store(result, out);
+            return result;
+        }
+        case Token::BITWISEANDEQ: {
+            SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                      SpvOpUndef, SpvOpBitwiseAnd, SpvOpBitwiseAnd,
+                                                      SpvOpUndef, out);
+            ASSERT(lvalue);
+            lvalue->store(result, out);
+            return result;
+        }
+        case Token::BITWISEOREQ: {
+            SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                      SpvOpUndef, SpvOpBitwiseOr, SpvOpBitwiseOr,
+                                                      SpvOpUndef, out);
+            ASSERT(lvalue);
+            lvalue->store(result, out);
+            return result;
+        }
+        case Token::BITWISEXOREQ: {
+            SpvId result = this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
+                                                      SpvOpUndef, SpvOpBitwiseXor, SpvOpBitwiseXor,
+                                                      SpvOpUndef, out);
+            ASSERT(lvalue);
+            lvalue->store(result, out);
+            return result;
+        }
         default:
-            // FIXME: missing support for some operators (bitwise, &&=, ||=, shift...)
             ABORT("unsupported binary expression: %s", b.description().c_str());
     }
 }
