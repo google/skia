@@ -83,13 +83,44 @@ void SkRasterPipeline::append_from_srgb_dst(SkAlphaType at) {
     }
 }
 
+//static int gCounts[5] = { 0, 0, 0, 0, 0 };
+
 void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix) {
-    float* storage = alloc->makeArray<float>(9);
-    // TODO: consider adding special stages for scale+translate and possibly just translate.
-    if (matrix.asAffine(storage)) {
-        this->append(SkRasterPipeline::matrix_2x3, storage);
+    SkMatrix::TypeMask mt = matrix.getType();
+#if 0
+    if (mt > 4) mt = 4;
+    gCounts[mt] += 1;
+    SkDebugf("matrices: %d %d %d %d %d\n",
+             gCounts[0], gCounts[1], gCounts[2], gCounts[3], gCounts[4]);
+#endif
+
+    // Based on a histogram of skps, we determined the following special cases were common, more
+    // or fewer can be used if client behaviors change.
+
+    if (mt == SkMatrix::kIdentity_Mask) {
+        return;
+    }
+    if (mt == SkMatrix::kTranslate_Mask) {
+        float* trans = alloc->makeArrayDefault<float>(2);
+        trans[0] = matrix.getTranslateX();
+        trans[1] = matrix.getTranslateY();
+        this->append(SkRasterPipeline::matrix_translate, trans);
+    } else if ((mt | (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) ==
+                     (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
+        float* scaleTrans = alloc->makeArrayDefault<float>(4);
+        scaleTrans[0] = matrix.getTranslateX();
+        scaleTrans[1] = matrix.getTranslateY();
+        scaleTrans[2] = matrix.getScaleX();
+        scaleTrans[3] = matrix.getScaleY();
+        this->append(SkRasterPipeline::matrix_scale_translate, scaleTrans);
     } else {
-        matrix.get9(storage);
-        this->append(SkRasterPipeline::matrix_perspective, storage);
+        float* storage = alloc->makeArrayDefault<float>(9);
+        if (matrix.asAffine(storage)) {
+            // note: asAffine and the 2x3 stage really only need 6 entries
+            this->append(SkRasterPipeline::matrix_2x3, storage);
+        } else {
+            matrix.get9(storage);
+            this->append(SkRasterPipeline::matrix_perspective, storage);
+        }
     }
 }
