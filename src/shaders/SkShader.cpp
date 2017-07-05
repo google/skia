@@ -91,10 +91,9 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
-    if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {
-        return nullptr;
-    }
-    return this->onMakeContext(rec, alloc);
+    return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
+        ? this->onMakeContext(rec, alloc)
+        : nullptr;
 }
 
 SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
@@ -102,7 +101,9 @@ SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& 
 
     SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
 
-    return this->onMakeBurstPipelineContext(rec, alloc);
+    return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
+        ? this->onMakeBurstPipelineContext(rec, alloc)
+        : nullptr;
 }
 
 SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec)
