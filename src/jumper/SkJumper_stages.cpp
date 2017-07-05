@@ -1046,6 +1046,18 @@ STAGE(luminance_to_alpha) {
     r = g = b = 0;
 }
 
+STAGE(matrix_translate) {
+    auto m = (const float*)ctx;
+
+    r += m[0];
+    g += m[1];
+}
+STAGE(matrix_scale_translate) {
+    auto m = (const float*)ctx;
+
+    r = mad(r,m[2], m[0]);
+    g = mad(g,m[3], m[1]);
+}
 STAGE(matrix_2x3) {
     auto m = (const float*)ctx;
 
