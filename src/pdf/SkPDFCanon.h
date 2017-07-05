@@ -9,6 +9,7 @@
 
 #include "SkPDFGraphicState.h"
 #include "SkPDFShader.h"
+#include "SkPDFGradientShader.h"
 #include "SkPixelSerializer.h"
 #include "SkTDArray.h"
 #include "SkTHash.h"
@@ -21,18 +22,17 @@ struct SkAdvancedTypefaceMetrics;
  *  The SkPDFCanon canonicalizes objects across PDF pages
  *  (SkPDFDevices) and across draw calls.
  */
-class SkPDFCanon : SkNoncopyable {
+class SkPDFCanon {
 public:
     ~SkPDFCanon();
+    SkPDFCanon();
+    SkPDFCanon(const SkPDFCanon&) = delete;
+    SkPDFCanon& operator=(const SkPDFCanon&) = delete;
 
-    sk_sp<SkPDFObject> findFunctionShader(const SkPDFShader::State&) const;
-    void addFunctionShader(sk_sp<SkPDFObject>, SkPDFShader::State);
+    SkTHashMap<SkPDFShader::State, sk_sp<SkPDFObject>> fImageShaderMap;
 
-    sk_sp<SkPDFObject> findAlphaShader(const SkPDFShader::State&) const;
-    void addAlphaShader(sk_sp<SkPDFObject>, SkPDFShader::State);
-
-    sk_sp<SkPDFObject> findImageShader(const SkPDFShader::State&) const;
-    void addImageShader(sk_sp<SkPDFObject>, SkPDFShader::State);
+    SkPDFGradientShader::HashMap fAlphaGradientMap;
+    SkPDFGradientShader::HashMap fOpaqueGradientMap;
 
     SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
 
@@ -47,14 +47,5 @@ public:
     sk_sp<SkPDFStream> fInvertFunction;
     sk_sp<SkPDFDict> fNoSmaskGraphicState;
     sk_sp<SkPDFArray> fRangeObject;
-
-private:
-    struct ShaderRec {
-        SkPDFShader::State fShaderState;
-        sk_sp<SkPDFObject> fShaderObject;
-    };
-    SkTArray<ShaderRec> fFunctionShaderRecords;
-    SkTArray<ShaderRec> fAlphaShaderRecords;
-    SkTArray<ShaderRec> fImageShaderRecords;
 };
 #endif  // SkPDFCanon_DEFINED

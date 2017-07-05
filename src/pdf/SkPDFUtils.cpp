@@ -486,3 +486,33 @@ void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
         wStream->writeText(">");
     }
 }
+
+bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
+    SkMatrix inverse;
+    if (!matrix.invert(&inverse)) {
+        return false;
+    }
+    inverse.mapRect(bbox);
+    return true;
+}
+
+void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
+                                           SkRect& bbox,
+                                           sk_sp<SkPDFDict> resources,
+                                           const SkMatrix& matrix) {
+    const int kTiling_PatternType = 1;
+    const int kColoredTilingPattern_PaintType = 1;
+    const int kConstantSpacing_TilingType = 1;
+
+    pattern->insertName("Type", "Pattern");
+    pattern->insertInt("PatternType", kTiling_PatternType);
+    pattern->insertInt("PaintType", kColoredTilingPattern_PaintType);
+    pattern->insertInt("TilingType", kConstantSpacing_TilingType);
+    pattern->insertObject("BBox", SkPDFUtils::RectToArray(bbox));
+    pattern->insertScalar("XStep", bbox.width());
+    pattern->insertScalar("YStep", bbox.height());
+    pattern->insertObject("Resources", std::move(resources));
+    if (!matrix.isIdentity()) {
+        pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));
+    }
+}
