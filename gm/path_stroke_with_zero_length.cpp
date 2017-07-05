@@ -5,10 +5,130 @@
  * found in the LICENSE file.
  */
 
+#include "SkAutoPixmapStorage.h"
+#include "SkColorPriv.h"
+#include "SkImage.h"
+#include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "gm.h"
 
+// GM to test combinations of stroking zero length paths with different caps and other settings
+// Variables:
+// * Antialiasing: On, Off
+// * Caps: Butt, Round, Square
+// * Stroke width: 0, 0.9, 1, 1.1, 15, 25
+// * Path form: M, ML, MLZ, MZ
+// * Path contours: 1 or 2 ** not yet
+// * Path verbs: Line, Quad, Cubic, Conic
+//
+// Each test is drawn to a 60x20 offscreen surface, and expected to produce some number (0 - 2) of
+// visible pieces of cap geometry. These are counted by scanning horizontally for peaks (blobs).
+
+static bool draw_path_cell(SkCanvas* canvas, SkImage* img, int expectedCaps) {
+    // Draw the image
+    canvas->drawImage(img, 0, 0);
+
+    int w = img->width(), h = img->height();
+
+    // Read the pixels back
+    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+    SkAutoPixmapStorage pmap;
+    pmap.alloc(info);
+    SkAssertResult(img->readPixels(pmap, 0, 0));
+
+    // To account for rasterization differences, we scan the middle two rows [y, y+1] of the image
+    SkASSERT(h % 2 == 0);
+    int y = (h - 1) / 2;
+
+    bool inBlob = false;
+    int numBlobs = 0;
+    for (int x = 0; x < w; ++x) {
+        // We drew white-on-transparent-black. We can look for any non-zero value.
+        // And we care if either row is non-zero, so just add them to simplify everything.
+        uint32_t v = *pmap.addr32(x, y) + *pmap.addr32(x, y + 1);
+
+        if (!inBlob && v) {
+            ++numBlobs;
+        }
+        inBlob = SkToBool(v);
+    }
+
+    SkPaint outline;
+    outline.setStyle(SkPaint::kStroke_Style);
+    if (numBlobs == expectedCaps) {
+        outline.setColor(0xFF007F00); // Green
+    } else if (numBlobs > expectedCaps) {
+        outline.setColor(0xFF7F7F00); // Yellow -- more geometry than expected
+    } else {
+        outline.setColor(0xFF7F0000); // Red -- missing some geometry
+    }
+
+    canvas->drawRect(SkRect::MakeWH(w, h), outline);
+    return numBlobs == expectedCaps;
+}
+
+DEF_SIMPLE_GM_BG(zero_length_paths_aa, canvas, 800, 800, SK_ColorBLACK) {
+    SkPaint::Cap kCaps[] = { SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap };
+    SkScalar kWidths[] = { 0.0f, 0.9f, 1.0f, 1.1f, 15.0f, 25.0f };
+    const char* kVerbs[] = {
+        nullptr,
+        "l 0 0 ",
+        "q 0 0 0 0 ",
+        "c 0 0 0 0 0 0 ",
+        "a 0 0 0 0 0 0 0 "
+    };
+
+    canvas->translate(10.5f, 10.5f);
+
+    SkImageInfo info = canvas->imageInfo().makeWH(60, 20);
+    auto surface = canvas->makeSurface(info);
+    if (!surface) {
+        surface = SkSurface::MakeRasterN32Premul(60, 20);
+    }
+
+    SkPaint paint;
+    paint.setColor(SK_ColorWHITE);
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    for (auto cap : kCaps) {
+        for (auto width : kWidths) {
+            paint.setStrokeCap(cap);
+            paint.setStrokeWidth(width);
+            canvas->save();
+
+            for (auto verb : kVerbs) {
+                for (bool close : { false, true }) {
+                    SkString pathStr("M 29.5 9.5 ");
+                    if (verb) {
+                        pathStr.append(verb);
+                    }
+                    if (close) {
+                        pathStr.append("Z");
+                    }
+
+                    SkPath path;
+                    SkParsePath::FromSVGString(pathStr.c_str(), &path);
+
+                    surface->getCanvas()->clear(SK_ColorTRANSPARENT);
+                    surface->getCanvas()->drawPath(path, paint);
+                    auto img = surface->makeImageSnapshot();
+
+                    // All cases should draw one cap, except for butt capped, and dangling moves
+                    // (without a verb or close), which shouldn't draw anything.
+                    int expectedCaps = ((SkPaint::kButt_Cap == cap) || (!verb && !close)) ? 0 : 1;
+
+                    draw_path_cell(canvas, img.get(), expectedCaps);
+                    canvas->translate(70, 0);
+                }
+            }
+            canvas->restore();
+            canvas->translate(0, 30);
+        }
+    }
+}
 
 // Test how short paths are stroked with various caps
 class StrokeZeroGM : public skiagm::GM {
