@@ -75,8 +75,10 @@ Within an '.fp' fragment processor file:
 
   Supported section are:
     @header            (in the .h file, outside the class declaration)
+    @headerEnd         (at the end of the .h file)
     @class             (in the .h file, inside the class declaration)
     @cpp               (in the .cpp file)
+    @cppEnd            (at the end of the .cpp file)
     @constructorParams (extra parameters to the constructor, comma-separated)
     @constructor       (replaces the default constructor)
     @initializers      (constructor initializer list, comma-separated)

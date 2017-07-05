@@ -13,5 +13,11 @@ skslc = sys.argv[1]
 processors = sys.argv[2:]
 for p in processors:
     path, _ = os.path.splitext(p)
-    subprocess.check_call([skslc, p, path + ".h"])
-    subprocess.check_call([skslc, p, path + ".cpp"])
+    print("Recompiling " + p + "...")
+    try:
+        subprocess.check_output([skslc, p, path + ".h"])
+        subprocess.check_output([skslc, p, path + ".cpp"])
+    except subprocess.CalledProcessError as err:
+        print("### Error compiling " + p + ":")
+        print(err.output)
+        exit(1)

@@ -19,7 +19,9 @@ namespace SkSL {
 
 #define CLASS_SECTION              "class"
 #define CPP_SECTION                "cpp"
+#define CPP_END_SECTION            "cppEnd"
 #define HEADER_SECTION             "header"
+#define HEADER_END_SECTION         "headerEnd"
 #define CONSTRUCTOR_PARAMS_SECTION "constructorParams"
 #define CONSTRUCTOR_SECTION        "constructor"
 #define CONSTRUCTOR_CODE_SECTION   "constructorCode"
@@ -84,7 +86,9 @@ public:
     static bool IsSupportedSection(const char* name) {
         return !strcmp(name, CLASS_SECTION) ||
                !strcmp(name, CPP_SECTION) ||
+               !strcmp(name, CPP_END_SECTION) ||
                !strcmp(name, HEADER_SECTION) ||
+               !strcmp(name, HEADER_END_SECTION) ||
                !strcmp(name, CONSTRUCTOR_SECTION) ||
                !strcmp(name, CONSTRUCTOR_CODE_SECTION) ||
                !strcmp(name, CONSTRUCTOR_PARAMS_SECTION) ||

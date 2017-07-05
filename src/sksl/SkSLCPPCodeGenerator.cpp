@@ -28,13 +28,15 @@ CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* progra
 
 void CPPCodeGenerator::writef(const char* s, va_list va) {
     static constexpr int BUFFER_SIZE = 1024;
+    va_list copy;
+    va_copy(copy, va);
     char buffer[BUFFER_SIZE];
     int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
     if (length < BUFFER_SIZE) {
         fOut->write(buffer, length);
     } else {
         std::unique_ptr<char[]> heap(new char[length + 1]);
-        vsprintf(heap.get(), s, va);
+        vsprintf(heap.get(), s, copy);
         fOut->write(heap.get(), length);
     }
 }
@@ -540,18 +542,18 @@ bool CPPCodeGenerator::generateCode() {
     const char* baseName = fName.c_str();
     const char* fullName = fFullName.c_str();
     this->writef(kFragmentProcessorHeader, fullName);
-    this->writef("#include \"%s.h\"\n"
-                 "#include \"glsl/GrGLSLColorSpaceXformHelper.h\"\n"
+    this->writef("#include \"%s.h\"\n", fullName);
+    this->writeSection(CPP_SECTION);
+    this->writef("#include \"glsl/GrGLSLColorSpaceXformHelper.h\"\n"
                  "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
                  "#include \"glsl/GrGLSLFragmentShaderBuilder.h\"\n"
                  "#include \"glsl/GrGLSLProgramBuilder.h\"\n"
-                 "#include \"GrResourceProvider.h\"\n"
                  "#include \"SkSLCPP.h\"\n"
                  "#include \"SkSLUtil.h\"\n"
                  "class GrGLSL%s : public GrGLSLFragmentProcessor {\n"
                  "public:\n"
                  "    GrGLSL%s() {}\n",
-                 fullName, baseName, baseName);
+                 baseName, baseName);
     bool result = this->writeEmitCode(uniforms);
     this->write("private:\n");
     this->writeSetData(uniforms);
@@ -589,8 +591,8 @@ bool CPPCodeGenerator::generateCode() {
     }
     this->write("    return true;\n"
                 "}\n");
-    this->writeSection(CPP_SECTION);
     this->writeTest();
+    this->writeSection(CPP_END_SECTION);
     result &= 0 == fErrors.errorCount();
     return result;
 }
