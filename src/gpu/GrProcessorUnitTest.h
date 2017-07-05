@@ -141,15 +141,15 @@ private:
  */
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrGeometryProcessor> gTestFactory SK_UNUSED;                     \
-    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*)
+    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*);
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
     static GrProcessorTestFactory<GrFragmentProcessor> gTestFactory SK_UNUSED;                     \
-    static sk_sp<GrFragmentProcessor> TestCreate(GrProcessorTestData*)
+    static sk_sp<GrFragmentProcessor> TestCreate(GrProcessorTestData*);
 
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrXPFactoryTestFactory gTestFactory SK_UNUSED;                                          \
-    static const GrXPFactory* TestGet(GrProcessorTestData*)
+    static const GrXPFactory* TestGet(GrProcessorTestData*);
 
 /** GrProcessor subclasses should insert this macro in their implementation file. They must then
  *  also implement this static function:

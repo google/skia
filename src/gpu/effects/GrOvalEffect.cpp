@@ -45,7 +45,7 @@ private:
     SkScalar            fRadius;
     GrPrimitiveEdgeType    fEdgeType;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -206,7 +206,7 @@ private:
     SkVector            fRadii;
     GrPrimitiveEdgeType    fEdgeType;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
