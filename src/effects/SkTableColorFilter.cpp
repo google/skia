@@ -546,16 +546,6 @@ sk_sp<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* c
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_CPU_BENDIAN
-#else
-    #define SK_A32_INDEX    (3 - (SK_A32_SHIFT >> 3))
-    #define SK_R32_INDEX    (3 - (SK_R32_SHIFT >> 3))
-    #define SK_G32_INDEX    (3 - (SK_G32_SHIFT >> 3))
-    #define SK_B32_INDEX    (3 - (SK_B32_SHIFT >> 3))
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 sk_sp<SkColorFilter> SkTableColorFilter::Make(const uint8_t table[256]) {
     return sk_make_sp<SkTable_ColorFilter>(table, table, table, table);
 }
