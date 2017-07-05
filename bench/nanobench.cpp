@@ -124,7 +124,7 @@ DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json")
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
 DEFINE_string(useThermalManager, "0,1,10,1000", "enabled,threshold,sleepTimeMs,TimeoutMs for "
                                                 "thermalManager\n");
-
+DEFINE_bool(csv, false, "Print status in CSV format");
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
@@ -1325,9 +1325,21 @@ int main(int argc, char** argv) {
 
                 SkDebugf("%10.2f %s\t%s\t%s\n",
                          stats.median*1e3, mark, bench->getUniqueName(), config);
-            } else {
+            } else if (FLAGS_csv) {
                 const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
-                SkDebugf("%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n"
+                SkDebugf("%g,%g,%g,%g,%g,%s,%s\n"
+                         , stats.min
+                         , stats.median
+                         , stats.mean
+                         , stats.max
+                         , stddev_percent
+                         , config
+                         , bench->getUniqueName()
+                         );
+            } else {
+                const char* format = "%4d/%-4dMB\t%d\t%s\t%s\t%s\t%s\t%.0f%%\t%s\t%s\t%s\n";
+                const double stddev_percent = 100 * sqrt(stats.var) / stats.mean;
+                SkDebugf(format
                         , sk_tools::getCurrResidentSetSizeMB()
                         , sk_tools::getMaxResidentSetSizeMB()
                         , loops
