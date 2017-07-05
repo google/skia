@@ -1498,7 +1498,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(canvas_private_clipRgn, reporter, ctxInfo) {
 
     const int w = 10;
     const int h = 10;
-    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+    SkImageInfo info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
     SkCanvas* canvas = surf->getCanvas();
     SkRegion rgn;
