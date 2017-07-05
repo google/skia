@@ -113,6 +113,14 @@ public:
      */
     static sk_sp<SkColorFilter> MakeMatrixFilterRowMajor255(const SkScalar array[20]);
 
+    /** Construct a colorfilter that applies the srgb gamma curve to the RGB channels */
+    static sk_sp<SkColorFilter> MakeLinearToSRGBGamma();
+
+    /** Construct a colorfilter that applies the inverse of the srgb gamma curve to the
+     *  RGB channels
+     */
+    static sk_sp<SkColorFilter> MakeSRGBToLinearGamma();
+
 #if SK_SUPPORT_GPU
     /**
      *  A subclass may implement this factory function to work with the GPU backend. It returns

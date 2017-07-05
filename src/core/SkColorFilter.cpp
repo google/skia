@@ -174,8 +174,6 @@ sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
     return MakeComposeFilter(std::move(outer), std::move(inner));
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 sk_sp<SkColorFilter> SkColorFilter::MakeComposeFilter(sk_sp<SkColorFilter> outer,
                                                       sk_sp<SkColorFilter> inner) {
     if (!outer) {
@@ -198,9 +196,91 @@ sk_sp<SkColorFilter> SkColorFilter::MakeComposeFilter(sk_sp<SkColorFilter> outer
     return sk_sp<SkColorFilter>(new SkComposeColorFilter(std::move(outer), std::move(inner),count));
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+#include "../gpu/effects/GrSRGBEffect.h"
+#endif
+
+class SkSRGBGammaColorFilter : public SkColorFilter {
+public:
+    enum class Direction {
+        kLinearToSRGB,
+        kSRGBToLinear,
+    };
+    SkSRGBGammaColorFilter(Direction dir) : fDir(dir) {}
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* x, SkColorSpace* cs) const override {
+        switch (fDir) {
+            case Direction::kLinearToSRGB:
+                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kLinearToSRGB);
+            case Direction::kSRGBToLinear:
+                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear);
+        }
+        return nullptr;
+    }
+#endif
+
+    SK_TO_STRING_OVERRIDE()
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSRGBGammaColorFilter)
+
+    void onAppendStages(SkRasterPipeline* p, SkColorSpace*, SkArenaAlloc* alloc,
+                        bool shaderIsOpaque) const override {
+        switch (fDir) {
+            case Direction::kLinearToSRGB:
+                p->append(SkRasterPipeline::to_srgb);
+                break;
+            case Direction::kSRGBToLinear:
+                p->append_from_srgb(shaderIsOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
+                break;
+        }
+    }
+
+protected:
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.write32(static_cast<uint32_t>(fDir));
+    }
+
+private:
+    const Direction fDir;
+
+    friend class SkColorFilter;
+    typedef SkColorFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
+    uint32_t dir = buffer.read32();
+    if (dir <= 1) {
+        return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));
+    }
+    buffer.validate(false);
+    return nullptr;
+}
+
+#ifndef SK_IGNORE_TO_STRING
+void SkSRGBGammaColorFilter::toString(SkString* str) const {
+    str->append("srgbgamma");
+}
+#endif
+
+sk_sp<SkColorFilter> SkColorFilter::MakeLinearToSRGBGamma() {
+    return sk_sp<SkColorFilter>(new SkSRGBGammaColorFilter(
+                                               SkSRGBGammaColorFilter::Direction::kLinearToSRGB));
+}
+
+sk_sp<SkColorFilter> SkColorFilter::MakeSRGBToLinearGamma() {
+    return sk_sp<SkColorFilter>(new SkSRGBGammaColorFilter(
+                                               SkSRGBGammaColorFilter::Direction::kSRGBToLinear));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "SkModeColorFilter.h"
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSRGBGammaColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
