@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85cf3204_8efea8fd",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-05T21:47:20Z",
+      "side": 1,
+      "message": "What happens if we don\u0027t unpremul for kSRGBToLinear, and pass kPremul here?",
+      "range": {
+        "startLine": 239,
+        "startChar": 75,
+        "endLine": 239,
+        "endChar": 96
+      },
+      "revId": "76f62eedf039bfccfe97f662272b0112cdd2cc62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
