@@ -29,9 +29,9 @@ static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm, const SkMat
 }
 
 static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
-                                            const SkPDFShader::State& state,
+                                            const SkPDFImageShaderKey& key,
                                             SkBitmap image) {
-    SkASSERT(state.fBitmapKey ==
+    SkASSERT(key.fBitmapKey ==
              (SkBitmapKey{image.getSubset(), image.getGenerationID()}));
 
     // The image shader pattern cell will be drawn into a separate device
@@ -40,10 +40,10 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
 
     // Map clip bounds to shader space to ensure the device is large enough
     // to handle fake clamping.
-    SkMatrix finalMatrix = state.fCanvasTransform;
-    finalMatrix.preConcat(state.fShaderTransform);
+    SkMatrix finalMatrix = key.fCanvasTransform;
+    finalMatrix.preConcat(key.fShaderTransform);
     SkRect deviceBounds;
-    deviceBounds.set(state.fBBox);
+    deviceBounds.set(key.fBBox);
     if (!SkPDFUtils::InverseTransformBBox(finalMatrix, &deviceBounds)) {
         return nullptr;
     }
@@ -56,8 +56,8 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
     // For clamp modes, we're only interested in the clip region, whether
     // or not the main bitmap is in it.
     SkShader::TileMode tileModes[2];
-    tileModes[0] = state.fImageTileModes[0];
-    tileModes[1] = state.fImageTileModes[1];
+    tileModes[0] = key.fImageTileModes[0];
+    tileModes[1] = key.fImageTileModes[1];
     if (tileModes[0] != SkShader::kClamp_TileMode ||
             tileModes[1] != SkShader::kClamp_TileMode) {
         deviceBounds.join(bitmapBounds);
@@ -241,14 +241,14 @@ static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
     // handle compose shader by pulling things up to a layer, drawing with
     // the first shader, applying the xfer mode and drawing again with the
     // second shader, then applying the layer to the original drawing.
-    SkPDFShader::State state = {
+    SkPDFImageShaderKey key = {
         canvasTransform,
         SkMatrix::I(),
         surfaceBBox,
         {{0, 0, 0, 0}, 0},
         {SkShader::kClamp_TileMode, SkShader::kClamp_TileMode}};
 
-    state.fShaderTransform = shader->getLocalMatrix();
+    key.fShaderTransform = shader->getLocalMatrix();
 
     // surfaceBBox is in device space. While that's exactly what we
     // want for sizing our bitmap, we need to map it into
@@ -283,17 +283,17 @@ static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
     canvas.translate(-shaderRect.x(), -shaderRect.y());
     canvas.drawPaint(p);
 
-    state.fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
-    state.fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
-    state.fBitmapKey = SkBitmapKey{image.getSubset(), image.getGenerationID()};
+    key.fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
+    key.fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
+    key.fBitmapKey = SkBitmapKey{image.getSubset(), image.getGenerationID()};
     SkASSERT (!image.isNull());
-    return make_image_shader(doc, state, std::move(image));
+    return make_image_shader(doc, key, std::move(image));
 }
 
-sk_sp<SkPDFObject> SkPDFShader::GetPDFShader(SkPDFDocument* doc,
-                                             SkShader* shader,
-                                             const SkMatrix& canvasTransform,
-                                             const SkIRect& surfaceBBox) {
+sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
+                                  SkShader* shader,
+                                  const SkMatrix& canvasTransform,
+                                  const SkIRect& surfaceBBox) {
     SkASSERT(shader);
     SkASSERT(doc);
     if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
@@ -303,7 +303,7 @@ sk_sp<SkPDFObject> SkPDFShader::GetPDFShader(SkPDFDocument* doc,
         return nullptr;
     }
     SkBitmap image;
-    SkPDFShader::State state = {
+    SkPDFImageShaderKey key = {
         canvasTransform,
         SkMatrix::I(),
         surfaceBBox,
@@ -312,20 +312,20 @@ sk_sp<SkPDFObject> SkPDFShader::GetPDFShader(SkPDFDocument* doc,
 
     SkASSERT(shader->asAGradient(nullptr) == SkShader::kNone_GradientType) ;
     SkImage* skimg;
-    if ((skimg = shader->isAImage(&state.fShaderTransform, state.fImageTileModes))
+    if ((skimg = shader->isAImage(&key.fShaderTransform, key.fImageTileModes))
             && skimg->asLegacyBitmap(&image, SkImage::kRO_LegacyBitmapMode)) {
         // TODO(halcanary): delay converting to bitmap.
-        state.fBitmapKey = SkBitmapKey{image.getSubset(), image.getGenerationID()};
+        key.fBitmapKey = SkBitmapKey{image.getSubset(), image.getGenerationID()};
         if (image.isNull()) {
             return nullptr;
         }
         SkPDFCanon* canon = doc->canon();
-        sk_sp<SkPDFObject>* shaderPtr = canon->fImageShaderMap.find(state);
+        sk_sp<SkPDFObject>* shaderPtr = canon->fImageShaderMap.find(key);
         if (shaderPtr) {
             return *shaderPtr;
         }
-        sk_sp<SkPDFObject> pdfShader = make_image_shader(doc, state, std::move(image));
-        canon->fImageShaderMap.set(std::move(state), pdfShader);
+        sk_sp<SkPDFObject> pdfShader = make_image_shader(doc, key, std::move(image));
+        canon->fImageShaderMap.set(std::move(key), pdfShader);
         return pdfShader;
     }
     // Don't bother to de-dup fallback shader.
