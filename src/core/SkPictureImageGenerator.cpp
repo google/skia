@@ -113,10 +113,13 @@ sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(GrContext* ctx,
         return nullptr;
     }
 
+    SkCanvas* canvas = surface->getCanvas();
+    // XXX - canvas should be wrapped in a SkColorSpaceXformCanvas for legacy color spaces.
+
     SkMatrix matrix = fMatrix;
     matrix.postTranslate(-origin.x(), -origin.y());
-    surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
-    surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
+    canvas->clear(0); // does NewRenderTarget promise to do this for us?
+    canvas->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     if (!image) {
         return nullptr;
