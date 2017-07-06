@@ -956,7 +956,6 @@ if (skia_enable_tools) {
         "tools/gpu/gl/debug/GrTextureObj.cpp",
         "tools/gpu/gl/debug/GrTextureUnitObj.cpp",
         "tools/gpu/gl/null/NullGLTestContext.cpp",
-        "tools/gpu/mock/MockTestContext.cpp",
       ]
       libs = []
 
