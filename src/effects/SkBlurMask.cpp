@@ -7,6 +7,7 @@
 
 
 #include "SkBlurMask.h"
+#include "SkMaskBlurFilter.h"
 #include "SkMath.h"
 #include "SkTemplates.h"
 #include "SkEndian.h"
@@ -487,101 +488,111 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
         return false;
     }
 
-    // Force high quality off for small radii (performance)
-    if (!force_quality && sigma <= SkIntToScalar(2)) {
-        quality = kLow_SkBlurQuality;
-    }
+    SkIPoint border;
 
-    SkScalar passRadius;
-    if (kHigh_SkBlurQuality == quality) {
-        // For the high quality path the 3 pass box blur kernel width is
-        // 6*rad+1 while the full Gaussian width is 6*sigma.
-        passRadius = sigma - (1/6.0f);
+    if (1) {
+        SkMaskBlurFilter blurFilter{sigma, sigma};
+        border = blurFilter.Blur(dst, src);
     } else {
-        // For the low quality path we only attempt to cover 3*sigma of the
-        // Gaussian blur area (1.5*sigma on each side). The single pass box
-        // blur's kernel size is 2*rad+1.
-        passRadius = 1.5f*sigma - 0.5f;
-    }
 
-    // highQuality: use three box blur passes as a cheap way
-    // to approximate a Gaussian blur
-    int passCount = (kHigh_SkBlurQuality == quality) ? 3 : 1;
-
-    int rx = SkScalarCeilToInt(passRadius);
-    int outerWeight = 255 - SkScalarRoundToInt((SkIntToScalar(rx) - passRadius) * 255);
-
-    SkASSERT(rx >= 0);
-    SkASSERT((unsigned)outerWeight <= 255);
-    if (rx <= 0) {
-        return false;
-    }
-
-    int ry = rx;    // only do square blur for now
-
-    int padx = passCount * rx;
-    int pady = passCount * ry;
-
-    if (margin) {
-        margin->set(padx, pady);
-    }
-    dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
-                     src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
-
-    dst->fRowBytes = dst->fBounds.width();
-    dst->fFormat = SkMask::kA8_Format;
-    dst->fImage = nullptr;
-
-    if (src.fImage) {
-        size_t dstSize = dst->computeImageSize();
-        if (0 == dstSize) {
-            return false;   // too big to allocate, abort
+        // Force high quality off for small radii (performance)
+        if (!force_quality && sigma <= SkIntToScalar(2)) {
+            quality = kLow_SkBlurQuality;
         }
 
-        int             sw = src.fBounds.width();
-        int             sh = src.fBounds.height();
-        const uint8_t*  sp = src.fImage;
-        uint8_t*        dp = SkMask::AllocImage(dstSize);
-        SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
-
-        // build the blurry destination
-        SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
-        uint8_t*                tp = tmpBuffer.get();
-        int w = sw, h = sh;
-
-        if (outerWeight == 255) {
-            int loRadius, hiRadius;
-            get_adjusted_radii(passRadius, &loRadius, &hiRadius);
-            if (kHigh_SkBlurQuality == quality) {
-                // Do three X blurs, with a transpose on the final one.
-                w = boxBlur<false>(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h);
-                w = boxBlur<false>(tp, w,             dp, hiRadius, loRadius, w, h);
-                w = boxBlur<true>(dp, w,             tp, hiRadius, hiRadius, w, h);
-                // Do three Y blurs, with a transpose on the final one.
-                h = boxBlur<false>(tp, h,             dp, loRadius, hiRadius, h, w);
-                h = boxBlur<false>(dp, h,             tp, hiRadius, loRadius, h, w);
-                h = boxBlur<true>(tp, h,             dp, hiRadius, hiRadius, h, w);
-            } else {
-                w = boxBlur<true>(sp, src.fRowBytes, tp, rx, rx, w, h);
-                h = boxBlur<true>(tp, h,             dp, ry, ry, h, w);
-            }
+        SkScalar passRadius;
+        if (kHigh_SkBlurQuality == quality) {
+            // For the high quality path the 3 pass box blur kernel width is
+            // 6*rad+1 while the full Gaussian width is 6*sigma.
+            passRadius = sigma - (1 / 6.0f);
         } else {
-            if (kHigh_SkBlurQuality == quality) {
-                // Do three X blurs, with a transpose on the final one.
-                w = boxBlurInterp<false>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
-                w = boxBlurInterp<false>(tp, w,             dp, rx, w, h, outerWeight);
-                w = boxBlurInterp<true>(dp, w,             tp, rx, w, h, outerWeight);
-                // Do three Y blurs, with a transpose on the final one.
-                h = boxBlurInterp<false>(tp, h,             dp, ry, h, w, outerWeight);
-                h = boxBlurInterp<false>(dp, h,             tp, ry, h, w, outerWeight);
-                h = boxBlurInterp<true>(tp, h,             dp, ry, h, w, outerWeight);
-            } else {
-                w = boxBlurInterp<true>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
-                h = boxBlurInterp<true>(tp, h,             dp, ry, h, w, outerWeight);
-            }
+            // For the low quality path we only attempt to cover 3*sigma of the
+            // Gaussian blur area (1.5*sigma on each side). The single pass box
+            // blur's kernel size is 2*rad+1.
+            passRadius = 1.5f * sigma - 0.5f;
         }
 
-        dst->fImage = dp;
+        // highQuality: use three box blur passes as a cheap way
+        // to approximate a Gaussian blur
+        int passCount = (kHigh_SkBlurQuality == quality) ? 3 : 1;
+
+        int rx = SkScalarCeilToInt(passRadius);
+        int outerWeight = 255 - SkScalarRoundToInt((SkIntToScalar(rx) - passRadius) * 255);
+
+        SkASSERT(rx >= 0);
+        SkASSERT((unsigned)outerWeight <= 255);
+        if (rx <= 0) {
+            return false;
+        }
+
+        int ry = rx;    // only do square blur for now
+
+        int padx = passCount * rx;
+        int pady = passCount * ry;
+
+        border = {padx, pady};
+
+        dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
+                         src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
+
+        dst->fRowBytes = dst->fBounds.width();
+        dst->fFormat = SkMask::kA8_Format;
+        dst->fImage = nullptr;
+
+        if (src.fImage) {
+            size_t dstSize = dst->computeImageSize();
+            if (0 == dstSize) {
+                return false;   // too big to allocate, abort
+            }
+
+            int sw = src.fBounds.width();
+            int sh = src.fBounds.height();
+            const uint8_t* sp = src.fImage;
+            uint8_t* dp = SkMask::AllocImage(dstSize);
+            SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
+
+            // build the blurry destination
+            SkAutoTMalloc<uint8_t> tmpBuffer(dstSize);
+            uint8_t* tp = tmpBuffer.get();
+            int w = sw, h = sh;
+
+            if (outerWeight == 255) {
+                int loRadius, hiRadius;
+                get_adjusted_radii(passRadius, &loRadius, &hiRadius);
+                if (kHigh_SkBlurQuality == quality) {
+                    // Do three X blurs, with a transpose on the final one.
+                    w = boxBlur<false>(sp, src.fRowBytes, tp, loRadius, hiRadius, w, h);
+                    w = boxBlur<false>(tp, w, dp, hiRadius, loRadius, w, h);
+                    w = boxBlur<true>(dp, w, tp, hiRadius, hiRadius, w, h);
+                    // Do three Y blurs, with a transpose on the final one.
+                    h = boxBlur<false>(tp, h, dp, loRadius, hiRadius, h, w);
+                    h = boxBlur<false>(dp, h, tp, hiRadius, loRadius, h, w);
+                    h = boxBlur<true>(tp, h, dp, hiRadius, hiRadius, h, w);
+                } else {
+                    w = boxBlur<true>(sp, src.fRowBytes, tp, rx, rx, w, h);
+                    h = boxBlur<true>(tp, h, dp, ry, ry, h, w);
+                }
+            } else {
+                if (kHigh_SkBlurQuality == quality) {
+                    // Do three X blurs, with a transpose on the final one.
+                    w = boxBlurInterp<false>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
+                    w = boxBlurInterp<false>(tp, w, dp, rx, w, h, outerWeight);
+                    w = boxBlurInterp<true>(dp, w, tp, rx, w, h, outerWeight);
+                    // Do three Y blurs, with a transpose on the final one.
+                    h = boxBlurInterp<false>(tp, h, dp, ry, h, w, outerWeight);
+                    h = boxBlurInterp<false>(dp, h, tp, ry, h, w, outerWeight);
+                    h = boxBlurInterp<true>(tp, h, dp, ry, h, w, outerWeight);
+                } else {
+                    w = boxBlurInterp<true>(sp, src.fRowBytes, tp, rx, w, h, outerWeight);
+                    h = boxBlurInterp<true>(tp, h, dp, ry, h, w, outerWeight);
+                }
+            }
+
+            dst->fImage = autoCall.release();
+        }
+    }
+
+    if (src.fImage != nullptr) {
         // if need be, alloc the "real" dst (same size as src) and copy/merge
         // the blur into it (applying the src)
         if (style == kInner_SkBlurStyle) {
@@ -590,22 +601,30 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
             if (0 == srcSize) {
                 return false;   // too big to allocate, abort
             }
+            auto blur = dst->fImage;
             dst->fImage = SkMask::AllocImage(srcSize);
+            auto blurStart = &blur[border.x() + border.y() * dst->fRowBytes];
             merge_src_with_blur(dst->fImage, src.fRowBytes,
-                                sp, src.fRowBytes,
-                                dp + passCount * (rx + ry * dst->fRowBytes),
-                                dst->fRowBytes, sw, sh);
-            SkMask::FreeImage(dp);
+                                src.fImage, src.fRowBytes,
+                                blurStart,
+                                dst->fRowBytes,
+                                src.fBounds.width(), src.fBounds.height());
+            SkMask::FreeImage(blur);
         } else if (style != kNormal_SkBlurStyle) {
-            clamp_with_orig(dp + passCount * (rx + ry * dst->fRowBytes),
-                            dst->fRowBytes, sp, src.fRowBytes, sw, sh, style);
+            auto dstStart = &dst->fImage[border.x() + border.y() * dst->fRowBytes];
+            clamp_with_orig(dstStart,
+                            dst->fRowBytes, src.fImage, src.fRowBytes,
+                            src.fBounds.width(), src.fBounds.height(), style);
         }
-        (void)autoCall.release();
     }
 
     if (style == kInner_SkBlurStyle) {
         dst->fBounds = src.fBounds; // restore trimmed bounds
         dst->fRowBytes = src.fRowBytes;
+    }
+
+    if (margin != nullptr) {
+        *margin = border;
     }
 
     return true;
