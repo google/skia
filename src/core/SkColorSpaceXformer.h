@@ -39,7 +39,7 @@ public:
     sk_sp<SkColorSpace> dst() const { return fDst; }
 
 private:
-    SkColorSpaceXformer() = default;
+    SkColorSpaceXformer(sk_sp<SkColorSpace> dst, std::unique_ptr<SkColorSpaceXform> fromSRGB);
 
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
