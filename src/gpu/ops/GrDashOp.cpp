@@ -794,7 +794,7 @@ private:
     const Attribute*    fInDashParams;
     const Attribute*    fInCircleParams;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -1004,7 +1004,7 @@ private:
     const Attribute*    fInDashParams;
     const Attribute*    fInRectParams;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

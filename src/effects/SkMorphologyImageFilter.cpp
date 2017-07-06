@@ -183,7 +183,7 @@ private:
     GrMorphologyEffect(sk_sp<GrTextureProxy>,
                        Direction, int radius, MorphologyType, const float bounds[2]);
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef Gr1DKernelEffect INHERITED;
 };

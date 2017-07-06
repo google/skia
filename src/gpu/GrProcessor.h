@@ -8,23 +8,23 @@
 #ifndef GrProcessor_DEFINED
 #define GrProcessor_DEFINED
 
-#include "GrColor.h"
+#include "../private/SkAtomics.h"
 #include "GrBuffer.h"
+#include "GrColor.h"
 #include "GrGpuResourceRef.h"
 #include "GrProcessorUnitTest.h"
 #include "GrProgramElement.h"
 #include "GrSamplerParams.h"
 #include "GrShaderVar.h"
 #include "GrSurfaceProxyPriv.h"
+#include "GrTextureProxy.h"
 #include "SkMath.h"
 #include "SkString.h"
-#include "../private/SkAtomics.h"
 
 class GrContext;
 class GrCoordTransform;
 class GrInvariantOutput;
 class GrResourceProvider;
-class GrTextureProxy;
 
 /**
  * Used by processors to build their keys. It incorporates each per-processor key into a larger

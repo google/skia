@@ -74,7 +74,7 @@ private:
 
     GrTextureDomain fDomain;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrSingleTextureEffect INHERITED;
 };

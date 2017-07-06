@@ -46,7 +46,7 @@ private:
     const Attribute* fInColor;
     const Attribute* fInShadowParams;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

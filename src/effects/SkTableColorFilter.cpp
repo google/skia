@@ -344,7 +344,7 @@ private:
     ColorTableEffect(sk_sp<GrTextureProxy> proxy,
                      GrTextureStripAtlas* atlas, int row, unsigned flags);
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     TextureSampler fTextureSampler;
     GrTextureStripAtlas* fAtlas;

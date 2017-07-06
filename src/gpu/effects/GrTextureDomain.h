@@ -189,7 +189,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrSingleTextureEffect INHERITED;
 };
@@ -227,7 +227,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor& fp) const override;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

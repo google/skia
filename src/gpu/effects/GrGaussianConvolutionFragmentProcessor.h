@@ -61,7 +61,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.

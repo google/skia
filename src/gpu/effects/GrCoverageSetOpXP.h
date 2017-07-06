@@ -42,7 +42,7 @@ private:
     }
 
 
-    GR_DECLARE_XP_FACTORY_TEST;
+    GR_DECLARE_XP_FACTORY_TEST
 
     SkRegion::Op fRegionOp;
     bool         fInvertCoverage;

@@ -64,7 +64,7 @@ private:
     SkMatrix44 fGamutXform;
     uint32_t fOps;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

@@ -121,7 +121,7 @@ private:
         this->addCoordTransform(&fBTransform);
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     // @{
     // Cache of values - these can change arbitrarily, EXCEPT
@@ -409,7 +409,7 @@ private:
         this->initClassID<FocalOutside2PtConicalEffect>();
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     SkScalar         fFocalX;
     bool             fIsFlipped;
@@ -616,7 +616,7 @@ private:
         this->initClassID<FocalInside2PtConicalEffect>();
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     SkScalar         fFocalX;
 
@@ -859,7 +859,7 @@ private:
         this->initClassID<CircleInside2PtConicalEffect>();
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     const CircleConicalInfo fInfo;
 
@@ -1087,7 +1087,7 @@ private:
         fIsFlipped = shader.isFlippedGrad();
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     const CircleConicalInfo fInfo;
     SkScalar fTLimit;

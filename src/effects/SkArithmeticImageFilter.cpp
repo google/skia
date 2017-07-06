@@ -302,7 +302,7 @@ private:
     float fK1, fK2, fK3, fK4;
     bool fEnforcePMColor;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     typedef GrFragmentProcessor INHERITED;
 };
 }

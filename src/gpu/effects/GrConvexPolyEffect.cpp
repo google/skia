@@ -49,7 +49,7 @@ private:
 
     typedef GrFragmentProcessor INHERITED;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
 };
 

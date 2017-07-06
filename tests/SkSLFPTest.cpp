@@ -96,7 +96,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) "
                     "const override;\n"
              "    bool onIsEqual(const GrFragmentProcessor&) const override;\n"
-             "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;\n"
+             "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n"
              "    typedef GrFragmentProcessor INHERITED;\n"
              "};\n"
              "#endif\n"
@@ -287,7 +287,7 @@ DEF_TEST(SkSLFPSections, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-            "GR_DECLARE_FRAGMENT_PROCESSOR_TEST;\n"
+            "GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n"
             " fields section     typedef GrFragmentProcessor INHERITED;"
          },
          {});

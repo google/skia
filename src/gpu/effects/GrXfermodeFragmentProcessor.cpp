@@ -160,7 +160,7 @@ private:
 
     SkBlendMode fMode;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -420,7 +420,7 @@ private:
     SkBlendMode fMode;
     Child       fChild;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

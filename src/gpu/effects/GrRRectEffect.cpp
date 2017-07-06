@@ -71,7 +71,7 @@ private:
     GrPrimitiveEdgeType    fEdgeType;
     uint32_t               fCircularCornerFlags;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -406,7 +406,7 @@ private:
     SkRRect fRRect;
     GrPrimitiveEdgeType fEdgeType;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

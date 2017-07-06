@@ -183,7 +183,7 @@ private:
     const Attribute* fInRectEdge;
     const Attribute* fInWidthHeight;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

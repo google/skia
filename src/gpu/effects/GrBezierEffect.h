@@ -121,7 +121,7 @@ private:
     const Attribute*    fInPosition;
     const Attribute*    fInConicCoeffs;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -203,7 +203,7 @@ private:
     const Attribute*    fInPosition;
     const Attribute*    fInHairQuadEdge;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -281,7 +281,7 @@ private:
     GrPrimitiveEdgeType fEdgeType;
     const Attribute*    fInPosition;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

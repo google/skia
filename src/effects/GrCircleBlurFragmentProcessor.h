@@ -64,7 +64,7 @@ private:
     float               fTextureRadius;
     TextureSampler      fBlurProfileSampler;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };

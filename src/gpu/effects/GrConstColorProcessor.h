@@ -67,7 +67,7 @@ private:
 
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     GrColor4f   fColor;
     InputMode   fMode;

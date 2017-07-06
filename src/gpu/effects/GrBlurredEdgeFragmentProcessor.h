@@ -55,7 +55,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     Mode   fMode;
 

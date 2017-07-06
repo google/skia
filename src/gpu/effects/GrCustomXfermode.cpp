@@ -221,7 +221,7 @@ private:
                                           const GrProcessorAnalysisCoverage&,
                                           const GrCaps&) const override;
 
-    GR_DECLARE_XP_FACTORY_TEST;
+    GR_DECLARE_XP_FACTORY_TEST
 
     SkBlendMode fMode;
     GrBlendEquation fHWBlendEquation;
