@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
@@ -438,13 +439,12 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
 
 sk_sp<SkImageFilter> SkMagnifierImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkMagnifierImageFilter*>(this));
+    auto input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return SkMagnifierImageFilter::Make(fSrcRect, fInset, std::move(input),
+                                            this->getCropRectIfSet());
     }
-
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkMagnifierImageFilter::Make(fSrcRect, fInset, std::move(input),
-                                        this->getCropRectIfSet());
+    return this->refMe();
 }
 
 #ifndef SK_IGNORE_TO_STRING

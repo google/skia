@@ -406,6 +406,10 @@ protected:
     }
     virtual sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const = 0;
 
+    sk_sp<SkImageFilter> refMe() const {
+        return sk_ref_sp(const_cast<SkImageFilter*>(this));
+    }
+
 private:
     // For makeColorSpace().
     friend class ArithmeticImageFilterImpl;

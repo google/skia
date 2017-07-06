@@ -8,6 +8,7 @@
 #include "SkAlphaThresholdFilter.h"
 
 #include "SkBitmap.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
@@ -262,13 +263,12 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
 sk_sp<SkImageFilter> SkAlphaThresholdFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkAlphaThresholdFilterImpl*>(this));
+    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return SkAlphaThresholdFilter::Make(fRegion, fInnerThreshold, fOuterThreshold,
+                                            std::move(input), this->getCropRectIfSet());
     }
-
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkAlphaThresholdFilter::Make(fRegion, fInnerThreshold, fOuterThreshold,
-                                        std::move(input), this->getCropRectIfSet());
+    return this->refMe();
 }
 
 #ifndef SK_IGNORE_TO_STRING

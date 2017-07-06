@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkColorSpaceXformer.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
 #include "SkRect.h"
@@ -640,16 +641,15 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
                                           dst, &source->props());
 }
 
-sk_sp<SkImageFilter> SkMorphologyImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkMorphologyImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const{
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkMorphologyImageFilter*>(this));
+    auto input = xformer->apply(this->getInput(0));
+    if (input.get() != this->getInput(0)) {
+        return (SkMorphologyImageFilter::kDilate_Op == this->op())
+                ? SkDilateImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
+                                            this->getCropRectIfSet())
+                : SkErodeImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
+                                           this->getCropRectIfSet());
     }
-
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return (SkMorphologyImageFilter::kDilate_Op == this->op())
-            ? SkDilateImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
-                                        this->getCropRectIfSet())
-            : SkErodeImageFilter::Make(fRadius.width(), fRadius.height(), std::move(input),
-                                       this->getCropRectIfSet());
+    return this->refMe();
 }

@@ -9,6 +9,7 @@
 #include "SkArithmeticImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -174,17 +175,13 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 sk_sp<SkImageFilter> SkXfermodeImageFilter_Base::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(2 == this->countInputs());
-    if (!this->getInput(0) && !this->getInput(1)) {
-        return sk_ref_sp(const_cast<SkXfermodeImageFilter_Base*>(this));
+    auto background = xformer->apply(this->getInput(0));
+    auto foreground = xformer->apply(this->getInput(1));
+    if (background.get() != this->getInput(0) || foreground.get() != this->getInput(1)) {
+        return SkXfermodeImageFilter::Make(fMode, std::move(background), std::move(foreground),
+                                           this->getCropRectIfSet());
     }
-
-    sk_sp<SkImageFilter> background =
-            this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
-    sk_sp<SkImageFilter> foreground =
-            this->getInput(1) ? this->getInput(1)->makeColorSpace(xformer) : nullptr;
-
-    return SkXfermodeImageFilter::Make(fMode, std::move(background), std::move(foreground),
-                                       this->getCropRectIfSet());
+    return this->refMe();
 }
 
 void SkXfermodeImageFilter_Base::drawForeground(SkCanvas* canvas, SkSpecialImage* img,

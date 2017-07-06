@@ -9,6 +9,7 @@
 
 #include "SkAutoPixmapStorage.h"
 #include "SkColorPriv.h"
+#include "SkColorSpaceXformer.h"
 #include "SkGpuBlurUtils.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
@@ -300,13 +301,13 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
 sk_sp<SkImageFilter> SkBlurImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(1 == this->countInputs());
-    if (!this->getInput(0)) {
-        return sk_ref_sp(const_cast<SkBlurImageFilterImpl*>(this));
-    }
 
-    sk_sp<SkImageFilter> input = this->getInput(0)->makeColorSpace(xformer);
-    return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
-                                   this->getCropRectIfSet(), fTileMode);
+    auto input = xformer->apply(this->getInput(0));
+    if (this->getInput(0) != input.get()) {
+        return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
+                                       this->getCropRectIfSet(), fTileMode);
+    }
+    return this->refMe();
 }
 
 SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {

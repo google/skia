@@ -8,6 +8,7 @@
 #include "SkDisplacementMapEffect.h"
 
 #include "SkBitmap.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkWriteBuffer.h"
@@ -358,19 +359,17 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
 
 sk_sp<SkImageFilter> SkDisplacementMapEffect::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkASSERT(2 == this->countInputs());
-    if (!this->getInput(1)) {
-        return sk_ref_sp(const_cast<SkDisplacementMapEffect*>(this));
-    }
-
     // Intentionally avoid xforming the displacement filter.  The values will be used as
     // offsets, not as colors.
     sk_sp<SkImageFilter> displacement = sk_ref_sp(const_cast<SkImageFilter*>(this->getInput(0)));
-    sk_sp<SkImageFilter> color =
-            this->getInput(1) ? this->getInput(1)->makeColorSpace(xformer) : nullptr;
+    sk_sp<SkImageFilter> color = xformer->apply(this->getInput(1));
 
-    return SkDisplacementMapEffect::Make(fXChannelSelector, fYChannelSelector, fScale,
-                                         std::move(displacement), std::move(color),
-                                         this->getCropRectIfSet());
+    if (color.get() != this->getInput(1)) {
+        return SkDisplacementMapEffect::Make(fXChannelSelector, fYChannelSelector, fScale,
+                                             std::move(displacement), std::move(color),
+                                             this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 SkRect SkDisplacementMapEffect::computeFastBounds(const SkRect& src) const {
