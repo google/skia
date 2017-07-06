@@ -1,0 +1,62 @@
+/*
+ * Copyright 2017 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+#ifndef GrMockTexture_DEFINED
+#define GrMockTexture_DEFINED
+
+#include "GrMockGpu.h"
+#include "GrTexture.h"
+
+class GrMockTexture : public GrTexture {
+public:
+    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, bool hasMipLevels)
+            : GrMockTexture(gpu, desc, hasMipLevels) {
+        this->registerWithCache(budgeted);
+    }
+    ~GrMockTexture() override {
+        if (fReleaseProc) {
+            fReleaseProc(fReleaseCtx);
+        }
+    }
+    GrBackendObject getTextureHandle() const override { return 0; }
+    void textureParamsModified() override {}
+    void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
+        fReleaseProc = proc;
+        fReleaseCtx = ctx;
+    }
+
+protected:
+    // constructor for subclasses
+    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, bool hasMipLevels)
+            : GrSurface(gpu, desc)
+            , INHERITED(gpu, desc, kITexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+                        hasMipLevels)
+            , fReleaseProc(nullptr)
+            , fReleaseCtx(nullptr) {}
+
+private:
+    ReleaseProc fReleaseProc;
+    ReleaseCtx fReleaseCtx;
+
+    typedef GrTexture INHERITED;
+};
+
+class GrMockTextureRenderTarget : public GrRenderTarget, public GrMockTexture {
+public:
+    GrMockTextureRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+                              bool hasMipLevels)
+            : GrSurface(gpu, desc)
+            , GrRenderTarget(gpu, desc)
+            , GrMockTexture(gpu, desc, hasMipLevels) {
+        this->registerWithCache(budgeted);
+    }
+    ResolveType getResolveType() const override { return kCanResolve_ResolveType; }
+    GrBackendObject getRenderTargetHandle() const override { return 0; }
+    bool canAttemptStencilAttachment() const override { return true; }
+    bool completeStencilAttachment() override { return true; }
+};
+
+#endif
