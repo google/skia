@@ -828,7 +828,7 @@ private:
     TextureSampler  fBlurProfileSampler;
     GrSLPrecision   fPrecision;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
@@ -1094,7 +1094,7 @@ private:
     float               fSigma;
     TextureSampler      fNinePatchSampler;
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
