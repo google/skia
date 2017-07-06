@@ -270,7 +270,7 @@ inline std::unique_ptr<GrLegacyMeshDrawOp> GrAtlasTextBlob::makeOp(
         bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         op = GrAtlasTextOp::MakeDistanceField(glyphCount, cache, distanceAdjustTable,
                                               useGammaCorrectDistanceTable, luminanceColor,
-                                              info.hasUseLCDText(), useBGR);
+                                              info.hasUseLCDText(), useBGR, info.isAntiAliased());
     } else {
         op = GrAtlasTextOp::MakeBitmap(format, glyphCount, cache);
     }

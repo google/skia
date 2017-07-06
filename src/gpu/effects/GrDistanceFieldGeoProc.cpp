@@ -77,6 +77,8 @@ public:
         bool isSimilarity = SkToBool(dfTexEffect.getFlags() & kSimilarity_DistanceFieldEffectFlag);
         bool isGammaCorrect =
             SkToBool(dfTexEffect.getFlags() & kGammaCorrect_DistanceFieldEffectFlag);
+        bool isAliased =
+            SkToBool(dfTexEffect.getFlags() & kAliased_DistanceFieldEffectFlag);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", uv.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
@@ -158,10 +160,12 @@ public:
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
         }
 
-        // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
-        // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
-        // mapped linearly to coverage, so use a linear step:
-        if (isGammaCorrect) {
+        if (isAliased) {
+            fragBuilder->codeAppend("float val = distance > 0 ? 1.0 : 0.0;");
+        } else if (isGammaCorrect) {
+            // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
+            // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want
+            // distance mapped linearly to coverage, so use a linear step:
             fragBuilder->codeAppend(
                 "float val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
         } else {

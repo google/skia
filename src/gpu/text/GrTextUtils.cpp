@@ -283,6 +283,7 @@ void GrTextUtils::InitDistanceFieldPaint(GrAtlasTextBlob* blob,
     SkASSERT(dfMaskScaleFloor <= scaledTextSize && scaledTextSize <= dfMaskScaleCeil);
     blob->setMinAndMaxScale(dfMaskScaleFloor / scaledTextSize, dfMaskScaleCeil / scaledTextSize);
 
+    skPaint->setAntiAlias(true);
     skPaint->setLCDRenderText(false);
     skPaint->setAutohinted(false);
     skPaint->setHinting(SkPaint::kNormal_Hinting);
@@ -386,7 +387,8 @@ void GrTextUtils::DrawDFPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGlyp
     SkPaint dfPaint(paint);
     GrTextUtils::InitDistanceFieldPaint(blob, &dfPaint, &textRatio, viewMatrix);
     blob->setHasDistanceField();
-    blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText());
+    blob->setSubRunHasDistanceFields(runIndex, paint.skPaint().isLCDRenderText(),
+                                     paint.skPaint().isAntiAlias());
 
     GrAtlasTextStrike* currStrike = nullptr;
 

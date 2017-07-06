@@ -57,22 +57,24 @@ public:
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
         op->fFontCache = fontCache;
-        op->fUseBGR = false;
         return op;
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
-            bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR) {
+            bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
+            bool isAntiAliased) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
-        op->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
+        op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
+                                       : isLCD ? (useBGR ? kLCDBGRDistanceField_MaskType
+                                                         : kLCDDistanceField_MaskType)
+                                               : kGrayscaleDistanceField_MaskType;
         op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
         op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
         op->fLuminanceColor = luminanceColor;
-        op->fUseBGR = useBGR;
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         return op;
@@ -122,20 +124,26 @@ private:
             case kColorBitmapMask_MaskType:
                 return kARGB_GrMaskFormat;
             case kGrayscaleCoverageMask_MaskType:
+            case kAliasedDistanceField_MaskType:
             case kGrayscaleDistanceField_MaskType:
             case kLCDDistanceField_MaskType:
+            case kLCDBGRDistanceField_MaskType:
                 return kA8_GrMaskFormat;
         }
         return kA8_GrMaskFormat;  // suppress warning
     }
 
     bool usesDistanceFields() const {
-        return kGrayscaleDistanceField_MaskType == fMaskType ||
-               kLCDDistanceField_MaskType == fMaskType;
+        return kAliasedDistanceField_MaskType == fMaskType ||
+               kGrayscaleDistanceField_MaskType == fMaskType ||
+               kLCDDistanceField_MaskType == fMaskType ||
+               kLCDBGRDistanceField_MaskType == fMaskType;
     }
 
     bool isLCD() const {
-        return kLCDCoverageMask_MaskType == fMaskType || kLCDDistanceField_MaskType == fMaskType;
+        return kLCDCoverageMask_MaskType == fMaskType ||
+               kLCDDistanceField_MaskType == fMaskType ||
+               kLCDBGRDistanceField_MaskType == fMaskType;
     }
 
     inline void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
@@ -164,10 +172,11 @@ private:
         kGrayscaleCoverageMask_MaskType,
         kLCDCoverageMask_MaskType,
         kColorBitmapMask_MaskType,
+        kAliasedDistanceField_MaskType,
         kGrayscaleDistanceField_MaskType,
         kLCDDistanceField_MaskType,
+        kLCDBGRDistanceField_MaskType,
     } fMaskType;
-    bool fUseBGR;  // fold this into the enum?
 
     GrAtlasGlyphCache* fFontCache;
 
