@@ -282,6 +282,10 @@ SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStr
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
+    , fState(JPEG_HEADER)
+    , fDst(nullptr)
+    , fDstRowBytes(0)
+    , fRowsDecoded(0)
 {}
 
 /*
@@ -760,6 +764,86 @@ bool SkJpegCodec::onSkipScanlines(int count) {
     }
 
     return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
+}
+
+SkCodec::Result SkJpegCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
+        void* pixels, size_t rowBytes, const SkCodec::Options& options,
+        SkPMColor* colorTable, int* colorCount) {
+    // Set the jump location for libjpeg errors
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        SkCodecPrintf("setjmp: Error from libjpeg\n");
+        return kInvalidInput;
+    }
+
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
+        return kInvalidConversion;
+    }
+
+    // Check if we can decode to the requested destination and set the output color space
+    if (!this->setOutputColorSpace(dstInfo)) {
+        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
+    }
+
+    fDst = pixels;
+    fDstRowBytes = rowBytes;
+    fState = JPEG_START_DECOMPRESS;
+
+    return kSuccess;
+}
+
+SkCodec::Result SkJpegCodec::onIncrementalDecode(int* rowsDecoded) {
+    // Get a pointer to the decompress info since we will use it quite frequently
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+    const SkImageInfo& dstInfo = this->dstInfo();
+    const auto& options = this->options();
+
+    // Set the jump location for libjpeg errors
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
+    }
+
+    switch(fState) {
+        case JPEG_START_DECOMPRESS:
+            if (!jpeg_start_decompress(dinfo)) {
+                return fDecoderMgr->returnFailure("startDecompress", kInvalidInput);
+            }
+
+            // The recommended output buffer height should always be 1 in high quality modes.
+            // If it's not, we want to know because it means our strategy is not optimal.
+            SkASSERT(1 == dinfo->rec_outbuf_height);
+
+            // If this is a progressive JPEG ...
+            fState = (dinfo->buffered_image) ? JPEG_DECOMPRESS_PROGRESSIVE
+                                            : JPEG_DECOMPRESS_SEQUENTIAL;
+        // FALL THROUGH
+
+        case JPEG_DECOMPRESS_SEQUENTIAL:
+            if (fState == JPEG_DECOMPRESS_SEQUENTIAL) {
+                int rows = this->readRows(dstInfo, fDst, fDstRowBytes, dstInfo.height(), options);
+                if (rows < dstInfo.height()) {
+                    *rowsDecoded = rows;
+                    return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
+                }
+
+                fState = JPEG_DONE;
+            }
+
+        // FALL THROUGH
+
+        case JPEG_DECOMPRESS_PROGRESSIVE:
+            if (fState == JPEG_DECOMPRESS_PROGRESSIVE) {
+
+            }
+        // FALL THROUGH
+
+        case JPEG_DONE:
+            return kSuccess;
+
+        default:
+            return fDecoderMgr->returnFailure("setjmp", kUnimplemented);
+    }
+
+    return kSuccess;
 }
 
 static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
