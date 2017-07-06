@@ -31,7 +31,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
 
-        paint.setAntiAlias(true);
+        paint.setAntiAlias(false);
         paint.setLCDRenderText(true);
         //With freetype the default (normal hinting) can be really ugly.
         //Most distros now set slight (vertical hinting only) in any event.
