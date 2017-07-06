@@ -407,19 +407,14 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
         return kSuccess;
     }
 
-    // Note: there is a difference between the following call to SkGifImageReader::decode
-    // returning false and leaving frameDecoded false:
-    // - If the method returns false, there was an error in the stream. We still treat this as
-    //   incomplete, since we have already decoded some rows.
-    // - If frameDecoded is false, that just means that we do not have enough data. If more data
-    //   is supplied, we may be able to continue decoding this frame. We also treat this as
-    //   incomplete.
-    // FIXME: Ensure that we do not attempt to continue decoding if the method returns false and
-    // more data is supplied.
     bool frameDecoded = false;
-    if (!fReader->decode(frameIndex, &frameDecoded) || !frameDecoded) {
+    const bool fatalError = !fReader->decode(frameIndex, &frameDecoded);
+    if (fatalError || !frameDecoded) {
         if (rowsDecoded) {
             *rowsDecoded = fRowsDecoded;
+        }
+        if (fatalError) {
+            return kErrorInInput;
         }
         return kIncompleteInput;
     }
