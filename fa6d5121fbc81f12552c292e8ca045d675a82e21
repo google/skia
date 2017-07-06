@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2860cd79_c63974a9",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-07-06T07:04:22Z",
+      "side": 1,
+      "message": "AFAICT, specifying a color space in ImageInfo to SkImageGenerator::onGetPixels doesn\u0027t have the requirement that the color space be renderable. In fact, this is the path that we were already using in onMakeColorSpace.",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df24a386_7ce7b624",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-07-06T07:04:22Z",
+      "side": 1,
+      "message": "This fix seems a bit more complicated -- we want to pass a flag to onGeneratTexture that says \"use a SkColorSpaceXformCanvas instead of specifying the color space to the SkSurface\".",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
