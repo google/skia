@@ -622,19 +622,19 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
 }
 
 SkCodec::Result SkBmpCodec::prepareToDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+        const SkCodec::Options& options) {
     if (!conversion_possible(dstInfo, this->getInfo()) ||
         !this->initializeColorXform(dstInfo, options.fPremulBehavior))
     {
         return kInvalidConversion;
     }
 
-    return this->onPrepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+    return this->onPrepareToDecode(dstInfo, options);
 }
 
 SkCodec::Result SkBmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
-    return prepareToDecode(dstInfo, options, inputColorPtr, inputColorCount);
+        const SkCodec::Options& options) {
+    return prepareToDecode(dstInfo, options);
 }
 
 int SkBmpCodec::onGetScanlines(void* dst, int count, size_t rowBytes) {

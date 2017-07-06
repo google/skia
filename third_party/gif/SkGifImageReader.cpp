@@ -762,13 +762,11 @@ bool SkGifImageReader::parse(SkGifImageReader::SkGIFParseQuery query)
                         isLocalColormapDefined, numColors))
                 {
                     m_firstFrameHasAlpha = true;
-                    m_firstFrameSupportsIndex8 = true;
                 } else {
                     const bool frameIsSubset = xOffset > 0 || yOffset > 0
                             || width < fScreenWidth
                             || height < fScreenHeight;
                     m_firstFrameHasAlpha = frameIsSubset;
-                    m_firstFrameSupportsIndex8 = !frameIsSubset;
                 }
             }
 
