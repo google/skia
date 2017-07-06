@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdd24a20_0ae8afc3",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-06T13:39:22Z",
+      "side": 1,
+      "message": "Hmm, doesn\u0027t have to be this CL, but looks like color filters implement refMe() as the default behavior in the base class, while for image filters the base has a pure virtual and we self-ref explicitly.  Maybe unify these two approaches?",
+      "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1617086_c2c7992b",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-06T13:39:22Z",
+      "side": 1,
+      "message": "Would it make sense to add the check in apply() instead?  I don\u0027t find the distinction particularly interesting.",
+      "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bac7023_f48bab60",
+        "filename": "src/effects/SkColorFilterImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-06T13:39:22Z",
+      "side": 1,
+      "message": "input \u003d xformer-\u003eapplyIf(this-\u003egetInput(0));\n\n?",
+      "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
