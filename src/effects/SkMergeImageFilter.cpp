@@ -8,6 +8,7 @@
 #include "SkMergeImageFilter.h"
 
 #include "SkCanvas.h"
+#include "SkColorSpaceXformer.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
 #include "SkSpecialSurface.h"
@@ -97,10 +98,8 @@ sk_sp<SkImageFilter> SkMergeImageFilter::onMakeColorSpace(SkColorSpaceXformer* x
     SkSTArray<5, sk_sp<SkImageFilter>> inputs(this->countInputs());
     bool changed = false;
     for (int i = 0; i < this->countInputs(); i++) {
-        inputs.push_back(this->getInput(i) ? this->getInput(i)->makeColorSpace(xformer) : nullptr);
-        if (inputs[i].get() != this->getInput(i)) {
-            changed = true;
-        }
+        inputs.push_back(xformer->apply(this->getInput(i)));
+        changed |= (inputs[i].get() != this->getInput(i));
     }
 
     if (changed) {
