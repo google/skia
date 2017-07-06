@@ -226,7 +226,7 @@ bool HCodeGenerator::generateCode() {
                  "    void onGetGLSLProcessorKey(const GrShaderCaps&,"
                                                 "GrProcessorKeyBuilder*) const override;\n"
                  "    bool onIsEqual(const GrFragmentProcessor&) const override;\n"
-                 "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;\n");
+                 "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n");
     this->writeFields();
     this->writef("    typedef GrFragmentProcessor INHERITED;\n"
                 "};\n");

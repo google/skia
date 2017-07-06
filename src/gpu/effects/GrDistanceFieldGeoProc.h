@@ -107,7 +107,7 @@ private:
     const Attribute* fInTextureCoords;
     bool             fUsesLocalCoords;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -160,7 +160,7 @@ private:
     const Attribute* fInTextureCoords;
     bool             fUsesLocalCoords;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -234,7 +234,7 @@ private:
     const Attribute* fInTextureCoords;
     bool             fUsesLocalCoords;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

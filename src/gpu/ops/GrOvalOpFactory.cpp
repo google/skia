@@ -213,7 +213,7 @@ private:
     const Attribute* fInUnionPlane;
     bool fStroke;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -351,7 +351,7 @@ private:
     SkMatrix fLocalMatrix;
     bool fStroke;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };
@@ -519,7 +519,7 @@ private:
     SkMatrix fViewMatrix;
     DIEllipseStyle fStyle;
 
-    GR_DECLARE_GEOMETRY_PROCESSOR_TEST;
+    GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
     typedef GrGeometryProcessor INHERITED;
 };

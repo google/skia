@@ -80,7 +80,7 @@ private:
     int                    fEdgeCount;
     SkScalar               fEdges[3 * kMaxEdges];
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
 };
