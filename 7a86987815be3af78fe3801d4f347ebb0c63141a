@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "089e1d93_d26cb071",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-06T15:07:50Z",
+      "side": 1,
+      "message": "nit: You want\n\nBug: skia:6672\n\n(I know this has already landed, but I saw you leave out \"skia:\" in another CL so just wanted to remind you.)",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 9
+      },
+      "revId": "7a86987815be3af78fe3801d4f347ebb0c63141a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
