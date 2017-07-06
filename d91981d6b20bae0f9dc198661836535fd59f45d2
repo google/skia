@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74c25778_cd945532",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Why not just limit yourself to max rt size? It seems like this class would break if the max rt size is less than the max texture size.",
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ce07e73_227638b3",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Why is the initialize size always square but constructor takes a min width and min height?",
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "980e2895_ecf1caeb",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Do you need this?",
+      "range": {
+        "startLine": 482,
+        "startChar": 0,
+        "endLine": 482,
+        "endChar": 26
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a953b7b_d8c6c578",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Does this not work?",
+      "range": {
+        "startLine": 559,
+        "startChar": 12,
+        "endLine": 559,
+        "endChar": 65
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96d6876c_eb913d24",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Why int and not bool or unspecified? Are these put into buffer data?",
+      "range": {
+        "startLine": 40,
+        "startChar": 29,
+        "endLine": 40,
+        "endChar": 32
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9980aeb_c05a8372",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Probably could use a comment here about the difference between calling these two functions.",
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bfdb6c5_050d9c1f",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Can these be private?",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0828251_e9c0132f",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T16:46:39Z",
+      "side": 1,
+      "message": "Wha??",
+      "range": {
+        "startLine": 36,
+        "startChar": 60,
+        "endLine": 36,
+        "endChar": 93
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
