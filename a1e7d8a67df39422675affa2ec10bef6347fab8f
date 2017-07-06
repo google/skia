@@ -22,6 +22,30 @@
       "revId": "a1e7d8a67df39422675affa2ec10bef6347fab8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aef3af17_8b620dd7",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2017-07-06T21:17:37Z",
+      "side": 1,
+      "message": "just to save a const_cast somewhere down the line (cause we get a const* input) - but no other difference so can always drop.",
+      "parentUuid": "c80516ae_715397dc",
+      "range": {
+        "startLine": 48,
+        "startChar": 35,
+        "endLine": 48,
+        "endChar": 40
+      },
+      "revId": "a1e7d8a67df39422675affa2ec10bef6347fab8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
