@@ -90,17 +90,21 @@ static bool valid_for_filtering(unsigned dimension) {
 }
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
-    const int origW = fProvider.info().width();
-    const int origH = fProvider.info().height();
-
     fPixmap.reset();
     fInvMatrix = inv;
     fFilterQuality = paint.getFilterQuality();
+
+#ifdef SK_SUPPORT_LEGACY_BILERP_IGNORING_HACK
+    const int origW = fProvider.info().width();
+    const int origH = fProvider.info().height();
 
     bool allow_ignore_fractional_translate = true;  // historical default
     if (kMedium_SkFilterQuality == fFilterQuality) {
         allow_ignore_fractional_translate = false;
     }
+#else
+    const bool allow_ignore_fractional_translate = false;
+#endif
 
     SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kNo);
     fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
@@ -154,6 +158,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
 
     fInvType = fInvMatrix.getType();
 
+#ifdef SK_SUPPORT_LEGACY_BILERP_IGNORING_HACK
     // If our target pixmap is the same as the original, then we revert back to legacy behavior
     // and allow the code to ignore fractional translate.
     //
@@ -163,6 +168,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     if (fPixmap.width() == origW && fPixmap.height() == origH) {
         allow_ignore_fractional_translate = true;
     }
+#endif
 
     if (kLow_SkFilterQuality == fFilterQuality && allow_ignore_fractional_translate) {
         // Only try bilerp if the matrix is "interesting" and
