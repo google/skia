@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "49f79794_8faf659d",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-06T16:32:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fdd24a20_0ae8afc3",
+      "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1617086_c2c7992b",
         "filename": "src/core/SkColorSpaceXformer.h",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "77373d16_18d5642a",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-06T16:32:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1617086_c2c7992b",
+      "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bac7023_f48bab60",
         "filename": "src/effects/SkColorFilterImageFilter.cpp",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-06T13:39:22Z",
       "side": 1,
       "message": "input \u003d xformer-\u003eapplyIf(this-\u003egetInput(0));\n\n?",
+      "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c6e307d_6692b6d2",
+        "filename": "src/effects/SkColorFilterImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-06T16:32:08Z",
+      "side": 1,
+      "message": "Done. I wrote this *before* I added the applyIf dude.",
+      "parentUuid": "1bac7023_f48bab60",
       "revId": "defa814f26e4e5d0ef0b362d92ca200b03af1a51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
