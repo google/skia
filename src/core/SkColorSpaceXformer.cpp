@@ -50,7 +50,18 @@ sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter
 }
 
 sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter) {
-    return imageFilter ? imageFilter->makeColorSpace(this) : nullptr;
+    if (!imageFilter) {
+        return nullptr;
+    }
+
+    if (auto* filter = fFilterCache.find(imageFilter->fUniqueID)) {
+        return *filter;
+    }
+
+    auto filter = imageFilter->makeColorSpace(this);
+    fFilterCache.set(imageFilter->fUniqueID, filter);
+
+    return filter;
 }
 
 sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {

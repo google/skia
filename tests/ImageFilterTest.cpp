@@ -1920,6 +1920,5 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
     auto xformer = SkColorSpaceXformer::Make(SkColorSpace::MakeSRGB());
     auto xformedFilter = xformer->apply(complexFilter.get());
 
-    // FIXME: clone count should be 1 at this point.
-    REPORTER_ASSERT(reporter, filter->cloneCount() == 2u);
+    REPORTER_ASSERT(reporter, filter->cloneCount() == 1u);
 }

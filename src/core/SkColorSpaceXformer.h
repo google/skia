@@ -11,7 +11,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkImage.h"
 #include "SkShader.h"
-#include "SkImageFilter.h"
+#include "SkTHash.h"
 
 class SkColorSpaceXformer : public SkNoncopyable {
 public:
@@ -29,10 +29,12 @@ public:
     sk_sp<SkColorSpace> dst() const { return fDst; }
 
 private:
-    SkColorSpaceXformer() {}
+    SkColorSpaceXformer() = default;
 
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
+
+    SkTHashMap<uint32_t, sk_sp<SkImageFilter>> fFilterCache;
 };
 
 #endif
