@@ -56,12 +56,12 @@ public:
     SkDestinationSurfaceColorMode mipColorMode() const { return fTexture->fMipColorMode; }
 
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
-
-private:
     static void ComputeScratchKey(GrPixelConfig config, int width, int height,
                                   GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
                                   bool isMipMapped, GrScratchKey* key);
 
+
+private:
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
     GrTexturePriv(const GrTexturePriv& that) : fTexture(that.fTexture) { }
     GrTexturePriv& operator=(const GrTexturePriv&); // unimpl
