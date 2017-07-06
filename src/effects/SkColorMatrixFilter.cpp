@@ -40,7 +40,11 @@ public:
 
     // Overriding this method is the class' raison d'etre.
     sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return sk_make_sp<SkLightingColorFilter>(xformer->apply(fMul), xformer->apply(fAdd));
+        SkColor add = xformer->apply(fAdd);
+        if (add != fAdd) {
+            return sk_make_sp<SkLightingColorFilter>(fMul, add);
+        }
+        return this->INHERITED::onMakeColorSpace(xformer);
     }
 
     // Let fMatrixFilter handle all the other calls directly.
@@ -74,6 +78,8 @@ public:
 private:
     SkColor              fMul, fAdd;
     sk_sp<SkColorFilter> fMatrixFilter;
+
+    typedef SkColorFilter INHERITED;
 };
 
 sk_sp<SkColorFilter> SkColorMatrixFilter::MakeLightingFilter(SkColor mul, SkColor add) {

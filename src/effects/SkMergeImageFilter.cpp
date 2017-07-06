@@ -95,12 +95,19 @@ sk_sp<SkSpecialImage> SkMergeImageFilter::onFilterImage(SkSpecialImage* source, 
 
 sk_sp<SkImageFilter> SkMergeImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkSTArray<5, sk_sp<SkImageFilter>> inputs(this->countInputs());
+    bool changed = false;
     for (int i = 0; i < this->countInputs(); i++) {
         inputs.push_back(this->getInput(i) ? this->getInput(i)->makeColorSpace(xformer) : nullptr);
+        if (inputs[i].get() != this->getInput(i)) {
+            changed = true;
+        }
     }
 
-    return SkMergeImageFilter::Make(inputs.begin(), this->countInputs(),
-                                    this->getCropRectIfSet());
+    if (changed) {
+        return SkMergeImageFilter::Make(inputs.begin(), this->countInputs(),
+                                        this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 sk_sp<SkFlattenable> SkMergeImageFilter::CreateProc(SkReadBuffer& buffer) {

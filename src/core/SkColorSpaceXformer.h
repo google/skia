@@ -11,6 +11,7 @@
 #include "SkColorSpaceXform.h"
 #include "SkImage.h"
 #include "SkShader.h"
+#include "SkImageFilter.h"
 
 class SkColorSpaceXformer : public SkNoncopyable {
 public:

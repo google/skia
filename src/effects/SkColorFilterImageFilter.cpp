@@ -121,12 +121,13 @@ sk_sp<SkImageFilter> SkColorFilterImageFilter::onMakeColorSpace(SkColorSpaceXfor
 const {
     SkASSERT(1 == this->countInputs());
 
-    sk_sp<SkImageFilter> input =
-            this->getInput(0) ? this->getInput(0)->makeColorSpace(xformer) : nullptr;
-    sk_sp<SkColorFilter> colorFilter = xformer->apply(fColorFilter.get());
-
-    return SkColorFilterImageFilter::Make(std::move(colorFilter), std::move(input),
-                                          this->getCropRectIfSet());
+    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
+    auto colorFilter = xformer->apply(fColorFilter.get());
+    if (this->getInput(0) != input.get() || fColorFilter != colorFilter) {
+        return SkColorFilterImageFilter::Make(std::move(colorFilter), std::move(input),
+                                              this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const {

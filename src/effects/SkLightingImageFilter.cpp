@@ -1341,11 +1341,13 @@ sk_sp<SkSpecialImage> SkDiffuseLightingImageFilter::onFilterImage(SkSpecialImage
 sk_sp<SkImageFilter> SkDiffuseLightingImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)
 const {
     SkASSERT(1 == this->countInputs());
-    sk_sp<SkImageFilter> input =
-            this->getInput(0) ? this->getInput(0)->onMakeColorSpace(xformer) : nullptr;
-    return SkDiffuseLightingImageFilter::Make(this->light()->makeColorSpace(xformer),
-                                              255.0f * this->surfaceScale(), fKD, std::move(input),
-                                              this->getCropRectIfSet());
+    auto input = xformer->apply(this->getInput(0));
+    auto light = this->light()->makeColorSpace(xformer);
+    if (input.get() != this->getInput(0) || light.get() != this->light()) {
+        return SkDiffuseLightingImageFilter::Make(std::move(light), 255.0f * this->surfaceScale(),
+                                                  fKD, std::move(input), this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 #ifndef SK_IGNORE_TO_STRING
@@ -1495,11 +1497,14 @@ sk_sp<SkImageFilter> SkSpecularLightingImageFilter::onMakeColorSpace(SkColorSpac
 const {
     SkASSERT(1 == this->countInputs());
 
-    sk_sp<SkImageFilter> input =
-            this->getInput(0) ? this->getInput(0)->onMakeColorSpace(xformer) : nullptr;
-    return SkSpecularLightingImageFilter::Make(this->light()->makeColorSpace(xformer),
-                                               255.0f * this->surfaceScale(), fKS, fShininess,
-                                               std::move(input), this->getCropRectIfSet());
+    auto input = xformer->apply(this->getInput(0));
+    auto light = this->light()->makeColorSpace(xformer);
+    if (input.get() != this->getInput(0) || light.get() != this->light()) {
+        return SkSpecularLightingImageFilter::Make(std::move(light),
+                                                   255.0f * this->surfaceScale(), fKS, fShininess,
+                                                   std::move(input), this->getCropRectIfSet());
+    }
+    return this->refMe();
 }
 
 #ifndef SK_IGNORE_TO_STRING
