@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2b3fa21a_6334477e",
+        "filename": "include/gpu/mock/GrMockOptions.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T14:52:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e7437a2_7adeaefb",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 45
+      },
+      "revId": "ffc9cd5872271035134f3abff6e47aa6856ccd46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33cd765e_0b9c5327",
         "filename": "src/gpu/mock/GrMockBuffer.h",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-06T14:40:32Z",
       "side": 1,
       "message": "will we ever run into a case where some test thinks data was successfully uploaded but fails some assert when checking it? Would we ever want this guy to actually just store a cpu buffer that is used for map and update?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 87
+      },
+      "revId": "ffc9cd5872271035134f3abff6e47aa6856ccd46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43246899_9a6a4d1c",
+        "filename": "src/gpu/mock/GrMockBuffer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T14:52:08Z",
+      "side": 1,
+      "message": "I think the mock context is not suitable for such a test. If you go much further down that road then readPixels has to produce correct results which means draws have to work, ...\n\nTests that require that should stick to rendering contexts.",
+      "parentUuid": "33cd765e_0b9c5327",
       "range": {
         "startLine": 25,
         "startChar": 4,
@@ -68,6 +116,30 @@
       "revId": "ffc9cd5872271035134f3abff6e47aa6856ccd46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19d1bb41_3376bcd3",
+        "filename": "src/gpu/mock/GrMockCaps.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T14:52:08Z",
+      "side": 1,
+      "message": "doh! Done",
+      "parentUuid": "448e0b23_4392ea1d",
+      "range": {
+        "startLine": 28,
+        "startChar": 47,
+        "endLine": 28,
+        "endChar": 58
+      },
+      "revId": "ffc9cd5872271035134f3abff6e47aa6856ccd46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
