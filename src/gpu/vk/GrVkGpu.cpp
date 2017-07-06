@@ -311,8 +311,9 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
             buff = GrVkTransferBuffer::Create(this, size, GrVkBuffer::kCopyWrite_Type);
             break;
         case kTexel_GrBufferType:
-            SkASSERT(kDynamic_GrAccessPattern == accessPattern);
-            buff = GrVkTexelBuffer::Create(this, size);
+            SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
+                     kStatic_GrAccessPattern == accessPattern);
+            buff = GrVkTexelBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
             break;
         case kDrawIndirect_GrBufferType:
             SkFAIL("DrawIndirect Buffers not supported  in vulkan backend.");
