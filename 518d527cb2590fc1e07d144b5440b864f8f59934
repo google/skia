@@ -22,6 +22,30 @@
       "revId": "518d527cb2590fc1e07d144b5440b864f8f59934",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d86e2306_10fbbf6f",
+        "filename": "src/core/SkColorSpaceXformer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2017-07-06T18:53:07Z",
+      "side": 1,
+      "message": "Yup, I was considering caches for all the other \"heavy\" types also.  Will add in a follow-up if OK with you.",
+      "parentUuid": "2c4467a7_75c5e159",
+      "range": {
+        "startLine": 47,
+        "startChar": 30,
+        "endLine": 47,
+        "endChar": 31
+      },
+      "revId": "518d527cb2590fc1e07d144b5440b864f8f59934",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
