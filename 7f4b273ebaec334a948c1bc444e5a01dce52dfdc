@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf576a0b_3bc25793",
+        "filename": "src/effects/GrCircleBlurFragmentProcessor.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T20:18:22Z",
+      "side": 1,
+      "message": "Will these two be in all FPs? Wondering if we could make these automatic. Seems like it should be OK to make all FP subclass code be behind SK_SUPPORT_GPU and we will always need to include SkTypes.",
+      "revId": "7f4b273ebaec334a948c1bc444e5a01dce52dfdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e139146_434be601",
+        "filename": "src/effects/GrCircleBlurFragmentProcessor.fp",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-06T20:18:22Z",
+      "side": 1,
+      "message": "and this",
+      "revId": "7f4b273ebaec334a948c1bc444e5a01dce52dfdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
