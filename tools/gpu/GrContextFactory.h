@@ -44,7 +44,8 @@ public:
         kNullGL_ContextType,         //! Non-rendering OpenGL mock context.
         kDebugGL_ContextType,        //! Non-rendering, state verifying OpenGL context.
         kVulkan_ContextType,         //! Vulkan
-        kLastContextType = kVulkan_ContextType
+        kMock_ContextType,           //! Mock context that does not draw.
+        kLastContextType = kMock_ContextType
     };
 
     static const int kContextTypeCnt = kLastContextType + 1;
@@ -68,6 +69,7 @@ public:
         switch (type) {
             case kNullGL_ContextType:
             case kDebugGL_ContextType:
+            case kMock_ContextType:
                 return false;
             default:
                 return true;
@@ -78,6 +80,8 @@ public:
         switch (type) {
             case kVulkan_ContextType:
                 return kVulkan_GrBackend;
+            case kMock_ContextType:
+                return kMock_GrBackend;
             default:
                 return kOpenGL_GrBackend;
         }
@@ -109,8 +113,10 @@ public:
                 return "Debug GL";
             case kVulkan_ContextType:
                 return "Vulkan";
+            case kMock_ContextType:
+                return "Mock";
         }
-        SkDEBUGFAIL("Unreachable");
+        SkFAIL("Unreachable");
         return "Unknown";
     }
 
