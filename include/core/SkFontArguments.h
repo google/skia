@@ -71,6 +71,13 @@ struct SkFontArguments {
     VariationPosition getVariationDesignPosition() const {
         return fVariationDesignPosition;
     }
+
+    /**
+     *  Re-create a font arguments from a serialized buffer
+     *  created from SkTypeface::serializeFontArguments.
+     */
+    static SkFontArguments Deserialize(const void* data, size_t length);
+
 private:
     int fCollectionIndex;
     VariationPosition fVariationDesignPosition;
