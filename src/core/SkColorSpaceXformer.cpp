@@ -14,22 +14,23 @@
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImagePriv.h"
-#include "SkMakeUnique.h"
 #include "SkShaderBase.h"
+
+SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst,
+                                         std::unique_ptr<SkColorSpaceXform> fromSRGB)
+    : fDst(std::move(dst))
+    , fFromSRGB(std::move(fromSRGB)) {}
 
 SkColorSpaceXformer::~SkColorSpaceXformer() {}
 
 std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpace> dst) {
     std::unique_ptr<SkColorSpaceXform> fromSRGB = SkColorSpaceXform_Base::New(
             SkColorSpace::MakeSRGB().get(), dst.get(), SkTransferFunctionBehavior::kIgnore);
-    if (!fromSRGB) {
-        return nullptr;
-    }
 
-    auto xformer = std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer());
-    xformer->fDst      = std::move(dst);
-    xformer->fFromSRGB = std::move(fromSRGB);
-    return xformer;
+    return fromSRGB
+        ? std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer(std::move(dst),
+                                                                       std::move(fromSRGB)))
+        : nullptr;
 }
 
 sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
