@@ -233,6 +233,7 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
     gOnce = true;
 
     bool helpPrinted = false;
+    bool flagsPrinted = false;
     // Loop over argv, starting with 1, since the first is just the name of the program.
     for (int i = 1; i < argc; i++) {
         if (0 == strcmp("-h", argv[i]) || 0 == strcmp("--help", argv[i])) {
@@ -248,8 +249,10 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                 // Only print general help message if help for specific flags is not requested.
                 SkDebugf("%s\n%s\n", argv[0], gUsage.c_str());
             }
-            SkDebugf("Flags:\n");
-
+            if (!flagsPrinted) {
+                SkDebugf("Flags:\n");
+                flagsPrinted = true;
+            }
             if (0 == helpFlags.count()) {
                 // If no flags followed --help, print them all
                 SkTDArray<SkFlagInfo*> allFlags;
