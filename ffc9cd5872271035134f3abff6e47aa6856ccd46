@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "e647f9ae_64e0a9fd",
+        "filename": "src/gpu/mock/GrMockBuffer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-06T15:01:30Z",
+      "side": 1,
+      "message": "Okay that sounds good. Can we add a comment then on the MockContext that says this should not be used if the you intend to view the results of draw/upload commands since they will not be executed.",
+      "parentUuid": "43246899_9a6a4d1c",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 25,
+        "endChar": 87
+      },
+      "revId": "ffc9cd5872271035134f3abff6e47aa6856ccd46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "448e0b23_4392ea1d",
         "filename": "src/gpu/mock/GrMockCaps.h",
         "patchSetId": 10
