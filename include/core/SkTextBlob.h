@@ -57,6 +57,21 @@ public:
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
     };
 
+    /**
+     *  Serialize the typeface into a data blob, storing type uniqueID of each referenced typeface.
+     *  This also updates (appends) the catalog to ensure that it contains a reference to each
+     *  (different) typeface. Note this does not overwrite the catalog, but only appends as needed.
+     */
+    sk_sp<SkData> serialize(SkTArray<sk_sp<SkTypeface>>* catalog) const;
+
+    /**
+     *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
+     *  of its typefaces, deserialization requires that the caller provide the corresponding
+     *  SkTypefaces for those IDs.
+     */
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t length,
+                                     const std::function<sk_sp<SkTypeface>(uint32_t>)>& resolver);
+
 private:
     friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
