@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af353169_eae494e3",
+        "filename": "src/pdf/SkPDFShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-06T14:42:05Z",
+      "side": 1,
+      "message": "Since we\u0027re renaming this anyway, should this be SkPDFMakeShader? This is more of a factory which also happens to have a cache, and it does always return a new reference. Most of the functions this calls are also \u0027make\u0027 named, and \u0027Make\u0027 seems to be more in line with the naming of other methods in Skia that return sk_sp.",
+      "range": {
+        "startLine": 293,
+        "startChar": 19,
+        "endLine": 293,
+        "endChar": 33
+      },
+      "revId": "cae103fe65cfc1786d391e120a96be22159d8e01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e0b265f_992b7946",
+        "filename": "src/pdf/SkPDFShader.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-06T14:42:05Z",
+      "side": 1,
+      "message": "Seems this should be \u0027Make a\u0027. It could also state that if the document already has an equivalent shader a new reference to that may be returned.",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 11
+      },
+      "revId": "cae103fe65cfc1786d391e120a96be22159d8e01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
