@@ -196,8 +196,9 @@ const int kBackendCount = kLast_GrBackend + 1;
 
 /**
  * Backend-specific 3D context handle
- *      GrGLInterface* for OpenGL. If NULL will use the default GL interface.
- *      GrVkBackendContext* for Vulkan.
+ *      OpenGL: const GrGLInterface*. If null will use the result of GrGLCreateNativeInterface().
+ *      Vulkan: GrVkBackendContext*.
+ *      Mock: const GrMockOptions* or null for default constructed GrMockContextOptions.
  */
 typedef intptr_t GrBackendContext;
 
