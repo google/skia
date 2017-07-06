@@ -29,7 +29,7 @@ public:
     SkPDFCanon(const SkPDFCanon&) = delete;
     SkPDFCanon& operator=(const SkPDFCanon&) = delete;
 
-    SkTHashMap<SkPDFShader::State, sk_sp<SkPDFObject>> fImageShaderMap;
+    SkTHashMap<SkPDFImageShaderKey, sk_sp<SkPDFObject>> fImageShaderMap;
 
     SkPDFGradientShader::HashMap fGradientPatternMap;
 
