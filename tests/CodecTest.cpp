@@ -1450,7 +1450,7 @@ static void test_invalid_images(skiatest::Reporter* r, const char* path,
 
 DEF_TEST(Codec_InvalidImages, r) {
     // ASAN will complain if there is an issue.
-    test_invalid_images(r, "invalid_images/skbug5887.gif", SkCodec::kIncompleteInput);
+    test_invalid_images(r, "invalid_images/skbug5887.gif", SkCodec::kErrorInInput);
     test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", SkCodec::kInvalidInput);
     test_invalid_images(r, "invalid_images/b33251605.bmp", SkCodec::kIncompleteInput);
     test_invalid_images(r, "invalid_images/bad_palette.png", SkCodec::kInvalidInput);
