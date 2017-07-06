@@ -307,6 +307,12 @@ public:
                                                          bool allowFailure = false) const;
 
     /**
+     *  Return a serialized data blob of the typeface's SkFontArguments.
+     *  Use SkFontArguments::MakeFromData(...) to reconstruct the arguments.
+     */
+    sk_sp<SkData> serializeFontArguments() const;
+
+    /**
      *  Return a rectangle (scaled to 1-pt) that represents the union of the bounds of all
      *  of the glyphs, but each one positioned at (0,). This may be conservatively large, and
      *  will not take into account any hinting or other size-specific adjustments.
