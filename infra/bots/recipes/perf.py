@@ -152,7 +152,7 @@ def nanobench_flags(api, bot):
     # TODO(dogben): Track down what's causing bots to die.
     verbose = True
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
-    match.append('~Xfermode') # skia:6691
+    match.append('~blendmode_') # skia:6691
   if 'ANGLE' in bot and 'Radeon' in bot and 'Release' in bot:
     # skia:6534
     match.append('~shapes_mixed_10000_32x33')
