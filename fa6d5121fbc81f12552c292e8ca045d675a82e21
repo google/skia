@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fe84b040_90aa6dd5",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T14:37:42Z",
+      "side": 1,
+      "message": "Same comments here as below -- should we always replace the info\u0027s color space with fColorSpace? And braces+newline for \u0027if\u0027.",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2860cd79_c63974a9",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 3
@@ -19,6 +36,41 @@
     },
     {
       "key": {
+        "uuid": "833ba036_faf36fd2",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T14:37:42Z",
+      "side": 1,
+      "message": "If the caller has supplied an xformColorSpace, it seems like we should xform to that, even if the dst pixmap\u0027s info has a color space? Or do we assert that at least one of the two is null? Not sure what the semantics should be here.\n\nAlso, nit: braces (and newline) for the if body.",
+      "parentUuid": "2860cd79_c63974a9",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d691335_b412ebb0",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T14:37:42Z",
+      "side": 1,
+      "message": "See my note below about storing premulBehavior on the validator (and then the image) as well.",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "df24a386_7ce7b624",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 3
@@ -30,6 +82,41 @@
       "writtenOn": "2017-07-06T07:04:22Z",
       "side": 1,
       "message": "This fix seems a bit more complicated -- we want to pass a flag to onGeneratTexture that says \"use a SkColorSpaceXformCanvas instead of specifying the color space to the SkSurface\".",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2564205c_f4f4d2cd",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T14:37:42Z",
+      "side": 1,
+      "message": "I think that\u0027s okay. The signature of onGenerateTexture can change at this point - no clients have their own generators that override that virtual. (It\u0027s not even possible anymore, because GrTextureProxy.h is in src, not include).\n\nI\u0027d suggest using the SkTransferFunctionBehavior enum, because that is really the thing that differentiates color space xform canvas from colorspace-on-surface behavior). Similarly, when making the newly tagged lazy image (in onMakeColorSpace), you could retain the passed-in behavior enum along with the color space, so that we could respect both kinds of requests via that API.",
+      "parentUuid": "df24a386_7ce7b624",
+      "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3fffc15_8148d6e9",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T14:37:42Z",
+      "side": 1,
+      "message": "It\u0027s do-able, but you can punt this to me, if you\u0027d like. I think we just plumb the request information to the YUV provider - it already does the YUV -\u003e RGB conversion with a single draw - we could easily append more FP stages to the draw to apply the color space xform.",
       "revId": "fa6d5121fbc81f12552c292e8ca045d675a82e21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
