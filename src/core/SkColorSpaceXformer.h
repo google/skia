@@ -8,14 +8,24 @@
 #ifndef SkColorSpaceXformer_DEFINED
 #define SkColorSpaceXformer_DEFINED
 
-#include "SkColorSpaceXform.h"
-#include "SkImage.h"
-#include "SkShader.h"
-#include "SkImageFilter.h"
+#include "SkColor.h"
+#include "SkRefCnt.h"
+#include "SkTHash.h"
+
+class SkBitmap;
+class SkColorFilter;
+class SkColorSpace;
+class SkColorSpaceXform;
+class SkImage;
+class SkImageFilter;
+class SkPaint;
+class SkShader;
 
 class SkColorSpaceXformer : public SkNoncopyable {
 public:
     static std::unique_ptr<SkColorSpaceXformer> Make(sk_sp<SkColorSpace> dst);
+
+    ~SkColorSpaceXformer();
 
     sk_sp<SkImage> apply(const SkImage*);
     sk_sp<SkImage> apply(const SkBitmap&);
@@ -29,10 +39,12 @@ public:
     sk_sp<SkColorSpace> dst() const { return fDst; }
 
 private:
-    SkColorSpaceXformer() {}
+    SkColorSpaceXformer() = default;
 
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
+
+    SkTHashMap<uint32_t, sk_sp<SkImageFilter>> fFilterCache;
 };
 
 #endif

@@ -6,6 +6,7 @@
  */
 
 #include "SkArenaAlloc.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorSpaceXformer.h"
 #include "SkDrawLooper.h"

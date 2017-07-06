@@ -6,6 +6,7 @@
  */
 
 #include "SkColorMatrixFilter.h"
+#include "SkColorSpace.h"
 #include "SkColorSpaceXformer.h"
 #if SK_SUPPORT_GPU
     #include "GrFragmentProcessor.h"
