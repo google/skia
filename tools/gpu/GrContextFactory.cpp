@@ -22,6 +22,7 @@
 #endif
 #include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
+#include "mock/MockTestContext.h"
 #include "GrCaps.h"
 
 #if defined(SK_BUILD_FOR_WIN32) && defined(SK_ENABLE_DISCRETE_GPU)
@@ -220,6 +221,19 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             break;
         }
 #endif
+        case kMock_GrBackend: {
+            TestContext* sharedContext = masterContext ? masterContext->fTestContext : nullptr;
+            SkASSERT(kMock_ContextType == type);
+            if (ContextOverrides::kRequireNVPRSupport & overrides) {
+                return ContextInfo();
+            }
+            testCtx.reset(CreateMockTestContext(sharedContext));
+            if (!testCtx) {
+                return ContextInfo();
+            }
+            backendContext = testCtx->backendContext();
+            break;
+        }
         default:
             return ContextInfo();
     }
