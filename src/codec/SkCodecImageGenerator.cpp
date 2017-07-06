@@ -49,6 +49,7 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, s
     switch (result) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
             return true;
         default:
             return false;
@@ -66,6 +67,7 @@ bool SkCodecImageGenerator::onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void*
     switch (result) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:
+        case SkCodec::kErrorInInput:
             return true;
         default:
             return false;

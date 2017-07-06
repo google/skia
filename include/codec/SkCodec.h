@@ -195,6 +195,13 @@ public:
          */
         kIncompleteInput,
         /**
+         *  Like kIncompleteInput, except the input had an error.
+         *
+         *  If returned from an incremental decode, decoding cannot continue,
+         *  even with more data.
+         */
+        kErrorInInput,
+        /**
          *  The generator cannot convert to match the request, ignoring
          *  dimensions.
          */
