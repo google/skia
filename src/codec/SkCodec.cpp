@@ -317,8 +317,10 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     const Result result = this->onGetPixels(info, pixels, rowBytes, *options, ctable, ctableCount,
             &rowsDecoded);
 
-    if ((kIncompleteInput == result || kSuccess == result) && ctableCount) {
-        SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
+    if (ctableCount) {
+        if (kIncompleteInput == result || kSuccess == result || kErrorInInput == result) {
+            SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
+        }
     }
 
     // A return value of kIncompleteInput indicates a truncated image stream.
@@ -326,7 +328,7 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     // Some subclasses will take care of filling any uninitialized memory on
     // their own.  They indicate that all of the memory has been filled by
     // setting rowsDecoded equal to the height.
-    if (kIncompleteInput == result && rowsDecoded != info.height()) {
+    if ((kIncompleteInput == result || kErrorInInput == result) && rowsDecoded != info.height()) {
         // FIXME: (skbug.com/5772) fillIncompleteImage will fill using the swizzler's width, unless
         // there is a subset. In that case, it will use the width of the subset. From here, the
         // subset will only be non-null in the case of SkWebpCodec, but it treats the subset

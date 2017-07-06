@@ -251,12 +251,12 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             if (incResult == SkCodec::kSuccess) {
                 return SkCodec::kSuccess;
             }
-            SkASSERT(incResult == SkCodec::kIncompleteInput);
+            SkASSERT(incResult == SkCodec::kIncompleteInput || incResult == SkCodec::kErrorInInput);
 
             SkASSERT(rowsDecoded <= info.height());
             this->codec()->fillIncompleteImage(info, pixels, rowBytes, options.fZeroInitialized,
                                                info.height(), rowsDecoded);
-            return SkCodec::kIncompleteInput;
+            return incResult;
         } else if (startResult != SkCodec::kUnimplemented) {
             return startResult;
         } // kUnimplemented means use the old method.

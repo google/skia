@@ -243,6 +243,9 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 case SkCodec::kIncompleteInput:
                     SkDebugf("[terminated] Partial Success\n");
                     break;
+                case SkCodec::kErrorInInput:
+                    SkDebugf("[terminated] Partial Success with error\n");
+                    break;
                 case SkCodec::kInvalidConversion:
                     SkDebugf("Incompatible colortype conversion\n");
                     // Crash to allow afl-fuzz to know this was a bug.
@@ -376,6 +379,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
+                        case SkCodec::kErrorInInput:
                             SkDebugf("okay\n");
                             break;
                         case SkCodec::kInvalidConversion:
@@ -428,7 +432,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 }
 
                 result = codec->incrementalDecode();
-                if (result == SkCodec::kIncompleteInput) {
+                if (result == SkCodec::kIncompleteInput || result == SkCodec::kErrorInInput) {
                     SkDebugf("okay\n");
                     // Frames beyond this one will not decode.
                     break;

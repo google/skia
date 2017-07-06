@@ -513,6 +513,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
                 switch (result) {
                     case SkCodec::kSuccess:
+                    case SkCodec::kErrorInInput:
                     case SkCodec::kIncompleteInput: {
                         // If the next frame depends on this one, store it in priorFrame.
                         // It is possible that we may discard a frame that future frames depend on,
@@ -532,7 +533,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         canvas->translate(SkIntToScalar(xTranslate), SkIntToScalar(yTranslate));
                         draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes,
                                        colorPtr, colorCount, fDstColorType);
-                        if (result == SkCodec::kIncompleteInput) {
+                        if (result != SkCodec::kSuccess) {
                             return "";
                         }
                         break;
@@ -556,8 +557,9 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             switch (codec->getPixels(decodeInfo, pixels.get(), rowBytes, &options,
                     colorPtr, &colorCount)) {
                 case SkCodec::kSuccess:
-                    // We consider incomplete to be valid, since we should still decode what is
+                    // We consider these to be valid, since we should still decode what is
                     // available.
+                case SkCodec::kErrorInInput:
                 case SkCodec::kIncompleteInput:
                     break;
                 default:
@@ -589,7 +591,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 if (SkCodec::kSuccess == codec->startIncrementalDecode(decodeInfo, dst,
                         rowBytes, &options, colorPtr, &colorCount)) {
                     int rowsDecoded;
-                    if (SkCodec::kIncompleteInput == codec->incrementalDecode(&rowsDecoded)) {
+                    auto result = codec->incrementalDecode(&rowsDecoded);
+                    if (SkCodec::kIncompleteInput == result || SkCodec::kErrorInInput == result) {
                         codec->fillIncompleteImage(decodeInfo, dst, rowBytes,
                                                    SkCodec::kNo_ZeroInitialized, height,
                                                    rowsDecoded);
@@ -747,6 +750,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                             &options, colorPtr, &colorCount);
                     switch (result) {
                         case SkCodec::kSuccess:
+                        case SkCodec::kErrorInInput:
                         case SkCodec::kIncompleteInput:
                             break;
                         default:
@@ -880,6 +884,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
     switch (codec->getAndroidPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
         case SkCodec::kSuccess:
+        case SkCodec::kErrorInInput:
         case SkCodec::kIncompleteInput:
             break;
         default:
@@ -1124,8 +1129,13 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     size_t rowBytes = bitmap.rowBytes();
     SkCodec::Result r = codec->getPixels(decodeInfo, bitmap.getPixels(), rowBytes);
-    if (SkCodec::kSuccess != r && SkCodec::kIncompleteInput != r) {
-        return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
+    switch (r) {
+        case SkCodec::kSuccess:
+        case SkCodec::kErrorInInput:
+        case SkCodec::kIncompleteInput:
+            break;
+        default:
+            return SkStringPrintf("Couldn't getPixels %s. Error code %d", fPath.c_str(), r);
     }
 
     switch (fMode) {
