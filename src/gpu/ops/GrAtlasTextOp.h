@@ -57,7 +57,6 @@ public:
         op->fGeoCount = 1;
         op->fLuminanceColor = 0;
         op->fFontCache = fontCache;
-        op->fUseBGR = false;
         return op;
     }
 
@@ -68,11 +67,12 @@ public:
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
-        op->fMaskType = isLCD ? kLCDDistanceField_MaskType : kGrayscaleDistanceField_MaskType;
+        op->fMaskType = isLCD ? (useBGR ? kLCDDistanceField_MaskType
+                                        : kLCDBGRDistanceField_MaskType)
+                              : kGrayscaleDistanceField_MaskType;
         op->fDistanceAdjustTable.reset(SkRef(distanceAdjustTable));
         op->fUseGammaCorrectDistanceTable = useGammaCorrectDistanceTable;
         op->fLuminanceColor = luminanceColor;
-        op->fUseBGR = useBGR;
         op->fNumGlyphs = glyphCount;
         op->fGeoCount = 1;
         return op;
@@ -135,7 +135,9 @@ private:
     }
 
     bool isLCD() const {
-        return kLCDCoverageMask_MaskType == fMaskType || kLCDDistanceField_MaskType == fMaskType;
+        return kLCDCoverageMask_MaskType == fMaskType ||
+               kLCDDistanceField_MaskType == fMaskType ||
+               kLCDBGRDistanceField_MaskType == fMaskType;
     }
 
     inline void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
@@ -164,10 +166,11 @@ private:
         kGrayscaleCoverageMask_MaskType,
         kLCDCoverageMask_MaskType,
         kColorBitmapMask_MaskType,
+        kAliasedDistanceField_MaskType,
         kGrayscaleDistanceField_MaskType,
         kLCDDistanceField_MaskType,
+        kLCDBGRDistanceField_MaskType,
     } fMaskType;
-    bool fUseBGR;  // fold this into the enum?
 
     GrAtlasGlyphCache* fFontCache;
 
