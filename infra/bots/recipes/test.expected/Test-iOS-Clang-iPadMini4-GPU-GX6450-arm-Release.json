@@ -725,6 +725,7 @@
       "dm",
       "--nocpu",
       "--randomProcessorTest",
+      "-v",
       "--threads",
       "0",
       "--config",

@@ -30,6 +30,7 @@ def dm_flags(api, bot):
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test.
   args.append('--randomProcessorTest')
+  args.append('-v')
 
   # 32-bit desktop bots tend to run out of memory, because they have relatively
   # far more cores than RAM (e.g. 32 cores, 3G RAM).  Hold them back a bit.

@@ -269,6 +269,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nogpu",
       "--randomProcessorTest",
+      "-v",
       "--config",
       "8888",
       "srgb",

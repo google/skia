@@ -161,6 +161,7 @@
       "Ubuntu",
       "--nocpu",
       "--randomProcessorTest",
+      "-v",
       "--config",
       "8888",
       "srgb",

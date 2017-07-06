@@ -271,6 +271,7 @@
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nocpu",
       "--randomProcessorTest",
+      "-v",
       "--config",
       "vk",
       "--src",

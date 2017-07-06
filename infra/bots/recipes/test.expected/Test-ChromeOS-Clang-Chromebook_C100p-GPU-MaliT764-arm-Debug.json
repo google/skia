@@ -882,6 +882,7 @@
       "/home/chronos/user/dm_out",
       "--nocpu",
       "--randomProcessorTest",
+      "-v",
       "--config",
       "gles",
       "--src",
