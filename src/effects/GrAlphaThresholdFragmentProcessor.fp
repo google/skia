@@ -46,6 +46,7 @@ in uniform float outerThreshold;
 
 @header {
     #include "SkTypes.h"
+    #include "GrColorSpaceXform.h"
     #if SK_SUPPORT_GPU
 }
 

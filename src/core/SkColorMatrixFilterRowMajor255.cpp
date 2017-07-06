@@ -189,7 +189,7 @@ public:
 
     const char* name() const override { return "Color Matrix"; }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:

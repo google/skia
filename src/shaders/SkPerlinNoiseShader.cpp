@@ -737,7 +737,7 @@ private:
         this->addCoordTransform(&fCoordTransform);
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     SkPerlinNoiseShaderImpl::Type       fType;
     GrCoordTransform                    fCoordTransform;
@@ -1144,7 +1144,7 @@ private:
         this->addCoordTransform(&fCoordTransform);
     }
 
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST;
+    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     GrCoordTransform                    fCoordTransform;
     int                                 fOctaves;
