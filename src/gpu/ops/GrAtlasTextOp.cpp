@@ -174,10 +174,6 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         if (fLuminanceColor != that->fLuminanceColor) {
             return false;
         }
-
-        if (fUseBGR != that->fUseBGR) {
-            return false;
-        }
     }
 
     fNumGlyphs += that->numGlyphs();
@@ -221,11 +217,12 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
     uint32_t flags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
     flags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     flags |= fUseGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
+	flags |= (kAliasedDistanceField_MaskType != fMaskType) ? kAliased_DistanceFieldEffectFlag : 0;
 
     // see if we need to create a new effect
     if (isLCD) {
         flags |= kUseLCD_DistanceFieldEffectFlag;
-        flags |= fUseBGR ? kBGR_DistanceFieldEffectFlag : 0;
+        flags |= (kLCDBGRDistanceField_MaskType == fMaskType) ? kBGR_DistanceFieldEffectFlag : 0;
 
         float redCorrection = fDistanceAdjustTable->getAdjustment(
                 SkColorGetR(luminanceColor) >> kDistanceAdjustLumShift,
@@ -245,9 +242,12 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
                                                    this->usesLocalCoords());
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
-        U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, luminanceColor);
-        float correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
-                                                               fUseGammaCorrectDistanceTable);
+		float correction = 0;
+		if (kAliasedDistanceField_MaskType != fMaskType) {
+			U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, luminanceColor);
+			correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
+															 fUseGammaCorrectDistanceTable);
+		}
         return GrDistanceFieldA8TextGeoProc::Make(color,
                                                   viewMatrix, std::move(proxy),
                                                   params, correction, flags,
