@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce4698f2_658358ec",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T20:15:06Z",
+      "side": 1,
+      "message": "Anything that alters generated code needs to be included in the key. So (assuming alphaType() added alongside mode()):\n\nkey |\u003d static_cast\u003cuint32_t\u003e(srgbe.alphaType()) \u003c\u003c 1;",
+      "revId": "a79a10f495f7db57811887a6a35cc4ed7130e4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22f74b4a_d85c35d5",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T20:15:06Z",
+      "side": 1,
+      "message": "Don\u0027t really need this - typical pattern is to pull the data you need from the GrSRGBEffect.",
+      "revId": "a79a10f495f7db57811887a6a35cc4ed7130e4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d9857f7_6bd2a3b8",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-06T20:15:06Z",
+      "side": 1,
+      "message": "Generate random AlphaType (using same procedure as Mode) for test coverage here? (Might fix ANGLE bots as a side effect!)",
+      "revId": "a79a10f495f7db57811887a6a35cc4ed7130e4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
