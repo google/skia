@@ -270,6 +270,7 @@ execfile(os.path.join(here, 'android_framework_defines.gni'), builtins, defs)
 defines += defs['android_framework_defines']
 defines.extend([
   'GR_GL_CUSTOM_SETUP_HEADER "gl/GrGLConfig_chrome.h"',
+  'GR_TEST_UTILS=1',
   'SKIA_DLL',
   'SK_BUILD_FOR_ANDROID_FRAMEWORK',
   'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
