@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a439bea7_becdc99f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "Without the space between \"skia:\" and \"663569\", this means this CL is associated with the bug in Skia\u0027s bug tracker, i.e. skbug.com/663569, but there is no such bug.\n\nThere are some bugs you could associate this with, though:\n\nBug: skia:4211\nBug: skia:3315\n\nNot sure what the right format for line 12 is (i.e. the Chromium bug). I would expect it to show up as a link if you have the proper format, but maybe I\u0027m wrong.",
+      "range": {
+        "startLine": 14,
+        "startChar": 5,
+        "endLine": 14,
+        "endChar": 17
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46952777_bbb55f44",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "nit: No need to change formatting here.",
+      "range": {
+        "startLine": 277,
+        "startChar": 8,
+        "endLine": 277,
+        "endChar": 25
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98c7b61d_8baf4b81",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "You\u0027ve ignored the variable \"count\".\n\nThe idea behind this variable is that readRows is currently called in two places: onGetPixels, when we\u0027re decoding the entire image, and onGetScanlines, when we\u0027re decoding some subset of the image.\n\nMy intent is for incremental decoding to replace scanline decoding (i.e. onStartScanlineDecode, onGetScanlines, onSkipScanlines). If we remove those, readRows no longer needs the parameter.\n\nThat also means this method needs to take into account sampling and skip lines if we\u0027re sampling. (See SkPngCodec.cpp and SkGifCodec.cpp, which both do this. Look for calls to sampleY().)",
+      "range": {
+        "startLine": 482,
+        "startChar": 82,
+        "endLine": 482,
+        "endChar": 91
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d04d608_9a354d0b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "The comment says rowbytes, but you\u0027re using dstInfo.width(). You should use rowBytes here, in case the memory has padding.\n\nWe can also use a template method (used down below) that makes this a little cleaner:\n\n  dst \u003d SkTAddOffset\u003cvoid\u003e(dst, output_scanline * rowBytes);",
+      "range": {
+        "startLine": 490,
+        "startChar": 67,
+        "endLine": 490,
+        "endChar": 80
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c25c0b3c_a9b53a53",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "nit: Why did you add the extra line here?",
+      "range": {
+        "startLine": 505,
+        "startChar": 26,
+        "endLine": 505,
+        "endChar": 43
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9c79456_9d561bea",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "Why did you change this? This effectively says the same thing, right?",
+      "range": {
+        "startLine": 524,
+        "startChar": 12,
+        "endLine": 524,
+        "endChar": 22
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d5749b5_9e80c8a8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "The original intent of this return value is to tell how many lines were decoded. This way, if less than count lines were decoded, the caller knows to fill in the rest with something. But since we\u0027re drawing progressively, I\u0027m not sure this is necessarily the right value. For a sequential JPEG, this is correct, but for a progressive JPEG, I\u0027m guessing that on the second pass we want to set this to height, since the whole thing has been initialized.",
+      "range": {
+        "startLine": 525,
+        "startChar": 41,
+        "endLine": 525,
+        "endChar": 56
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "514fb4e4_bc6e1273",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "This should be kErrorInInput, since we have (potentially) decoded part of the image. (We\u0027ve been somewhat inconsistent about this, and kErrorInInput is a new value. See skbug.com/6825.)\n\nWe also need to set rowsDecoded to how many lines have been initialized. See code in SkPngCodec.cpp and SkGifCodec.cpp.",
+      "range": {
+        "startLine": 807,
+        "startChar": 52,
+        "endLine": 807,
+        "endChar": 65
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40fd5316_46d91f6b",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "Skia enums typically start with a capital letter. And the \"j\" doesn\u0027t seem to add a whole lot. Maybe just call this \"State\"?\n\nAlso, we\u0027ve moved towards using enum classes.",
+      "range": {
+        "startLine": 63,
+        "startChar": 9,
+        "endLine": 63,
+        "endChar": 15
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d7258da_9669e65a",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "We typically name enum values like this:\n\nkStartDecompress_State\n\n(I don\u0027t think \"JPEG\" adds much value here. \"_State\" matches the name of the enum. But if you make it a class you can drop that bit and it will be referred to as State::kStartDecompress.)",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 29
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5b88ebd_48c756bc",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-07T15:57:38Z",
+      "side": 1,
+      "message": "We typically put friends and INHERITED last, so these should be moved up above those two.\n\nAlso, we add spaces to line up the names, so this should look something like:\n\nstd::unique_ptr\u003cSkSwizzler\u003e        fSwizzler;\njstate                             fState;\nvoid*                              fDst;\nsize_t                             fDstRowBytes;\n\nfriend class SkRawCodec;\n\ntypedef SkCodec INHERITED;\n\n(Drats, the formatting did not get preserved in my comment, but all those names beginning with \u0027f\u0027 should line up.)",
+      "range": {
+        "startLine": 158,
+        "startChar": 11,
+        "endLine": 158,
+        "endChar": 17
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
