@@ -148,7 +148,8 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx,
         if (ctx->caps()->srgbWriteControl()) {
             paint.setDisableOutputConversionToSRGB(true);
         } else {
-            paint.addColorFragmentProcessor(GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear));
+            paint.addColorFragmentProcessor(GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear,
+                                                               GrSRGBEffect::Alpha::kOpaque));
         }
     }
 
