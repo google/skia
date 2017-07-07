@@ -188,11 +188,12 @@ enum GrBackend {
     kMetal_GrBackend,
     kOpenGL_GrBackend,
     kVulkan_GrBackend,
+    /**
+     * Mock is a backend that does not draw anything. It is used for unit tests
+     * and to measure CPU overhead.
+     */
     kMock_GrBackend,
-
-    kLast_GrBackend = kVulkan_GrBackend
 };
-const int kBackendCount = kLast_GrBackend + 1;
 
 /**
  * Backend-specific 3D context handle

@@ -37,7 +37,7 @@ protected:
                 return;
             }
             auto srgb = SkColorSpace::MakeSRGB();
-            SkImageInfo info = SkImageInfo::Make(fW, fH, kN32_SkColorType, kPremul_SkAlphaType,
+            SkImageInfo info = SkImageInfo::Make(fW, fH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                                  srgb);
             fSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
         }

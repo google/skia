@@ -120,12 +120,17 @@ private:
                                                                 int height) override;
     void clearStencil(GrRenderTarget* target) override  {}
 
-    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
-                                                    GrPixelConfig config, bool isRT) override {
-        return 0;
-    }
-    bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
-    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
+    GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h, GrPixelConfig,
+                                                    bool isRT) override;
+
+    bool isTestingOnlyBackendTexture(GrBackendObject) const override;
+
+    void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override;
+
+    static int NextInternalTextureID();
+    static int NextExternalTextureID();
+
+    SkTHashSet<int> fOutstandingTestingOnlyTextureIDs;
 
     typedef GrGpu INHERITED;
 };
