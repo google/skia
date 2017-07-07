@@ -17,6 +17,7 @@
 #include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
 #include "SkStroke.h"
 #include "SkTemplates.h"
@@ -736,15 +737,21 @@ bool check_bounds(const SkMatrix& viewMatrix, const SkRect& devBounds, void* ver
     return true;
 }
 
-class AAHairlineOp final : public GrLegacyMeshDrawOp {
+namespace {
+
+class AAHairlineOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
+
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkPath& path,
-                                                    const GrStyle& style,
-                                                    const SkIRect& devClipBounds) {
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkPath& path,
+                                          const GrStyle& style,
+                                          const SkIRect& devClipBounds,
+                                          const GrUserStencilSettings* stencilSettings) {
         SkScalar hairlineCoverage;
         uint8_t newCoverage = 0xff;
         if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
@@ -754,8 +761,26 @@ public:
         const SkStrokeRec& stroke = style.strokeRec();
         SkScalar capLength = SkPaint::kButt_Cap != stroke.getCap() ? hairlineCoverage * 0.5f : 0.0f;
 
-        return std::unique_ptr<GrLegacyMeshDrawOp>(
-                new AAHairlineOp(color, newCoverage, viewMatrix, path, devClipBounds, capLength));
+        return Helper::FactoryHelper<AAHairlineOp>(std::move(paint), newCoverage, viewMatrix, path,
+                                                   devClipBounds, capLength, stencilSettings);
+    }
+
+    AAHairlineOp(const Helper::MakeArgs& helperArgs,
+                 GrColor color,
+                 uint8_t coverage,
+                 const SkMatrix& viewMatrix,
+                 const SkPath& path,
+                 SkIRect devClipBounds,
+                 SkScalar capLength,
+                 const GrUserStencilSettings* stencilSettings)
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings)
+            , fColor(color)
+            , fCoverage(coverage) {
+        fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds, capLength});
+
+        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
+                                   IsZeroArea::kYes);
     }
 
     const char* name() const override { return "AAHairlineOp"; }
@@ -764,35 +789,19 @@ public:
         SkString string;
         string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor, fCoverage,
                        fPaths.count());
-        string.append(INHERITED::dumpInfo());
+        string += INHERITED::dumpInfo();
+        string += fHelper.dumpInfo();
         return string;
     }
 
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
+                                            &fColor);
+    }
+
 private:
-    AAHairlineOp(GrColor color,
-                 uint8_t coverage,
-                 const SkMatrix& viewMatrix,
-                 const SkPath& path,
-                 SkIRect devClipBounds,
-                 SkScalar capLength)
-            : INHERITED(ClassID()), fColor(color), fCoverage(coverage) {
-        fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds, capLength});
-
-        this->setTransformedBounds(path.getBounds(), viewMatrix, HasAABloat::kYes,
-                                   IsZeroArea::kYes);
-    }
-
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(fColor);
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fColor);
-        fUsesLocalCoords = optimizations.readsLocalCoords();
-    }
-
     void onPrepareDraws(Target*) const override;
 
     typedef SkTArray<SkPoint, true> PtArray;
@@ -802,8 +811,7 @@ private:
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAHairlineOp* that = t->cast<AAHairlineOp>();
 
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
 
@@ -828,8 +836,7 @@ private:
             return false;
         }
 
-        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
-        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (fHelper.usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
             return false;
         }
 
@@ -840,7 +847,6 @@ private:
 
     GrColor color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
 
     struct PathData {
@@ -850,14 +856,15 @@ private:
         SkScalar fCapLength;
     };
 
+    SkSTArray<1, PathData, true> fPaths;
+    Helper fHelper;
     GrColor fColor;
     uint8_t fCoverage;
-    bool fUsesLocalCoords;
 
-    SkSTArray<1, PathData, true> fPaths;
-
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 void AAHairlineOp::onPrepareDraws(Target* target) const {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
@@ -898,6 +905,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
     int lineCount = lines.count() / 2;
     int conicCount = conics.count() / 3;
 
+    const GrPipeline* pipeline = fHelper.makePipeline(target);
     // do lines first
     if (lineCount) {
         sk_sp<GrGeometryProcessor> lineGP;
@@ -905,8 +913,8 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             using namespace GrDefaultGeoProcFactory;
 
             Color color(this->color());
-            LocalCoords localCoords(this->usesLocalCoords() ? LocalCoords::kUsePosition_Type :
-                                    LocalCoords::kUnused_Type);
+            LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
+                                                              : LocalCoords::kUnused_Type);
             localCoords.fMatrix = geometryProcessorLocalM;
             lineGP = GrDefaultGeoProcFactory::Make(color, Coverage::kAttribute_Type, localCoords,
                                                    *geometryProcessorViewM);
@@ -938,27 +946,25 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
         mesh.setIndexedPatterned(linesIndexBuffer.get(), kIdxsPerLineSeg, kLineSegNumVertices,
                                  lineCount, kLineSegsNumInIdxBuffer);
         mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(lineGP.get(), this->pipeline(), mesh);
+        target->draw(lineGP.get(), pipeline, mesh);
     }
 
     if (quadCount || conicCount) {
-        sk_sp<GrGeometryProcessor> quadGP(
-            GrQuadEffect::Make(this->color(),
-                               *geometryProcessorViewM,
-                               kHairlineAA_GrProcessorEdgeType,
-                               target->caps(),
-                               *geometryProcessorLocalM,
-                               this->usesLocalCoords(),
-                               this->coverage()));
+        sk_sp<GrGeometryProcessor> quadGP(GrQuadEffect::Make(this->color(),
+                                                             *geometryProcessorViewM,
+                                                             kHairlineAA_GrProcessorEdgeType,
+                                                             target->caps(),
+                                                             *geometryProcessorLocalM,
+                                                             fHelper.usesLocalCoords(),
+                                                             this->coverage()));
 
-        sk_sp<GrGeometryProcessor> conicGP(
-            GrConicEffect::Make(this->color(),
-                                *geometryProcessorViewM,
-                                kHairlineAA_GrProcessorEdgeType,
-                                target->caps(),
-                                *geometryProcessorLocalM,
-                                this->usesLocalCoords(),
-                                this->coverage()));
+        sk_sp<GrGeometryProcessor> conicGP(GrConicEffect::Make(this->color(),
+                                                               *geometryProcessorViewM,
+                                                               kHairlineAA_GrProcessorEdgeType,
+                                                               target->caps(),
+                                                               *geometryProcessorLocalM,
+                                                               fHelper.usesLocalCoords(),
+                                                               this->coverage()));
 
         const GrBuffer* vertexBuffer;
         int firstVertex;
@@ -995,7 +1001,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                      quadCount, kQuadsNumInIdxBuffer);
             mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(quadGP.get(), this->pipeline(), mesh);
+            target->draw(quadGP.get(), pipeline, mesh);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -1004,7 +1010,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) const {
             mesh.setIndexedPatterned(quadsIndexBuffer.get(), kIdxsPerQuad, kQuadNumVertices,
                                      conicCount, kQuadsNumInIdxBuffer);
             mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(conicGP.get(), this->pipeline(), mesh);
+            target->draw(conicGP.get(), pipeline, mesh);
         }
     }
 }
@@ -1020,12 +1026,10 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                                       &devClipBounds);
     SkPath path;
     args.fShape->asPath(&path);
-    std::unique_ptr<GrLegacyMeshDrawOp> op = AAHairlineOp::Make(
-            args.fPaint.getColor(), *args.fViewMatrix, path, args.fShape->style(), devClipBounds);
-    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
-    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
-    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
-                                                   std::move(op));
+    std::unique_ptr<GrDrawOp> op =
+            AAHairlineOp::Make(std::move(args.fPaint), *args.fViewMatrix, path,
+                               args.fShape->style(), devClipBounds, args.fUserStencilSettings);
+    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
     return true;
 }
 
@@ -1033,13 +1037,13 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
-    GrColor color = GrRandomColor(random);
+GR_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds;
     devClipBounds.setEmpty();
-    return AAHairlineOp::Make(color, viewMatrix, path, GrStyle::SimpleHairline(), devClipBounds);
+    return AAHairlineOp::Make(std::move(paint), viewMatrix, path, GrStyle::SimpleHairline(),
+                              devClipBounds, GrGetRandomStencil(random, context));
 }
 
 #endif
