@@ -10,9 +10,9 @@
  */
 #ifndef GrAlphaThresholdFragmentProcessor_DEFINED
 #define GrAlphaThresholdFragmentProcessor_DEFINED
+#include "SkTypes.h"
+#if SK_SUPPORT_GPU
 
-    #include "SkTypes.h"
-    #if SK_SUPPORT_GPU
     #include "GrColorSpaceXform.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
@@ -75,6 +75,5 @@ private:
     float fOuterThreshold;
     typedef GrFragmentProcessor INHERITED;
 };
-
-    #endif
+#endif
 #endif
