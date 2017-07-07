@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b8ba7fd_d347ffc5",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-07T01:53:00Z",
+      "side": 1,
+      "message": "nit: member methods are lowerCase().",
+      "range": {
+        "startLine": 22,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 23
+      },
+      "revId": "3abcd7192c295690a65e68fd0ddae6e5317efc30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a185924_2bd33abd",
+        "filename": "src/effects/SkBlurMask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-07T01:53:00Z",
+      "side": 1,
+      "message": "Can this turn into a build-flag, so we can land, but not affect chrome until we evaluate the image diffs?",
+      "range": {
+        "startLine": 493,
+        "startChar": 8,
+        "endLine": 493,
+        "endChar": 9
+      },
+      "revId": "3abcd7192c295690a65e68fd0ddae6e5317efc30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
