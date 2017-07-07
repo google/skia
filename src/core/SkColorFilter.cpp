@@ -216,11 +216,13 @@ public:
 
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* x, SkColorSpace* cs) const override {
+        // wish our caller would let us know if our input was opaque...
+        GrSRGBEffect::Alpha alpha = GrSRGBEffect::Alpha::kPremul;
         switch (fDir) {
             case Direction::kLinearToSRGB:
-                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kLinearToSRGB);
+                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kLinearToSRGB, alpha);
             case Direction::kSRGBToLinear:
-                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear);
+                return GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear, alpha);
         }
         return nullptr;
     }
