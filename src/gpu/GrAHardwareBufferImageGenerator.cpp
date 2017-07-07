@@ -96,9 +96,9 @@ void GrAHardwareBufferImageGenerator::deleteImageTexture(void* context) {
 
 #if SK_SUPPORT_GPU
 
-
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
-        GrContext* context, const SkImageInfo& info, const SkIPoint& origin) {
+        GrContext* context, const SkImageInfo& info, const SkIPoint& origin,
+        SkTransferFunctionBehavior) {
     auto proxy = this->makeProxy(context);
     if (!proxy) {
         return nullptr;
