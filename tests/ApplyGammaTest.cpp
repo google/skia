@@ -15,6 +15,7 @@
 #include "SkColorFilter.h"
 #include "SkSurface.h"
 #include "SkUtils.h"
+#include "sk_tool_utils.h"
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {
@@ -111,8 +112,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
 
         SkPaint gammaPaint;
         gammaPaint.setBlendMode(SkBlendMode::kSrc);
-        gammaPaint.setColorFilter(toSRGB ? SkColorFilter::MakeLinearToSRGBGamma()
-                                         : SkColorFilter::MakeSRGBToLinearGamma());
+        gammaPaint.setColorFilter(toSRGB ? sk_tool_utils::MakeLinearToSRGBColorFilter()
+                                         : sk_tool_utils::MakeSRGBToLinearColorFilter());
 
         dstCanvas->drawBitmap(bm, 0, 0, &gammaPaint);
         dstCanvas->flush();
