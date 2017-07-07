@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edc96b2c_e8b12543",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "You could also consider overloading dumpInfo() to provide this more detailed info.",
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dacdb1f1_b25eb6e0",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "Horror! Tabs!",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 1
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "839759d8_c8056c47",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "tabs",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 1
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa3308dc_4b29579b",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "This is nice",
+      "range": {
+        "startLine": 43,
+        "startChar": 11,
+        "endLine": 43,
+        "endChar": 28
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24c023b1_6592fcda",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "Might be helpful to have some comments on the virtuals this class introduces and what is expected of subclasses.",
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d91fffd_23190dd0",
+        "filename": "src/gpu/ccpr/GrCCPRPathProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "Would it be clearer to call this InstanceAttrib?",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 21
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "791ae4f3_c9c57153",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T16:11:01Z",
+      "side": 1,
+      "message": "edges",
+      "range": {
+        "startLine": 165,
+        "startChar": 22,
+        "endLine": 165,
+        "endChar": 27
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
