@@ -10,11 +10,13 @@
 #include "GrMockGpu.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
+#include "mock/GrMockTypes.h"
 
 class GrMockTexture : public GrTexture {
 public:
-    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, bool hasMipLevels)
-            : GrMockTexture(gpu, desc, hasMipLevels) {
+    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, bool hasMipLevels,
+                  const GrMockTextureInfo& info)
+            : GrMockTexture(gpu, desc, hasMipLevels, info) {
         this->registerWithCache(budgeted);
     }
     ~GrMockTexture() override {
@@ -22,7 +24,9 @@ public:
             fReleaseProc(fReleaseCtx);
         }
     }
-    GrBackendObject getTextureHandle() const override { return 0; }
+    GrBackendObject getTextureHandle() const override {
+        return reinterpret_cast<GrBackendObject>(&fInfo);
+    }
     void textureParamsModified() override {}
     void setRelease(ReleaseProc proc, ReleaseCtx ctx) override {
         fReleaseProc = proc;
@@ -31,14 +35,17 @@ public:
 
 protected:
     // constructor for subclasses
-    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, bool hasMipLevels)
+    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, bool hasMipLevels,
+                  const GrMockTextureInfo& info)
             : GrSurface(gpu, desc)
             , INHERITED(gpu, desc, kITexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
                         hasMipLevels)
+            , fInfo(info)
             , fReleaseProc(nullptr)
             , fReleaseCtx(nullptr) {}
 
 private:
+    GrMockTextureInfo fInfo;
     ReleaseProc fReleaseProc;
     ReleaseCtx fReleaseCtx;
 
@@ -48,9 +55,9 @@ private:
 class GrMockTextureRenderTarget : public GrMockTexture, public GrRenderTarget {
 public:
     GrMockTextureRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
-                              bool hasMipLevels)
+                              bool hasMipLevels, const GrMockTextureInfo& texInfo)
             : GrSurface(gpu, desc)
-            , GrMockTexture(gpu, desc, hasMipLevels)
+            , GrMockTexture(gpu, desc, hasMipLevels, texInfo)
             , GrRenderTarget(gpu, desc) {
         this->registerWithCache(budgeted);
     }
