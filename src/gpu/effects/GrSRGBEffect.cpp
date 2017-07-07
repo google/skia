@@ -47,18 +47,26 @@ public:
             args.fInputColor = "vec4(1)";
         }
 
-        fragBuilder->codeAppendf("%s = vec4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
-                                    args.fOutputColor,
-                                    srgbFuncName.c_str(), args.fInputColor,
-                                    srgbFuncName.c_str(), args.fInputColor,
-                                    srgbFuncName.c_str(), args.fInputColor,
-                                    args.fInputColor);
+        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+        if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
+            fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
+            fragBuilder->codeAppendf("color = vec4(color.rgb / nonZeroAlpha, color.a);");
+        }
+        fragBuilder->codeAppendf("color = vec4(%s(color.r), %s(color.g), %s(color.b), color.a);",
+                                    srgbFuncName.c_str(),
+                                    srgbFuncName.c_str(),
+                                    srgbFuncName.c_str());
+        if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
+            fragBuilder->codeAppendf("color = vec4(color.rgb, 1) * color.a;");
+        }
+        fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
     }
 
     static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
         const GrSRGBEffect& srgbe = processor.cast<GrSRGBEffect>();
-        uint32_t key = static_cast<uint32_t>(srgbe.mode());
+        uint32_t key = static_cast<uint32_t>(srgbe.mode()) |
+                      (static_cast<uint32_t>(srgbe.alpha()) << 1);
         b->add32(key);
     }
 
@@ -68,10 +76,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrSRGBEffect::GrSRGBEffect(Mode mode)
-        : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
-                    kConstantOutputForConstantInput_OptimizationFlag)
-        , fMode(mode) {
+GrSRGBEffect::GrSRGBEffect(Mode mode, Alpha alpha)
+    : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
+                kConstantOutputForConstantInput_OptimizationFlag)
+    , fMode(mode)
+    , fAlpha(alpha)
+{
     this->initClassID<GrSRGBEffect>();
 }
 
@@ -87,17 +97,19 @@ static inline float linear_to_srgb(float linear) {
     return (linear <= 0.0031308) ? linear * 12.92f : 1.055f * powf(linear, 1.f / 2.4f) - 0.055f;
 }
 
-GrColor4f GrSRGBEffect::constantOutputForConstantInput(GrColor4f input) const {
+GrColor4f GrSRGBEffect::constantOutputForConstantInput(GrColor4f color) const {
+    color = color.unpremul();
     switch (fMode) {
         case Mode::kLinearToSRGB:
-            return GrColor4f(linear_to_srgb(input.fRGBA[0]), linear_to_srgb(input.fRGBA[1]),
-                             linear_to_srgb(input.fRGBA[2]), input.fRGBA[3]);
+            color = GrColor4f(linear_to_srgb(color.fRGBA[0]), linear_to_srgb(color.fRGBA[1]),
+                              linear_to_srgb(color.fRGBA[2]), color.fRGBA[3]);
+            break;
         case Mode::kSRGBToLinear:
-            return GrColor4f(srgb_to_linear(input.fRGBA[0]), srgb_to_linear(input.fRGBA[1]),
-                             srgb_to_linear(input.fRGBA[2]), input.fRGBA[3]);
+            color = GrColor4f(srgb_to_linear(color.fRGBA[0]), srgb_to_linear(color.fRGBA[1]),
+                              srgb_to_linear(color.fRGBA[2]), color.fRGBA[3]);
+            break;
     }
-    SkFAIL("Unexpected mode");
-    return GrColor4f::TransparentBlack();
+    return color.premul();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +119,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSRGBEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSRGBEffect::TestCreate(GrProcessorTestData* d) {
     Mode testMode = static_cast<Mode>(d->fRandom->nextRangeU(0, 1));
-    return GrSRGBEffect::Make(testMode);
+    return GrSRGBEffect::Make(testMode, Alpha::kPremul);
 }
 #endif
 
@@ -119,6 +131,6 @@ void GrSRGBEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 }
 
 GrGLSLFragmentProcessor* GrSRGBEffect::onCreateGLSLInstance() const {
-    return new GrGLSRGBEffect();
+    return new GrGLSRGBEffect;
 }
 
