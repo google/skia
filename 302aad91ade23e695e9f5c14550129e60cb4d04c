@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "5ad719bd_ad276028",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-07-07T22:29:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "218ab77b_a07aee16",
+      "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65bf9433_27a4a04c",
         "filename": "src/image/SkImage_Lazy.cpp",
         "patchSetId": 10
@@ -64,6 +82,24 @@
       "writtenOn": "2017-07-07T14:47:59Z",
       "side": 1,
       "message": "I agree with the logic here, although a comment explaining the rationale would be nice.",
+      "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "846f2337_ee03e6bd",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-07-07T22:29:34Z",
+      "side": 1,
+      "message": "I added a helper function that does this \"set behavior and update info\", and put a comment on that (explaining how, for generators, legacy-v-not-legacy is defined by the transfer function behavior parameter).",
+      "parentUuid": "65bf9433_27a4a04c",
       "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
