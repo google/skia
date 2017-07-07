@@ -74,6 +74,10 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(GrConte
     sk_sp<GrTextureProxy> proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(),
                                                                fSrc, nullptr);
 
+    if (!proxy) {
+        return nullptr;
+    }
+
     sk_sp<SkColorSpace> srcSpace =
             fSrc.colorSpace() ? sk_ref_sp(fSrc.colorSpace()) : SkColorSpace::MakeSRGB();
     auto xform = GrNonlinearColorSpaceXformEffect::Make(srcSpace.get(), fDst.get());
