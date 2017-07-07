@@ -274,7 +274,6 @@ gm_sources = [
   "$_gm/smallpaths.cpp",
   "$_gm/spritebitmap.cpp",
   "$_gm/srcmode.cpp",
-  "$_gm/srgb.cpp",
   "$_gm/stlouisarch.cpp",
   "$_gm/stringart.cpp",
   "$_gm/stroke_rect_shader.cpp",

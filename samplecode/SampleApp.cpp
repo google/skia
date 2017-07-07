@@ -370,7 +370,7 @@ public:
             SkPaint gammaPaint;
             gammaPaint.setBlendMode(SkBlendMode::kSrc);
             if (doGamma) {
-                gammaPaint.setColorFilter(SkColorFilter::MakeLinearToSRGBGamma());
+                gammaPaint.setColorFilter(sk_tool_utils::MakeLinearToSRGBColorFilter());
             }
 
             gpuCanvas->drawImage(offscreenImage, 0, 0, &gammaPaint);
