@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1ddf476b_d43058d5",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "Done. Good point. The Caps currently guarantee that the max rt size is less than the max texture size.",
+      "parentUuid": "74c25778_cd945532",
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ce07e73_227638b3",
         "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-06T16:46:39Z",
       "side": 1,
       "message": "Why is the initialize size always square but constructor takes a min width and min height?",
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8874515c_460978cf",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "Just to save the caller from having to compute the min value themselves. I suppose it also gives the implementation more freedom to change in the future..",
+      "parentUuid": "3ce07e73_227638b3",
       "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "703c8d56_e9cb96e8",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "Unfortunately yes. MSVC gripes without it (but only on constructors).",
+      "parentUuid": "980e2895_ecf1caeb",
+      "range": {
+        "startLine": 482,
+        "startChar": 0,
+        "endLine": 482,
+        "endChar": 26
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a953b7b_d8c6c578",
         "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp",
         "patchSetId": 4
@@ -79,6 +139,30 @@
       "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddf748ee_dccf8112",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 559,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "Does now! It was previously using the clip bounds as the scissor instead of the clipped draw bounds.",
+      "parentUuid": "3a953b7b_d8c6c578",
+      "range": {
+        "startLine": 559,
+        "startChar": 12,
+        "endLine": 559,
+        "endChar": 65
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "7defb958_080b12a7",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "Done. (Updated the comment. Let me know if you disagree with this reasoning.)",
+      "parentUuid": "96d6876c_eb913d24",
+      "range": {
+        "startLine": 40,
+        "startChar": 29,
+        "endLine": 40,
+        "endChar": 32
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9980aeb_c05a8372",
         "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
         "patchSetId": 4
@@ -122,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "5411fd54_94dfb022",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9980aeb_c05a8372",
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bfdb6c5_050d9c1f",
         "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
         "patchSetId": 4
@@ -133,6 +259,30 @@
       "writtenOn": "2017-07-06T16:46:39Z",
       "side": 1,
       "message": "Can these be private?",
+      "range": {
+        "startLine": 79,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 33
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "169bca3d_f191331d",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "They\u0027re private in the sense that their definition is limited to the implementation file. I would also like to put them inside a private block, but then the impl file can\u0027t make shorter lines like:\n\n  using CoverageOp \u003d GrCCPRCoverageOpsBuilder::CoverageOp;\n\n  void CoverageOp::method() {...}",
+      "parentUuid": "2bfdb6c5_050d9c1f",
       "range": {
         "startLine": 79,
         "startChar": 4,
@@ -165,6 +315,30 @@
       "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efe5ee74_938fbbcb",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-07T08:40:31Z",
+      "side": 1,
+      "message": "I concluded this to be the case on my Adreno a while ago.\n\nBut things have changed and either I was wrong or this is just no longer necessary.\n\nAlso: Not sure why I was concerning the client code order. You get the same triangle no matter which vertex you start on...",
+      "parentUuid": "a0828251_e9c0132f",
+      "range": {
+        "startLine": 36,
+        "startChar": 60,
+        "endLine": 36,
+        "endChar": 93
+      },
+      "revId": "d91981d6b20bae0f9dc198661836535fd59f45d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
