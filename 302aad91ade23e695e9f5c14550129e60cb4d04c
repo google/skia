@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "76ccb61c_7162f442",
+        "filename": "src/core/SkColorSpaceXformImageGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-07T14:47:59Z",
+      "side": 1,
+      "message": "Oh hey! Well, that\u0027s handy.",
+      "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46b86672_0dbc0fff",
         "filename": "src/core/SkPictureImageGenerator.cpp",
         "patchSetId": 10
@@ -13,6 +30,40 @@
       "writtenOn": "2017-07-07T03:39:56Z",
       "side": 1,
       "message": "This now mirrors SkImageGenerator::onReadPixels, which \"feels right\".",
+      "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "218ab77b_a07aee16",
+        "filename": "src/gpu/GrYUVProvider.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-07T14:47:59Z",
+      "side": 1,
+      "message": "nit: Braces / newline.",
+      "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65bf9433_27a4a04c",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-07T14:47:59Z",
+      "side": 1,
+      "message": "I agree with the logic here, although a comment explaining the rationale would be nice.",
       "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
