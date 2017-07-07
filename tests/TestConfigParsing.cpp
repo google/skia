@@ -75,12 +75,50 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     // Parses all default configs and returns correct "tag".
 
     SkCommandLineFlags::StringArray config1 = make_string_array({
-        "565", "8888", "debuggl", "gl", "gldft", "nullgl", "glmsaa8", "glmsaa4",
-        "nonrendering", "nullgl", "gles", "glnvpr8", "glnvpr4", "glnvprdit8", "glesnvprdit4",
-        "pdf", "skp", "svg", "xps", "angle_d3d11_es2", "angle_gl_es2", "commandbuffer", "mesa",
-        "hwui", "glf16", "glessrgb", "gl", "glnvpr4", "glnvprdit4", "glsrgb", "glmsaa4", "vk",
-        "glinst", "glinst4", "glinstdit4", "glinst8", "glinstdit8", "glesinst", "glesinst4",
-        "glesinstdit4", "glwide", "glnarrow", "glnostencils"
+        "565",
+        "8888",
+        "debuggl",
+        "gl",
+        "gldft",
+        "nullgl",
+        "glmsaa8",
+        "glmsaa4",
+        "nonrendering",
+        "nullgl",
+        "gles",
+        "glnvpr8",
+        "glnvpr4",
+        "glnvprdit8",
+        "glesnvprdit4",
+        "pdf",
+        "skp",
+        "svg",
+        "xps",
+        "angle_d3d11_es2",
+        "angle_gl_es2",
+        "commandbuffer",
+        "mesa",
+        "hwui",
+        "glf16",
+        "glessrgb",
+        "gl",
+        "glnvpr4",
+        "glnvprdit4",
+        "glsrgb",
+        "glmsaa4",
+        "vk",
+        "glinst",
+        "glinst4",
+        "glinstdit4",
+        "glinst8",
+        "glinstdit8",
+        "glesinst",
+        "glesinst4",
+        "glesinstdit4",
+        "glwide",
+        "glnarrow",
+        "glnostencils",
+        "mock"
     });
 
     SkCommandLineConfigArray configs;
@@ -147,6 +185,12 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[41]->asConfigGpu()->getColorSpace()->gammaIsLinear());
     REPORTER_ASSERT(reporter, *as_CSB(configs[41]->asConfigGpu()->getColorSpace())->toXYZD50() !=
                     *as_CSB(srgbColorSpace)->toXYZD50());
+    REPORTER_ASSERT(reporter, configs[42]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, SkToBool(configs[42]->asConfigGpu()->getContextOverrides() &
+                              SkCommandLineConfigGpu::ContextOverrides::kAvoidStencilBuffers));
+    REPORTER_ASSERT(reporter, configs[43]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kMock_ContextType);
     REPORTER_ASSERT(reporter, configs[32]->asConfigGpu()->getUseInstanced());
     REPORTER_ASSERT(reporter, configs[33]->asConfigGpu()->getContextType() ==
                               GrContextFactory::kGL_ContextType);
@@ -215,6 +259,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
         "gpu[api=gles]",
         "gpu[api=gl]",
         "gpu[api=vulkan]",
+        "gpu[api=mock]",
     });
 
     SkCommandLineConfigArray configs;
@@ -260,6 +305,8 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 0);
 #endif
+    REPORTER_ASSERT(reporter, configs[8]->asConfigGpu()->getContextType() ==
+                   GrContextFactory::kMock_ContextType);
 #endif
 }
 
