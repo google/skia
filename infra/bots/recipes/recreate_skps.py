@@ -16,7 +16,6 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'run',
   'vars',
@@ -60,7 +59,7 @@ def RunSteps(api):
   output_dir = api.path['start_dir'].join('skp_output')
   if api.path.exists(output_dir):
     api.run.rmtree(output_dir)
-  api.shutil.makedirs('skp_output', output_dir, infra_step=True)
+  api.file.ensure_directory('makedirs skp_output', output_dir)
 
   # Capture the SKPs.
   asset_dir = api.vars.infrabots_dir.join('assets', 'skp')

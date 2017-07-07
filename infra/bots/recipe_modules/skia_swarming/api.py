@@ -82,10 +82,9 @@ class SkiaSwarmingApi(recipe_api.RecipeApi):
       blacklist: list of regular expressions indicating which files/directories
           not to archive.
     """
-    self.m.shutil.makedirs(
-        'swarming tmp dir',
-        self.swarming_temp_dir,
-        infra_step=True)
+    self.m.file.ensure_directory(
+        'makedirs swarming tmp dir',
+        self.swarming_temp_dir)
     isolated_path = self.isolated_file_path(task_name)
     isolate_args = [
       '--isolate', isolate_path,

@@ -11,16 +11,16 @@ import calendar
 
 DEPS = [
   'core',
+  'flavor',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/time',
   'run',
-  'flavor',
   'vars',
 ]
 
@@ -78,7 +78,7 @@ def skpbench_steps(api):
 
   now = api.time.utcnow()
   ts = int(calendar.timegm(now.utctimetuple()))
-  api.shutil.makedirs('perf_dir', api.vars.perf_data_dir, infra_step=True)
+  api.file.ensure_directory('makedirs perf_dir', api.vars.perf_data_dir)
   json_path = api.path.join(
       api.vars.perf_data_dir,
       'skpbench_%s_%d.json' % (api.vars.got_revision, ts))

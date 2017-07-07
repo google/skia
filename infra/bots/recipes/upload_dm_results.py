@@ -14,7 +14,6 @@ DEPS = [
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/time',
 ]
@@ -54,11 +53,11 @@ def RunSteps(api):
   json_file = results_dir.join(DM_JSON)
   log_file = results_dir.join(VERBOSE_LOG)
   tmp_dir = api.path['start_dir'].join('tmp_upload')
-  api.shutil.makedirs('tmp dir', tmp_dir, infra_step=True)
-  api.shutil.copy('copy dm.json', json_file, tmp_dir)
-  api.shutil.copy('copy verbose.log', log_file, tmp_dir)
-  api.shutil.remove('rm old dm.json', json_file)
-  api.shutil.remove('rm old verbose.log', log_file)
+  api.file.ensure_directory('makedirs tmp dir', tmp_dir)
+  api.file.copy('copy dm.json', json_file, tmp_dir)
+  api.file.copy('copy verbose.log', log_file, tmp_dir)
+  api.file.remove('rm old dm.json', json_file)
+  api.file.remove('rm old verbose.log', log_file)
 
   # Upload the images.
   image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']

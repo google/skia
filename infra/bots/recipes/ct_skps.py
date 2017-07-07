@@ -16,7 +16,6 @@ DEPS = [
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'recipe_engine/time',
   'run',
@@ -135,8 +134,8 @@ def RunSteps(api):
     if download_skps:
       # Delete and recreate the skps dir.
       api.run.rmtree(skps_dir)
-      api.shutil.makedirs(
-          api.path.basename(skps_dir), skps_dir, infra_step=True)
+      api.file.ensure_directory(
+          'makedirs %s' % api.path.basename(skps_dir), skps_dir)
 
   # If a blacklist file exists then specify SKPs to be blacklisted.
   blacklists_dir = api.vars.skia_dir.join('infra', 'bots', 'ct', 'blacklists')

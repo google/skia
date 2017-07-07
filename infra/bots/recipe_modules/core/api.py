@@ -26,10 +26,9 @@ class SkiaApi(recipe_api.RecipeApi):
     self.checkout_steps()
 
     if not self.m.path.exists(self.m.vars.tmp_dir):
-      self.m.run.run_once(self.m.shutil.makedirs,
-                          'tmp_dir',
-                          self.m.vars.tmp_dir,
-                          infra_step=True)
+      self.m.run.run_once(self.m.file.ensure_directory,
+                          'makedirs tmp_dir',
+                          self.m.vars.tmp_dir)
 
     self.m.flavor.setup()
 
@@ -46,9 +45,8 @@ class SkiaApi(recipe_api.RecipeApi):
 
     # Create the checkout path if necessary.
     if not self.m.path.exists(self.m.vars.checkout_root):
-      self.m.shutil.makedirs('checkout_path',
-                             self.m.vars.checkout_root,
-                             infra_step=True)
+      self.m.file.ensure_directory('makedirs checkout_path',
+                                   self.m.vars.checkout_root)
 
     # Initial cleanup.
     gclient_cfg = self.m.gclient.make_config(**cfg_kwargs)
