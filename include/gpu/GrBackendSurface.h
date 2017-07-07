@@ -15,7 +15,7 @@
 #include "vk/GrVkTypes.h"
 #endif
 
-class GrBackendTexture {
+class SK_API GrBackendTexture {
 public:
     GrBackendTexture(int width,
                      int height,
@@ -64,7 +64,7 @@ private:
     };
 };
 
-class GrBackendRenderTarget {
+class SK_API GrBackendRenderTarget {
 public:
     GrBackendRenderTarget(int width,
                           int height,
