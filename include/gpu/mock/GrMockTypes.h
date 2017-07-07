@@ -10,6 +10,10 @@
 
 #include "GrTypes.h"
 
+struct GrMockTextureInfo {
+    int fID;
+};
+
 /**
  * A pointer to this type is used as the GrBackendContext when creating a Mock GrContext. It can be
  * used to specificy capability options for the mock context. If nullptr is used a default
@@ -17,10 +21,11 @@
  */
 struct GrMockOptions {
     GrMockOptions() {
-        // By default RGBA_8888 is textureable and renderable and A8 is texturable.
+        // By default RGBA_8888 is textureable and renderable and A8 and RGB565 are texturable.
         fConfigOptions[kRGBA_8888_GrPixelConfig].fRenderable[0] = true;
         fConfigOptions[kRGBA_8888_GrPixelConfig].fTexturable = true;
         fConfigOptions[kAlpha_8_GrPixelConfig].fTexturable = true;
+        fConfigOptions[kRGB_565_GrPixelConfig].fTexturable = true;
     }
 
     struct ConfigOptions {
