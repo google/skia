@@ -9,7 +9,7 @@
 #define GrMockCaps_DEFINED
 
 #include "GrCaps.h"
-#include "mock/GrMockOptions.h"
+#include "mock/GrMockTypes.h"
 
 class GrMockCaps : public GrCaps {
 public:
@@ -20,6 +20,7 @@ public:
         fMaxRenderTargetSize = SkTMin(options.fMaxRenderTargetSize, fMaxTextureSize);
         fMaxVertexAttributes = options.fMaxVertexAttributes;
         fShaderCaps.reset(new GrShaderCaps(contextOptions));
+        this->applyOptionsOverrides(contextOptions);
     }
     bool isConfigTexturable(GrPixelConfig config) const override {
         return fOptions.fConfigOptions[config].fTexturable;

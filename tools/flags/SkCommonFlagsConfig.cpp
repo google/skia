@@ -81,7 +81,8 @@ static const struct {
     { "angle_d3d11_es3_msaa8", "gpu", "api=angle_d3d11_es3,samples=8" },
     { "angle_gl_es2",          "gpu", "api=angle_gl_es2" },
     { "angle_gl_es3",          "gpu", "api=angle_gl_es3" },
-    { "commandbuffer",         "gpu", "api=commandbuffer" }
+    { "commandbuffer",         "gpu", "api=commandbuffer" },
+    { "mock",                  "gpu", "api=mock" }
 #if SK_MESA
     ,{ "mesa",                 "gpu", "api=mesa" }
 #endif
@@ -92,9 +93,8 @@ static const struct {
     ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
     ,{ "vkmsaa8",              "gpu", "api=vulkan,samples=8" }
 #endif
-
 #else
-{ "", "", "" }
+     { "", "", "" }
 #endif
 };
 
@@ -120,7 +120,6 @@ static const char configExtendedHelp[] =
     "\tapi\ttype: string\trequired\n"
     "\t    Select graphics API to use with gpu backend.\n"
     "\t    Options:\n"
-    "\t\tnative\t\t\tUse platform default OpenGL or OpenGL ES backend.\n"
     "\t\tgl    \t\t\tUse OpenGL.\n"
     "\t\tgles  \t\t\tUse OpenGL ES.\n"
     "\t\tdebuggl \t\t\tUse debug OpenGL.\n"
@@ -131,6 +130,7 @@ static const char configExtendedHelp[] =
     "\t\tangle_gl_es2\t\t\tUse OpenGL ES2 on the ANGLE OpenGL backend.\n"
     "\t\tangle_gl_es3\t\t\tUse OpenGL ES3 on the ANGLE OpenGL backend.\n"
     "\t\tcommandbuffer\t\tUse command buffer.\n"
+    "\t\tmock\t\tUse mock context.\n"
 #if SK_MESA
     "\t\tmesa\t\t\tUse MESA.\n"
 #endif
@@ -282,6 +282,10 @@ static bool parse_option_gpu_api(const SkString& value,
     }
     if (value.equals("commandbuffer")) {
         *outContextType = GrContextFactory::kCommandBuffer_ContextType;
+        return true;
+    }
+    if (value.equals("mock")) {
+        *outContextType = GrContextFactory::kMock_ContextType;
         return true;
     }
 #if SK_MESA

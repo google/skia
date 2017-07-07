@@ -10,6 +10,7 @@
 
 #include "GrTypes.h"
 #include "gl/GrGLTypes.h"
+#include "mock/GrMockTypes.h"
 
 #ifdef SK_VULKAN
 #include "vk/GrVkTypes.h"
@@ -17,6 +18,9 @@
 
 class SK_API GrBackendTexture {
 public:
+    // Creates an invalid backend texture.
+    GrBackendTexture() : fConfig(kUnknown_GrPixelConfig) {}
+
     GrBackendTexture(int width,
                      int height,
                      GrPixelConfig config,
@@ -27,6 +31,11 @@ public:
                      int height,
                      const GrVkImageInfo& vkInfo);
 #endif
+
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     const GrMockTextureInfo& mockInfo);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -43,7 +52,13 @@ public:
     const GrVkImageInfo* getVkImageInfo() const;
 #endif
 
+    // If the backend API is Mock, this returns a pointer to the GrMockTextureInfo struct. Otherwise
+    // it returns nullptr.
+    const GrMockTextureInfo* getMockTextureInfo() const;
+
 private:
+    bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
+
     // Temporary constructor which can be used to convert from a GrBackendTextureDesc.
     GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend backend);
 
@@ -61,6 +76,7 @@ private:
 #ifdef SK_VULKAN
         GrVkImageInfo   fVkInfo;
 #endif
+        GrMockTextureInfo fMockInfo;
     };
 };
 

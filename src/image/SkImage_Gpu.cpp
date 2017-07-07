@@ -323,15 +323,24 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
                                                          int width, int height,
                                                          GrPixelConfig config,
                                                          GrBackendObject handle) {
+    switch (backend) {
+        case kOpenGL_GrBackend: {
+            const GrGLTextureInfo* glInfo = (const GrGLTextureInfo*)(handle);
+            return GrBackendTexture(width, height, config, *glInfo);
+        }
 #ifdef SK_VULKAN
-    if (kVulkan_GrBackend == backend) {
-        GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-        return GrBackendTexture(width, height, *vkInfo);
-    }
+        case kVulkan_GrBackend: {
+            const GrVkImageInfo* vkInfo = (const GrVkImageInfo*)(handle);
+            return GrBackendTexture(width, height, *vkInfo);
+        }
 #endif
-    SkASSERT(kOpenGL_GrBackend == backend);
-    GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-    return GrBackendTexture(width, height, config, *glInfo);
+        case kMock_GrBackend: {
+            const GrMockTextureInfo* mockInfo = (const GrMockTextureInfo*)(handle);
+            return GrBackendTexture(width, height, config, *mockInfo);
+        }
+        default:
+            return GrBackendTexture();
+    }
 }
 
 static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpace colorSpace,

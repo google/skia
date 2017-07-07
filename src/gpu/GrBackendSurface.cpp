@@ -33,29 +33,46 @@ GrBackendTexture::GrBackendTexture(int width,
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 
+GrBackendTexture::GrBackendTexture(int width,
+                                   int height,
+                                   GrPixelConfig config,
+                                   const GrMockTextureInfo& mockInfo)
+        : fWidth(width)
+        , fHeight(height)
+        , fConfig(config)
+        , fBackend(kMock_GrBackend)
+        , fMockInfo(mockInfo) {}
+
 GrBackendTexture::GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend backend)
         : fWidth(desc.fWidth)
         , fHeight(desc.fHeight)
         , fConfig(desc.fConfig)
         , fBackend(backend) {
-    if (kOpenGL_GrBackend == backend) {
-        fGLInfo = *reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
-    } else {
-        SkASSERT(kVulkan_GrBackend == backend);
+    switch (backend) {
+        case kOpenGL_GrBackend:
+            fGLInfo = *reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
+            break;
 #ifdef SK_VULKAN
-        const GrVkImageInfo* vkInfo =
-                reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
-        fConfig = GrVkFormatToPixelConfig(vkInfo->fFormat);
-        fVkInfo = *vkInfo;
-#else
-        fConfig = kUnknown_GrPixelConfig;
+        case kVulkan_GrBackend: {
+            const GrVkImageInfo* vkInfo =
+                    reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
+            fConfig = GrVkFormatToPixelConfig(vkInfo->fFormat);
+            fVkInfo = *vkInfo;
+            break;
+        }
 #endif
+        case kMock_GrBackend:
+            fMockInfo = *reinterpret_cast<const GrMockTextureInfo*>(desc.fTextureHandle);
+            break;
+        default:
+            fConfig = kUnknown_GrPixelConfig;
+            break;
     }
 }
 
 #ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendTexture::getVkImageInfo() const {
-    if (kVulkan_GrBackend == fBackend) {
+    if (this->isValid() && kVulkan_GrBackend == fBackend) {
         return &fVkInfo;
     }
     return nullptr;
@@ -63,8 +80,15 @@ const GrVkImageInfo* GrBackendTexture::getVkImageInfo() const {
 #endif
 
 const GrGLTextureInfo* GrBackendTexture::getGLTextureInfo() const {
-    if (kOpenGL_GrBackend == fBackend) {
+    if (this->isValid() && kOpenGL_GrBackend == fBackend) {
         return &fGLInfo;
+    }
+    return nullptr;
+}
+
+const GrMockTextureInfo* GrBackendTexture::getMockTextureInfo() const {
+    if (this->isValid() && kMock_GrBackend == fBackend) {
+        return &fMockInfo;
     }
     return nullptr;
 }
