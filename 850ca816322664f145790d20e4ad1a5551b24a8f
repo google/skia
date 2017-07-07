@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "305537ed_6e4d530e",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-07T18:34:57Z",
+      "side": 1,
+      "message": "When I\u0027ve been converting ops that are local to a cpp I\u0027ve been putting them in an anonymous namespace (to make them have internal linkage). However, that didn\u0027t work for SmallPathOp because it breaks the friending. So I tried making it a private nested class of GrSmallPathRenderer. That doesn\u0027t work because the test factory function needs access. So I did this (same logic applies to the struct). They are effectively private because the full declarations only appear in the cpp. Alternatively, we could use the previous pattern and Gr-prefix them (since they\u0027d be in the global namespace with external linkage).",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 26
+      },
+      "revId": "850ca816322664f145790d20e4ad1a5551b24a8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
