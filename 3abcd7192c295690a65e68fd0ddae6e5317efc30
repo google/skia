@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "13cc31fa_8e4239f2",
+        "filename": "src/core/SkMaskBlurFilter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-07-07T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b8ba7fd_d347ffc5",
+      "range": {
+        "startLine": 22,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 23
+      },
+      "revId": "3abcd7192c295690a65e68fd0ddae6e5317efc30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a185924_2bd33abd",
         "filename": "src/effects/SkBlurMask.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "3abcd7192c295690a65e68fd0ddae6e5317efc30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bff95317_1663d6e2",
+        "filename": "src/effects/SkBlurMask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-07-07T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a185924_2bd33abd",
+      "range": {
+        "startLine": 493,
+        "startChar": 8,
+        "endLine": 493,
+        "endChar": 9
+      },
+      "revId": "3abcd7192c295690a65e68fd0ddae6e5317efc30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
