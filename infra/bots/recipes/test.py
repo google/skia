@@ -11,13 +11,13 @@ DEPS = [
   'env',
   'flavor',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/raw_io',
-  'recipe_engine/shutil',
   'recipe_engine/step',
   'run',
   'vars',
@@ -606,10 +606,9 @@ def test_steps(api):
     hash_filename = 'uninteresting_hashes.txt'
 
     # Ensure that the tmp_dir exists.
-    api.run.run_once(api.shutil.makedirs,
-                     'tmp_dir',
-                     api.vars.tmp_dir,
-                     infra_step=True)
+    api.run.run_once(api.file.ensure_directory,
+                     'makedirs tmp_dir',
+                     api.vars.tmp_dir)
 
     host_hashes_file = api.vars.tmp_dir.join(hash_filename)
     hashes_file = api.flavor.device_path_join(
