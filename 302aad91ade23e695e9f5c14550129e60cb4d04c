@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46b86672_0dbc0fff",
+        "filename": "src/core/SkPictureImageGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-07-07T03:39:56Z",
+      "side": 1,
+      "message": "This now mirrors SkImageGenerator::onReadPixels, which \"feels right\".",
+      "revId": "302aad91ade23e695e9f5c14550129e60cb4d04c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
