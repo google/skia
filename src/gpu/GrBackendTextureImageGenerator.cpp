@@ -106,7 +106,8 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
 }
 
 sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
-        GrContext* context, const SkImageInfo& info, const SkIPoint& origin) {
+        GrContext* context, const SkImageInfo& info, const SkIPoint& origin,
+        SkTransferFunctionBehavior) {
     SkASSERT(context);
 
     if (context->contextPriv().getBackend() != fBackendTexture.backend()) {
