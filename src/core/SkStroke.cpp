@@ -143,7 +143,7 @@ public:
     SkScalar getResScale() const { return fResScale; }
 
     bool isZeroLength() const {
-        return fInner.isZeroLength() && fOuter.isZeroLength();
+        return fInner.isZeroLength();
     }
 
 private:
