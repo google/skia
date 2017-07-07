@@ -231,6 +231,9 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
     if (VK_SHADER_STAGE_VERTEX_BIT == stage) {
         return SkSL::Program::kVertex_Kind;
     }
+    if (VK_SHADER_STAGE_GEOMETRY_BIT == stage) {
+        return SkSL::Program::kGeometry_Kind;
+    }
     SkASSERT(VK_SHADER_STAGE_FRAGMENT_BIT == stage);
     return SkSL::Program::kFragment_Kind;
 }
@@ -238,6 +241,9 @@ SkSL::Program::Kind vk_shader_stage_to_skiasl_kind(VkShaderStageFlagBits stage) 
 VkShaderStageFlagBits skiasl_kind_to_vk_shader_stage(SkSL::Program::Kind kind) {
     if (SkSL::Program::kVertex_Kind == kind) {
         return VK_SHADER_STAGE_VERTEX_BIT;
+    }
+    if (SkSL::Program::kGeometry_Kind == kind) {
+        return VK_SHADER_STAGE_GEOMETRY_BIT;
     }
     SkASSERT(SkSL::Program::kFragment_Kind == kind);
     return VK_SHADER_STAGE_FRAGMENT_BIT;
