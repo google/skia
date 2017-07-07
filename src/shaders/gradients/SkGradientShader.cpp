@@ -1175,6 +1175,11 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     if (startRadius < 0 || endRadius < 0) {
         return nullptr;
     }
+    if (SkScalarNearlyZero((start - end).length()) && SkScalarNearlyZero(startRadius)) {
+        // We can treat this gradient as radial, which is faster.
+        return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
+                          mode, flags, localMatrix);
+    }
     if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
