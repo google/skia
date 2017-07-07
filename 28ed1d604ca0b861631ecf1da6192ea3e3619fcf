@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba468723_ae215f6f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "Ok I will associate with skia:3315",
+      "parentUuid": "a439bea7_becdc99f",
+      "range": {
+        "startLine": 14,
+        "startChar": 5,
+        "endLine": 14,
+        "endChar": 17
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46952777_bbb55f44",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-07T15:57:38Z",
       "side": 1,
       "message": "nit: No need to change formatting here.",
+      "range": {
+        "startLine": 277,
+        "startChar": 8,
+        "endLine": 277,
+        "endChar": 25
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ba26d1d_2ad1f2d0",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "46952777_bbb55f44",
       "range": {
         "startLine": 277,
         "startChar": 8,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "374e7d53_5cec10e7",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "Having issue with rowBytes for progressive image decoding So I changed to dstInfo.width()",
+      "parentUuid": "4d04d608_9a354d0b",
+      "range": {
+        "startLine": 490,
+        "startChar": 67,
+        "endLine": 490,
+        "endChar": 80
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c25c0b3c_a9b53a53",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 6
@@ -105,6 +177,30 @@
       "writtenOn": "2017-07-07T15:57:38Z",
       "side": 1,
       "message": "nit: Why did you add the extra line here?",
+      "range": {
+        "startLine": 505,
+        "startChar": 26,
+        "endLine": 505,
+        "endChar": 43
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb19d1ed_98ea4265",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "I will remove this",
+      "parentUuid": "c25c0b3c_a9b53a53",
       "range": {
         "startLine": 505,
         "startChar": 26,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "7838fc4a_9199ab57",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "Yes. both are same",
+      "parentUuid": "c9c79456_9d561bea",
+      "range": {
+        "startLine": 524,
+        "startChar": 12,
+        "endLine": 524,
+        "endChar": 22
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1d5749b5_9e80c8a8",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 6
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "26e6828b_c5740eb0",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "verified with both the option for above change it\u0027s working fine",
+      "parentUuid": "1d5749b5_9e80c8a8",
+      "range": {
+        "startLine": 525,
+        "startChar": 41,
+        "endLine": 525,
+        "endChar": 56
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "514fb4e4_bc6e1273",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 6
@@ -174,6 +318,30 @@
       "writtenOn": "2017-07-07T15:57:38Z",
       "side": 1,
       "message": "This should be kErrorInInput, since we have (potentially) decoded part of the image. (We\u0027ve been somewhat inconsistent about this, and kErrorInInput is a new value. See skbug.com/6825.)\n\nWe also need to set rowsDecoded to how many lines have been initialized. See code in SkPngCodec.cpp and SkGifCodec.cpp.",
+      "range": {
+        "startLine": 807,
+        "startChar": 52,
+        "endLine": 807,
+        "endChar": 65
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c172e169_1dc05ed9",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "514fb4e4_bc6e1273",
       "range": {
         "startLine": 807,
         "startChar": 52,
@@ -232,6 +400,30 @@
     },
     {
       "key": {
+        "uuid": "073b842f_8a59bea3",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "Ok I will update based on the review comments",
+      "parentUuid": "7d7258da_9669e65a",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 29
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d5b88ebd_48c756bc",
         "filename": "src/codec/SkJpegCodec.h",
         "patchSetId": 6
@@ -243,6 +435,30 @@
       "writtenOn": "2017-07-07T15:57:38Z",
       "side": 1,
       "message": "We typically put friends and INHERITED last, so these should be moved up above those two.\n\nAlso, we add spaces to line up the names, so this should look something like:\n\nstd::unique_ptr\u003cSkSwizzler\u003e        fSwizzler;\njstate                             fState;\nvoid*                              fDst;\nsize_t                             fDstRowBytes;\n\nfriend class SkRawCodec;\n\ntypedef SkCodec INHERITED;\n\n(Drats, the formatting did not get preserved in my comment, but all those names beginning with \u0027f\u0027 should line up.)",
+      "range": {
+        "startLine": 158,
+        "startChar": 11,
+        "endLine": 158,
+        "endChar": 17
+      },
+      "revId": "28ed1d604ca0b861631ecf1da6192ea3e3619fcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b387898a_5d304457",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-07-07T16:55:58Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "d5b88ebd_48c756bc",
       "range": {
         "startLine": 158,
         "startChar": 11,
