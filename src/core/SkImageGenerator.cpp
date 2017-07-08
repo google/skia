@@ -65,16 +65,18 @@ bool SkImageGenerator::getYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes
 #include "GrTextureProxy.h"
 
 sk_sp<GrTextureProxy> SkImageGenerator::generateTexture(GrContext* ctx, const SkImageInfo& info,
-                                                        const SkIPoint& origin) {
+                                                        const SkIPoint& origin,
+                                                        SkTransferFunctionBehavior behavior) {
     SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
     if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
         return nullptr;
     }
-    return this->onGenerateTexture(ctx, info, origin);
+    return this->onGenerateTexture(ctx, info, origin, behavior);
 }
 
 sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkImageInfo&,
-                                                          const SkIPoint&) {
+                                                          const SkIPoint&,
+                                                          SkTransferFunctionBehavior) {
     return nullptr;
 }
 #endif

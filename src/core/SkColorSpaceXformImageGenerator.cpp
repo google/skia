@@ -62,9 +62,9 @@ bool SkColorSpaceXformImageGenerator::onGetPixels(const SkImageInfo& info, void*
 #include "SkGr.h"
 #include "effects/GrNonlinearColorSpaceXformEffect.h"
 
-sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(GrContext* ctx,
-                                                                         const SkImageInfo& info,
-                                                                         const SkIPoint& origin) {
+sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(
+        GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin,
+        SkTransferFunctionBehavior) {
     // FIXME:
     // This always operates as if SkTranferFunctionBehavior is kIgnore.  Should we add
     // options so that caller can also request kRespect?
