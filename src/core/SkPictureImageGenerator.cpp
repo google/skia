@@ -100,23 +100,32 @@ SkImageGenerator::MakeFromPicture(const SkISize& size, sk_sp<SkPicture> picture,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(GrContext* ctx,
-                                                                 const SkImageInfo& info,
-                                                                 const SkIPoint& origin) {
+sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
+        GrContext* ctx, const SkImageInfo& info, const SkIPoint& origin,
+        SkTransferFunctionBehavior behavior) {
     SkASSERT(ctx);
+    bool useXformCanvas = SkTransferFunctionBehavior::kIgnore == behavior && info.colorSpace();
 
     //
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, info));
+    SkImageInfo surfaceInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo));
     if (!surface) {
         return nullptr;
     }
 
+    SkCanvas* canvas = surface->getCanvas();
+    std::unique_ptr<SkCanvas> xformCanvas;
+    if (useXformCanvas) {
+        xformCanvas = SkCreateColorSpaceXformCanvas(canvas, info.refColorSpace());
+        canvas = xformCanvas.get();
+    }
+
     SkMatrix matrix = fMatrix;
     matrix.postTranslate(-origin.x(), -origin.y());
-    surface->getCanvas()->clear(0); // does NewRenderTarget promise to do this for us?
-    surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
+    canvas->clear(0);  // does NewRenderTarget promise to do this for us?
+    canvas->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     if (!image) {
         return nullptr;
