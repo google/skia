@@ -154,9 +154,9 @@ private:
         return fComposedFilterCount;
     }
 
-    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        auto outer = xformer->apply(fOuter.get());
-        auto inner = xformer->apply(fInner.get());
+    sk_sp<SkColorFilter> onMakeColorSpace(const SkColorSpaceXformer& xformer) const override {
+        auto outer = xformer.apply(fOuter.get());
+        auto inner = xformer.apply(fInner.get());
         if (outer != fOuter || inner != fInner) {
             return SkColorFilter::MakeComposeFilter(outer, inner);
         }

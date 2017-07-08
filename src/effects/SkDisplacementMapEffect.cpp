@@ -357,12 +357,13 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                           dst);
 }
 
-sk_sp<SkImageFilter> SkDisplacementMapEffect::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkDisplacementMapEffect::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     SkASSERT(2 == this->countInputs());
     // Intentionally avoid xforming the displacement filter.  The values will be used as
     // offsets, not as colors.
     sk_sp<SkImageFilter> displacement = sk_ref_sp(const_cast<SkImageFilter*>(this->getInput(0)));
-    sk_sp<SkImageFilter> color = xformer->apply(this->getInput(1));
+    sk_sp<SkImageFilter> color = xformer.apply(this->getInput(1));
 
     if (color.get() != this->getInput(1)) {
         return SkDisplacementMapEffect::Make(fXChannelSelector, fYChannelSelector, fScale,

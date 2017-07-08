@@ -295,9 +295,9 @@ const {
     return ctx;
 }
 
-sk_sp<SkShader> SkPictureShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkShader> SkPictureShader::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     return sk_sp<SkPictureShader>(new SkPictureShader(fPicture, fTmx, fTmy, &this->getLocalMatrix(),
-                                                      &fTile, xformer->dst()));
+                                                      &fTile, xformer.dst()));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

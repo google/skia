@@ -96,9 +96,10 @@ sk_sp<SkSpecialImage> SkMatrixImageFilter::onFilterImage(SkSpecialImage* source,
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkMatrixImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkMatrixImageFilter::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     SkASSERT(1 == this->countInputs());
-    auto input = xformer->apply(this->getInput(0));
+    auto input = xformer.apply(this->getInput(0));
     if (input.get() != this->getInput(0)) {
         return SkMatrixImageFilter::Make(fTransform, fFilterQuality, std::move(input));
     }

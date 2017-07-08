@@ -116,10 +116,10 @@ sk_sp<SkSpecialImage> SkTileImageFilter::onFilterImage(SkSpecialImage* source,
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkTileImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkTileImageFilter::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     SkASSERT(1 == this->countInputs());
 
-    auto input = xformer->apply(this->getInput(0));
+    auto input = xformer.apply(this->getInput(0));
     if (input.get() != this->getInput(0)) {
         return SkTileImageFilter::Make(fSrcRect, fDstRect, std::move(input));
     }

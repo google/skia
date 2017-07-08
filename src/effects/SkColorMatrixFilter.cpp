@@ -40,8 +40,8 @@ public:
     }
 
     // Overriding this method is the class' raison d'etre.
-    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        SkColor add = xformer->apply(fAdd);
+    sk_sp<SkColorFilter> onMakeColorSpace(const SkColorSpaceXformer& xformer) const override {
+        SkColor add = xformer.apply(fAdd);
         if (add != fAdd) {
             return sk_make_sp<SkLightingColorFilter>(fMul, add);
         }

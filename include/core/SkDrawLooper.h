@@ -101,10 +101,10 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkDrawLooper)
 
 protected:
-    sk_sp<SkDrawLooper> makeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkDrawLooper> makeColorSpace(const SkColorSpaceXformer& xformer) const {
         return this->onMakeColorSpace(xformer);
     }
-    virtual sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const = 0;
+    virtual sk_sp<SkDrawLooper> onMakeColorSpace(const SkColorSpaceXformer&) const = 0;
 
     SkDrawLooper() {}
 

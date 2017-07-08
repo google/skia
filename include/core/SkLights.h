@@ -195,7 +195,7 @@ private:
     }
 
     friend class SkLightingShaderImpl;
-    sk_sp<SkLights> makeColorSpace(SkColorSpaceXformer* xformer) const;
+    sk_sp<SkLights> makeColorSpace(const SkColorSpaceXformer& xformer) const;
 
     SkTArray<Light> fLights;
     SkColor3f fAmbientLightColor;

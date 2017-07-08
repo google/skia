@@ -277,9 +277,9 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
 
 #endif
 
-sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     SkSTArray<8, SkColor> xformedColors(fColorCount);
-    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    xformer.apply(xformedColors.begin(), fOrigColors, fColorCount);
     return SkGradientShader::MakeSweep(fCenter.fX, fCenter.fY, xformedColors.begin(), fOrigPos,
                                        fColorCount, fGradFlags, &this->getLocalMatrix());
 }

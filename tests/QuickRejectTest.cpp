@@ -24,7 +24,7 @@ public:
         return alloc->make<TestDrawLooperContext>();
     }
 
-    sk_sp<SkDrawLooper> onMakeColorSpace(SkColorSpaceXformer*) const override {
+    sk_sp<SkDrawLooper> onMakeColorSpace(const SkColorSpaceXformer&) const override {
         return nullptr;
     }
 

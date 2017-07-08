@@ -37,7 +37,7 @@ public:
 protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    sk_sp<SkShader> onMakeColorSpace(const SkColorSpaceXformer& xformer) const override;
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,

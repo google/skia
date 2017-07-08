@@ -147,10 +147,10 @@ public:
 protected:
     SkColorFilter() {}
 
-    sk_sp<SkColorFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkColorFilter> makeColorSpace(const SkColorSpaceXformer& xformer) const {
         return this->onMakeColorSpace(xformer);
     }
-    virtual sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
+    virtual sk_sp<SkColorFilter> onMakeColorSpace(const SkColorSpaceXformer&) const {
         return sk_ref_sp(const_cast<SkColorFilter*>(this));
     }
 

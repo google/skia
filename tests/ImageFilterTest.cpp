@@ -64,7 +64,7 @@ protected:
         offset->fX = offset->fY = 0;
         return sk_ref_sp<SkSpecialImage>(source);
     }
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
+    sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override {
         return sk_ref_sp(const_cast<MatrixTestImageFilter*>(this));
     }
 
@@ -94,7 +94,7 @@ public:
                                         SkIPoint* offset) const override {
         return nullptr;
     }
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
+    sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override {
         return nullptr;
     }
 
@@ -1899,7 +1899,7 @@ DEF_TEST(ImageFilterColorSpaceDAG, reporter) {
                                             SkIPoint* offset) const override {
             return nullptr;
         }
-        sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
+        sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override {
             fCloneCount++;
             return sk_ref_sp(const_cast<TestFilter*>(this));
         }

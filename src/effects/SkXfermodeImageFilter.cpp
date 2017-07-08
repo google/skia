@@ -38,7 +38,7 @@ public:
 protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+    sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
@@ -172,11 +172,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkXfermodeImageFilter_Base::onMakeColorSpace(SkColorSpaceXformer* xformer)
-const {
+sk_sp<SkImageFilter> SkXfermodeImageFilter_Base::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     SkASSERT(2 == this->countInputs());
-    auto background = xformer->apply(this->getInput(0));
-    auto foreground = xformer->apply(this->getInput(1));
+    auto background = xformer.apply(this->getInput(0));
+    auto foreground = xformer.apply(this->getInput(1));
     if (background.get() != this->getInput(0) || foreground.get() != this->getInput(1)) {
         return SkXfermodeImageFilter::Make(fMode, std::move(background), std::move(foreground),
                                            this->getCropRectIfSet());

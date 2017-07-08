@@ -93,10 +93,10 @@ bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
     return true;
 }
 
-sk_sp<SkShader> SkLinearGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkShader> SkLinearGradient::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     SkPoint pts[2] = { fStart, fEnd };
     SkSTArray<8, SkColor> xformedColors(fColorCount);
-    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    xformer.apply(xformedColors.begin(), fOrigColors, fColorCount);
     return SkGradientShader::MakeLinear(pts, xformedColors.begin(), fOrigPos, fColorCount,
                                         fTileMode, fGradFlags, &this->getLocalMatrix());
 }

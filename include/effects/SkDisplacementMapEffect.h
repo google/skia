@@ -35,7 +35,7 @@ public:
 
     virtual SkIRect onFilterBounds(const SkIRect& src, const SkMatrix&,
                                    MapDirection) const override;
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+    sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
 
     SK_TO_STRING_OVERRIDE()

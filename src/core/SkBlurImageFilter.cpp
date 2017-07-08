@@ -39,7 +39,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+    sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override;
     SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
 
 private:
@@ -298,11 +298,11 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
                                           dst, &source->props());
 }
 
-sk_sp<SkImageFilter> SkBlurImageFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
+sk_sp<SkImageFilter> SkBlurImageFilterImpl::onMakeColorSpace(const SkColorSpaceXformer& xformer)
 const {
     SkASSERT(1 == this->countInputs());
 
-    auto input = xformer->apply(this->getInput(0));
+    auto input = xformer.apply(this->getInput(0));
     if (this->getInput(0) != input.get()) {
         return SkBlurImageFilter::Make(fSigma.width(), fSigma.height(), std::move(input),
                                        this->getCropRectIfSet(), fTileMode);

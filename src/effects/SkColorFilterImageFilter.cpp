@@ -117,12 +117,12 @@ sk_sp<SkSpecialImage> SkColorFilterImageFilter::onFilterImage(SkSpecialImage* so
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkColorFilterImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer)
+sk_sp<SkImageFilter> SkColorFilterImageFilter::onMakeColorSpace(const SkColorSpaceXformer& xformer)
 const {
     SkASSERT(1 == this->countInputs());
 
-    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
-    auto colorFilter = xformer->apply(fColorFilter.get());
+    sk_sp<SkImageFilter> input = xformer.apply(this->getInput(0));
+    auto colorFilter = xformer.apply(fColorFilter.get());
     if (this->getInput(0) != input.get() || fColorFilter != colorFilter) {
         return SkColorFilterImageFilter::Make(std::move(colorFilter), std::move(input),
                                               this->getCropRectIfSet());

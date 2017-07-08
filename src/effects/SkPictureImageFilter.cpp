@@ -135,9 +135,10 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     return sk_sp<SkImageFilter>(new SkPictureImageFilter(fPicture, fCropRect, fPictureResolution,
-            fFilterQuality, xformer->dst()));
+            fFilterQuality, xformer.dst()));
 }
 
 void SkPictureImageFilter::drawPictureAtDeviceResolution(SkCanvas* canvas,

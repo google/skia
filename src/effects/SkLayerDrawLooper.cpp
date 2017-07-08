@@ -208,7 +208,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
     return true;
 }
 
-sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     if (!fCount) {
         return sk_ref_sp(const_cast<SkLayerDrawLooper*>(this));
     }
@@ -219,7 +219,7 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xfo
     Rec* oldRec = fRecs;
     Rec* newTopRec = new Rec();
     newTopRec->fInfo = oldRec->fInfo;
-    newTopRec->fPaint = xformer->apply(oldRec->fPaint);
+    newTopRec->fPaint = xformer.apply(oldRec->fPaint);
     newTopRec->fNext = nullptr;
 
     Rec* prevNewRec = newTopRec;
@@ -227,7 +227,7 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::onMakeColorSpace(SkColorSpaceXformer* xfo
     while (oldRec) {
         Rec* newRec = new Rec();
         newRec->fInfo = oldRec->fInfo;
-        newRec->fPaint = xformer->apply(oldRec->fPaint);
+        newRec->fPaint = xformer.apply(oldRec->fPaint);
         newRec->fNext = nullptr;
         prevNewRec->fNext = newRec;
 

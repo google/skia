@@ -372,9 +372,9 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
 
 #endif
 
-sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     SkSTArray<8, SkColor> xformedColors(fColorCount);
-    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    xformer.apply(xformedColors.begin(), fOrigColors, fColorCount);
     return SkGradientShader::MakeRadial(fCenter, fRadius, xformedColors.begin(), fOrigPos,
                                         fColorCount, fTileMode, fGradFlags,
                                         &this->getLocalMatrix());

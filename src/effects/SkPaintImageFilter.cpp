@@ -69,8 +69,9 @@ sk_sp<SkSpecialImage> SkPaintImageFilter::onFilterImage(SkSpecialImage* source,
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkPaintImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkPaint paint = xformer->apply(fPaint);
+sk_sp<SkImageFilter> SkPaintImageFilter::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
+    SkPaint paint = xformer.apply(fPaint);
     if (paint != fPaint) {
         return SkPaintImageFilter::Make(paint, this->getCropRectIfSet());
     }

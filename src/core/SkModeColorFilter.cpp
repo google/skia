@@ -82,8 +82,8 @@ void SkModeColorFilter::onAppendStages(SkRasterPipeline* p,
     SkBlendMode_AppendStages(fMode, p);
 }
 
-sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    SkColor color = xformer->apply(fColor);
+sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
+    SkColor color = xformer.apply(fColor);
     if (color != fColor) {
         return SkColorFilter::MakeModeFilter(color, fMode);
     }

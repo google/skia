@@ -60,18 +60,18 @@ sk_sp<SkLights> SkLights::MakeFromBuffer(SkReadBuffer& buf) {
     return builder.finish();
 }
 
-static SkColor3f xform_color(const SkColor3f& color, SkColorSpaceXformer* xformer) {
+static SkColor3f xform_color(const SkColor3f& color, const SkColorSpaceXformer& xformer) {
     SkColor origColor = SkColorSetARGBInline(0xFF,
                                              SkScalarRoundToInt(color.fX),
                                              SkScalarRoundToInt(color.fY),
                                              SkScalarRoundToInt(color.fZ));
-    SkColor xformedColor = xformer->apply(origColor);
+    SkColor xformedColor = xformer.apply(origColor);
     return SkColor3f::Make(SkIntToScalar(SkGetPackedR32(xformedColor)),
                            SkIntToScalar(SkGetPackedG32(xformedColor)),
                            SkIntToScalar(SkGetPackedB32(xformedColor)));
 }
 
-sk_sp<SkLights> SkLights::makeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkLights> SkLights::makeColorSpace(const SkColorSpaceXformer& xformer) const {
     SkLights::Builder builder;
     for (int i = 0; i < this->numLights(); i++) {
         Light light(fLights[i].type(), xform_color(fLights[i].color(), xformer),

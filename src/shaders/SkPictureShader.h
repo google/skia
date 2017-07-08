@@ -38,7 +38,7 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    sk_sp<SkShader> onMakeColorSpace(const SkColorSpaceXformer& xformer) const override;
     bool isRasterPipelineOnly() const override;
 
 private:

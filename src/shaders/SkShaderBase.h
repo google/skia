@@ -207,7 +207,7 @@ public:
     /**
      *  Returns a shader transformed into a new color space via the |xformer|.
      */
-    sk_sp<SkShader> makeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkShader> makeColorSpace(const SkColorSpaceXformer& xformer) const {
         return this->onMakeColorSpace(xformer);
     }
 
@@ -260,7 +260,7 @@ protected:
         return false;
     }
 
-    virtual sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer*) const {
+    virtual sk_sp<SkShader> onMakeColorSpace(const SkColorSpaceXformer&) const {
         return sk_ref_sp(const_cast<SkShaderBase*>(this));
     }
 

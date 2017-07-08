@@ -35,7 +35,7 @@ std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpac
 
 template <typename T>
 sk_sp<T> SkColorSpaceXformer::cachedApply(const T* src, Cache<T>* cache,
-                                          sk_sp<T> (*applyFunc)(const T*, SkColorSpaceXformer*)) {
+    sk_sp<T> (*applyFunc)(const T*, const SkColorSpaceXformer&)) const {
     if (!src) {
         return nullptr;
     }
@@ -45,20 +45,20 @@ sk_sp<T> SkColorSpaceXformer::cachedApply(const T* src, Cache<T>* cache,
         return sk_ref_sp(xformed->get());
     }
 
-    auto xformed = applyFunc(src, this);
+    auto xformed = applyFunc(src, *this);
     cache->set(std::move(key), xformed);
 
     return xformed;
 }
 
-sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
+sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) const {
     return this->cachedApply<SkImage>(src, &fImageCache,
-        [](const SkImage* img, SkColorSpaceXformer* xformer) {
-            return img->makeColorSpace(xformer->fDst, SkTransferFunctionBehavior::kIgnore);
+        [](const SkImage* img, const SkColorSpaceXformer& xformer) {
+            return img->makeColorSpace(xformer.fDst, SkTransferFunctionBehavior::kIgnore);
         });
 }
 
-sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
+sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) const {
     sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(src, kNever_SkCopyPixelsMode);
     if (!image) {
         return nullptr;
@@ -70,37 +70,37 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
     return xformed;
 }
 
-sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter) {
+sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter) const {
     return this->cachedApply<SkColorFilter>(colorFilter, &fColorFilterCache,
-        [](const SkColorFilter* f, SkColorSpaceXformer* xformer) {
+        [](const SkColorFilter* f, const SkColorSpaceXformer& xformer) {
             return f->makeColorSpace(xformer);
         });
 }
 
-sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter) {
+sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter) const {
     return this->cachedApply<SkImageFilter>(imageFilter, &fImageFilterCache,
-        [](const SkImageFilter* f, SkColorSpaceXformer* xformer) {
+        [](const SkImageFilter* f, const SkColorSpaceXformer& xformer) {
             return f->makeColorSpace(xformer);
         });
 }
 
-sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
-    return as_SB(shader)->makeColorSpace(this);
+sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) const {
+    return as_SB(shader)->makeColorSpace(*this);
 }
 
-void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
+void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) const {
     SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
                                     SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
                                     n, kUnpremul_SkAlphaType));
 }
 
-SkColor SkColorSpaceXformer::apply(SkColor srgb) {
+SkColor SkColorSpaceXformer::apply(SkColor srgb) const {
     SkColor xformed;
     this->apply(&xformed, &srgb, 1);
     return xformed;
 }
 
-SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
+SkPaint SkColorSpaceXformer::apply(const SkPaint& src) const {
     SkPaint dst = src;
 
     // All SkColorSpaces have the same black point.
@@ -117,7 +117,7 @@ SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
     }
 
     if (auto looper = src.getDrawLooper()) {
-        dst.setDrawLooper(looper->makeColorSpace(this));
+        dst.setDrawLooper(looper->makeColorSpace(*this));
     }
 
     if (auto imageFilter = src.getImageFilter()) {

@@ -61,11 +61,12 @@ sk_sp<SkSpecialImage> SkComposeImageFilter::onFilterImage(SkSpecialImage* source
     return outer;
 }
 
-sk_sp<SkImageFilter> SkComposeImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkComposeImageFilter::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     SkASSERT(2 == this->countInputs() && this->getInput(0) && this->getInput(1));
 
-    auto input0 = xformer->apply(this->getInput(0));
-    auto input1 = xformer->apply(this->getInput(1));
+    auto input0 = xformer.apply(this->getInput(0));
+    auto input1 = xformer.apply(this->getInput(1));
     if (input0.get() != this->getInput(0) || input1.get() != this->getInput(1)) {
         return SkComposeImageFilter::Make(std::move(input0), std::move(input1));
     }

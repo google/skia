@@ -39,7 +39,7 @@ protected:
     void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         bool shaderIsOpaque) const override;
 
-    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+    sk_sp<SkColorFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override;
 
 private:
     SkColor     fColor;

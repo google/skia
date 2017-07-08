@@ -43,8 +43,8 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
 
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
-        return xformer->apply(fImage.get())->makeShader(fTileModeX, fTileModeY,
+    sk_sp<SkShader> onMakeColorSpace(const SkColorSpaceXformer& xformer) const override {
+        return xformer.apply(fImage.get())->makeShader(fTileModeX, fTileModeY,
                                                         &this->getLocalMatrix());
     }
 

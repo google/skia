@@ -132,10 +132,10 @@ sk_sp<SkSpecialImage> SkImageSource::onFilterImage(SkSpecialImage* source, const
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkImageSource::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkImageSource::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
     SkASSERT(0 == this->countInputs());
 
-    auto image = xformer->apply(fImage.get());
+    auto image = xformer.apply(fImage.get());
     if (image != fImage) {
         return SkImageSource::Make(image, fSrcRect, fDstRect, fFilterQuality);
     }

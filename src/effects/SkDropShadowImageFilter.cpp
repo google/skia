@@ -111,11 +111,12 @@ sk_sp<SkSpecialImage> SkDropShadowImageFilter::onFilterImage(SkSpecialImage* sou
     return surf->makeImageSnapshot();
 }
 
-sk_sp<SkImageFilter> SkDropShadowImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+sk_sp<SkImageFilter> SkDropShadowImageFilter::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     SkASSERT(1 == this->countInputs());
 
-    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
-    SkColor color = xformer->apply(fColor);
+    sk_sp<SkImageFilter> input = xformer.apply(this->getInput(0));
+    SkColor color = xformer.apply(fColor);
     if (input.get() != this->getInput(0) || color != fColor) {
         return SkDropShadowImageFilter::Make(fDx, fDy, fSigmaX, fSigmaY, color,
                                              fShadowMode, input, this->getCropRectIfSet());

@@ -27,14 +27,14 @@ public:
 
     ~SkColorSpaceXformer();
 
-    sk_sp<SkImage> apply(const SkImage*);
-    sk_sp<SkImage> apply(const SkBitmap&);
-    sk_sp<SkColorFilter> apply(const SkColorFilter*);
-    sk_sp<SkImageFilter> apply(const SkImageFilter*);
-    sk_sp<SkShader>      apply(const SkShader*);
-    SkPaint apply(const SkPaint&);
-    void apply(SkColor dst[], const SkColor src[], int n);
-    SkColor apply(SkColor srgb);
+    sk_sp<SkImage> apply(const SkImage*) const;
+    sk_sp<SkImage> apply(const SkBitmap&) const;
+    sk_sp<SkColorFilter> apply(const SkColorFilter*) const;
+    sk_sp<SkImageFilter> apply(const SkImageFilter*) const;
+    sk_sp<SkShader>      apply(const SkShader*) const;
+    SkPaint apply(const SkPaint&) const;
+    void apply(SkColor dst[], const SkColor src[], int n) const;
+    SkColor apply(SkColor srgb) const;
 
     sk_sp<SkColorSpace> dst() const { return fDst; }
 
@@ -48,11 +48,12 @@ private:
     using Cache = SkTHashMap<sk_sp<T>, sk_sp<T>>;
 
     template <typename T>
-    sk_sp<T> cachedApply(const T*, Cache<T>*, sk_sp<T> (*)(const T*, SkColorSpaceXformer*));
+    sk_sp<T> cachedApply(const T*, Cache<T>*, sk_sp<T> (*)(const T*,
+                                                           const SkColorSpaceXformer&)) const;
 
-    Cache<SkImage      > fImageCache;
-    Cache<SkColorFilter> fColorFilterCache;
-    Cache<SkImageFilter> fImageFilterCache;
+    mutable Cache<SkImage      > fImageCache;
+    mutable Cache<SkColorFilter> fColorFilterCache;
+    mutable Cache<SkImageFilter> fImageFilterCache;
 };
 
 #endif

@@ -38,7 +38,7 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
 
-    sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+    sk_sp<SkImageFilter> onMakeColorSpace(const SkColorSpaceXformer&) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> createMaskTexture(GrContext*,
@@ -260,10 +260,10 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
                                           dst);
 }
 
-sk_sp<SkImageFilter> SkAlphaThresholdFilterImpl::onMakeColorSpace(SkColorSpaceXformer* xformer)
-const {
+sk_sp<SkImageFilter> SkAlphaThresholdFilterImpl::onMakeColorSpace(
+    const SkColorSpaceXformer& xformer) const {
     SkASSERT(1 == this->countInputs());
-    sk_sp<SkImageFilter> input = xformer->apply(this->getInput(0));
+    sk_sp<SkImageFilter> input = xformer.apply(this->getInput(0));
     if (input.get() != this->getInput(0)) {
         return SkAlphaThresholdFilter::Make(fRegion, fInnerThreshold, fOuterThreshold,
                                             std::move(input), this->getCropRectIfSet());

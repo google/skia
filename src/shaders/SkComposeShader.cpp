@@ -64,8 +64,8 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fLerpT);
 }
 
-sk_sp<SkShader> SkComposeShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return MakeCompose(xformer->apply(fDst.get()), xformer->apply(fSrc.get()),
+sk_sp<SkShader> SkComposeShader::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
+    return MakeCompose(xformer.apply(fDst.get()), xformer.apply(fSrc.get()),
                        fMode, fLerpT);
 }
 

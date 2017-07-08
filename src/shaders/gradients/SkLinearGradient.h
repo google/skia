@@ -70,7 +70,7 @@ protected:
                                      SkRasterPipeline* postPipeline) const final;
 
 
-    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    sk_sp<SkShader> onMakeColorSpace(const SkColorSpaceXformer& xformer) const override;
 
 private:
     class LinearGradient4fContext;

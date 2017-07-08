@@ -49,8 +49,8 @@ bool SkColorFilterShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpac
     return true;
 }
 
-sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
-    return xformer->apply(fShader.get())->makeWithColorFilter(xformer->apply(fFilter.get()));
+sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(const SkColorSpaceXformer& xformer) const {
+    return xformer.apply(fShader.get())->makeWithColorFilter(xformer.apply(fFilter.get()));
 }
 
 #if SK_SUPPORT_GPU
