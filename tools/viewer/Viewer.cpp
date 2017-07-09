@@ -262,6 +262,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
         gPathRendererNames[GpuPathRenderers::kMSAA] = "Sample shading";
         gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
+        gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "Coverage counting";
         gPathRendererNames[GpuPathRenderers::kTessellating] = "Tessellating";
         gPathRendererNames[GpuPathRenderers::kDefault] = "Original Ganesh path renderer";
         gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
@@ -1305,6 +1306,7 @@ void Viewer::updateUIState() {
     } else {
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kAll]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kSmall]);
+        prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kCoverageCounting]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kTessellating]);
         prState[kOptions].append(gPathRendererNames[GpuPathRenderers::kNone]);
     }
