@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "02eeae3c_271075c5",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Done. The name actually contains 100% of the uniquely identifying information for a primitive processor but I overrided dumpInfo to include the name. (Why doesn\u0027t GrOp::dumpInfo include the name by default?)",
+      "parentUuid": "edc96b2c_e8b12543",
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dacdb1f1_b25eb6e0",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
         "patchSetId": 5
@@ -39,6 +57,30 @@
       "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcc4f015_fe51933a",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Done. Oops. I blame Visual Studio.",
+      "parentUuid": "dacdb1f1_b25eb6e0",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 1
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "d00b5e33_2e62306f",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "839759d8_c8056c47",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 1
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa3308dc_4b29579b",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
         "patchSetId": 5
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "706efa31_605e2619",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Yeah I like it better now.",
+      "parentUuid": "fa3308dc_4b29579b",
+      "range": {
+        "startLine": 43,
+        "startChar": 11,
+        "endLine": 43,
+        "endChar": 28
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24c023b1_6592fcda",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
         "patchSetId": 5
@@ -102,6 +192,24 @@
       "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8495fb69_ecb17bf9",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Done. Good suggestion.. The commenting caused me to rethink the interface a bit and make it cleaner.",
+      "parentUuid": "24c023b1_6592fcda",
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "a9072fe6_a2cef075",
+        "filename": "src/gpu/ccpr/GrCCPRPathProcessor.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Done. I like it better now.",
+      "parentUuid": "5d91fffd_23190dd0",
+      "range": {
+        "startLine": 30,
+        "startChar": 15,
+        "endLine": 30,
+        "endChar": 21
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "791ae4f3_c9c57153",
         "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.cpp",
         "patchSetId": 5
@@ -148,6 +280,30 @@
       "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25985b91_ada69e5a",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-09T16:56:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "791ae4f3_c9c57153",
+      "range": {
+        "startLine": 165,
+        "startChar": 22,
+        "endLine": 165,
+        "endChar": 27
+      },
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
