@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f73dd52a_45e945bc",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-09T15:09:49Z",
+      "side": 1,
+      "message": "This can just be kUnpremul_SkAlphaType now if you like.  There no difference inside append_from_srgb() between opaque and unpremul.",
+      "range": {
+        "startLine": 239,
+        "startChar": 36,
+        "endLine": 239,
+        "endChar": 96
+      },
+      "revId": "bdf6c62a19c50822977387a1be084071f94768d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
