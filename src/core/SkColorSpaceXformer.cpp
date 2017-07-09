@@ -33,29 +33,8 @@ std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpac
         : nullptr;
 }
 
-template <typename T>
-sk_sp<T> SkColorSpaceXformer::cachedApply(const T* src, Cache<T>* cache,
-                                          sk_sp<T> (*applyFunc)(const T*, SkColorSpaceXformer*)) {
-    if (!src) {
-        return nullptr;
-    }
-
-    auto key = sk_ref_sp(const_cast<T*>(src));
-    if (auto* xformed = cache->find(key)) {
-        return sk_ref_sp(xformed->get());
-    }
-
-    auto xformed = applyFunc(src, this);
-    cache->set(std::move(key), xformed);
-
-    return xformed;
-}
-
 sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
-    return this->cachedApply<SkImage>(src, &fImageCache,
-        [](const SkImage* img, SkColorSpaceXformer* xformer) {
-            return img->makeColorSpace(xformer->fDst, SkTransferFunctionBehavior::kIgnore);
-        });
+    return src->makeColorSpace(fDst, SkTransferFunctionBehavior::kIgnore);
 }
 
 sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
@@ -71,17 +50,22 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
 }
 
 sk_sp<SkColorFilter> SkColorSpaceXformer::apply(const SkColorFilter* colorFilter) {
-    return this->cachedApply<SkColorFilter>(colorFilter, &fColorFilterCache,
-        [](const SkColorFilter* f, SkColorSpaceXformer* xformer) {
-            return f->makeColorSpace(xformer);
-        });
+    return colorFilter->makeColorSpace(this);
 }
 
 sk_sp<SkImageFilter> SkColorSpaceXformer::apply(const SkImageFilter* imageFilter) {
-    return this->cachedApply<SkImageFilter>(imageFilter, &fImageFilterCache,
-        [](const SkImageFilter* f, SkColorSpaceXformer* xformer) {
-            return f->makeColorSpace(xformer);
-        });
+    if (!imageFilter) {
+        return nullptr;
+    }
+
+    if (auto* xformedFilter = fFilterCache.find(imageFilter->fUniqueID)) {
+        return sk_ref_sp(xformedFilter->get());
+    }
+
+    auto xformedFilter = imageFilter->makeColorSpace(this);
+    fFilterCache.set(imageFilter->fUniqueID, xformedFilter);
+
+    return xformedFilter;
 }
 
 sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
