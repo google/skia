@@ -44,15 +44,7 @@ private:
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
 
-    template <typename T>
-    using Cache = SkTHashMap<sk_sp<T>, sk_sp<T>>;
-
-    template <typename T>
-    sk_sp<T> cachedApply(const T*, Cache<T>*, sk_sp<T> (*)(const T*, SkColorSpaceXformer*));
-
-    Cache<SkImage      > fImageCache;
-    Cache<SkColorFilter> fColorFilterCache;
-    Cache<SkImageFilter> fImageFilterCache;
+    SkTHashMap<uint32_t, sk_sp<SkImageFilter>> fFilterCache;
 };
 
 #endif
