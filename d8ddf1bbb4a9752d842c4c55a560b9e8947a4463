@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cef7ecc4_f4b29acd",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-10T19:11:50Z",
+      "side": 0,
+      "message": "Not related to this change, but I spotted this (entirely pointless) path while reading the code.",
+      "revId": "d8ddf1bbb4a9752d842c4c55a560b9e8947a4463",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
