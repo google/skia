@@ -161,6 +161,19 @@ void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression
     }
 }
 
+String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
+    int samplerCount = 0;
+    for (const auto param : fSectionAndParameterHelper.fParameters) {
+        if (&var == param) {
+            return "args.fTexSamplers[" + to_string(samplerCount) + "]";
+        }
+        if (param->fType.kind() == Type::kSampler_Kind) {
+            ++samplerCount;
+        }
+    }
+    ABORT("should have found sampler in parameters\n");
+}
+
 void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
@@ -173,20 +186,10 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         default:
             if (ref.fVariable.fType.kind() == Type::kSampler_Kind) {
-                int samplerCount = 0;
-                for (const auto param : fSectionAndParameterHelper.fParameters) {
-                    if (&ref.fVariable == param) {
-                        this->write("%s");
-                        fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerVariable("
-                                              "args.fTexSamplers[" + to_string(samplerCount) +
-                                              "]).c_str()");
-                        return;
-                    }
-                    if (param->fType.kind() == Type::kSampler_Kind) {
-                        ++samplerCount;
-                    }
-                }
-                ABORT("should have found sampler in parameters\n");
+                this->write("%s");
+                fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerVariable(" +
+                                      this->getSamplerHandle(ref.fVariable) + ").c_str()");
+                return;
             }
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
@@ -219,6 +222,18 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             } else {
                 this->write(ref.fVariable.fName.c_str());
             }
+    }
+}
+
+void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    INHERITED::writeFunctionCall(c);
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "texture") {
+        this->write(".%s");
+        ASSERT(c.fArguments.size() >= 1);
+        ASSERT(c.fArguments[0]->fKind == Expression::kVariableReference_Kind);
+        String sampler = this->getSamplerHandle(((VariableReference&) *c.fArguments[0]).fVariable);
+        fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
+                              ").c_str()");
     }
 }
 
@@ -542,7 +557,8 @@ bool CPPCodeGenerator::generateCode() {
     const char* baseName = fName.c_str();
     const char* fullName = fFullName.c_str();
     this->writef(kFragmentProcessorHeader, fullName);
-    this->writef("#include \"%s.h\"\n", fullName);
+    this->writef("#include \"%s.h\"\n"
+                 "#if SK_SUPPORT_GPU\n", fullName);
     this->writeSection(CPP_SECTION);
     this->writef("#include \"glsl/GrGLSLColorSpaceXformHelper.h\"\n"
                  "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
@@ -593,6 +609,7 @@ bool CPPCodeGenerator::generateCode() {
                 "}\n");
     this->writeTest();
     this->writeSection(CPP_END_SECTION);
+    this->write("#endif\n");
     result &= 0 == fErrors.errorCount();
     return result;
 }
