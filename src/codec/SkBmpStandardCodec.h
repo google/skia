@@ -47,15 +47,16 @@ public:
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                       size_t dstRowBytes, const Options&,
-                       int*) override;
+                       size_t dstRowBytes, const Options&, SkPMColor*,
+                       int*, int*) override;
 
     bool onInIco() const override {
         return fInIco;
     }
 
     SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options) override;
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount) override;
 
 
     uint64_t onGetFillValue(const SkImageInfo&) const override;
@@ -69,8 +70,9 @@ private:
 
     /*
      * Creates the color table
+     * Sets colorCount to the new color count if it is non-nullptr
      */
-    bool createColorTable(SkColorType colorType, SkAlphaType alphaType);
+    bool createColorTable(SkColorType colorType, SkAlphaType alphaType, int* colorCount);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 

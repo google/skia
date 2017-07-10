@@ -31,7 +31,8 @@ public:
     static SkCodec* NewFromStream(SkStream*);
     static bool IsWebp(const void*, size_t);
 protected:
-    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*) override;
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
+            override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kWEBP; }
 
     SkISize onGetScaledDimensions(float desiredScale) const override;

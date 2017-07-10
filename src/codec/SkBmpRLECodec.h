@@ -44,11 +44,12 @@ public:
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst,
-                       size_t dstRowBytes, const Options&,
-                       int*) override;
+                       size_t dstRowBytes, const Options&, SkPMColor*,
+                       int*, int*) override;
 
     SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options) override;
+            const SkCodec::Options& options, SkPMColor inputColorPtr[],
+            int* inputColorCount) override;
 
 private:
 
@@ -56,7 +57,7 @@ private:
      * Creates the color table
      * Sets colorCount to the new color count if it is non-nullptr
      */
-    bool createColorTable(SkColorType dstColorType);
+    bool createColorTable(SkColorType dstColorType, int* colorCount);
 
     bool initializeStreamBuffer();
 

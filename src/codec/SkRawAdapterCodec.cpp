@@ -24,5 +24,7 @@ SkCodec::Result SkRawAdapterCodec::onGetAndroidPixels(
     SkCodec::Options codecOptions;
     codecOptions.fZeroInitialized = options.fZeroInitialized;
     codecOptions.fSubset = options.fSubset;
-    return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions);
+    return this->codec()->getPixels(
+        info, pixels, rowBytes, &codecOptions, options.fColorPtr,
+        options.fColorCount);
 }

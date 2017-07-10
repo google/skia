@@ -34,13 +34,15 @@ SkBmpRLECodec::SkBmpRLECodec(int width, int height, const SkEncodedInfo& info, S
 SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
                                            void* dst, size_t dstRowBytes,
                                            const Options& opts,
+                                           SkPMColor* inputColorPtr,
+                                           int* inputColorCount,
                                            int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
     }
 
-    Result result = this->prepareToDecode(dstInfo, opts);
+    Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
     if (kSuccess != result) {
         return result;
     }
@@ -61,13 +63,19 @@ SkCodec::Result SkBmpRLECodec::onGetPixels(const SkImageInfo& dstInfo,
 /*
  * Process the color table for the bmp input
  */
- bool SkBmpRLECodec::createColorTable(SkColorType dstColorType) {
+ bool SkBmpRLECodec::createColorTable(SkColorType dstColorType, int* numColors) {
     // Allocate memory for color table
     uint32_t colorBytes = 0;
     SkPMColor colorTable[256];
     if (this->bitsPerPixel() <= 8) {
         // Inform the caller of the number of colors
         uint32_t maxColors = 1 << this->bitsPerPixel();
+        if (nullptr != numColors) {
+            // We set the number of colors to maxColors in order to ensure
+            // safe memory accesses.  Otherwise, an invalid pixel could
+            // access memory outside of our color table array.
+            *numColors = maxColors;
+        }
         // Don't bother reading more than maxColors.
         const uint32_t numColorsToRead =
             fNumColors == 0 ? maxColors : SkTMin(fNumColors, maxColors);
@@ -233,7 +241,7 @@ void SkBmpRLECodec::setRGBPixel(void* dst, size_t dstRowBytes,
 }
 
 SkCodec::Result SkBmpRLECodec::onPrepareToDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options) {
+        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
     // FIXME: Support subsets for scanline decodes.
     if (options.fSubset) {
         // Subsets are not supported.
@@ -248,16 +256,19 @@ SkCodec::Result SkBmpRLECodec::onPrepareToDecode(const SkImageInfo& dstInfo,
     SkColorType colorTableColorType = dstInfo.colorType();
     if (this->colorXform()) {
         // Just set a known colorType for the colorTable.  No need to actually transform
-        // the colors in the colorTable.
+        // the colors in the colorTable since we do not allow decoding RLE to kIndex8.
         colorTableColorType = kBGRA_8888_SkColorType;
     }
 
     // Create the color table if necessary and prepare the stream for decode
     // Note that if it is non-NULL, inputColorCount will be modified
-    if (!this->createColorTable(colorTableColorType)) {
+    if (!this->createColorTable(colorTableColorType, inputColorCount)) {
         SkCodecPrintf("Error: could not create color table.\n");
         return SkCodec::kInvalidInput;
     }
+
+    // Copy the color table to the client if necessary
+    copy_color_table(dstInfo, fColorTable.get(), inputColorPtr, inputColorCount);
 
     // Initialize a buffer for encoded RLE data
     if (!this->initializeStreamBuffer()) {
