@@ -136,14 +136,14 @@ public:
 
     void done(SkPath* dst, bool isLine) {
         this->finishContour(false, isLine);
-        fOuter.addPath(fExtra);
         dst->swap(fOuter);
     }
 
     SkScalar getResScale() const { return fResScale; }
 
-    bool isZeroLength() const {
-        return fInner.isZeroLength() && fOuter.isZeroLength();
+    bool isCurrentContourEmpty() const {
+        return fInner.isZeroLengthSincePoint(0) &&
+               fOuter.isZeroLengthSincePoint(fFirstOuterPtIndexInContour);
     }
 
 private:
@@ -156,6 +156,7 @@ private:
     SkVector    fFirstNormal, fPrevNormal, fFirstUnitNormal, fPrevUnitNormal;
     SkPoint     fFirstPt, fPrevPt;  // on original path
     SkPoint     fFirstOuterPt;
+    int         fFirstOuterPtIndexInContour;
     int         fSegmentCount;
     bool        fPrevIsLine;
     bool        fCanIgnoreCenter;
@@ -164,7 +165,6 @@ private:
     SkStrokerPriv::JoinProc fJoiner;
 
     SkPath  fInner, fOuter; // outer is our working answer, inner is temp
-    SkPath  fExtra;         // added as extra complete contours
 
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
@@ -325,6 +325,7 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
     // reallocating its internal storage.
     fInner.rewind();
     fSegmentCount = -1;
+    fFirstOuterPtIndexInContour = fOuter.countPoints();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -352,6 +353,7 @@ SkPathStroker::SkPathStroker(const SkPath& src,
     fCapper = SkStrokerPriv::CapFactory(cap);
     fJoiner = SkStrokerPriv::JoinFactory(join);
     fSegmentCount = -1;
+    fFirstOuterPtIndexInContour = 0;
     fPrevIsLine = false;
 
     // Need some estimate of how large our final result (fOuter)
@@ -1431,7 +1433,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                     /* If the stroke consists of a moveTo followed by one or more zero-length
                        verbs, then followed by a close, treat is as if it were followed by a
                        zero-length line. Lines without length can have square & round end caps. */
-                    if (stroker.isZeroLength()) {
+                    if (stroker.isCurrentContourEmpty()) {
                 ZERO_LENGTH:
                         lastSegment = SkPath::kLine_Verb;
                         break;
