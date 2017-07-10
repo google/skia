@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "93842e5b_43f50db6",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-10T11:50:22Z",
+      "side": 1,
+      "message": "Here is how I understand it: name() was originally written to return a const char* for no particular reason. For some effects we wanted to dump different info depending on the processor configuration so someone added SkString dumpInfo() to dump info that is supplementary to the name() and can be variable rather than baked at compile time. AFAIK all callers of dumpInfo() also call name(). This is more inertial than designed.",
+      "parentUuid": "02eeae3c_271075c5",
+      "revId": "d077e993e7caeadaf11a51cfc774639d851ef09c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dacdb1f1_b25eb6e0",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
         "patchSetId": 5
