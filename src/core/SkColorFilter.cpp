@@ -289,10 +289,120 @@ sk_sp<SkColorFilter> SkColorFilter::MakeSRGBToLinearGamma() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+class SkMixerColorFilter : public SkColorFilter {
+public:
+    SkMixerColorFilter(sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float weight)
+        : fCF0(std::move(cf0)), fCF1(std::move(cf1)), fWeight(weight)
+    {
+        SkASSERT(fCF0 || fCF1);
+        SkASSERT(fWeight >= 0 && fWeight <= 1);
+    }
+
+    uint32_t getFlags() const override {
+        uint32_t f0 = fCF0 ? fCF0->getFlags() : ~0U;
+        uint32_t f1 = fCF1 ? fCF1->getFlags() : ~0U;
+        return f0 & f1;
+    }
+
+    void onAppendStages(SkRasterPipeline* p, SkColorSpace* dst, SkArenaAlloc* alloc,
+                        bool shaderIsOpaque) const override {
+        // want cf0 * (1 - w) + cf1 * w == lerp(w)
+        // which means
+        //      dr,dg,db,da <-- cf0
+        //      r,g,b,a     <-- cf1
+        struct State {
+            float orig_rgba[4 * SkJumper_kMaxStride];
+            float filtered_rgba[4 * SkJumper_kMaxStride];
+        };
+        auto state = alloc->make<State>();
+
+        p->append(SkRasterPipeline::store_rgba, state->orig_rgba);
+        if (fCF0 && !fCF1) {
+            fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
+            p->append(SkRasterPipeline::move_src_dst);
+            p->append(SkRasterPipeline::load_rgba, state->orig_rgba);
+        } else {
+            fCF1->appendStages(p, dst, alloc, shaderIsOpaque);
+            p->append(SkRasterPipeline::store_rgba, state->filtered_rgba);
+            p->append(SkRasterPipeline::load_rgba, state->orig_rgba);
+            if (fCF0) {
+                fCF0->appendStages(p, dst, alloc, shaderIsOpaque);
+            }
+            p->append(SkRasterPipeline::move_src_dst);
+            p->append(SkRasterPipeline::load_rgba, state->filtered_rgba);
+        }
+        float* storage = alloc->make<float>(fWeight);
+        p->append(SkRasterPipeline::lerp_1_float, storage);
+    }
+
+#ifndef SK_IGNORE_TO_STRING
+    void toString(SkString* str) const override { str->append("mixer"); }
+#endif
+
+#if SK_SUPPORT_GPU
+    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext* context,
+                                                   SkColorSpace* dstColorSpace) const override {
+        return nullptr;
+    }
+#endif
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMixerColorFilter)
+
+protected:
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.writeFlattenable(fCF0.get());
+        buffer.writeFlattenable(fCF1.get());
+        buffer.writeScalar(fWeight);
+    }
+
+private:
+    sk_sp<SkColorFilter> fCF0;
+    sk_sp<SkColorFilter> fCF1;
+    const float          fWeight;
+
+    friend class SkColorFilter;
+
+    typedef SkColorFilter INHERITED;
+};
+
+sk_sp<SkFlattenable> SkMixerColorFilter::CreateProc(SkReadBuffer& buffer) {
+    sk_sp<SkColorFilter> cf0(buffer.readColorFilter());
+    sk_sp<SkColorFilter> cf1(buffer.readColorFilter());
+    const float weight = buffer.readScalar();
+    return MakeMixer(std::move(cf0), std::move(cf1), weight);
+}
+
+sk_sp<SkColorFilter> SkColorFilter::MakeMixer(sk_sp<SkColorFilter> cf0,
+                                              sk_sp<SkColorFilter> cf1,
+                                              float weight) {
+    if (!cf0 && !cf1) {
+        return nullptr;
+    }
+    if (SkScalarIsNaN(weight)) {
+        return nullptr;
+    }
+
+    if (cf0 == cf1) {
+        return cf0; // or cf1
+    }
+
+    if (weight <= 0) {
+        return cf0;
+    }
+    if (weight >= 1) {
+        return cf1;
+    }
+
+    return sk_sp<SkColorFilter>(new SkMixerColorFilter(std::move(cf0), std::move(cf1), weight));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "SkModeColorFilter.h"
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkComposeColorFilter)
+SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMixerColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSRGBGammaColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
