@@ -21,15 +21,6 @@ static inline size_t get_src_row_bytes(int width) {
     return SkAlign8(width) >> 3;
 }
 
-static inline void setup_color_table(SkColorType colorType,
-        SkPMColor* colorPtr, int* colorCount) {
-    if (kIndex_8_SkColorType == colorType) {
-        colorPtr[0] = SK_ColorBLACK;
-        colorPtr[1] = SK_ColorWHITE;
-        *colorCount = 2;
-    }
-}
-
 static inline bool valid_color_type(const SkImageInfo& dstInfo) {
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
@@ -97,9 +88,8 @@ bool SkWbmpCodec::onRewind() {
     return read_header(this->stream(), nullptr);
 }
 
-SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
-        const Options& opts) {
-    return SkSwizzler::CreateSwizzler(this->getEncodedInfo(), ctable, info, opts);
+SkSwizzler* SkWbmpCodec::initializeSwizzler(const SkImageInfo& info, const Options& opts) {
+    return SkSwizzler::CreateSwizzler(this->getEncodedInfo(), nullptr, info, opts);
 }
 
 bool SkWbmpCodec::readRow(uint8_t* row) {
@@ -112,7 +102,6 @@ SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStr
                 stream, SkColorSpace::MakeSRGB())
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
-    , fColorTable(nullptr)
 {}
 
 SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
@@ -123,8 +112,6 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
                                          void* dst,
                                          size_t rowBytes,
                                          const Options& options,
-                                         SkPMColor ctable[],
-                                         int* ctableCount,
                                          int* rowsDecoded) {
     if (options.fSubset) {
         // Subsets are not supported.
@@ -135,11 +122,8 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kInvalidConversion;
     }
 
-    // Prepare a color table if necessary
-    setup_color_table(info.colorType(), ctable, ctableCount);
-
     // Initialize the swizzler
-    std::unique_ptr<SkSwizzler> swizzler(this->initializeSwizzler(info, ctable, options));
+    std::unique_ptr<SkSwizzler> swizzler(this->initializeSwizzler(info, options));
     SkASSERT(swizzler);
 
     // Perform the decode
@@ -191,7 +175,7 @@ bool SkWbmpCodec::onSkipScanlines(int count) {
 }
 
 SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const Options& options, SkPMColor inputColorTable[], int* inputColorCount) {
+        const Options& options) {
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -203,16 +187,8 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidConversion;
     }
 
-    // Fill in the color table
-    setup_color_table(dstInfo.colorType(), inputColorTable, inputColorCount);
-
-    // Copy the color table to a pointer that can be owned by the scanline decoder
-    if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        fColorTable.reset(new SkColorTable(inputColorTable, 2));
-    }
-
     // Initialize the swizzler
-    fSwizzler.reset(this->initializeSwizzler(dstInfo, get_color_ptr(fColorTable.get()), options));
+    fSwizzler.reset(this->initializeSwizzler(dstInfo, options));
     SkASSERT(fSwizzler);
 
     fSrcBuffer.reset(fSrcRowBytes);

@@ -128,8 +128,6 @@ static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAl
             return colorPtr[fillIndex];
         case kRGB_565_SkColorType:
             return SkPixel32ToPixel16(colorPtr[fillIndex]);
-        case kIndex_8_SkColorType:
-            return fillIndex;
         case kRGBA_F16_SkColorType: {
             SkASSERT(colorXform);
             uint64_t dstColor;
@@ -144,20 +142,6 @@ static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAl
         default:
             SkASSERT(false);
             return 0;
-    }
-}
-
-/*
- *
- * Copy the codec color table back to the client when kIndex8 color type is requested
- */
-static inline void copy_color_table(const SkImageInfo& dstInfo, SkColorTable* colorTable,
-        SkPMColor* inputColorPtr, int* inputColorCount) {
-    if (kIndex_8_SkColorType == dstInfo.colorType()) {
-        SkASSERT(nullptr != inputColorPtr);
-        SkASSERT(nullptr != inputColorCount);
-        SkASSERT(nullptr != colorTable);
-        memcpy(inputColorPtr, colorTable->readColors(), *inputColorCount * sizeof(SkPMColor));
     }
 }
 
@@ -331,7 +315,6 @@ static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaTy
  * Color Type Conversions
  * - Always support kRGBA_8888, kBGRA_8888
  * - Support kRGBA_F16 when there is a linear dst color space
- * - Support kIndex8 if it matches the src
  * - Support k565 if kOpaque and color correction is not required
  * - Support k565 if it matches the src, kOpaque, and color correction is not required
  */
@@ -348,8 +331,6 @@ static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo
             return true;
         case kRGBA_F16_SkColorType:
             return dst.colorSpace() && dst.colorSpace()->gammaIsLinear();
-        case kIndex_8_SkColorType:
-            return kIndex_8_SkColorType == src.colorType();
         case kRGB_565_SkColorType:
             return kOpaque_SkAlphaType == src.alphaType();
         case kGray_8_SkColorType:

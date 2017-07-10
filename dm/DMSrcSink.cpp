@@ -343,12 +343,9 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
                 SkOpts::RGBA_to_rgbA(row, row, bitmap.width());
             }
             break;
-        case kIndex_8_SkColorType: {
-            SkColorTable* colorTable = bitmap.getColorTable();
-            SkPMColor* colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-            SkOpts::RGBA_to_rgbA(colorPtr, colorPtr, colorTable->count());
+        case kIndex_8_SkColorType:
+            SkASSERT(false);
             break;
-        }
         default:
             // No need to premultiply kGray or k565 outputs.
             break;
@@ -400,11 +397,10 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
 }
 
 static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixels, size_t rowBytes,
-                           SkPMColor* colorPtr, int colorCount, CodecSrc::DstColorType dstColorType,
+                           CodecSrc::DstColorType dstColorType,
                            SkScalar left = 0, SkScalar top = 0) {
-    sk_sp<SkColorTable> colorTable(new SkColorTable(colorPtr, colorCount));
     SkBitmap bitmap;
-    bitmap.installPixels(info, pixels, rowBytes, colorTable.get(), nullptr, nullptr);
+    bitmap.installPixels(info, pixels, rowBytes);
     premultiply_if_necessary(bitmap);
     swap_rb_if_necessary(bitmap, dstColorType);
     canvas->drawBitmap(bitmap, left, top);
@@ -457,8 +453,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     const size_t rowBytes = size.width() * bpp;
     const size_t safeSize = decodeInfo.getSafeSize(rowBytes);
     SkAutoMalloc pixels(safeSize);
-    SkPMColor colorPtr[256];
-    int colorCount = 256;
 
     SkCodec::Options options;
     options.fPremulBehavior = canvas->imageInfo().colorSpace() ?
@@ -504,8 +498,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     options.fPriorFrame = SkCodec::kNone;
                 }
                 SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
-                                                          rowBytes, &options,
-                                                          colorPtr, &colorCount);
+                                                          rowBytes, &options);
                 if (SkCodec::kInvalidInput == result && i > 0) {
                     // Some of our test images have truncated later frames. Treat that
                     // the same as incomplete.
@@ -531,8 +524,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                         const int xTranslate = (i % factor) * decodeInfo.width();
                         const int yTranslate = (i / factor) * decodeInfo.height();
                         canvas->translate(SkIntToScalar(xTranslate), SkIntToScalar(yTranslate));
-                        draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes,
-                                       colorPtr, colorCount, fDstColorType);
+                        draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, fDstColorType);
                         if (result != SkCodec::kSuccess) {
                             return "";
                         }
@@ -554,8 +546,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         }
         case kCodecZeroInit_Mode:
         case kCodec_Mode: {
-            switch (codec->getPixels(decodeInfo, pixels.get(), rowBytes, &options,
-                    colorPtr, &colorCount)) {
+            switch (codec->getPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
                 case SkCodec::kSuccess:
                     // We consider these to be valid, since we should still decode what is
                     // available.
@@ -567,8 +558,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
             }
 
-            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, colorPtr, colorCount,
-                           fDstColorType);
+            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, fDstColorType);
             break;
         }
         case kScanline_Mode: {
@@ -589,7 +579,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             bool useOldScanlineMethod = !useIncremental && !ico;
             if (useIncremental || ico) {
                 if (SkCodec::kSuccess == codec->startIncrementalDecode(decodeInfo, dst,
-                        rowBytes, &options, colorPtr, &colorCount)) {
+                        rowBytes, &options)) {
                     int rowsDecoded;
                     auto result = codec->incrementalDecode(&rowsDecoded);
                     if (SkCodec::kIncompleteInput == result || SkCodec::kErrorInInput == result) {
@@ -609,8 +599,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             if (useOldScanlineMethod) {
-                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                    &colorCount)) {
+                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo)) {
                     return "Could not start scanline decoder";
                 }
 
@@ -624,7 +613,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
             }
 
-            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, colorPtr, colorCount, fDstColorType);
+            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, fDstColorType);
             break;
         }
         case kStripe_Mode: {
@@ -636,8 +625,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             void* dst = pixels.get();
 
             // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options, colorPtr,
-                                                                &colorCount)) {
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options)) {
                 return "Could not start scanline decoder";
             }
 
@@ -662,8 +650,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             }
 
             // Decode even stripes
-            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo, nullptr,
-                    colorPtr, &colorCount);
+            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo);
             if (SkCodec::kSuccess != startResult) {
                 return "Failed to restart scanline decoder with same parameters.";
             }
@@ -681,7 +668,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 }
             }
 
-            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, colorPtr, colorCount, fDstColorType);
+            draw_to_canvas(canvas, bitmapInfo, dst, rowBytes, fDstColorType);
             break;
         }
         case kCroppedScanline_Mode: {
@@ -695,16 +682,14 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             for (int x = 0; x < width; x += tileSize) {
                 subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
                 options.fSubset = &subset;
-                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options,
-                        colorPtr, &colorCount)) {
+                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options)) {
                     return "Could not start scanline decoder.";
                 }
 
                 codec->getScanlines(SkTAddOffset<void>(pixels.get(), x * bpp), height, rowBytes);
             }
 
-            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, colorPtr, colorCount,
-                           fDstColorType);
+            draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, fDstColorType);
             break;
         }
         case kSubset_Mode: {
@@ -747,7 +732,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     SkImageInfo subsetBitmapInfo = bitmapInfo.makeWH(scaledW, scaledH);
                     size_t subsetRowBytes = subsetBitmapInfo.minRowBytes();
                     const SkCodec::Result result = codec->getPixels(decodeInfo, dst, subsetRowBytes,
-                            &options, colorPtr, &colorCount);
+                            &options);
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kErrorInInput:
@@ -759,9 +744,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                                                   x, y, decodeInfo.width(), decodeInfo.height(),
                                                   fPath.c_str(), W, H, result);
                     }
-                    draw_to_canvas(canvas, subsetBitmapInfo, dst, subsetRowBytes, colorPtr,
-                                   colorCount, fDstColorType, SkIntToScalar(left),
-                                   SkIntToScalar(top));
+                    draw_to_canvas(canvas, subsetBitmapInfo, dst, subsetRowBytes, fDstColorType,
+                                   SkIntToScalar(left), SkIntToScalar(top));
 
                     // translate by the scaled height.
                     top += decodeInfo.height();
@@ -865,8 +849,6 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = size.width() * bpp;
     SkAutoMalloc pixels(size.height() * rowBytes);
-    SkPMColor colorPtr[256];
-    int colorCount = 256;
 
     SkBitmap bitmap;
     SkImageInfo bitmapInfo = decodeInfo;
@@ -878,8 +860,6 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
     // Create options for the codec.
     SkAndroidCodec::AndroidOptions options;
-    options.fColorPtr = colorPtr;
-    options.fColorCount = &colorCount;
     options.fSampleSize = fSampleSize;
 
     switch (codec->getAndroidPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
@@ -890,7 +870,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
         default:
             return SkStringPrintf("Couldn't getPixels %s.", fPath.c_str());
     }
-    draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, colorPtr, colorCount, fDstColorType);
+    draw_to_canvas(canvas, bitmapInfo, pixels.get(), rowBytes, fDstColorType);
     return "";
 }
 
@@ -1009,10 +989,8 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return err;
     }
 
-    SkPMColor colorPtr[256];
-    int colorCount = 256;
     set_bitmap_color_space(&decodeInfo);
-    draw_to_canvas(canvas, decodeInfo, pixels.get(), rowBytes, colorPtr, colorCount,
+    draw_to_canvas(canvas, decodeInfo, pixels.get(), rowBytes,
                    CodecSrc::kGetFromCanvas_DstColorType);
     return "";
 }

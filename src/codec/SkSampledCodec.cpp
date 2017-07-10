@@ -80,8 +80,7 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
     SkIRect* subset = options.fSubset;
     if (!subset || subset->size() == this->codec()->getInfo().dimensions()) {
         if (this->codec()->dimensionsSupported(info.dimensions())) {
-            return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions,
-                    options.fColorPtr, options.fColorCount);
+            return this->codec()->getPixels(info, pixels, rowBytes, &codecOptions);
         }
 
         // If the native codec does not support the requested scale, scale by sampling.
@@ -112,8 +111,7 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
                                                       scaledSubsetWidth, scaledSubsetHeight);
         codecOptions.fSubset = &incrementalSubset;
         const SkCodec::Result startResult = this->codec()->startIncrementalDecode(
-                scaledInfo, pixels, rowBytes, &codecOptions,
-                options.fColorPtr, options.fColorCount);
+                scaledInfo, pixels, rowBytes, &codecOptions);
         if (SkCodec::kSuccess == startResult) {
             int rowsDecoded;
             const SkCodec::Result incResult = this->codec()->incrementalDecode(&rowsDecoded);
@@ -140,7 +138,7 @@ SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void
     codecOptions.fSubset = &scanlineSubset;
 
     SkCodec::Result result = this->codec()->startScanlineDecode(scaledInfo,
-            &codecOptions, options.fColorPtr, options.fColorCount);
+            &codecOptions);
     if (SkCodec::kSuccess != result) {
         return result;
     }
@@ -230,7 +228,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             incrementalOptions.fSubset = &incrementalSubset;
         }
         const SkCodec::Result startResult = this->codec()->startIncrementalDecode(nativeInfo,
-                pixels, rowBytes, &incrementalOptions, options.fColorPtr, options.fColorCount);
+                pixels, rowBytes, &incrementalOptions);
         if (SkCodec::kSuccess == startResult) {
             SkSampler* sampler = this->codec()->getSampler(true);
             if (!sampler) {
@@ -264,7 +262,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
 
     // Start the scanline decode.
     SkCodec::Result result = this->codec()->startScanlineDecode(nativeInfo,
-            &sampledOptions, options.fColorPtr, options.fColorCount);
+            &sampledOptions);
     if (SkCodec::kSuccess != result) {
         return result;
     }

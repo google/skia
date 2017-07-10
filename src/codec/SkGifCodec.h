@@ -40,7 +40,7 @@ protected:
      * Performs the full gif decode
      */
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&,
-            SkPMColor*, int*, int*) override;
+            int*) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kGIF;
@@ -55,7 +55,7 @@ protected:
     int onGetRepetitionCount() override;
 
     Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
-            const SkCodec::Options&, SkPMColor*, int*) override;
+            const SkCodec::Options&) override;
 
     Result onIncrementalDecode(int*) override;
 
@@ -74,11 +74,9 @@ private:
     void initializeColorTable(const SkImageInfo& dstInfo, int frameIndex);
 
    /*
-    * Does necessary setup, including setting up the color table and swizzler,
-    * and reports color info to the client.
+    * Does necessary setup, including setting up the color table and swizzler.
     */
-    Result prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
-            int* inputColorCount, const Options& opts);
+    Result prepareToDecode(const SkImageInfo& dstInfo, const Options& opts);
 
     /*
      * Initializes the swizzler.

@@ -47,7 +47,7 @@ protected:
     SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
             void* png_ptr, void* info_ptr, int bitDepth);
 
-    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, SkPMColor*, int*, int*)
+    Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
     bool onRewind() override;
@@ -73,8 +73,7 @@ protected:
     void processData();
 
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
-            const SkCodec::Options&,
-            SkPMColor* ctable, int* ctableCount) override;
+            const SkCodec::Options&) override;
     Result onIncrementalDecode(int*) override;
 
     sk_sp<SkPngChunkReader>     fPngChunkReader;
@@ -101,10 +100,9 @@ private:
         kSwizzleColor_XformMode,
     };
 
-    bool createColorTable(const SkImageInfo& dstInfo, int* ctableCount);
+    bool createColorTable(const SkImageInfo& dstInfo);
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
-    SkCodec::Result initializeXforms(const SkImageInfo& dstInfo, const Options&,
-                                     SkPMColor* colorPtr, int* colorCount);
+    SkCodec::Result initializeXforms(const SkImageInfo& dstInfo, const Options&);
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options&, bool skipFormatConversion);
     void allocateStorage(const SkImageInfo& dstInfo);
     void destroyReadStruct();

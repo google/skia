@@ -17,21 +17,9 @@ inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
         return false;
     }
 
-    // Construct a color table for the decode if necessary
-    sk_sp<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == codec->getInfo().colorType()) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
-    }
-
-    bm->allocPixels(codec->getInfo(), colorTable);
+    bm->allocPixels(codec->getInfo());
     const SkCodec::Result result = codec->getPixels(codec->getInfo(), bm->getPixels(),
-            bm->rowBytes(), nullptr, colorPtr, colorCountPtr);
+            bm->rowBytes());
     return result == SkCodec::kSuccess || result == SkCodec::kIncompleteInput;
 }
 #endif  // CodecPriv_DEFINED

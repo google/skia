@@ -26,8 +26,6 @@ SkBmpMaskCodec::SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info,
 SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
                                             void* dst, size_t dstRowBytes,
                                             const Options& opts,
-                                            SkPMColor* inputColorPtr,
-                                            int* inputColorCount,
                                             int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
@@ -38,7 +36,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidScale;
     }
 
-    Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
+    Result result = this->prepareToDecode(dstInfo, opts);
     if (kSuccess != result) {
         return result;
     }
@@ -52,7 +50,7 @@ SkCodec::Result SkBmpMaskCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 SkCodec::Result SkBmpMaskCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+        const SkCodec::Options& options) {
     if (this->colorXform()) {
         this->resetXformBuffer(dstInfo.width());
     }
