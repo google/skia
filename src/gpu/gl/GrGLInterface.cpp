@@ -246,6 +246,7 @@ bool GrGLInterface::validate() const {
 
     // glTextureBarrier is part of desktop 4.5. There are also ARB and NV extensions.
     if (kGL_GrGLStandard == fStandard) {
+#if 0
         if (glVer >= GR_GL_VER(4,5) ||
             fExtensions.has("GL_ARB_texture_barrier") ||
             fExtensions.has("GL_NV_texture_barrier")) {
@@ -253,6 +254,9 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE
             }
         }
+#else
+        SkASSERT(!fFunctions.fTextureBarrier);
+#endif
     } else if (fExtensions.has("GL_NV_texture_barrier")) {
         if (nullptr == fFunctions.fTextureBarrier) {
             RETURN_FALSE_INTERFACE

@@ -145,7 +145,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fTexStorage2D = bind_to_member(this, &GrGLTestInterface::texStorage2D);
     fFunctions.fDiscardFramebuffer = bind_to_member(this, &GrGLTestInterface::discardFramebuffer);
     fFunctions.fTexSubImage2D = bind_to_member(this, &GrGLTestInterface::texSubImage2D);
-    fFunctions.fTextureBarrier = bind_to_member(this, &GrGLTestInterface::textureBarrier);
+    fFunctions.fTextureBarrier = nullptr; //bind_to_member(this, &GrGLTestInterface::textureBarrier);
     fFunctions.fUniform1f = bind_to_member(this, &GrGLTestInterface::uniform1f);
     fFunctions.fUniform1i = bind_to_member(this, &GrGLTestInterface::uniform1i);
     fFunctions.fUniform1fv = bind_to_member(this, &GrGLTestInterface::uniform1fv);

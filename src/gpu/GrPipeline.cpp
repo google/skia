@@ -115,6 +115,7 @@ void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     if (fDstTextureProxy.get() &&
         fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget.get()->asTexture()) {
+        SkASSERT_RELEASE(caps.textureBarrierSupport());
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);

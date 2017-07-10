@@ -109,11 +109,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 
     if (kGL_GrGLStandard == standard) {
+#if 0
         fTextureBarrierSupport = version >= GR_GL_VER(4,5) ||
                                  ctxInfo.hasExtension("GL_ARB_texture_barrier") ||
                                  ctxInfo.hasExtension("GL_NV_texture_barrier");
+#endif
     } else {
+#if 0
         fTextureBarrierSupport = ctxInfo.hasExtension("GL_NV_texture_barrier");
+#endif
     }
 
     if (kGL_GrGLStandard == standard) {
