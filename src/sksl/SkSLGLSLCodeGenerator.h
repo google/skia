@@ -128,7 +128,7 @@ protected:
 
     void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
 
-    void writeFunctionCall(const FunctionCall& c);
+    virtual void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructor(const Constructor& c);
 
