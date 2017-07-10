@@ -823,15 +823,11 @@ bool SkJpegCodec::onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpa
         return false;
     }
 
-    sizeInfo->fSizes[SkYUVSizeInfo::kY].set(dinfo->comp_info[0].downsampled_width,
-                                           dinfo->comp_info[0].downsampled_height);
-    sizeInfo->fSizes[SkYUVSizeInfo::kU].set(dinfo->comp_info[1].downsampled_width,
-                                           dinfo->comp_info[1].downsampled_height);
-    sizeInfo->fSizes[SkYUVSizeInfo::kV].set(dinfo->comp_info[2].downsampled_width,
-                                           dinfo->comp_info[2].downsampled_height);
-    sizeInfo->fWidthBytes[SkYUVSizeInfo::kY] = dinfo->comp_info[0].width_in_blocks * DCTSIZE;
-    sizeInfo->fWidthBytes[SkYUVSizeInfo::kU] = dinfo->comp_info[1].width_in_blocks * DCTSIZE;
-    sizeInfo->fWidthBytes[SkYUVSizeInfo::kV] = dinfo->comp_info[2].width_in_blocks * DCTSIZE;
+    for(int yuvIdx = 0; yuvIdx < 3; ++yuvIdx) {
+        sizeInfo->fSizes[yuvIdx].set(dinfo->comp_info[yuvIdx].downsampled_width,
+                                           dinfo->comp_info[yuvIdx].downsampled_height);
+        sizeInfo->fWidthBytes[yuvIdx] = dinfo->comp_info[yuvIdx].width_in_blocks * DCTSIZE;
+    }
 
     if (colorSpace) {
         *colorSpace = kJPEG_SkYUVColorSpace;
