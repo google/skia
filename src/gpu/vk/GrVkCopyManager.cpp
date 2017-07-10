@@ -24,6 +24,7 @@
 #include "GrVkVertexBuffer.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkTraceEvent.h"
 
 GrVkCopyManager::GrVkCopyManager()
     : fVertShaderModule(VK_NULL_HANDLE)
@@ -33,6 +34,8 @@ GrVkCopyManager::GrVkCopyManager()
 GrVkCopyManager::~GrVkCopyManager() {}
 
 bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "GrVkCopyManager::createCopyProgram()");
+
     const GrShaderCaps* shaderCaps = gpu->caps()->shaderCaps();
     const char* version = shaderCaps->versionDeclString();
     SkString vertShaderText(version);

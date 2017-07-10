@@ -98,6 +98,8 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
 }
 
 GrGLProgram* GrGLProgramBuilder::finalize() {
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "GrGLProgramBuilder::finalize()");
+
     // verify we can get a program id
     GrGLuint programID;
     GL_CALL_RET(programID, CreateProgram());
