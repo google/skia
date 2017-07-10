@@ -112,7 +112,8 @@ SK_C_API sk_imagefilter_t* sk_imagefilter_new_spot_lit_specular(
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_magnifier(
     const sk_rect_t* src, 
     float inset,
-    sk_imagefilter_t* input /*NULL*/);
+    sk_imagefilter_t* input, /*NULL*/
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/);
 SK_C_API sk_imagefilter_t* sk_imagefilter_new_matrix_convolution(
     const sk_isize_t* kernelSize,
     const float kernel[],
@@ -166,6 +167,16 @@ SK_C_API sk_imagefilter_t* sk_imagefilter_new_arithmetic(
     bool enforcePMColor,
     sk_imagefilter_t* background,
     sk_imagefilter_t* foreground /*NULL*/,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/);
+SK_C_API sk_imagefilter_t* sk_imagefilter_new_image_source(
+    sk_image_t* image,
+    const sk_rect_t* srcRect,
+    const sk_rect_t* dstRect,
+    sk_filter_quality_t filterQuality);
+SK_C_API sk_imagefilter_t* sk_imagefilter_new_image_source_default(
+    sk_image_t* image);
+SK_C_API sk_imagefilter_t* sk_imagefilter_new_paint(
+    const sk_paint_t* paint,
     const sk_imagefilter_croprect_t* cropRect /*NULL*/);
 
 SK_C_PLUS_PLUS_END_GUARD

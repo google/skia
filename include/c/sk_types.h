@@ -80,15 +80,8 @@ typedef enum {
     BGR_V_SK_PIXELGEOMETRY,
 } sk_pixelgeometry_t;
 
-typedef struct {
-    int32_t         width;
-    int32_t         height;
-    sk_colortype_t  colorType;
-    sk_alphatype_t  alphaType;
-} sk_imageinfo_t;
-
 typedef enum {
-    USE_DEVICE_INDEPENDENT_FONTS_GR_SURFACE_PROPS_FLAGS = 1 << 0,
+    USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS = 1 << 0,
 } sk_surfaceprops_flags_t;
 
 typedef struct {
@@ -726,7 +719,6 @@ typedef struct {
     int  fBufferMapThreshold;
     bool fUseDrawInsteadOfPartialRenderTargetWrite;
     bool fImmediateMode;
-    bool fClipDrawOpsToBounds;
     int fMaxOpCombineLookback;
     int fMaxOpCombineLookahead;
     bool fUseShaderSwizzling;
@@ -737,6 +729,7 @@ typedef struct {
     bool fDisableGpuYUVConversion;
     bool fSuppressPathRendering;
     gr_contextoptions_gpupathrenderers_t fGpuPathRenderers;
+    bool fAvoidStencilBuffers;
 } gr_context_options_t;
 
 typedef enum {
@@ -848,6 +841,20 @@ typedef enum {
     YCCK_SK_ENCODEDINFO_COLOR,
 } sk_encodedinfo_color_t;
 
+typedef enum {
+    SRGB_SK_COLORSPACE_NAMED,
+    ADOBE_RGB_SK_COLORSPACE_NAMED,
+    SRGB_LINEAR_SK_COLORSPACE_NAMED,
+} sk_colorspace_named_t;
+
+typedef struct {
+    sk_colorspace_t* colorspace;
+    int32_t          width;
+    int32_t          height;
+    sk_colortype_t   colorType;
+    sk_alphatype_t   alphaType;
+} sk_imageinfo_t;
+
 typedef struct {
     sk_encodedinfo_color_t fColor;
     sk_encodedinfo_alpha_t fAlpha;
@@ -875,6 +882,47 @@ typedef enum {
 } sk_vertices_vertex_mode_t;
 
 typedef struct sk_vertices_t sk_vertices_t;
+
+typedef enum {
+    LINEAR_SK_COLORSPACE_RENDER_TARGET_GAMMA,
+    SRGB_SK_COLORSPACE_RENDER_TARGET_GAMMA,
+} sk_colorspace_render_target_gamma_t;
+
+typedef enum {
+    SRGB_SK_COLORSPACE_GAMUT,
+    ADOBE_RGB_SK_COLORSPACE_GAMUT,
+    DCIP3_D65_SK_COLORSPACE_GAMUT,
+    REC2020_SK_COLORSPACE_GAMUT,
+} sk_colorspace_gamut_t;
+
+typedef struct {
+    float fG;
+    float fA;
+    float fB;
+    float fC;
+    float fD;
+    float fE;
+    float fF;
+} sk_colorspace_transfer_fn_t;
+
+typedef struct {
+    float fRX, fRY;
+    float fGX, fGY;
+    float fBX, fBY;
+    float fWX, fWY;
+} sk_colorspaceprimaries_t;
+
+typedef enum {
+    NO_INVERT_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
+    INVERT_BRIGHTNESS_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
+    INVERT_LIGHTNESS_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,
+} sk_highcontrastconfig_invertstyle_t;
+
+typedef struct {
+    bool fGrayscale;
+    sk_highcontrastconfig_invertstyle_t fInvertStyle;
+    float fContrast;
+} sk_highcontrastconfig_t;
 
 SK_C_PLUS_PLUS_END_GUARD
 

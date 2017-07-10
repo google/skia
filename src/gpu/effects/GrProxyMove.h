@@ -22,7 +22,7 @@
 #       define GCC_EVAL_ORDER_BUG 1
 #   endif
 #   undef GCC_VERSION
-#elif defined(_MSC_VER) && defined(__clang__)
+#elif defined(_MSC_VER) && (defined(__clang__) || defined(_M_ARM))
 #   define GCC_EVAL_ORDER_BUG 1
 #else
 #   define GCC_EVAL_ORDER_BUG 0

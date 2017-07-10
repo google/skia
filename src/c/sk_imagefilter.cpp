@@ -23,6 +23,8 @@
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 #include "SkArithmeticImageFilter.h"
+#include "SkImageSource.h"
+#include "SkPaintImageFilter.h"
 
 #include "sk_imagefilter.h"
 
@@ -274,12 +276,14 @@ sk_imagefilter_t* sk_imagefilter_new_spot_lit_specular(
 sk_imagefilter_t* sk_imagefilter_new_magnifier(
     const sk_rect_t* src,
     float inset,
-    sk_imagefilter_t* input /*NULL*/) {
+    sk_imagefilter_t* input, /*NULL*/
+    const sk_imagefilter_croprect_t* cropRect) {
 
     sk_sp<SkImageFilter> filter = SkMagnifierImageFilter::Make(
         *AsRect(src),
         inset,
-        sk_ref_sp(AsImageFilter(input)));
+        sk_ref_sp(AsImageFilter(input)),
+        AsImageFilterCropRect(cropRect));
     return ToImageFilter(filter.release());
 }
 
@@ -437,6 +441,38 @@ SK_API sk_imagefilter_t* sk_imagefilter_new_arithmetic(
         enforcePMColor,
         sk_ref_sp(AsImageFilter(background)),
         sk_ref_sp(AsImageFilter(foreground)),
+        AsImageFilterCropRect(cropRect));
+    return ToImageFilter(filter.release());
+}
+
+sk_imagefilter_t* sk_imagefilter_new_image_source(
+    sk_image_t* image,
+    const sk_rect_t* srcRect,
+    const sk_rect_t* dstRect,
+    sk_filter_quality_t filterQuality) {
+
+    sk_sp<SkImageFilter> filter = SkImageSource::Make(
+        sk_ref_sp(AsImage(image)),
+        *AsRect(srcRect),
+        *AsRect(dstRect),
+        (SkFilterQuality)filterQuality);
+    return ToImageFilter(filter.release());
+}
+
+sk_imagefilter_t* sk_imagefilter_new_image_source_default(
+    sk_image_t* image) {
+
+    sk_sp<SkImageFilter> filter = SkImageSource::Make(
+        sk_ref_sp(AsImage(image)));
+    return ToImageFilter(filter.release());
+}
+
+sk_imagefilter_t* sk_imagefilter_new_paint(
+    const sk_paint_t* paint,
+    const sk_imagefilter_croprect_t* cropRect /*NULL*/) {
+
+    sk_sp<SkImageFilter> filter = SkPaintImageFilter::Make(
+        AsPaint(*paint),
         AsImageFilterCropRect(cropRect));
     return ToImageFilter(filter.release());
 }
