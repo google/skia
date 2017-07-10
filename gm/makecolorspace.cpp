@@ -22,8 +22,7 @@ sk_sp<SkImage> make_raster_image(const char* path, SkTransferFunctionBehavior be
 
     SkCodec::Options opts;
     opts.fPremulBehavior = behavior;
-    codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes(), &opts,
-                     nullptr, nullptr);
+    codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes(), &opts);
     return SkImage::MakeFromBitmap(bitmap);
 }
 

@@ -250,8 +250,8 @@ bool SkIcoCodec::onDimensionsSupported(const SkISize& dim) {
  */
 SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
-                                        const Options& opts, SkPMColor* colorTable,
-                                        int* colorCount, int* rowsDecoded) {
+                                        const Options& opts,
+                                        int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
@@ -266,7 +266,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
 
         SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index).get();
-        result = embeddedCodec->getPixels(dstInfo, dst, dstRowBytes, &opts, colorTable, colorCount);
+        result = embeddedCodec->getPixels(dstInfo, dst, dstRowBytes, &opts);
         switch (result) {
             case kSuccess:
             case kIncompleteInput:
@@ -287,7 +287,7 @@ SkCodec::Result SkIcoCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 SkCodec::Result SkIcoCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor colorTable[], int* colorCount) {
+        const SkCodec::Options& options) {
     int index = 0;
     SkCodec::Result result = kInvalidScale;
     while (true) {
@@ -297,7 +297,7 @@ SkCodec::Result SkIcoCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         }
 
         SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index).get();
-        result = embeddedCodec->startScanlineDecode(dstInfo, &options, colorTable, colorCount);
+        result = embeddedCodec->startScanlineDecode(dstInfo, &options);
         if (kSuccess == result) {
             fCurrScanlineCodec = embeddedCodec;
             fCurrIncrementalCodec = nullptr;
@@ -322,8 +322,7 @@ bool SkIcoCodec::onSkipScanlines(int count) {
 }
 
 SkCodec::Result SkIcoCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
-        void* pixels, size_t rowBytes, const SkCodec::Options& options,
-        SkPMColor* colorTable, int* colorCount) {
+        void* pixels, size_t rowBytes, const SkCodec::Options& options) {
     int index = 0;
     while (true) {
         index = this->chooseCodec(dstInfo.dimensions(), index);
@@ -333,7 +332,7 @@ SkCodec::Result SkIcoCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
 
         SkCodec* embeddedCodec = fEmbeddedCodecs->operator[](index).get();
         switch (embeddedCodec->startIncrementalDecode(dstInfo,
-                pixels, rowBytes, &options, colorTable, colorCount)) {
+                pixels, rowBytes, &options)) {
             case kSuccess:
                 fCurrIncrementalCodec = embeddedCodec;
                 fCurrScanlineCodec = nullptr;
@@ -351,8 +350,7 @@ SkCodec::Result SkIcoCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
                 // valid for scanline decoding.
                 // Once BMP supports incremental decoding this workaround can go
                 // away.
-                if (embeddedCodec->startScanlineDecode(dstInfo, nullptr,
-                        colorTable, colorCount) == kSuccess) {
+                if (embeddedCodec->startScanlineDecode(dstInfo) == kSuccess) {
                     return kUnimplemented;
                 }
                 // Move on to the next embedded codec.
