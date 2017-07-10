@@ -320,112 +320,6 @@ union PositioningAndExtended {
 };
 } // namespace
 
-void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeRect(fBounds);
-
-    SkPaint runPaint;
-    SkTextBlobRunIterator it(this);
-    while (!it.done()) {
-        SkASSERT(it.glyphCount() > 0);
-
-        buffer.write32(it.glyphCount());
-        PositioningAndExtended pe;
-        pe.intValue = 0;
-        pe.positioning = it.positioning();
-        SkASSERT((int32_t)it.positioning() == pe.intValue);  // backwards compat.
-
-        uint32_t textSize = it.textSize();
-        pe.extended = textSize > 0;
-        buffer.write32(pe.intValue);
-        if (pe.extended) {
-            buffer.write32(textSize);
-        }
-        buffer.writePoint(it.offset());
-        // This should go away when switching to SkFont
-        it.applyFontToPaint(&runPaint);
-        buffer.writePaint(runPaint);
-
-        buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
-        buffer.writeByteArray(it.pos(),
-            it.glyphCount() * sizeof(SkScalar) * ScalarsPerGlyph(it.positioning()));
-        if (pe.extended) {
-            buffer.writeByteArray(it.clusters(), sizeof(uint32_t) * it.glyphCount());
-            buffer.writeByteArray(it.text(), it.textSize());
-        }
-
-        it.next();
-    }
-
-    // Marker for the last run (0 is not a valid glyph count).
-    buffer.write32(0);
-}
-
-sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
-    const int runCount = reader.isVersionLT(SkReadBuffer::kTextBlobImplicitRunCount_Version)
-        ? reader.read32() : std::numeric_limits<int>::max();
-    if (runCount < 0) {
-        return nullptr;
-    }
-
-    SkRect bounds;
-    reader.readRect(&bounds);
-
-    SkTextBlobBuilder blobBuilder;
-    for (int i = 0; i < runCount; ++i) {
-        int glyphCount = reader.read32();
-        if (glyphCount == 0 &&
-            !reader.isVersionLT(SkReadBuffer::kTextBlobImplicitRunCount_Version)) {
-            // End-of-runs marker.
-            break;
-        }
-
-        PositioningAndExtended pe;
-        pe.intValue = reader.read32();
-        GlyphPositioning pos = pe.positioning;
-        if (glyphCount <= 0 || pos > kFull_Positioning) {
-            return nullptr;
-        }
-        uint32_t textSize = pe.extended ? (uint32_t)reader.read32() : 0;
-
-        SkPoint offset;
-        reader.readPoint(&offset);
-        SkPaint font;
-        reader.readPaint(&font);
-
-        const SkTextBlobBuilder::RunBuffer* buf = nullptr;
-        switch (pos) {
-        case kDefault_Positioning:
-            buf = &blobBuilder.allocRunText(font, glyphCount, offset.x(), offset.y(),
-                                            textSize, SkString(), &bounds);
-            break;
-        case kHorizontal_Positioning:
-            buf = &blobBuilder.allocRunTextPosH(font, glyphCount, offset.y(),
-                                                textSize, SkString(), &bounds);
-            break;
-        case kFull_Positioning:
-            buf = &blobBuilder.allocRunTextPos(font, glyphCount, textSize, SkString(), &bounds);
-            break;
-        default:
-            return nullptr;
-        }
-
-        if (!reader.readByteArray(buf->glyphs, glyphCount * sizeof(uint16_t)) ||
-            !reader.readByteArray(buf->pos,
-                                  glyphCount * sizeof(SkScalar) * ScalarsPerGlyph(pos))) {
-            return nullptr;
-        }
-
-        if (pe.extended) {
-            if (!reader.readByteArray(buf->clusters, glyphCount * sizeof(uint32_t))  ||
-                !reader.readByteArray(buf->utf8text, textSize)) {
-                return nullptr;
-            }
-        }
-    }
-
-    return blobBuilder.make();
-}
-
 unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
     // GlyphPositioning values are directly mapped to scalars-per-glyph.
     SkASSERT(pos <= 2);
@@ -809,4 +703,157 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
     fBounds.setEmpty();
 
     return sk_sp<SkTextBlob>(blob);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeRect(fBounds);
+
+    SkPaint runPaint;
+    SkTextBlobRunIterator it(this);
+    while (!it.done()) {
+        SkASSERT(it.glyphCount() > 0);
+
+        buffer.write32(it.glyphCount());
+        PositioningAndExtended pe;
+        pe.intValue = 0;
+        pe.positioning = it.positioning();
+        SkASSERT((int32_t)it.positioning() == pe.intValue);  // backwards compat.
+
+        uint32_t textSize = it.textSize();
+        pe.extended = textSize > 0;
+        buffer.write32(pe.intValue);
+        if (pe.extended) {
+            buffer.write32(textSize);
+        }
+        buffer.writePoint(it.offset());
+        // This should go away when switching to SkFont
+        it.applyFontToPaint(&runPaint);
+        buffer.writePaint(runPaint);
+
+        buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
+        buffer.writeByteArray(it.pos(),
+                              it.glyphCount() * sizeof(SkScalar) * ScalarsPerGlyph(it.positioning()));
+        if (pe.extended) {
+            buffer.writeByteArray(it.clusters(), sizeof(uint32_t) * it.glyphCount());
+            buffer.writeByteArray(it.text(), it.textSize());
+        }
+
+        it.next();
+    }
+
+    // Marker for the last run (0 is not a valid glyph count).
+    buffer.write32(0);
+}
+
+sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
+    const int runCount = reader.isVersionLT(SkReadBuffer::kTextBlobImplicitRunCount_Version)
+    ? reader.read32() : std::numeric_limits<int>::max();
+    if (runCount < 0) {
+        return nullptr;
+    }
+
+    SkRect bounds;
+    reader.readRect(&bounds);
+
+    SkTextBlobBuilder blobBuilder;
+    for (int i = 0; i < runCount; ++i) {
+        int glyphCount = reader.read32();
+        if (glyphCount == 0 &&
+            !reader.isVersionLT(SkReadBuffer::kTextBlobImplicitRunCount_Version)) {
+            // End-of-runs marker.
+            break;
+        }
+
+        PositioningAndExtended pe;
+        pe.intValue = reader.read32();
+        GlyphPositioning pos = pe.positioning;
+        if (glyphCount <= 0 || pos > kFull_Positioning) {
+            return nullptr;
+        }
+        uint32_t textSize = pe.extended ? (uint32_t)reader.read32() : 0;
+
+        SkPoint offset;
+        reader.readPoint(&offset);
+        SkPaint font;
+        reader.readPaint(&font);
+
+        const SkTextBlobBuilder::RunBuffer* buf = nullptr;
+        switch (pos) {
+            case kDefault_Positioning:
+                buf = &blobBuilder.allocRunText(font, glyphCount, offset.x(), offset.y(),
+                                                textSize, SkString(), &bounds);
+                break;
+            case kHorizontal_Positioning:
+                buf = &blobBuilder.allocRunTextPosH(font, glyphCount, offset.y(),
+                                                    textSize, SkString(), &bounds);
+                break;
+            case kFull_Positioning:
+                buf = &blobBuilder.allocRunTextPos(font, glyphCount, textSize, SkString(), &bounds);
+                break;
+            default:
+                return nullptr;
+        }
+
+        if (!reader.readByteArray(buf->glyphs, glyphCount * sizeof(uint16_t)) ||
+            !reader.readByteArray(buf->pos,
+                                  glyphCount * sizeof(SkScalar) * ScalarsPerGlyph(pos))) {
+                return nullptr;
+            }
+
+        if (pe.extended) {
+            if (!reader.readByteArray(buf->clusters, glyphCount * sizeof(uint32_t))  ||
+                !reader.readByteArray(buf->utf8text, textSize)) {
+                return nullptr;
+            }
+        }
+    }
+    
+    return blobBuilder.make();
+}
+
+class SkTypefaceCatalogerWriteBuffer : public SkBinaryWriteBuffer {
+public:
+    SkTypefaceCatalogerWriteBuffer(const SkTypefaceCataloger& cataloger)
+        : SkBinaryWriteBuffer(SkBinaryWriteBuffer::kCrossProcess_Flag)
+        , fCataloger(cataloger)
+    {}
+
+    void writeTypeface(SkTypeface* typeface) override {
+        fCataloger(typeface);
+        this->write32(typeface ? typeface->uniqueID() : 0);
+    }
+
+    const SkTypefaceCataloger& fCataloger;
+};
+
+sk_sp<SkData> SkTextBlob::serialize(const SkTypefaceCataloger& cataloger) const {
+    SkTypefaceCatalogerWriteBuffer buffer(cataloger);
+    this->flatten(buffer);
+
+    size_t total = buffer.bytesWritten();
+    sk_sp<SkData> data = SkData::MakeUninitialized(total);
+    buffer.writeToMemory(data->writable_data());
+    return data;
+}
+
+class SkTypefaceResolverReadBuffer : public SkReadBuffer {
+public:
+    SkTypefaceResolverReadBuffer(const void* data, size_t size, const SkTypefaceResolver& resolver)
+        : SkReadBuffer(data, size)
+        , fResolver(resolver)
+    {}
+
+    sk_sp<SkTypeface> readTypeface() override {
+        return fResolver(this->read32());
+    }
+
+    const SkTypefaceResolver& fResolver;
+};
+
+sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
+                                      const SkTypefaceResolver& resolver) {
+    SkTypefaceResolverReadBuffer buffer(data, length, resolver);
+    return SkTextBlob::MakeFromBuffer(buffer);
 }

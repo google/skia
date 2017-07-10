@@ -17,6 +17,9 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+typedef std::function<void(SkTypeface*)> SkTypefaceCataloger;
+typedef std::function<sk_sp<SkTypeface>(uint32_t)> SkTypefaceResolver;
+
 /** \class SkTextBlob
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
@@ -56,6 +59,20 @@ public:
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
         kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
     };
+
+    /**
+     *  Serialize the typeface into a data blob, storing type uniqueID of each referenced typeface.
+     *  During this process, each time a typeface is encountered, it is passed to the catalog,
+     *  allowing the caller to what typeface IDs will need to be resolved in Deserialize().
+     */
+    sk_sp<SkData> serialize(const SkTypefaceCataloger&) const;
+
+    /**
+     *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
+     *  of its typefaces, deserialization requires that the caller provide the corresponding
+     *  SkTypefaces for those IDs.
+     */
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkTypefaceResolver&);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
