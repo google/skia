@@ -83,6 +83,8 @@ public:
 
     bool avoidInstancedDrawsToFPTargets() const { return fAvoidInstancedDrawsToFPTargets; }
 
+    bool avoidStencilBuffers() const { return fAvoidStencilBuffers; }
+
     /**
      * Indicates the capabilities of the fixed function blend unit.
      */
@@ -229,6 +231,7 @@ protected:
     bool fUseDrawInsteadOfPartialRenderTargetWrite   : 1;
     bool fUseDrawInsteadOfAllRenderTargetWrites      : 1;
     bool fAvoidInstancedDrawsToFPTargets             : 1;
+    bool fAvoidStencilBuffers                        : 1;
 
     // ANGLE workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

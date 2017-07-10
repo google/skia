@@ -7,6 +7,7 @@
 
 #include "GrGLRenderTarget.h"
 
+#include "GrContext.h"
 #include "GrGLGpu.h"
 #include "GrGLUtil.h"
 #include "GrGpuResourcePriv.h"
@@ -170,6 +171,10 @@ GrGLGpu* GrGLRenderTarget::getGLGpu() const {
 }
 
 bool GrGLRenderTarget::canAttemptStencilAttachment() const {
+    if (this->getGpu()->getContext()->caps()->avoidStencilBuffers()) {
+        return false;
+    }
+
     // Only modify the FBO's attachments if we have created the FBO. Public APIs do not currently
     // allow for borrowed FBO ownership, so we can safely assume that if an object is owned,
     // Skia created it.

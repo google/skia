@@ -230,6 +230,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
         grOptions.fRequireDecodeDisableForSRGB = false;
     }
+    if (ContextOverrides::kAvoidStencilBuffers & overrides) {
+        grOptions.fAvoidStencilBuffers = true;
+    }
     sk_sp<GrContext> grCtx(GrContext::Create(backend, backendContext, grOptions));
     if (!grCtx.get()) {
         return ContextInfo();

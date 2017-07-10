@@ -94,9 +94,10 @@ public:
         kDisableNVPR                   = 0x1,
         kUseInstanced                  = 0x2,
         kAllowSRGBWithoutDecodeControl = 0x4,
+        kAvoidStencilBuffers           = 0x8,
 
-        kRequireNVPRSupport            = 0x8,
-        kRequireSRGBSupport            = 0x10
+        kRequireNVPRSupport            = 0x10,
+        kRequireSRGBSupport            = 0x20,
     };
 
     static bool IsRenderingContext(ContextType type) {
