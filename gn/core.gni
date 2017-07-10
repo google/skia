@@ -605,7 +605,9 @@ skia_core_sources += [
   "$_src/jumper/SkJumper_stages.cpp",
 ]
 if (is_win) {
-  skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
+  if (target_cpu != "arm") {
+    skia_core_sources += [ "$_src/jumper/SkJumper_generated_win.S" ]
+  }
 } else if (!is_tvos) {
   skia_core_sources += [ "$_src/jumper/SkJumper_generated.S" ]
 }
