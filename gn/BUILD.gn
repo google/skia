@@ -508,7 +508,7 @@ toolchain("msvc") {
     if (target_cpu == "x64") {
       _ml += "64"
     }
-    command = "$env_setup$bin/$_ml.exe /nologo /c /Fo {{output}} {{source}}"
+    command = "$env_setup\"$bin/$_ml.exe\" /nologo /c /Fo {{output}} {{source}}$env_setup_end"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
