@@ -30,44 +30,6 @@ static bool can_ignore_rect(GrTextureProxy* proxy, const SkRect& domain) {
     return false;
 }
 
-static bool can_ignore_rect(GrTexture* tex, const SkRect& domain) {
-    // This logic is relying on the instantiated size of 'tex'. In the deferred world it
-    // will have to change so this logic only fires for kExact texture proxies. This shouldn't
-    // change the actual behavior of Ganesh since shaders shouldn't be accessing pixels outside
-    // of the content rectangle.
-    const SkIRect kFullRect = SkIRect::MakeWH(tex->width(), tex->height());
-
-    return domain.contains(kFullRect);
-}
-
-GrTextureDomain::GrTextureDomain(GrTexture* tex, const SkRect& domain, Mode mode, int index)
-    : fMode(mode)
-    , fIndex(index) {
-
-    if (kIgnore_Mode == fMode) {
-        return;
-    }
-
-    if (kClamp_Mode == mode && can_ignore_rect(tex, domain)) {
-        fMode = kIgnore_Mode;
-        return;
-    }
-
-    const SkRect kFullRect = SkRect::MakeIWH(tex->width(), tex->height());
-
-    // We don't currently handle domains that are empty or don't intersect the texture.
-    // It is OK if the domain rect is a line or point, but it should not be inverted. We do not
-    // handle rects that do not intersect the [0..1]x[0..1] rect.
-    SkASSERT(domain.fLeft <= domain.fRight);
-    SkASSERT(domain.fTop <= domain.fBottom);
-    fDomain.fLeft = SkScalarPin(domain.fLeft, 0.0f, kFullRect.fRight);
-    fDomain.fRight = SkScalarPin(domain.fRight, fDomain.fLeft, kFullRect.fRight);
-    fDomain.fTop = SkScalarPin(domain.fTop, 0.0f, kFullRect.fBottom);
-    fDomain.fBottom = SkScalarPin(domain.fBottom, fDomain.fTop, kFullRect.fBottom);
-    SkASSERT(fDomain.fLeft <= fDomain.fRight);
-    SkASSERT(fDomain.fTop <= fDomain.fBottom);
-}
-
 GrTextureDomain::GrTextureDomain(GrTextureProxy* proxy, const SkRect& domain, Mode mode, int index)
     : fMode(mode)
     , fIndex(index) {
