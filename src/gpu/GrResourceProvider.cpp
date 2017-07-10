@@ -73,53 +73,17 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
     return true;
 }
 
-// MDB TODO: this should probably be a factory on GrSurfaceProxy
-sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
-                                                      const GrSurfaceDesc& desc,
-                                                      SkBudgeted budgeted,
-                                                      const GrMipLevel* texels,
-                                                      int mipLevelCount,
-                                                      SkDestinationSurfaceColorMode mipColorMode) {
+sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
+                                                     SkBudgeted budgeted, uint32_t flags) {
     ASSERT_SINGLE_OWNER
-
-    if (!mipLevelCount) {
-        if (texels) {
-            return nullptr;
-        }
-        return GrSurfaceProxy::MakeDeferred(this, desc, budgeted, nullptr, 0);
-    } else if (1 == mipLevelCount) {
-        if (!texels) {
-            return nullptr;
-        }
-        return this->createTextureProxy(desc, budgeted, texels[0]);
-    }
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    if (!validate_desc(desc, *fCaps, mipLevelCount)) {
+    if (!validate_desc(desc, *fCaps)) {
         return nullptr;
     }
-
-    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-
-        texelsShallowCopy.push_back(texels[i]);
-    }
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
-    if (tex) {
-        tex->texturePriv().setMipColorMode(mipColorMode);
-    }
-
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
-}
-
-sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
-                                                     SkBudgeted budgeted, uint32_t flags) {
 
     flags |= kExact_Flag | kNoCreate_Flag;
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
@@ -130,56 +94,27 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
     return tex;
 }
 
-static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
-    SkColorType colorType;
-    if (!GrPixelConfigToColorType(config, &colorType)) {
-        return false;
-    }
-
-    *ii = SkImageInfo::Make(w, h, colorType, kUnknown_SkAlphaType, nullptr);
-    return true;
-}
-
-sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc& desc,
-                                                             SkBudgeted budgeted,
-                                                             const GrMipLevel& mipLevel) {
+sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                   const SkTArray<GrMipLevel>& texels,
+                                                   SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
+
+    SkASSERT(texels.count() >= 1);
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    if (!mipLevel.fPixels) {
+    if (!validate_desc(desc, *fCaps, texels.count())) {
         return nullptr;
     }
-
-    if (!validate_desc(desc, *fCaps)) {
-        return nullptr;
-    }
-
-    GrContext* context = fGpu->getContext();
-
-    SkImageInfo srcInfo;
-
-    if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
-        sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
-        if (proxy) {
-            sk_sp<GrSurfaceContext> sContext =
-                       context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
-            if (sContext) {
-                if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
-                    return sContext->asTextureProxyRef();
-                }
-            }
-        }
-    }
-
-    SkTArray<GrMipLevel> texels(1);
-    texels.push_back(mipLevel);
 
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    if (tex) {
+        tex->texturePriv().setMipColorMode(mipColorMode);
+    }
+
+    return tex;
 }
 
 

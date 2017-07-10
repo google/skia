@@ -18,6 +18,7 @@
 #include "GrTexturePriv.h"
 #include "GrTextureRenderTargetProxy.h"
 
+#include "SkGr.h"
 #include "SkMathPriv.h"
 
 GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
@@ -178,6 +179,46 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     return sk_sp<GrTextureProxy>(new GrTextureProxy(copyDesc, fit, budgeted, nullptr, 0, flags));
 }
 
+static bool make_info(int w, int h, GrPixelConfig config, SkImageInfo* ii) {
+    SkColorType colorType;
+    if (!GrPixelConfigToColorType(config, &colorType)) {
+        return false;
+    }
+
+    *ii = SkImageInfo::Make(w, h, colorType, kUnknown_SkAlphaType, nullptr);
+    return true;
+}
+
+static sk_sp<GrTextureProxy> create_texture_proxy(GrResourceProvider* resourceProvider,
+                                                  const GrSurfaceDesc& desc,
+                                                  SkBudgeted budgeted,
+                                                  const GrMipLevel& mipLevel) {
+    SkASSERT(mipLevel.fPixels);
+
+    SkImageInfo srcInfo;
+
+    if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
+        sk_sp<GrTexture> tex = resourceProvider->getExactScratch(desc, budgeted, 0);
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+        if (proxy) {
+            sk_sp<GrSurfaceContext> sContext =
+                       context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
+            if (sContext) {
+                if (sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0)) {
+                    return sContext->asTextureProxyRef();
+                }
+            }
+        }
+    }
+
+    SkTArray<GrMipLevel> texels(1);
+    texels.push_back(mipLevel);
+
+    sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted, texels,
+                                                         SkDestinationSurfaceColorMode::kLegacy));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
                                                    const GrSurfaceDesc& desc,
                                                    SkBudgeted budgeted,
@@ -186,11 +227,49 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     if (srcData) {
         GrMipLevel mipLevel = { srcData, rowBytes };
 
-        return resourceProvider->createTextureProxy(desc, budgeted, mipLevel);
+        return create_texture_proxy(resourceProvider, desc, budgeted, mipLevel);
     }
 
     return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, SkBackingFit::kExact, budgeted);
 }
+
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
+                                                    GrResourceProvider* resourceProvider,
+                                                    const GrSurfaceDesc& desc,
+                                                    SkBudgeted budgeted,
+                                                    const GrMipLevel* texels,
+                                                    int mipLevelCount,
+                                                    SkDestinationSurfaceColorMode mipColorMode) {
+    if (!mipLevelCount) {
+        if (texels) {
+            return nullptr;
+        }
+        return GrSurfaceProxy::MakeDeferred(resourceProvider, desc, budgeted, nullptr, 0);
+    } else if (1 == mipLevelCount) {
+        if (!texels) {
+            return nullptr;
+        }
+        return create_texture_proxy(resourceProvider, desc, budgeted, texels[0]);
+    }
+
+    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    for (int i = 0; i < mipLevelCount; ++i) {
+        if (!texels[i].fPixels) {
+            return nullptr;
+        }
+
+        texelsShallowCopy.push_back(texels[i]);
+    }
+
+    sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
+                                                         texelsShallowCopy, mipColorMode));
+    if (!tex) {
+        return nullptr;
+    }
+
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+}
+
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrBackendTexture& backendTex,
