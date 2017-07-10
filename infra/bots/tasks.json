@@ -30,12 +30,6 @@
         "Build-Debian9-Clang-arm64-Debug-Android"
       ]
     },
-    "Build-Debian9-Clang-arm64-Debug-Android_FrameworkDefs": {
-      "priority": 0.8,
-      "tasks": [
-        "Build-Debian9-Clang-arm64-Debug-Android_FrameworkDefs"
-      ]
-    },
     "Build-Debian9-Clang-arm64-Debug-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -2457,36 +2451,6 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Debian9-Clang-arm64-Debug-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "isolate": "compile_skia.isolate",
-      "priority": 0.8
-    },
-    "Build-Debian9-Clang-arm64-Debug-Android_FrameworkDefs": {
-      "cipd_packages": [
-        {
-          "name": "skia/bots/android_ndk_linux",
-          "path": "android_ndk_linux",
-          "version": "version:10"
-        }
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "compile",
-        "repository=<(REPO)",
-        "buildername=Build-Debian9-Clang-arm64-Debug-Android_FrameworkDefs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
