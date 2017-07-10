@@ -85,9 +85,9 @@ struct Sniffer : public SkPixelSerializer {
                 SkASSERT(false);
         }
 
-        auto writeImage = [&] {
+        auto writeImage = [&] (const char* name, int num) {
             SkString path;
-            path.appendf("%s/%d.%s", gOutputDir, gKnown, ext.c_str());
+            path.appendf("%s/%s%d.%s", gOutputDir, name, num, ext.c_str());
 
             SkFILEWStream file(path.c_str());
             file.write(ptr, len);
@@ -95,27 +95,30 @@ struct Sniffer : public SkPixelSerializer {
             SkDebugf("%s\n", path.c_str());
         };
 
-
         if (FLAGS_testDecode) {
             SkBitmap bitmap;
             SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
             bitmap.allocPixels(info);
             const SkCodec::Result result = codec->getPixels(
                 info, bitmap.getPixels(),  bitmap.rowBytes());
-            if (SkCodec::kIncompleteInput != result && SkCodec::kSuccess != result) {
-                SkDebugf("Decoding failed for %s\n", skpName.c_str());
-                gSkpToUnknownCount[skpName]++;
-                if (FLAGS_writeFailedImages) {
-                    writeImage();
-                }
-                return;
+            switch (result) {
+                case SkCodec::kSuccess:
+                case SkCodec::kIncompleteInput:
+                case SkCodec::kErrorInInput:
+                    break;
+                default:
+                    SkDebugf("Decoding failed for %s\n", skpName.c_str());
+                    if (FLAGS_writeFailedImages) {
+                        writeImage("unknown", gSkpToUnknownCount[skpName]);
+                    }
+                    gSkpToUnknownCount[skpName]++;
+                    return;
             }
         }
 
         if (FLAGS_writeImages) {
-            writeImage();
+            writeImage("", gKnown);
         }
-
 
         gKnown++;
     }
@@ -127,13 +130,17 @@ struct Sniffer : public SkPixelSerializer {
     SkData* onEncode(const SkPixmap&) override { return nullptr; }
 };
 
-static void get_images_from_file(const SkString& file) {
+static bool get_images_from_file(const SkString& file) {
     auto stream = SkStream::MakeFromFile(file.c_str());
     sk_sp<SkPicture> picture(SkPicture::MakeFromStream(stream.get()));
+    if (!picture) {
+        return false;
+    }
 
     SkDynamicMemoryWStream scratch;
     Sniffer sniff(file.c_str());
     picture->serialize(&scratch, &sniff);
+    return true;
 }
 
 int main(int argc, char** argv) {
@@ -153,10 +160,14 @@ int main(int argc, char** argv) {
     if (sk_isdir(inputs)) {
         SkOSFile::Iter iter(inputs, "skp");
         for (SkString file; iter.next(&file); ) {
-            get_images_from_file(SkOSPath::Join(inputs, file.c_str()));
+            if (!get_images_from_file(SkOSPath::Join(inputs, file.c_str()))) {
+                return 2;
+            }
         }
     } else {
-        get_images_from_file(SkString(inputs));
+        if (!get_images_from_file(SkString(inputs))) {
+            return 2;
+        }
     }
     /**
      JSON results are written out in the following format:
