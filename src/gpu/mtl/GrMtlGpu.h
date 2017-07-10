@@ -16,6 +16,7 @@
 #import <Metal/Metal.h>
 
 class GrSemaphore;
+struct GrMtlBackendContext;
 
 class GrMtlGpu : public GrGpu {
 public:
@@ -59,19 +60,7 @@ public:
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
 private:
-    GrMtlGpu(GrContext* context, const GrContextOptions& options) : INHERITED(context) {
-        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-
-        MTLTextureDescriptor* txDesc = [[MTLTextureDescriptor alloc] init];
-        txDesc.textureType = MTLTextureType3D;
-        txDesc.height = 64;
-        txDesc.width = 64;
-        txDesc.depth = 64;
-        txDesc.pixelFormat = MTLPixelFormatBGRA8Unorm;
-        txDesc.arrayLength = 1;
-        txDesc.mipmapLevelCount = 1;
-        fTestHeaderTexture = [device newTextureWithDescriptor:txDesc];
-    }
+    GrMtlGpu(GrContext* context, const GrContextOptions& options, const GrMtlBackendContext*);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -145,7 +134,9 @@ private:
     bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
 
-    id<MTLTexture> fTestHeaderTexture;
+    id<MTLDevice> fDevice;
+    id<MTLCommandQueue> fQueue;
+
 
     typedef GrGpu INHERITED;
 };
