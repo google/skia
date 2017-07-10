@@ -542,7 +542,8 @@ bool CPPCodeGenerator::generateCode() {
     const char* baseName = fName.c_str();
     const char* fullName = fFullName.c_str();
     this->writef(kFragmentProcessorHeader, fullName);
-    this->writef("#include \"%s.h\"\n", fullName);
+    this->writef("#include \"%s.h\"\n"
+                 "#if SK_SUPPORT_GPU\n", fullName);
     this->writeSection(CPP_SECTION);
     this->writef("#include \"glsl/GrGLSLColorSpaceXformHelper.h\"\n"
                  "#include \"glsl/GrGLSLFragmentProcessor.h\"\n"
@@ -593,6 +594,7 @@ bool CPPCodeGenerator::generateCode() {
                 "}\n");
     this->writeTest();
     this->writeSection(CPP_END_SECTION);
+    this->write("#endif\n");
     result &= 0 == fErrors.errorCount();
     return result;
 }
