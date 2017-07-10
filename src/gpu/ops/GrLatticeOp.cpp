@@ -6,11 +6,12 @@
  */
 
 #include "GrLatticeOp.h"
-
 #include "GrDefaultGeoProcFactory.h"
+#include "GrDrawOpTest.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 #include "SkBitmap.h"
 #include "SkLatticeIter.h"
 #include "SkRect.h"
@@ -21,16 +22,29 @@ static sk_sp<GrGeometryProcessor> create_gp() {
                                          LocalCoords::kHasExplicit_Type, SkMatrix::I());
 }
 
-class NonAALatticeOp final : public GrLegacyMeshDrawOp {
+namespace {
+
+class NonAALatticeOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
 public:
     DEFINE_OP_CLASS_ID
 
     static const int kVertsPerRect = 4;
     static const int kIndicesPerRect = 6;
 
-    NonAALatticeOp(GrColor color, const SkMatrix& viewMatrix, int imageWidth, int imageHeight,
-                   std::unique_ptr<SkLatticeIter> iter, const SkRect& dst)
-            : INHERITED(ClassID()) {
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          int imageWidth, int imageHeight,
+                                          std::unique_ptr<SkLatticeIter> iter, const SkRect& dst) {
+        return Helper::FactoryHelper<NonAALatticeOp>(std::move(paint), viewMatrix, imageWidth,
+                                                     imageHeight, std::move(iter), dst);
+    }
+
+    NonAALatticeOp(Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+                   int imageWidth, int imageHeight, std::unique_ptr<SkLatticeIter> iter,
+                   const SkRect& dst)
+            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kNone) {
         Patch& patch = fPatches.push_back();
         patch.fViewMatrix = viewMatrix;
         patch.fColor = color;
@@ -55,22 +69,19 @@ public:
                         fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
         }
 
-        str.append(DumpPipelineInfo(*this->pipeline()));
-        str.append(INHERITED::dumpInfo());
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone,
+                                            &fPatches.front().fColor);
+    }
+
 private:
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToUnknown();
-        *coverage = GrProcessorAnalysisCoverage::kNone;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations& analysioptimizations) override {
-        analysioptimizations.getOverrideColorIfSet(&fPatches[0].fColor);
-    }
-
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp(create_gp());
         if (!gp) {
@@ -133,13 +144,12 @@ private:
                         positions, vertexStride, kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        helper.recordDraw(target, gp.get(), this->pipeline());
+        helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
 
@@ -158,19 +168,81 @@ private:
         GrColor fColor;
     };
 
+    Helper fHelper;
+    SkSTArray<1, Patch, true> fPatches;
     int fImageWidth;
     int fImageHeight;
-    SkSTArray<1, Patch, true> fPatches;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 namespace GrLatticeOp {
-std::unique_ptr<GrLegacyMeshDrawOp> MakeNonAA(GrColor color, const SkMatrix& viewMatrix,
-                                              int imageWidth, int imageHeight,
-                                              std::unique_ptr<SkLatticeIter> iter,
-                                              const SkRect& dst) {
-    return std::unique_ptr<GrLegacyMeshDrawOp>(
-            new NonAALatticeOp(color, viewMatrix, imageWidth, imageHeight, std::move(iter), dst));
+std::unique_ptr<GrDrawOp> MakeNonAA(GrPaint&& paint, const SkMatrix& viewMatrix, int imageWidth,
+                                    int imageHeight, std::unique_ptr<SkLatticeIter> iter,
+                                    const SkRect& dst) {
+    return NonAALatticeOp::Make(std::move(paint), viewMatrix, imageWidth, imageHeight,
+                                std::move(iter), dst);
 }
 };
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
+    int imgW = random->nextRangeU(1, 1000);
+    int imgH = random->nextRangeU(1, 1000);
+    bool useSubset = random->nextBool();
+    SkCanvas::Lattice lattice;
+    SkIRect subset;
+    if (useSubset) {
+        subset.fLeft = random->nextULessThan(imgW);
+        subset.fRight = random->nextRangeU(subset.fLeft + 1, imgW);
+        subset.fTop = random->nextULessThan(imgH);
+        subset.fBottom = random->nextRangeU(subset.fTop + 1, imgH);
+    } else {
+        subset.setXYWH(0, 0, imgW, imgH);
+    }
+    // SkCanvas::Lattice allows bounds to be null. However, SkCanvas creates a temp Lattice with a
+    // non-null bounds before creating a SkLatticeIter. SkLattice::Iter requires a non-null bounds.
+    lattice.fBounds = &subset;
+    lattice.fXCount = random->nextRangeU(1, subset.width());
+    lattice.fYCount = random->nextRangeU(1, subset.height());
+    int maxPixPerXDiv = SkScalarFloorToInt(subset.width() / lattice.fXCount);
+    int maxPixPerYDiv = SkScalarFloorToInt(subset.height() / lattice.fYCount);
+    int offset = subset.fLeft;
+    std::unique_ptr<int[]> xdivs(new int[lattice.fXCount]);
+    for (int i = 0; i < lattice.fXCount; ++i) {
+        xdivs[i] = offset + random->nextULessThan(maxPixPerXDiv) + 1 + offset;
+        offset = xdivs[i];
+    }
+    offset = subset.fTop;
+    std::unique_ptr<int[]> ydivs(new int[lattice.fYCount]);
+    for (int i = 0; i < lattice.fYCount; ++i) {
+        ydivs[i] = offset + random->nextULessThan(maxPixPerYDiv) + 1 + offset;
+        offset = ydivs[i];
+    }
+    lattice.fXDivs = xdivs.get();
+    lattice.fYDivs = ydivs.get();
+    bool hasFlags = random->nextBool();
+    std::unique_ptr<SkCanvas::Lattice::Flags[]> flags;
+    if (hasFlags) {
+        int n = (lattice.fXCount + 1) * (lattice.fYCount + 1);
+        flags.reset(new SkCanvas::Lattice::Flags[n]);
+        for (int i = 0; i < n; ++i) {
+            flags[i] = random->nextBool() ? SkCanvas::Lattice::kTransparent_Flags
+                                          : (SkCanvas::Lattice::Flags)0;
+        }
+    }
+    lattice.fFlags = flags.get();
+    SkRect dst;
+    dst.fLeft = random->nextRangeScalar(-2000.5f, 1000.f);
+    dst.fTop = random->nextRangeScalar(-2000.5f, 1000.f);
+    dst.fRight = dst.fLeft + random->nextRangeScalar(0.5f, 1000.f);
+    dst.fBottom = dst.fTop + random->nextRangeScalar(0.5f, 1000.f);
+    std::unique_ptr<SkLatticeIter> iter(new SkLatticeIter(lattice, dst));
+    SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
+    return NonAALatticeOp::Make(std::move(paint), viewMatrix, imgW, imgH, std::move(iter), dst);
+}
+
+#endif
