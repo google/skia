@@ -1192,12 +1192,12 @@ bool SkPath::hasOnlyMoveTos() const {
     return true;
 }
 
-bool SkPath::isZeroLength() const {
-    int count = fPathRef->countPoints();
+bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
+    int count = fPathRef->countPoints() - startPtIndex;
     if (count < 2) {
         return true;
     }
-    const SkPoint* pts = fPathRef.get()->points();
+    const SkPoint* pts = fPathRef.get()->points() + startPtIndex;
     const SkPoint& first = *pts;
     for (int index = 1; index < count; ++index) {
         if (first != pts[index]) {

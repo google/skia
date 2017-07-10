@@ -1177,9 +1177,8 @@ private:
     bool isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts,
                        bool* isClosed, Direction* direction) const;
 
-    // called by stroker to see if all points are equal and worthy of a cap
-    // equivalent to a short-circuit version of getBounds().isEmpty() 
-    bool isZeroLength() const;
+    // called by stroker to see if all points (in the last contour) are equal and worthy of a cap
+    bool isZeroLengthSincePoint(int startPtIndex) const;
 
     /** Returns if the path can return a bound at no cost (true) or will have to
         perform some computation (false).
