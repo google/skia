@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1eaab618_25706553",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-10T15:52:15Z",
+      "side": 0,
+      "message": "The fill color we return is used differently depending on the dst colorType. If it is kIndex_8, it is treated as an index into the color table. Otherwise, it\u0027s treated as a color. If we\u0027re treating it as a color, we always want transparent. If it\u0027s treated as an index, we need the index which corresponds to transparent.\n\nNow we\u0027ll always treat it as a color.",
+      "parentUuid": "2aad0f9b_91c9e341",
+      "range": {
+        "startLine": 435,
+        "startChar": 31,
+        "endLine": 435,
+        "endChar": 51
+      },
+      "revId": "bace7a940a6d83051eaa98b73dfa8867ed16ac2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f68a9764_47d1c440",
         "filename": "src/codec/SkGifCodec.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "bace7a940a6d83051eaa98b73dfa8867ed16ac2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91fe7123_110b5c1d",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-10T15:52:15Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "f68a9764_47d1c440",
+      "range": {
+        "startLine": 448,
+        "startChar": 4,
+        "endLine": 449,
+        "endChar": 42
+      },
+      "revId": "bace7a940a6d83051eaa98b73dfa8867ed16ac2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

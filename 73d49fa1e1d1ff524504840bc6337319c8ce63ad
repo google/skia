@@ -22,6 +22,30 @@
       "revId": "73d49fa1e1d1ff524504840bc6337319c8ce63ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffd76684_41683716",
+        "filename": "bench/CodecBenchPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-10T15:52:15Z",
+      "side": 1,
+      "message": "As discussed in person, we\u0027ll do a separate pass to remove it entirely.",
+      "parentUuid": "a3d809a7_a4429265",
+      "range": {
+        "startLine": 21,
+        "startChar": 13,
+        "endLine": 21,
+        "endChar": 33
+      },
+      "revId": "73d49fa1e1d1ff524504840bc6337319c8ce63ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
