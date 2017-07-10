@@ -180,6 +180,20 @@ public:
                                               const GrSurfaceDesc&, SkBackingFit,
                                               SkBudgeted, uint32_t flags = 0);
 
+    /**
+     * Creates a proxy that will be mipmapped.
+     *
+     * @param desc          Description of the texture properties.
+     * @param budgeted      Does the texture count against the resource cache budget?
+     * @param texels        A contiguous array of mipmap levels
+     * @param mipLevelCount The amount of elements in the texels array
+     */
+    static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrResourceProvider*,
+                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                    const GrMipLevel* texels, int mipLevelCount,
+                                                    SkDestinationSurfaceColorMode mipColorMode =
+                                                           SkDestinationSurfaceColorMode::kLegacy);
+
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
     static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
