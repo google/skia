@@ -66,7 +66,8 @@ private:
             }
 
             if (SkCodec::kSuccess != fCodec->getPixels(info, bm.getPixels(),
-                                                       bm.rowBytes(), &opts)) {
+                                                       bm.rowBytes(), &opts,
+                                                       nullptr, nullptr)) {
                 SkDebugf("Could not getPixels for frame %i: %s", frameIndex, FLAGS_animatedGif[0]);
                 return;
             }

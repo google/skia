@@ -348,7 +348,8 @@ static void check(skiatest::Reporter* r,
             SkIRect subset = SkIRect::MakeXYWH(2 * (width / 3), 0, width / 3, height);
             options.fSubset = &subset;
 
-            const auto partialStartResult = codec->startScanlineDecode(info, &options);
+            const SkCodec::Result partialStartResult = codec->startScanlineDecode(info, &options,
+                    nullptr, nullptr);
             REPORTER_ASSERT(r, partialStartResult == SkCodec::kSuccess);
 
             for (int y = 0; y < height; y++) {
@@ -383,7 +384,8 @@ static void check(skiatest::Reporter* r,
         SkImageInfo subsetInfo = info.makeWH(subset.width(), subset.height());
         SkBitmap bm;
         bm.allocPixels(subsetInfo);
-        const auto result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes(), &opts);
+        const SkCodec::Result result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes(),
+                                                        &opts, nullptr, nullptr);
 
         if (supportsSubsetDecoding) {
             if (expectedResult == SkCodec::kSuccess) {
@@ -664,6 +666,53 @@ DEF_TEST(Codec_Empty, r) {
 #if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
     test_invalid(r, "empty_images/zero_height.tiff");
 #endif
+}
+
+static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    if (!stream) {
+        return;
+    }
+    std::unique_ptr<SkCodec> decoder(SkCodec::NewFromStream(stream.release()));
+    if (!decoder) {
+        SkDebugf("Missing codec for %s\n", path);
+        return;
+    }
+
+    const SkImageInfo info = decoder->getInfo().makeColorType(kIndex_8_SkColorType);
+
+    // This should return kSuccess because kIndex8 is supported.
+    SkPMColor colorStorage[256];
+    int colorCount;
+    SkCodec::Result result = decoder->startScanlineDecode(info, nullptr, colorStorage,
+                                                          &colorCount);
+    if (SkCodec::kSuccess == result) {
+        // This should return kInvalidParameters because, in kIndex_8 mode, we must pass in a valid
+        // colorPtr and a valid colorCountPtr.
+        result = decoder->startScanlineDecode(info, nullptr, nullptr, nullptr);
+        REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
+        result = decoder->startScanlineDecode(info);
+        REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
+    } else if (SkCodec::kUnimplemented == result) {
+        // New method should be supported:
+        SkBitmap bm;
+        bm.allocPixels(info, SkColorTable::Make(colorStorage, 256));
+        result = decoder->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), nullptr,
+                                                 colorStorage, &colorCount);
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
+        result = decoder->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, SkCodec::kInvalidParameters == result);
+    } else {
+        // The test is uninteresting if kIndex8 is not supported
+        ERRORF(r, "Should not call test_invalid_parameters for non-Index8 file: %s\n", path);
+        return;
+    }
+
+}
+
+DEF_TEST(Codec_Params, r) {
+    test_invalid_parameters(r, "index8.png");
+    test_invalid_parameters(r, "mandrill.wbmp");
 }
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
@@ -1053,8 +1102,14 @@ static bool alpha_type_match(SkAlphaType origAlphaType, SkAlphaType codecAlphaTy
 
 static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const SkImageInfo& info) {
     SkBitmap bm1;
-    bm1.allocPixels(info);
-    SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes());
+    SkPMColor colors[256];
+    sk_sp<SkColorTable> colorTable1 = SkColorTable::Make(colors, 256);
+    bm1.allocPixels(info, colorTable1);
+    int numColors;
+    SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes(), nullptr,
+                                                  const_cast<SkPMColor*>(colorTable1->readColors()),
+                                                  &numColors);
+    // This will fail to update colorTable1->count() but is fine for the purpose of this test.
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     // Encode the image to png.
@@ -1066,8 +1121,10 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
     SkBitmap bm2;
-    bm2.allocPixels(info);
-    result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes());
+    sk_sp<SkColorTable> colorTable2 = SkColorTable::Make(colors, 256);
+    bm2.allocPixels(info, colorTable2);
+    result = codec->getPixels(info, bm2.getPixels(), bm2.rowBytes(), nullptr,
+                              const_cast<SkPMColor*>(colorTable2->readColors()), &numColors);
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     SkMD5::Digest d1, d2;
@@ -1194,7 +1251,7 @@ static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
     SkCodec::Options opts;
     opts.fFrameIndex = frame;
     REPORTER_ASSERT(r, SkCodec::kSuccess == codec->getPixels(info,
-            bm.getPixels(), bm.rowBytes(), &opts));
+            bm.getPixels(), bm.rowBytes(), &opts, nullptr, nullptr));
 }
 
 // For an animated GIF, we should only read enough to decode frame 0 if the

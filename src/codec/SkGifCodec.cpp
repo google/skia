@@ -94,6 +94,10 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     //        expanding to 8 bits and take advantage of the SkSwizzler to work from 4.
     const auto encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, alpha, 8);
 
+    // Although the encodedInfo is always kPalette_Color, it is possible that kIndex_8 is
+    // unsupported if the frame is subset and there is no transparent pixel.
+    const auto colorType = reader->firstFrameSupportsIndex8() ? kIndex_8_SkColorType
+                                                              : kN32_SkColorType;
     // The choice of unpremul versus premul is arbitrary, since all colors are either fully
     // opaque or fully transparent (i.e. kBinary), but we stored the transparent colors as all
     // zeroes, which is arguably premultiplied.
@@ -101,7 +105,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
                                                         : kOpaque_SkAlphaType;
 
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
-                                             kN32_SkColorType, alphaType,
+                                             colorType, alphaType,
                                              SkColorSpace::MakeSRGB());
     return new SkGifCodec(encodedInfo, imageInfo, reader.release());
 }
@@ -185,7 +189,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
 }
 
 
-SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, const Options& opts) {
+SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, SkPMColor* inputColorPtr,
+        int* inputColorCount, const Options& opts) {
     if (opts.fSubset) {
         return gif_error("Subsets not supported.\n", kUnimplemented);
     }
@@ -246,6 +251,11 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, const Op
     this->initializeSwizzler(dstInfo, frameIndex);
 
     SkASSERT(fCurrColorTable);
+    if (inputColorCount) {
+        *inputColorCount = fCurrColorTable->count();
+    }
+    copy_color_table(dstInfo, fCurrColorTable.get(), inputColorPtr, inputColorCount);
+
     return kSuccess;
 }
 
@@ -287,8 +297,10 @@ void SkGifCodec::initializeSwizzler(const SkImageInfo& dstInfo, int frameIndex) 
 SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* pixels, size_t dstRowBytes,
                                         const Options& opts,
+                                        SkPMColor* inputColorPtr,
+                                        int* inputColorCount,
                                         int* rowsDecoded) {
-    Result result = this->prepareToDecode(dstInfo, opts);
+    Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
     switch (result) {
         case kSuccess:
             break;
@@ -316,8 +328,10 @@ SkCodec::Result SkGifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
 SkCodec::Result SkGifCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
                                                      void* pixels, size_t dstRowBytes,
-                                                     const SkCodec::Options& opts) {
-    Result result = this->prepareToDecode(dstInfo, opts);
+                                                     const SkCodec::Options& opts,
+                                                     SkPMColor* inputColorPtr,
+                                                     int* inputColorCount) {
+    Result result = this->prepareToDecode(dstInfo, inputColorPtr, inputColorCount, opts);
     if (result != kSuccess) {
         return result;
     }
@@ -409,8 +423,28 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
 }
 
 uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
+    // Note: Using fCurrColorTable relies on having called initializeColorTable already.
+    // This is (currently) safe because this method is only called when filling, after
+    // initializeColorTable has been called.
+    // FIXME: Is there a way to make this less fragile?
+    if (dstInfo.colorType() == kIndex_8_SkColorType && fCurrColorTableIsReal) {
+        // We only support index 8 for the first frame, for backwards
+        // compatibity on Android, so we are using the color table for the first frame.
+        SkASSERT(this->options().fFrameIndex == 0);
+        // Use the transparent index for the first frame.
+        const int transPixel = fReader->frameContext(0)->transparentPixel();
+        if (transPixel >= 0 && transPixel < fCurrColorTable->count()) {
+            return transPixel;
+        }
+        // Fall through to return SK_ColorTRANSPARENT (i.e. 0). This choice is arbitrary,
+        // but we have to pick something inside the color table, and this one is as good
+        // as any.
+    }
     // Using transparent as the fill value matches the behavior in Chromium,
     // which ignores the background color.
+    // If the colorType is kIndex_8, and there was no color table (i.e.
+    // fCurrColorTableIsReal is false), this value (zero) corresponds to the
+    // only entry in the dummy color table provided to the client.
     return SK_ColorTRANSPARENT;
 }
 

@@ -57,7 +57,13 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     SkImageInfo decodeInfo = SkImageInfo::Make(scaledSize.width(), scaledSize.height(),
                                                dstColorType, dstAlphaType, dstColorSpace);
 
-    SkASSERT(dstColorType != kIndex_8_SkColorType);
+    // Construct a color table for the decode if necessary
+    sk_sp<SkColorTable> colorTable(nullptr);
+    int maxColors = 256;
+    SkPMColor colors[256];
+    if (kIndex_8_SkColorType == dstColorType) {
+        colorTable.reset(new SkColorTable(colors, maxColors));
+    }
 
     // Initialize the destination bitmap
     int scaledOutX = 0;
@@ -84,7 +90,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
         outInfo = outInfo.makeColorType(kAlpha_8_SkColorType).makeAlphaType(kPremul_SkAlphaType);
     }
     bitmap->setInfo(outInfo);
-    if (!bitmap->tryAllocPixels(allocator, nullptr)) {
+    if (!bitmap->tryAllocPixels(allocator, colorTable.get())) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
         return false;
     }
@@ -106,6 +112,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     SkAndroidCodec::AndroidOptions options;
     options.fSampleSize = sampleSize;
     options.fSubset = &subset;
+    options.fColorPtr = colors;
+    options.fColorCount = &maxColors;
     options.fZeroInitialized = zeroInit;
     void* dst = bitmap->getAddr(scaledOutX, scaledOutY);
 
@@ -114,6 +122,11 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     if (SkCodec::kSuccess != result && SkCodec::kIncompleteInput != result) {
         SkCodecPrintf("Error: Could not get pixels.\n");
         return false;
+    }
+
+    // Intialize the color table
+    if (kIndex_8_SkColorType == dstColorType) {
+        colorTable->dangerous_overwriteColors(colors, maxColors);
     }
 
     return true;

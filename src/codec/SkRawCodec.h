@@ -35,7 +35,7 @@ public:
 protected:
 
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
-            int*) override;
+            SkPMColor*, int*, int*) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kDNG;

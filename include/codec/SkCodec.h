@@ -338,19 +338,26 @@ public:
      *         reported by the codec, the color space transformation is
      *         a no-op.
      *
+     *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
+     *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
+     *  (where N is the logical number of table entries) and set ctableCount to N.
+     *
+     *  If info is not kIndex8_SkColorType, then the last two parameters may be NULL. If ctableCount
+     *  is not null, it will be set to 0.
+     *
      *  If a scanline decode is in progress, scanline mode will end, requiring the client to call
      *  startScanlineDecode() in order to return to decoding scanlines.
      *
      *  @return Result kSuccess, or another value explaining the type of failure.
      */
-    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options*);
+    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options*,
+                     SkPMColor ctable[], int* ctableCount);
 
     /**
-     *  Simplified version of getPixels() that uses the default Options.
+     *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType and
+     *  uses the default Options.
      */
-    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-        return this->getPixels(info, pixels, rowBytes, nullptr);
-    }
+    Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
 
     /**
      *  If decoding to YUV is supported, this returns true.  Otherwise, this
@@ -403,13 +410,25 @@ public:
      *      if present, or the full image as described in dstInfo.
      *  @param options Contains decoding options, including if memory is zero
      *      initialized and whether to decode a subset.
+     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
+     *      kIndex8, this should be non-NULL and have enough storage for 256
+     *      colors.  The color table will be populated after decoding the palette.
+     *  @param ctableCount A pointer to the size of the color table.  When
+     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
+     *      be modified to the true size of the color table (<= 256) after
+     *      decoding the palette.
      *  @return Enum representing success or reason for failure.
      */
     Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
-            const Options*);
+            const Options*, SkPMColor* ctable, int* ctableCount);
+
+    Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
+            const Options* options) {
+        return this->startIncrementalDecode(dstInfo, dst, rowBytes, options, nullptr, nullptr);
+    }
 
     Result startIncrementalDecode(const SkImageInfo& dstInfo, void* dst, size_t rowBytes) {
-        return this->startIncrementalDecode(dstInfo, dst, rowBytes, nullptr);
+        return this->startIncrementalDecode(dstInfo, dst, rowBytes, nullptr, nullptr, nullptr);
     }
 
     /**
@@ -460,16 +479,23 @@ public:
      *      those of getInfo, this implies a scale.
      *  @param options Contains decoding options, including if memory is zero
      *      initialized.
+     *  @param ctable A pointer to a color table.  When dstInfo.colorType() is
+     *      kIndex8, this should be non-NULL and have enough storage for 256
+     *      colors.  The color table will be populated after decoding the palette.
+     *  @param ctableCount A pointer to the size of the color table.  When
+     *      dstInfo.colorType() is kIndex8, this should be non-NULL.  It will
+     *      be modified to the true size of the color table (<= 256) after
+     *      decoding the palette.
      *  @return Enum representing success or reason for failure.
      */
-    Result startScanlineDecode(const SkImageInfo& dstInfo, const Options* options);
+    Result startScanlineDecode(const SkImageInfo& dstInfo, const Options* options,
+            SkPMColor ctable[], int* ctableCount);
 
     /**
-     *  Simplified version of startScanlineDecode() that uses the default Options.
+     *  Simplified version of startScanlineDecode() that asserts that info is NOT
+     *  kIndex8_SkColorType and uses the default Options.
      */
-    Result startScanlineDecode(const SkImageInfo& dstInfo) {
-        return this->startScanlineDecode(dstInfo, nullptr);
-    }
+    Result startScanlineDecode(const SkImageInfo& dstInfo);
 
     /**
      *  Write the next countLines scanlines into dst.
@@ -713,6 +739,7 @@ protected:
      */
     virtual Result onGetPixels(const SkImageInfo& info,
                                void* pixels, size_t rowBytes, const Options&,
+                               SkPMColor ctable[], int* ctableCount,
                                int* rowsDecoded) = 0;
 
     virtual bool onQueryYUV8(SkYUVSizeInfo*, SkYUVColorSpace*) const {
@@ -774,6 +801,7 @@ protected:
      * kN32_SkColorType: Transparent or Black, depending on the src alpha type
      * kRGB_565_SkColorType: Black
      * kGray_8_SkColorType: Black
+     * kIndex_8_SkColorType: First color in color table
      */
     virtual uint64_t onGetFillValue(const SkImageInfo& dstInfo) const;
 
@@ -873,12 +901,12 @@ private:
 
     // Methods for scanline decoding.
     virtual Result onStartScanlineDecode(const SkImageInfo& /*dstInfo*/,
-            const Options& /*options*/) {
+            const Options& /*options*/, SkPMColor* /*ctable*/, int* /*ctableCount*/) {
         return kUnimplemented;
     }
 
     virtual Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
-            const Options&) {
+            const Options&, SkPMColor*, int*) {
         return kUnimplemented;
     }
 

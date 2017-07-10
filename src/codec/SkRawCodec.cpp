@@ -688,6 +688,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream) {
 
 SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
+                                        SkPMColor ctable[], int* ctableCount,
                                         int* rowsDecoded) {
     if (!conversion_possible(dstInfo, this->getInfo()) ||
         !this->initializeColorXform(dstInfo, options.fPremulBehavior))

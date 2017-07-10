@@ -44,7 +44,8 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, s
                                         const Options& opts) {
     SkCodec::Options codecOpts;
     codecOpts.fPremulBehavior = opts.fBehavior;
-    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, &codecOpts);
+    SkCodec::Result result = fCodec->getPixels(info, pixels, rowBytes, &codecOpts, nullptr,
+                                               nullptr);
     switch (result) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:
