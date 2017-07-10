@@ -10,8 +10,6 @@
  */
 #ifndef GrDitherEffect_DEFINED
 #define GrDitherEffect_DEFINED
-#include "SkTypes.h"
-#if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "effects/GrProxyMove.h"
@@ -32,5 +30,4 @@ private:
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     typedef GrFragmentProcessor INHERITED;
 };
-#endif
 #endif

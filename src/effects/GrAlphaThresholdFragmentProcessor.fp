@@ -45,10 +45,17 @@ in uniform float outerThreshold;
 }
 
 @header {
+    #include "SkTypes.h"
+    #if SK_SUPPORT_GPU
     #include "GrColorSpaceXform.h"
 }
 
+@headerEnd {
+    #endif
+}
+
 @cpp {
+    #if SK_SUPPORT_GPU
     inline GrFragmentProcessor::OptimizationFlags GrAlphaThresholdFragmentProcessor::optFlags(
                                                                              float outerThreshold) {
         if (outerThreshold >= 1.0) {
@@ -58,6 +65,10 @@ in uniform float outerThreshold;
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
         }
     }
+}
+
+@cppEnd {
+    #endif
 }
 
 void main() {
