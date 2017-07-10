@@ -9,6 +9,9 @@
 #include "sk_tool_utils.h"
 #include "SkRandom.h"
 
+#include "SkImage.h"
+#include "Resources.h"
+
 namespace skiagm {
 
 // This GM draws a lot of arcs in a 'Z' shape. It particularly exercises
@@ -27,51 +30,24 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(1000, 1000);
+        return SkISize::Make(512, 512);
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkRandom rand;
+		sk_sp<SkImage> image = GetResourceAsImage("mandrill_256.png");
 
-        SkRect rect = SkRect::MakeXYWH(10, 10, 200, 200);
+		canvas->clipRect(SkRect::MakeXYWH(1, 1, 255, 255));
 
-        SkPaint p;
+		canvas->save();
 
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(35);
-        int xOffset = 0, yOffset = 0;
-        int direction = 0;
+		canvas->rotate(45.0f);
+		canvas->clipRect(SkRect::MakeXYWH(300, -128, 128, 128));
 
-        for (float arc = 134.0f; arc < 136.0f; arc += 0.01f) {
-            SkColor color = rand.nextU();
-            color |= 0xff000000;
-            p.setColor(color);
+		SkPaint paint;
 
-            canvas->save();
-            canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
-            canvas->restore();
+		canvas->drawImageRect(image, SkIRect::MakeWH(128, 128), SkRect::MakeXYWH(300, -128, 256, 256), &paint);
 
-            switch (direction) {
-            case 0:
-                xOffset += 10;
-                if (xOffset >= 700) {
-                    direction = 1;
-                }
-                break;
-            case 1:
-                xOffset -= 10;
-                yOffset += 10;
-                if (xOffset < 50) {
-                    direction = 2;
-                }
-                break;
-            case 2:
-                xOffset += 10;
-                break;
-            }
-        }
-
+		canvas->restore();
     }
 
 private:

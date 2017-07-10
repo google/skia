@@ -6,16 +6,15 @@
  * found in the LICENSE file.
  */
 
+#if 0 //SK_SUPPORT_GPU
 
 #ifndef SKGLWIDGET_H_
 #define SKGLWIDGET_H_
 
-#if SK_SUPPORT_GPU
 
 #include <QtOpenGL/QGLWidget>
 #include "SkDebugCanvas.h"
 #include "SkDebugger.h"
-#include "SkGpuDevice.h"
 #include "GrContext.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"

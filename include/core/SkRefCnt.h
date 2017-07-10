@@ -209,7 +209,8 @@ template <typename Derived>
 class SkNVRefCnt : SkNoncopyable {
 public:
     SkNVRefCnt() : fRefCnt(1) {}
-    ~SkNVRefCnt() { SkASSERTF(1 == getRefCnt(), "NVRefCnt was %d", getRefCnt()); }
+	~SkNVRefCnt() { } //SkASSERTF(1 == getRefCnt(), "NVRefCnt was %d", getRefCnt());
+//}
 
     // Implementation is pretty much the same as SkRefCntBase. All required barriers are the same:
     //   - unique() needs acquire when it returns true, and no barrier if it returns false;

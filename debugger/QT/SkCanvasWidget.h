@@ -27,7 +27,7 @@ public:
 
     enum WidgetType {
         kRaster_8888_WidgetType = 1 << 0,
-#if SK_SUPPORT_GPU
+#if 0//SK_SUPPORT_GPU
         kGPU_WidgetType         = 1 << 1,
 #endif
     };
@@ -36,7 +36,7 @@ public:
 
     void setWidgetVisibility(WidgetType type, bool isHidden);
 
-#if SK_SUPPORT_GPU
+#if 0//SK_SUPPORT_GPU
     void setGLSampleCount(int sampleCount);
 #endif
 
@@ -64,7 +64,7 @@ Q_SIGNALS:
 private:
     QHBoxLayout fHorizontalLayout;
     SkRasterWidget fRasterWidget;
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     SkGLWidget fGLWidget;
 #endif
     SkDebugger* fDebugger;

@@ -6,8 +6,14 @@
  * found in the LICENSE file.
  */
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#define QT_NO_KEYWORDS 1
 
 #include "SkGLWidget.h"
+#include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
 

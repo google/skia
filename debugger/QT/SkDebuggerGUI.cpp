@@ -5,6 +5,12 @@
  * found in the LICENSE file.
  */
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#define QT_NO_KEYWORDS 1
+
 #include "SkDebuggerGUI.h"
 #include "SkPicture.h"
 #include <QListWidgetItem>
@@ -169,7 +175,7 @@ void SkDebuggerGUI::actionDelete() {
     this->updateImage();
 }
 
-#if SK_SUPPORT_GPU
+#if 0//SK_SUPPORT_GPU
 void SkDebuggerGUI::actionGLSettingsChanged() {
     bool isToggled = fSettingsWidget.isGLActive();
     if (isToggled) {

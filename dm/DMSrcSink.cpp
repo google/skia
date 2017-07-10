@@ -1167,7 +1167,7 @@ Name ColorCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const SkRect kSKPViewport = {0,0, 1000,1000};
+static const SkRect kSKPViewport = {0,0, 16000,16000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) {}
 
@@ -1201,6 +1201,7 @@ SkISize SKPSrc::size() const {
         return {0, 0};
     }
     return viewport.roundOut().size();
+//    return SkISize::Make(info.fCullRect.width(), info.fCullRect.height());
 }
 
 Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }

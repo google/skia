@@ -6,6 +6,11 @@
  * found in the LICENSE file.
  */
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#define QT_NO_KEYWORDS 1
 
 #include "SkCanvasWidget.h"
 #include <QtGui>
@@ -14,7 +19,7 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent,
         SkDebugger* debugger) : QWidget(parent)
     , fHorizontalLayout(this)
     , fRasterWidget(debugger)
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     , fGLWidget(debugger)
 #endif
 {
@@ -25,24 +30,24 @@ SkCanvasWidget::SkCanvasWidget(QWidget* parent,
     fHorizontalLayout.setContentsMargins(0,0,0,0);
     fRasterWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     fGLWidget.setSizePolicy(QSizePolicy::Expanding,
             QSizePolicy::Expanding);
 #endif
 
     fHorizontalLayout.addWidget(&fRasterWidget);
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     fHorizontalLayout.addWidget(&fGLWidget);
 #endif
 
     fPreviousPoint.set(0,0);
     fUserMatrix.reset();
 
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     setWidgetVisibility(kGPU_WidgetType, true);
 #endif
     connect(&fRasterWidget, SIGNAL(drawComplete()), this->parentWidget(), SLOT(drawComplete()));
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     connect(&fGLWidget, SIGNAL(drawComplete()), this->parentWidget(), SLOT(drawComplete()));
 #endif
 }
@@ -52,7 +57,7 @@ SkCanvasWidget::~SkCanvasWidget() {}
 void SkCanvasWidget::drawTo(int index) {
     fDebugger->setIndex(index);
     fRasterWidget.updateImage();
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     fGLWidget.updateImage();
 #endif
     Q_EMIT commandChanged(fDebugger->index());
@@ -125,14 +130,14 @@ void SkCanvasWidget::setWidgetVisibility(WidgetType type, bool isHidden) {
     if (type == kRaster_8888_WidgetType) {
         fRasterWidget.setHidden(isHidden);
     }
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
     else if (type == kGPU_WidgetType) {
         fGLWidget.setHidden(isHidden);
     }
 #endif
 }
 
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
 void SkCanvasWidget::setGLSampleCount(int sampleCount)
 {
     fGLWidget.setSampleCount(sampleCount);

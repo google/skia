@@ -7,7 +7,7 @@
 
 #include "SkDrawCommand.h"
 
-#include "png.h"
+//#include "png.h"
 
 #include "SkAutoMalloc.h"
 #include "SkBlurMaskFilter.h"
@@ -698,12 +698,14 @@ static void store_bool(Json::Value* target, const char* key, bool value, bool de
     }
 }
 
+#if 0
 static void encode_data(const void* bytes, size_t count, const char* contentType,
                         UrlDataManager& urlDataManager, Json::Value* target) {
     sk_sp<SkData> data(SkData::MakeWithCopy(bytes, count));
     SkString url = urlDataManager.addData(data.get(), contentType);
     *target = Json::Value(url.c_str());
 }
+#endif
 
 void SkDrawCommand::flatten(const SkFlattenable* flattenable, Json::Value* target,
                             UrlDataManager& urlDataManager) {
@@ -712,7 +714,7 @@ void SkDrawCommand::flatten(const SkFlattenable* flattenable, Json::Value* targe
     void* data = sk_malloc_throw(buffer.bytesWritten());
     buffer.writeToMemory(data);
     Json::Value jsonData;
-    encode_data(data, buffer.bytesWritten(), "application/octet-stream", urlDataManager, &jsonData);
+//    encode_data(data, buffer.bytesWritten(), "application/octet-stream", urlDataManager, &jsonData);
     Json::Value jsonFlattenable;
     jsonFlattenable[SKDEBUGCANVAS_ATTRIBUTE_NAME] = Json::Value(flattenable->getTypeName());
     jsonFlattenable[SKDEBUGCANVAS_ATTRIBUTE_DATA] = jsonData;
@@ -725,13 +727,16 @@ void SkDrawCommand::flatten(const SkFlattenable* flattenable, Json::Value* targe
     sk_free(data);
 }
 
+#if 0
 static void write_png_callback(png_structp png_ptr, png_bytep data, png_size_t length) {
     SkWStream* out = (SkWStream*) png_get_io_ptr(png_ptr);
     out->write(data, length);
 }
+#endif
 
 void SkDrawCommand::WritePNG(const uint8_t* rgba, unsigned width, unsigned height,
                              SkWStream& out, bool isOpaque) {
+#if 0
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     SkASSERT(png != nullptr);
     png_infop info_ptr = png_create_info_struct(png);
@@ -765,6 +770,7 @@ void SkDrawCommand::WritePNG(const uint8_t* rgba, unsigned width, unsigned heigh
     png_destroy_write_struct(&png, NULL);
     sk_free(rows);
     sk_free(pixels);
+#endif
 }
 
 bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
@@ -778,6 +784,7 @@ bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
         return false;
     }
 
+#if 0
     SkBitmap bm;
     bm.installPixels(dstInfo, buffer.get(), rowBytes);
     sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(bm);
@@ -787,8 +794,9 @@ bool SkDrawCommand::flatten(const SkImage& image, Json::Value* target,
                             out, false);
     sk_sp<SkData> encoded = out.detachAsData();
     Json::Value jsonData;
-    encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager, &jsonData);
+    //encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager, &jsonData);
     (*target)[SKDEBUGCANVAS_ATTRIBUTE_DATA] = jsonData;
+#endif
     return true;
 }
 
@@ -1167,8 +1175,8 @@ static void apply_paint_typeface(const SkPaint& paint, Json::Value* target,
         void* data = sk_malloc_throw(buffer.bytesWritten());
         buffer.copyTo(data);
         Json::Value jsonData;
-        encode_data(data, buffer.bytesWritten(), "application/octet-stream", urlDataManager,
-                    &jsonData);
+        //encode_data(data, buffer.bytesWritten(), "application/octet-stream", urlDataManager,
+//                    &jsonData);
         jsonTypeface[SKDEBUGCANVAS_ATTRIBUTE_DATA] = jsonData;
         sk_free(data);
         (*target)[SKDEBUGCANVAS_ATTRIBUTE_TYPEFACE] = jsonTypeface;

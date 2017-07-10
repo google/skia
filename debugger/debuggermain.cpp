@@ -6,6 +6,12 @@
  * found in the LICENSE file.
  */
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#define QT_NO_KEYWORDS 1
+
 #include "SkDebuggerGUI.h"
 #include "SkGraphics.h"
 #include <QApplication>
