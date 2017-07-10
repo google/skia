@@ -48,20 +48,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Textures
 
-    /**
-     * Creates a new texture in the resource cache and returns it. The caller owns a
-     * ref on the returned texture which must be balanced by a call to unref.
-     *
-     * @param desc          Description of the texture properties.
-     * @param budgeted      Does the texture count against the resource cache budget?
-     * @param texels        A contiguous array of mipmap levels
-     * @param mipLevelCount The amount of elements in the texels array
-     */
-    sk_sp<GrTextureProxy> createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                 const GrMipLevel* texels, int mipLevelCount,
-                                                 SkDestinationSurfaceColorMode mipColorMode =
-                                                        SkDestinationSurfaceColorMode::kLegacy);
-
     /** Assigns a unique key to the texture. The texture will be findable via this key using
     findTextureByUniqueKey(). If an existing texture has this key, it's key will be removed. */
     void assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy*);
@@ -77,11 +63,19 @@ public:
      */
     sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
 
+    /*
+     * Try to find an existing scratch texture that exactly matches 'desc'. If successful
+     * update the budgeting accordingly.
+     */
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
+
     /** Create an exact fit texture with no initial data to upload.
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
-    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
+                                   const SkTArray<GrMipLevel>& texels,
+                                   SkDestinationSurfaceColorMode mipColorMode);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
@@ -258,12 +252,6 @@ private:
     void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
     sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
-
-    /*
-     * Try to find an existing scratch texture that exactly matches 'desc'. If successful
-     * update the budgeting accordingly.
-     */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
