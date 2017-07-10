@@ -39,6 +39,10 @@ private:
 
     void writeVariableReference(const VariableReference& ref) override;
 
+    String getSamplerHandle(const Variable& var);
+
+    void writeFunctionCall(const FunctionCall& c) override;
+
     void writeFunction(const FunctionDefinition& f) override;
 
     void writeSetting(const Setting& s) override;
