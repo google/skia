@@ -214,6 +214,8 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::onFilterImage(SkSpecialImage* sourc
     get_box3_params(sigma.x(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);
     get_box3_params(sigma.y(), &kernelSizeY, &kernelSizeY3, &lowOffsetY, &highOffsetY);
 
+    SkDebugf("Image mask box: %d %d\n", kernelSizeX, kernelSizeX3);
+
     if (kernelSizeX < 0 || kernelSizeY < 0) {
         return nullptr;
     }

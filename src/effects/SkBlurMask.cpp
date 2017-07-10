@@ -519,6 +519,8 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
 
     int ry = rx;    // only do square blur for now
 
+    SkDebugf("Blur mask box: %d\n", rx);
+
     int padx = passCount * rx;
     int pady = passCount * ry;
 
