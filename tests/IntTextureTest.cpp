@@ -66,10 +66,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         levels[1].fPixels = testData.get();
         levels[1].fRowBytes = (kS / 2) * sizeof(int32_t);
 
-        sk_sp<GrTextureProxy> temp(context->resourceProvider()->createMipMappedTexture(
-                                                                                  desc,
-                                                                                  SkBudgeted::kYes,
-                                                                                  levels, 2));
+        sk_sp<GrTextureProxy> temp(GrSurfaceProxy::MakeDeferredMipMap(context->resourceProvider(),
+                                                                      desc,
+                                                                      SkBudgeted::kYes,
+                                                                      levels, 2));
         REPORTER_ASSERT(reporter, !temp);
     }
 

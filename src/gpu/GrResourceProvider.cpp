@@ -73,54 +73,31 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
     return true;
 }
 
-// MDB TODO: this should probably be a factory on GrSurfaceProxy
-sk_sp<GrTextureProxy> GrResourceProvider::createMipMappedTexture(
-                                                      const GrSurfaceDesc& desc,
-                                                      SkBudgeted budgeted,
-                                                      const GrMipLevel* texels,
-                                                      int mipLevelCount,
-                                                      SkDestinationSurfaceColorMode mipColorMode) {
+sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                   const SkTArray<GrMipLevel>& texels,
+                                                   SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
-    if (!mipLevelCount) {
-        if (texels) {
-            return nullptr;
-        }
-        return GrSurfaceProxy::MakeDeferred(this, desc, budgeted, nullptr, 0);
-    } else if (1 == mipLevelCount) {
-        if (!texels) {
-            return nullptr;
-        }
-        return this->createTextureProxy(desc, budgeted, texels[0]);
-    }
+    SkASSERT(texels.count() >= 1);
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    if (!validate_desc(desc, *fCaps, mipLevelCount)) {
+    if (!validate_desc(desc, *fCaps, texels.count())) {
         return nullptr;
     }
 
-    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
-    for (int i = 0; i < mipLevelCount; ++i) {
-        if (!texels[i].fPixels) {
-            return nullptr;
-        }
-
-        texelsShallowCopy.push_back(texels[i]);
-    }
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texelsShallowCopy));
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels));
     if (tex) {
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return tex;
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
                                                      SkBudgeted budgeted, uint32_t flags) {
-
     flags |= kExact_Flag | kNoCreate_Flag;
     sk_sp<GrTexture> tex(this->refScratchTexture(desc, flags));
     if (tex && SkBudgeted::kNo == budgeted) {
@@ -181,7 +158,6 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels));
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
-
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                    uint32_t flags) {

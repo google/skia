@@ -1680,7 +1680,8 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
     desc.fSampleCnt = sampleCnt;
     desc.fIsMipMapped = true;
 
-    return provider->createMipMappedTexture(desc, SkBudgeted::kYes, texels.get(), mipLevelCount);
+    return GrSurfaceProxy::MakeDeferredMipMap(provider, desc, SkBudgeted::kYes,
+                                              texels.get(), mipLevelCount);
 }
 
 // Exercise GrSurface::gpuMemorySize for different combos of MSAA, RT-only,
