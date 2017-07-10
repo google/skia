@@ -40,7 +40,7 @@ protected:
      * Initiates the Ico decode
      */
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
-            SkPMColor*, int*, int*) override;
+            int*) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kICO;
@@ -50,15 +50,15 @@ protected:
 
 private:
 
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options& options,
-            SkPMColor inputColorPtr[], int* inputColorCount) override;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options& options) override;
 
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
     bool onSkipScanlines(int count) override;
 
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
-            const SkCodec::Options&, SkPMColor*, int*) override;
+            const SkCodec::Options&) override;
 
     Result onIncrementalDecode(int* rowsDecoded) override;
 
