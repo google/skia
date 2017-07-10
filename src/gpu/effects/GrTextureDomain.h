@@ -53,8 +53,6 @@ public:
      * @param index     Pass a value >= 0 if using multiple texture domains in the same effect.
      *                  It is used to keep inserted variables from causing name collisions.
      */
-    GrTextureDomain(GrTexture*, const SkRect& domain, Mode, int index = -1);
-
     GrTextureDomain(GrTextureProxy*, const SkRect& domain, Mode, int index = -1);
 
     const SkRect& domain() const { return fDomain; }
