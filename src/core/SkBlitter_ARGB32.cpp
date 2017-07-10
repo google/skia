@@ -268,6 +268,69 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
 
 ///////////////////////////////////////////////////////////////////////
 
+static SK_ALWAYS_INLINE void SkARGB32_Black_BlitAlpha(SkAlpha alpha,
+        int x, int y, int width, uint32_t* device) {
+    SkPMColor black = (SkPMColor)(SK_A32_MASK << SK_A32_SHIFT);
+    if (alpha) {
+        if (alpha == 255) {
+            sk_memset32(device, black, width);
+        } else {
+            SkPMColor src = alpha << SK_A32_SHIFT;
+            unsigned dst_scale = 256 - alpha;
+            int n = width;
+            do {
+                --n;
+                device[n] = src + SkAlphaMulQ(device[n], dst_scale);
+            } while (n > 0);
+        }
+    }
+}
+
+void SkARGB32_Black_Blitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                          bool isEvenOdd, bool isInverse, bool isConvex) {
+    if (isInverse) {
+        this->blitRect(clip.fLeft, clip.fTop, clip.width(), deltas->top() - clip.fTop);
+        this->blitRect(clip.fLeft, deltas->bottom(), clip.width(), clip.fBottom - deltas->bottom());
+    }
+
+    for(int y = deltas->top(); y < deltas->bottom(); ++y) {
+        if (!deltas->isSorted(y) && deltas->count(y) << 3 >= clip.width()) {
+            // Too many deltas; sorting will be slow; just use a mask to handle it.
+            // This is such an important optimization that will bring ~2x speedup for benches
+            // like path_fill_small_long_line and path_stroke_small_sawtooth
+            SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
+            SkCoverageDeltaMask mask(rowIR);
+            for(int i = 0; i < deltas->count(y); ++i) {
+                const SkCoverageDelta& delta = deltas->getDelta(y, i);
+                mask.addDelta(delta.fX, y, delta.fDelta);
+            }
+            this->SkBlitter::blitCoverageDeltas(&mask, rowIR, isEvenOdd, isInverse, isConvex);
+            continue;
+        }
+        uint32_t* device = fDevice.writable_addr32(clip.fLeft, y);
+        deltas->sort(y);
+        int lastX = clip.fLeft;
+        SkFixed coverage = 0;
+        int i = 0;
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
+            const SkCoverageDelta& delta = deltas->getDelta(y, i);
+            SkASSERT(delta.fX >= lastX);
+            if (delta.fX > lastX) {
+                SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                         : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+                SkARGB32_Black_BlitAlpha(alpha, lastX, y, delta.fX - lastX, device);
+                device += delta.fX - lastX;
+                lastX = delta.fX;
+            }
+            coverage += delta.fDelta;
+        }
+        SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                 : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+        SkARGB32_Black_BlitAlpha(alpha, lastX, y, clip.fRight - lastX, device);
+    }
+}
+
 void SkARGB32_Black_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                        const int16_t runs[]) {
     uint32_t*   device = fDevice.writable_addr32(x, y);
