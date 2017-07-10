@@ -20,7 +20,6 @@
 #include "GrTessellator.h"
 #include "SkGeometry.h"
 
-#include "GrSimpleMeshDrawOpHelper.h"
 #include "ops/GrMeshDrawOp.h"
 
 #include <stdio.h>
@@ -156,23 +155,17 @@ bool GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
     return true;
 }
 
-namespace {
-
-class TessellatingPathOp final : public GrMeshDrawOp {
-private:
-    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
-
+class TessellatingPathOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
-                                          const GrShape& shape,
-                                          const SkMatrix& viewMatrix,
-                                          SkIRect devClipBounds,
-                                          GrAAType aaType,
-                                          const GrUserStencilSettings* stencilSettings) {
-        return Helper::FactoryHelper<TessellatingPathOp>(std::move(paint), shape, viewMatrix,
-                                                         devClipBounds, aaType, stencilSettings);
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const GrColor& color,
+                                                    const GrShape& shape,
+                                                    const SkMatrix& viewMatrix,
+                                                    SkIRect devClipBounds,
+                                                    bool antiAlias) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                new TessellatingPathOp(color, shape, viewMatrix, devClipBounds, antiAlias));
     }
 
     const char* name() const override { return "TessellatingPathOp"; }
@@ -180,45 +173,24 @@ public:
     SkString dumpInfo() const override {
         SkString string;
         string.appendf("Color 0x%08x, aa: %d\n", fColor, fAntiAlias);
-        string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    TessellatingPathOp(Helper::MakeArgs helperArgs,
-                       GrColor color,
-                       const GrShape& shape,
-                       const SkMatrix& viewMatrix,
-                       const SkIRect& devClipBounds,
-                       GrAAType aaType,
-                       const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, stencilSettings)
-            , fColor(color)
-            , fShape(shape)
-            , fViewMatrix(viewMatrix)
-            , fDevClipBounds(devClipBounds)
-            , fAntiAlias(GrAAType::kCoverage == aaType) {
-        SkRect devBounds;
-        viewMatrix.mapRect(&devBounds, shape.bounds());
-        if (shape.inverseFilled()) {
-            // Because the clip bounds are used to add a contour for inverse fills, they must also
-            // include the path bounds.
-            devBounds.join(SkRect::Make(fDevClipBounds));
-        }
-        this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
-    }
-
-    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
-
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrProcessorAnalysisCoverage coverage = fAntiAlias
-                                                       ? GrProcessorAnalysisCoverage::kSingleChannel
-                                                       : GrProcessorAnalysisCoverage::kNone;
-        return fHelper.xpRequiresDstTexture(caps, clip, coverage, &fColor);
-    }
-
 private:
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
+    }
+
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fColor);
+        fCanTweakAlphaForCoverage = optimizations.canTweakAlphaForCoverage();
+        fNeedsLocalCoords = optimizations.readsLocalCoords();
+    }
+
     SkPath getPath() const {
         SkASSERT(!fShape.style().applies());
         SkPath path;
@@ -288,9 +260,9 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
         DynamicVertexAllocator allocator(gp->getVertexStride(), target);
-        int count =
-                GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true, fColor,
-                                               fHelper.compatibleWithAlphaAsCoverage(), &isLinear);
+        int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator,
+                                                   true, fColor, fCanTweakAlphaForCoverage,
+                                                   &isLinear);
         if (count == 0) {
             return;
         }
@@ -303,13 +275,13 @@ private:
             using namespace GrDefaultGeoProcFactory;
 
             Color color(fColor);
-            LocalCoords::Type localCoordsType = fHelper.usesLocalCoords()
+            LocalCoords::Type localCoordsType = fNeedsLocalCoords
                                                         ? LocalCoords::kUsePosition_Type
                                                         : LocalCoords::kUnused_Type;
             Coverage::Type coverageType;
             if (fAntiAlias) {
                 color = Color(Color::kPremulGrColorAttribute_Type);
-                if (fHelper.compatibleWithAlphaAsCoverage()) {
+                if (fCanTweakAlphaForCoverage) {
                     coverageType = Coverage::kSolid_Type;
                 } else {
                     coverageType = Coverage::kAttribute_Type;
@@ -340,22 +312,42 @@ private:
         GrMesh mesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines : GrPrimitiveType::kTriangles);
         mesh.setNonIndexedNonInstanced(count);
         mesh.setVertexData(vb, firstVertex);
-        target->draw(gp, fHelper.makePipeline(target), mesh);
+        target->draw(gp, this->pipeline(), mesh);
     }
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    Helper fHelper;
+    TessellatingPathOp(const GrColor& color,
+                       const GrShape& shape,
+                       const SkMatrix& viewMatrix,
+                       const SkIRect& devClipBounds,
+                       bool antiAlias)
+            : INHERITED(ClassID())
+            , fColor(color)
+            , fShape(shape)
+            , fViewMatrix(viewMatrix)
+            , fDevClipBounds(devClipBounds)
+            , fAntiAlias(antiAlias) {
+        SkRect devBounds;
+        viewMatrix.mapRect(&devBounds, shape.bounds());
+        if (shape.inverseFilled()) {
+            // Because the clip bounds are used to add a contour for inverse fills, they must also
+            // include the path bounds.
+            devBounds.join(SkRect::Make(fDevClipBounds));
+        }
+        this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
+    }
+
     GrColor                 fColor;
     GrShape                 fShape;
     SkMatrix                fViewMatrix;
     SkIRect                 fDevClipBounds;
     bool                    fAntiAlias;
+    bool                    fCanTweakAlphaForCoverage;
+    bool                    fNeedsLocalCoords;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
-
-}  // anonymous namespace
 
 bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
@@ -364,13 +356,16 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fClip->getConservativeBounds(args.fRenderTargetContext->width(),
                                       args.fRenderTargetContext->height(),
                                       &clipBoundsI);
-    std::unique_ptr<GrDrawOp> op = TessellatingPathOp::Make(std::move(args.fPaint),
-                                                            *args.fShape,
-                                                            *args.fViewMatrix,
-                                                            clipBoundsI,
-                                                            args.fAAType,
-                                                            args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
+    std::unique_ptr<GrLegacyMeshDrawOp> op =
+            TessellatingPathOp::Make(args.fPaint.getColor(),
+                                     *args.fShape,
+                                     *args.fViewMatrix,
+                                     clipBoundsI,
+                                     GrAAType::kCoverage == args.fAAType);
+    GrPipelineBuilder pipelineBuilder(std::move(args.fPaint), args.fAAType);
+    pipelineBuilder.setUserStencil(args.fUserStencilSettings);
+    args.fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), *args.fClip,
+                                                   std::move(op));
     return true;
 }
 
@@ -378,21 +373,20 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-GR_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
+    GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);
     SkIRect devClipBounds = SkIRect::MakeLTRB(
         random->nextU(), random->nextU(), random->nextU(), random->nextU());
     devClipBounds.sort();
-    static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kMSAA, GrAAType::kCoverage};
-    GrAAType aaType = kAATypes[random->nextULessThan(SK_ARRAY_COUNT(kAATypes))];
+    bool antiAlias = random->nextBool();
     GrStyle style;
     do {
         GrTest::TestStyle(random, &style);
     } while (!style.isSimpleFill());
     GrShape shape(path, style);
-    return TessellatingPathOp::Make(std::move(paint), shape, viewMatrix, devClipBounds, aaType,
-                                    GrGetRandomStencil(random, context));
+    return TessellatingPathOp::Make(color, shape, viewMatrix, devClipBounds, antiAlias);
 }
 
 #endif

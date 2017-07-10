@@ -319,6 +319,7 @@ LEGACY_MESH_DRAW_OP_TEST_EXTERN(DashOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(DefaultPathOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(SmallPathOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(TextBlobOp);
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(VerticesOp);
 
@@ -332,7 +333,6 @@ DRAW_OP_TEST_EXTERN(EllipseOp);
 DRAW_OP_TEST_EXTERN(NonAAFillRectOp)
 DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
-DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
@@ -344,6 +344,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(DefaultPathOp),
         DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
         DRAW_OP_TEST_ENTRY(SmallPathOp),
+        DRAW_OP_TEST_ENTRY(TesselatingPathOp),
         DRAW_OP_TEST_ENTRY(TextBlobOp),
         DRAW_OP_TEST_ENTRY(VerticesOp)
     };
@@ -360,7 +361,6 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
         DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
         DRAW_OP_TEST_ENTRY(RRectOp),
-        DRAW_OP_TEST_ENTRY(TesselatingPathOp),
     };
 
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gLegacyFactories) + SK_ARRAY_COUNT(gFactories);
