@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f6b85d7_d688ab22",
+        "filename": "src/core/SkColorSpaceXformer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-10T14:53:37Z",
+      "side": 1,
+      "message": "I think we could document more...\n\n- imagefilters themselves have a cache, but if we blindly always create new ones during the xform process, we can\u0027t reuse the cache.\n- imagefilters also can be built as a DAG, and caching allows us to not break that sharing during the xformer walk\n- we purge the cache at the top level, so we don\u0027t hold onto memory intensive assets (e.g. images) for too long\n- ...",
+      "range": {
+        "startLine": 38,
+        "startChar": 7,
+        "endLine": 38,
+        "endChar": 8
+      },
+      "revId": "00c6967ea613edcd38376a44d58d3bb9e317157b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
