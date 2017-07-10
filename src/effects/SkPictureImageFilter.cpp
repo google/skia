@@ -136,8 +136,13 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
 }
 
 sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkColorSpace> dstCS = xformer->dst();
+    if (dstCS == fColorSpace) {
+        return this->refMe();
+    }
+
     return sk_sp<SkImageFilter>(new SkPictureImageFilter(fPicture, fCropRect, fPictureResolution,
-            fFilterQuality, xformer->dst()));
+            fFilterQuality, std::move(dstCS)));
 }
 
 void SkPictureImageFilter::drawPictureAtDeviceResolution(SkCanvas* canvas,
