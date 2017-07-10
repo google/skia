@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2aad0f9b_91c9e341",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-10T14:15:20Z",
+      "side": 0,
+      "message": "why does this logic only apply when decoding to index8?",
+      "range": {
+        "startLine": 435,
+        "startChar": 31,
+        "endLine": 435,
+        "endChar": 51
+      },
+      "revId": "bace7a940a6d83051eaa98b73dfa8867ed16ac2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f68a9764_47d1c440",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-10T14:15:20Z",
+      "side": 0,
+      "message": "I think you should at least keep this part of the comment.",
+      "range": {
+        "startLine": 448,
+        "startChar": 4,
+        "endLine": 449,
+        "endChar": 42
+      },
+      "revId": "bace7a940a6d83051eaa98b73dfa8867ed16ac2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

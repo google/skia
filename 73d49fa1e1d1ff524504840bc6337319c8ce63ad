@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3d809a7_a4429265",
+        "filename": "bench/CodecBenchPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-10T14:15:20Z",
+      "side": 1,
+      "message": "do we even need this in the enum anymore?",
+      "range": {
+        "startLine": 21,
+        "startChar": 13,
+        "endLine": 21,
+        "endChar": 33
+      },
+      "revId": "73d49fa1e1d1ff524504840bc6337319c8ce63ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
