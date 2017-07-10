@@ -33,6 +33,7 @@
 #include "SkSLCompiler.h"
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
+#include "SkTraceEvent.h"
 #include "SkTypes.h"
 #include "builders/GrGLShaderStringBuilder.h"
 #include "instanced/GLInstancedRendering.h"
@@ -3428,6 +3429,8 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 }
 
 bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "GrGLGpu::createCopyProgram()");
+
     int progIdx = TextureToCopyProgramIdx(srcTex);
     const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
     GrSLType samplerType = srcTex->texturePriv().samplerType();
@@ -3705,6 +3708,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 }
 
 bool GrGLGpu::createStencilClipClearProgram() {
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "GrGLGpu::createStencilClipClearProgram()");
+
     if (!fStencilClipClearArrayBuffer) {
         static const GrGLfloat vdata[] = {-1, -1, 1, -1, -1, 1, 1, 1};
         fStencilClipClearArrayBuffer.reset(GrGLBuffer::Create(
