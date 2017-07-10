@@ -146,12 +146,14 @@ private:
     }
 
     GrColor4f constantOutputForConstantInput(GrColor4f input) const override {
+        float alpha = input.fRGBA[3];
+        input = input.opaque();
         GrColor4f srcColor = ConstantOutputForConstantInput(this->childProcessor(0), input);
         GrColor4f dstColor = ConstantOutputForConstantInput(this->childProcessor(1), input);
         SkPM4f src = GrColor4fToSkPM4f(srcColor);
         SkPM4f dst = GrColor4fToSkPM4f(dstColor);
         SkPM4f res = SkBlendMode_Apply(fMode, src, dst);
-        return SkPM4fToGrColor4f(res);
+        return SkPM4fToGrColor4f(res).mulByScalar(alpha);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -203,12 +205,18 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     const ComposeTwoFragmentProcessor& cs = args.fFp.cast<ComposeTwoFragmentProcessor>();
 
+    const char* inputColor = nullptr;
+    if (args.fInputColor) {
+        inputColor = "inputColor";
+        fragBuilder->codeAppendf("vec4 inputColor = vec4(%s.rgb, 1.0);", args.fInputColor);
+    }
+
     // declare outputColor and emit the code for each of the two children
     SkString srcColor("xfer_src");
-    this->emitChild(0, args.fInputColor, &srcColor, args);
+    this->emitChild(0, inputColor, &srcColor, args);
 
     SkString dstColor("xfer_dst");
-    this->emitChild(1, args.fInputColor, &dstColor, args);
+    this->emitChild(1, inputColor, &dstColor, args);
 
     // emit blend code
     SkBlendMode mode = cs.getMode();
@@ -218,6 +226,11 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
                             dstColor.c_str(),
                             args.fOutputColor,
                             mode);
+
+    // re-multiply the output color by the input color's alpha
+    if (args.fInputColor) {
+        fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
+    }
 }
 
 sk_sp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoProcessors(
