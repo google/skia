@@ -41,10 +41,24 @@ public:
 private:
     SkColorSpaceXformer(sk_sp<SkColorSpace> dst, std::unique_ptr<SkColorSpaceXform> fromSRGB);
 
+    template <typename T>
+    using Cache = SkTHashMap<sk_sp<T>, sk_sp<T>>;
+
+    template <typename T>
+    sk_sp<T> cachedApply(const T*, Cache<T>*, sk_sp<T> (*)(const T*, SkColorSpaceXformer*));
+
+    void purgeCaches();
+
+    class AutoCachePurge;
+
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
 
-    SkTHashMap<uint32_t, sk_sp<SkImageFilter>> fFilterCache;
+    size_t fReentryCount; // tracks the number of nested apply() calls for cache purging.
+
+    Cache<SkImage      > fImageCache;
+    Cache<SkColorFilter> fColorFilterCache;
+    Cache<SkImageFilter> fImageFilterCache;
 };
 
 #endif
