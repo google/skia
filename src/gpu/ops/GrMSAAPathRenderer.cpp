@@ -15,6 +15,7 @@
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
 #include "GrPipelineBuilder.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 #include "SkAutoMalloc.h"
 #include "SkGeometry.h"
 #include "SkTraceEvent.h"
@@ -108,6 +109,8 @@ static inline void add_quad(MSAALineVertices& lines, MSAAQuadVertices& quads, co
         *(quads.nextIndex++) = offset++;
     }
 }
+
+namespace {
 
 class MSAAQuadProcessor : public GrGeometryProcessor {
 public:
@@ -214,12 +217,15 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-class MSAAPathOp final : public GrLegacyMeshDrawOp {
+class MSAAPathOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
+
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkPath& path,
-                                                    const SkMatrix& viewMatrix,
-                                                    const SkRect& devBounds) {
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkPath& path, GrAAType aaType,
+                                          const SkMatrix& viewMatrix, const SkRect& devBounds,
+                                          const GrUserStencilSettings* stencilSettings) {
         int contourCount;
         int maxLineVertices;
         int maxQuadVertices;
@@ -231,8 +237,9 @@ public:
             return nullptr;
         }
 
-        return std::unique_ptr<GrLegacyMeshDrawOp>(new MSAAPathOp(
-                color, path, viewMatrix, devBounds, maxLineVertices, maxQuadVertices, isIndexed));
+        return Helper::FactoryHelper<MSAAPathOp>(std::move(paint), path, aaType, viewMatrix,
+                                                 devBounds, maxLineVertices, maxQuadVertices,
+                                                 isIndexed, stencilSettings);
     }
 
     const char* name() const override { return "MSAAPathOp"; }
@@ -243,15 +250,17 @@ public:
         for (const auto& path : fPaths) {
             string.appendf("Color: 0x%08x\n", path.fColor);
         }
-        string.append(DumpPipelineInfo(*this->pipeline()));
-        string.append(INHERITED::dumpInfo());
+        string += fHelper.dumpInfo();
+        string += INHERITED::dumpInfo();
         return string;
     }
 
-private:
-    MSAAPathOp(GrColor color, const SkPath& path, const SkMatrix& viewMatrix,
-               const SkRect& devBounds, int maxLineVertices, int maxQuadVertices, bool isIndexed)
+    MSAAPathOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkPath& path,
+               GrAAType aaType, const SkMatrix& viewMatrix, const SkRect& devBounds,
+               int maxLineVertices, int maxQuadVertices, bool isIndexed,
+               const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
+            , fHelper(helperArgs, aaType, stencilSettings)
             , fViewMatrix(viewMatrix)
             , fMaxLineVertices(maxLineVertices)
             , fMaxQuadVertices(maxQuadVertices)
@@ -260,16 +269,14 @@ private:
         this->setBounds(devBounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(fPaths[0].fColor);
-        *coverage = GrProcessorAnalysisCoverage::kNone;
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone,
+                                            &fPaths.front().fColor);
     }
 
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fPaths[0].fColor);
-    }
-
+private:
     static void ComputeWorstCasePointCount(const SkPath& path, const SkMatrix& m, int* subpaths,
                                            int* outLinePointCount, int* outQuadPointCount) {
         SkScalar tolerance = GrPathUtils::scaleToleranceToSrc(kTolerance, m, path.getBounds());
@@ -398,6 +405,8 @@ private:
         int quadIndexOffset = (int) (quads.nextIndex - quads.indices);
         SkASSERT(quadVertexOffset <= fMaxQuadVertices && quadIndexOffset <= 3 * fMaxQuadVertices);
 
+        const GrPipeline* pipeline = fHelper.makePipeline(target);
+
         if (lineVertexOffset) {
             sk_sp<GrGeometryProcessor> lineGP;
             {
@@ -422,7 +431,7 @@ private:
             // count. We assert that indexed draws contain a positive index count, so bail here in
             // that case.
             if (!fIsIndexed || lineIndexOffset) {
-                target->draw(lineGP.get(), this->pipeline(), lineMeshes);
+                target->draw(lineGP.get(), pipeline, lineMeshes);
             }
         }
 
@@ -450,14 +459,13 @@ private:
                                       0, quadVertexOffset - 1);
             }
             quadMeshes.setVertexData(quadVertexBuffer, firstQuadVertex);
-            target->draw(quadGP.get(), this->pipeline(), quadMeshes);
+            target->draw(quadGP.get(), pipeline, quadMeshes);
         }
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         MSAAPathOp* that = t->cast<MSAAPathOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
 
@@ -563,15 +571,17 @@ private:
         SkPath   fPath;
     };
 
+    Helper fHelper;
     SkSTArray<1, PathInfo, true> fPaths;
-
     SkMatrix fViewMatrix;
     int fMaxLineVertices;
     int fMaxQuadVertices;
     bool fIsIndexed;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetContext,
                                           GrPaint&& paint,
@@ -627,11 +637,6 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
 
     SkASSERT(passes[0]);
     {  // First pass
-        std::unique_ptr<GrLegacyMeshDrawOp> op =
-                MSAAPathOp::Make(paint.getColor(), path, viewMatrix, devBounds);
-        if (!op) {
-            return false;
-        }
         bool firstPassIsStencil = stencilOnly || passes[1];
         // If we have a cover pass then we ignore the paint in the first pass and apply it in the
         // second.
@@ -639,9 +644,12 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         if (firstPassIsStencil) {
             firstPassPaint.paint().setXPFactory(GrDisableColorXPFactory::Get());
         }
-        GrPipelineBuilder pipelineBuilder(std::move(firstPassPaint), aaType);
-        pipelineBuilder.setUserStencil(passes[0]);
-        renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+        std::unique_ptr<GrDrawOp> op = MSAAPathOp::Make(std::move(firstPassPaint), path, aaType,
+                                                        viewMatrix, devBounds, passes[0]);
+        if (!op) {
+            return false;
+        }
+        renderTargetContext->addDrawOp(clip, std::move(op));
     }
 
     if (passes[1]) {
