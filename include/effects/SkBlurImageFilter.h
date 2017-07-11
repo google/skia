@@ -14,8 +14,7 @@ class SK_API SkBlurImageFilter {
 public:
     /*! \enum TileMode */
     enum TileMode {
-      kIgnore_TileMode = 0,   /*!< Ignore the image's edge pixels. */
-      kClamp_TileMode,        /*!< Clamp to the image's edge pixels. */
+      kClamp_TileMode = 0,    /*!< Clamp to the image's edge pixels. */
                               /*!< This re-weights the filter so samples outside have no effect */
       kRepeat_TileMode,       /*!< Wrap around to the image's opposite edge. */
       kClampToBlack_TileMode, /*!< Fill with transparent black. */
