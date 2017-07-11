@@ -265,7 +265,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     return tileShader;
 }
 
-bool SkPictureShader::isRasterPipelineOnly() const {
+bool SkPictureShader::isRasterPipeline(const SkMatrix&, const SkPaint&) const {
     return SkImageShader::IsRasterPipelineOnly(kN32_SkColorType, fTmx, fTmy);
 }
 
