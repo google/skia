@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a82fdf2_480da94f",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-11T14:22:00Z",
+      "side": 1,
+      "message": "Comment is out of date.",
+      "range": {
+        "startLine": 362,
+        "startChar": 73,
+        "endLine": 363,
+        "endChar": 70
+      },
+      "revId": "327ab008c0a0d6d50e5e0ac485667f7a94a32c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e14f1883_a6ca7688",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-11T14:22:00Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 391,
+        "startChar": 21,
+        "endLine": 392,
+        "endChar": 45
+      },
+      "revId": "327ab008c0a0d6d50e5e0ac485667f7a94a32c22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
