@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee845198_c98ffecc",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-11T16:10:00Z",
+      "side": 1,
+      "message": "Generally, is it ever correct for us to create an SkTransferFunctionBehavior except as some form of\n\n  color-space ? respect : ignore\n\nexpression like this?  It seems weird for callers to have to keep writing this logic out or even thinking about this as an option.  Just seems like an arcane ritual we force you to go through exactly correctly, where we could probably just figure it out for you, here by reading src.colorSpace().",
+      "range": {
+        "startLine": 124,
+        "startChar": 42,
+        "endLine": 125,
+        "endChar": 89
+      },
+      "revId": "1685756ffe5471f09aaff8f2e0cdfa50e8439edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
