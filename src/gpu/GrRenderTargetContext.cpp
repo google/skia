@@ -1310,9 +1310,9 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
-    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRegionOp::Make(paint.getColor(), viewMatrix, region);
-    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(std::move(paint), viewMatrix, region, aaType);
+    this->addDrawOp(clip, std::move(op));
 }
 
 void GrRenderTargetContext::drawOval(const GrClip& clip,
