@@ -173,6 +173,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Mac":        "Mac-10.11",
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu16":   "Ubuntu-16.10",
+			"Ubuntu17":   "Ubuntu-17.04",
 			"Win":        "Windows-2008ServerR2-SP1",
 			"Win10":      "Windows-10-15063",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
@@ -283,7 +284,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				}
 			} else if strings.Contains(parts["os"], "Ubuntu") || strings.Contains(parts["os"], "Debian") {
 				gpu, ok := map[string]string{
-					"GT610":    "10de:104a-340.96",
+					"GT610":    "10de:104a-340.102",
 					"GTX550Ti": "10de:1244-375.66",
 					"GTX660":   "10de:11c0-375.66",
 					"GTX960":   "10de:1401-375.66",
