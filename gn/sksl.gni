@@ -27,4 +27,5 @@ skia_gpu_processor_sources = [
   "$_src/effects/GrAlphaThresholdFragmentProcessor.fp",
   "$_src/effects/GrCircleBlurFragmentProcessor.fp",
   "$_src/gpu/effects/GrDitherEffect.fp",
+  "$_src/gpu/effects/GrSimpleTextureEffect.fp",
 ]

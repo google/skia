@@ -82,6 +82,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "#if SK_SUPPORT_GPU\n"
              "#include \"GrFragmentProcessor.h\"\n"
              "#include \"GrCoordTransform.h\"\n"
+             "#include \"GrColorSpaceXform.h\"\n"
              "#include \"effects/GrProxyMove.h\"\n"
              "class GrTest : public GrFragmentProcessor {\n"
              "public:\n"
