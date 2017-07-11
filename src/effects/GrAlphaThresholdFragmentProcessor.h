@@ -16,6 +16,7 @@
     #include "GrColorSpaceXform.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrColorSpaceXform.h"
 #include "effects/GrProxyMove.h"
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
@@ -44,35 +45,34 @@ private:
     const SkIRect& bounds
 )
     : INHERITED(kNone_OptimizationFlags)
-    , 
-    fImageCoordTransform(SkMatrix::I(), image.get()),
-    fMaskCoordTransform(SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
-                        mask.get())
-
     , fImage(std::move(image))
     , fColorXform(colorXform)
     , fMask(std::move(mask))
     , fInnerThreshold(innerThreshold)
-    , fOuterThreshold(outerThreshold) {
-
-    this->addCoordTransform(&fImageCoordTransform);
-    this->addCoordTransform(&fMaskCoordTransform);
+    , fOuterThreshold(outerThreshold)
+    , fImageCoordTransform(
+    SkMatrix::I()
+, fImage.proxy())
+    , fMaskCoordTransform(
+    SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
+, fMask.proxy()) {
         this->addTextureSampler(&fImage);
         this->addTextureSampler(&fMask);
+        this->addCoordTransform(&fImageCoordTransform);
+        this->addCoordTransform(&fMaskCoordTransform);
         this->initClassID<GrAlphaThresholdFragmentProcessor>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    GrCoordTransform fImageCoordTransform;
-    GrCoordTransform fMaskCoordTransform;
     TextureSampler fImage;
     sk_sp<GrColorSpaceXform> fColorXform;
     TextureSampler fMask;
     float fInnerThreshold;
     float fOuterThreshold;
+    GrCoordTransform fImageCoordTransform;
+    GrCoordTransform fMaskCoordTransform;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
