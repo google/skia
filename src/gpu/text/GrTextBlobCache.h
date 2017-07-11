@@ -24,7 +24,7 @@ public:
     typedef void (*PFOverBudgetCB)(void* data);
 
     GrTextBlobCache(PFOverBudgetCB cb, void* data)
-        : fPool(kPreAllocSize, kMinGrowthSize)
+        : fPool(0u, kMinGrowthSize)
         , fCallback(cb)
         , fData(data)
         , fBudget(kDefaultBudget) {
@@ -216,10 +216,7 @@ private:
         }
     }
 
-    // Budget was chosen to be ~4 megabytes.  The min alloc and pre alloc sizes in the pool are
-    // based off of the largest cached textblob I have seen in the skps(a couple of kilobytes).
-    static const int kPreAllocSize = 1 << 17;
-    static const int kMinGrowthSize = 1 << 17;
+    static const int kMinGrowthSize = 1 << 16;
     static const int kDefaultBudget = 1 << 22;
     GrMemoryPool fPool;
     BitmapBlobList fBlobList;
