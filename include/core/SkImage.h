@@ -368,7 +368,7 @@ public:
      *  Note: this will attempt to encode the image's pixels in the specified format,
      *  even if the image returns a data from refEncoded(). That data will be ignored.
      */
-    SkData* encode(SkEncodedImageFormat, int quality) const;
+    sk_sp<SkData> encodeToData(SkEncodedImageFormat, int quality) const;
 
     /**
      *  Encode the image and return the result as a caller-managed SkData.  This will
@@ -384,7 +384,7 @@ public:
      *  If no compatible encoded data exists and encoding fails, this method will also
      *  fail (return NULL).
      */
-    SkData* encode(SkPixelSerializer* = nullptr) const;
+    sk_sp<SkData> encodeToData(SkPixelSerializer* = nullptr) const;
 
     /**
      *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return a ref
@@ -395,7 +395,13 @@ public:
      *
      *  Note: to force the image to return its contents as encoded data, try calling encode(...).
      */
+    sk_sp<SkData> refEncodedData() const;
+
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
+    SkData* encode(SkEncodedImageFormat, int quality) const;
+    SkData* encode(SkPixelSerializer* = nullptr) const;
     SkData* refEncoded() const;
+#endif
 
     const char* toString(SkString*) const;
 
