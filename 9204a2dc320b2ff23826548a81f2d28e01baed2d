@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb58aadf_a895cecd",
+        "filename": "src/gpu/ops/GrRegionOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-11T19:23:46Z",
+      "side": 1,
+      "message": "would it not just be simpler to pick the TL corner and then a width and height instead of doing center?",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 99
+      },
+      "revId": "9204a2dc320b2ff23826548a81f2d28e01baed2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
