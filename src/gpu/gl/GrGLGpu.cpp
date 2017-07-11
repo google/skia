@@ -3886,6 +3886,9 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     this->disableScissor();
     this->disableWindowRectangles();
     this->disableStencil();
+    if (this->glCaps().srgbWriteControl()) {
+        this->flushFramebufferSRGB(true);
+    }
 
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, dst);
