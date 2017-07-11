@@ -46,6 +46,30 @@
       "revId": "1685756ffe5471f09aaff8f2e0cdfa50e8439edc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af9b6520_bd984068",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-11T17:25:33Z",
+      "side": 1,
+      "message": "Android wants legacy premul behavior (while respecting the color space) during decode. It also appears that they want legacy for encoding. (It\u0027s not explicit in Android; Bitmap_compress just calls SkEncodeImage, which internally always uses kIgnore.)",
+      "parentUuid": "c1708426_7e12c656",
+      "range": {
+        "startLine": 124,
+        "startChar": 42,
+        "endLine": 125,
+        "endChar": 89
+      },
+      "revId": "1685756ffe5471f09aaff8f2e0cdfa50e8439edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
