@@ -1861,8 +1861,15 @@ static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
     it if there are not tricky elements like shaders, etc.
  */
 void SkPaint::flatten(SkWriteBuffer& buffer) const {
+    // If the writer is xprocess, then we force recording our typeface, even if its "default"
+    // since the other process may have a different notion of default.
+    SkTypeface* tf = this->getTypeface();
+    if (!tf && buffer.isCrossProcess()) {
+        tf = SkTypeface::GetDefaultTypeface(SkTypeface::kNormal);
+    }
+
     uint8_t flatFlags = 0;
-    if (this->getTypeface()) {
+    if (tf) {
         flatFlags |= kHasTypeface_FlatFlag;
     }
     if (asint(this->getPathEffect()) |
@@ -1891,7 +1898,7 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     // now we're done with ptr and the (pre)reserved space. If we need to write
     // additional fields, use the buffer directly
     if (flatFlags & kHasTypeface_FlatFlag) {
-        buffer.writeTypeface(this->getTypeface());
+        buffer.writeTypeface(tf);
     }
     if (flatFlags & kHasEffects_FlatFlag) {
         buffer.writeFlattenable(this->getPathEffect());
