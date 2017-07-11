@@ -395,7 +395,7 @@ namespace {
 // This SkPDFObject only outputs the alpha layer of the given bitmap.
 class PDFAlphaBitmap final : public SkPDFObject {
 public:
-    PDFAlphaBitmap(sk_sp<SkImage> image) : fImage(std::move(image)) { SkASSERT(fImage); }
+    PDFAlphaBitmap(sk_sp<const SkImage> image) : fImage(std::move(image)) { SkASSERT(fImage); }
     void emitObject(SkWStream*  stream,
                     const SkPDFObjNumMap& objNumMap) const override {
         SkASSERT(fImage);
@@ -404,7 +404,7 @@ public:
     void drop() override { fImage = nullptr; }
 
 private:
-    sk_sp<SkImage> fImage;
+    sk_sp<const SkImage> fImage;
 };
 
 }  // namespace
@@ -423,11 +423,11 @@ public:
         catalog->addObjectRecursively(fSMask.get());
     }
     void drop() override { fImage = nullptr; fSMask = nullptr; }
-    PDFDefaultBitmap(sk_sp<SkImage> image, sk_sp<SkPDFObject> smask)
+    PDFDefaultBitmap(sk_sp<const SkImage> image, sk_sp<SkPDFObject> smask)
         : fImage(std::move(image)), fSMask(std::move(smask)) { SkASSERT(fImage); }
 
 private:
-    sk_sp<SkImage> fImage;
+    sk_sp<const SkImage> fImage;
     sk_sp<SkPDFObject> fSMask;
 };
 }  // namespace
@@ -476,7 +476,7 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
+sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<const SkImage> image,
                                            SkPixelSerializer* pixelSerializer) {
     SkASSERT(image);
     sk_sp<SkData> data(image->refEncoded());
