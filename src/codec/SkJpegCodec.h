@@ -60,6 +60,13 @@ protected:
     bool onDimensionsSupported(const SkISize&) override;
 
 private:
+    /*
+    * Image decoder state in incremental decoding mode.
+    */
+    enum class State {
+        kStartDecompress,
+        kStartScanlines,
+    };
 
     /*
      * Allows SkRawCodec to communicate the color space from the exif data.
@@ -125,6 +132,11 @@ private:
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 
+    Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
+                                    const SkCodec::Options&, SkPMColor*, int*) override;
+
+    Result onIncrementalDecode(int* rowsDecoded) override;
+
     std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
 
     // We will save the state of the decompress struct after reading the header.
@@ -142,6 +154,10 @@ private:
     SkIRect                            fSwizzlerSubset;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
+    State                              fState;
+    void*                              fDst;
+    size_t                             fDstRowBytes;
+    int                                fRowsDecoded;
 
     friend class SkRawCodec;
 

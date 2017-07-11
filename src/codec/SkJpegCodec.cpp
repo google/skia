@@ -282,6 +282,10 @@ SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStr
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
     , fSwizzlerSubset(SkIRect::MakeEmpty())
+    , fState(State::kStartDecompress)
+    , fDst(nullptr)
+    , fDstRowBytes(0)
+    , fRowsDecoded(0)
 {}
 
 /*
@@ -484,6 +488,9 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         return 0;
     }
 
+    // Move the ptr to rowbytes decode
+    dst = (char*)dst + fRowsDecoded * rowBytes;
+
     // When fSwizzleSrcRow is non-null, it means that we need to swizzle.  In this case,
     // we will always decode into fSwizzlerSrcRow before swizzling into the next buffer.
     // We can never swizzle "in place" because the swizzler may perform sampling and/or
@@ -513,11 +520,13 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         dstWidth = fSwizzler->swizzleWidth();
     }
 
-    for (int y = 0; y < count; y++) {
+    while (fRowsDecoded < count) {
         uint32_t lines = jpeg_read_scanlines(fDecoderMgr->dinfo(), &decodeDst, 1);
+
         if (0 == lines) {
-            return y;
+            return fRowsDecoded;
         }
+        fRowsDecoded++;
 
         if (fSwizzler) {
             fSwizzler->swizzle(swizzleDst, decodeDst);
@@ -531,7 +540,6 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         decodeDst = SkTAddOffset<JSAMPLE>(decodeDst, decodeDstRowBytes);
         swizzleDst = SkTAddOffset<uint32_t>(swizzleDst, swizzleDstRowBytes);
     }
-
     return count;
 }
 
@@ -760,6 +768,92 @@ bool SkJpegCodec::onSkipScanlines(int count) {
     }
 
     return (uint32_t) count == jpeg_skip_scanlines(fDecoderMgr->dinfo(), count);
+}
+
+SkCodec::Result SkJpegCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels,
+                                                      size_t rowBytes,
+                                                      const SkCodec::Options& options,
+                                                      SkPMColor* colorTable, int* colorCount) {
+    // Set the jump location for libjpeg errors
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        SkCodecPrintf("setjmp: Error from libjpeg\n");
+        return kInvalidInput;
+    }
+
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
+        return kInvalidConversion;
+    }
+
+    // Check if we can decode to the requested destination and set the output color space
+    if (!this->setOutputColorSpace(dstInfo)) {
+        return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
+    }
+
+    fDecoderMgr->dinfo()->buffered_image = jpeg_has_multiple_scans(fDecoderMgr->dinfo());
+
+    fDst = pixels;
+    fDstRowBytes = rowBytes;
+    fState = State::kStartDecompress;
+    fRowsDecoded = 0;
+
+    return kSuccess;
+}
+
+SkCodec::Result SkJpegCodec::onIncrementalDecode(int* rowsDecoded) {
+    // Get a pointer to the decompress info since we will use it quite frequently
+    jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
+    const SkImageInfo& dstInfo = this->dstInfo();
+    const auto& options = this->options();
+
+    // Set the jump location for libjpeg errors
+    if (setjmp(fDecoderMgr->getJmpBuf())) {
+        return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
+    }
+
+    switch (fState) {
+        case State::kStartDecompress:
+            if (!jpeg_start_decompress(dinfo)) {
+                *rowsDecoded = fDecoderMgr->dinfo()->output_scanline;
+                return fDecoderMgr->returnFailure("startDecompress", kErrorInInput);
+            }
+
+            if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space, this->getInfo(),
+                                                    this->colorXform())) {
+                this->initializeSwizzler(dstInfo, options, true);
+            }
+
+            this->allocateStorage(dstInfo);
+
+            // If this is a progressive JPEG ...
+            if (dinfo->buffered_image) {
+                int status = 0;
+                do {
+                    status = jpeg_consume_input(dinfo);
+                } while ((status != JPEG_SUSPENDED) && (status != JPEG_REACHED_EOI));
+                int scan = dinfo->input_scan_number;
+                jpeg_start_output(dinfo, scan);
+            }
+
+            fState = State::kStartScanlines;
+        // FALL THROUGH
+
+      case State::kStartScanlines:
+            if (dinfo->buffered_image) {
+                int status = 0;
+                do {
+                    status = jpeg_consume_input(dinfo);
+                } while ((status != JPEG_SUSPENDED) && (status != JPEG_REACHED_EOI));
+            }
+
+            int rows = readRows(dstInfo, fDst, fDstRowBytes, dstInfo.height(), options);
+            if (rows < dstInfo.height()) {
+                *rowsDecoded = rows;
+                return fDecoderMgr->returnFailure("Incomplete image data", kIncompleteInput);
+            }
+            return kSuccess;
+    }
+
+    return kSuccess;
 }
 
 static bool is_yuv_supported(jpeg_decompress_struct* dinfo) {
