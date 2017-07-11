@@ -6,11 +6,12 @@
  */
 
 #include "GrRegionOp.h"
-
+#include <GrDrawOpTest.h>
 #include "GrDefaultGeoProcFactory.h"
 #include "GrMeshDrawOp.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
+#include "GrSimpleMeshDrawOpHelper.h"
 #include "SkMatrixPriv.h"
 #include "SkRegion.h"
 
@@ -47,12 +48,23 @@ static void tesselate_region(intptr_t vertices,
     }
 }
 
-class RegionOp final : public GrLegacyMeshDrawOp {
+namespace {
+
+class RegionOp final : public GrMeshDrawOp {
+private:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
 public:
     DEFINE_OP_CLASS_ID
 
-    RegionOp(GrColor color, const SkMatrix& viewMatrix, const SkRegion& region)
-            : INHERITED(ClassID()), fViewMatrix(viewMatrix) {
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
+                                          const SkRegion& region, GrAAType aaType) {
+        return Helper::FactoryHelper<RegionOp>(std::move(paint), viewMatrix, region, aaType);
+    }
+
+    RegionOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
+             const SkRegion& region, GrAAType aaType)
+            : INHERITED(ClassID()), fHelper(helperArgs, aaType), fViewMatrix(viewMatrix) {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;
         info.fRegion = region;
@@ -71,22 +83,19 @@ public:
             str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor,
                         info.fRegion.computeRegionComplexity());
         }
-        str.append(DumpPipelineInfo(*this->pipeline()));
-        str.append(INHERITED::dumpInfo());
+        str += fHelper.dumpInfo();
+        str += INHERITED::dumpInfo();
         return str;
     }
 
+    FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone,
+                                            &fRegions[0].fColor);
+    }
+
 private:
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(fRegions[0].fColor);
-        *coverage = GrProcessorAnalysisCoverage::kNone;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fRegions[0].fColor);
-    }
-
     void onPrepareDraws(Target* target) const override {
         sk_sp<GrGeometryProcessor> gp = make_gp(fViewMatrix);
         if (!gp) {
@@ -101,6 +110,9 @@ private:
             numRects += fRegions[i].fRegion.computeRegionComplexity();
         }
 
+        if (!numRects) {
+            return;
+        }
         size_t vertexStride = gp->getVertexStride();
         sk_sp<const GrBuffer> indexBuffer(target->resourceProvider()->refQuadIndexBuffer());
         PatternHelper helper(GrPrimitiveType::kTriangles);
@@ -118,13 +130,12 @@ private:
             int numRectsInRegion = fRegions[i].fRegion.computeRegionComplexity();
             verts += numRectsInRegion * kVertsPerInstance * vertexStride;
         }
-        helper.recordDraw(target, gp.get(), this->pipeline());
+        helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         RegionOp* that = t->cast<RegionOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
+        if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
             return false;
         }
 
@@ -142,16 +153,54 @@ private:
         SkRegion fRegion;
     };
 
+    Helper fHelper;
     SkMatrix fViewMatrix;
     SkSTArray<1, RegionInfo, true> fRegions;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color, const SkMatrix& viewMatrix,
-                                         const SkRegion& region) {
-    return std::unique_ptr<GrLegacyMeshDrawOp>(new RegionOp(color, viewMatrix, region));
+std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix, const SkRegion& region,
+                               GrAAType aaType) {
+    if (aaType != GrAAType::kNone && aaType != GrAAType::kMSAA) {
+        return nullptr;
+    }
+    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType);
 }
 }
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(RegionOp) {
+    SkRegion region;
+    int n = random->nextULessThan(200);
+    for (int i = 0; i < n; ++i) {
+        SkIPoint center;
+        center.fX = random->nextULessThan(1000);
+        center.fY = random->nextULessThan(1000);
+        int w = random->nextRangeU(10, 1000);
+        int h = random->nextRangeU(10, 1000);
+        SkIRect rect = {center.fX - w / 2, center.fY - h / 2, center.fX + w / 2, center.fY + h / 2};
+        SkRegion::Op op;
+        if (i == 0) {
+            op = SkRegion::kReplace_Op;
+        } else {
+            // Pick an other than replace.
+            GR_STATIC_ASSERT(SkRegion::kLastOp == SkRegion::kReplace_Op);
+            op = (SkRegion::Op)random->nextULessThan(SkRegion::kLastOp);
+        }
+        region.op(rect, op);
+    }
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrAAType aaType = GrAAType::kNone;
+    if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
+        aaType = GrAAType::kMSAA;
+    }
+    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType);
+}
+
+#endif
