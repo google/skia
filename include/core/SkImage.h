@@ -539,7 +539,7 @@ private:
     friend class SkImage_Base;
 
     static sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&,
-                                                const GrMipLevel* texels, int mipLevelCount,
+                                                const GrMipLevel texels[], int mipLevelCount,
                                                 SkBudgeted, SkDestinationSurfaceColorMode);
 
     const int       fWidth;

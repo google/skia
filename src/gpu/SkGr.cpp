@@ -222,7 +222,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
 }
 
 sk_sp<GrTextureProxy> GrUploadMipMapToTextureProxy(GrContext* ctx, const SkImageInfo& info,
-                                                   const GrMipLevel* texels,
+                                                   const GrMipLevel texels[],
                                                    int mipLevelCount,
                                                    SkDestinationSurfaceColorMode colorMode) {
     if (!SkImageInfoIsValid(info, colorMode)) {

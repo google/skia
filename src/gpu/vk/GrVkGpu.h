@@ -174,7 +174,7 @@ private:
     void destroyResources();
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const SkTArray<GrMipLevel>&) override;
+                                     const GrMipLevel texels[], int mipLevelCount) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrSurfaceOrigin,
@@ -201,7 +201,7 @@ private:
 
     bool onWritePixels(GrSurface* surface,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const SkTArray<GrMipLevel>&) override;
+                       GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
@@ -246,7 +246,7 @@ private:
     bool uploadTexDataOptimal(GrVkTexture* tex,
                               int left, int top, int width, int height,
                               GrPixelConfig dataConfig,
-                              const SkTArray<GrMipLevel>&);
+                              const GrMipLevel texels[], int mipLevelCount);
 
     void resolveImage(GrSurface* dst,
                       GrVkRenderTarget* src,

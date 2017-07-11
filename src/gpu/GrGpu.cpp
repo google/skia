@@ -82,17 +82,20 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin, bool renderTarget)
  * Prior to creating a texture, make sure the type of texture being created is
  * supported by calling check_texture_creation_params.
  *
- * @param caps The capabilities of the GL device.
- * @param desc The descriptor of the texture to create.
- * @param isRT Indicates if the texture can be a render target.
+ * @param caps          The capabilities of the GL device.
+ * @param desc          The descriptor of the texture to create.
+ * @param isRT          Indicates if the texture can be a render target.
+ * @param texels        The texel data for the mipmap levels
+ * @param mipLevelCount The number of GrMipLevels in 'texels'
  */
 static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDesc& desc,
-                                          bool* isRT, const SkTArray<GrMipLevel>& texels) {
+                                          bool* isRT,
+                                          const GrMipLevel texels[], int mipLevelCount) {
     if (!caps.isConfigTexturable(desc.fConfig)) {
         return false;
     }
 
-    if (GrPixelConfigIsSint(desc.fConfig) && texels.count() > 1) {
+    if (GrPixelConfigIsSint(desc.fConfig) && mipLevelCount > 1) {
         return false;
     }
 
@@ -118,7 +121,7 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
         }
     }
 
-    for (int i = 0; i < texels.count(); ++i) {
+    for (int i = 0; i < mipLevelCount; ++i) {
         if (!texels[i].fPixels) {
             return false;
         }
@@ -127,12 +130,13 @@ static bool check_texture_creation_params(const GrCaps& caps, const GrSurfaceDes
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted budgeted,
-                                      const SkTArray<GrMipLevel>& texels) {
+                                      const GrMipLevel texels[], int mipLevelCount) {
     GrSurfaceDesc desc = origDesc;
 
     const GrCaps* caps = this->caps();
     bool isRT = false;
-    bool textureCreationParamsValid = check_texture_creation_params(*caps, desc, &isRT, texels);
+    bool textureCreationParamsValid = check_texture_creation_params(*caps, desc, &isRT,
+                                                                    texels, mipLevelCount);
     if (!textureCreationParamsValid) {
         return nullptr;
     }
@@ -143,18 +147,18 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
 
     desc.fOrigin = resolve_origin(desc.fOrigin, isRT);
 
-    if (texels.count() && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
+    if (mipLevelCount && (desc.fFlags & kPerformInitialClear_GrSurfaceFlag)) {
         return nullptr;
     }
 
     this->handleDirtyContext();
-    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels);
+    sk_sp<GrTexture> tex = this->onCreateTexture(desc, budgeted, texels, mipLevelCount);
     if (tex) {
         if (!caps->reuseScratchTextures() && !isRT) {
             tex->resourcePriv().removeScratchKey();
         }
         fStats.incTextureCreates();
-        if (!texels.empty()) {
+        if (mipLevelCount) {
             if (texels[0].fPixels) {
                 fStats.incTextureUploads();
             }
@@ -164,17 +168,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
 }
 
 sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted) {
-    return this->createTexture(desc, budgeted, SkTArray<GrMipLevel>());
-}
-
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                      const void* level0Data,
-                                      size_t rowBytes) {
-    SkASSERT(level0Data);
-    GrMipLevel level = { level0Data, rowBytes };
-    SkSTArray<1, GrMipLevel> array;
-    array.push_back() = level;
-    return this->createTexture(desc, budgeted, array);
+    return this->createTexture(desc, budgeted, nullptr, 0);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
@@ -352,9 +346,9 @@ bool GrGpu::readPixels(GrSurface* surface,
 
 bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
-                        GrPixelConfig config, const SkTArray<GrMipLevel>& texels) {
+                        GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(surface);
-    if (1 == texels.count()) {
+    if (1 == mipLevelCount) {
         // We require that if we are not mipped, then the write region is contained in the surface
         SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
         SkIRect bounds = SkIRect::MakeWH(surface->width(), surface->height());
@@ -366,7 +360,7 @@ bool GrGpu::writePixels(GrSurface* surface,
         return false;
     }
 
-    for (int currentMipLevel = 0; currentMipLevel < texels.count(); currentMipLevel++) {
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (!texels[currentMipLevel].fPixels ) {
             return false;
         }
@@ -378,9 +372,9 @@ bool GrGpu::writePixels(GrSurface* surface,
     }
 
     this->handleDirtyContext();
-    if (this->onWritePixels(surface, left, top, width, height, config, texels)) {
+    if (this->onWritePixels(surface, left, top, width, height, config, texels, mipLevelCount)) {
         SkIRect rect = SkIRect::MakeXYWH(left, top, width, height);
-        this->didWriteToSurface(surface, &rect, texels.count());
+        this->didWriteToSurface(surface, &rect, mipLevelCount);
         fStats.incTextureUploads();
         return true;
     }
@@ -391,13 +385,9 @@ bool GrGpu::writePixels(GrSurface* surface,
                         int left, int top, int width, int height,
                         GrPixelConfig config, const void* buffer,
                         size_t rowBytes) {
-    GrMipLevel mipLevel;
-    mipLevel.fPixels = buffer;
-    mipLevel.fRowBytes = rowBytes;
-    SkSTArray<1, GrMipLevel> texels;
-    texels.push_back(mipLevel);
+    GrMipLevel mipLevel = { buffer, rowBytes };
 
-    return this->writePixels(surface, left, top, width, height, config, texels);
+    return this->writePixels(surface, left, top, width, height, config, &mipLevel, 1);
 }
 
 bool GrGpu::transferPixels(GrTexture* texture,

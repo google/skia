@@ -78,7 +78,7 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const SkTArray<GrMipLevel>& texels) override {
+                                     const GrMipLevel texels[], int mipLevelCount) override {
         return nullptr;
     }
 
@@ -117,7 +117,8 @@ private:
 
     bool onWritePixels(GrSurface* surface,
                        int left, int top, int width, int height,
-                       GrPixelConfig config, const SkTArray<GrMipLevel>& texels) override {
+                       GrPixelConfig config,
+                       const GrMipLevel texels[], int mipLevelCount) override {
         return false;
     }
 

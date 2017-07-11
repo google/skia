@@ -52,8 +52,8 @@ GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                            const SkTArray<GrMipLevel>& texels) {
-    bool hasMipLevels = texels.count() > 1;
+                                            const GrMipLevel texels[], int mipLevelCount) {
+    bool hasMipLevels = mipLevelCount > 1;
     GrMockTextureInfo info;
     info.fID = NextInternalTextureID();
     if (desc.fFlags & kRenderTarget_GrSurfaceFlag) {
