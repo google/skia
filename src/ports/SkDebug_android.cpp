@@ -8,6 +8,9 @@
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_ANDROID)
 
+#include "SkString.h"
+#include "SkTArray.h"
+#include "SkTemplates.h"
 #include <stdio.h>
 
 #define LOG_TAG "skia"
@@ -27,7 +30,26 @@ void SkDebugf(const char format[], ...) {
         va_end(args2);
     }
 
-    __android_log_vprint(ANDROID_LOG_DEBUG, LOG_TAG, format, args1);
+    static constexpr int kStrStackSize = 1024;
+    SkAutoSTMalloc<kStrStackSize, char> msg;
+    int length = vsnprintf(msg, kStrStackSize, format, args1);
+    va_end(args1);
+    if (length <= 0) {
+        return;
+    }
+    if (length >= kStrStackSize) {
+        va_start(args1, format);
+        vsnprintf(msg.reset(length+1), length+1, format, args1);
+        va_end(args1);
+    }
+
+    SkSTArray<16, SkString> lines;
+    SkStrSplit(msg, "\n", kStrict_SkStrSplitMode, &lines);
+
+    // Print the message one line at a time so it doesn't get truncated by the android log.
+    for (const SkString& line : lines) {
+        __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "%s", line.c_str());
+    }
 
     va_end(args1);
 }
