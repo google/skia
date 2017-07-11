@@ -190,6 +190,11 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
 // or if an invalid verb is encountered, return false.
 static bool deduce_pts_conics(const uint8_t verbs[], int vCount, int* ptCountPtr,
                               int* conicCountPtr) {
+    // When there is at least one verb, the first is required to be kMove_Verb.
+    if (0 < vCount && verbs[vCount-1] != SkPath::kMove_Verb) {
+        return false;
+    }
+
     int ptCount = 0;
     int conicCount = 0;
     for (int i = 0; i < vCount; ++i) {
