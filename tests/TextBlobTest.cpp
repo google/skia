@@ -421,6 +421,12 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
  *  Then draw the new instance and assert it draws the same as the original.
  */
 DEF_TEST(TextBlob_serialize, reporter) {
+    // test requires at least the default font
+    if (!SkTypeface::MakeDefault()) {
+        SkDebugf("TextBlob_serialize: missing default typeface\n");
+        return;
+    }
+
     SkTextBlobBuilder builder;
 
     sk_sp<SkTypeface> tf0;
