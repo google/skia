@@ -185,7 +185,8 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const SkTArray<GrMipLevel>& texels) override;
+                                     const GrMipLevel texels[],
+                                     int mipLevelCount) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                              const void* data) override;
@@ -215,7 +216,7 @@ private:
     // The texture parameters are cached in |initialTexParams|.
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info,
                            bool renderTarget, GrGLTexture::TexParams* initialTexParams,
-                           const SkTArray<GrMipLevel>& texels);
+                           const GrMipLevel texels[], int mipLevelCount);
 
     bool onIsACopyNeededForTextureParams(GrTextureProxy*, const GrSamplerParams&,
                                          GrTextureProducer::CopyParams*,
@@ -245,7 +246,7 @@ private:
     bool onWritePixels(GrSurface*,
                        int left, int top, int width, int height,
                        GrPixelConfig config,
-                       const SkTArray<GrMipLevel>& texels) override;
+                       const GrMipLevel texels[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
@@ -379,7 +380,7 @@ private:
     bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
                        GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,
                        int top, int width, int height, GrPixelConfig dataConfig,
-                       const SkTArray<GrMipLevel>& texels);
+                       const GrMipLevel texels[], int mipLevelCount);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);

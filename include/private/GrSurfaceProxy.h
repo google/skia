@@ -190,7 +190,7 @@ public:
      */
     static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrResourceProvider*,
                                                     const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                    const GrMipLevel* texels, int mipLevelCount,
+                                                    const GrMipLevel texels[], int mipLevelCount,
                                                     SkDestinationSurfaceColorMode mipColorMode =
                                                            SkDestinationSurfaceColorMode::kLegacy);
 

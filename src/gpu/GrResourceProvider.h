@@ -68,7 +68,7 @@ public:
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
 
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
-                                   const SkTArray<GrMipLevel>& texels,
+                                   const GrMipLevel texels[], int mipLevelCount,
                                    SkDestinationSurfaceColorMode mipColorMode);
 
     sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);

@@ -375,14 +375,14 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 bool GrVkGpu::onWritePixels(GrSurface* surface,
                             int left, int top, int width, int height,
                             GrPixelConfig config,
-                            const SkTArray<GrMipLevel>& texels) {
+                            const GrMipLevel texels[], int mipLevelCount) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
     }
 
     // Make sure we have at least the base level
-    if (texels.empty() || !texels.begin()->fPixels) {
+    if (!mipLevelCount || !texels[0].fPixels) {
         return false;
     }
 
@@ -394,7 +394,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     bool success = false;
     bool linearTiling = vkTex->isLinearTiled();
     if (linearTiling) {
-        if (texels.count() > 1) {
+        if (mipLevelCount > 1) {
             SkDebugf("Can't upload mipmap data to linear tiled texture");
             return false;
         }
@@ -408,16 +408,16 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
             this->submitCommandBuffer(kForce_SyncQueue);
         }
         success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
-                                            texels.begin()->fPixels, texels.begin()->fRowBytes);
+                                            texels[0].fPixels, texels[0].fRowBytes);
     } else {
-        int newMipLevels = texels.count();
         int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
-        if (newMipLevels > currentMipLevels) {
-            if (!vkTex->reallocForMipmap(this, newMipLevels)) {
+        if (mipLevelCount > currentMipLevels) {
+            if (!vkTex->reallocForMipmap(this, mipLevelCount)) {
                 return false;
             }
         }
-        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config, texels);
+        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config,
+                                             texels, mipLevelCount);
     }
 
     return success;
@@ -622,15 +622,15 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
 bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                    int left, int top, int width, int height,
                                    GrPixelConfig dataConfig,
-                                   const SkTArray<GrMipLevel>& texels) {
+                                   const GrMipLevel texels[], int mipLevelCount) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
-    SkASSERT(1 == texels.count() ||
+    SkASSERT(1 == mipLevelCount ||
              (0 == left && 0 == top && width == tex->width() && height == tex->height()));
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(1 == texels.count() || texels.count() == (tex->texturePriv().maxMipMapLevel() + 1));
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->texturePriv().maxMipMapLevel() + 1));
 
     if (width == 0 || height == 0) {
         return false;
@@ -642,17 +642,17 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
     // Because of this we need to make a non-const shallow copy of texels.
-    SkTArray<GrMipLevel> texelsShallowCopy(texels);
+    SkAutoTMalloc<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
 
-    for (int currentMipLevel = texelsShallowCopy.count() - 1; currentMipLevel >= 0;
-         currentMipLevel--) {
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         SkASSERT(texelsShallowCopy[currentMipLevel].fPixels);
     }
 
     // Determine whether we need to flip when we copy into the buffer
-    bool flipY = (kBottomLeft_GrSurfaceOrigin == tex->origin() && !texelsShallowCopy.empty());
+    bool flipY = (kBottomLeft_GrSurfaceOrigin == tex->origin() && mipLevelCount);
 
-    SkTArray<size_t> individualMipOffsets(texelsShallowCopy.count());
+    SkTArray<size_t> individualMipOffsets(mipLevelCount);
     individualMipOffsets.push_back(0);
     size_t combinedBufferSize = width * bpp * height;
     int currentWidth = width;
@@ -661,7 +661,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
     // config. This works with the assumption that the bytes in pixel config is always a power of 2.
     SkASSERT((bpp & (bpp - 1)) == 0);
     const size_t alignmentMask = 0x3 | (bpp - 1);
-    for (int currentMipLevel = 1; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
+    for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
         currentWidth = SkTMax(1, currentWidth/2);
         currentHeight = SkTMax(1, currentHeight/2);
 
@@ -681,13 +681,13 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
         return false;
 
     char* buffer = (char*) transferBuffer->map();
-    SkTArray<VkBufferImageCopy> regions(texelsShallowCopy.count());
+    SkTArray<VkBufferImageCopy> regions(mipLevelCount);
 
     currentWidth = width;
     currentHeight = height;
     int layerHeight = tex->height();
-    for (int currentMipLevel = 0; currentMipLevel < texelsShallowCopy.count(); currentMipLevel++) {
-        SkASSERT(1 == texelsShallowCopy.count() || currentHeight == layerHeight);
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
         const size_t trimRowBytes = currentWidth * bpp;
         const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes ?
                                 texelsShallowCopy[currentMipLevel].fRowBytes :
@@ -739,7 +739,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                          regions.count(),
                                          regions.begin());
     transferBuffer->unref();
-    if (1 == texelsShallowCopy.count()) {
+    if (1 == mipLevelCount) {
        tex->texturePriv().dirtyMipMaps(true);
     }
 
@@ -748,7 +748,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                          const SkTArray<GrMipLevel>& texels) {
+                                          const GrMipLevel texels[], int mipLevelCount) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -780,7 +780,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
-    int mipLevels = texels.empty() ? 1 : texels.count();
+    int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
@@ -804,10 +804,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         return nullptr;
     }
 
-    if (!texels.empty()) {
-        SkASSERT(texels.begin()->fPixels);
+    if (mipLevelCount) {
+        SkASSERT(texels[0].fPixels);
         if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                        texels)) {
+                                        texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }

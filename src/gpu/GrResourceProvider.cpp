@@ -74,21 +74,21 @@ bool validate_desc(const GrSurfaceDesc& desc, const GrCaps& caps, int levelCount
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                                   const SkTArray<GrMipLevel>& texels,
+                                                   const GrMipLevel texels[], int mipLevelCount,
                                                    SkDestinationSurfaceColorMode mipColorMode) {
     ASSERT_SINGLE_OWNER
 
-    SkASSERT(texels.count() >= 1);
+    SkASSERT(mipLevelCount >= 1);
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    if (!validate_desc(desc, *fCaps, texels.count())) {
+    if (!validate_desc(desc, *fCaps, mipLevelCount)) {
         return nullptr;
     }
 
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels));
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels, mipLevelCount));
     if (tex) {
         tex->texturePriv().setMipColorMode(mipColorMode);
     }
@@ -152,10 +152,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
         }
     }
 
-    SkTArray<GrMipLevel> texels(1);
-    texels.push_back(mipLevel);
-
-    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, texels));
+    sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, &mipLevel, 1));
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 

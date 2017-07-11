@@ -196,7 +196,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
                                                     GrResourceProvider* resourceProvider,
                                                     const GrSurfaceDesc& desc,
                                                     SkBudgeted budgeted,
-                                                    const GrMipLevel* texels,
+                                                    const GrMipLevel texels[],
                                                     int mipLevelCount,
                                                     SkDestinationSurfaceColorMode mipColorMode) {
     if (!mipLevelCount) {
@@ -211,17 +211,14 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
         return resourceProvider->createTextureProxy(desc, budgeted, texels[0]);
     }
 
-    SkTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
     for (int i = 0; i < mipLevelCount; ++i) {
         if (!texels[i].fPixels) {
             return nullptr;
         }
-
-        texelsShallowCopy.push_back(texels[i]);
     }
 
     sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
-                                                         texelsShallowCopy, mipColorMode));
+                                                         texels, mipLevelCount, mipColorMode));
     if (!tex) {
         return nullptr;
     }

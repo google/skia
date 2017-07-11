@@ -104,20 +104,16 @@ public:
      *                    It contains width*height texels. If there is only one
      *                    element and it contains nullptr fPixels, texture data is
      *                    uninitialized.
+     * @param mipLevelCount the number of levels in 'texels'
      * @return    The texture object if successful, otherwise nullptr.
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                   const SkTArray<GrMipLevel>& texels);
+                                   const GrMipLevel texels[], int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
     sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted);
-
-    /** Simplified createTexture() interface for when there is only a base level */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                   const void* level0Data,
-                                   size_t rowBytes);
 
     /**
      * Implements GrResourceProvider::wrapBackendTexture
@@ -271,11 +267,12 @@ public:
      * @param height        height of rectangle to write in pixels.
      * @param config        the pixel config of the source buffer
      * @param texels        array of mipmap levels containing texture data
+     * @param mipLevelCount number of levels in 'texels'
      */
     bool writePixels(GrSurface* surface,
                      int left, int top, int width, int height,
                      GrPixelConfig config,
-                     const SkTArray<GrMipLevel>& texels);
+                     const GrMipLevel texels[], int mipLevelCount);
 
     /**
      * This function is a shim which creates a SkTArray<GrMipLevel> of size 1.
@@ -544,7 +541,8 @@ private:
     // onCreateTexture is called.
     virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
                                              SkBudgeted budgeted,
-                                             const SkTArray<GrMipLevel>& texels) = 0;
+                                             const GrMipLevel texels[],
+                                             int mipLevelCount) = 0;
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                                   GrSurfaceOrigin,
@@ -589,7 +587,7 @@ private:
     virtual bool onWritePixels(GrSurface*,
                                int left, int top, int width, int height,
                                GrPixelConfig config,
-                               const SkTArray<GrMipLevel>& texels) = 0;
+                               const GrMipLevel texels[], int mipLevelCount) = 0;
 
     // overridden by backend-specific derived class to perform the texture transfer
     virtual bool onTransferPixels(GrTexture*,
