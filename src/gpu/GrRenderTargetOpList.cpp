@@ -226,6 +226,22 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
     return true;
 }
 
+void GrRenderTargetOpList::gather(GrResourceAllocator* alloc) const {
+    unsigned int cur = alloc->numOps();
+
+    alloc->addInterval(fTarget.get()->underlyingUniqueID().asUInt(),
+                       cur, cur+fRecordedOps.count()-1);
+
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].fOp.get();
+
+        op->gather(alloc);
+        SkDebugf("opList %d: %d\n", this->uniqueID(), cur+i);
+
+        alloc->incOps();
+    }
+}
+
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
 
 bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,

@@ -252,6 +252,8 @@ class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gather(GrResourceAllocator*) const override { }
+
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
         : INHERITED(ClassID())
         , fTestFn(testFn) {

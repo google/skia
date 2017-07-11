@@ -161,6 +161,12 @@ void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType
     }
 #endif
 
+    SkDebugf("------------------------------------\n");
+    GrResourceAllocator alloc;
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        fOpLists[i]->gather(&alloc);
+    }
+
     for (int i = 0; i < fOpLists.count(); ++i) {
         if (!fOpLists[i]->instantiate(fContext->resourceProvider())) {
             fOpLists[i] = nullptr;

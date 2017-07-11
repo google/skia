@@ -27,6 +27,8 @@ public:
     class Target;
 
 protected:
+    void gather(GrResourceAllocator*) const override { }
+
     GrMeshDrawOp(uint32_t classID);
 
     /** Helper for rendering repeating meshes using a patterned index buffer. This class creates the

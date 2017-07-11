@@ -26,6 +26,75 @@ class GrTextureOpList;
 struct SkIPoint;
 struct SkIRect;
 
+#include "SkTDynamicHash.h"
+
+class GrResourceAllocator {
+public:
+    GrResourceAllocator() : m_numOps(0), m_IntvlListHead(nullptr) { }
+
+    void incOps() { m_numOps++; }
+    unsigned int numOps() const { return m_numOps; }
+
+    void addInterval(unsigned int proxyID, unsigned int start, unsigned int end) {
+        SkASSERT(start <= end);
+
+        if (Interval* intvl = m_Hash.find(proxyID)) {
+            SkASSERT(intvl->fEnd < start);
+            SkDebugf("revising interval for %d from [%d, %d] to [%d, %d]\n",
+                     proxyID,
+                     intvl->fStart, intvl->fEnd,
+                     intvl->fStart, end);
+            intvl->fEnd = end;
+            return;
+        }
+
+        SkDebugf("adding new interval for %d: [ %d, %d ]\n", proxyID, start, end);
+        Interval* newIntvl = new Interval(proxyID, start, end);
+
+        if (!m_IntvlListHead) {
+            m_IntvlListHead = newIntvl;
+        } else if (start <= m_IntvlListHead->fStart) {
+            newIntvl->fNext = m_IntvlListHead;
+            m_IntvlListHead = newIntvl;
+        } else {
+            Interval* prev = m_IntvlListHead;
+            Interval* next = prev->fNext;
+            for (; next && start > next->fStart; prev = next, next = next->fNext) {
+            }
+            newIntvl->fNext = next;
+            prev->fNext = newIntvl;
+        }
+
+        m_Hash.add(newIntvl);
+    }
+
+private:
+    class Interval {
+    public:
+        Interval(unsigned int proxyID, unsigned int start, unsigned int end)
+            : fProxyID(proxyID)
+            , fStart(start)
+            , fEnd(end)
+            , fNext(nullptr) {
+        }
+
+        // for SkTDynamicHash
+        static const unsigned int& GetKey(const Interval& intvl) { return intvl.fProxyID; }
+        static uint32_t Hash(const unsigned int& key) { return key; }
+
+        unsigned int fProxyID;
+        unsigned int fStart;
+        unsigned int fEnd;
+        Interval*    fNext;
+    };
+
+    SkTDynamicHash<Interval, unsigned int> m_Hash;
+
+    // All the intervals sorted by increasing start
+    Interval* m_IntvlListHead;
+    unsigned int m_numOps;
+};
+
 class GrOpList : public SkRefCnt {
 public:
     GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
@@ -95,7 +164,9 @@ protected:
     GrAuditTrail*     fAuditTrail;
 
 private:
-    friend class GrDrawingManager; // for resetFlag & TopoSortTraits
+    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gather
+
+    virtual void gather(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 

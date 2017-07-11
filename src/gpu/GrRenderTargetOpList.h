@@ -128,6 +128,8 @@ private:
         const GrAppliedClip*  fAppliedClip;
     };
 
+    void gather(GrResourceAllocator*) const override;
+
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.
     GrOp* recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,

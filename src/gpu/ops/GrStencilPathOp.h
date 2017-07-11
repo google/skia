@@ -19,6 +19,8 @@ class GrStencilPathOp final : public GrOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gather(GrResourceAllocator*) const override { }
+
     static std::unique_ptr<GrOp> Make(const SkMatrix& viewMatrix,
                                       bool useHWAA,
                                       GrPathRendering::FillType fillType,
