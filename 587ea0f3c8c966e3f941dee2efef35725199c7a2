@@ -22,6 +22,30 @@
       "revId": "587ea0f3c8c966e3f941dee2efef35725199c7a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6789d777_9f8b9d54",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-11T11:27:19Z",
+      "side": 1,
+      "message": "That comment was left by someone no longer on the Skia team. I\u0027d suggest removing the comment and lowering the growth size. If we see a regression we can set it back.",
+      "parentUuid": "8f0cbe9e_093da06d",
+      "range": {
+        "startLine": 220,
+        "startChar": 55,
+        "endLine": 220,
+        "endChar": 76
+      },
+      "revId": "587ea0f3c8c966e3f941dee2efef35725199c7a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
