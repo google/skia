@@ -160,7 +160,7 @@ static sk_sp<SkImage> create_gpu_image(GrContext* context) {
 
 static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
     const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
-    sk_sp<SkData> origEncoded(image->encode());
+    sk_sp<SkData> origEncoded = image->encodeToData();
     REPORTER_ASSERT(reporter, origEncoded);
     REPORTER_ASSERT(reporter, origEncoded->size() > 0);
 
@@ -256,7 +256,7 @@ DEF_TEST(Image_Encode_Serializer, reporter) {
         return SkData::MakeWithCString(kSerializedData);
     });
     sk_sp<SkImage> image(create_image());
-    sk_sp<SkData> encoded(image->encode(&serializer));
+    sk_sp<SkData> encoded = image->encodeToData(&serializer);
     sk_sp<SkData> reference(SkData::MakeWithCString(kSerializedData));
 
     REPORTER_ASSERT(reporter, serializer.didEncode());
@@ -1236,7 +1236,7 @@ DEF_TEST(image_roundtrip_encode, reporter) {
     make_all_premul(&bm0);
 
     auto img0 = SkImage::MakeFromBitmap(bm0);
-    sk_sp<SkData> data(img0->encode(SkEncodedImageFormat::kPNG, 100));
+    sk_sp<SkData> data = img0->encodeToData(SkEncodedImageFormat::kPNG, 100);
     auto img1 = SkImage::MakeFromEncoded(data);
 
     SkBitmap bm1;
@@ -1306,7 +1306,7 @@ DEF_TEST(ImageScalePixels, reporter) {
     test_scale_pixels(reporter, rasterImage.get(), pmRed);
 
     // Test encoded image
-    sk_sp<SkData> data(rasterImage->encode());
+    sk_sp<SkData> data = rasterImage->encodeToData();
     sk_sp<SkImage> codecImage = SkImage::MakeFromEncoded(data);
     test_scale_pixels(reporter, codecImage.get(), pmRed);
 }

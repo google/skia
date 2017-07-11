@@ -233,7 +233,7 @@ sk_image_t* sk_image_new_from_encoded(const sk_data_t* cdata, const sk_irect_t* 
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {
-    return ToData(AsImage(cimage)->encode());
+    return ToData(AsImage(cimage)->encodeToData().release());
 }
 
 void sk_image_ref(const sk_image_t* cimage) {
