@@ -16,6 +16,24 @@
       "revId": "62dd0d732bf9d7f31af1a95cb8f9f3843507c4a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74c2d59e_52d437ce",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-11T23:20:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0c0ea7e_2b368049",
+      "revId": "62dd0d732bf9d7f31af1a95cb8f9f3843507c4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
