@@ -20,8 +20,10 @@
 class SkBitmap;
 class SkCanvas;
 class SkColorFilter;
+class SkImage;
 class SkPaint;
 class SkPath;
+class SkPixmap;
 class SkRRect;
 class SkShader;
 class SkTestFont;
@@ -128,6 +130,10 @@ namespace sk_tool_utils {
     void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
 
     void make_big_path(SkPath& path);
+
+    bool equal(const SkPixmap&, const SkPixmap&, int tol = 0);
+    bool equal(const SkBitmap&, const SkBitmap&, int tol = 0);
+    bool equal(const SkImage*,  const SkImage*,  int tol = 0);
 
     // Return a blurred version of 'src'. This doesn't use a separable filter
     // so it is slow!

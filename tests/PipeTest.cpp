@@ -12,6 +12,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 #include "SkNullCanvas.h"
 #include "SkAutoPixmapStorage.h"
@@ -21,28 +22,6 @@ static void drain(SkPipeDeserializer* deserial, SkDynamicMemoryWStream* stream) 
     std::unique_ptr<SkCanvas> canvas = SkMakeNullCanvas();
     sk_sp<SkData> data = stream->detachAsData();
     deserial->playback(data->data(), data->size(), canvas.get());
-}
-
-static bool deep_equal(SkImage* a, SkImage* b) {
-    if (a->width() != b->width() || a->height() != b->height()) {
-        return false;
-    }
-
-    const SkImageInfo info = SkImageInfo::MakeN32Premul(a->width(), a->height());
-    SkAutoPixmapStorage pmapA, pmapB;
-    pmapA.alloc(info);
-    pmapB.alloc(info);
-
-    if (!a->readPixels(pmapA, 0, 0) || !b->readPixels(pmapB, 0, 0)) {
-        return false;
-    }
-
-    for (int y = 0; y < info.height(); ++y) {
-        if (memcmp(pmapA.addr32(0, y), pmapB.addr32(0, y), info.width() * sizeof(SkPMColor))) {
-            return false;
-        }
-    }
-    return true;
 }
 
 DEF_TEST(Pipe_image_draw_first, reporter) {
@@ -73,7 +52,7 @@ DEF_TEST(Pipe_image_draw_first, reporter) {
     size_t offset2 = data->size();
     REPORTER_ASSERT(reporter, offset2 <= 32);
     auto img1 = deserializer.readImage(data.get());
-    REPORTER_ASSERT(reporter, deep_equal(img.get(), img1.get()));
+    REPORTER_ASSERT(reporter, sk_tool_utils::equal(img.get(), img1.get()));
 
     // try serializing the same image directly (again), check that it is the same!
     data = serializer.writeImage(img.get());

@@ -623,4 +623,91 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkRasterPipeline.h"
+#include "SkImage.h"
+
+bool equal(const SkPixmap& a, const SkPixmap& b, int tol) {
+    if (a.width()      != b.width()     ||
+        a.height()     != b.height()    ||
+        a.colorType()  != b.colorType() ||
+        a.alphaType()  != b.alphaType() ||
+        a.colorSpace() != b.colorSpace())
+    {
+        return false;
+    }
+
+    const SkRasterPipeline::StockStage load_stage[] = {
+        SkRasterPipeline::load_f32_dst, // unknown
+        SkRasterPipeline::load_a8,
+        SkRasterPipeline::load_565,
+        SkRasterPipeline::load_4444,
+        SkRasterPipeline::load_8888,
+        SkRasterPipeline::load_bgra,
+        SkRasterPipeline::load_f32,     // index8
+        SkRasterPipeline::load_g8,
+        SkRasterPipeline::load_f16,
+    };
+
+    SkArenaAlloc alloc;
+    SkRasterPipeline pipeline(&alloc);
+
+    const void* dst;
+    const void* src;
+    const float neg1 = -1.0f;
+    float diff[4];
+    float* diffPtr = diff;
+
+    p.append(load_stage[a.colorType()], &dst);
+    p.append(SkRasterPipeline::move_src_dst);
+    p.append(load_stage[a.colorType()], &src);
+    p.append(SkRasterPipeline::scale_1_float, &neg1);
+    p.append(SkRasterPipeline::plus);
+    p.append(SkRasterPipeline::store_f32, &diffPtr);
+
+    const float ftol = tol / 255.0f;
+    for (int y = 0; y < a.height(); y++) {
+        for (int x = 0; x < a.width(); x++) {
+            src = a.getAddr(x, y);
+            dst = b.getAddr(x, y);
+            p.run(0, 0, 1);
+
+            float d0 = sk_float_abs(diff[0]);
+            float d1 = sk_float_abs(diff[1]);
+            float d2 = sk_float_abs(diff[2]);
+            float d3 = sk_float_abs(diff[3]);
+            float d = SkTAbs(SkTAbs(SkTAbs(d0, d1), d2), d3);
+            if (d > ftol) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool equal(const SkBitmap& a, const SkBitmap& b, int tol) {
+    SkPixmap pmapA, pmapB;
+    if (!a.peekPixels(&pmapA) || !b.peekPixels(&pmapB)) {
+        return false;
+    }
+    return equal(pmapA, pmapB, tol);
+}
+
+#if 1
+bool equal(const SkImage* a, const SkImage* b, int tol) {
+    if (a->width() != b->width() || a->height() != b->height()) {
+        return false;
+    }
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(a->width(), a->height());
+    SkAutoPixmapStorage pmapA, pmapB;
+    pmapA.alloc(info);
+    pmapB.alloc(info);
+
+    if (!a->readPixels(pmapA, 0, 0) || !b->readPixels(pmapB, 0, 0)) {
+        return false;
+    }
+    return equal(pmapA, pmapB, tol);
+}
+#endif
+
 }  // namespace sk_tool_utils
