@@ -8,10 +8,9 @@
 #ifndef SkPixelSerializer_DEFINED
 #define SkPixelSerializer_DEFINED
 
-#include "SkRefCnt.h"
+#include "SkData.h"
 #include "SkPixmap.h"
-
-class SkData;
+#include "SkRefCnt.h"
 
 /**
  *  Interface for serializing pixels, e.g. SkBitmaps in an SkPicture.
@@ -32,7 +31,13 @@ public:
      *  Call to get the client's version of encoding these pixels. If it
      *  returns NULL, serialize the raw pixels.
      */
-    SkData* encode(const SkPixmap& pixmap) { return this->onEncode(pixmap); }
+    sk_sp<SkData> encodeToData(const SkPixmap& pixmap) {
+        return sk_sp<SkData>(this->onEncode(pixmap));
+    }
+
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
+    SkData* encode(const SkPixmap& pixmap);
+#endif
 
 protected:
     /**

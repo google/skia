@@ -458,8 +458,8 @@ DEF_TEST(TextBlob_serialize, reporter) {
         REPORTER_ASSERT(reporter, img0->width() == img1->width());
         REPORTER_ASSERT(reporter, img0->height() == img1->height());
 
-        sk_sp<SkData> enc0(img0->encode());
-        sk_sp<SkData> enc1(img1->encode());
+        sk_sp<SkData> enc0 = img0->encodeToData();
+        sk_sp<SkData> enc1 = img1->encodeToData();
         REPORTER_ASSERT(reporter, enc0->equals(enc1.get()));
         if (false) {    // in case you want to actually see the images...
             SkFILEWStream("textblob_serialize_img0.png").write(enc0->data(), enc0->size());
