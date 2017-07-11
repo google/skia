@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f0cbe9e_093da06d",
+        "filename": "src/gpu/text/GrTextBlobCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-07-11T00:15:48Z",
+      "side": 1,
+      "message": "The minGrowthSize is currently 128k, which doesn\u0027t seem to line up with this comment. Do we really need 128k? And if so, could you clarify the comment?",
+      "range": {
+        "startLine": 220,
+        "startChar": 55,
+        "endLine": 220,
+        "endChar": 76
+      },
+      "revId": "587ea0f3c8c966e3f941dee2efef35725199c7a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
