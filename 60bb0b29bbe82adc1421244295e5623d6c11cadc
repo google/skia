@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2db38183_bc87fd0e",
+        "filename": "src/pdf/SkKeyedImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-11T20:33:00Z",
+      "side": 1,
+      "message": "This doesn\u0027t ref, it gets / borrows. The user might ref it, but because this is returning a const\u0026 it\u0027s not ref\u0027ing fImage. Also, it seems strange to have this and image() which returns a bare pointer.",
+      "range": {
+        "startLine": 33,
+        "startChar": 32,
+        "endLine": 33,
+        "endChar": 35
+      },
+      "revId": "60bb0b29bbe82adc1421244295e5623d6c11cadc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
