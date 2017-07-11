@@ -601,62 +601,63 @@ static void sort_and_orient_t_s(double t[2], double s[2]) {
 // d1 = d2 = 0, d3 != 0         Quadratic
 // d1 = d2 = d3 = 0             Line or Point
 static SkCubicType classify_cubic(const double d[4], double t[2], double s[2]) {
-    double tolerance = SkTMax(fabs(d[1]), fabs(d[2]));
-    tolerance = SkTMax(tolerance, fabs(d[3]));
-    tolerance = tolerance * 1e-4;
-    if (fabs(d[1]) > tolerance) {
-        const double discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
-        if (discr > 0) {
-            if (t && s) {
-                const double q = 3 * d[2] + copysign(sqrt(3 * discr), d[2]);
-                t[0] = q;
-                s[0] = 6 * d[1];
-                t[1] = 2 * d[3];
-                s[1] = q;
-                normalize_t_s(t, s, 2);
-                sort_and_orient_t_s(t, s);
-            }
-            return SkCubicType::kSerpentine;
-        } else if (discr < 0) {
-            if (t && s) {
-                const double q = d[2] + copysign(sqrt(-discr), d[2]);
-                t[0] = q;
-                s[0] = 2 * d[1];
-                t[1] = 2 * (d[2] * d[2] - d[3] * d[1]);
-                s[1] = d[1] * q;
-                normalize_t_s(t, s, 2);
-                sort_and_orient_t_s(t, s);
-            }
-            return SkCubicType::kLoop;
-        } else {
-            SkASSERT(0 == discr); // Detect NaN.
-            if (t && s) {
-                t[0] = d[2];
-                s[0] = 2 * d[1];
-                normalize_t_s(t, s, 1);
-                t[1] = t[0];
-                s[1] = s[0];
-                sort_and_orient_t_s(t, s);
-            }
-            return SkCubicType::kLocalCusp;
+    // Check for degenerate cubics (quadratics, lines, and points).
+    // This also attempts to detect near-quadratics in a resolution independent fashion, however it
+    // is still up to the caller to check for almost-linear curves if needed.
+    if (fabs(d[1]) + fabs(d[2]) <= fabs(d[3]) * 1e-3) {
+        if (t && s) {
+            t[0] = t[1] = 1;
+            s[0] = s[1] = 0; // infinity
         }
+        return 0 == d[3] ? SkCubicType::kLineOrPoint : SkCubicType::kQuadratic;
+    }
+
+    if (0 == d[1]) {
+        SkASSERT(0 != d[2]); // captured in check for degeneracy above.
+        if (t && s) {
+            t[0] = d[3];
+            s[0] = 3 * d[2];
+            normalize_t_s(t, s, 1);
+            t[1] = 1;
+            s[1] = 0; // infinity
+        }
+        return SkCubicType::kCuspAtInfinity;
+    }
+
+    const double discr = 3 * d[2] * d[2] - 4 * d[1] * d[3];
+    if (discr > 0) {
+        if (t && s) {
+            const double q = 3 * d[2] + copysign(sqrt(3 * discr), d[2]);
+            t[0] = q;
+            s[0] = 6 * d[1];
+            t[1] = 2 * d[3];
+            s[1] = q;
+            normalize_t_s(t, s, 2);
+            sort_and_orient_t_s(t, s);
+        }
+        return SkCubicType::kSerpentine;
+    } else if (discr < 0) {
+        if (t && s) {
+            const double q = d[2] + copysign(sqrt(-discr), d[2]);
+            t[0] = q;
+            s[0] = 2 * d[1];
+            t[1] = 2 * (d[2] * d[2] - d[3] * d[1]);
+            s[1] = d[1] * q;
+            normalize_t_s(t, s, 2);
+            sort_and_orient_t_s(t, s);
+        }
+        return SkCubicType::kLoop;
     } else {
-        if (fabs(d[2]) > tolerance) {
-            if (t && s) {
-                t[0] = d[3];
-                s[0] = 3 * d[2];
-                normalize_t_s(t, s, 1);
-                t[1] = 1;
-                s[1] = 0; // infinity
-            }
-            return SkCubicType::kCuspAtInfinity;
-        } else {
-            if (t && s) {
-                t[0] = t[1] = 1;
-                s[0] = s[1] = 0; // infinity
-            }
-            return fabs(d[3]) > tolerance ? SkCubicType::kQuadratic : SkCubicType::kLineOrPoint;
+        SkASSERT(0 == discr); // Detect NaN.
+        if (t && s) {
+            t[0] = d[2];
+            s[0] = 2 * d[1];
+            normalize_t_s(t, s, 1);
+            t[1] = t[0];
+            s[1] = s[0];
+            sort_and_orient_t_s(t, s);
         }
+        return SkCubicType::kLocalCusp;
     }
 }
 
