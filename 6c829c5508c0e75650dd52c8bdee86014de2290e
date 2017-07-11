@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5e017d81_eb9bda87",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1608,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-11T15:42:33Z",
+      "side": 1,
+      "message": "Can you just double-check that all the libs dependencies are as close to the direct logical dependency as possible?  This app uses libGL and libX11 directly?  You\u0027re not just having to list them here because //third_party/libsdl neglected to list them?  Same deal for the Mac libs?",
+      "range": {
+        "startLine": 1608,
+        "startChar": 8,
+        "endLine": 1608,
+        "endChar": 15
+      },
+      "revId": "6c829c5508c0e75650dd52c8bdee86014de2290e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fafc3027_e28c7288",
         "filename": "example/SkiaSDLExample.cpp",
         "patchSetId": 5
