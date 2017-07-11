@@ -331,6 +331,7 @@ DRAW_OP_TEST_EXTERN(EllipseOp);
 DRAW_OP_TEST_EXTERN(NonAAFillRectOp);
 DRAW_OP_TEST_EXTERN(NonAALatticeOp);
 DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
+DRAW_OP_TEST_EXTERN(ShadowRRectOp);
 DRAW_OP_TEST_EXTERN(SmallPathOp);
 DRAW_OP_TEST_EXTERN(RegionOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
@@ -361,6 +362,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
         DRAW_OP_TEST_ENTRY(NonAALatticeOp),
         DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
+        DRAW_OP_TEST_ENTRY(ShadowRRectOp),
         DRAW_OP_TEST_ENTRY(SmallPathOp),
         DRAW_OP_TEST_ENTRY(RegionOp),
         DRAW_OP_TEST_ENTRY(RRectOp),
