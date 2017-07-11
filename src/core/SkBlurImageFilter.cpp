@@ -93,20 +93,27 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
     SkScalar sigmaX = buffer.readScalar();
     SkScalar sigmaY = buffer.readScalar();
-    return SkBlurImageFilter::Make(sigmaX, sigmaY, common.getInput(0), &common.cropRect());
+    SkBlurImageFilter::TileMode tileMode;
+    if (buffer.isVersionLT(SkReadBuffer::kTileModeInBlurImageFilter_Version)) {
+        tileMode = SkBlurImageFilter::kClampToBlack_TileMode;
+    } else {
+        tileMode = static_cast<SkBlurImageFilter::TileMode>(buffer.readInt());
+    }
+
+    return SkBlurImageFilter::Make(
+          sigmaX, sigmaY, common.getInput(0), &common.cropRect(), tileMode);
 }
 
 void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);
+    buffer.writeInt(static_cast<int>(fTileMode));
 }
 
 #if SK_SUPPORT_GPU
 static GrTextureDomain::Mode to_texture_domain_mode(SkBlurImageFilter::TileMode tileMode) {
     switch (tileMode) {
-      case SkBlurImageFilter::TileMode::kIgnore_TileMode:
-        return GrTextureDomain::kIgnore_Mode;
       case SkBlurImageFilter::TileMode::kClamp_TileMode:
         return GrTextureDomain::kClamp_Mode;
       case SkBlurImageFilter::TileMode::kClampToBlack_TileMode:
@@ -325,7 +332,8 @@ SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMa
 #ifndef SK_IGNORE_TO_STRING
 void SkBlurImageFilterImpl::toString(SkString* str) const {
     str->appendf("SkBlurImageFilterImpl: (");
-    str->appendf("sigma: (%f, %f) input (", fSigma.fWidth, fSigma.fHeight);
+    str->appendf("sigma: (%f, %f) tileMode: %d input (", fSigma.fWidth, fSigma.fHeight,
+                 static_cast<int>(fTileMode));
 
     if (this->getInput(0)) {
         this->getInput(0)->toString(str);
