@@ -23,6 +23,9 @@ public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
 
+    class SmallPathOp;
+    struct PathTestStruct;
+
 private:
     StencilSupport onGetStencilSupport(const GrShape&) const override {
         return GrPathRenderer::kNoSupport_StencilSupport;
@@ -128,9 +131,6 @@ private:
     ShapeDataList fShapeList;
 
     typedef GrPathRenderer INHERITED;
-
-    friend class SmallPathOp;
-    friend struct PathTestStruct;
 };
 
 #endif
