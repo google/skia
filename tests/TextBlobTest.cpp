@@ -409,6 +409,9 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
     auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
                                                SkScalarRoundToInt(blob->bounds().height()));
+    if (!surf) {
+        return nullptr; // bounds are empty?
+    }
     surf->getCanvas()->clear(SK_ColorWHITE);
     surf->getCanvas()->drawTextBlob(blob, -blob->bounds().left(), -blob->bounds().top(), SkPaint());
     return surf->makeImageSnapshot();
@@ -421,12 +424,6 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
  *  Then draw the new instance and assert it draws the same as the original.
  */
 DEF_TEST(TextBlob_serialize, reporter) {
-    // test requires at least the default font
-    if (!SkTypeface::MakeDefault()) {
-        SkDebugf("TextBlob_serialize: missing default typeface\n");
-        return;
-    }
-
     SkTextBlobBuilder builder;
 
     sk_sp<SkTypeface> tf0;
@@ -435,7 +432,6 @@ DEF_TEST(TextBlob_serialize, reporter) {
     add_run(&builder, "Hello", 10, 20, tf0);
     add_run(&builder, "World", 10, 40, tf1);
     sk_sp<SkTextBlob> blob0 = builder.make();
-    sk_sp<SkImage> img0 = render(blob0.get());
 
     SkTDArray<SkTypeface*> array;
     sk_sp<SkData> data = blob0->serialize([&array](SkTypeface* tf) {
@@ -455,16 +451,19 @@ DEF_TEST(TextBlob_serialize, reporter) {
         REPORTER_ASSERT(reporter, false);
         return sk_sp<SkTypeface>(nullptr);
     });
+
+    sk_sp<SkImage> img0 = render(blob0.get());
     sk_sp<SkImage> img1 = render(blob1.get());
+    if (img0 && img1) {
+        REPORTER_ASSERT(reporter, img0->width() == img1->width());
+        REPORTER_ASSERT(reporter, img0->height() == img1->height());
 
-    REPORTER_ASSERT(reporter, img0->width() == img1->width());
-    REPORTER_ASSERT(reporter, img0->height() == img1->height());
-
-    sk_sp<SkData> enc0(img0->encode());
-    sk_sp<SkData> enc1(img1->encode());
-    REPORTER_ASSERT(reporter, enc0->equals(enc1.get()));
-    if (false) {    // in case you want to actually see the images...
-        SkFILEWStream("textblob_serialize_img0.png").write(enc0->data(), enc0->size());
-        SkFILEWStream("textblob_serialize_img1.png").write(enc1->data(), enc1->size());
+        sk_sp<SkData> enc0(img0->encode());
+        sk_sp<SkData> enc1(img1->encode());
+        REPORTER_ASSERT(reporter, enc0->equals(enc1.get()));
+        if (false) {    // in case you want to actually see the images...
+            SkFILEWStream("textblob_serialize_img0.png").write(enc0->data(), enc0->size());
+            SkFILEWStream("textblob_serialize_img1.png").write(enc1->data(), enc1->size());
+        }
     }
 }
