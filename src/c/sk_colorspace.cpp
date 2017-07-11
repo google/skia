@@ -51,6 +51,10 @@ bool sk_colorspace_gamma_is_linear(const sk_colorspace_t* cColorSpace) {
     return AsColorSpace(cColorSpace)->gammaIsLinear();
 }
 
+bool sk_colorspace_is_srgb(const sk_colorspace_t* cColorSpace) {
+    return AsColorSpace(cColorSpace)->isSRGB();
+}
+
 bool sk_colorspace_equals(const sk_colorspace_t* src, const sk_colorspace_t* dst) {
     return SkColorSpace::Equals(AsColorSpace(src), AsColorSpace(dst));
 }
@@ -61,4 +65,8 @@ bool sk_colorspace_to_xyzd50(const sk_colorspace_t* cColorSpace, sk_matrix44_t* 
 
 bool sk_colorspaceprimaries_to_xyzd50(const sk_colorspaceprimaries_t* primaries, sk_matrix44_t* toXYZD50) {
     return AsColorSpacePrimaries(primaries)->toXYZD50(AsMatrix44(toXYZD50));
+}
+
+void sk_colorspace_transfer_fn_invert(const sk_colorspace_transfer_fn_t* transfer, sk_colorspace_transfer_fn_t* inverted) {
+    *inverted = ToColorSpaceTransferFn(AsColorSpaceTransferFn(transfer)->invert());
 }

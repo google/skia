@@ -22,9 +22,11 @@ SK_C_API sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs(const sk_colorspace_
 SK_C_API sk_colorspace_t* sk_colorspace_new_rgb_with_coeffs_and_gamut(const sk_colorspace_transfer_fn_t* coeffs, sk_colorspace_gamut_t gamut);
 SK_C_API bool sk_colorspace_gamma_close_to_srgb(const sk_colorspace_t* cColorSpace);
 SK_C_API bool sk_colorspace_gamma_is_linear(const sk_colorspace_t* cColorSpace);
+SK_C_API bool sk_colorspace_is_srgb(const sk_colorspace_t* cColorSpace);
 SK_C_API bool sk_colorspace_equals(const sk_colorspace_t* src, const sk_colorspace_t* dst);
 SK_C_API bool sk_colorspace_to_xyzd50(const sk_colorspace_t* cColorSpace, sk_matrix44_t* toXYZD50);
 SK_C_API bool sk_colorspaceprimaries_to_xyzd50(const sk_colorspaceprimaries_t* primaries, sk_matrix44_t* toXYZD50);
+SK_C_API void sk_colorspace_transfer_fn_invert(const sk_colorspace_transfer_fn_t* transfer, sk_colorspace_transfer_fn_t* inverted);
 
 SK_C_PLUS_PLUS_END_GUARD
 
