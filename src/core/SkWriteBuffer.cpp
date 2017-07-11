@@ -156,7 +156,7 @@ void SkBinaryWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     // see if the caller wants to manually encode
     SkPixmap result;
     if (fPixelSerializer && bitmap.peekPixels(&result)) {
-        sk_sp<SkData> data = fPixelSerializer->encodeToData(result);
+        sk_sp<SkData> data(fPixelSerializer->encode(result));
         if (data) {
             // if we have to "encode" the bitmap, then we assume there is no
             // offset to share, since we are effectively creating a new pixelref
@@ -178,7 +178,7 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
     this->writeInt(image->width());
     this->writeInt(image->height());
 
-    sk_sp<SkData> encoded = image->encodeToData(this->getPixelSerializer());
+    sk_sp<SkData> encoded(image->encode(this->getPixelSerializer()));
     if (encoded && encoded->size() > 0) {
         write_encoded_bitmap(this, encoded.get(), SkIPoint::Make(0, 0));
         return;

@@ -94,21 +94,21 @@ sk_sp<SkShader> SkImage::makeShader(SkShader::TileMode tileX, SkShader::TileMode
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tileX, tileY, localMatrix);
 }
 
-sk_sp<SkData> SkImage::encodeToData(SkEncodedImageFormat type, int quality) const {
+SkData* SkImage::encode(SkEncodedImageFormat type, int quality) const {
     SkBitmap bm;
     SkColorSpace* legacyColorSpace = nullptr;
     if (as_IB(this)->getROPixels(&bm, legacyColorSpace)) {
         SkDynamicMemoryWStream buf;
-        return SkEncodeImage(&buf, bm, type, quality) ? buf.detachAsData() : nullptr;
+        return SkEncodeImage(&buf, bm, type, quality) ? buf.detachAsData().release() : nullptr;
     }
     return nullptr;
 }
 
-sk_sp<SkData> SkImage::encodeToData(SkPixelSerializer* serializer) const {
-    sk_sp<SkData> encoded(this->refEncodedData());
+SkData* SkImage::encode(SkPixelSerializer* serializer) const {
+    sk_sp<SkData> encoded(this->refEncoded());
     if (encoded &&
         (!serializer || serializer->useEncodedData(encoded->data(), encoded->size()))) {
-        return encoded;
+        return encoded.release();
     }
 
     SkBitmap bm;
@@ -116,19 +116,19 @@ sk_sp<SkData> SkImage::encodeToData(SkPixelSerializer* serializer) const {
     SkColorSpace* legacyColorSpace = nullptr;
     if (as_IB(this)->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
         if (serializer) {
-            return serializer->encodeToData(pmap);
+            return serializer->encode(pmap);
         } else {
             SkDynamicMemoryWStream buf;
             return SkEncodeImage(&buf, pmap, SkEncodedImageFormat::kPNG, 100)
-                   ? buf.detachAsData() : nullptr;
+                   ? buf.detachAsData().release() : nullptr;
         }
     }
 
     return nullptr;
 }
 
-sk_sp<SkData> SkImage::refEncodedData() const {
-    return sk_sp<SkData>(as_IB(this)->onRefEncoded());
+SkData* SkImage::refEncoded() const {
+    return as_IB(this)->onRefEncoded();
 }
 
 sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset) {
@@ -137,20 +137,6 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
     }
     return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(encoded), subset);
 }
-
-#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
-SkData* SkImage::encode(SkEncodedImageFormat format, int quality) const {
-    return this->encodeToData(format, quality).release();
-}
-SkData* SkImage::encode(SkPixelSerializer* serial) const {
-    return this->encodeToData(serial).release();
-}
-SkData* SkImage::refEncoded() const {
-    return this->refEncodedData().release();
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const char* SkImage::toString(SkString* str) const {
     str->appendf("image: (id:%d (%d, %d) %s)", this->uniqueID(), this->width(), this->height(),
