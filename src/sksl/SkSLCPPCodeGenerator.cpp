@@ -163,7 +163,7 @@ void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression
 
 String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
     int samplerCount = 0;
-    for (const auto param : fSectionAndParameterHelper.fParameters) {
+    for (const auto param : fSectionAndParameterHelper.getParameters()) {
         if (&var == param) {
             return "args.fTexSamplers[" + to_string(samplerCount) + "]";
         }
@@ -267,9 +267,9 @@ void CPPCodeGenerator::writeSetting(const Setting& s) {
 }
 
 void CPPCodeGenerator::writeSection(const char* name, const char* prefix) {
-    const auto found = fSectionAndParameterHelper.fSections.find(String(name));
-    if (found != fSectionAndParameterHelper.fSections.end()) {
-        this->writef("%s%s", prefix, found->second->fText.c_str());
+    const Section* s = fSectionAndParameterHelper.getSection(name);
+    if (s) {
+        this->writef("%s%s", prefix, s->fText.c_str());
     }
 }
 
@@ -398,10 +398,8 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
 
 void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
-    auto section = fSectionAndParameterHelper.fSections.find(String(SET_DATA_SECTION));
-    const char* pdman = section != fSectionAndParameterHelper.fSections.end() ?
-                                                                section->second->fArgument.c_str() :
-                                                                "pdman";
+    const Section* section = fSectionAndParameterHelper.getSection(SET_DATA_SECTION);
+    const char* pdman = section ? section->fArgument.c_str() : "pdman";
     this->writef("    void onSetData(const GrGLSLProgramDataManager& %s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
                  pdman);
@@ -439,7 +437,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     if (wroteProcessor) {
         this->writef("        }\n");
     }
-    if (section != fSectionAndParameterHelper.fSections.end()) {
+    if (section) {
         for (const auto& p : fProgram.fElements) {
             if (ProgramElement::kVar_Kind == p->fKind) {
                 const VarDeclarations* decls = (const VarDeclarations*) p.get();
@@ -470,27 +468,25 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
 }
 
 void CPPCodeGenerator::writeTest() {
-    const auto found = fSectionAndParameterHelper.fSections.find(TEST_CODE_SECTION);
-    if (found == fSectionAndParameterHelper.fSections.end()) {
-        return;
+    const Section* test = fSectionAndParameterHelper.getSection(TEST_CODE_SECTION);
+    if (test) {
+        this->writef("GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
+                     "#if GR_TEST_UTILS\n"
+                     "sk_sp<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
+                     fFullName.c_str(),
+                     fFullName.c_str(),
+                     test->fArgument.c_str());
+        this->writeSection(TEST_CODE_SECTION);
+        this->write("}\n"
+                    "#endif\n");
     }
-    const Section* test = found->second;
-    this->writef("GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
-                 "#if GR_TEST_UTILS\n"
-                 "sk_sp<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
-                 fFullName.c_str(),
-                 fFullName.c_str(),
-                 test->fArgument.c_str());
-    this->writeSection(TEST_CODE_SECTION);
-    this->write("}\n"
-                "#endif\n");
 }
 
 void CPPCodeGenerator::writeGetKey() {
     this->writef("void %s::onGetGLSLProcessorKey(const GrShaderCaps& caps, "
                                                 "GrProcessorKeyBuilder* b) const {\n",
                  fFullName.c_str());
-    for (const auto& param : fSectionAndParameterHelper.fParameters) {
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         const char* name = param->fName.c_str();
         if (param->fType == *fContext.fColorSpaceXform_Type) {
             this->writef("    b->add32(GrColorSpaceXform::XformKey(%s.get()));\n",
@@ -580,7 +576,7 @@ bool CPPCodeGenerator::generateCode() {
             this->writef("    UniformHandle %sVar;\n", HCodeGenerator::FieldName(name).c_str());
         }
     }
-    for (const auto& param : fSectionAndParameterHelper.fParameters) {
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         const char* name = param->fName.c_str();
         if (needs_uniform_var(*param)) {
             this->writef("    UniformHandle %sVar;\n", HCodeGenerator::FieldName(name).c_str());
@@ -599,7 +595,7 @@ bool CPPCodeGenerator::generateCode() {
                  "    const %s& that = other.cast<%s>();\n"
                  "    (void) that;\n",
                  fullName, fullName, fullName);
-    for (const auto& param : fSectionAndParameterHelper.fParameters) {
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         const char* name = param->fName.c_str();
         this->writef("    if (%s != that.%s) return false;\n",
                      HCodeGenerator::FieldName(name).c_str(),
