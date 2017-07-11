@@ -41,7 +41,9 @@ protected:
     void onOnceBeforeDraw() override {
         this->setBGColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
         draw_bm(&fBitmap);
+        fBitmap.setImmutable();
         draw_mask(&fMask);
+        fMask.setImmutable();
     }
 
     SkString onShortName() override {

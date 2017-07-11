@@ -38,6 +38,7 @@ protected:
         paint.setTextSize(64);
         canvas.drawString(str1, 10, 55, paint);
         canvas.drawString(str2, 10, 110, paint);
+        fBitmap.setImmutable();
     }
 
     SkISize onISize() override {

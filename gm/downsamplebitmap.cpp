@@ -70,6 +70,7 @@ protected:
         if (!fBitmapMade) {
             fBitmapMade = true;
             make_bitmap();
+            fBM.setImmutable();
         }
     }
 

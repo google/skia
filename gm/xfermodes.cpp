@@ -92,19 +92,21 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
         r.set(0, 0, ww*3/4, hh*3/4);
         c.drawOval(r, p);
     }
+    src->setImmutable();
 
     dst->allocN32Pixels(w, h);
     dst->eraseColor(SK_ColorTRANSPARENT);
-
     {
         SkCanvas c(*dst);
         p.setColor(sk_tool_utils::color_to_565(0xFF66AAFF));
         r.set(ww/3, hh/3, ww*19/20, hh*19/20);
         c.drawRect(r, p);
     }
+    dst->setImmutable();
 
     transparent->allocN32Pixels(w, h);
     transparent->eraseColor(SK_ColorTRANSPARENT);
+    transparent->setImmutable();
 }
 
 static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };

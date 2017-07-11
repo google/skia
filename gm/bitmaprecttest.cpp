@@ -37,6 +37,7 @@ static void make_bm(SkBitmap* bm) {
 DEF_SIMPLE_GM(bitmaprecttest, canvas, 320, 240) {
     SkBitmap bm;
     make_bm(&bm);
+    bm.setImmutable();
 
     canvas->drawBitmap(bm, 150, 45, nullptr);
 

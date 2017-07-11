@@ -49,6 +49,7 @@ protected:
             canvas.drawLine(cos * kInnerOffset, sin * kInnerOffset,
                             cos * kImageSize/2, sin * kImageSize/2, p);
         }
+        fBM.setImmutable();
     }
 
     void draw(SkCanvas* canvas, int x, int y, int xSize, int ySize) {
