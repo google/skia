@@ -556,7 +556,7 @@ static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorTy
  */
 SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
                                          void* dst, size_t dstRowBytes,
-                                         const Options& options, SkPMColor*, int*,
+                                         const Options& options,
                                          int* rowsDecoded) {
     if (options.fSubset) {
         // Subsets are not supported.
@@ -673,7 +673,7 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
 }
 
 SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
-        const Options& options, SkPMColor ctable[], int* ctableCount) {
+        const Options& options) {
     // Set the jump location for libjpeg errors
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         SkCodecPrintf("setjmp: Error from libjpeg\n");

@@ -209,7 +209,7 @@ DEF_TEST(Codec_partialAnim, r) {
         SkCodec::Options opts;
         opts.fFrameIndex = i;
         const SkCodec::Result result = fullCodec->getPixels(info, frame.getPixels(),
-                frame.rowBytes(), &opts, nullptr, nullptr);
+                frame.rowBytes(), &opts);
 
         if (result == SkCodec::kIncompleteInput || result == SkCodec::kInvalidInput) {
             // We need to distinguish between a partial frame and no more frames.

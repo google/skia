@@ -289,7 +289,6 @@ public:
         , m_streamBuffer(stream)
         , m_parseCompleted(false)
         , m_firstFrameHasAlpha(false)
-        , m_firstFrameSupportsIndex8(false)
     {
     }
 
@@ -367,8 +366,6 @@ public:
 
     bool firstFrameHasAlpha() const { return m_firstFrameHasAlpha; }
 
-    bool firstFrameSupportsIndex8() const { return m_firstFrameSupportsIndex8; }
-
     // Helper function that returns whether an SkGIFFrameContext has transparency.
     // This method is sometimes called before creating one/parsing its color map,
     // so it cannot rely on SkGIFFrameContext::transparentPixel or ::localColorMap().
@@ -410,10 +407,9 @@ private:
     SkStreamBuffer m_streamBuffer;
     bool m_parseCompleted;
 
-    // These values can be computed before we create a SkGIFFrameContext, so we
-    // store them here instead of on m_frames[0].
+    // This value can be computed before we create a SkGIFFrameContext, so we
+    // store it here instead of on m_frames[0].
     bool m_firstFrameHasAlpha;
-    bool m_firstFrameSupportsIndex8;
 };
 
 #endif

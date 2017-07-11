@@ -378,8 +378,7 @@ static void blend_line(SkColorType dstCT, void* dst,
 }
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
-                                         const Options& options, SkPMColor*, int*,
-                                         int* rowsDecodedPtr) {
+                                         const Options& options, int* rowsDecodedPtr) {
     const int index = options.fFrameIndex;
     SkASSERT(0 == index || index < fFrameHolder.size());
 

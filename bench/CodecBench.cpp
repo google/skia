@@ -51,20 +51,17 @@ void CodecBench::onDelayedSetup() {
 
 void CodecBench::onDraw(int n, SkCanvas* canvas) {
     std::unique_ptr<SkCodec> codec;
-    SkPMColor colorTable[256];
-    int colorCount;
     SkCodec::Options options;
     if (FLAGS_zero_init) {
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
     }
     for (int i = 0; i < n; i++) {
-        colorCount = 256;
         codec.reset(SkCodec::NewFromData(fData));
 #ifdef SK_DEBUG
         const SkCodec::Result result =
 #endif
         codec->getPixels(fInfo, fPixelStorage.get(), fInfo.minRowBytes(),
-                         &options, colorTable, &colorCount);
+                         &options);
         SkASSERT(result == SkCodec::kSuccess
                  || result == SkCodec::kIncompleteInput);
     }

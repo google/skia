@@ -130,7 +130,7 @@ public:
             case kPalette_Color: {
                 SkAlphaType alphaType = (kOpaque_Alpha == fAlpha) ? kOpaque_SkAlphaType :
                         kUnpremul_SkAlphaType;
-                return SkImageInfo::Make(width, height, kIndex_8_SkColorType,
+                return SkImageInfo::Make(width, height, kN32_SkColorType,
                                          alphaType, colorSpace);
             }
             case kRGB_Color:

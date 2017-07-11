@@ -60,7 +60,7 @@ DEF_TEST(Codec_565, r) {
     options.fPriorFrame = SkCodec::kNone;
 
     const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(),
-                                         &options, nullptr, nullptr);
+                                         &options);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
 
@@ -329,7 +329,7 @@ DEF_TEST(Codec_frames, r) {
                 opts.fFrameIndex = index;
                 opts.fPriorFrame = cachedIndex;
                 const auto result = codec->getPixels(decodeInfo, bm->getPixels(), bm->rowBytes(),
-                                                     &opts, nullptr, nullptr);
+                                                     &opts);
                 if (cachedIndex != SkCodec::kNone && restore_previous(frameInfos[cachedIndex])) {
                     if (result == SkCodec::kInvalidParameters) {
                         return true;
