@@ -15,11 +15,11 @@ static void make_bm(SkBitmap* bm) {
     bm->allocN32Pixels(100, 100);
     bm->eraseColor(SK_ColorBLUE);
 
-    SkCanvas canvas(*bm);
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
-    canvas.drawCircle(50, 50, 50, paint);
+    SkCanvas(*bm).drawCircle(50, 50, 50, paint);
+    bm->setImmutable();
 }
 
 static void draw_1_bitmap(SkCanvas* canvas, const SkBitmap& bm, bool doClip,

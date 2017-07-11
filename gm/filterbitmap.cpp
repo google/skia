@@ -46,6 +46,7 @@ class FilterBitmapGM : public skiagm::GM {
     void onOnceBeforeDraw() override {
 
         this->makeBitmap();
+        fBM.setImmutable();
 
         SkScalar cx = SkScalarHalf(fBM.width());
         SkScalar cy = SkScalarHalf(fBM.height());

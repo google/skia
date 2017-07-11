@@ -71,6 +71,10 @@ class FilterGM : public skiagm::GM {
         sk_tool_utils::copy_to(&fBM4444, kARGB_4444_SkColorType, fBM8);
         sk_tool_utils::copy_to(&fBM16, kRGB_565_SkColorType, fBM8);
         sk_tool_utils::copy_to(&fBM32, kN32_SkColorType, fBM8);
+        fBM8.setImmutable();
+        fBM4444.setImmutable();
+        fBM16.setImmutable();
+        fBM32.setImmutable();
     }
 
 public:

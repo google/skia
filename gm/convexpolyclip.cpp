@@ -68,6 +68,7 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
     canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+    bmp.setImmutable();
     return bmp;
 }
 

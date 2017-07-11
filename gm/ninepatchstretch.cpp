@@ -73,6 +73,7 @@ protected:
         if (nullptr == fBitmap.pixelRef()) {
             fImage = make_image(canvas, &fCenter);
             image_to_bitmap(fImage.get(), &fBitmap);
+            fBitmap.setImmutable();
         }
 
         // amount of bm that should not be stretched (unless we have to)

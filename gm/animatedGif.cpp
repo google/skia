@@ -71,6 +71,7 @@ private:
                 SkDebugf("Could not getPixels for frame %i: %s", frameIndex, FLAGS_animatedGif[0]);
                 return;
             }
+            bm.setImmutable();
         }
 
         canvas->drawBitmap(bm, 0, 0);

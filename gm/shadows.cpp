@@ -46,6 +46,7 @@ protected:
         SkPaint p;
         canvas.drawRect(SkRect::MakeXYWH(10, 0, 10, 10), p);
         canvas.drawRect(SkRect::MakeXYWH(0, 10, 10, 10), p);
+        fBitmap.setImmutable();
     }
 
     SkString onShortName() override {

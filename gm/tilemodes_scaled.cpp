@@ -21,7 +21,6 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     bm->eraseColor(SK_ColorTRANSPARENT);
 
-    SkCanvas    canvas(*bm);
     SkPoint     pts[] = { { 0, 0 }, { SkIntToScalar(w), SkIntToScalar(h)} };
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
@@ -30,7 +29,8 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     paint.setDither(true);
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, pos,
                 SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode));
-    canvas.drawPaint(paint);
+    SkCanvas(*bm).drawPaint(paint);
+    bm->setImmutable();
 }
 
 static void setup(SkPaint* paint, const SkBitmap& bm, SkFilterQuality filter_level,

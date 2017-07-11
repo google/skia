@@ -61,6 +61,7 @@ protected:
 
         SkBitmap bitmap;
         make_bitmap(&bitmap);
+        bitmap.setImmutable();
 
         SkRect dstR = { 0, 200, 128, 380 };
 
@@ -197,6 +198,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         make_big_bitmap(&fBigBitmap);
+        fBigBitmap.setImmutable();
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -245,6 +247,7 @@ protected:
     void onOnceBeforeDraw() override {
         fBM.allocN32Pixels(10, 10);
         fBM.eraseColor(SK_ColorBLUE);
+        fBM.setImmutable();
     }
 
     // This choice of coordinates and matrix land the bottom edge of the clip (and bitmap dst)

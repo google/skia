@@ -45,6 +45,7 @@ static void draw_row(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& mat, 
 class FilterIndiaBoxGM : public skiagm::GM {
     void onOnceBeforeDraw() override {
         this->makeBitmap();
+        fBM.setImmutable();
 
         SkScalar cx = SkScalarHalf(fBM.width());
         SkScalar cy = SkScalarHalf(fBM.height());

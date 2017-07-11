@@ -60,6 +60,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
     bm.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas c(bm);
     draw_path(&c, r, nullptr);
+    bm.setImmutable();
 
     paint.setImageFilter(std::move(imf));
     canvas->drawBitmap(bm, 0, 0, &paint);
@@ -97,6 +98,7 @@ protected:
                 canvas.restore();
             }
         }
+        fCheckerboard.setImmutable();
     }
 
     void draw_frame(SkCanvas* canvas, const SkRect& r) {

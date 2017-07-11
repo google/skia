@@ -106,6 +106,7 @@ protected:
         sk_sp<SkImage> image = make_image(canvas, xDivs + 1, yDivs + 1, padLeft, padTop,
                                           padRight, padBottom);
         image_to_bitmap(image.get(), &bitmap);
+        bitmap.setImmutable();
 
         const SkSize size[] = {
             {  50,  50, }, // shrink in both axes
