@@ -198,6 +198,22 @@ public:
     #endif
     }
 
+    AI SkNx abs() const {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+        return _mm_abs_epi32(fVec);
+#else
+        // mtklein's approach:
+        __m128i less_than_zero = _mm_cmplt_epi32(fVec, _mm_setzero_si128());
+        __m128i flipped = _mm_xor_si128(fVec, less_than_zero);
+        __m128i negated = _mm_add_epi32(flipped, _mm_srli_epi32(less_than_zero, 31));
+        return negated;
+
+        // herb's approach
+        // __m128i mask = fVec >> 31;
+        // return (mask ^ fVec) - mask;
+#endif
+    }
+
     __m128i fVec;
 };
 
