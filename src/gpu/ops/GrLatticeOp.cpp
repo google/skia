@@ -225,40 +225,51 @@ static void init_random_divs(int divs[], int count, int subsetStart, int subsetS
 }
 
 GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
-    int imgW = random->nextRangeU(1, 1000);
-    int imgH = random->nextRangeU(1, 1000);
     SkCanvas::Lattice lattice;
-    SkIRect subset;
-    if (random->nextBool()) {
-        subset.fLeft = random->nextULessThan(imgW);
-        subset.fRight = random->nextRangeU(subset.fLeft + 1, imgW);
-        subset.fTop = random->nextULessThan(imgH);
-        subset.fBottom = random->nextRangeU(subset.fTop + 1, imgH);
-    } else {
-        subset.setXYWH(0, 0, imgW, imgH);
-    }
-    // SkCanvas::Lattice allows bounds to be null. However, SkCanvas creates a temp Lattice with a
-    // non-null bounds before creating a SkLatticeIter since SkLatticeIter requires a bounds.
-    lattice.fBounds = &subset;
-    lattice.fXCount = random->nextRangeU(1, subset.width());
-    lattice.fYCount = random->nextRangeU(1, subset.height());
-    std::unique_ptr<int[]> xdivs(new int[lattice.fXCount]);
-    std::unique_ptr<int[]> ydivs(new int[lattice.fYCount]);
-    init_random_divs(xdivs.get(), lattice.fXCount, subset.fLeft, subset.fRight, random);
-    init_random_divs(ydivs.get(), lattice.fYCount, subset.fTop, subset.fBottom, random);
-    lattice.fXDivs = xdivs.get();
-    lattice.fYDivs = ydivs.get();
-    bool hasFlags = random->nextBool();
+    int imgW, imgH;
+    // We loop because our random lattice code can produce an invalid lattice in the case where
+    // there is a single div separator in both x and y and both are aligned with the left and top
+    // edge of the image subset, respectively.
+    std::unique_ptr<int[]> xdivs;
+    std::unique_ptr<int[]> ydivs;
     std::unique_ptr<SkCanvas::Lattice::Flags[]> flags;
-    if (hasFlags) {
-        int n = (lattice.fXCount + 1) * (lattice.fYCount + 1);
-        flags.reset(new SkCanvas::Lattice::Flags[n]);
-        for (int i = 0; i < n; ++i) {
-            flags[i] = random->nextBool() ? SkCanvas::Lattice::kTransparent_Flags
-                                          : (SkCanvas::Lattice::Flags)0;
+    SkIRect subset;
+    do {
+        imgW = random->nextRangeU(1, 1000);
+        imgH = random->nextRangeU(1, 1000);
+        if (random->nextBool()) {
+            subset.fLeft = random->nextULessThan(imgW);
+            subset.fRight = random->nextRangeU(subset.fLeft + 1, imgW);
+            subset.fTop = random->nextULessThan(imgH);
+            subset.fBottom = random->nextRangeU(subset.fTop + 1, imgH);
+        } else {
+            subset.setXYWH(0, 0, imgW, imgH);
         }
-    }
-    lattice.fFlags = flags.get();
+        // SkCanvas::Lattice allows bounds to be null. However, SkCanvas creates a temp Lattice with a
+        // non-null bounds before creating a SkLatticeIter since SkLatticeIter requires a bounds.
+        lattice.fBounds = &subset;
+        lattice.fXCount = random->nextRangeU(1, subset.width());
+        lattice.fYCount = random->nextRangeU(1, subset.height());
+        xdivs.reset(new int[lattice.fXCount]);
+        ydivs.reset(new int[lattice.fYCount]);
+        init_random_divs(xdivs.get(), lattice.fXCount, subset.fLeft, subset.fRight, random);
+        init_random_divs(ydivs.get(), lattice.fYCount, subset.fTop, subset.fBottom, random);
+        lattice.fXDivs = xdivs.get();
+        lattice.fYDivs = ydivs.get();
+        bool hasFlags = random->nextBool();
+        if (hasFlags) {
+            int n = (lattice.fXCount + 1) * (lattice.fYCount + 1);
+            flags.reset(new SkCanvas::Lattice::Flags[n]);
+            for (int i = 0; i < n; ++i) {
+                flags[i] = random->nextBool() ? SkCanvas::Lattice::kTransparent_Flags
+                                              : (SkCanvas::Lattice::Flags)0;
+            }
+            lattice.fFlags = flags.get();
+        } else {
+            lattice.fFlags = nullptr;
+        }
+    } while (!SkLatticeIter::Valid(imgW, imgH, lattice));
+
     SkRect dst;
     dst.fLeft = random->nextRangeScalar(-2000.5f, 1000.f);
     dst.fTop = random->nextRangeScalar(-2000.5f, 1000.f);
@@ -266,7 +277,6 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     dst.fBottom = dst.fTop + random->nextRangeScalar(0.5f, 1000.f);
     std::unique_ptr<SkLatticeIter> iter(new SkLatticeIter(lattice, dst));
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
-    SkASSERT(SkLatticeIter::Valid(imgW, imgH, lattice));
     return NonAALatticeOp::Make(std::move(paint), viewMatrix, imgW, imgH, std::move(iter), dst);
 }
 
