@@ -21,6 +21,7 @@ public:
      */
     static SkScalar ConvertRadiusToSigma(SkScalar radius);
 
+#ifdef SK_SUPPORT_LEGACY_MASK_BLUR
     enum BlurFlags {
         kNone_BlurFlag              = 0x00,
         /** The blur layer's radius is not affected by transforms */
@@ -30,6 +31,15 @@ public:
         /** mask for all blur flags */
         kAll_BlurFlag               = 0x03
     };
+#else
+    enum BlurFlags {
+        kNone_BlurFlag              = 0x00,
+        /** The blur layer's radius is not affected by transforms */
+            kIgnoreTransform_BlurFlag   = 0x01,
+        /** mask for all blur flags */
+            kAll_BlurFlag               = 0x02
+    };
+#endif
 
     /** Create a blur maskfilter.
      *  @param style     The SkBlurStyle to use
