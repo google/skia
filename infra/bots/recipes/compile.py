@@ -82,7 +82,6 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
   'Build-Mac-Clang-x86_64-Release',
   'Build-Ubuntu-Clang-arm-Release-Chromebook_C100p',
-  'Build-Ubuntu-Clang-arm64-Debug-Android_FrameworkDefs',
   'Build-Ubuntu-Clang-arm64-Release-Android',
   'Build-Ubuntu-Clang-arm64-Release-Android_Vulkan',
   'Build-Ubuntu-Clang-mipsel-Debug-Android',

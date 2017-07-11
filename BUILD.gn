@@ -3,7 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("gn/android_framework_defines.gni")
 import("gn/shared_sources.gni")
 
 if (is_fuchsia) {
@@ -33,7 +32,6 @@ declare_args() {
   skia_use_metal = false
 
   skia_android_serial = ""
-  skia_enable_android_framework_defines = false
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
   skia_enable_gpu = true
@@ -113,9 +111,6 @@ config("skia_public") {
   }
   if (is_fuchsia || is_linux) {
     defines += [ "SK_SAMPLES_FOR_X" ]
-  }
-  if (skia_enable_android_framework_defines) {
-    defines += android_framework_defines
   }
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]

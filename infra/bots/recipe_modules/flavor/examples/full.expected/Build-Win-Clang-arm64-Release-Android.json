@@ -10,7 +10,7 @@
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android_FrameworkDefs"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android"
     },
     "infra_step": true,
     "name": "fetch-gn"
@@ -19,15 +19,15 @@
     "cmd": [
       "[CUSTOM_C:\\_B_WORK]/skia/bin/gn.exe",
       "gen",
-      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android_FrameworkDefs/Release",
-      "--args=is_debug=false ndk=\"[START_DIR]/n\" skia_enable_android_framework_defines=true target_cpu=\"arm64\""
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android/Release",
+      "--args=is_debug=false ndk=\"[START_DIR]/n\" target_cpu=\"arm64\""
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android_FrameworkDefs"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android"
     },
     "name": "gn gen"
   },
@@ -35,14 +35,14 @@
     "cmd": [
       "ninja.exe",
       "-C",
-      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android_FrameworkDefs/Release"
+      "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android/Release"
     ],
     "cwd": "[CUSTOM_C:\\_B_WORK]/skia",
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android_FrameworkDefs"
+      "SKIA_OUT": "[CUSTOM_C:\\_B_WORK]/skia/out/Build-Win-Clang-arm64-Release-Android"
     },
     "name": "ninja"
   },
