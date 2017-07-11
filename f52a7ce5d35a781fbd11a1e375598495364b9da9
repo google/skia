@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5cd7518_a8024176",
+        "filename": "src/gpu/effects/GrSimpleTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-11T18:17:33Z",
+      "side": 1,
+      "message": "what caused this to be added? Did we just not need to swizzle before but now we always add the swizzle on all sampling?",
+      "range": {
+        "startLine": 28,
+        "startChar": 370,
+        "endLine": 28,
+        "endChar": 448
+      },
+      "revId": "f52a7ce5d35a781fbd11a1e375598495364b9da9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "312f442c_7d5a36de",
+        "filename": "src/gpu/effects/GrSimpleTextureEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-11T18:17:33Z",
+      "side": 1,
+      "message": "looks like you may need to fix include here from chrome compile error.",
+      "range": {
+        "startLine": 27,
+        "startChar": 66,
+        "endLine": 27,
+        "endChar": 81
+      },
+      "revId": "f52a7ce5d35a781fbd11a1e375598495364b9da9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
