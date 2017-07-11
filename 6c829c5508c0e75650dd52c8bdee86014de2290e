@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3fd58030_8c9a6225",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1608,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-07-11T16:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e017d81_eb9bda87",
+      "range": {
+        "startLine": 1608,
+        "startChar": 8,
+        "endLine": 1608,
+        "endChar": 15
+      },
+      "revId": "6c829c5508c0e75650dd52c8bdee86014de2290e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc3027_e28c7288",
         "filename": "example/SkiaSDLExample.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "6c829c5508c0e75650dd52c8bdee86014de2290e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90ea74ba_7f2cdb93",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-07-11T16:03:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc3027_e28c7288",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 34
+      },
+      "revId": "6c829c5508c0e75650dd52c8bdee86014de2290e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
