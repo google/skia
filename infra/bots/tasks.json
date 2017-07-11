@@ -4396,10 +4396,9 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
+        "os:Ubuntu-14.04",
+        "cpu:x86-64",
+        "pool:Chrome"
       ],
       "execution_timeout_ns": 14400000000000,
       "extra_args": [
@@ -4594,10 +4593,9 @@
         }
       ],
       "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
+        "os:Ubuntu-14.04",
+        "cpu:x86-64",
+        "pool:Chrome"
       ],
       "execution_timeout_ns": 14400000000000,
       "extra_args": [

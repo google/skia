@@ -93,6 +93,17 @@ func linuxGceDimensions() []string {
 	}
 }
 
+// TODO(rmistry): Rename this!
+// linuxGceDimensionsCTPool are the Swarming dimensions for Linux GCE
+// instances in the CT pool.
+func linuxGceDimensionsCTPool() []string {
+	return []string{
+		"os:Ubuntu-14.04",
+		"cpu:x86-64",
+		"pool:Chrome",
+	}
+}
+
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func deriveCompileTaskName(jobName string, parts map[string]string) string {
@@ -100,6 +111,7 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		return "Build-Debian9-GCC-x86_64-Release-Shared"
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
+
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
@@ -515,7 +527,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
 		CipdPackages:     []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
-		Dimensions:       linuxGceDimensions(),
+		Dimensions:       linuxGceDimensionsCTPool(),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "recreate_skps",
