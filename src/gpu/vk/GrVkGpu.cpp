@@ -375,14 +375,14 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
 bool GrVkGpu::onWritePixels(GrSurface* surface,
                             int left, int top, int width, int height,
                             GrPixelConfig config,
-                            const SkTArray<GrMipLevel>& texels) {
+                            const GrMipLevel* texels, int mipLevelCount) {
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(surface->asTexture());
     if (!vkTex) {
         return false;
     }
 
     // Make sure we have at least the base level
-    if (texels.empty() || !texels.begin()->fPixels) {
+    if (!mipLevelCount || !texels[0].fPixels) {
         return false;
     }
 
@@ -394,7 +394,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
     bool success = false;
     bool linearTiling = vkTex->isLinearTiled();
     if (linearTiling) {
-        if (texels.count() > 1) {
+        if (mipLevelCount > 1) {
             SkDebugf("Can't upload mipmap data to linear tiled texture");
             return false;
         }
@@ -408,16 +408,17 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
             this->submitCommandBuffer(kForce_SyncQueue);
         }
         success = this->uploadTexDataLinear(vkTex, left, top, width, height, config,
-                                            texels.begin()->fPixels, texels.begin()->fRowBytes);
+                                            texels[0].fPixels, texels[0].fRowBytes);
     } else {
-        int newMipLevels = texels.count();
+        int newMipLevels = mipLevelCount;
         int currentMipLevels = vkTex->texturePriv().maxMipMapLevel() + 1;
         if (newMipLevels > currentMipLevels) {
             if (!vkTex->reallocForMipmap(this, newMipLevels)) {
                 return false;
             }
         }
-        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config, texels);
+        success = this->uploadTexDataOptimal(vkTex, left, top, width, height, config,
+                                             texels, mipLevelCount);
     }
 
     return success;
@@ -622,7 +623,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex,
 bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
                                    int left, int top, int width, int height,
                                    GrPixelConfig dataConfig,
-                                   const SkTArray<GrMipLevel>& texels) {
+                                   const GrMipLevel* texels, int mipLevelCount) {
     SkASSERT(!tex->isLinearTiled());
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(1 == texels.count() ||
@@ -748,7 +749,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex,
 
 ////////////////////////////////////////////////////////////////////////////////
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                          const SkTArray<GrMipLevel>& texels) {
+                                          const GrMipLevel* texels,
+                                          int mipLevelCount) {
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
 
     VkFormat pixelFormat;
@@ -780,7 +782,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
     // to 1.
-    int mipLevels = texels.empty() ? 1 : texels.count();
+    int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
@@ -804,10 +806,10 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted 
         return nullptr;
     }
 
-    if (!texels.empty()) {
-        SkASSERT(texels.begin()->fPixels);
+    if (mipLevelCount) {
+        SkASSERT(texels[0].fPixels);
         if (!this->uploadTexDataOptimal(tex.get(), 0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
-                                        texels)) {
+                                        texels, mipLevelCount)) {
             tex->unref();
             return nullptr;
         }
