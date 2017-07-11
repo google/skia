@@ -253,8 +253,7 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info, GrContext*, void (*d
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info, GrContext*, void (*draw)(SkCanvas*)) {
     sk_sp<SkImage> image(make_raster(info, nullptr, draw));
-    sk_sp<SkData> data(image->encode());
-    return SkImage::MakeFromEncoded(data);
+    return SkImage::MakeFromEncoded(image->encodeToData());
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info, GrContext* ctx, void (*draw)(SkCanvas*)) {

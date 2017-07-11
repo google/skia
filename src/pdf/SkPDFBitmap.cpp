@@ -479,7 +479,7 @@ void PDFJpegBitmap::emitObject(SkWStream* stream,
 sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
                                            SkPixelSerializer* pixelSerializer) {
     SkASSERT(image);
-    sk_sp<SkData> data(image->refEncoded());
+    sk_sp<SkData> data = image->refEncodedData();
     SkJFIFInfo info;
     if (data && SkIsJFIF(data.get(), &info) &&
         (!pixelSerializer ||
@@ -502,7 +502,7 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
         SkPixmap pmap;
         SkColorSpace* legacyColorSpace = nullptr;
         if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
-            data.reset(pixelSerializer->encode(pmap));
+            data = pixelSerializer->encodeToData(pmap);
             if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
                 if (info.fSize == image->dimensions()) {  // Sanity check.
