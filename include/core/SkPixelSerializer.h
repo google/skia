@@ -32,7 +32,15 @@ public:
      *  Call to get the client's version of encoding these pixels. If it
      *  returns NULL, serialize the raw pixels.
      */
-    SkData* encode(const SkPixmap& pixmap) { return this->onEncode(pixmap); }
+    sk_sp<SkData> encodeToData(const SkPixmap& pixmap) {
+        return sk_sp<SkData>(this->onEncode(pixmap));
+    }
+
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
+    SkData* encode(const SkPixmap& pixmap) {
+        return this->encodeToData(pixmap).release();
+    }
+#endif
 
 protected:
     /**
