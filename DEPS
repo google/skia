@@ -15,7 +15,7 @@ deps = {
   "third_party/externals/libwebp"       : "https://chromium.googlesource.com/webm/libwebp.git@v0.6.0",
   "third_party/externals/microhttpd"    : "https://android.googlesource.com/platform/external/libmicrohttpd@748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
   "third_party/externals/piex"          : "https://android.googlesource.com/platform/external/piex.git@8f540f64b6c170a16fb7e6e52d61819705c1522a",
-  "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@9b526d28cb2d7f0ccff0613c94bb52abc8f53b6f",
+  "third_party/externals/sdl"           : "https://skia.googlesource.com/third_party/sdl@5d7cfcca344034aff9327f77fc181ae3754e7a90",
   "third_party/externals/sfntly"        : "https://chromium.googlesource.com/external/github.com/googlei18n/sfntly.git@b18b09b6114b9b7fe6fc2f96d8b15e8a72f66916",
   "third_party/externals/spirv-headers" : "https://github.com/KhronosGroup/SPIRV-Headers.git@2d6ba39368a781edd82eff5df2b6bc614e892329",
   "third_party/externals/spirv-tools"   : "https://github.com/KhronosGroup/SPIRV-Tools.git@1fb8c37b5718118b49eec59dc383cfa3f98643c0",

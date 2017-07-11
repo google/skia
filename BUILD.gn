@@ -1598,6 +1598,21 @@ if (skia_enable_tools) {
     }
   }
 
+  if (skia_enable_gpu && (is_linux || is_mac)) {
+    test_app("SkiaSDLExample") {
+      sources = [
+        "example/SkiaSDLExample.cpp",
+      ]
+      libs = []
+      include_dirs = []
+      deps = [
+        ":gpu_tool_utils",
+        ":skia",
+        "//third_party/libsdl",
+      ]
+    }
+  }
+
   if (is_android && defined(ndk) && ndk != "") {
     copy("gdbserver") {
       sources = [

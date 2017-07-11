@@ -193,12 +193,12 @@ int main(int argc, char** argv) {
 
     // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can
     // render to it
-    GrGLFrameBufferInfo fbInfo;
     GrGLint buffer;
-    GR_GL_GetIntegerv(interface, GR_GL_FRAMEBUFFER_BINDING, &buffer);
-    fbInfo.fFBOID = buffer;
-    GrBackendRenderTarget backendRT(dm.w, dm.h, kMsaaSampleCount, kStencilBits,
-                                    kSkia8888_GrPixelConfig, fbInfo);
+    GR_GL_GetIntegerv(interface.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
+    GrGLFramebufferInfo info;
+    info.fFBOID = (GrGLuint) buffer;
+    GrBackendRenderTarget target(dm.w, dm.h, kMsaaSampleCount, kStencilBits,
+                                 kSkia8888_GrPixelConfig, info);
 
     // setup SkSurface
     // To use distance field text, use commented out SkSurfaceProps instead
@@ -206,10 +206,9 @@ int main(int argc, char** argv) {
     //                      SkSurfaceProps::kLegacyFontHost_InitType);
     SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
 
-    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext,
-                                                                    backendRT,
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
                                                                     kBottomLeft_GrSurfaceOrigin,
-                                                                    &props));
+                                                                    nullptr, &props));
 
     SkCanvas* canvas = surface->getCanvas();
 
