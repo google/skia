@@ -12,6 +12,8 @@ skia_pdf_sources = [
   "$_src/pdf/SkDeflate.h",
   "$_src/pdf/SkJpegInfo.cpp",
   "$_src/pdf/SkJpegInfo.h",
+  "$_src/pdf/SkKeyedImage.cpp",
+  "$_src/pdf/SkKeyedImage.h",
   "$_src/pdf/SkPDFBitmap.cpp",
   "$_src/pdf/SkPDFBitmap.h",
   "$_src/pdf/SkPDFCanon.cpp",
@@ -46,4 +48,5 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFTypes.h",
   "$_src/pdf/SkPDFUtils.cpp",
   "$_src/pdf/SkPDFUtils.h",
+  "$_src/pdf/SkScopeExit.h",
 ]
