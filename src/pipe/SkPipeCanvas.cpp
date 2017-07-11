@@ -828,9 +828,9 @@ protected:
 
 static sk_sp<SkData> default_image_serializer(SkImage* image) {
     A8Serializer serial;
-    sk_sp<SkData> data = image->encodeToData(&serial);
+    sk_sp<SkData> data(image->encode(&serial));
     if (!data) {
-        data = image->encodeToData();
+        data.reset(image->encode());
     }
     return data;
 }

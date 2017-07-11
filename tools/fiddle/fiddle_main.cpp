@@ -88,9 +88,9 @@ static void dump_output(const sk_sp<SkData>& data,
     }
 }
 
-static sk_sp<SkData> encode_snapshot(const sk_sp<SkSurface>& surface) {
+static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
     sk_sp<SkImage> img(surface->makeImageSnapshot());
-    return img ? img->encodeToData() : nullptr;
+    return img ? img->encode() : nullptr;
 }
 
 static SkCanvas* prepare_canvas(SkCanvas * canvas) {
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
         auto rasterSurface = SkSurface::MakeRaster(info);
         srand(0);
         draw(prepare_canvas(rasterSurface->getCanvas()));
-        rasterData = encode_snapshot(rasterSurface);
+        rasterData.reset(encode_snapshot(rasterSurface));
     }
     if (options.gpu) {
         auto grContext = create_grcontext(gGLDriverInfo);
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
             }
             srand(0);
             draw(prepare_canvas(surface->getCanvas()));
-            gpuData = encode_snapshot(surface);
+            gpuData.reset(encode_snapshot(surface));
         }
     }
     if (options.pdf) {

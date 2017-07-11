@@ -359,16 +359,20 @@ public:
     bool scalePixels(const SkPixmap& dst, SkFilterQuality, CachingHint = kAllow_CachingHint) const;
 
     /**
-     *  Encode the image's pixels and return the result as SkData.
+     *  Encode the image's pixels and return the result as a new SkData, which
+     *  the caller must manage (i.e. call unref() when they are done).
      *
-     *  If the image type cannot be encoded, or the requested encoder format is
+     *  If the image type cannot be encoded, or the requested encoder type is
      *  not supported, this will return NULL.
+     *
+     *  Note: this will attempt to encode the image's pixels in the specified format,
+     *  even if the image returns a data from refEncoded(). That data will be ignored.
      */
-    sk_sp<SkData> encodeToData(SkEncodedImageFormat, int quality) const;
+    SkData* encode(SkEncodedImageFormat, int quality) const;
 
     /**
-     *  Encode the image and return the result as SkData.  This will attempt to reuse existing
-     *  encoded data (as returned by refEncodedData).
+     *  Encode the image and return the result as a caller-managed SkData.  This will
+     *  attempt to reuse existing encoded data (as returned by refEncoded).
      *
      *  We defer to the SkPixelSerializer both for vetting existing encoded data
      *  (useEncodedData) and for encoding the image (encode) when no such data is
@@ -380,21 +384,18 @@ public:
      *  If no compatible encoded data exists and encoding fails, this method will also
      *  fail (return NULL).
      */
-    sk_sp<SkData> encodeToData(SkPixelSerializer* = nullptr) const;
+    SkData* encode(SkPixelSerializer* = nullptr) const;
 
     /**
-     *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return that
-     *  as SkData. If the image does not already has its contents in encoded form, return NULL.
+     *  If the image already has its contents in encoded form (e.g. PNG or JPEG), return a ref
+     *  to that data (which the caller must call unref() on). The caller is responsible for calling
+     *  unref on the data when they are done.
      *
-     *  Note: to force the image to return its contents as encoded data, use encodeToData(...).
+     *  If the image does not already has its contents in encoded form, return NULL.
+     *
+     *  Note: to force the image to return its contents as encoded data, try calling encode(...).
      */
-    sk_sp<SkData> refEncodedData() const;
-
-#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
-    SkData* encode(SkEncodedImageFormat, int quality) const;
-    SkData* encode(SkPixelSerializer* = nullptr) const;
     SkData* refEncoded() const;
-#endif
 
     const char* toString(SkString*) const;
 
