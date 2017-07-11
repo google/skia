@@ -121,10 +121,10 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
 
     SkPngEncoder::Options pngOptions;
     SkWebpEncoder::Options webpOptions;
-    if (bitmap.colorSpace()) {
-        pngOptions.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
-        webpOptions.fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
-    }
+    SkTransferFunctionBehavior behavior = bitmap.colorSpace()
+            ? SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+    pngOptions.fUnpremulBehavior = behavior;
+    webpOptions.fUnpremulBehavior = behavior;
 
     switch (format) {
         case SkEncodedImageFormat::kPNG:
