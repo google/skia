@@ -22,6 +22,30 @@
       "revId": "1685756ffe5471f09aaff8f2e0cdfa50e8439edc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1708426_7e12c656",
+        "filename": "gm/encode-srgb.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-11T16:24:17Z",
+      "side": 1,
+      "message": "That\u0027s probably true. I think that there may have been short term cases where clients would still want legacy premul behavior? Even if that\u0027s true, we should make it much easier to get the right default.",
+      "parentUuid": "ee845198_c98ffecc",
+      "range": {
+        "startLine": 124,
+        "startChar": 42,
+        "endLine": 125,
+        "endChar": 89
+      },
+      "revId": "1685756ffe5471f09aaff8f2e0cdfa50e8439edc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
