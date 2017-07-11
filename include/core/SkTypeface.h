@@ -97,6 +97,11 @@ public:
      */
     SkFontID uniqueID() const { return fUniqueID; }
 
+    /**
+     *  Return a copy of the font arguments.
+     */
+    SkFontArguments fontArguments() const;
+
     /** Return the uniqueID for the specified typeface. If the face is null,
         resolve it to the default font and return its uniqueID. Will never
         return 0.
@@ -380,6 +385,8 @@ protected:
     virtual bool onComputeBounds(SkRect*) const;
 
     virtual void* onGetCTFontRef() const { return nullptr; }
+
+    virtual SkFontArguments onCopyFontArguments() const = 0;
 
 private:
     friend class SkRandomTypeface;
