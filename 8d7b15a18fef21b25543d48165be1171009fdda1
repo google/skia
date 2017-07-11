@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3898c3ac_d9f5d9fb",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-11T18:24:02Z",
+      "side": 1,
+      "message": "I don\u0027t think this handles a progressive jpeg properly. After the first iteration, you will have decoded the entire image (so fRowsDecoded \u003d\u003d dstInfo.height(), I think), but you\u0027ll still want to start at the top.",
+      "range": {
+        "startLine": 492,
+        "startChar": 23,
+        "endLine": 492,
+        "endChar": 35
+      },
+      "revId": "8d7b15a18fef21b25543d48165be1171009fdda1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26586ea5_9e2a37d1",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-11T18:24:02Z",
+      "side": 1,
+      "message": "Sorry, I meant that you should use kErrorInInput above, in the setjmp. Here you were correct to use kInvalidInput, because we haven\u0027t decoded anything yet.",
+      "range": {
+        "startLine": 817,
+        "startChar": 69,
+        "endLine": 817,
+        "endChar": 82
+      },
+      "revId": "8d7b15a18fef21b25543d48165be1171009fdda1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79d1cd67_03bb3065",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 848,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-11T18:24:02Z",
+      "side": 1,
+      "message": "If we\u0027re resuming, you don\u0027t want want to decode the full height.",
+      "range": {
+        "startLine": 848,
+        "startChar": 61,
+        "endLine": 848,
+        "endChar": 75
+      },
+      "revId": "8d7b15a18fef21b25543d48165be1171009fdda1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
