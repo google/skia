@@ -383,3 +383,78 @@ DEF_TEST(TextBlob_extended, reporter) {
         REPORTER_ASSERT(reporter, 0 == strncmp(text2, it.text(), it.textSize()));
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkSurface.h"
+#include "SkCanvas.h"
+
+struct RunBuffer {
+    SkGlyphID* glyphs;
+    SkScalar* pos;
+    char* utf8text;
+    uint32_t* clusters;
+};
+
+static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
+                    sk_sp<SkTypeface> tf) {
+    SkPaint paint;
+    paint.setTextSize(16);
+    paint.setTypeface(tf);
+
+    int glyphCount = paint.textToGlyphs(text, strlen(text), nullptr);
+
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    SkTextBlobBuilder::RunBuffer buffer = builder->allocRun(paint, glyphCount, x, y);
+
+    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+    (void)paint.textToGlyphs(text, strlen(text), buffer.glyphs);
+}
+
+static sk_sp<SkImage> render(const SkTextBlob* blob) {
+    auto surf = SkSurface::MakeRasterN32Premul(SkScalarRoundToInt(blob->bounds().width()),
+                                               SkScalarRoundToInt(blob->bounds().height()));
+    surf->getCanvas()->drawTextBlob(blob, 0, 0, SkPaint());
+    return surf->makeImageSnapshot();
+}
+
+/*
+ *  Build a blob with more than one typeface.
+ *  Draw it into an offscreen,
+ *  then serialize and deserialize,
+ *  Then draw the new instance and assert it draws the same as the original.
+ */
+DEF_TEST(TextBlob_serialize, reporter) {
+    SkTextBlobBuilder builder;
+
+    sk_sp<SkTypeface> tf0;
+    sk_sp<SkTypeface> tf1 = SkTypeface::MakeFromName("Times", SkFontStyle());
+    SkASSERT(tf1);
+
+    add_run(&builder, "Hello", 10, 20, tf0);
+    add_run(&builder, "World", 10, 40, tf1);
+    sk_sp<SkTextBlob> blob0 = builder.make();
+    sk_sp<SkImage> img0 = render(blob0.get());
+
+    SkTDArray<SkTypeface*> array;
+    sk_sp<SkData> data = blob0->serialize([&array](SkTypeface* tf) {
+        if (array.find(tf) < 0) {
+            *array.append() = tf;
+        }
+    });
+    REPORTER_ASSERT(reporter, array.count() == 2);
+
+    sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(),
+                                                      [&array, reporter](uint32_t uniqueID) {
+        for (int i = 0; i < array.count(); ++i) {
+            if (array[i]->uniqueID() == uniqueID) {
+                return sk_ref_sp(array[i]);
+            }
+        }
+        REPORTER_ASSERT(reporter, false);
+        return sk_sp<SkTypeface>(nullptr);
+    });
+    sk_sp<SkImage> img1 = render(blob1.get());
+
+    REPORTER_ASSERT(reporter, img0->width() == img1->width());
+    REPORTER_ASSERT(reporter, img0->height() == img1->height());
+}
