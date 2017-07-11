@@ -245,6 +245,10 @@ public:
         return this->state()->allocPipeline(std::forward<Args>(args)...);
     }
 
+    /**
+     * Helper that makes a pipeline targeting the op's render target that incorporates the op's
+     * GrAppliedClip.
+     * */
     GrPipeline* makePipeline(uint32_t pipelineFlags, const GrProcessorSet* processorSet) {
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fFlags = pipelineFlags;
