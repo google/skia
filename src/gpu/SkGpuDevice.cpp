@@ -1643,16 +1643,8 @@ void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     CHECK_SHOULD_DRAW();
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawShadow", fContext.get());
 
-    SkPaint p;
-    p.setColor(rec.fColor);
-    GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext.get(), p, this->ctm(),
-                          &grPaint)) {
-        return;
-    }
-
-    if (!fRenderTargetContext->drawFastShadow(this->clip(), std::move(grPaint),
-                                              this->ctm(), path, rec)) {
+    GrColor color = SkColorToPremulGrColor(rec.fColor);
+    if (!fRenderTargetContext->drawFastShadow(this->clip(), color, this->ctm(), path, rec)) {
         // failed to find an accelerated case
         this->INHERITED::drawShadow(path, rec);
     }
