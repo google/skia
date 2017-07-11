@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0c0ea7e_2b368049",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-11T14:05:43Z",
+      "side": 1,
+      "message": "I think you need to propagate the srgb flags from GrPaint here for color-correct rendering.",
+      "revId": "62dd0d732bf9d7f31af1a95cb8f9f3843507c4a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
