@@ -202,32 +202,14 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
     }
 
     SkImageInfo decodeInfo = codec->getInfo();
-    if (4 == mode && decodeInfo.colorType() == kIndex_8_SkColorType) {
-        // 4 means animated. Frames beyond the first cannot be decoded to
-        // index 8.
-        decodeInfo = decodeInfo.makeColorType(kN32_SkColorType);
-    }
-
     SkISize size = codec->getScaledDimensions(fscale);
     decodeInfo = decodeInfo.makeWH(size.width(), size.height());
-
-    // Construct a color table for the decode if necessary
-    sk_sp<SkColorTable> colorTable(nullptr);
-    SkPMColor* colorPtr = nullptr;
-    int* colorCountPtr = nullptr;
-    int maxColors = 256;
-    if (kIndex_8_SkColorType == decodeInfo.colorType()) {
-        SkPMColor colors[256];
-        colorTable.reset(new SkColorTable(colors, maxColors));
-        colorPtr = const_cast<SkPMColor*>(colorTable->readColors());
-        colorCountPtr = &maxColors;
-    }
 
     SkBitmap bitmap;
     SkCodec::Options options;
     options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
 
-    if (!bitmap.tryAllocPixels(decodeInfo, colorTable, SkBitmap::kZeroPixels_AllocFlag)) {
+    if (!bitmap.tryAllocPixels(decodeInfo, nullptr, SkBitmap::kZeroPixels_AllocFlag)) {
         SkDebugf("[terminated] Could not allocate memory.  Image might be too large (%d x %d)",
                  decodeInfo.width(), decodeInfo.height());
         return;
@@ -235,8 +217,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 
     switch (mode) {
         case 0: {//kCodecZeroInit_Mode, kCodec_Mode
-            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options,
-                                     colorPtr, colorCountPtr)) {
+            switch (codec->getPixels(decodeInfo, bitmap.getPixels(), bitmap.rowBytes(), &options)) {
                 case SkCodec::kSuccess:
                     SkDebugf("[terminated] Success!\n");
                     break;
@@ -257,11 +238,10 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             break;
         }
         case 1: {//kScanline_Mode
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                colorCountPtr)) {
-                    SkDebugf("[terminated] Could not start scanline decoder\n");
-                    return;
-                }
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo)) {
+                SkDebugf("[terminated] Could not start scanline decoder\n");
+                return;
+            }
 
             void* dst = bitmap.getAddr(0, 0);
             size_t rowBytes = bitmap.rowBytes();
@@ -285,8 +265,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             const int numStripes = (height + stripeHeight - 1) / stripeHeight;
 
             // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, NULL, colorPtr,
-                                                                colorCountPtr)
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo)
                     || SkCodec::kTopDown_SkScanlineOrder != codec->getScanlineOrder()) {
                 // This mode was designed to test the new skip scanlines API in libjpeg-turbo.
                 // Jpegs have kTopDown_SkScanlineOrder, and at this time, it is not interesting
@@ -309,8 +288,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             }
 
             // Decode even stripes
-            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo, nullptr,
-                    colorPtr, colorCountPtr);
+            const SkCodec::Result startResult = codec->startScanlineDecode(decodeInfo);
             if (SkCodec::kSuccess != startResult) {
                 SkDebugf("[terminated] Failed to restart scanline decoder with same parameters.\n");
                 return;
@@ -369,13 +347,12 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                             SkTMax(1, SkScalarRoundToInt(preScaleW * fscale)),
                             SkTMax(1, SkScalarRoundToInt(preScaleH * fscale)));
                     size_t rowBytes = decodeInfo.minRowBytes();
-                    if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes, colorTable.get(),
-                                                nullptr, nullptr)) {
+                    if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes)) {
                         SkDebugf("[terminated] Could not install pixels.\n");
                         return;
                     }
                     const SkCodec::Result result = codec->getPixels(decodeInfo, pixels, rowBytes,
-                            &opts, colorPtr, colorCountPtr);
+                            &opts);
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:

@@ -36,8 +36,6 @@ SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInf
 SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
                                         void* dst, size_t dstRowBytes,
                                         const Options& opts,
-                                        SkPMColor* inputColorPtr,
-                                        int* inputColorCount,
                                         int* rowsDecoded) {
     if (opts.fSubset) {
         // Subsets are not supported.
@@ -48,7 +46,7 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kInvalidScale;
     }
 
-    Result result = this->prepareToDecode(dstInfo, opts, inputColorPtr, inputColorCount);
+    Result result = this->prepareToDecode(dstInfo, opts);
     if (kSuccess != result) {
         return result;
     }
@@ -63,20 +61,13 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 /*
  * Process the color table for the bmp input
  */
- bool SkBmpStandardCodec::createColorTable(SkColorType dstColorType, SkAlphaType dstAlphaType,
-         int* numColors) {
+ bool SkBmpStandardCodec::createColorTable(SkColorType dstColorType, SkAlphaType dstAlphaType) {
     // Allocate memory for color table
     uint32_t colorBytes = 0;
     SkPMColor colorTable[256];
     if (this->bitsPerPixel() <= 8) {
         // Inform the caller of the number of colors
         uint32_t maxColors = 1 << this->bitsPerPixel();
-        if (nullptr != numColors) {
-            // We set the number of colors to maxColors in order to ensure
-            // safe memory accesses.  Otherwise, an invalid pixel could
-            // access memory outside of our color table array.
-            *numColors = maxColors;
-        }
         // Don't bother reading more than maxColors.
         const uint32_t numColorsToRead =
             fNumColors == 0 ? maxColors : SkTMin(fNumColors, maxColors);
@@ -191,20 +182,17 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
 }
 
 SkCodec::Result SkBmpStandardCodec::onPrepareToDecode(const SkImageInfo& dstInfo,
-        const SkCodec::Options& options, SkPMColor inputColorPtr[], int* inputColorCount) {
+        const SkCodec::Options& options) {
     if (this->xformOnDecode()) {
         this->resetXformBuffer(dstInfo.width());
     }
 
     // Create the color table if necessary and prepare the stream for decode
     // Note that if it is non-NULL, inputColorCount will be modified
-    if (!this->createColorTable(dstInfo.colorType(), dstInfo.alphaType(), inputColorCount)) {
+    if (!this->createColorTable(dstInfo.colorType(), dstInfo.alphaType())) {
         SkCodecPrintf("Error: could not create color table.\n");
         return SkCodec::kInvalidInput;
     }
-
-    // Copy the color table to the client if necessary
-    copy_color_table(dstInfo, fColorTable.get(), inputColorPtr, inputColorCount);
 
     // Initialize a swizzler
     this->initializeSwizzler(dstInfo, options);
@@ -291,9 +279,8 @@ int SkBmpStandardCodec::decodeRows(const SkImageInfo& dstInfo, void* dst, size_t
 
 void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstInfo,
         void* dst, size_t dstRowBytes) {
-    // BMP in ICO have transparency, so this cannot be 565, and this mask
-    // prevents us from using kIndex8. The below code depends on the output
-    // being an SkPMColor.
+    // BMP in ICO have transparency, so this cannot be 565. The below code depends
+    // on the output being an SkPMColor.
     SkASSERT(kRGBA_8888_SkColorType == dstInfo.colorType() ||
              kBGRA_8888_SkColorType == dstInfo.colorType() ||
              kRGBA_F16_SkColorType == dstInfo.colorType());

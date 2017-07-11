@@ -26,13 +26,13 @@ public:
 protected:
     SkEncodedImageFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo&, void*, size_t,
-                       const Options&, SkPMColor[], int*, int*) override;
+                       const Options&, int*) override;
     bool onRewind() override;
 private:
     /*
      * Returns a swizzler on success, nullptr on failure
      */
-    SkSwizzler* initializeSwizzler(const SkImageInfo& info, const SkPMColor* ctable,
+    SkSwizzler* initializeSwizzler(const SkImageInfo& info,
                                    const Options& opts);
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler || !createIfNecessary);
@@ -50,13 +50,12 @@ private:
 
     // Used for scanline decodes:
     std::unique_ptr<SkSwizzler> fSwizzler;
-    sk_sp<SkColorTable>         fColorTable;
     SkAutoTMalloc<uint8_t>      fSrcBuffer;
 
     int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
     bool onSkipScanlines(int count) override;
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options,
-            SkPMColor inputColorTable[], int* inputColorCount) override;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
+            const Options& options) override;
 
     typedef SkCodec INHERITED;
 };

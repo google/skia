@@ -91,20 +91,11 @@ protected:
      * @param dstInfo         Contains output information.  Height specifies
      *                        the total number of rows that will be decoded.
      * @param options         Additonal options to pass to the decoder.
-     * @param inputColorPtr   Client-provided memory for a color table.  Must
-     *                        be enough for 256 colors.  This will be
-     *                        populated with colors if the encoded image uses
-     *                        a color table.
-     * @param inputColorCount If the encoded image uses a color table, this
-     *                        will be set to the number of colors in the
-     *                        color table.
      */
     virtual SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options, SkPMColor inputColorPtr[],
-            int* inputColorCount) = 0;
+            const SkCodec::Options& options) = 0;
     SkCodec::Result prepareToDecode(const SkImageInfo& dstInfo,
-            const SkCodec::Options& options, SkPMColor inputColorPtr[],
-            int* inputColorCount);
+            const SkCodec::Options& options);
 
     uint32_t* xformBuffer() const { return fXformBuffer.get(); }
     void resetXformBuffer(int count) { fXformBuffer.reset(new uint32_t[count]); }
@@ -144,8 +135,8 @@ private:
 
     virtual bool skipRows(int count);
 
-    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const SkCodec::Options&,
-            SkPMColor inputColorPtr[], int* inputColorCount) override;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo,
+            const SkCodec::Options&) override;
 
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
 
