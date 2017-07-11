@@ -62,9 +62,7 @@ protected:
     }
 #endif
 
-    bool isRasterPipelineOnly() const final {
-        return as_SB(fProxyShader)->isRasterPipelineOnly();
-    }
+    bool isRasterPipeline(const SkMatrix&, const SkPaint&) const final;
 
 private:
     sk_sp<SkShader> fProxyShader;

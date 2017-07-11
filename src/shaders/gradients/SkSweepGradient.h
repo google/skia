@@ -43,7 +43,7 @@ protected:
                                      SkRasterPipeline* tPipeline,
                                      SkRasterPipeline* postPipeline) const final;
 
-    bool isRasterPipelineOnly() const final;
+    bool isRasterPipeline(const SkMatrix&, const SkPaint&) const final;
 
 private:
     const SkPoint fCenter;

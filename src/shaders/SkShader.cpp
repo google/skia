@@ -110,7 +110,7 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
     : fShader(shader), fCTM(*rec.fMatrix)
 {
     // We should never use a context for RP-only shaders.
-    SkASSERT(!shader.isRasterPipelineOnly());
+    SkASSERT(!shader.isRasterPipeline(*rec.fMatrix, *rec.fPaint));
 
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.

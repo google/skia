@@ -75,7 +75,7 @@ bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
     return false;
 }
 
-bool SkImageShader::isRasterPipelineOnly() const {
+bool SkImageShader::isRasterPipeline(const SkMatrix&, const SkPaint&) const {
     SkBitmapProvider provider(fImage.get(), nullptr);
     return IsRasterPipelineOnly(provider.info().colorType(), fTileModeX, fTileModeY);
 }

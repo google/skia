@@ -19,7 +19,7 @@ public:
                                 const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
-    bool isRasterPipelineOnly() const override;
+    bool isRasterPipeline(const SkMatrix&, const SkPaint&) const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)

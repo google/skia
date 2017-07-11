@@ -62,6 +62,11 @@ SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, enum TileMode* mod
     return image;
 }
 
+bool SkLocalMatrixShader::isRasterPipeline(const SkMatrix& matrix, const SkPaint& paint) const {
+    auto tmp = SkMatrix::Concat(matrix, this->getLocalMatrix());
+    return as_SB(fProxyShader)->isRasterPipeline(tmp, paint);
+}
+
 bool SkLocalMatrixShader::onAppendStages(SkRasterPipeline* p,
                                          SkColorSpace* dst,
                                          SkArenaAlloc* scratch,

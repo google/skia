@@ -44,7 +44,7 @@ protected:
                                      SkRasterPipeline* tPipeline,
                                      SkRasterPipeline* postPipeline) const override;
 
-    bool isRasterPipelineOnly() const override { return true; }
+    bool isRasterPipeline(const SkMatrix&, const SkPaint&) const override { return true; }
 
 private:
     SkPoint fCenter1;

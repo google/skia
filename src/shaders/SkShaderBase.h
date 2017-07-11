@@ -211,7 +211,7 @@ public:
         return this->onMakeColorSpace(xformer);
     }
 
-    virtual bool isRasterPipelineOnly() const { return false; }
+    virtual bool isRasterPipeline(const SkMatrix&, const SkPaint&) const { return false; }
 
     // If this returns false, then we draw nothing (do not fall back to shader context)
     bool appendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
