@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc3027_e28c7288",
+        "filename": "example/SkiaSDLExample.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-11T15:41:34Z",
+      "side": 1,
+      "message": "Can we use GrBackendRenderTarget rather than GrBackendRenderTargetDesc here? There is a version of the SkSurfaceFactory that takes a GrBackendRenderTarget.",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 34
+      },
+      "revId": "6c829c5508c0e75650dd52c8bdee86014de2290e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
