@@ -4,7 +4,6 @@
   "Build-Debian9-Clang-arm-Release-Android",
   "Build-Debian9-Clang-arm-Release-Chromebook_ARM_GLES",
   "Build-Debian9-Clang-arm64-Debug-Android",
-  "Build-Debian9-Clang-arm64-Debug-Android_FrameworkDefs",
   "Build-Debian9-Clang-arm64-Debug-Android_Vulkan",
   "Build-Debian9-Clang-arm64-Release-Android",
   "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
