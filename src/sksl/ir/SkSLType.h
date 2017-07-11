@@ -120,6 +120,9 @@ public:
     , fIsSampled(isSampled) {}
 
     String name() const {
+        if (fTypeKind == Type::kArray_Kind) {
+            return fComponentType->name() + fName;
+        }
         return fName;
     }
 

@@ -242,17 +242,17 @@ struct Layout {
         return !(*this == other);
     }
 
-    int fLocation;
-    int fOffset;
-    int fBinding;
-    int fIndex;
-    int fSet;
+    int8_t fLocation;
+    int8_t fOffset;
+    int8_t fBinding;
+    int8_t fIndex;
+    int8_t fSet;
     // builtin comes from SPIR-V and identifies which particular builtin value this object
     // represents.
-    int fBuiltin;
+    int16_t fBuiltin;
     // input_attachment_index comes from Vulkan/SPIR-V to connect a shader variable to the a
     // corresponding attachment on the subpass in which the shader is being used.
-    int fInputAttachmentIndex;
+    int8_t fInputAttachmentIndex;
     bool fOriginUpperLeft;
     bool fOverrideCoverage;
     bool fBlendSupportAllEquations;
@@ -260,7 +260,7 @@ struct Layout {
     bool fPushConstant;
     Primitive fPrimitive;
     int fMaxVertices;
-    int fInvocations;
+    int8_t fInvocations;
 };
 
 } // namespace

@@ -584,12 +584,12 @@ void IRGenerator::convertFunction(const ASTFunction& f,
         }
         for (int j = (int) param->fSizes.size() - 1; j >= 0; j--) {
             int size = param->fSizes[j];
-            String name = type->name() + "[" + to_string(size) + "]";
+            String name = "[" + to_string(size) + "]";
             Type* newType = new Type(std::move(name), Type::kArray_Kind, *type, size);
             fSymbolTable->takeOwnership(newType);
             type = newType;
         }
-        String name = param->fName;
+        String name = "";
         Position pos = param->fPosition;
         Variable* var = new Variable(pos, param->fModifiers, std::move(name), *type,
                                      Variable::kParameter_Storage);
