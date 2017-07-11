@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bb3eeca9_b569a085",
+        "filename": "src/gpu/effects/GrSimpleTextureEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-11T18:54:10Z",
+      "side": 1,
+      "message": "appendTextureLookup() appends the sampler swizzle automatically, but our texture() call wasn\u0027t, which was breaking things. This was fixed in a previous change and showed up here when I rebased.",
+      "parentUuid": "a5cd7518_a8024176",
+      "range": {
+        "startLine": 28,
+        "startChar": 370,
+        "endLine": 28,
+        "endChar": 448
+      },
+      "revId": "f52a7ce5d35a781fbd11a1e375598495364b9da9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "312f442c_7d5a36de",
         "filename": "src/gpu/effects/GrSimpleTextureEffect.h",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "f52a7ce5d35a781fbd11a1e375598495364b9da9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03176bbc_998d9054",
+        "filename": "src/gpu/effects/GrSimpleTextureEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-11T18:54:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "312f442c_7d5a36de",
+      "range": {
+        "startLine": 27,
+        "startChar": 66,
+        "endLine": 27,
+        "endChar": 81
+      },
+      "revId": "f52a7ce5d35a781fbd11a1e375598495364b9da9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
