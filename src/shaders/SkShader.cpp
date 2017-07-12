@@ -101,6 +101,11 @@ SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& 
 
     SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
 
+    // Always use vanilla stages for perspective.
+    if (rec.fMatrix->hasPerspective() || fLocalMatrix.hasPerspective()) {
+        return nullptr;
+    }
+
     return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
         ? this->onMakeBurstPipelineContext(rec, alloc)
         : nullptr;
@@ -111,6 +116,9 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 {
     // We should never use a context for RP-only shaders.
     SkASSERT(!shader.isRasterPipelineOnly());
+    // ... or for perspective.
+    SkASSERT(!rec.fMatrix->hasPerspective());
+    SkASSERT(!rec.fLocalMatrix || !rec.fLocalMatrix->hasPerspective());
 
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.

@@ -62,7 +62,7 @@ SkSweepGradient::SweepGradientContext::SweepGradientContext(
         const SkSweepGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec) {}
 
-bool SkSweepGradient::isRasterPipelineOnly() const {
+bool SkSweepGradient::onIsRasterPipelineOnly() const {
 #ifdef SK_LEGACY_SWEEP_GRADIENT
     return false;
 #else
