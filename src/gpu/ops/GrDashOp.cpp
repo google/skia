@@ -6,7 +6,7 @@
  */
 
 #include "GrDashOp.h"
-#include "GrAppliedClip.h"
+
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrCoordTransform.h"
@@ -240,7 +240,7 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor,
                                                const SkMatrix& localMatrix,
                                                bool usesLocalCoords);
 
-class DashOp final : public GrMeshDrawOp {
+class DashOp final : public GrLegacyMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     struct LineData {
@@ -254,11 +254,11 @@ public:
         SkScalar fPerpendicularScale;
     };
 
-    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const LineData& geometry,
-                                          SkPaint::Cap cap, AAMode aaMode, bool fullDash,
-                                          const GrUserStencilSettings* stencilSettings) {
-        return std::unique_ptr<GrDrawOp>(
-                new DashOp(std::move(paint), geometry, cap, aaMode, fullDash, stencilSettings));
+    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const LineData& geometry, GrColor color,
+                                                    SkPaint::Cap cap, AAMode aaMode,
+                                                    bool fullDash) {
+        return std::unique_ptr<GrLegacyMeshDrawOp>(
+                new DashOp(geometry, color, cap, aaMode, fullDash));
     }
 
     const char* name() const override { return "DashOp"; }
@@ -275,49 +275,14 @@ public:
                            geo.fIntervals[1],
                            geo.fPhase);
         }
-        string += fProcessorSet.dumpProcessors();
-        string += INHERITED::dumpInfo();
+        string.append(DumpPipelineInfo(*this->pipeline()));
+        string.append(INHERITED::dumpInfo());
         return string;
     }
 
-    FixedFunctionFlags fixedFunctionFlags() const override {
-        FixedFunctionFlags flags = FixedFunctionFlags::kNone;
-        if (AAMode::kCoverageWithMSAA == fAAMode) {
-            flags |= FixedFunctionFlags::kUsesHWAA;
-        }
-        if (fStencilSettings) {
-            flags |= FixedFunctionFlags::kUsesStencil;
-        }
-        return flags;
-    }
-
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        GrProcessorAnalysisCoverage coverage;
-        if (AAMode::kNone == fAAMode && !clip->clipCoverageFragmentProcessor()) {
-            coverage = GrProcessorAnalysisCoverage::kNone;
-        } else {
-            coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-        }
-        auto analysis = fProcessorSet.finalize(fColor, coverage, clip, false, caps, &fColor);
-        fDisallowCombineOnTouchOrOverlap = analysis.requiresDstTexture() ||
-                                           (fProcessorSet.xferProcessor() &&
-                                            fProcessorSet.xferProcessor()->xferBarrierType(caps));
-        fUsesLocalCoords = analysis.usesLocalCoords();
-        return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
-    }
-
 private:
-    DashOp(GrPaint&& paint, const LineData& geometry, SkPaint::Cap cap, AAMode aaMode,
-           bool fullDash, const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID())
-            , fColor(paint.getColor())
-            , fAllowsSRGBInputs(paint.getAllowSRGBInputs())
-            , fDisableSRGBOutputConversion(paint.getDisableOutputConversionToSRGB())
-            , fCap(cap)
-            , fFullDash(fullDash)
-            , fAAMode(aaMode)
-            , fProcessorSet(std::move(paint))
-            , fStencilSettings(stencilSettings) {
+    DashOp(const LineData& geometry, GrColor color, SkPaint::Cap cap, AAMode aaMode, bool fullDash)
+            : INHERITED(ClassID()), fColor(color), fCap(cap), fAAMode(aaMode), fFullDash(fullDash) {
         fLines.push_back(geometry);
 
         // compute bounds
@@ -334,6 +299,18 @@ private:
         IsZeroArea zeroArea = geometry.fSrcStrokeWidth ? IsZeroArea::kNo : IsZeroArea::kYes;
         HasAABloat aaBloat = (aaMode == AAMode::kNone) ? HasAABloat ::kNo : HasAABloat::kYes;
         this->setTransformedBounds(bounds, combinedMatrix, aaBloat, zeroArea);
+    }
+
+    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
+                                    GrProcessorAnalysisCoverage* coverage) const override {
+        color->setToConstant(fColor);
+        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
+    }
+
+    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
+        optimizations.getOverrideColorIfSet(&fColor);
+
+        fUsesLocalCoords = optimizations.readsLocalCoords();
     }
 
     struct DashDraw {
@@ -365,13 +342,14 @@ private:
         sk_sp<GrGeometryProcessor> gp;
         if (this->fullDash()) {
             gp = make_dash_gp(this->color(), this->aaMode(), capType, this->viewMatrix(),
-                              fUsesLocalCoords);
+                              this->usesLocalCoords());
         } else {
             // Set up the vertex data for the line and start/end dashes
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
-            LocalCoords::Type localCoordsType =
-                    fUsesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
+            LocalCoords::Type localCoordsType = this->usesLocalCoords()
+                                                        ? LocalCoords::kUsePosition_Type
+                                                        : LocalCoords::kUnused_Type;
             gp = MakeForDeviceSpace(color, Coverage::kSolid_Type, localCoordsType,
                                     this->viewMatrix());
         }
@@ -652,27 +630,13 @@ private:
             rectIndex++;
         }
         SkASSERT(0 == (curVIdx % 4) && (curVIdx / 4) == totalRectCount);
-        uint32_t pipelineFlags = 0;
-        if (AAMode::kCoverageWithMSAA == fAAMode) {
-            pipelineFlags |= GrPipeline::kHWAntialias_Flag;
-        }
-        if (fDisableSRGBOutputConversion) {
-            pipelineFlags |= GrPipeline::kDisableOutputConversionToSRGB_Flag;
-        }
-        if (fAllowsSRGBInputs) {
-            pipelineFlags |= GrPipeline::kAllowSRGBInputs_Flag;
-        }
-        const GrPipeline* pipeline = target->makePipeline(pipelineFlags, &fProcessorSet);
-        helper.recordDraw(target, gp.get(), pipeline);
+        helper.recordDraw(target, gp.get(), this->pipeline());
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DashOp* that = t->cast<DashOp>();
-        if (fProcessorSet != that->fProcessorSet) {
-            return false;
-        }
-        if (fDisallowCombineOnTouchOrOverlap &&
-            GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
+        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
+                                    that->bounds(), caps)) {
             return false;
         }
 
@@ -693,7 +657,8 @@ private:
             return false;
         }
 
-        if (fUsesLocalCoords && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        SkASSERT(this->usesLocalCoords() == that->usesLocalCoords());
+        if (this->usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
             return false;
         }
 
@@ -703,6 +668,7 @@ private:
     }
 
     GrColor color() const { return fColor; }
+    bool usesLocalCoords() const { return fUsesLocalCoords; }
     const SkMatrix& viewMatrix() const { return fLines[0].fViewMatrix; }
     AAMode aaMode() const { return fAAMode; }
     bool fullDash() const { return fFullDash; }
@@ -711,27 +677,21 @@ private:
     static const int kVertsPerDash = 4;
     static const int kIndicesPerDash = 6;
 
-    SkSTArray<1, LineData, true> fLines;
     GrColor fColor;
-    bool fAllowsSRGBInputs : 1;
-    bool fDisableSRGBOutputConversion : 1;
-    bool fDisallowCombineOnTouchOrOverlap : 1;
-    bool fUsesLocalCoords : 1;
-    SkPaint::Cap fCap : 2;
-    bool fFullDash : 1;
+    bool fUsesLocalCoords;
+    SkPaint::Cap fCap;
     AAMode fAAMode;
-    GrProcessorSet fProcessorSet;
-    const GrUserStencilSettings* fStencilSettings;
+    bool fFullDash;
+    SkSTArray<1, LineData, true> fLines;
 
-    typedef GrMeshDrawOp INHERITED;
+    typedef GrLegacyMeshDrawOp INHERITED;
 };
 
-std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrPaint&& paint,
-                                                   const SkMatrix& viewMatrix,
-                                                   const SkPoint pts[2],
-                                                   AAMode aaMode,
-                                                   const GrStyle& style,
-                                                   const GrUserStencilSettings* stencilSettings) {
+std::unique_ptr<GrLegacyMeshDrawOp> GrDashOp::MakeDashLineOp(GrColor color,
+                                                             const SkMatrix& viewMatrix,
+                                                             const SkPoint pts[2],
+                                                             AAMode aaMode,
+                                                             const GrStyle& style) {
     SkASSERT(GrDashOp::CanDrawDashLine(pts, style, viewMatrix));
     const SkScalar* intervals = style.dashIntervals();
     SkScalar phase = style.dashPhase();
@@ -777,7 +737,7 @@ std::unique_ptr<GrDrawOp> GrDashOp::MakeDashLineOp(GrPaint&& paint,
     lineData.fIntervals[0] = intervals[0];
     lineData.fIntervals[1] = intervals[1];
 
-    return DashOp::Make(std::move(paint), lineData, cap, aaMode, fullDash, stencilSettings);
+    return DashOp::Make(lineData, color, cap, aaMode, fullDash);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1238,12 +1198,10 @@ static sk_sp<GrGeometryProcessor> make_dash_gp(GrColor color,
 
 #if GR_TEST_UTILS
 
-GR_DRAW_OP_TEST_DEFINE(DashOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(DashOp) {
+    GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
-    AAMode aaMode;
-    do {
-        aaMode = static_cast<AAMode>(random->nextULessThan(GrDashOp::kAAModeCnt));
-    } while (AAMode::kCoverageWithMSAA == aaMode && GrFSAAType::kUnifiedMSAA != fsaaType);
+    AAMode aaMode = static_cast<AAMode>(random->nextULessThan(GrDashOp::kAAModeCnt));
 
     // We can only dash either horizontal or vertical lines
     SkPoint pts[2];
@@ -1308,8 +1266,7 @@ GR_DRAW_OP_TEST_DEFINE(DashOp) {
 
     GrStyle style(p);
 
-    return GrDashOp::MakeDashLineOp(std::move(paint), viewMatrix, pts, aaMode, style,
-                                    GrGetRandomStencil(random, context));
+    return GrDashOp::MakeDashLineOp(color, viewMatrix, pts, aaMode, style);
 }
 
 #endif
