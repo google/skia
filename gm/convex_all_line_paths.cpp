@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkInsetConvexPolygon.h"
+#include "SkOffsetPolygon.h"
 #include "SkPathPriv.h"
 
 static void create_ngon(int n, SkPoint* pts, SkScalar width, SkScalar height) {
@@ -131,9 +131,25 @@ const SkPoint gPoints10[] = {
     { -50.0f,  31.0f },
 };
 
+// star
+const SkPoint gPoints11[] = {
+    { 0.0f, -50.0f },
+    { 14.43f, -25.0f },
+    { 43.30f, -25.0f },
+    { 28.86f, 0.0f },
+    { 43.30f, 25.0f },
+    { 14.43f, 25.0f },
+    { 0.0f, 50.0f },
+    { -14.43f, 25.0f },
+    { -43.30f, 25.0f },
+    { -28.86f, 0.0f },
+    { -43.30f,  -25.0f },
+    { -14.43f,  -25.0f },
+};
+
 const SkPoint* gPoints[] = {
     gPoints0, gPoints1, gPoints2, gPoints3, gPoints4, gPoints5, gPoints6,
-    gPoints7, gPoints8, gPoints9, gPoints10,
+    gPoints7, gPoints8, gPoints9, gPoints10, gPoints11,
 };
 
 const size_t gSizes[] = {
@@ -148,6 +164,7 @@ const size_t gSizes[] = {
     SK_ARRAY_COUNT(gPoints8),
     SK_ARRAY_COUNT(gPoints9),
     SK_ARRAY_COUNT(gPoints10),
+    SK_ARRAY_COUNT(gPoints11),
 };
 static_assert(SK_ARRAY_COUNT(gSizes) == SK_ARRAY_COUNT(gPoints), "array_mismatch");
 }
@@ -452,7 +469,7 @@ protected:
         }
 
         const SkPath::Direction dirs[2] = { SkPath::kCW_Direction, SkPath::kCCW_Direction };
-        const float insets[] = { 5, 10, 15, 20, 25, 30, 35, 40 };
+        const float insets[] = { /*5,*/ -10, 10, /*15, 20, 25, 30, 35, 40*/ };
         const SkColor colors[] = { 0xFF901313, 0xFF8D6214, 0xFF698B14, 0xFF1C8914,
                                    0xFF148755, 0xFF146C84, 0xFF142482, 0xFF4A1480 };
 
@@ -479,7 +496,7 @@ protected:
 
         SkTDArray<SkPoint> insetPoly;
         for (size_t i = 0; i < SK_ARRAY_COUNT(insets); ++i) {
-            if (SkInsetConvexPolygon(data.get(), numPts, insets[i], &insetPoly)) {
+            if (SkOffsetPolygon(data.get(), numPts, insets[i], &insetPoly)) {
                 SkPath path;
                 path.moveTo(insetPoly[0]);
                 for (int i = 1; i < insetPoly.count(); ++i) {
