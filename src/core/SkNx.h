@@ -218,6 +218,8 @@ struct SkNx<1,T> {
 
 private:
     // Helper functions to choose the right float/double methods.  (In <cmath> madness lies...)
+    AI static int     Abs(int val) { return  val < 0 ? -val : val; }
+
     AI static float   Abs(float val) { return  ::fabsf(val); }
     AI static float  Sqrt(float val) { return  ::sqrtf(val); }
     AI static float Floor(float val) { return ::floorf(val); }

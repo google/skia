@@ -11,6 +11,7 @@
 #include "SkAutoMalloc.h"
 #include "SkBitmapProcShader.h"
 #include "SkColor.h"
+#include "SkCoverageDelta.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShaderBase.h"
@@ -30,6 +31,15 @@ struct SkMask;
 class SkBlitter {
 public:
     virtual ~SkBlitter();
+
+    // The default implementation is very slow! This is meant to let the actual blitter
+    // to speedup the process by rewriting this in a more efficient way. Maybe we should make
+    // this pure virtual once all current blitters have a specific implementation.
+    virtual void blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                    bool isEvenOdd, bool isInverse, bool isConvex = false);
+
+    virtual void blitCoverageDeltas(SkCoverageDeltaMask* deltas, const SkIRect& clip,
+                                    bool isEvenOdd, bool isInverse, bool isConvex = false);
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
