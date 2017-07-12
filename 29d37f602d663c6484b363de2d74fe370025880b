@@ -22,6 +22,30 @@
       "revId": "29d37f602d663c6484b363de2d74fe370025880b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a6fa77d_6dc5c246",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-12T20:42:33Z",
+      "side": 1,
+      "message": "I\u0027d do it in the trampoline - I think that fits with the theme (and really limits the non-typesafe code below the trampoline barrier).",
+      "parentUuid": "a0c3a850_9738582c",
+      "range": {
+        "startLine": 24,
+        "startChar": 25,
+        "endLine": 24,
+        "endChar": 50
+      },
+      "revId": "29d37f602d663c6484b363de2d74fe370025880b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
