@@ -14,7 +14,6 @@
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
-#include "GrColorSpaceXform.h"
 #include "effects/GrProxyMove.h"
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
