@@ -98,26 +98,4 @@ void NoFilterProc_Affine(const SkBitmapProcState& s, uint32_t xy[],
     }
 }
 
-template <typename TileProc>
-void NoFilterProc_Persp(const SkBitmapProcState& s, uint32_t* SK_RESTRICT xy,
-                        int count, int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-
-    int maxX = s.fPixmap.width() - 1;
-    int maxY = s.fPixmap.height() - 1;
-
-    SkPerspIter   iter(s.fInvMatrix,
-                       SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf, count);
-
-    while ((count = iter.next()) != 0) {
-        const SkFixed* SK_RESTRICT srcXY = iter.getXY();
-        while (--count >= 0) {
-            *xy++ = (TileProc::Y(s, srcXY[1], maxY) << 16) |
-                     TileProc::X(s, srcXY[0], maxX);
-            srcXY += 2;
-        }
-    }
-}
-
 #endif
