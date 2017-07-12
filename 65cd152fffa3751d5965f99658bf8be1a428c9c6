@@ -16,6 +16,24 @@
       "revId": "65cd152fffa3751d5965f99658bf8be1a428c9c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e16602d6_ca7b95d5",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-07-12T18:24:34Z",
+      "side": 1,
+      "message": "By overdraw do you mean that the same pixel was touched again?\nIf so, wouldn\u0027t the additional overdraw affect the destination alpha?",
+      "parentUuid": "198a386e_0bb5e94c",
+      "revId": "65cd152fffa3751d5965f99658bf8be1a428c9c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
