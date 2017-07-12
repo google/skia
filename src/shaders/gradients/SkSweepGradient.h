@@ -10,7 +10,7 @@
 
 #include "SkGradientShaderPriv.h"
 
-class SkSweepGradient : public SkGradientShaderBase {
+class SkSweepGradient final : public SkGradientShaderBase {
 public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
 
@@ -41,9 +41,9 @@ protected:
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
                                      SkRasterPipeline* tPipeline,
-                                     SkRasterPipeline* postPipeline) const final;
+                                     SkRasterPipeline* postPipeline) const override;
 
-    bool isRasterPipelineOnly() const final;
+    bool onIsRasterPipelineOnly() const override;
 
 private:
     const SkPoint fCenter;

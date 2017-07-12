@@ -16,7 +16,7 @@ class GrFragmentProcessor;
 class SkArenaAlloc;
 class SkColorSpaceXformer;
 
-class SkLocalMatrixShader : public SkShaderBase {
+class SkLocalMatrixShader final : public SkShaderBase {
 public:
     SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
     : INHERITED(&localMatrix)
@@ -62,7 +62,7 @@ protected:
     }
 #endif
 
-    bool isRasterPipelineOnly() const final {
+    bool onIsRasterPipelineOnly() const override {
         return as_SB(fProxyShader)->isRasterPipelineOnly();
     }
 

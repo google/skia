@@ -211,7 +211,10 @@ public:
         return this->onMakeColorSpace(xformer);
     }
 
-    virtual bool isRasterPipelineOnly() const { return false; }
+    bool isRasterPipelineOnly() const {
+        // We always use RP when perspective is present.
+        return fLocalMatrix.hasPerspective() || this->onIsRasterPipelineOnly();
+    }
 
     // If this returns false, then we draw nothing (do not fall back to shader context)
     bool appendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
@@ -267,6 +270,8 @@ protected:
     // Default impl creates shadercontext and calls that (not very efficient)
     virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                                 const SkMatrix&, const SkPaint&, const SkMatrix* localM) const;
+
+    virtual bool onIsRasterPipelineOnly() const { return false; }
 
 private:
     // This is essentially const, but not officially so it can be modified in constructors.

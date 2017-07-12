@@ -538,6 +538,9 @@ SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
     fDstToIndexProc = fDstToIndex.getMapXYProc();
     fDstToIndexClass = (uint8_t)SkShaderBase::Context::ComputeMatrixClass(fDstToIndex);
 
+    // TODO: remove all perspective-related gradient code
+    SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
+
     // now convert our colors in to PMColors
     unsigned paintAlpha = this->getPaintAlpha();
 
