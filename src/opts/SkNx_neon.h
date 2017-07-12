@@ -433,11 +433,14 @@ public:
     }
 
     AI static SkNx Min(const SkNx& a, const SkNx& b) { return vminq_s32(a.fVec, b.fVec); }
+    AI static SkNx Max(const SkNx& a, const SkNx& b) { return vmaxq_s32(a.fVec, b.fVec); }
     // TODO as needed
 
     AI SkNx thenElse(const SkNx& t, const SkNx& e) const {
         return vbslq_s32(vreinterpretq_u32_s32(fVec), t.fVec, e.fVec);
     }
+
+    AI SkNx abs() const { return vabsq_s32(fVec); }
 
     int32x4_t fVec;
 };
