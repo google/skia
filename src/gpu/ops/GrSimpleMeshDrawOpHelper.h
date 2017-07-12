@@ -52,9 +52,28 @@ public:
     bool isCompatible(const GrSimpleMeshDrawOpHelper& that, const GrCaps&, const SkRect& thisBounds,
                       const SkRect& thatBounds) const;
 
+    /**
+     * Finalizes the processor set and determines whether the destination must be provided
+     * to the fragment shader as a texture for blending.
+     *
+     * @param geometryCoverage Describes the coverage output of the op's geometry processor
+     * @param geometryColor An in/out param. As input this informs processor analysis about the
+     *                      color the op expects to output from its geometry processor. As output
+     *                      this may be set to a known color in which case the op must output this
+     *                      color from its geometry processor instead.
+     */
+    GrDrawOp::RequiresDstTexture xpRequiresDstTexture(const GrCaps& caps, const GrAppliedClip* clip,
+                                                      GrProcessorAnalysisCoverage geometryCoverage,
+                                                      GrProcessorAnalysisColor* geometryColor);
+
+    /**
+     * Version of above that can be used by ops that have a constant color geometry processor
+     * output. The op passes this color as 'geometryColor' and after return if 'geometryColor' has
+     * changed the op must override its geometry processor color output with the new color.
+     */
     GrDrawOp::RequiresDstTexture xpRequiresDstTexture(const GrCaps&, const GrAppliedClip*,
                                                       GrProcessorAnalysisCoverage geometryCoverage,
-                                                      GrColor* color);
+                                                      GrColor* geometryColor);
 
     bool usesLocalCoords() const {
         SkASSERT(fDidAnalysis);
