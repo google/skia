@@ -26,7 +26,7 @@ private:
     void onPlatformSwapBuffers() const override;
     GrGLFuncPtr onPlatformGetProcAddress(const char*) const override;
 
-    void* fEAGLContext;
+    EAGLContext* fEAGLContext;
     void* fGLLibrary;
 };
 
@@ -35,13 +35,13 @@ IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
     , fGLLibrary(RTLD_DEFAULT) {
 
     if (shareContext) {
-        EAGLContext* iosShareContext = (EAGLContext*)(shareContext->fEAGLContext);
+        EAGLContext* iosShareContext = shareContext->fEAGLContext;
         fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2
                                             sharegroup: [iosShareContext sharegroup]];
     } else {
         fEAGLContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     }
-    [EAGLContext setCurrentContext:EAGLCTX];
+    [EAGLContext setCurrentContext:fEAGLContext];
 
     sk_sp<const GrGLInterface> gl(GrGLCreateNativeInterface());
     if (NULL == gl.get()) {
@@ -69,11 +69,10 @@ IOSGLTestContext::~IOSGLTestContext() {
 
 void IOSGLTestContext::destroyGLContext() {
     if (fEAGLContext) {
-        if ([EAGLContext currentContext] == EAGLCTX) {
+        if ([EAGLContext currentContext] == fEAGLContext) {
             [EAGLContext setCurrentContext:nil];
         }
-        [EAGLCTX release];
-        fEAGLContext = NULL;
+        fEAGLContext = nil;
     }
     if (RTLD_DEFAULT != fGLLibrary) {
         dlclose(fGLLibrary);
@@ -82,7 +81,7 @@ void IOSGLTestContext::destroyGLContext() {
 
 
 void IOSGLTestContext::onPlatformMakeCurrent() const {
-    if (![EAGLContext setCurrentContext:EAGLCTX]) {
+    if (![EAGLContext setCurrentContext:fEAGLContext]) {
         SkDebugf("Could not set the context.\n");
     }
 }

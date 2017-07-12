@@ -536,10 +536,12 @@ optional("gpu") {
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
+  cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     libs += [ "Metal.framework" ]
+    cflags_objcc += [ "-fobjc-arc" ]
   }
 }
 
@@ -978,6 +980,10 @@ if (skia_enable_tools) {
         ]
       }
 
+      cflags_objcc = []
+      if (is_ios || is_mac) {
+        cflags_objcc += [ "-fobjc-arc" ]
+      }
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
         sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]

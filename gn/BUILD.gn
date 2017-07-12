@@ -263,6 +263,7 @@ config("warnings") {
   cflags = []
   cflags_cc = []
   cflags_objc = []
+  cflags_objcc = []
   if (is_win) {
     cflags += [
       "/W3",  # Turn on lots of warnings.
@@ -355,6 +356,10 @@ config("warnings") {
       cflags_objc += [
         "-Wno-direct-ivar-access",
         "-Wno-objc-interface-ivars",
+      ]
+      cflags_objcc += [
+        "-Wno-direct-ivar-access",
+        "-Wno-objcc-interface-ivars",
       ]
     }
   }
