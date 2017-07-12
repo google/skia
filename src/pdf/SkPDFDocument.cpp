@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkPDFDocument.h"
+
+#include "SkCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
-#include "SkPDFCanvas.h"
 #include "SkPDFDevice.h"
-#include "SkPDFDocument.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 
@@ -216,7 +217,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             SkScalarRoundToInt(width), SkScalarRoundToInt(height));
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
-    fCanvas.reset(new SkPDFCanvas(fPageDevice));
+    fCanvas.reset(new SkCanvas(fPageDevice.get()));
     return fCanvas.get();
 }
 
