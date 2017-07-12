@@ -2036,6 +2036,7 @@ SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, OutputSt
 }
 
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
+    printf("binary: %s\n", b.description().c_str());
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (b.fOperator) {
         case Token::EQ: {
