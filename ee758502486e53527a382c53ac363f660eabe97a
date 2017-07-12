@@ -22,6 +22,30 @@
       "revId": "ee758502486e53527a382c53ac363f660eabe97a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddc46f78_00f3205e",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-12T13:54:48Z",
+      "side": 1,
+      "message": "I guess I was following the pattern of cc and cxx in which we have a cflags_c and cflags_cc which are used independently in the commands at least. Do we merge those flags together in our GN files?\n\nFrom the compiler error looks like I do need some of the flags we set in gn/BUILD.gn. So do we want to just copy those flags into cflags_objcc as well or have the command here take both sets of flags?",
+      "parentUuid": "86941e92_c8a19228",
+      "range": {
+        "startLine": 213,
+        "startChar": 108,
+        "endLine": 213,
+        "endChar": 120
+      },
+      "revId": "ee758502486e53527a382c53ac363f660eabe97a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
