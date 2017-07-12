@@ -28,12 +28,20 @@ in uniform float outerThreshold;
     }
 }
 
-@coordTransform(image) {
-    SkMatrix::I()
+@fields {
+    GrCoordTransform fImageCoordTransform;
+    GrCoordTransform fMaskCoordTransform;
 }
 
-@coordTransform(mask) {
-    SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
+@initializers {
+    fImageCoordTransform(SkMatrix::I(), image.get()),
+    fMaskCoordTransform(SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
+                        mask.get())
+}
+
+@constructorCode {
+    this->addCoordTransform(&fImageCoordTransform);
+    this->addCoordTransform(&fMaskCoordTransform);
 }
 
 @header {

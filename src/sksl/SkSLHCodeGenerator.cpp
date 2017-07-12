@@ -69,9 +69,9 @@ void HCodeGenerator::writef(const char* s, ...) {
 }
 
 bool HCodeGenerator::writeSection(const char* name, const char* prefix) {
-    const Section* s = fSectionAndParameterHelper.getSection(name);
-    if (s) {
-        this->writef("%s%s", prefix, s->fText.c_str());
+    const auto found = fSectionAndParameterHelper.fSections.find(String(name));
+    if (found != fSectionAndParameterHelper.fSections.end()) {
+        this->writef("%s%s", prefix, found->second->fText.c_str());
         return true;
     }
     return false;
@@ -81,9 +81,10 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
     // super-simple parse, just assume the last token before a comma is the name of a parameter
     // (which is true as long as there are no multi-parameter template types involved). Will replace
     // this with something more robust if the need arises.
-    const Section* section = fSectionAndParameterHelper.getSection(CONSTRUCTOR_PARAMS_SECTION);
-    if (section) {
-        const char* s = section->fText.c_str();
+    const auto found = fSectionAndParameterHelper.fSections.find(
+                                                                String(CONSTRUCTOR_PARAMS_SECTION));
+    if (found != fSectionAndParameterHelper.fSections.end()) {
+        const char* s = found->second->fText.c_str();
         #define BUFFER_SIZE 64
         char lastIdentifier[BUFFER_SIZE];
         int lastIdentifierLength = 0;
@@ -125,7 +126,7 @@ void HCodeGenerator::writeMake() {
     if (!this->writeSection(MAKE_SECTION)) {
         this->writef("    static sk_sp<GrFragmentProcessor> Make(");
         separator = "";
-        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        for (const auto& param : fSectionAndParameterHelper.fParameters) {
             this->writef("%s%s %s", separator, ParameterType(param->fType).c_str(),
                          param->fName.c_str());
             separator = ", ";
@@ -135,7 +136,7 @@ void HCodeGenerator::writeMake() {
                      "        return sk_sp<GrFragmentProcessor>(new %s(",
                      fFullName.c_str());
         separator = "";
-        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        for (const auto& param : fSectionAndParameterHelper.fParameters) {
             this->writef("%s%s", separator, param->fName.c_str());
             separator = ", ";
         }
@@ -145,25 +146,13 @@ void HCodeGenerator::writeMake() {
     }
 }
 
-void HCodeGenerator::failOnSection(const char* section, const char* msg) {
-    std::vector<const Section*> s = fSectionAndParameterHelper.getSections(section);
-    if (s.size()) {
-        fErrors.error(s[0]->fPosition, String("@") + section + " " + msg);
-    }
-}
-
 void HCodeGenerator::writeConstructor() {
     if (this->writeSection(CONSTRUCTOR_SECTION)) {
-        const char* msg = "may not be present when constructor is overridden";
-        this->failOnSection(CONSTRUCTOR_CODE_SECTION, msg);
-        this->failOnSection(CONSTRUCTOR_PARAMS_SECTION, msg);
-        this->failOnSection(COORD_TRANSFORM_SECTION, msg);
-        this->failOnSection(INITIALIZERS_SECTION, msg);
-        this->failOnSection(OPTIMIZATION_FLAGS_SECTION, msg);
+        return;
     }
     this->writef("    %s(", fFullName.c_str());
     const char* separator = "";
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const auto& param : fSectionAndParameterHelper.fParameters) {
         this->writef("%s%s %s", separator, ParameterType(param->fType).c_str(),
                      param->fName.c_str());
         separator = ", ";
@@ -176,37 +165,22 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(")");
     this->writeSection(INITIALIZERS_SECTION, "\n    , ");
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const auto& param : fSectionAndParameterHelper.fParameters) {
         const char* name = param->fName.c_str();
         if (param->fType.kind() == Type::kSampler_Kind) {
-            this->writef("\n    , %s(std::move(%s)", FieldName(name).c_str(), name);
-            for (const Section* s : fSectionAndParameterHelper.getSections(
-                                                                          SAMPLER_PARAMS_SECTION)) {
-                if (s->fArgument == name) {
-                    this->writef(", %s", s->fText.c_str());
-                }
-            }
-            this->writef(")");
+            this->writef("\n    , %s(std::move(%s))", FieldName(name).c_str(),
+                         name);
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
         }
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        String field = FieldName(s->fArgument.c_str());
-        this->writef("\n    , %sCoordTransform(%s, %s.proxy())", field.c_str(), s->fText.c_str(),
-                     field.c_str());
-    }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const auto& param : fSectionAndParameterHelper.fParameters) {
         if (param->fType.kind() == Type::kSampler_Kind) {
             this->writef("        this->addTextureSampler(&%s);\n",
                          FieldName(param->fName.c_str()).c_str());
         }
-    }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        String field = FieldName(s->fArgument.c_str());
-        this->writef("        this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
     }
     this->writef("        this->initClassID<%s>();\n"
                  "    }\n",
@@ -215,13 +189,9 @@ void HCodeGenerator::writeConstructor() {
 
 void HCodeGenerator::writeFields() {
     this->writeSection(FIELDS_SECTION);
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const auto& param : fSectionAndParameterHelper.fParameters) {
         const char* name = param->fName.c_str();
         this->writef("    %s %s;\n", FieldType(param->fType).c_str(), FieldName(name).c_str());
-    }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        this->writef("    GrCoordTransform %sCoordTransform;\n",
-                     FieldName(s->fArgument.c_str()).c_str());
     }
 }
 
@@ -236,13 +206,12 @@ bool HCodeGenerator::generateCode() {
     this->writeSection(HEADER_SECTION);
     this->writef("#include \"GrFragmentProcessor.h\"\n"
                  "#include \"GrCoordTransform.h\"\n"
-                 "#include \"GrColorSpaceXform.h\"\n"
                  "#include \"effects/GrProxyMove.h\"\n");
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());
     this->writeSection(CLASS_SECTION);
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+    for (const auto& param : fSectionAndParameterHelper.fParameters) {
         if (param->fType.kind() == Type::kSampler_Kind) {
             continue;
         }

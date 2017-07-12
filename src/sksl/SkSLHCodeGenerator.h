@@ -61,8 +61,6 @@ private:
 
     void writeFields();
 
-    void failOnSection(const char* section, const char* msg);
-
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
