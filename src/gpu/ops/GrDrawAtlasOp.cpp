@@ -12,23 +12,6 @@
 #include "SkRSXform.h"
 #include "SkRandom.h"
 
-void GrDrawAtlasOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
-    SkASSERT(fGeoData.count() == 1);
-    if (optimizations.getOverrideColorIfSet(&fGeoData[0].fColor) && fHasColors) {
-        size_t vertexStride =
-                sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0);
-        uint8_t* currVertex = fGeoData[0].fVerts.begin();
-        for (int i = 0; i < 4 * fQuadCount; ++i) {
-            *(reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint))) = fGeoData[0].fColor;
-            currVertex += vertexStride;
-        }
-    }
-
-    fColor = fGeoData[0].fColor;
-    // We'd like to assert this, but we can't because of GLPrograms test
-    // SkASSERT(init.readsLocalCoords());
-}
-
 static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
                                           GrColor color,
                                           const SkMatrix& viewMatrix) {
@@ -42,37 +25,10 @@ static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
-void GrDrawAtlasOp::onPrepareDraws(Target* target) const {
-    // Setup geometry processor
-    sk_sp<GrGeometryProcessor> gp(make_gp(this->hasColors(), this->color(), this->viewMatrix()));
-
-    int instanceCount = fGeoData.count();
-    size_t vertexStride = gp->getVertexStride();
-    SkASSERT(vertexStride ==
-             sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0));
-
-    QuadHelper helper;
-    int numQuads = this->quadCount();
-    void* verts = helper.init(target, vertexStride, numQuads);
-    if (!verts) {
-        SkDebugf("Could not allocate vertices\n");
-        return;
-    }
-
-    uint8_t* vertPtr = reinterpret_cast<uint8_t*>(verts);
-    for (int i = 0; i < instanceCount; i++) {
-        const Geometry& args = fGeoData[i];
-
-        size_t allocSize = args.fVerts.count();
-        memcpy(vertPtr, args.fVerts.begin(), allocSize);
-        vertPtr += allocSize;
-    }
-    helper.recordDraw(target, gp.get(), this->pipeline());
-}
-
-GrDrawAtlasOp::GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spriteCount,
+GrDrawAtlasOp::GrDrawAtlasOp(const Helper::MakeArgs& helperArgs, GrColor color,
+                             const SkMatrix& viewMatrix, GrAAType aaType, int spriteCount,
                              const SkRSXform* xforms, const SkRect* rects, const SkColor* colors)
-        : INHERITED(ClassID()) {
+        : INHERITED(ClassID()), fHelper(helperArgs, aaType) {
     SkASSERT(xforms);
     SkASSERT(rects);
 
@@ -151,11 +107,48 @@ GrDrawAtlasOp::GrDrawAtlasOp(GrColor color, const SkMatrix& viewMatrix, int spri
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
 }
 
+SkString GrDrawAtlasOp::dumpInfo() const {
+    SkString string;
+    for (const auto& geo : fGeoData) {
+        string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor, geo.fVerts.count() / 4);
+    }
+    string += fHelper.dumpInfo();
+    string += INHERITED::dumpInfo();
+    return string;
+}
+
+void GrDrawAtlasOp::onPrepareDraws(Target* target) const {
+    // Setup geometry processor
+    sk_sp<GrGeometryProcessor> gp(make_gp(this->hasColors(), this->color(), this->viewMatrix()));
+
+    int instanceCount = fGeoData.count();
+    size_t vertexStride = gp->getVertexStride();
+    SkASSERT(vertexStride ==
+             sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0));
+
+    QuadHelper helper;
+    int numQuads = this->quadCount();
+    void* verts = helper.init(target, vertexStride, numQuads);
+    if (!verts) {
+        SkDebugf("Could not allocate vertices\n");
+        return;
+    }
+
+    uint8_t* vertPtr = reinterpret_cast<uint8_t*>(verts);
+    for (int i = 0; i < instanceCount; i++) {
+        const Geometry& args = fGeoData[i];
+
+        size_t allocSize = args.fVerts.count();
+        memcpy(vertPtr, args.fVerts.begin(), allocSize);
+        vertPtr += allocSize;
+    }
+    helper.recordDraw(target, gp.get(), fHelper.makePipeline(target));
+}
+
 bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
 
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+    if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
         return false;
     }
 
@@ -177,6 +170,26 @@ bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
     this->joinBounds(*that);
     return true;
+}
+
+GrDrawOp::FixedFunctionFlags GrDrawAtlasOp::fixedFunctionFlags() const {
+    return fHelper.fixedFunctionFlags();
+}
+
+GrDrawOp::RequiresDstTexture GrDrawAtlasOp::finalize(const GrCaps& caps,
+                                                     const GrAppliedClip* clip) {
+    GrProcessorAnalysisColor gpColor;
+    if (this->hasColors()) {
+        gpColor.setToUnknown();
+    } else {
+        gpColor.setToConstant(fColor);
+    }
+    auto result =
+            fHelper.xpRequiresDstTexture(caps, clip, GrProcessorAnalysisCoverage::kNone, &gpColor);
+    if (gpColor.isConstant(&fColor)) {
+        fHasColors = false;
+    }
+    return result;
 }
 
 #if GR_TEST_UTILS
@@ -222,7 +235,7 @@ static void randomize_params(uint32_t count, SkRandom* random, SkTArray<SkRSXfor
     }
 }
 
-GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
+GR_DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
     uint32_t spriteCount = random->nextRangeU(1, 100);
 
     SkTArray<SkRSXform> xforms(spriteCount);
@@ -234,10 +247,13 @@ GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(GrDrawAtlasOp) {
     randomize_params(spriteCount, random, &xforms, &texRects, &colors, hasColors);
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    GrAAType aaType = GrAAType::kNone;
+    if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
+        aaType = GrAAType::kMSAA;
+    }
 
-    GrColor color = GrRandomColor(random);
-    return GrDrawAtlasOp::Make(color, viewMatrix, spriteCount, xforms.begin(), texRects.begin(),
-                               hasColors ? colors.begin() : nullptr);
+    return GrDrawAtlasOp::Make(std::move(paint), viewMatrix, aaType, spriteCount, xforms.begin(),
+                               texRects.begin(), hasColors ? colors.begin() : nullptr);
 }
 
 #endif
