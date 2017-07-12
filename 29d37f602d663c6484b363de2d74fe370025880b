@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0c3a850_9738582c",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-12T20:35:40Z",
+      "side": 1,
+      "message": "Think I Should convert these back to MTL objects in the trampoline or here when are actually storing them?",
+      "range": {
+        "startLine": 24,
+        "startChar": 25,
+        "endLine": 24,
+        "endChar": 50
+      },
+      "revId": "29d37f602d663c6484b363de2d74fe370025880b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
