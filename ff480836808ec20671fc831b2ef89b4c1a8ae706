@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "94029ad5_55d7ba8b",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-12T20:19:54Z",
+      "side": 1,
+      "message": "I\u0027m not sure I get the connection between perspective and burst mode.  Is it just that it\u0027s difficult to step in perspective, so we\u0027d rather cut people off here than make them think it\u0027s a good idea to try?",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "ff480836808ec20671fc831b2ef89b4c1a8ae706",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "939cfc28_df7aad7e",
         "filename": "src/shaders/SkShaderBase.h",
         "patchSetId": 6
