@@ -25,10 +25,6 @@ namespace skiagm {
 static const int imageWidth = 128;
 static const int imageHeight = 128;
 
-static inline int div_round_up(int a, int b) {
-    return (a + b - 1) / b;
-}
-
 sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorType colorType) {
     if (kRGBA_F16_SkColorType == colorType) {
         if (!colorSpace) {
@@ -41,54 +37,10 @@ sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorTyp
     return colorSpace;
 }
 
-static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
-    const SkColor colors[] = {
-            0x800000FF, 0x8000FF00, 0x80FF0000, 0x80FFFF00,
-    };
-
-    auto toPMColor = [alphaType, colorSpace](SkColor color) {
-        // In the opaque/unpremul case, just convert to SkPMColor ordering.
-        if (kPremul_SkAlphaType != alphaType) {
-            return SkSwizzle_BGRA_to_PMColor(color);
-        }
-
-        // Linear premultiply.
-        if (colorSpace) {
-            uint32_t result;
-            Sk4f pmFloat = SkColor4f::FromColor(color).premul().to4f_pmorder();
-            SkNx_cast<uint8_t>(sk_linear_to_srgb_needs_trunc(pmFloat)).store(&result);
-            result = (result & 0x00FFFFFF) | (color & 0xFF000000);
-            return result;
-        }
-
-        // Legacy premultiply.
-        return SkPreMultiplyColor(color);
-    };
-
-    // Note that these are not necessarily premultiplied, but they are platform byte ordering.
-    SkPMColor pmColors[SK_ARRAY_COUNT(colors)];
-    for (int i = 0; i < (int) SK_ARRAY_COUNT(colors); i++) {
-        pmColors[i] = toPMColor(colors[i]);
-    }
-
-    SkImageInfo info = SkImageInfo::Make(imageWidth, imageHeight, kIndex_8_SkColorType,
-                                         alphaType, colorSpace);
-    bitmap->allocPixels(info, SkColorTable::Make(pmColors, SK_ARRAY_COUNT(pmColors)));
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-            *bitmap->getAddr8(x, y) = (x / div_round_up(imageWidth, 2)) +
-                                      (y / div_round_up(imageHeight, 3));
-        }
-    }
-}
-
 static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
                  sk_sp<SkColorSpace> colorSpace) {
     const char* resource;
     switch (colorType) {
-        case kIndex_8_SkColorType:
-            make_index8(bitmap, alphaType, colorSpace);
-            return;
         case kGray_8_SkColorType:
             resource = "grayscale.jpg";
             alphaType = kOpaque_SkAlphaType;
@@ -173,14 +125,13 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {
-                kN32_SkColorType, kRGBA_F16_SkColorType, kIndex_8_SkColorType, kGray_8_SkColorType,
-                kRGB_565_SkColorType,
+            kN32_SkColorType, kRGBA_F16_SkColorType, kGray_8_SkColorType, kRGB_565_SkColorType,
         };
         const SkAlphaType alphaTypes[] = {
-                kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
+            kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
         };
         const sk_sp<SkColorSpace> colorSpaces[] = {
-                nullptr, SkColorSpace::MakeSRGB(),
+            nullptr, SkColorSpace::MakeSRGB(),
         };
 
         SkBitmap bitmap;

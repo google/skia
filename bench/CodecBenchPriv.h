@@ -18,9 +18,6 @@ inline const char* color_type_to_str(SkColorType colorType) {
             return "565";
         case kGray_8_SkColorType:
             return "Gray8";
-        case kIndex_8_SkColorType:
-            SkASSERT(false);
-            return "Index8";
         case kAlpha_8_SkColorType:
             return "Alpha8";
         default:

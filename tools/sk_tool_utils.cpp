@@ -164,7 +164,6 @@ const char* colortype_name(SkColorType ct) {
     switch (ct) {
         case kUnknown_SkColorType:      return "Unknown";
         case kAlpha_8_SkColorType:      return "Alpha_8";
-        case kIndex_8_SkColorType:      return "Index_8";
         case kARGB_4444_SkColorType:    return "ARGB_4444";
         case kRGB_565_SkColorType:      return "RGB_565";
         case kRGBA_8888_SkColorType:    return "RGBA_8888";
@@ -566,16 +565,7 @@ bool copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
         return false;
     }
 
-    // allocate colortable if srcConfig == kIndex8_Config
-    sk_sp<SkColorTable> ctable = nullptr;
-    if (dstColorType == kIndex_8_SkColorType) {
-        if (src.colorType() != kIndex_8_SkColorType) {
-            return false;
-        }
-
-        ctable = sk_ref_sp(srcPM.ctable());
-    }
-    if (!tmpDst.tryAllocPixels(ctable.get())) {
+    if (!tmpDst.tryAllocPixels()) {
         return false;
     }
 
