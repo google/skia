@@ -83,6 +83,10 @@ def RunSteps(api):
            '--gitcookies', str(update_skps_gitcookies)]
     with api.infra.MetadataFetch(
         api, UPDATE_SKPS_KEY, UPDATE_SKPS_GITCOOKIES_FILE):
+      # Weird bug where gitcookies downloaded from metadata needs a new line
+      # appended to it.
+      with open(UPDATE_SKPS_GITCOOKIES_FILE, 'a') as f:
+        f.write('\n')
       with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
         api.run(api.step, 'Upload SKPs', cmd=cmd)
 
