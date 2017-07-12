@@ -19,7 +19,6 @@ public:
                                 const SkMatrix* localMatrix);
 
     bool isOpaque() const override;
-    bool isRasterPipelineOnly() const override;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageShader)
@@ -39,6 +38,8 @@ protected:
     bool onIsABitmap(SkBitmap*, SkMatrix*, TileMode*) const override;
 #endif
     SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
+
+    bool onIsRasterPipelineOnly() const override;
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
