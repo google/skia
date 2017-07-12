@@ -812,8 +812,10 @@ static const char* color_type_name(SkColorType colorType) {
             return SKDEBUGCANVAS_COLORTYPE_565;
         case kGray_8_SkColorType:
             return SKDEBUGCANVAS_COLORTYPE_GRAY8;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
             return SKDEBUGCANVAS_COLORTYPE_INDEX8;
+#endif
         case kAlpha_8_SkColorType:
             return SKDEBUGCANVAS_COLORTYPE_ALPHA8;
         default:
@@ -886,9 +888,11 @@ static SkColorType colortype_from_name(const char* name) {
     }
     else if (!strcmp(name, SKDEBUGCANVAS_COLORTYPE_GRAY8)) {
         return kGray_8_SkColorType;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     }
     else if (!strcmp(name, SKDEBUGCANVAS_COLORTYPE_INDEX8)) {
         return kIndex_8_SkColorType;
+#endif
     }
     else if (!strcmp(name, SKDEBUGCANVAS_COLORTYPE_ALPHA8)) {
         return kAlpha_8_SkColorType;
@@ -934,7 +938,10 @@ static SkBitmap* load_bitmap(const Json::Value& jsonBitmap, UrlDataManager& urlD
         if (jsonBitmap.isMember(SKDEBUGCANVAS_ATTRIBUTE_COLOR)) {
             const char* ctName = jsonBitmap[SKDEBUGCANVAS_ATTRIBUTE_COLOR].asCString();
             SkColorType ct = colortype_from_name(ctName);
-            if (ct != kIndex_8_SkColorType) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+            if (ct != kIndex_8_SkColorType)
+#endif
+            {
                 bitmap.reset(convert_colortype(bitmap.release(), ct));
             }
         }
