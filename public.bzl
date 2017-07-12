@@ -663,6 +663,7 @@ DEFINES_ALL = [
     # Required for building dm.
     "GR_TEST_UTILS",
     # Staging flags for API changes
+    "SK_SUPPORT_LEGACY_IMAGE_ENCODE_API",
     # Should remove after we update golden images
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Temporarily Disable analytic AA for Google3
