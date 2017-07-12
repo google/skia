@@ -378,7 +378,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     SkRasterPipeline_<256> tPipeline;
     SkRasterPipeline_<256> postPipeline;
     if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &tPipeline, &postPipeline)) {
-        return this->INHERITED::onAppendStages(p, dstCS, alloc, ctm, paint, localM);
+        return false;
     }
 
     p->append(SkRasterPipeline::seed_shader);
