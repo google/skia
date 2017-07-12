@@ -165,7 +165,7 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
     }
 
     sk_sp<SkColorTable> currColorTable = fReader->getColorTable(colorTableColorType, frameIndex);
-    fCurrColorTableIsReal = currColorTable;
+    fCurrColorTableIsReal = static_cast<bool>(currColorTable);
     if (!fCurrColorTableIsReal) {
         // This is possible for an empty frame. Create a dummy with one value (transparent).
         SkPMColor color = SK_ColorTRANSPARENT;
