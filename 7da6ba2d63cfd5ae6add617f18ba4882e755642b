@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52d9d633_1f71c48a",
+        "filename": "src/opts/SkNx_sse.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-12T20:24:52Z",
+      "side": 1,
+      "message": "Probably clearer to use the existing methods?\n\n  return (x \u003c y).thenElse(x, y);",
+      "range": {
+        "startLine": 214,
+        "startChar": 7,
+        "endLine": 217,
+        "endChar": 48
+      },
+      "revId": "7da6ba2d63cfd5ae6add617f18ba4882e755642b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
