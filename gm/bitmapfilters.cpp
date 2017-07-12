@@ -17,14 +17,12 @@ static void make_bm(SkBitmap* bm) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
         colorsPM[i] = SkPreMultiplyColor(colors[i]);
     }
-    bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
-                                      kOpaque_SkAlphaType),
-                    SkColorTable::Make(colorsPM, 4));
+    bm->allocN32Pixels(2, 2);
 
-    *bm->getAddr8(0, 0) = 0;
-    *bm->getAddr8(1, 0) = 1;
-    *bm->getAddr8(0, 1) = 2;
-    *bm->getAddr8(1, 1) = 3;
+    *bm->getAddr32(0, 0) = colorsPM[0];
+    *bm->getAddr32(1, 0) = colorsPM[1];
+    *bm->getAddr32(0, 1) = colorsPM[2];
+    *bm->getAddr32(1, 1) = colorsPM[3];
 }
 
 static SkScalar draw_bm(SkCanvas* canvas, const SkBitmap& bm,
