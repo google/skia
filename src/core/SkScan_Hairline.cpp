@@ -447,7 +447,8 @@ void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int 
             ++first;
         } while (++controls < ptCount);
     }
-    if (SkPath::kMove_Verb == nextVerb || SkPath::kDone_Verb == nextVerb) {
+    if (SkPath::kMove_Verb == nextVerb || SkPath::kDone_Verb == nextVerb
+            || SkPath::kClose_Verb == nextVerb) {
         SkPoint* last = &pts[ptCount - 1];
         SkPoint* ctrl = last;
         int controls = ptCount - 1;
