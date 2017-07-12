@@ -150,7 +150,7 @@ public:
 
     static SkShaderBase::ContextRec::DstType PreferredShaderDest(const SkImageInfo&);
 
-    static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&);
+    static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix&);
 
 protected:
     SkAutoMalloc fBlitMemory;

@@ -780,7 +780,8 @@ SkShaderBase::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageIn
 // hack for testing, not to be exposed to clients
 bool gSkForceRasterPipelineBlitter;
 
-bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint) {
+bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint,
+                                         const SkMatrix& matrix) {
     if (gSkForceRasterPipelineBlitter) {
         return true;
     }
@@ -807,6 +808,12 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
         return true;
     }
+
+    // ... or unless we have to deal with perspective.
+    if (matrix.getType() & SkMatrix::kPerspective_Mask) {
+        return true;
+    }
+
     return device.colorType() != kN32_SkColorType;
 #endif
 }
@@ -881,7 +888,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         paint.writable()->setDither(false);
     }
 
-    if (UseRasterPipelineBlitter(device, *paint)) {
+    if (UseRasterPipelineBlitter(device, *paint, matrix)) {
         auto blitter = SkCreateRasterPipelineBlitter(device, *paint, matrix, alloc);
         SkASSERT(blitter);
         return blitter;
