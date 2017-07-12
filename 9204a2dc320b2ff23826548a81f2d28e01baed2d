@@ -22,6 +22,30 @@
       "revId": "9204a2dc320b2ff23826548a81f2d28e01baed2d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76d7d146_9bf17129",
+        "filename": "src/gpu/ops/GrRegionOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-12T20:53:17Z",
+      "side": 1,
+      "message": "I wrote it this way to keep the range for the selected point symmetric. It could be done the way you suggest but the constants to use would be less obvious to a reader. I wrote another one that way and it seems like a toss up to me.",
+      "parentUuid": "eb58aadf_a895cecd",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 99
+      },
+      "revId": "9204a2dc320b2ff23826548a81f2d28e01baed2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
