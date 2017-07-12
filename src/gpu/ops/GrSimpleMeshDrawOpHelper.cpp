@@ -64,7 +64,7 @@ bool GrSimpleMeshDrawOpHelper::isCompatible(const GrSimpleMeshDrawOpHelper& that
 
 GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
         const GrCaps& caps, const GrAppliedClip* clip, GrProcessorAnalysisCoverage geometryCoverage,
-        GrColor* color) {
+        GrProcessorAnalysisColor* geometryColor) {
     SkDEBUGCODE(fDidAnalysis = true);
     GrProcessorSet::Analysis analysis;
     if (fProcessors) {
@@ -75,7 +75,12 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
                                : GrProcessorAnalysisCoverage::kNone;
         }
         bool isMixedSamples = this->aaType() == GrAAType::kMixedSamples;
-        analysis = fProcessors->finalize(*color, coverage, clip, isMixedSamples, caps, color);
+        GrColor overrideColor;
+        analysis = fProcessors->finalize(*geometryColor, coverage, clip, isMixedSamples, caps,
+                                         &overrideColor);
+        if (analysis.inputColorIsOverridden()) {
+            *geometryColor = overrideColor;
+        }
     } else {
         analysis = GrProcessorSet::EmptySetAnalysis();
     }
@@ -84,6 +89,15 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
     fCompatibleWithAlphaAsCoveage = analysis.isCompatibleWithCoverageAsAlpha();
     return analysis.requiresDstTexture() ? GrDrawOp::RequiresDstTexture::kYes
                                          : GrDrawOp::RequiresDstTexture::kNo;
+}
+
+GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
+        const GrCaps& caps, const GrAppliedClip* clip, GrProcessorAnalysisCoverage geometryCoverage,
+        GrColor* geometryColor) {
+    GrProcessorAnalysisColor color = *geometryColor;
+    auto result = this->xpRequiresDstTexture(caps, clip, geometryCoverage, &color);
+    color.isConstant(geometryColor);
+    return result;
 }
 
 SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {

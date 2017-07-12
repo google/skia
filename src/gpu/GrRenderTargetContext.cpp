@@ -875,10 +875,10 @@ void GrRenderTargetContext::drawAtlas(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    std::unique_ptr<GrLegacyMeshDrawOp> op =
-            GrDrawAtlasOp::Make(paint.getColor(), viewMatrix, spriteCount, xform, texRect, colors);
-    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(std::move(paint), viewMatrix, aaType,
+                                                       spriteCount, xform, texRect, colors);
+    this->addDrawOp(clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
