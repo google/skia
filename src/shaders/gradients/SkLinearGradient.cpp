@@ -285,9 +285,7 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
     SkASSERT(count > 0);
     const SkLinearGradient& linearGradient = static_cast<const SkLinearGradient&>(fShader);
 
-    if (SkShader::kClamp_TileMode == linearGradient.fTileMode &&
-        kLinear_MatrixClass == fDstToIndexClass)
-    {
+    if (SkShader::kClamp_TileMode == linearGradient.fTileMode) {
         this->shade4_clamp(x, y, dstC, count);
         return;
     }
@@ -298,43 +296,22 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
     const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
     int                 toggle = init_dither_toggle(x, y);
 
-    if (fDstToIndexClass != kPerspective_MatrixClass) {
-        dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
-                             SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkGradFixed dx, fx = SkScalarPinToGradFixed(srcPt.fX);
+    dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                         SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    SkGradFixed fx = SkScalarPinToGradFixed(srcPt.fX),
+                dx = SkScalarPinToGradFixed(fDstToIndex.getScaleX());
 
-        if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            const auto step = fDstToIndex.fixedStepInX(SkIntToScalar(y));
-            // todo: do we need a real/high-precision value for dx here?
-            dx = SkScalarPinToGradFixed(step.fX);
-        } else {
-            SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = SkScalarPinToGradFixed(fDstToIndex.getScaleX());
-        }
-
-        LinearShadeProc shadeProc = shadeSpan_linear_repeat;
-        if (0 == dx) {
-            shadeProc = shadeSpan_linear_vertical_lerp;
-        } else if (SkShader::kClamp_TileMode == linearGradient.fTileMode) {
-            shadeProc = shadeSpan_linear_clamp;
-        } else if (SkShader::kMirror_TileMode == linearGradient.fTileMode) {
-            shadeProc = shadeSpan_linear_mirror;
-        } else {
-            SkASSERT(SkShader::kRepeat_TileMode == linearGradient.fTileMode);
-        }
-        (*shadeProc)(proc, dx, fx, dstC, cache, toggle, count);
+    LinearShadeProc shadeProc = shadeSpan_linear_repeat;
+    if (0 == dx) {
+        shadeProc = shadeSpan_linear_vertical_lerp;
+    } else if (SkShader::kClamp_TileMode == linearGradient.fTileMode) {
+        shadeProc = shadeSpan_linear_clamp;
+    } else if (SkShader::kMirror_TileMode == linearGradient.fTileMode) {
+        shadeProc = shadeSpan_linear_mirror;
     } else {
-        SkScalar    dstX = SkIntToScalar(x);
-        SkScalar    dstY = SkIntToScalar(y);
-        do {
-            dstProc(fDstToIndex, dstX, dstY, &srcPt);
-            unsigned fi = proc(SkScalarToFixed(srcPt.fX));
-            SkASSERT(fi <= 0xFFFF);
-            *dstC++ = cache[toggle + (fi >> kCache32Shift)];
-            toggle = next_dither_toggle(toggle);
-            dstX += SK_Scalar1;
-        } while (--count != 0);
+        SkASSERT(SkShader::kRepeat_TileMode == linearGradient.fTileMode);
     }
+    (*shadeProc)(proc, dx, fx, dstC, cache, toggle, count);
 }
 
 SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
@@ -756,7 +733,6 @@ void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], 
 void SkLinearGradient::LinearGradientContext::shade4_clamp(int x, int y, SkPMColor dstC[],
                                                            int count) {
     SkASSERT(count > 0);
-    SkASSERT(kLinear_MatrixClass == fDstToIndexClass);
 
     SkPoint srcPt;
     fDstToIndexProc(fDstToIndex, x + SK_ScalarHalf, y + SK_ScalarHalf, &srcPt);

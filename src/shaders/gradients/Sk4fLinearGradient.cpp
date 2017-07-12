@@ -91,7 +91,7 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
     : INHERITED(shader, rec) {
 
     // Our fast path expects interval points to be monotonically increasing in x.
-    const bool reverseIntervals = this->isFast() && std::signbit(fDstToPos.getScaleX());
+    const bool reverseIntervals = std::signbit(fDstToPos.getScaleX());
     fIntervals.init(shader, rec.fDstColorSpace, shader.fTileMode,
                     fColorsArePremul, rec.fPaint->getAlpha() * (1.0f / 255), reverseIntervals);
 
@@ -142,18 +142,7 @@ SkLinearGradient::LinearGradient4fContext::findInterval(SkScalar fx) const {
 }
 
 void SkLinearGradient::
-LinearGradient4fContext::shadeSpan(int x, int y, SkPMColor dst[], int count) {
-    // This impl only shades to 4f.
-    SkASSERT(false);
-}
-
-void SkLinearGradient::
 LinearGradient4fContext::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
-    if (!this->isFast()) {
-        this->INHERITED::shadeSpan4f(x, y, dst, count);
-        return;
-    }
-
     SkASSERT(count > 0);
     if (fColorsArePremul) {
         this->shadePremulSpan<ApplyPremul::False>(x, y, dst, count);
@@ -353,50 +342,3 @@ private:
     const SkScalar              fDx;        // 'dx' for consistency with other impls; actually dt/dx
     const bool                  fIsVertical;
 };
-
-void SkLinearGradient::
-LinearGradient4fContext::mapTs(int x, int y, SkScalar ts[], int count) const {
-    SkASSERT(count > 0);
-    SkASSERT(fDstToPosClass != kLinear_MatrixClass);
-
-    SkScalar sx = x + SK_ScalarHalf;
-    const SkScalar sy = y + SK_ScalarHalf;
-    SkPoint pt;
-
-    if (fDstToPosClass != kPerspective_MatrixClass) {
-        // kLinear_MatrixClass, kFixedStepInX_MatrixClass => fixed dt per scanline
-        const SkScalar dtdx = fDstToPos.fixedStepInX(sy).x();
-        fDstToPosProc(fDstToPos, sx, sy, &pt);
-
-        const Sk4f dtdx4 = Sk4f(4 * dtdx);
-        Sk4f t4 = Sk4f(pt.x() + 0 * dtdx,
-                       pt.x() + 1 * dtdx,
-                       pt.x() + 2 * dtdx,
-                       pt.x() + 3 * dtdx);
-
-        while (count >= 4) {
-            t4.store(ts);
-            t4 = t4 + dtdx4;
-            ts += 4;
-            count -= 4;
-        }
-
-        if (count & 2) {
-            *ts++ = t4[0];
-            *ts++ = t4[1];
-            t4 = SkNx_shuffle<2, 0, 1, 3>(t4);
-        }
-
-        if (count & 1) {
-            *ts++ = t4[0];
-        }
-    } else {
-        for (int i = 0; i < count; ++i) {
-            fDstToPosProc(fDstToPos, sx, sy, &pt);
-            // Perspective may yield NaN values.
-            // Short of a better idea, drop to 0.
-            ts[i] = SkScalarIsNaN(pt.x()) ? 0 : pt.x();
-            sx += SK_Scalar1;
-        }
-    }
-}

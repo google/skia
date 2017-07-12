@@ -16,11 +16,7 @@ LinearGradient4fContext final : public GradientShaderBase4fContext {
 public:
     LinearGradient4fContext(const SkLinearGradient&, const ContextRec&);
 
-    void shadeSpan(int x, int y, SkPMColor dst[], int count) override;
     void shadeSpan4f(int x, int y, SkPM4f dst[], int count) override;
-
-protected:
-    void mapTs(int x, int y, SkScalar ts[], int count) const override;
 
 private:
     using INHERITED = GradientShaderBase4fContext;
@@ -35,8 +31,6 @@ private:
     void shadeSpanInternal(int x, int y, SkPM4f[], int count) const;
 
     const Sk4fGradientInterval* findInterval(SkScalar fx) const;
-
-    bool isFast() const { return fDstToPosClass == kLinear_MatrixClass; }
 
     mutable const Sk4fGradientInterval* fCachedInterval;
 };

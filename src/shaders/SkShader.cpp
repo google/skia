@@ -123,7 +123,6 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
     SkAssertResult(fShader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fTotalInverse));
-    fTotalInverseClass = (uint8_t)ComputeMatrixClass(fTotalInverse);
 
     fPaintAlpha = rec.fPaint->getAlpha();
 }
@@ -212,19 +211,6 @@ void SkShaderBase::Context::shadeSpanAlpha(int x, int y, uint8_t alpha[], int co
         } while (--n != 0);
     } while (count > 0);
 #endif
-}
-
-SkShaderBase::Context::MatrixClass SkShaderBase::Context::ComputeMatrixClass(const SkMatrix& mat) {
-    MatrixClass mc = kLinear_MatrixClass;
-
-    if (mat.hasPerspective()) {
-        if (mat.isFixedStepInX()) {
-            mc = kFixedStepInX_MatrixClass;
-        } else {
-            mc = kPerspective_MatrixClass;
-        }
-    }
-    return mc;
 }
 
 //////////////////////////////////////////////////////////////////////////////
