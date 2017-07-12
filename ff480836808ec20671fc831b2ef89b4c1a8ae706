@@ -22,6 +22,30 @@
       "revId": "ff480836808ec20671fc831b2ef89b4c1a8ae706",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f4396c8_963a6ee3",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-12T18:17:41Z",
+      "side": 1,
+      "message": "SGTM, but we\u0027ll have to plumb the CTM first (I have that CL, but it\u0027s bit-rotted by now).",
+      "parentUuid": "939cfc28_df7aad7e",
+      "range": {
+        "startLine": 215,
+        "startChar": 21,
+        "endLine": 215,
+        "endChar": 24
+      },
+      "revId": "ff480836808ec20671fc831b2ef89b4c1a8ae706",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
