@@ -1038,8 +1038,12 @@ bool GrGLGpu::uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight
     // Rather than flip in place and alter the incoming data,
     // we allocate a new buffer to flip into.
     // This means we need to make a non-const shallow copy of texels.
-    SkAutoTMalloc<GrMipLevel> texelsShallowCopy(mipLevelCount);
-    memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
+    SkAutoTMalloc<GrMipLevel> texelsShallowCopy;
+
+    if (mipLevelCount) {
+        texelsShallowCopy.reset(mipLevelCount);
+        memcpy(texelsShallowCopy.get(), texels, mipLevelCount*sizeof(GrMipLevel));
+    }
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         SkASSERT(texelsShallowCopy[currentMipLevel].fPixels);
