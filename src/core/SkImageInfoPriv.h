@@ -111,6 +111,7 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
         return false;
     }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     if (kIndex_8_SkColorType == dst.colorType()) {
         if (kIndex_8_SkColorType != src.colorType()) {
             return false;
@@ -126,6 +127,7 @@ static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkIm
             return false;
         }
     }
+#endif
 
     if (kGray_8_SkColorType == dst.colorType()) {
         if (kGray_8_SkColorType != src.colorType()) {

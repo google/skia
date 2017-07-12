@@ -105,8 +105,12 @@ public:
     {}
 
     static bool Supports(const SkPixmap& src) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         // We'd need to add a load_i8 stage.
         return src.colorType() != kIndex_8_SkColorType;
+#else
+        return true;
+#endif
     }
 
     void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {

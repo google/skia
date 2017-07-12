@@ -171,8 +171,10 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
             }
             alpha8_to_gray8(&bitmap);
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
             // Verify that we no longer support kIndex8 from this API.
             SkASSERT(kIndex_8_SkColorType != bitmap.colorType());
+#endif
             canvas->drawBitmap(bitmap, 0, 0);
             return "";
         }
@@ -229,7 +231,9 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
                     }
 
                     alpha8_to_gray8(&bitmap);
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
                     SkASSERT(kIndex_8_SkColorType != bitmap.colorType());
+#endif
                     canvas->drawBitmapRect(bitmap,
                             SkRect::MakeXYWH((SkScalar) scaledBorder, (SkScalar) scaledBorder,
                                     (SkScalar) (subsetWidth / fSampleSize),
@@ -343,9 +347,11 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
                 SkOpts::RGBA_to_rgbA(row, row, bitmap.width());
             }
             break;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
             SkASSERT(false);
             break;
+#endif
         default:
             // No need to premultiply kGray or k565 outputs.
             break;
@@ -532,7 +538,10 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     }
                     case SkCodec::kInvalidConversion:
                         if (i > 0 && (decodeInfo.colorType() == kRGB_565_SkColorType
-                                      || decodeInfo.colorType() == kIndex_8_SkColorType)) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+                                      || decodeInfo.colorType() == kIndex_8_SkColorType
+#endif
+                                      )) {
                             return Error::Nonfatal(SkStringPrintf(
                                 "Cannot decode frame %i to 565/Index8 (%s).", i, fPath.c_str()));
                         }

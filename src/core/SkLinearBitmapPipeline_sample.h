@@ -133,6 +133,7 @@ public:
     }
 };
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 template <SkGammaType gammaType>
 class PixelConverter<kIndex_8_SkColorType, gammaType> {
 public:
@@ -166,7 +167,8 @@ private:
     SkAutoMalloc        fColorTableStorage{kColorTableSize};
     Sk4f*               fColorTable;
 };
-
+#endif
+    
 template <SkGammaType gammaType>
 class PixelConverter<kGray_8_SkColorType, gammaType> {
 public:
