@@ -11,7 +11,7 @@
 #include "SkShaderBase.h"
 #include "SkBlendMode.h"
 
-class SkComposeShader : public SkShaderBase {
+class SkComposeShader final : public SkShaderBase {
 public:
     SkComposeShader(sk_sp<SkShader> dst, sk_sp<SkShader> src, SkBlendMode mode, float lerpT)
         : fDst(std::move(dst))
@@ -45,7 +45,7 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix* localM) const override;
 
-    bool isRasterPipelineOnly() const final { return true; }
+    bool onIsRasterPipelineOnly() const override { return true; }
 
 private:
     sk_sp<SkShader>     fDst;

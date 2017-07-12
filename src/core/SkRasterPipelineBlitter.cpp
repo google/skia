@@ -109,12 +109,15 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     bool is_constant  = shader->isConstant();
 
     // Check whether the shader prefers to run in burst mode.
-    if (auto* burstCtx = shader->makeBurstPipelineContext(
-        SkShaderBase::ContextRec(paint, ctm, nullptr, SkShaderBase::ContextRec::kPM4f_DstType,
-                                 dstCS), alloc)) {
-        return SkRasterPipelineBlitter::Create(dst, paint, alloc,
-                                               shaderPipeline, burstCtx,
-                                               is_opaque, is_constant);
+    // Note: we always use vanilla stages for perspective.
+    if (!ctm.hasPerspective()) {
+        if (auto* burstCtx = shader->makeBurstPipelineContext(
+            SkShaderBase::ContextRec(paint, ctm, nullptr, SkShaderBase::ContextRec::kPM4f_DstType,
+                                     dstCS), alloc)) {
+            return SkRasterPipelineBlitter::Create(dst, paint, alloc,
+                                                   shaderPipeline, burstCtx,
+                                                   is_opaque, is_constant);
+        }
     }
 
     if (shader->appendStages(&shaderPipeline, dstCS, alloc, ctm, paint)) {
