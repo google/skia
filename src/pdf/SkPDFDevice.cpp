@@ -87,6 +87,17 @@ sk_sp<SkImage> mask_to_greyscale_image(SkMask* mask) {
     return img;
 }
 
+sk_sp<SkImage> alpha_image_to_greyscale_image(const SkImage* mask) {
+    int w = mask->width(), h = mask->height();
+    SkBitmap greyBitmap;
+    greyBitmap.allocPixels(SkImageInfo::Make(w, h, kGray_8_SkColorType, kOpaque_SkAlphaType));
+    if (!mask->readPixels(SkImageInfo::MakeA8(w, h),
+                          greyBitmap.getPixels(), greyBitmap.rowBytes(), 0, 0)) {
+        return nullptr;
+    }
+    return SkImage::MakeFromBitmap(greyBitmap);
+}
+
 static void draw_points(SkCanvas::PointMode mode,
                         size_t count,
                         const SkPoint* points,
@@ -613,8 +624,7 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
     if (!contentEntry) {
         return;
     }
-    SkRect bbox = SkRect::MakeWH(SkIntToScalar(this->width()),
-                                 SkIntToScalar(this->height()));
+    SkRect bbox = SkRect::Make(fPageSize);
     SkMatrix inverse;
     if (!contentEntry->fState.fMatrix.invert(&inverse)) {
         return;
@@ -2201,6 +2211,49 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         }
     }
 
+    // TODO(halcanary) support isAlphaOnly & getMaskFilter.
+    bool imageAlphaOnly = imageSubset.image()->isAlphaOnly() && !paint.getMaskFilter();
+    if (imageAlphaOnly) {
+        if (SkColorFilter* colorFilter = paint.getColorFilter()) {
+            sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
+            paint.setColorFilter(nullptr);
+            imageSubset = SkKeyedImage(std::move(img));
+            if (!imageSubset) {
+                return;
+            }
+            imageAlphaOnly = imageSubset.image()->isAlphaOnly();
+            // The colorfilter can make a alphonly image no longer be alphaonly.
+        }
+    }
+    if (imageAlphaOnly) {
+        sk_sp<SkImage> mask = alpha_image_to_greyscale_image(imageSubset.image().get());
+        if (!mask) {
+            return;
+        }
+        // PDF doesn't seem to allow masking vector graphics with an Image XObject.
+        // Must mask with a Form XObject.
+        sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
+        {
+            SkCanvas canvas(maskDevice.get());
+            canvas.concat(transform);
+            canvas.concat(ctm);
+            // TODO(halcanary): investigate sub-pixel clipping.
+            canvas.drawImage(mask, 0, 0);
+        }
+        remove_color_filter(&paint);
+        if (!ctm.isIdentity() && paint.getShader()) {
+            transform_shader(&paint, ctm); // Since we are using identity matrix.
+        }
+        ScopedContentEntry content(this, this->cs(), SkMatrix::I(), paint);
+        if (!content.entry()) {
+            return;
+        }
+        this->addSMaskGraphicState(std::move(maskDevice), content.stream());
+        SkPDFUtils::AppendRectangle(SkRect::Make(fPageSize), content.stream());
+        SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kWinding_FillType, content.stream());
+        this->clearMaskOnGraphicState(content.stream());
+        return;
+    }
     if (paint.getMaskFilter()) {
         paint.setShader(imageSubset.image()->makeShader(&transform));
         SkPath path;
