@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86941e92_c8a19228",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-12T13:47:53Z",
+      "side": 1,
+      "message": "So it looks like we\u0027re introducing cflags_objcc to handle Objective C++, and leaving cflags_objc to handle Objective C only, yes? I\u0027m not sure about the fact that cflags_objcc doesn\u0027t inherit the settings from cflags_objc, such as those defined in the main BUILD.gn (or passed in manually) - is that intentional?",
+      "range": {
+        "startLine": 213,
+        "startChar": 108,
+        "endLine": 213,
+        "endChar": 120
+      },
+      "revId": "ee758502486e53527a382c53ac363f660eabe97a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
