@@ -439,6 +439,8 @@ public:
         return vbslq_s32(vreinterpretq_u32_s32(fVec), t.fVec, e.fVec);
     }
 
+    AI SkNx abs() const { return vabsq_s32(fVec); }
+
     int32x4_t fVec;
 };
 
