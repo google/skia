@@ -28,7 +28,11 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     mBitmap->appendS32(bitmap.height());
 
     const char* gColorTypeStrings[] = {
-        "None", "A8", "565", "4444", "RGBA", "BGRA", "Index8", "G8", "RGBAf16"
+        "None", "A8", "565", "4444", "RGBA", "BGRA",
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+        "Index8",
+#endif
+        "G8", "RGBAf16"
     };
     static_assert(kLastEnum_SkColorType + 1 == SK_ARRAY_COUNT(gColorTypeStrings),
                   "colortype names do not match colortype enum");
