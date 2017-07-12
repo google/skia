@@ -503,6 +503,7 @@ static const uint64_t f16[kNumPixels] = {
         kAlpha | kRed, kAlpha | kGreen, kAlpha | kBlue, kAlpha | kBlue | kGreen | kRed, kAlpha
 };
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 #ifdef SK_PMCOLOR_IS_RGBA
 static const SkPMColor index8colors[kNumPixels] = {
         0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF, 0xFF000000
@@ -513,6 +514,7 @@ static const SkPMColor index8colors[kNumPixels] = {
 };
 #endif
 static const uint8_t index8[kNumPixels] = { 0, 1, 2, 3, 4 };
+#endif
 static const uint8_t alpha8[kNumPixels] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 static const uint8_t gray8[kNumPixels] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
@@ -530,8 +532,10 @@ static const void* five_reference_pixels(SkColorType colorType) {
             return rgba;
         case kBGRA_8888_SkColorType:
             return bgra;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
             return index8;
+#endif
         case kGray_8_SkColorType:
             return gray8;
         case kRGBA_F16_SkColorType:
@@ -548,12 +552,18 @@ static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
         return;
     }
 
-    sk_sp<SkColorTable> srcColorTable = (kIndex_8_SkColorType == srcInfo.colorType())
-            ? sk_make_sp<SkColorTable>(index8colors, 5)
-            : nullptr;
-    sk_sp<SkColorTable> dstColorTable = (kIndex_8_SkColorType == dstInfo.colorType())
-            ? sk_make_sp<SkColorTable>(index8colors, 5)
-            : nullptr;
+    sk_sp<SkColorTable> srcColorTable =
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+            kIndex_8_SkColorType == srcInfo.colorType())
+            ? sk_make_sp<SkColorTable>(index8colors, 5) :
+#endif
+            nullptr;
+    sk_sp<SkColorTable> dstColorTable =
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+            (kIndex_8_SkColorType == dstInfo.colorType())
+            ? sk_make_sp<SkColorTable>(index8colors, 5) :
+#endif
+            nullptr;
 
     const void* srcPixels = five_reference_pixels(srcInfo.colorType());
     SkPixmap srcPixmap(srcInfo, srcPixels, srcInfo.minRowBytes(), srcColorTable.get());

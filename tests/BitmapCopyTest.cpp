@@ -21,12 +21,14 @@ static void init_src(const SkBitmap& bitmap) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 static sk_sp<SkColorTable> init_ctable() {
     static const SkColor colors[] = {
         SK_ColorBLACK, SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE
     };
     return SkColorTable::Make(colors, SK_ARRAY_COUNT(colors));
 }
+#endif
 
 struct Pair {
     SkColorType fColorType;
@@ -63,7 +65,9 @@ struct Coordinates {
 static const Pair gPairs[] = {
     { kUnknown_SkColorType,     "0000000"  },
     { kAlpha_8_SkColorType,     "0100000"  },
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     { kIndex_8_SkColorType,     "0101111"  },
+#endif
     { kRGB_565_SkColorType,     "0101011"  },
     { kARGB_4444_SkColorType,   "0101111"  },
     { kN32_SkColorType,         "0101111"  },
@@ -76,9 +80,11 @@ static const int H = 33;
 static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
     sk_sp<SkColorTable> ctable;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     if (kIndex_8_SkColorType == ct) {
         ctable = init_ctable();
     }
+#endif
 
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (kRGBA_F16_SkColorType == ct) {
@@ -117,8 +123,11 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
                 if (!success) {
                     // Skip checking that success matches fValid, which is redundant
                     // with the code below.
-                    REPORTER_ASSERT(reporter, kIndex_8_SkColorType == gPairs[i].fColorType ||
-                                              gPairs[i].fColorType != gPairs[j].fColorType);
+                    REPORTER_ASSERT(reporter,
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+                                    kIndex_8_SkColorType == gPairs[i].fColorType ||
+#endif
+                                    gPairs[i].fColorType != gPairs[j].fColorType);
                     continue;
                 }
 

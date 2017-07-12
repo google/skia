@@ -115,6 +115,7 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
             pngColorType = srcInfo.isOpaque() ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGB_ALPHA;
             fPngBytesPerPixel = 8;
             break;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
             sigBit.red = 8;
             sigBit.green = 8;
@@ -123,6 +124,7 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
             pngColorType = PNG_COLOR_TYPE_PALETTE;
             fPngBytesPerPixel = 1;
             break;
+#endif
         case kGray_8_SkColorType:
             sigBit.gray = 8;
             pngColorType = PNG_COLOR_TYPE_GRAY;
@@ -250,7 +252,9 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
                     SkASSERT(false);
                     return nullptr;
             }
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
         case kGray_8_SkColorType:
             return transform_scanline_memcpy;
         case kRGBA_F16_SkColorType:
@@ -270,6 +274,7 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 /*
  * Pack palette[] with the corresponding colors, and if the image has alpha, also
  * pack trans[] and return the number of alphas[] entries written. If the image is
@@ -331,6 +336,7 @@ static inline int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT pale
 
     return numWithAlpha;
 }
+#endif
 
 bool SkPngEncoderMgr::setPalette(const SkImageInfo& srcInfo, SkColorTable* colorTable,
                                  SkTransferFunctionBehavior unpremulBehavior) {
@@ -338,6 +344,7 @@ bool SkPngEncoderMgr::setPalette(const SkImageInfo& srcInfo, SkColorTable* color
         return false;
     }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     png_color paletteColors[256];
     png_byte trans[256];
     if (kIndex_8_SkColorType == srcInfo.colorType()) {
@@ -351,7 +358,7 @@ bool SkPngEncoderMgr::setPalette(const SkImageInfo& srcInfo, SkColorTable* color
             png_set_tRNS(fPngPtr, fInfoPtr, trans, numTrans, nullptr);
         }
     }
-
+#endif
     return true;
 }
 
