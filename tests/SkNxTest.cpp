@@ -212,6 +212,25 @@ DEF_TEST(SkNx_abs, r) {
     REPORTER_ASSERT(r, fs[3] == 4.0f);
 }
 
+DEF_TEST(Sk4i_abs, r) {
+    auto is = Sk4i(0, -1, 2, -2147483647).abs();
+    REPORTER_ASSERT(r, is[0] == 0);
+    REPORTER_ASSERT(r, is[1] == 1);
+    REPORTER_ASSERT(r, is[2] == 2);
+    REPORTER_ASSERT(r, is[3] == 2147483647);
+}
+
+DEF_TEST(Sk4i_minmax, r) {
+    auto a = Sk4i(0, 2, 4, 6);
+    auto b = Sk4i(1, 1, 3, 7);
+    auto min = Sk4i::Min(a, b);
+    auto max = Sk4i::Max(a, b);
+    for(int i = 0; i < 4; ++i) {
+        REPORTER_ASSERT(r, min[i] == SkTMin(a[i], b[i]));
+        REPORTER_ASSERT(r, max[i] == SkTMax(a[i], b[i]));
+    }
+}
+
 DEF_TEST(SkNx_floor, r) {
     auto fs = Sk4f(0.4f, -0.4f, 0.6f, -0.6f).floor();
     REPORTER_ASSERT(r, fs[0] ==  0.0f);
