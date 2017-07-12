@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4981df3f_d51cd5e0",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-12T20:22:46Z",
+      "side": 1,
+      "message": "The idea is to only use RP stages for perspective, so we can delete all the legacy perspective code.\n\nIf we allow burst mode w/ perspective, we end up creating a legacy context - then legacy cannot drop perspective.",
+      "parentUuid": "94029ad5_55d7ba8b",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "ff480836808ec20671fc831b2ef89b4c1a8ae706",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "939cfc28_df7aad7e",
         "filename": "src/shaders/SkShaderBase.h",
         "patchSetId": 6
