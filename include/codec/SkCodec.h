@@ -106,6 +106,21 @@ public:
         return NewFromData(sk_ref_sp(data), reader);
     }
 
+    /**
+     *  Create an SkCodec with possibly partial data.
+     *
+     *  @param SkStream Unlike NewFromStream, this version does *NOT* delete
+     *      the stream on failure, allowing the caller to add more data to the
+     *      stream and try again.
+     *  @param outResult If non-null, will be set to one of the following:
+     *      - kSuccess if an SkCodec is created
+     *      - kIncompleteInput if there is not enough data to create an SkCodec
+     *          (e.g. could not yet read the size)
+     *      - kInvalidInput if the stream is invalid
+     */
+    static std::unique<SkCodec> MakeIncremental(SkStream*, Result* outResult,
+            SkPngChunkReader* reader = nullptr);
+
     virtual ~SkCodec();
 
     /**
