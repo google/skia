@@ -42,7 +42,7 @@ to use SkPDF as a client calling Skia's public API.
 -----------------------------------------------------------------------------------
 
 SkPDFDevice is the main interface to the PDF backend. This child of
-SkDevice can be set on an SkPDFCanvas and drawn to.  Once drawing to
+SkDevice can be set on an SkCanvas and drawn to.  Once drawing to
 the canvas is complete (SkDocument::onEndPage() is called), the
 device's content and resouces are added to the SkPDFDocument that owns
 the device.  A new SkPDFDevice should be created for each page or

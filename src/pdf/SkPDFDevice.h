@@ -20,8 +20,9 @@
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "SkTextBlob.h"
+#include "SkKeyedImage.h"
 
-class SkImageSubset;
+class SkKeyedImage;
 class SkPath;
 class SkPDFArray;
 class SkPDFCanon;
@@ -246,10 +247,11 @@ private:
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 
-    void internalDrawImage(const SkMatrix& origMatrix,
-                           const SkClipStack& clipStack,
-                           SkImageSubset imageSubset,
-                           const SkPaint& paint);
+    void internalDrawImageRect(SkKeyedImage,
+                               const SkRect* src,
+                               const SkRect& dst,
+                               const SkPaint&,
+                               const SkMatrix& canvasTransformationMatrix);
 
     void internalDrawPath(const SkClipStack&,
                           const SkMatrix&,
