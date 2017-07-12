@@ -50,6 +50,10 @@ public:
         return std::unique_ptr<GrLegacyMeshDrawOp>(new PolyBoundsOp(rect, color));
     }
 
+    void gather(GrResourceAllocator*) const override {
+    
+    }
+
 private:
     PolyBoundsOp(const SkRect& rect, GrColor color)
             : INHERITED(ClassID(), outset(sorted_rect(rect)), color), fRect(outset(rect)) {}

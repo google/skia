@@ -86,7 +86,7 @@ sk_sp<GrTextureProxy> SkColorSpaceXformImageGenerator::onGenerateTexture(GrConte
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext = ctx->makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, fSrc.width(), fSrc.height(), kRGBA_8888_GrPixelConfig, nullptr);
+            SkBackingFit::kExact, fSrc.width(), fSrc.height(), kRGBA_8888_GrPixelConfig, nullptr, "onGenerateTexture");
     if (!renderTargetContext) {
         return nullptr;
     }

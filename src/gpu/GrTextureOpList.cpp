@@ -18,7 +18,7 @@
 GrTextureOpList::GrTextureOpList(GrResourceProvider* resourceProvider,
                                  GrTextureProxy* proxy,
                                  GrAuditTrail* auditTrail)
-    : INHERITED(resourceProvider, proxy, auditTrail) {
+    : INHERITED(resourceProvider, proxy, auditTrail, nullptr) {
 }
 
 GrTextureOpList::~GrTextureOpList() {
@@ -96,6 +96,10 @@ bool GrTextureOpList::copySurface(const GrCaps& caps,
 
     this->recordOp(std::move(op));
     return true;
+}
+
+void GrTextureOpList::gather(GrResourceAllocator*) const {
+
 }
 
 void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {

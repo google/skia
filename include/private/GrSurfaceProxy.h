@@ -315,6 +315,7 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    SkDEBUGCODE(bool isInstantiated() const { return SkToBool(fTarget); })
     SkDEBUGCODE(void validate(GrContext*) const;)
 
     // Provides access to functions that aren't part of the public API.

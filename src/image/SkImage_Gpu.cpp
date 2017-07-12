@@ -973,7 +973,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(fContext->makeDeferredRenderTargetContext(
-        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr));
+        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr, "onMakeColorSpace"));
     if (!renderTargetContext) {
         return nullptr;
     }

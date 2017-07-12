@@ -137,7 +137,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
     for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
         sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox, 1, 1, kRGBA_8888_GrPixelConfig, nullptr));
+                SkBackingFit::kApprox, 1, 1, kRGBA_8888_GrPixelConfig, nullptr, "test"));
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
@@ -288,7 +288,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     SkRandom random(seed);
 
     sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
+            SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr, "test");
     GrSurfaceDesc desc;
     desc.fWidth = 256;
     desc.fHeight = 256;

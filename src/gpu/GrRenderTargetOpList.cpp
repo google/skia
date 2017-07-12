@@ -12,6 +12,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrRect.h"
 #include "GrRenderTargetContext.h"
+#include "GrResourceAllocator.h"
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
@@ -25,8 +26,8 @@ static const int kMaxOpLookback = 10;
 static const int kMaxOpLookahead = 10;
 
 GrRenderTargetOpList::GrRenderTargetOpList(GrRenderTargetProxy* proxy, GrGpu* gpu,
-                                           GrAuditTrail* auditTrail)
-        : INHERITED(gpu->getContext()->resourceProvider(), proxy, auditTrail)
+                                           GrAuditTrail* auditTrail, const char* name)
+        : INHERITED(gpu->getContext()->resourceProvider(), proxy, auditTrail, name)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
     if (GrCaps::InstancedSupport::kNone != gpu->caps()->instancedSupport()) {
@@ -224,6 +225,26 @@ bool GrRenderTargetOpList::copySurface(const GrCaps& caps,
 
     this->recordOp(std::move(op), caps);
     return true;
+}
+
+void GrRenderTargetOpList::gather(GrResourceAllocator* alloc) const {
+    SkASSERT(!this->isInstantiated());
+
+    unsigned int cur = alloc->numOps();
+
+    SkDebugf("gather for opList %d: %s\n", this->uniqueID(), fName ? fName : "");
+
+    alloc->addInterval(fTarget.get()->underlyingUniqueID().asUInt(),
+                       cur, cur+fRecordedOps.count()-1);
+
+    for (int i = 0; i < fRecordedOps.count(); ++i) {
+        const GrOp* op = fRecordedOps[i].fOp.get();
+
+        op->gather(alloc);
+        SkDebugf("opList %d (%s): %d\n", this->uniqueID(), op->name(), cur+i);
+
+        alloc->incOps();
+    }
 }
 
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }

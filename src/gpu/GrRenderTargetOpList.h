@@ -37,7 +37,7 @@ private:
     using DstProxy = GrXferProcessor::DstProxy;
 
 public:
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*, const char*);
 
     ~GrRenderTargetOpList() override;
 
@@ -127,6 +127,8 @@ private:
         DstProxy              fDstProxy;
         const GrAppliedClip*  fAppliedClip;
     };
+
+    void gather(GrResourceAllocator*) const override;
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it
     // returns the input op.

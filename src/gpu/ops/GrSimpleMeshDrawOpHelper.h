@@ -206,6 +206,11 @@ public:
                 std::move(paint), std::forward<OpArgs>(opArgs)...);
     }
 
+    void gather(GrResourceAllocator*) const {
+    
+    }
+
+
     GrSimpleMeshDrawOpHelperWithStencil(const MakeArgs& args, GrAAType aaType,
                                         const GrUserStencilSettings* stencilSettings,
                                         Flags flags = Flags::kNone)
