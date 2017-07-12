@@ -667,9 +667,10 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     fWindow->detach();
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
-    // Switching from OpenGL to Vulkan in the same window is problematic at this point on
-    // Windows, so we just delete the window and recreate it.
-    if (sk_app::Window::kVulkan_BackendType == fBackendType) {
+    // Switching from OpenGL to Vulkan (or vice-versa on some systems) in the same window is
+    // problematic at this point on Windows, so we just delete the window and recreate it.
+    if (sk_app::Window::kVulkan_BackendType == fBackendType ||
+            sk_app::Window::kNativeGL_BackendType == fBackendType) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         delete fWindow;
         fWindow = Window::CreateNativeWindow(nullptr);
