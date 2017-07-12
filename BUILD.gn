@@ -531,10 +531,12 @@ optional("gpu") {
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
+  cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     libs += [ "Metal.framework" ]
+    cflags_objcc += [ "-fobjc-arc" ]
   }
 }
 
@@ -972,6 +974,8 @@ if (skia_enable_tools) {
           "OpenGL32.lib",
         ]
       }
+
+      cflags_objcc = [ "-fobjc-arc" ]
 
       if (skia_use_angle) {
         deps += [ "//third_party/angle2" ]
