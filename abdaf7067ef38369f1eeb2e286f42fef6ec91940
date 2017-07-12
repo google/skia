@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "030a659d_26242969",
+        "filename": "src/ports/SkDebug_android.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-12T18:17:10Z",
+      "side": 1,
+      "message": "I think you don\u0027t want the \u0027static\u0027 here. I\u0027m pretty sure this forces the compiler to actually create storage in the rodata section for the value 1024.",
+      "range": {
+        "startLine": 33,
+        "startChar": 4,
+        "endLine": 33,
+        "endChar": 11
+      },
+      "revId": "abdaf7067ef38369f1eeb2e286f42fef6ec91940",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
