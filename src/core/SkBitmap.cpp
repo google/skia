@@ -242,9 +242,11 @@ bool SkBitmap::tryAllocPixels(Allocator* allocator, SkColorTable* ctable) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     if (kIndex_8_SkColorType == requestedInfo.colorType()) {
         return reset_return_false(this);
     }
+#endif
     if (!this->setInfo(requestedInfo, rowBytes)) {
         return reset_return_false(this);
     }
@@ -268,9 +270,11 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
 
 bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, sk_sp<SkColorTable> ctable,
                               uint32_t allocFlags) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     if (kIndex_8_SkColorType == requestedInfo.colorType() && nullptr == ctable) {
         return reset_return_false(this);
     }
+#endif
     if (!this->setInfo(requestedInfo)) {
         return reset_return_false(this);
     }
@@ -428,7 +432,9 @@ void* SkBitmap::getAddr(int x, int y) const {
                 base += x << 1;
                 break;
             case kAlpha_8_SkColorType:
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
             case kIndex_8_SkColorType:
+#endif
             case kGray_8_SkColorType:
                 base += x;
                 break;
@@ -449,7 +455,9 @@ void SkBitmap::erase(SkColor c, const SkIRect& area) const {
 
     switch (fInfo.colorType()) {
         case kUnknown_SkColorType:
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
             // TODO: can we ASSERT that we never get here?
             return; // can't erase. Should we bzero so the memory is not uninitialized?
         default:
@@ -651,11 +659,14 @@ static void write_raw_pixels(SkWriteBuffer* buffer, const SkPixmap& pmap) {
     }
     buffer->writeByteArray(storage.get(), size);
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     const SkColorTable* ct = pmap.ctable();
     if (kIndex_8_SkColorType == info.colorType() && ct) {
         buffer->writeBool(true);
         ct->writeToBuffer(*buffer);
-    } else {
+    } else
+#endif
+    {
         buffer->writeBool(false);
     }
 }
