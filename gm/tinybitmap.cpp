@@ -14,14 +14,9 @@
 namespace skiagm {
 
 static SkBitmap make_bitmap() {
-    const SkPMColor c[] = { SkPackARGB32(0x80, 0x80, 0, 0) };
-
     SkBitmap bm;
-    bm.allocPixels(SkImageInfo::Make(1, 1, kIndex_8_SkColorType,
-                                     kPremul_SkAlphaType),
-                   SkColorTable::Make(c, SK_ARRAY_COUNT(c)));
-
-    *bm.getAddr8(0, 0) = 0;
+    bm.allocN32Pixels(1, 1);
+    *bm.getAddr32(0, 0) = SkPackARGB32(0x80, 0x80, 0, 0);
     return bm;
 }
 
