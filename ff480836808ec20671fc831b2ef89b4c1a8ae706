@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "939cfc28_df7aad7e",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-12T18:13:21Z",
+      "side": 1,
+      "message": "since we\u0027re not checking here (which seems fine), should we assert that ctm is not perspective?",
+      "range": {
+        "startLine": 215,
+        "startChar": 21,
+        "endLine": 215,
+        "endChar": 24
+      },
+      "revId": "ff480836808ec20671fc831b2ef89b4c1a8ae706",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
