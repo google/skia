@@ -71,7 +71,9 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
                 alphaType = kPremul_SkAlphaType;
             }
             // fall-through
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:

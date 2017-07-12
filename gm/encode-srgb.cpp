@@ -25,9 +25,11 @@ namespace skiagm {
 static const int imageWidth = 128;
 static const int imageHeight = 128;
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 static inline int div_round_up(int a, int b) {
     return (a + b - 1) / b;
 }
+#endif
 
 sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorType colorType) {
     if (kRGBA_F16_SkColorType == colorType) {
@@ -41,6 +43,7 @@ sk_sp<SkColorSpace> fix_for_colortype(sk_sp<SkColorSpace> colorSpace, SkColorTyp
     return colorSpace;
 }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     const SkColor colors[] = {
             0x800000FF, 0x8000FF00, 0x80FF0000, 0x80FFFF00,
@@ -81,14 +84,17 @@ static void make_index8(SkBitmap* bitmap, SkAlphaType alphaType, sk_sp<SkColorSp
         }
     }
 }
+#endif
 
 static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
                  sk_sp<SkColorSpace> colorSpace) {
     const char* resource;
     switch (colorType) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
             make_index8(bitmap, alphaType, colorSpace);
             return;
+#endif
         case kGray_8_SkColorType:
             resource = "grayscale.jpg";
             alphaType = kOpaque_SkAlphaType;
@@ -173,8 +179,13 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         const SkColorType colorTypes[] = {
-                kN32_SkColorType, kRGBA_F16_SkColorType, kIndex_8_SkColorType, kGray_8_SkColorType,
-                kRGB_565_SkColorType,
+            kN32_SkColorType,
+            kRGBA_F16_SkColorType,
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+            kIndex_8_SkColorType,
+#endif
+            kGray_8_SkColorType,
+            kRGB_565_SkColorType,
         };
         const SkAlphaType alphaTypes[] = {
                 kUnpremul_SkAlphaType, kPremul_SkAlphaType, kOpaque_SkAlphaType,
