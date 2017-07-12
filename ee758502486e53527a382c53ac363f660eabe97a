@@ -46,6 +46,30 @@
       "revId": "ee758502486e53527a382c53ac363f660eabe97a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75d16485_1772b468",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-12T14:29:19Z",
+      "side": 1,
+      "message": "It\u0027s hard to think of a situation where you\u0027d want a setting enabled on Objective C and not also want it for Objective C++; I don\u0027t think the situation is as analogous to C and C++ as the names make it sound. Unless someone feels differently, I\u0027d suggest also passing cflags_objc in here.",
+      "parentUuid": "ddc46f78_00f3205e",
+      "range": {
+        "startLine": 213,
+        "startChar": 108,
+        "endLine": 213,
+        "endChar": 120
+      },
+      "revId": "ee758502486e53527a382c53ac363f660eabe97a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
