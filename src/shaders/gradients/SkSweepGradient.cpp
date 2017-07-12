@@ -98,21 +98,13 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
     int                 toggle = init_dither_toggle(x, y);
     SkPoint             srcPt;
 
-    if (fDstToIndexClass != kPerspective_MatrixClass) {
-        proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
-                     SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkScalar dx, fx = srcPt.fX;
-        SkScalar dy, fy = srcPt.fY;
+    proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
+                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+    SkScalar fx = srcPt.fX,
+             fy = srcPt.fY;
 
-        if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-            const auto step = matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf);
-            dx = step.fX;
-            dy = step.fY;
-        } else {
-            SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = matrix.getScaleX();
-            dy = matrix.getSkewY();
-        }
+    SkScalar dx = matrix.getScaleX(),
+             dy = matrix.getSkewY();
 
         for (; count > 0; --count) {
             *dstC++ = cache[toggle + SkATan2_255(fy, fx)];
@@ -120,14 +112,6 @@ void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* S
             fy += dy;
             toggle = next_dither_toggle(toggle);
         }
-    } else {  // perspective case
-        for (int stop = x + count; x < stop; x++) {
-            proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
-                         SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-            *dstC++ = cache[toggle + SkATan2_255(srcPt.fY, srcPt.fX)];
-            toggle = next_dither_toggle(toggle);
-        }
-    }
 }
 
 /////////////////////////////////////////////////////////////////////
