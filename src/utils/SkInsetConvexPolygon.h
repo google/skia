@@ -37,6 +37,20 @@ inline bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPoly
 }
 
 /**
+* Generates a polygon that is offset a given distance from the boundary of a given polygon.
+*
+* @param inputPolygonVerts  Array of points representing the vertices of the original polygon.
+*  It should be convex and have no coincident points.
+* @param inputPolygonSize  Number of vertices in the original polygon.
+* @param offset  How far we wish to offset the polygon for a given index in the array.
+*                Positive values are insets, negative values are outsets.
+* @param insetPolygon  The resulting offset polygon, if any.
+* @return true if an offset polygon exists, false otherwise.
+*/
+bool SkOffsetPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
+                     SkScalar offset, SkTDArray<SkPoint>* offsetPolygon);
+
+/**
  * Offset a segment by the given distance at each point.
  * Uses the outer tangents of two circles centered on each endpoint.
  * See: https://en.wikipedia.org/wiki/Tangent_lines_to_circles

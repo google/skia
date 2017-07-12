@@ -9,7 +9,7 @@
 
 #include "SkTemplates.h"
 
-struct InsetSegment {
+struct OffsetSegment {
     SkPoint fP0;
     SkPoint fP1;
 };
@@ -94,7 +94,7 @@ bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar
 // Compute the intersection 'p' between segments s0 and s1, if any.
 // 's' is the parametric value for the intersection along 's0' & 't' is the same for 's1'.
 // Returns false if there is no intersection.
-static bool compute_intersection(const InsetSegment& s0, const InsetSegment& s1,
+static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s1,
                                  SkPoint* p, SkScalar* s, SkScalar* t) {
     SkVector v0 = s0.fP1 - s0.fP0;
     SkVector v1 = s1.fP1 - s1.fP0;
@@ -189,7 +189,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     // set up
     struct EdgeData {
-        InsetSegment fInset;
+        OffsetSegment fInset;
         SkPoint      fIntersection;
         SkScalar     fTValue;
         bool         fValid;
@@ -288,3 +288,91 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     return (insetPolygon->count() >= 3);
 }
+
+static void compute_radial_steps(const SkVector& v1, const SkVector& v2, SkScalar r,
+                                 SkScalar* rotSin, SkScalar* rotCos, int* n) {
+    const SkScalar kRecipPixelsPerArcSegment = 0.25f;
+
+    SkScalar rCos = v1.dot(v2);
+    SkScalar rSin = v1.cross(v2);
+    SkScalar theta = SkScalarATan2(rSin, rCos);
+
+    int steps = SkScalarFloorToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
+
+    SkScalar dTheta = theta / steps;
+    *rotSin = SkScalarSinCos(dTheta, rotCos);
+    *n = steps;
+}
+
+
+bool SkOffsetPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
+                     SkScalar offset, SkTDArray<SkPoint>* offsetPolygon) {
+    if (inputPolygonSize < 3) {
+        return false;
+    }
+
+    int winding = get_winding(inputPolygonVerts, inputPolygonSize);
+    if (0 == winding) {
+        return false;
+    }
+
+    SkAutoSTMalloc<64, OffsetSegment> offsets(inputPolygonSize);
+    for (int i = 0; i < inputPolygonSize; ++i) {
+        int j = (i + 1) % inputPolygonSize;
+        SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
+                        offset, offset, winding,
+                        &offsets[i].fP0, &offsets[i].fP1);
+    }
+
+    offsetPolygon->reset();
+    offsetPolygon->setReserve(inputPolygonSize);
+
+    int prevIndex = inputPolygonSize - 1;
+    int currIndex = 0;
+    int nextIndex = 1;
+    int insetVertexCount = inputPolygonSize;
+    int i = 0;
+    while (currIndex < inputPolygonSize) {
+        int side = compute_side(inputPolygonVerts[prevIndex],
+                                inputPolygonVerts[currIndex],
+                                inputPolygonVerts[nextIndex]);
+
+        if (side*winding*offset > 0) {
+            SkPoint intersection;
+            float s, t;
+            // pre-cull simple intersections
+            if (compute_intersection(offsets[prevIndex], offsets[currIndex],
+                                     &intersection, &s, &t)) {
+                *offsetPolygon->push() = intersection;
+            } else {
+                *offsetPolygon->push() = offsets[prevIndex].fP1;
+                *offsetPolygon->push() = inputPolygonVerts[currIndex];
+                *offsetPolygon->push() = offsets[currIndex].fP0;
+            }
+        } else {
+            *offsetPolygon->push() = offsets[prevIndex].fP1;
+            // add arc
+            SkVector prevNormal = offsets[prevIndex].fP1 - inputPolygonVerts[currIndex];
+            SkVector nextNormal = offsets[currIndex].fP0 - inputPolygonVerts[currIndex];
+            SkScalar rotSin, rotCos;
+            int numSteps;
+            compute_radial_steps(prevNormal, nextNormal, SkScalarAbs(offset),
+                                 &rotSin, &rotCos, &numSteps);
+            for (int i = 0; i < numSteps - 1; ++i) {
+                SkVector currNormal;
+                currNormal.fX = prevNormal.fX*rotCos - prevNormal.fY*rotSin;
+                currNormal.fY = prevNormal.fY*rotCos + prevNormal.fX*rotSin;
+                *offsetPolygon->push() = inputPolygonVerts[currIndex] + currNormal;
+                prevNormal = currNormal;
+            }
+            *offsetPolygon->push() = offsets[currIndex].fP0;
+        }
+
+        prevIndex = currIndex;
+        currIndex++;
+        nextIndex = (nextIndex + 1) % inputPolygonSize;
+    }
+
+    return true;
+}
+
