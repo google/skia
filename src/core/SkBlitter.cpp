@@ -810,7 +810,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     }
 
     // ... or unless we have to deal with perspective.
-    if (matrix.getType() & SkMatrix::kPerspective_Mask) {
+    if (matrix.hasPerspective()) {
         return true;
     }
 
