@@ -90,6 +90,8 @@ static bool valid_for_filtering(unsigned dimension) {
 }
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
+    SkASSERT(!inv.hasPerspective());
+
     fPixmap.reset();
     fInvMatrix = inv;
     fFilterQuality = paint.getFilterQuality();
@@ -648,7 +650,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::getMatrixProc() const {
     scale/translate     nofilter      Y(4bytes) + N * X
     affine/perspective  nofilter      N * (X Y)
     scale/translate     filter        Y Y + N * (X X)
-    affine/perspective  filter        N * (Y Y X X)
+    affine              filter        N * (Y Y X X)
  */
 int SkBitmapProcState::maxCountForBufferSize(size_t bufferSize) const {
     int32_t size = static_cast<int32_t>(bufferSize);

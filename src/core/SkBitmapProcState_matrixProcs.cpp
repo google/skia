@@ -14,7 +14,6 @@
  */
 
 #include "SkBitmapProcState.h"
-#include "SkPerspIter.h"
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkUtilsArm.h"
@@ -89,8 +88,6 @@ static SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
     ClampX_ClampY_filter_scale,
     ClampX_ClampY_nofilter_affine,
     ClampX_ClampY_filter_affine,
-    NoFilterProc_Persp<ClampTileProcs>,
-    ClampX_ClampY_filter_persp
 };
 
 #define MAKENAME(suffix)         RepeatX_RepeatY ## suffix
@@ -115,8 +112,6 @@ static SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
     RepeatX_RepeatY_filter_scale,
     NoFilterProc_Affine<RepeatTileProcs>,
     RepeatX_RepeatY_filter_affine,
-    NoFilterProc_Persp<RepeatTileProcs>,
-    RepeatX_RepeatY_filter_persp
 };
 #endif
 
@@ -146,8 +141,6 @@ static SkBitmapProcState::MatrixProc GeneralXY_Procs[] = {
     GeneralXY_filter_scale,
     NoFilterProc_Affine<GeneralTileProcs>,
     GeneralXY_filter_affine,
-    NoFilterProc_Persp<GeneralTileProcs>,
-    GeneralXY_filter_persp
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -449,6 +442,8 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
+    SkASSERT((fInvType & SkMatrix::kPerspective_Mask) == 0);
+
 //    test_int_tileprocs();
     // check for our special case when there is no scale/affine/perspective
     if (trivial_matrix && kNone_SkFilterQuality == fFilterQuality) {
@@ -467,9 +462,7 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool trivial_m
     if (fFilterQuality != kNone_SkFilterQuality) {
         index = 1;
     }
-    if (fInvType & SkMatrix::kPerspective_Mask) {
-        index += 4;
-    } else if (fInvType & SkMatrix::kAffine_Mask) {
+    if (fInvType & SkMatrix::kAffine_Mask) {
         index += 2;
     }
 
