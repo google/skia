@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3459aa3_9e5863ea",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-12T20:15:33Z",
+      "side": 1,
+      "message": "I think you can just write\n\n   cflags_objcc \u003d [ \"-fobjc-arc\" ]\n\nNo one uses objective c++ except on iOS or Mac.",
+      "range": {
+        "startLine": 983,
+        "startChar": 0,
+        "endLine": 986,
+        "endChar": 7
+      },
+      "revId": "94eb20181b9c3084beb432ff181ff7133c7c066f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
