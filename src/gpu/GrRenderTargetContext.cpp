@@ -847,16 +847,11 @@ void GrRenderTargetContext::drawVertices(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     SkASSERT(vertices);
-    std::unique_ptr<GrLegacyMeshDrawOp> op = GrDrawVerticesOp::Make(paint.getColor(),
-                                                                    std::move(vertices), viewMatrix,
-                                                                    this->isGammaCorrect(),
-                                                                    fColorXformFromSRGB,
-                                                                    overridePrimType);
-    if (!op) {
-        return;
-    }
-    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
+    std::unique_ptr<GrDrawOp> op =
+            GrDrawVerticesOp::Make(std::move(paint), std::move(vertices), viewMatrix, aaType,
+                                   this->isGammaCorrect(), fColorXformFromSRGB, overridePrimType);
+    this->addDrawOp(clip, std::move(op));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
