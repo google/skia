@@ -437,7 +437,7 @@ void SkLightingShaderImpl::flatten(SkWriteBuffer& buf) const {
     fLights->flatten(buf);
 
     buf.writeFlattenable(fNormalSource.get());
-    buf.writeBool(fDiffuseShader);
+    buf.writeBool(static_cast<bool>(fDiffuseShader));
     if (fDiffuseShader) {
         buf.writeFlattenable(fDiffuseShader.get());
     }
