@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "198a386e_0bb5e94c",
+        "filename": "src/core/SkScan_Hairline.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-12T15:17:01Z",
+      "side": 1,
+      "message": "I feel like this change isn\u0027t entirely correct, and that there ought to be an extra check here:\nif (SkPath::Close_Verb !\u003d nextVerb || tangentWasZero) { ... }\n\nHowever, I ran all GMs locally, and the only one that changed was my new zero-length path test. It\u0027s likely that the overdraw introduced (for non-degenerate closed paths) just doesn\u0027t touch any new pixels?",
+      "revId": "65cd152fffa3751d5965f99658bf8be1a428c9c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
