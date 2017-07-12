@@ -1268,57 +1268,6 @@ SkVector SkMatrix::fixedStepInX(SkScalar y) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPerspIter.h"
-
-SkPerspIter::SkPerspIter(const SkMatrix& m, SkScalar x0, SkScalar y0, int count)
-        : fMatrix(m), fSX(x0), fSY(y0), fCount(count) {
-    SkPoint pt;
-
-    SkMatrix::Persp_xy(m, x0, y0, &pt);
-    fX = SkScalarToFixed(pt.fX);
-    fY = SkScalarToFixed(pt.fY);
-}
-
-int SkPerspIter::next() {
-    int n = fCount;
-
-    if (0 == n) {
-        return 0;
-    }
-    SkPoint pt;
-    SkFixed x = fX;
-    SkFixed y = fY;
-    SkFixed dx, dy;
-
-    if (n >= kCount) {
-        n = kCount;
-        fSX += SkIntToScalar(kCount);
-        SkMatrix::Persp_xy(fMatrix, fSX, fSY, &pt);
-        fX = SkScalarToFixed(pt.fX);
-        fY = SkScalarToFixed(pt.fY);
-        dx = (fX - x) >> kShift;
-        dy = (fY - y) >> kShift;
-    } else {
-        fSX += SkIntToScalar(n);
-        SkMatrix::Persp_xy(fMatrix, fSX, fSY, &pt);
-        fX = SkScalarToFixed(pt.fX);
-        fY = SkScalarToFixed(pt.fY);
-        dx = (fX - x) / n;
-        dy = (fY - y) / n;
-    }
-
-    SkFixed* p = fStorage;
-    for (int i = 0; i < n; i++) {
-        *p++ = x; x += dx;
-        *p++ = y; y += dy;
-    }
-
-    fCount -= n;
-    return n;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static inline bool checkForZero(float x) {
     return x*x == 0;
 }

@@ -11,8 +11,6 @@
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
 #define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
 #define AFFINE_FILTER_NAME      MAKENAME(_filter_affine)
-#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp)
-#define PERSP_FILTER_NAME       MAKENAME(_filter_persp)
 
 #define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
 #define PACK_FILTER_Y_NAME  MAKENAME(_pack_filter_y)
@@ -177,55 +175,6 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
         *xy++ = (TILEY_PROCF(SkFractionalIntToFixed(fy), maxY) << 16) |
                  TILEX_PROCF(SkFractionalIntToFixed(fx), maxX);
         fx += dx; fy += dy;
-    }
-}
-
-static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
-                                uint32_t* SK_RESTRICT xy,
-                                int count, int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-
-    PREAMBLE(s);
-    // max{X,Y} are int here, but later shown/assumed to fit in 16 bits
-    int maxX = s.fPixmap.width() - 1;
-    int maxY = s.fPixmap.height() - 1;
-
-    SkPerspIter iter(s.fInvMatrix,
-                     SkIntToScalar(x) + SK_ScalarHalf,
-                     SkIntToScalar(y) + SK_ScalarHalf, count);
-
-    while ((count = iter.next()) != 0) {
-        const SkFixed* SK_RESTRICT srcXY = iter.getXY();
-
-        if (count >= 8) {
-            int32_t *mysrc = (int32_t *) srcXY;
-            int16_t *mydst = (int16_t *) xy;
-            do {
-                int16x8x2_t hi16;
-                int32x4x2_t xy1, xy2;
-
-                xy1 = vld2q_s32(mysrc);
-                xy2 = vld2q_s32(mysrc+8);
-
-                hi16.val[0] = TILEX_PROCF_NEON8(xy1.val[0], xy2.val[0], maxX);
-                hi16.val[1] = TILEY_PROCF_NEON8(xy1.val[1], xy2.val[1], maxY);
-
-                vst2q_s16(mydst, hi16);
-
-                count -= 8;  // 8 iterations
-                mysrc += 16; // 16 longs
-                mydst += 16; // 16 shorts, aka 8 longs
-            } while (count >= 8);
-            // get xy and srcXY fixed up
-            srcXY = (const SkFixed *) mysrc;
-            xy = (uint32_t *) mydst;
-        }
-
-        while (--count >= 0) {
-            *xy++ = (TILEY_PROCF(srcXY[1], maxY) << 16) |
-                     TILEX_PROCF(srcXY[0], maxX);
-            srcXY += 2;
-        }
     }
 }
 
@@ -410,65 +359,11 @@ static void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
     }
 }
 
-static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
-                              uint32_t* SK_RESTRICT xy, int count,
-                              int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-
-    PREAMBLE(s);
-    unsigned maxX = s.fPixmap.width() - 1;
-    unsigned maxY = s.fPixmap.height() - 1;
-    SkFixed oneX = s.fFilterOneX;
-    SkFixed oneY = s.fFilterOneY;
-
-    SkPerspIter iter(s.fInvMatrix,
-                     SkIntToScalar(x) + SK_ScalarHalf,
-                     SkIntToScalar(y) + SK_ScalarHalf, count);
-
-    while ((count = iter.next()) != 0) {
-        const SkFixed* SK_RESTRICT srcXY = iter.getXY();
-
-        while (count >= 4) {
-            int32x4_t wide_x, wide_y;
-            int32x4x2_t vxy, vresyx;
-
-            // load src:  x-y-x-y-x-y-x-y
-            vxy = vld2q_s32(srcXY);
-
-            // do the X side, then the Y side, then interleave them
-            wide_x = vsubq_s32(vxy.val[0], vdupq_n_s32(oneX>>1));
-            wide_y = vsubq_s32(vxy.val[1], vdupq_n_s32(oneY>>1));
-
-            vresyx.val[0] = PACK_FILTER_Y4_NAME(wide_y, maxY, oneY PREAMBLE_ARG_Y);
-            vresyx.val[1] = PACK_FILTER_X4_NAME(wide_x, maxX, oneX PREAMBLE_ARG_X);
-
-            // store interleaved as y-x-y-x-y-x-y-x (NB != read order)
-            vst2q_s32((int32_t*)xy, vresyx);
-
-            // on to the next iteration
-            srcXY += 2*4;
-            count -= 4;
-            xy += 2*4;
-        }
-
-        while (--count >= 0) {
-            // NB: we read x/y, we write y/x
-            *xy++ = PACK_FILTER_Y_NAME(srcXY[1] - (oneY >> 1), maxY,
-                                       oneY PREAMBLE_ARG_Y);
-            *xy++ = PACK_FILTER_X_NAME(srcXY[0] - (oneX >> 1), maxX,
-                                       oneX PREAMBLE_ARG_X);
-            srcXY += 2;
-        }
-    }
-}
-
 const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
     SCALE_NOFILTER_NAME,
     SCALE_FILTER_NAME,
     AFFINE_NOFILTER_NAME,
     AFFINE_FILTER_NAME,
-    PERSP_NOFILTER_NAME,
-    PERSP_FILTER_NAME
 };
 
 #undef TILEX_PROCF_NEON8
@@ -488,8 +383,6 @@ const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
 #undef SCALE_FILTER_NAME
 #undef AFFINE_NOFILTER_NAME
 #undef AFFINE_FILTER_NAME
-#undef PERSP_NOFILTER_NAME
-#undef PERSP_FILTER_NAME
 
 #undef PREAMBLE
 #undef PREAMBLE_PARAM_X
