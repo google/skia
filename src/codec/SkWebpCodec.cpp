@@ -311,7 +311,9 @@ static void pick_memory_stages(SkColorType ct, SkRasterPipeline::StockStage* loa
         case kUnknown_SkColorType:
         case kAlpha_8_SkColorType:
         case kARGB_4444_SkColorType:
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
         case kGray_8_SkColorType:
             SkASSERT(false);
             break;

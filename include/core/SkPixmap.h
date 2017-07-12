@@ -30,9 +30,12 @@ public:
              SkColorTable* ctable = NULL)
         : fPixels(addr), fCTable(ctable), fRowBytes(rowBytes), fInfo(info)
     {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         if (kIndex_8_SkColorType == info.colorType()) {
             SkASSERT(ctable);
-        } else {
+        } else
+#endif
+        {
             SkASSERT(NULL == ctable);
         }
     }
