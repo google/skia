@@ -60,6 +60,7 @@ GrDrawVerticesOp::GrDrawVerticesOp(sk_sp<SkVertices> vertices, GrPrimitiveType p
     IsZeroArea zeroArea;
     if (GrIsPrimTypeLines(primitiveType) || GrPrimitiveType::kPoints == primitiveType) {
         zeroArea = IsZeroArea::kYes;
+
     } else {
         zeroArea = IsZeroArea::kNo;
     }
