@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "489d2b4a_b07e48c8",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-12T20:26:04Z",
+      "side": 1,
+      "message": "(and yes, to actually answer your question: none of the legacy impls can handle burst effectively with perspective, they all fall back to some slow path)",
+      "parentUuid": "4981df3f_d51cd5e0",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "ff480836808ec20671fc831b2ef89b4c1a8ae706",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "939cfc28_df7aad7e",
         "filename": "src/shaders/SkShaderBase.h",
         "patchSetId": 6
