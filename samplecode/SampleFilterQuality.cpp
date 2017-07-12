@@ -147,7 +147,7 @@ class FilterQualityView : public SampleView {
     bool            fShowFatBits;
 
 public:
-    FilterQualityView() : fImage(make_image()), fTrans(2, 2), fShowFatBits(true) {
+    FilterQualityView() : fTrans(2, 2), fShowFatBits(true) {
         fCell.set(256, 256);
 
         fScale.set(1, SK_Scalar1 / 8, 1);
@@ -248,6 +248,10 @@ protected:
         canvas->drawRect(r, p);
         canvas->drawLine(r.left(), r.centerY(), r.right(), r.centerY(), p);
         canvas->drawLine(r.centerX(), r.top(), r.centerX(), r.bottom(), p);
+    }
+
+    void onOnceBeforeDraw() override {
+        fImage = make_image();
     }
 
     void onDrawContent(SkCanvas* canvas) override {
