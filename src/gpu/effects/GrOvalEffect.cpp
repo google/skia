@@ -7,6 +7,7 @@
 
 #include "GrOvalEffect.h"
 
+#include "GrCircleEffect.h"
 #include "GrFragmentProcessor.h"
 #include "SkRect.h"
 #include "GrShaderCaps.h"
@@ -15,167 +16,6 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #include "../private/GrGLSL.h"
-
-//////////////////////////////////////////////////////////////////////////////
-
-class CircleEffect : public GrFragmentProcessor {
-public:
-    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPoint& center,
-                                           SkScalar radius);
-
-    ~CircleEffect() override {}
-
-    const char* name() const override { return "Circle"; }
-
-    const SkPoint& getCenter() const { return fCenter; }
-    SkScalar getRadius() const { return fRadius; }
-
-    GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
-
-private:
-    CircleEffect(GrPrimitiveEdgeType, const SkPoint& center, SkScalar radius);
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
-
-    bool onIsEqual(const GrFragmentProcessor&) const override;
-
-    SkPoint             fCenter;
-    SkScalar            fRadius;
-    GrPrimitiveEdgeType    fEdgeType;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    typedef GrFragmentProcessor INHERITED;
-};
-
-sk_sp<GrFragmentProcessor> CircleEffect::Make(GrPrimitiveEdgeType edgeType, const SkPoint& center,
-                                              SkScalar radius) {
-    SkASSERT(radius >= 0);
-    return sk_sp<GrFragmentProcessor>(new CircleEffect(edgeType, center, radius));
-}
-
-CircleEffect::CircleEffect(GrPrimitiveEdgeType edgeType, const SkPoint& c, SkScalar r)
-        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fCenter(c)
-        , fRadius(r)
-        , fEdgeType(edgeType) {
-    this->initClassID<CircleEffect>();
-}
-
-bool CircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
-    const CircleEffect& ce = other.cast<CircleEffect>();
-    return fEdgeType == ce.fEdgeType && fCenter == ce.fCenter && fRadius == ce.fRadius;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircleEffect);
-
-#if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> CircleEffect::TestCreate(GrProcessorTestData* d) {
-    SkPoint center;
-    center.fX = d->fRandom->nextRangeScalar(0.f, 1000.f);
-    center.fY = d->fRandom->nextRangeScalar(0.f, 1000.f);
-    SkScalar radius = d->fRandom->nextRangeF(0.f, 1000.f);
-    GrPrimitiveEdgeType et;
-    do {
-        et = (GrPrimitiveEdgeType)d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt);
-    } while (kHairlineAA_GrProcessorEdgeType == et);
-    return CircleEffect::Make(et, center, radius);
-}
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-
-class GLCircleEffect : public GrGLSLFragmentProcessor {
-public:
-    GLCircleEffect() : fPrevRadius(-1.0f) { }
-
-    virtual void emitCode(EmitArgs&) override;
-
-    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*);
-
-protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
-
-private:
-    GrGLSLProgramDataManager::UniformHandle fCircleUniform;
-    SkPoint                                 fPrevCenter;
-    SkScalar                                fPrevRadius;
-
-    typedef GrGLSLFragmentProcessor INHERITED;
-};
-
-void GLCircleEffect::emitCode(EmitArgs& args) {
-    const CircleEffect& ce = args.fFp.cast<CircleEffect>();
-    const char *circleName;
-    // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
-    // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
-    fCircleUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                      kVec4f_GrSLType, kDefault_GrSLPrecision,
-                                                      "circle",
-                                                      &circleName);
-
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-
-    SkASSERT(kHairlineAA_GrProcessorEdgeType != ce.getEdgeType());
-    // TODO: Right now the distance to circle caclulation is performed in a space normalized to the
-    // radius and then denormalized. This is to prevent overflow on devices that have a "real"
-    // mediump. It'd be nice to only to this on mediump devices but we currently don't have the
-    // caps here.
-    if (GrProcessorEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        fragBuilder->codeAppendf("float d = (length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * "
-                                            "%s.z;",
-                                 circleName, circleName, circleName);
-    } else {
-        fragBuilder->codeAppendf("float d = (1.0 - length((%s.xy - sk_FragCoord.xy) *  %s.w)) * "
-                                                  "%s.z;",
-                                 circleName, circleName, circleName);
-    }
-    if (GrProcessorEdgeTypeIsAA(ce.getEdgeType())) {
-        fragBuilder->codeAppend("d = clamp(d, 0.0, 1.0);");
-    } else {
-        fragBuilder->codeAppend("d = d > 0.5 ? 1.0 : 0.0;");
-    }
-
-    fragBuilder->codeAppendf("%s = %s * d;", args.fOutputColor, args.fInputColor);
-}
-
-void GLCircleEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
-                            GrProcessorKeyBuilder* b) {
-    const CircleEffect& ce = processor.cast<CircleEffect>();
-    b->add32(ce.getEdgeType());
-}
-
-void GLCircleEffect::onSetData(const GrGLSLProgramDataManager& pdman,
-                               const GrFragmentProcessor& processor) {
-    const CircleEffect& ce = processor.cast<CircleEffect>();
-    if (ce.getRadius() != fPrevRadius || ce.getCenter() != fPrevCenter) {
-        SkScalar radius = ce.getRadius();
-        if (GrProcessorEdgeTypeIsInverseFill(ce.getEdgeType())) {
-            radius -= 0.5f;
-        } else {
-            radius += 0.5f;
-        }
-        pdman.set4f(fCircleUniform, ce.getCenter().fX, ce.getCenter().fY, radius,
-                    SkScalarInvert(radius));
-        fPrevCenter = ce.getCenter();
-        fPrevRadius = ce.getRadius();
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-void CircleEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                         GrProcessorKeyBuilder* b) const {
-    GLCircleEffect::GenKey(*this, caps, b);
-}
-
-GrGLSLFragmentProcessor* CircleEffect::onCreateGLSLInstance() const  {
-    return new GLCircleEffect;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -392,7 +232,7 @@ sk_sp<GrFragmentProcessor> GrOvalEffect::Make(GrPrimitiveEdgeType edgeType, cons
     SkScalar h = oval.height();
     if (SkScalarNearlyEqual(w, h)) {
         w /= 2;
-        return CircleEffect::Make(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w), w);
+        return GrCircleEffect::Make(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w), w);
     } else {
         w /= 2;
         h /= 2;
