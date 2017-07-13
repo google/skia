@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef780f0f_1c32213a",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-13T14:31:32Z",
+      "side": 1,
+      "message": "I know you need to check this, but is this really so bad that the process needs to crash? It might be nice to be like\n\nif (srcMaskBmp.colorType() !\u003d kAlpha_8_SkColorType)) {\n    SkDebugf(\"horrible things have happened!\")\n    SkASSERT(false);\n    return;\n}\n\nthen we still crash in debug, always get a message, and just bail on drawing this image in release. If this should never happen, then perhaps the assert / test should go elsewhere? SkASSERT_RELEASE is mostly used to check contracts / conventions from outside code where if they break those contracts we simply can\u0027t continue in any way that makes sense.",
+      "range": {
+        "startLine": 2222,
+        "startChar": 12,
+        "endLine": 2222,
+        "endChar": 28
+      },
+      "revId": "cddd237c2e4f962ff679c89b4e4bba590ab8e8b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
