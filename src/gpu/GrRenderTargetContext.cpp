@@ -956,7 +956,7 @@ static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
 }
 
 bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
-                                           GrPaint&& paint,
+                                           GrColor color4ub,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
                                            const SkDrawShadowRec& rec) {
@@ -1011,7 +1011,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                        viewMatrix[SkMatrix::kMSkewX] * viewMatrix[SkMatrix::kMSkewX]);
 
     SkScalar occluderHeight = rec.fZPlaneParams.fZ;
-    GrColor4f color = paint.getColor4f();
+    GrColor4f color = GrColor4f::FromGrColor(color4ub);
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
     bool tonalColor = SkToBool(rec.fFlags & SkShadowFlags::kTonalColor_ShadowFlag);
 
@@ -1051,15 +1051,13 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         // which is just 1/umbraAlpha.
         SkScalar blurClamp = SkScalarInvert(umbraAlpha);
 
-        std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(ambientColor, viewMatrix,
-                                                                       ambientRRect,
-                                                                       devSpaceAmbientBlur,
-                                                                       devSpaceInsetWidth,
-                                                                       blurClamp);
-        if (op) {
-            GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
-        }
+        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(ambientColor, viewMatrix,
+                                                             ambientRRect,
+                                                             devSpaceAmbientBlur,
+                                                             devSpaceInsetWidth,
+                                                             blurClamp);
+        SkASSERT(op);
+        this->addDrawOp(clip, std::move(op));
     }
 
     if (rec.fSpotAlpha > 0) {
@@ -1163,14 +1161,12 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             spotColor = color.mulByScalar(rec.fSpotAlpha).toGrColor();
         }
 
-        std::unique_ptr<GrLegacyMeshDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
-                                                                       spotShadowRRect,
-                                                                       devSpaceSpotBlur,
-                                                                       insetWidth);
-        if (op) {
-            GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-            this->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
-        }
+        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
+                                                             spotShadowRRect,
+                                                             devSpaceSpotBlur,
+                                                             insetWidth);
+        SkASSERT(op);
+        this->addDrawOp(clip, std::move(op));
     }
 
     return true;

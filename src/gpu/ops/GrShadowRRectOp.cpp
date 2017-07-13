@@ -6,11 +6,9 @@
  */
 
 #include "GrShadowRRectOp.h"
-
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
-#include "GrStyle.h"
-
+#include "SkRRect.h"
 #include "effects/GrShadowGeoProc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,16 +180,17 @@ static const uint16_t* rrect_type_to_indices(RRectType type) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+namespace {
 
-class ShadowCircularRRectOp final : public GrLegacyMeshDrawOp {
+class ShadowCircularRRectOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
     // An insetWidth > 1/2 rect width or height indicates a simple fill.
-    ShadowCircularRRectOp(GrColor color, const SkMatrix& viewMatrix, const SkRect& devRect,
+    ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
                           float devRadius, bool isCircle, float blurRadius, float insetWidth,
                           float blurClamp)
-            : INHERITED(ClassID()), fViewMatrixIfUsingLocalCoords(viewMatrix) {
+            : INHERITED(ClassID()) {
         SkRect bounds = devRect;
         SkASSERT(insetWidth > 0);
         SkScalar innerRadius = 0.0f;
@@ -249,25 +248,17 @@ public:
                     fGeoData[i].fOuterRadius, fGeoData[i].fUmbraInset,
                     fGeoData[i].fInnerRadius, fGeoData[i].fBlurRadius);
         }
-        string.append(DumpPipelineInfo(*this->pipeline()));
         string.append(INHERITED::dumpInfo());
         return string;
     }
 
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
+        return RequiresDstTexture::kNo;
+    }
+
 private:
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToConstant(fGeoData[0].fColor);
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
-        if (!optimizations.readsLocalCoords()) {
-            fViewMatrixIfUsingLocalCoords.reset();
-        }
-    }
-
     struct Geometry {
         GrColor   fColor;
         SkScalar  fOuterRadius;
@@ -568,14 +559,8 @@ private:
     }
 
     void onPrepareDraws(Target* target) const override {
-        // Invert the view matrix as a local matrix (if any other processors require coords).
-        SkMatrix localMatrix;
-        if (!fViewMatrixIfUsingLocalCoords.invert(&localMatrix)) {
-            return;
-        }
-
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(GrRRectShadowGeoProc::Make(localMatrix));
+        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -627,23 +612,18 @@ private:
             }
         }
 
+        static const uint32_t kPipelineFlags = 0;
+        const GrPipeline* pipeline =
+                target->makePipeline(kPipelineFlags, &GrProcessorSet::EmptySet());
+
         GrMesh mesh(GrPrimitiveType::kTriangles);
         mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
         mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp.get(), this->pipeline(), mesh);
+        target->draw(gp.get(), pipeline, mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
-        if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                    that->bounds(), caps)) {
-            return false;
-        }
-
-        if (!fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
-        }
-
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(*that);
         fVertCount += that->fVertCount;
@@ -652,22 +632,23 @@ private:
     }
 
     SkSTArray<1, Geometry, true> fGeoData;
-    SkMatrix fViewMatrixIfUsingLocalCoords;
     int fVertCount;
     int fIndexCount;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
-                                         const SkMatrix& viewMatrix,
-                                         const SkRRect& rrect,
-                                         SkScalar blurWidth,
-                                         SkScalar insetWidth,
-                                         SkScalar blurClamp) {
+std::unique_ptr<GrDrawOp> Make(GrColor color,
+                               const SkMatrix& viewMatrix,
+                               const SkRRect& rrect,
+                               SkScalar blurWidth,
+                               SkScalar insetWidth,
+                               SkScalar blurClamp) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() &&
              (rrect.isSimpleCircular() || rrect.isRect() || rrect.isCircle()));
@@ -683,12 +664,12 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
     SkScalar scaledRadius = SkScalarAbs(radius*matrixFactor);
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
-    return std::unique_ptr<GrLegacyMeshDrawOp>(new ShadowCircularRRectOp(color, viewMatrix, bounds,
-                                                                         scaledRadius,
-                                                                         rrect.isOval(),
-                                                                         blurWidth,
-                                                                         scaledInsetWidth,
-                                                                         blurClamp));
+    return std::unique_ptr<GrDrawOp>(new ShadowCircularRRectOp(color, bounds,
+                                                               scaledRadius,
+                                                               rrect.isOval(),
+                                                               blurWidth,
+                                                               scaledInsetWidth,
+                                                               blurClamp));
 }
 }
 
@@ -696,7 +677,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
 
 #if GR_TEST_UTILS
 
-GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
+GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     // create a similarity matrix
     SkScalar rotate = random->nextSScalar1() * 360.f;
     SkScalar translateX = random->nextSScalar1() * 1000.f;
@@ -706,17 +687,22 @@ GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     viewMatrix.setRotate(rotate);
     viewMatrix.postTranslate(translateX, translateY);
     viewMatrix.postScale(scale, scale);
-    GrColor color = GrRandomColor(random);
     SkScalar insetWidth = random->nextSScalar1() * 72.f;
     SkScalar blurWidth = random->nextSScalar1() * 72.f;
     SkScalar blurClamp = random->nextSScalar1();
     bool isCircle = random->nextBool();
+    // This op doesn't use a full GrPaint, just a color.
+    GrColor color = paint.getColor();
     if (isCircle) {
         SkRect circle = GrTest::TestSquare(random);
         SkRRect rrect = SkRRect::MakeOval(circle);
         return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
     } else {
-        const SkRRect& rrect = GrTest::TestRRectSimple(random);
+        SkRRect rrect;
+        do {
+            // This may return a rrect with elliptical corners, which we don't support.
+            rrect = GrTest::TestRRectSimple(random);
+        } while (!rrect.isSimpleCircular());
         return GrShadowRRectOp::Make(color, viewMatrix, rrect, blurWidth, insetWidth, blurClamp);
     }
 }
