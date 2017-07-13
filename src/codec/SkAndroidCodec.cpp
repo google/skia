@@ -17,7 +17,6 @@ static bool is_valid_sample_size(int sampleSize) {
     return sampleSize > 0;
 }
 
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 /**
  *  Loads the gamut as a set of three points (triangle).
  */
@@ -60,7 +59,6 @@ static bool is_wide_gamut(const SkColorSpace* colorSpace) {
 
     return false;
 }
-#endif
 
 SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
     : fInfo(codec->getInfo())
@@ -150,10 +148,11 @@ SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
 sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputColorType,
                                                             sk_sp<SkColorSpace> prefColorSpace) {
     switch (outputColorType) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
 #ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        case kIndex_8_SkColorType: {
+        case kIndex_8_SkColorType:
+#endif
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: {
             // If |prefColorSpace| is supported, choose it.
             SkColorSpaceTransferFn fn;
             if (prefColorSpace && prefColorSpace->isNumericalTransferFn(&fn)) {
@@ -174,7 +173,6 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
 
             return SkColorSpace::MakeSRGB();
         }
-#endif
         case kRGBA_F16_SkColorType:
             // Note that |prefColorSpace| is ignored, F16 is always linear sRGB.
             return SkColorSpace::MakeSRGBLinear();
