@@ -25,7 +25,7 @@ public:
         return reinterpret_cast<GrBackendContext>(fGL.get());
     }
 
-    bool isValid() const override { return SkToBool(this->gl()); }
+    bool isValid() const { return SkToBool(this->gl()); }
 
     const GrGLInterface *gl() const { return fGL.get(); }
 
