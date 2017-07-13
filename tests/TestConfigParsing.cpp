@@ -118,7 +118,8 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "glwide",
         "glnarrow",
         "glnostencils",
-        "mock"
+        "mock",
+        "mtl"
     });
 
     SkCommandLineConfigArray configs;
@@ -259,6 +260,7 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
         "gpu[api=gles]",
         "gpu[api=gl]",
         "gpu[api=vulkan]",
+        "gpu[api=metal]",
         "gpu[api=mock]",
     });
 
@@ -305,7 +307,14 @@ DEF_TEST(ParseConfigs_ExtendedGpuConfigsCorrect, reporter) {
     REPORTER_ASSERT(reporter, !configs[7]->asConfigGpu()->getUseDIText());
     REPORTER_ASSERT(reporter, configs[7]->asConfigGpu()->getSamples() == 0);
 #endif
+#ifdef SK_METAL
     REPORTER_ASSERT(reporter, configs[8]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kMetal_ContextType);
+    REPORTER_ASSERT(reporter, !configs[8]->asConfigGpu()->getUseNVPR());
+    REPORTER_ASSERT(reporter, !configs[8]->asConfigGpu()->getUseDIText());
+    REPORTER_ASSERT(reporter, configs[8]->asConfigGpu()->getSamples() == 0);
+#endif
+    REPORTER_ASSERT(reporter, configs[9]->asConfigGpu()->getContextType() ==
                    GrContextFactory::kMock_ContextType);
 #endif
 }

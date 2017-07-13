@@ -93,6 +93,13 @@ static const struct {
     ,{ "vkmsaa4",              "gpu", "api=vulkan,samples=4" }
     ,{ "vkmsaa8",              "gpu", "api=vulkan,samples=8" }
 #endif
+#ifdef SK_METAL
+    ,{ "mtl",                   "gpu", "api=metal" }
+    ,{ "mtlsrgb",               "gpu", "api=metal,color=srgb" }
+    ,{ "mtlwide",               "gpu", "api=metal,color=f16_wide" }
+    ,{ "mtlmsaa4",              "gpu", "api=metal,samples=4" }
+    ,{ "mtlmsaa8",              "gpu", "api=metal,samples=8" }
+#endif
 #else
      { "", "", "" }
 #endif
@@ -136,6 +143,9 @@ static const char configExtendedHelp[] =
 #endif
 #ifdef SK_VULKAN
     "\t\tvulkan\t\t\tUse Vulkan.\n"
+#endif
+#ifdef SK_METAL
+    "\t\tmetal\t\t\tUse Metal.\n"
 #endif
     "\tcolor\ttype: string\tdefault: 8888.\n"
     "\t    Select framebuffer color format.\n"
@@ -297,6 +307,12 @@ static bool parse_option_gpu_api(const SkString& value,
 #ifdef SK_VULKAN
     if (value.equals("vulkan")) {
         *outContextType = GrContextFactory::kVulkan_ContextType;
+        return true;
+    }
+#endif
+#ifdef SK_METAL
+    if (value.equals("metal")) {
+        *outContextType = GrContextFactory::kMetal_ContextType;
         return true;
     }
 #endif
