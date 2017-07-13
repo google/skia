@@ -784,6 +784,10 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         SkBudgeted budgeted) {
     SkASSERT(kDefault_GrSurfaceOrigin != origin);
 
+    if (this->abandoned()) {
+        return nullptr;
+    }
+
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = origin;
