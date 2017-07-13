@@ -538,13 +538,15 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
                                                                           zPlaneParams,
                                                                           transparent);
-            SkPaint paint;
-            // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
-            // result of that against our 'color' param.
-            paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-                                                                  SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
-                                                                  SkGaussianColorFilter::Make()));
-            this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+            if (vertices) {
+                SkPaint paint;
+                // Run the vertex color through a GaussianColorFilter and then modulate the
+                // grayscale result of that against our 'color' param.
+                paint.setColorFilter(SkColorFilter::MakeComposeFilter(
+                    SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
+                    SkGaussianColorFilter::Make()));
+                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+            }
         } else {
             AmbientVerticesFactory factory;
             factory.fOccluderHeight = zPlaneParams.fZ;
@@ -569,13 +571,15 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                                                                        zPlaneParams,
                                                                        devLightPos, lightRadius,
                                                                        transparent);
-            SkPaint paint;
-            // Run the vertex color through a GaussianColorFilter and then modulate the grayscale
-            // result of that against our 'color' param.
-            paint.setColorFilter(SkColorFilter::MakeComposeFilter(
-                SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
-                SkGaussianColorFilter::Make()));
-            this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+            if (vertices) {
+                SkPaint paint;
+                // Run the vertex color through a GaussianColorFilter and then modulate the
+                // grayscale result of that against our 'color' param.
+                paint.setColorFilter(SkColorFilter::MakeComposeFilter(
+                    SkColorFilter::MakeModeFilter(renderColor, SkBlendMode::kModulate),
+                    SkGaussianColorFilter::Make()));
+                this->drawVertices(vertices.get(), SkBlendMode::kModulate, paint);
+            }
         } else {
             SpotVerticesFactory factory;
             SkScalar occluderHeight = zPlaneParams.fZ;
