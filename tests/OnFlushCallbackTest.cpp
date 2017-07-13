@@ -18,63 +18,65 @@
 #include "GrResourceProvider.h"
 #include "GrQuad.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "ops/GrSimpleMeshDrawOpHelper.h"
 #include "ops/GrTestMeshDrawOp.h"
 
+namespace {
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
 // Please see AtlasedRectOp below.
-class NonAARectOp : public GrLegacyMeshDrawOp {
+class NonAARectOp : public GrMeshDrawOp {
+protected:
+    using Helper = GrSimpleMeshDrawOpHelper;
+
 public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "NonAARectOp"; }
 
     // This creates an instance of a simple non-AA solid color rect-drawing Op
-    static std::unique_ptr<GrDrawOp> Make(const SkRect& r, GrColor color) {
-        return std::unique_ptr<GrDrawOp>(new NonAARectOp(ClassID(), r, color));
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& r) {
+        return Helper::FactoryHelper<NonAARectOp>(std::move(paint), r, nullptr, ClassID());
     }
 
     // This creates an instance of a simple non-AA textured rect-drawing Op
-    static std::unique_ptr<GrDrawOp> Make(const SkRect& r, GrColor color, const SkRect& local) {
-        return std::unique_ptr<GrDrawOp>(new NonAARectOp(ClassID(), r, color, local));
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& r, const SkRect& local) {
+        return Helper::FactoryHelper<NonAARectOp>(std::move(paint), r, &local, ClassID());
     }
 
     GrColor color() const { return fColor; }
 
+    NonAARectOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkRect& r,
+                const SkRect* localRect, int32_t classID)
+            : INHERITED(classID)
+            , fColor(color)
+            , fHasLocalRect(SkToBool(localRect))
+            , fRect(r)
+            , fHelper(helperArgs, GrAAType::kNone) {
+        if (fHasLocalRect) {
+            fLocalQuad.set(*localRect);
+        }
+        // Choose some conservative values for aa bloat and zero area.
+        this->setBounds(r, HasAABloat::kYes, IsZeroArea::kYes);
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip*) override {
+        // Set the color to unknown because the subclass may change the color later.
+        GrProcessorAnalysisColor gpColor;
+        gpColor.setToUnknown();
+        // We ignore the clip so pass this rather than the GrAppliedClip param.
+        static GrAppliedClip kNoClip;
+        return fHelper.xpRequiresDstTexture(caps, &kNoClip, GrProcessorAnalysisCoverage::kNone,
+                                            &gpColor);
+    }
+
 protected:
-    NonAARectOp(uint32_t classID, const SkRect& r, GrColor color)
-        : INHERITED(classID)
-        , fColor(color)
-        , fHasLocalRect(false)
-        , fRect(r) {
-        // Choose some conservative values for aa bloat and zero area.
-        this->setBounds(r, HasAABloat::kYes, IsZeroArea::kYes);
-    }
-
-    NonAARectOp(uint32_t classID, const SkRect& r, GrColor color, const SkRect& local)
-        : INHERITED(classID)
-        , fColor(color)
-        , fHasLocalRect(true)
-        , fLocalQuad(local)
-        , fRect(r) {
-        // Choose some conservative values for aa bloat and zero area.
-        this->setBounds(r, HasAABloat::kYes, IsZeroArea::kYes);
-    }
-
     GrColor fColor;
     bool    fHasLocalRect;
     GrQuad  fLocalQuad;
     SkRect  fRect;
 
 private:
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToUnknown();
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations& optimizations) override {
-        optimizations.getOverrideColorIfSet(&fColor);
-    }
-
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
     void onPrepareDraws(Target* target) const override {
@@ -149,11 +151,15 @@ private:
         mesh.setIndexed(indexBuffer, 6, firstIndex, 0, 3);
         mesh.setVertexData(vertexBuffer, firstVertex);
 
-        target->draw(gp.get(), this->pipeline(), mesh);
+        target->draw(gp.get(), fHelper.makePipeline(target), mesh);
     }
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    Helper fHelper;
+
+    typedef GrMeshDrawOp INHERITED;
 };
+
+}  // anonymous namespace
 
 #ifdef SK_DEBUG
 #include "SkImageEncoder.h"
@@ -164,6 +170,10 @@ static void save_bm(const SkBitmap& bm, const char name[]) {
     SkASSERT(result);
 }
 #endif
+
+static constexpr SkRect kEmptyRect = SkRect::MakeEmpty();
+
+namespace {
 
 /*
  * Atlased ops just draw themselves as textured rects with the texture pixels being
@@ -181,8 +191,19 @@ public:
 
     int id() const { return fID; }
 
-    static std::unique_ptr<AtlasedRectOp> Make(const SkRect& r, int id) {
-        return std::unique_ptr<AtlasedRectOp>(new AtlasedRectOp(r, id));
+    static std::unique_ptr<AtlasedRectOp> Make(GrPaint&& paint, const SkRect& r, int id) {
+        GrDrawOp* op = Helper::FactoryHelper<AtlasedRectOp>(std::move(paint), r, id).release();
+        return std::unique_ptr<AtlasedRectOp>(static_cast<AtlasedRectOp*>(op));
+    }
+
+    // We set the initial color of the NonAARectOp based on the ID.
+    // Note that we force creation of a NonAARectOp that has local coords in anticipation of
+    // pulling from the atlas.
+    AtlasedRectOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkRect& r, int id)
+            : INHERITED(helperArgs, kColors[id], r, &kEmptyRect, ClassID())
+            , fID(id)
+            , fNext(nullptr) {
+        SkASSERT(fID < kMaxIDs);
     }
 
     void setColor(GrColor color) { fColor = color; }
@@ -197,15 +218,6 @@ public:
     }
 
 private:
-    // We set the initial color of the NonAARectOp based on the ID.
-    // Note that we force creation of a NonAARectOp that has local coords in anticipation of
-    // pulling from the atlas.
-    AtlasedRectOp(const SkRect& r, int id)
-        : INHERITED(ClassID(), r, kColors[id], SkRect::MakeEmpty())
-        , fID(id)
-        , fNext(nullptr) {
-        SkASSERT(fID < kMaxIDs);
-    }
 
     static const int kMaxIDs = 9;
     static const SkColor kColors[kMaxIDs];
@@ -216,6 +228,8 @@ private:
 
     typedef NonAARectOp INHERITED;
 };
+
+}  // anonymous namespace
 
 const GrColor AtlasedRectOp::kColors[kMaxIDs] = {
     GrColorPackRGBA(255, 0, 0, 255),
@@ -347,13 +361,11 @@ public:
 #if 1
                 rtc->clear(&r, op->color(), false);
 #else
-                std::unique_ptr<GrDrawOp> drawOp(GrNonAARectOp::Make(SkRect::Make(r),
-                                                 atlasedOp->color()));
-
                 GrPaint paint;
-                rtc->priv().testingOnly_addDrawOp(std::move(paint),
-                                                  GrAAType::kNone,
-                                                  std::move(drawOp));
+                paint.setColor4f(GrColor4f::FromGrColor(op->color()));
+                std::unique_ptr<GrDrawOp> drawOp(NonAARectOp::Make(std::move(paint),
+                                                                   SkRect::Make(r)));
+                rtc->priv().testingOnly_addDrawOp(std::move(drawOp));
 #endif
                 blocksInAtlas++;
 
@@ -429,21 +441,18 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        std::unique_ptr<AtlasedRectOp> op(AtlasedRectOp::Make(r, start+i));
-
         // TODO: here is the blocker for deferring creation of the atlas. The TextureSamplers
         // created here currently require a hard GrTexture.
         sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(fakeAtlas,
                                                                     nullptr, SkMatrix::I());
-
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+        std::unique_ptr<AtlasedRectOp> op(AtlasedRectOp::Make(std::move(paint), r, start + i));
 
         AtlasedRectOp* sparePtr = op.get();
 
-        uint32_t opListID = rtc->priv().testingOnly_addLegacyMeshDrawOp(
-                std::move(paint), GrAAType::kNone, std::move(op));
+        uint32_t opListID = rtc->priv().testingOnly_addDrawOp(std::move(op));
 
         object->addOp(opListID, sparePtr);
     }
