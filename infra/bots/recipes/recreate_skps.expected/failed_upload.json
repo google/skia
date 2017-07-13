@@ -184,7 +184,8 @@
       "--browser_executable",
       "[CUSTOM_/_B_WORK]/src/out/Release/chrome",
       "--target_dir",
-      "[START_DIR]/skp_output"
+      "[START_DIR]/skp_output",
+      "--upload_to_partner_bucket"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
