@@ -16,6 +16,24 @@
       "revId": "d9608734f69f2fc068cdc77768086fbcd9431ee0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f67a3c8a_f8e58fc6",
+        "filename": "src/gpu/effects/GrCircleEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-13T21:02:57Z",
+      "side": 1,
+      "message": "So, here\u0027s how it works.\n\nedgeType is an \u0027in\u0027, not a uniform, so when we reference it in the code, it\u0027s just a literal value passed in at construction time. This means it gets baked in to the code (and then optimized out, \u0027cause it\u0027s just a constant). If we don\u0027t mark it \u0027key\u0027, the compiler doesn\u0027t know we care about it, so it gets baked in the code once... and then that same GLSL effect instance gets used for everything, even if we create a new CircleEffect with a different edge type.\n\nThat doesn\u0027t apply to center and radius, because neither of them are directly referenced from the code - they are passed in via the \u0027circle\u0027 uniform.",
+      "parentUuid": "4d1804df_c4bc9340",
+      "revId": "d9608734f69f2fc068cdc77768086fbcd9431ee0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
