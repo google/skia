@@ -12,6 +12,7 @@
 #include "GrContextOptions.h"
 
 #include "gl/GLTestContext.h"
+#include "mtl/MtlTestContext.h"
 #include "vk/VkTestContext.h"
 #include "SkTArray.h"
 
@@ -44,6 +45,7 @@ public:
         kNullGL_ContextType,         //! Non-rendering OpenGL mock context.
         kDebugGL_ContextType,        //! Non-rendering, state verifying OpenGL context.
         kVulkan_ContextType,         //! Vulkan
+        kMetal_ContextType,          //! Metal
         kMock_ContextType,           //! Mock context that does not draw.
         kLastContextType = kMock_ContextType
     };
@@ -80,6 +82,8 @@ public:
         switch (type) {
             case kVulkan_ContextType:
                 return kVulkan_GrBackend;
+            case kMetal_ContextType:
+                return kMetal_GrBackend;
             case kMock_ContextType:
                 return kMock_GrBackend;
             default:
@@ -113,6 +117,8 @@ public:
                 return "Debug GL";
             case kVulkan_ContextType:
                 return "Vulkan";
+            case kMetal_ContextType:
+                return "Metal";
             case kMock_ContextType:
                 return "Mock";
         }
@@ -189,6 +195,13 @@ public:
     VkTestContext* vkContext() const {
         SkASSERT(kVulkan_GrBackend == this->backend());
         return static_cast<VkTestContext*>(fTestContext);
+    }
+#endif
+
+#ifdef SK_METAL
+    MtlTestContext* mtlContext() const {
+        SkASSERT(kMetal_GrBackend == this->backend());
+        return static_cast<MtlTestContext*>(fTestContext);
     }
 #endif
 
