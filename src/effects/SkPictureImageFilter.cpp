@@ -137,7 +137,7 @@ sk_sp<SkSpecialImage> SkPictureImageFilter::onFilterImage(SkSpecialImage* source
 
 sk_sp<SkImageFilter> SkPictureImageFilter::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     sk_sp<SkColorSpace> dstCS = xformer->dst();
-    if (dstCS == fColorSpace) {
+    if (SkColorSpace::Equals(dstCS.get(), fColorSpace.get())) {
         return this->refMe();
     }
 
