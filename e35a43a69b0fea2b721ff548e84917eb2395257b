@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d432faf3_8fdd74e1",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "So why doesn\u0027t CCPR want to part of kAll ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "752dfaa3_73d2df8f",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "Isn\u0027t this a dup ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3db3ccc0_5ff2dae1",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "override here?\nor maybe call this updateAndInval ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb067fec_ddcf749a",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "FWIW, GrOpFlushState should have a resourceProvider call on it.",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7968611_50a5861a",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d0d3433_3842594b",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "It seems like we\u0027re now tabbing the initialization lists over and extra tab.",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f70cab1_3ee80d5e",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "Do we need this include ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7ceb33c_3edcde84",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "Do we need this guy here ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b8cab3_1229519c",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "add an extra tab for the initialization list ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84dd9778_4429b606",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "do -\u003e to",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c47967f_17282e9f",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "devBounds45 ?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7c3846c_d04509b0",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "// This is the Op that ultimately draws the atlased path into its final destination\n\n?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8746f1b2_9fd82d50",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-13T19:46:30Z",
+      "side": 1,
+      "message": "// map from render target ID to list of CCPR ops targeted at that render target\n\n?",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
