@@ -22,6 +22,30 @@
       "revId": "cbe5e6588a3e76ca9fa78b8937c477afd53819e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe5c2f7d_8ae26f4a",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-13T22:02:03Z",
+      "side": 0,
+      "message": "Do we?\n\nI always get confused about this, but according to bungeman we get a virtual dtor from SkRefCnt, so this shouldn\u0027t matter.  I also see the same pattern with e.g. SkImage (no vdtor), vs. SkImage_Base (vdtor).",
+      "parentUuid": "2ee506d9_2e820ae4",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 25
+      },
+      "revId": "cbe5e6588a3e76ca9fa78b8937c477afd53819e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
