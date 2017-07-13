@@ -9,6 +9,7 @@
 DEPS = [
   'core',
   'depot_tools/gclient',
+  'depot_tools/gsutil',
   'infra',
   'recipe_engine/context',
   'recipe_engine/file',
@@ -33,7 +34,26 @@ TEST_BUILDERS = {
 
 
 UPDATE_SKPS_GITCOOKIES_FILE = 'update_skps.git_cookies'
-UPDATE_SKPS_KEY = 'update_skps_git_cookies'
+
+UPDATE_SKPS_GITCOOKIES_GS_PATH = (
+    'gs://skia-buildbots/artifacts/server/.gitcookies_update-skps')
+
+
+class DownloadGitCookies(object):
+  """Class to download gitcookies from GS."""
+  def __init__(self, gs_path, local_path, api):
+    self._gs_path = gs_path
+    self._local_path = local_path
+    self._api = api
+
+  def __enter__(self):
+    gsutil_args = ['cp', self._gs_path, self._local_path]
+    self._api.gsutil(gsutil_args, use_retry_wrapper=False)
+
+  def __exit__(self, exc_type, _value, _traceback):
+    if self._api.path.exists(self._local_path):
+      self._api.file.remove('remove %s' % self._local_path, self._local_path)
+
 
 
 def RunSteps(api):
@@ -76,14 +96,14 @@ def RunSteps(api):
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
     api.infra.update_go_deps()
-    update_skps_gitcookies = api.path.join(api.path.expanduser('~'),
-                                           UPDATE_SKPS_GITCOOKIES_FILE)
+    update_skps_gitcookies = api.path['start_dir'].join(
+        UPDATE_SKPS_GITCOOKIES_FILE)
     cmd = ['python',
            api.vars.skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir,
            '--gitcookies', str(update_skps_gitcookies)]
-    with api.infra.MetadataFetch(
-        api, UPDATE_SKPS_KEY, UPDATE_SKPS_GITCOOKIES_FILE):
+    with DownloadGitCookies(
+        UPDATE_SKPS_GITCOOKIES_GS_PATH, update_skps_gitcookies, api):
       with api.context(cwd=api.vars.skia_dir, env=api.infra.go_env):
         api.run(api.step, 'Upload SKPs', cmd=cmd)
 
@@ -108,7 +128,8 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.path.exists(api.path['start_dir'].join('skp_output'))
+      api.path.exists(api.path['start_dir'].join('skp_output')) +
+      api.path.exists(api.path['start_dir'].join(UPDATE_SKPS_GITCOOKIES_FILE))
   )
 
   yield (
