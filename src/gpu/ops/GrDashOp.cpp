@@ -285,7 +285,7 @@ public:
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             flags |= FixedFunctionFlags::kUsesHWAA;
         }
-        if (fStencilSettings) {
+        if (fStencilSettings != &GrUserStencilSettings::kUnused) {
             flags |= FixedFunctionFlags::kUsesStencil;
         }
         return flags;
@@ -717,9 +717,10 @@ private:
     bool fDisableSRGBOutputConversion : 1;
     bool fDisallowCombineOnTouchOrOverlap : 1;
     bool fUsesLocalCoords : 1;
-    SkPaint::Cap fCap : 2;
     bool fFullDash : 1;
-    AAMode fAAMode;
+    // We use 3 bits for these 3-value enums because MSVS makes the underlying types signed.
+    SkPaint::Cap fCap : 3;
+    AAMode fAAMode : 3;
     GrProcessorSet fProcessorSet;
     const GrUserStencilSettings* fStencilSettings;
 
