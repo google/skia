@@ -87,6 +87,7 @@ var (
 func linuxGceDimensions() []string {
 	return []string{
 		"cpu:x86-64-avx2",
+		"id:skia-gce-018",
 		"gpu:none",
 		fmt.Sprintf("os:%s", DEFAULT_OS_DEBIAN),
 		fmt.Sprintf("pool:%s", CONFIG.Pool),
