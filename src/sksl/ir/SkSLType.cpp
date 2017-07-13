@@ -128,6 +128,17 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
+    } else if (*this == *context.fBool_Type) {
+        switch (rows) {
+            case 1:
+                switch (columns) {
+                    case 2: return *context.fBVec2_Type;
+                    case 3: return *context.fBVec3_Type;
+                    case 4: return *context.fBVec4_Type;
+                    default: ABORT("unsupported vector column count (%d)", columns);
+                }
+            default: ABORT("unsupported row count (%d)", rows);
+        }
     }
     ABORT("unsupported scalar_to_compound type %s", this->description().c_str());
 }

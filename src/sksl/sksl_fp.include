@@ -20,4 +20,6 @@ layout(builtin=10003) vec4 sk_InColor;
 layout(builtin=10004) out vec4 sk_OutColor;
 layout(builtin=10005) vec2[] sk_TransformedCoords2D;
 layout(builtin=10006) sampler2D[] sk_TextureSamplers;
+
+vec4 COLORSPACE(vec4 color, colorSpaceXform colorSpace);
 )

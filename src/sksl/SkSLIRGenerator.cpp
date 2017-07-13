@@ -1394,84 +1394,17 @@ bool IRGenerator::determineCallCost(const FunctionDeclaration& function,
 }
 
 std::unique_ptr<Expression> IRGenerator::applyColorSpace(std::unique_ptr<Expression> texture,
-                                                         const Variable* xform) {
-    // Before:
-    // vec4 color = texture(img, coords, xform);
-    // After:
-    // vec4 tmp;
-    // vec4 color = (tmp = texture(img, coords) ,
-    //               xform != mat4(1) ?
-    //                            vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a) :
-    //                            tmp);
-
-    // a few macros to keep line lengths manageable
-    #define EXPR std::unique_ptr<Expression>
-    #define REF(v) EXPR(new VariableReference(p, *v))
-    #define FLOAT(x) EXPR(new FloatLiteral(fContext, p, x))
-    using std::move;
-    Position p = Position();
-    // vec4 tmp;
-    Variable* tmp = new Variable(p, Modifiers(), "_tmp" + to_string(fTmpCount++), texture->fType,
-                                 Variable::kLocal_Storage);
-    fRootSymbolTable->takeOwnership(tmp);
-    std::vector<std::unique_ptr<VarDeclaration>> decls;
-    decls.emplace_back(new VarDeclaration(tmp, std::vector<std::unique_ptr<Expression>>(),
-                                          nullptr));
-    const Type& type = texture->fType;
-    fExtraVars.emplace_back(new VarDeclarationsStatement(std::unique_ptr<VarDeclarations>(
-                                       new VarDeclarations(p, &type, move(decls)))));
-    // tmp = texture
-    EXPR assignment = EXPR(new BinaryExpression(p,
-                                                EXPR(new VariableReference(p, *tmp,
-                                                                VariableReference::kWrite_RefKind)),
-                                                Token::EQ,
-                                                move(texture), type));
-    // 1.0
-    std::vector<EXPR> matArgs;
-    matArgs.push_back(FLOAT(1.0));
-    // mat4(1.0)
-    EXPR mat = EXPR(new Constructor(p, *fContext.fMat4x4_Type, move(matArgs)));
-    // <xform> != mat4(1.0)
-    EXPR matNeq = EXPR(new BinaryExpression(p, REF(xform), Token::NEQ, move(mat),
-                                            *fContext.fBool_Type));
-    // tmp.rgb
-    std::vector<int> rgb { 0, 1, 2 };
-    EXPR tmpRgb = EXPR(new Swizzle(fContext, REF(tmp), rgb));
-    // vec4(tmp.rgb, 1.0)
-    std::vector<EXPR> tmpVecArgs;
-    tmpVecArgs.push_back(move(tmpRgb));
-    tmpVecArgs.push_back(FLOAT(1.0));
-    EXPR tmpVec = EXPR(new Constructor(p, *fContext.fVec4_Type, move(tmpVecArgs)));
-    // xform * vec4(tmp.rgb, 1.0)
-    EXPR mul = EXPR(new BinaryExpression(p, REF(xform), Token::STAR, move(tmpVec),
-                                         *fContext.fVec4_Type));
-    // (xform * vec4(tmp.rgb, 1.0)).rgb
-    EXPR mulRGB = EXPR(new Swizzle(fContext, std::move(mul), rgb));
-    // tmp.a
-    std::vector<int> a { 3 };
-    EXPR tmpA = EXPR(new Swizzle(fContext, REF(tmp), a));
-    // clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a)
-    EXPR clamp = this->convertIdentifier(ASTIdentifier(p, "clamp"));
-    std::vector<EXPR> clampArgs;
-    clampArgs.push_back(move(mulRGB));
-    clampArgs.push_back(FLOAT(0));
-    clampArgs.push_back(move(tmpA));
-    EXPR clampCall = this->call(p, move(clamp), move(clampArgs));
-    // tmp.a
-    tmpA = EXPR(new Swizzle(fContext, REF(tmp), a));
-    // vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a)
-    std::vector<EXPR> finalVecArgs;
-    finalVecArgs.push_back(move(clampCall));
-    finalVecArgs.push_back(move(tmpA));
-    EXPR finalVec = EXPR(new Constructor(p, *fContext.fVec4_Type, move(finalVecArgs)));
-    // xform != mat4(1) ? vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a) : tmp)
-    EXPR ternary = EXPR(new TernaryExpression(p, move(matNeq), move(finalVec), REF(tmp)));
-    // (tmp = texture ,
-    //   xform != mat4(1) ? vec4(clamp((xform * vec4(tmp.rgb, 1.0)).rgb, 0.0, tmp.a), tmp.a) : tmp))
-    return EXPR(new BinaryExpression(p, move(assignment), Token::COMMA, move(ternary), type));
-    #undef EXPR
-    #undef REF
-    #undef FLOAT
+                                                         std::unique_ptr<Expression> xform) {
+    // Before: texture(img, coords, xform);
+    // After: COLORSPACE(texture(img, coords), xform)
+    Position p = texture->fPosition;
+    std::vector<std::unique_ptr<Expression>> args;
+    args.push_back(std::move(texture));
+    args.push_back(std::move(xform));
+    const Symbol* colorspaceSymbol = (*fSymbolTable)["COLORSPACE"];
+    ASSERT(colorspaceSymbol->fKind == Symbol::kFunctionDeclaration_Kind);
+    const FunctionDeclaration& colorspaceFunction = (FunctionDeclaration&) *colorspaceSymbol;
+    return this->call(p, colorspaceFunction, std::move(args));
 }
 
 std::unique_ptr<Expression> IRGenerator::call(Position position,
@@ -1490,12 +1423,11 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
     if (ref->fFunctions[0]->fName == "texture" &&
         arguments.back()->fType == *fContext.fColorSpaceXform_Type) {
         std::unique_ptr<Expression> colorspace = std::move(arguments.back());
-        ASSERT(colorspace->fKind == Expression::kVariableReference_Kind);
         arguments.pop_back();
         return this->applyColorSpace(this->call(position,
                                                 std::move(functionValue),
                                                 std::move(arguments)),
-                                     &((VariableReference&) *colorspace).fVariable);
+                                     std::move(colorspace));
     }
 
     int bestCost = INT_MAX;

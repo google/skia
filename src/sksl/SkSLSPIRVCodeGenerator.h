@@ -185,6 +185,9 @@ private:
      */
     SpvId foldToBool(SpvId id, const Type& operandType, OutputStream& out);
 
+    SpvId writeMatrixComparison(const Type& operandType, SpvId lhs, SpvId rhs, SpvOp_ floatOperator,
+                                SpvOp_ intOperator, OutputStream& out);
+
     SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
                                SpvOp_ ifBool, OutputStream& out);
