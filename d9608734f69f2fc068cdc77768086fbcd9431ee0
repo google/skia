@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d1804df_c4bc9340",
+        "filename": "src/gpu/effects/GrCircleEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-13T20:07:07Z",
+      "side": 1,
+      "message": "First time reviewing one of these - is there a way to conditionally generate code? The edge type is still being factored into the key, but now it\u0027s a shader branch (so we could remove the key attribute here?)",
+      "revId": "d9608734f69f2fc068cdc77768086fbcd9431ee0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
