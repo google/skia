@@ -82,6 +82,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "#if SK_SUPPORT_GPU\n"
              "#include \"GrFragmentProcessor.h\"\n"
              "#include \"GrCoordTransform.h\"\n"
+             "#include \"GrColorSpaceXform.h\"\n"
              "#include \"effects/GrProxyMove.h\"\n"
              "class GrTest : public GrFragmentProcessor {\n"
              "public:\n"
@@ -353,16 +354,14 @@ DEF_TEST(SkSLFPColorSpaceXform, r) {
              "sk_sp<GrColorSpaceXform> fColorXform;"
          },
          {
-             "fragBuilder->codeAppendf(\"vec4 _tmp0;\\n%s = %s * (_tmp0 = texture(%s, "
-             "vec2(0.0, 0.0)).%s , %s != mat4(1.0) ? vec4(clamp((%s * vec4(_tmp0.xyz, 1.0)).xyz, "
-             "0.0, _tmp0.w), _tmp0.w) : _tmp0);\\n\", args.fOutputColor, args.fInputColor ? "
-             "args.fInputColor : \"vec4(1)\", fragBuilder->getProgramBuilder()->"
-             "samplerVariable(args.fTexSamplers[0]).c_str(), "
+             "fragBuilder->codeAppendf(\"vec4 _tmpVar1;%s = %s * %stexture(%s, "
+             "vec2(0.0, 0.0)).%s%s;\\n\", args.fOutputColor, args.fInputColor ? args.fInputColor : "
+             "\"vec4(1)\", fColorSpaceHelper.isValid() ? \"(_tmpVar1 = \" : \"\", "
+             "fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(), "
              "fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(), "
-             "fColorSpaceHelper.isValid() ? args.fUniformHandler->getUniformCStr("
-             "fColorSpaceHelper.gamutXformUniform()) : \"mat4(1.0)\", "
-             "fColorSpaceHelper.isValid() ? args.fUniformHandler->getUniformCStr("
-             "fColorSpaceHelper.gamutXformUniform()) : \"mat4(1.0)\");"
+             "fColorSpaceHelper.isValid() ? SkStringPrintf(\", vec4(clamp((%s * vec4(_tmpVar1.rgb, "
+             "1.0)).rgb, 0.0, _tmpVar1.a), _tmpVar1.a))\", args.fUniformHandler->getUniformCStr("
+             "fColorSpaceHelper.gamutXformUniform())).c_str() : \"\");"
          });
 }
 

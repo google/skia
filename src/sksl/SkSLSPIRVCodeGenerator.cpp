@@ -2035,6 +2035,40 @@ SpvId SPIRVCodeGenerator::foldToBool(SpvId id, const Type& operandType, OutputSt
     return id;
 }
 
+SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId lhs, SpvId rhs,
+                                                SpvOp_ floatOperator, SpvOp_ intOperator,
+                                                OutputStream& out) {
+    SpvOp_ compareOp = is_float(fContext, operandType) ? floatOperator : intOperator;
+    ASSERT(operandType.kind() == Type::kMatrix_Kind);
+    SpvId rowType = this->getType(operandType.componentType().toCompound(fContext,
+                                                                         operandType.columns(),
+                                                                         1));
+    SpvId bvecType = this->getType(fContext.fBool_Type->toCompound(fContext,
+                                                                    operandType.columns(),
+                                                                    1));
+    SpvId boolType = this->getType(*fContext.fBool_Type);
+    SpvId result = 0;
+    for (int i = 0; i < operandType.rows(); i++) {
+        SpvId rowL = this->nextId();
+        this->writeInstruction(SpvOpCompositeExtract, rowType, rowL, lhs, 0, out);
+        SpvId rowR = this->nextId();
+        this->writeInstruction(SpvOpCompositeExtract, rowType, rowR, rhs, 0, out);
+        SpvId compare = this->nextId();
+        this->writeInstruction(compareOp, bvecType, compare, rowL, rowR, out);
+        SpvId all = this->nextId();
+        this->writeInstruction(SpvOpAll, boolType, all, compare, out);
+        if (result != 0) {
+            SpvId next = this->nextId();
+            this->writeInstruction(SpvOpLogicalAnd, boolType, next, result, all, out);
+            result = next;
+        }
+        else {
+            result = all;
+        }
+    }
+    return result;
+}
+
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
     // handle cases where we don't necessarily evaluate both LHS and RHS
     switch (b.fOperator) {
@@ -2139,6 +2173,10 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     }
     switch (b.fOperator) {
         case Token::EQEQ: {
+            if (operandType->kind() == Type::kMatrix_Kind) {
+                return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdEqual,
+                                                   SpvOpIEqual, out);
+            }
             ASSERT(resultType == *fContext.fBool_Type);
             return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                                                SpvOpFOrdEqual, SpvOpIEqual,
@@ -2146,6 +2184,10 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
                                     *operandType, out);
         }
         case Token::NEQ:
+            if (operandType->kind() == Type::kMatrix_Kind) {
+                return this->writeMatrixComparison(*operandType, lhs, rhs, SpvOpFOrdNotEqual,
+                                                   SpvOpINotEqual, out);
+            }
             ASSERT(resultType == *fContext.fBool_Type);
             return this->foldToBool(this->writeBinaryOperation(resultType, *operandType, lhs, rhs,
                                                                SpvOpFOrdNotEqual, SpvOpINotEqual,
