@@ -296,8 +296,13 @@ const {
 }
 
 sk_sp<SkShader> SkPictureShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkColorSpace> dstCS = xformer->dst();
+    if (SkColorSpace::Equals(dstCS.get(), fColorSpace.get())) {
+        return sk_ref_sp(const_cast<SkPictureShader*>(this));
+    }
+
     return sk_sp<SkPictureShader>(new SkPictureShader(fPicture, fTmx, fTmy, &this->getLocalMatrix(),
-                                                      &fTile, xformer->dst()));
+                                                      &fTile, std::move(dstCS)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
