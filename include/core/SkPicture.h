@@ -37,8 +37,6 @@ struct SkPictInfo;
 */
 class SK_API SkPicture : public SkRefCnt {
 public:
-    virtual ~SkPicture();
-
     /**
      *  Function signature defining a function that sets up an SkBitmap from encoded data. On
      *  success, the SkBitmap should have its Config, width, height, rowBytes and pixelref set.
@@ -156,9 +154,6 @@ public:
     /** Return true if the picture is suitable for rendering on the GPU.  */
     bool suitableForGpuRasterization(GrContext*, const char** whyNot = NULL) const;
 #endif
-
-    // Sent via SkMessageBus from destructor.
-    struct DeletionMessage { int32_t fUniqueID; };  // TODO: -> uint32_t?
 
     // Returns NULL if this is not an SkBigPicture.
     virtual const SkBigPicture* asSkBigPicture() const { return NULL; }

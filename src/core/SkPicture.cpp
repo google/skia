@@ -8,7 +8,6 @@
 #include "SkAtomics.h"
 #include "SkImageDeserializer.h"
 #include "SkImageGenerator.h"
-#include "SkMessageBus.h"
 #include "SkPicture.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
@@ -22,22 +21,9 @@ static bool g_AllPictureIOSecurityPrecautionsEnabled = true;
 static bool g_AllPictureIOSecurityPrecautionsEnabled = false;
 #endif
 
-DECLARE_SKMESSAGEBUS_MESSAGE(SkPicture::DeletionMessage);
-
 /* SkPicture impl.  This handles generic responsibilities like unique IDs and serialization. */
 
 SkPicture::SkPicture() : fUniqueID(0) {}
-
-SkPicture::~SkPicture() {
-    // TODO: move this to ~SkBigPicture() only?
-
-    // If the ID is still zero, no one has read it, so no need to send this message.
-    uint32_t id = sk_atomic_load(&fUniqueID, sk_memory_order_relaxed);
-    if (id != 0) {
-        SkPicture::DeletionMessage msg = { (int32_t)id };
-        SkMessageBus<SkPicture::DeletionMessage>::Post(msg);
-    }
-}
 
 uint32_t SkPicture::uniqueID() const {
     static uint32_t gNextID = 1;
