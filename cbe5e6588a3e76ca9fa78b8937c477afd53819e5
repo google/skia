@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ee506d9_2e820ae4",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-13T20:56:02Z",
+      "side": 0,
+      "message": "Wait, don\u0027t we need to keep ~SkPicture() virtual?",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 25
+      },
+      "revId": "cbe5e6588a3e76ca9fa78b8937c477afd53819e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
