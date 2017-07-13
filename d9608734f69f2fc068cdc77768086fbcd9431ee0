@@ -34,6 +34,24 @@
       "revId": "d9608734f69f2fc068cdc77768086fbcd9431ee0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae1a3a3b_f80f1bd6",
+        "filename": "src/gpu/effects/GrCircleEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-13T22:39:53Z",
+      "side": 1,
+      "message": "Ah, okay. The generated emitCode scared me a for a bit, but it makes sense that the known-at-compile-time stuff is optimized out by the sksl compiler.",
+      "parentUuid": "f67a3c8a_f8e58fc6",
+      "revId": "d9608734f69f2fc068cdc77768086fbcd9431ee0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
