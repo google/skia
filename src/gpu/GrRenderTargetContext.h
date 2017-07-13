@@ -154,13 +154,13 @@ public:
      * Use a fast method to render the ambient and spot shadows for a path.
      * Will return false if not possible for the given path.
      *
-     * @param paint        describes how to color pixels.
+     * @param color        shadow color.
      * @param viewMatrix   transformation matrix
      * @param path         the path to shadow
      * @param rec          parameters for shadow rendering
      */
     bool drawFastShadow(const GrClip&,
-                        GrPaint&&,
+                        GrColor color,
                         const SkMatrix& viewMatrix,
                         const SkPath& path,
                         const SkDrawShadowRec& rec);
