@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55546db2_8a29cca8",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-13T18:13:30Z",
+      "side": 1,
+      "message": "I like this pattern. We should make it so for GL and Vulkan.",
+      "revId": "b15f199b398862761fa96f98c6446f062e7bf62f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f1198b1_68f874e4",
+        "filename": "tools/gpu/mtl/MtlTestContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-13T18:13:30Z",
+      "side": 1,
+      "message": "Do you anticipate adding non-override methods to this class? Otherwise, I\u0027m not sure it needs to be declared in the header at all if it just implements TestContext\u0027s interface.",
+      "range": {
+        "startLine": 16,
+        "startChar": 6,
+        "endLine": 16,
+        "endChar": 20
+      },
+      "revId": "b15f199b398862761fa96f98c6446f062e7bf62f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "058ad1d6_2a13cbf3",
+        "filename": "tools/gpu/mtl/MtlTestContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-13T18:13:30Z",
+      "side": 1,
+      "message": "We don\u0027t usually specify virtual on overrides.",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 11
+      },
+      "revId": "b15f199b398862761fa96f98c6446f062e7bf62f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
