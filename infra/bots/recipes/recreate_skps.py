@@ -67,8 +67,9 @@ def RunSteps(api):
          '--chrome_src_path', src_dir,
          '--browser_executable', src_dir.join('out', 'Release', 'chrome'),
          '--target_dir', output_dir]
-  if 'Canary' not in api.properties['buildername']:
-    cmd.append('--upload_to_partner_bucket')
+  # TODO(rmistry): Uncomment the below after skbug.com/6797 is fixed.
+  # if 'Canary' not in api.properties['buildername']:
+  #   cmd.append('--upload_to_partner_bucket')
   with api.context(cwd=api.vars.skia_dir):
     api.run(api.step, 'Recreate SKPs', cmd=cmd)
 
