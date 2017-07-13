@@ -24,14 +24,22 @@
 #include "ops/GrMeshDrawOp.h"
 
 namespace {
-class Op : public GrLegacyMeshDrawOp {
+class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(int numAttribs) {
-        return std::unique_ptr<GrLegacyMeshDrawOp>(new Op(numAttribs));
+    static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
+        return std::unique_ptr<GrDrawOp>(new Op(numAttribs));
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override {
+        return FixedFunctionFlags::kNone;
+    }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return RequiresDstTexture::kNo;
     }
 
 private:
@@ -39,14 +47,8 @@ private:
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                    GrProcessorAnalysisCoverage* coverage) const override {
-        color->setToUnknown();
-        *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-    }
-
-    void applyPipelineOptimizations(const PipelineOptimizations&) override {}
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+
     void onPrepareDraws(Target* target) const override {
         class GP : public GrGeometryProcessor {
         public:
@@ -92,12 +94,12 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         vertices->setRectFan(0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, gp.get(), this->pipeline());
+        helper.recordDraw(target, gp.get(), target->makePipeline(0, &GrProcessorSet::EmptySet()));
     }
 
     int fNumAttribs;
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 }
 
@@ -125,16 +127,14 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
 #endif
     GrPaint grPaint;
     // This one should succeed.
-    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(GrPaint(grPaint), GrAAType::kNone,
-                                                                Op::Make(attribCnt));
+    renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numFailedDraws() == 0);
 #endif
     context->resetGpuStats();
-    renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(std::move(grPaint), GrAAType::kNone,
-                                                                Op::Make(attribCnt + 1));
+    renderTargetContext->priv().testingOnly_addDrawOp(Op::Make(attribCnt + 1));
     context->flush();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, context->getGpu()->stats()->numDraws() == 0);
