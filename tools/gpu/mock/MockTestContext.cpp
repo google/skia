@@ -21,7 +21,6 @@ public:
     virtual GrBackendContext backendContext() override {
         return reinterpret_cast<GrBackendContext>(nullptr);
     }
-    bool isValid() const override { return true; }
     void testAbandon() override {}
     void submit() override {}
     void finish() override {}

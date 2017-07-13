@@ -20,8 +20,10 @@ struct GrContextOptions;
  */
 class GrMtlTrampoline {
 public:
-    static GrGpu* CreateGpu(GrBackendContext backendContext, const GrContextOptions& options,
-                            GrContext* context);
+    static GrGpu* CreateGpu(GrContext* context,
+                            const GrContextOptions& options,
+                            void* device,
+                            void* queue);
 };
 
 #endif

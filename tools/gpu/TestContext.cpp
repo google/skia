@@ -10,6 +10,8 @@
 
 #include "GpuTimer.h"
 
+#include "GrContext.h"
+
 namespace sk_gpu_test {
 TestContext::TestContext()
     : fFenceSync(nullptr)
@@ -27,6 +29,10 @@ TestContext::~TestContext() {
 #endif
     SkASSERT(!fFenceSync);
     SkASSERT(!fGpuTimer);
+}
+
+sk_sp<GrContext> TestContext::makeGrContext(const GrContextOptions&) {
+    return nullptr;
 }
 
 void TestContext::makeCurrent() const { this->onPlatformMakeCurrent(); }
