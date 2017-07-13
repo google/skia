@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc37a348_dbe67106",
+        "filename": "infra/bots/recipes/recreate_skps.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-13T17:47:25Z",
+      "side": 1,
+      "message": "Nit: the convention used elsewhere is \".gitcookies_update-skps",
+      "range": {
+        "startLine": 39,
+        "startChar": 42,
+        "endLine": 39,
+        "endChar": 65
+      },
+      "revId": "29ef6f01e63f6ff0d9e600a5d2cc62f0f17dc66e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
