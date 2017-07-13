@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("gn/flutter_defines.gni")
 import("gn/shared_sources.gni")
 
 if (is_fuchsia) {
@@ -34,6 +35,7 @@ declare_args() {
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
   skia_enable_effects = true
+  skia_enable_flutter_defines = false
   skia_enable_gpu = true
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
@@ -111,6 +113,9 @@ config("skia_public") {
   }
   if (is_fuchsia || is_linux) {
     defines += [ "SK_SAMPLES_FOR_X" ]
+  }
+  if (skia_enable_flutter_defines) {
+    defines += flutter_defines
   }
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]
