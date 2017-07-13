@@ -272,11 +272,13 @@ SkColor SkPixmap::getColor(int x, int y) const {
         case kAlpha_8_SkColorType: {
             return SkColorSetA(0, *this->addr8(x, y));
         }
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType: {
             SkASSERT(this->ctable());
             SkPMColor c = (*this->ctable())[*this->addr8(x, y)];
             return toColor(c);
         }
+#endif
         case kRGB_565_SkColorType: {
             return SkPixel16ToColor(*this->addr16(x, y));
         }
@@ -332,6 +334,7 @@ bool SkPixmap::computeIsOpaque() const {
             }
             return true;
         } break;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType: {
             const SkColorTable* ctable = this->ctable();
             if (nullptr == ctable) {
@@ -344,6 +347,7 @@ bool SkPixmap::computeIsOpaque() const {
             }
             return 0xFF == SkGetPackedA32(c);
         } break;
+#endif
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
             return true;

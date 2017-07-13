@@ -25,7 +25,9 @@ static inline bool valid_color_type(const SkImageInfo& dstInfo) {
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
         case kGray_8_SkColorType:
         case kRGB_565_SkColorType:
             return true;

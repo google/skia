@@ -20,13 +20,16 @@ void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
     SkColorSpace* legacyColorSpace = nullptr;
     if(as_IB(image)->getROPixels(dst, legacyColorSpace)
        && dst->dimensions() == image->dimensions()) {
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         if (dst->colorType() != kIndex_8_SkColorType) {
             return;
         }
         if (!dst->getColorTable()) {
             // We can't use an indexed bitmap with no colortable.
             dst->reset();
-        } else {
+        } else
+#endif
+        {
             return;
         }
     }
@@ -163,7 +166,9 @@ static size_t pdf_color_component_count(SkColorType ct) {
         case kBGRA_8888_SkColorType:
             return 3;
         case kAlpha_8_SkColorType:
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
         case kGray_8_SkColorType:
             return 1;
         case kUnknown_SkColorType:
@@ -234,7 +239,9 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
             fill_stream(out, '\x00', pixel_count(bm));
             return;
         case kGray_8_SkColorType:
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
             SkASSERT(1 == pdf_color_component_count(colorType));
             // these two formats need no transformation to serialize.
             for (int y = 0; y < bm.height(); ++y) {
@@ -277,6 +284,7 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
                 out->write(bm.getAddr8(0, y), bm.width());
             }
             return;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType: {
             SkColorTable* ct = bm.getColorTable();
             SkASSERT(ct);
@@ -291,6 +299,7 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
             }
             return;
         }
+#endif
         case kRGB_565_SkColorType:
         case kGray_8_SkColorType:
             SkDEBUGFAIL("color type has no alpha");
@@ -304,6 +313,7 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 static sk_sp<SkPDFArray> make_indexed_color_space(
         const SkColorTable* table,
         SkAlphaType alphaType) {
@@ -341,6 +351,7 @@ static sk_sp<SkPDFArray> make_indexed_color_space(
     result->appendString(tableString);
     return result;
 }
+#endif
 
 static void emit_image_xobject(SkWStream* stream,
                                const SkImage* image,
@@ -366,11 +377,13 @@ static void emit_image_xobject(SkWStream* stream,
     pdfDict.insertInt("Height", bitmap.height());
     if (alpha) {
         pdfDict.insertName("ColorSpace", "DeviceGray");
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     } else if (bitmap.colorType() == kIndex_8_SkColorType) {
         SkASSERT(1 == pdf_color_component_count(bitmap.colorType()));
         pdfDict.insertObject("ColorSpace",
                              make_indexed_color_space(bitmap.getColorTable(),
                                                       bitmap.alphaType()));
+#endif
     } else if (1 == pdf_color_component_count(bitmap.colorType())) {
         pdfDict.insertName("ColorSpace", "DeviceGray");
     } else {

@@ -121,7 +121,12 @@ public:
     /** Return true iff drawing this bitmap has no effect.
      */
     bool drawsNothing() const {
-        return this->colorType() == kIndex_8_SkColorType || this->empty() || this->isNull();
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+        if (this->colorType() == kIndex_8_SkColorType) {
+            return true;
+        }
+#endif
+        return this->empty() || this->isNull();
     }
 
     /** Return the number of bytes between subsequent rows of the bitmap. */
@@ -424,8 +429,12 @@ public:
         non-null colortable. Returns true if all of the above are met.
     */
     bool readyToDraw() const {
-        return this->getPixels() != NULL &&
-               (this->colorType() != kIndex_8_SkColorType || this->getColorTable());
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+        if (this->colorType() == kIndex_8_SkColorType) {
+            return false;
+        }
+#endif
+        return this->getPixels() != NULL;
     }
 
     /** Return the bitmap's colortable, if it uses one (i.e. colorType is
@@ -725,6 +734,7 @@ inline uint8_t* SkBitmap::getAddr8(int x, int y) const {
     return (uint8_t*)fPixels + y * fRowBytes + x;
 }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
 inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT(fPixels);
     SkASSERT(kIndex_8_SkColorType == this->colorType());
@@ -732,5 +742,6 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT(this->getColorTable());
     return (*this->getColorTable())[*((const uint8_t*)fPixels + y * fRowBytes + x)];
 }
+#endif
 
 #endif

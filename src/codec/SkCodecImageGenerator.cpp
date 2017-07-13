@@ -23,10 +23,11 @@ static SkImageInfo adjust_info(const SkImageInfo& info) {
         newInfo = newInfo.makeAlphaType(kPremul_SkAlphaType);
     }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     if (kIndex_8_SkColorType == info.colorType()) {
         newInfo = newInfo.makeColorType(kN32_SkColorType);
     }
-
+#endif
     return newInfo;
 }
 

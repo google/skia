@@ -16,9 +16,14 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
                                  const Options* opts) {
-    if (kUnknown_SkColorType == info.colorType() || kIndex_8_SkColorType == info.colorType()) {
+    if (kUnknown_SkColorType == info.colorType()) {
         return false;
     }
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+    if (kIndex_8_SkColorType == info.colorType()) {
+        return false;
+    }
+#endif
     if (nullptr == pixels) {
         return false;
     }

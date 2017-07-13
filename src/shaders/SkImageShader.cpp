@@ -326,7 +326,9 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
         }
         switch (info.colorType()) {
             case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::gather_a8,   gather); break;
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
             case kIndex_8_SkColorType:   p->append(SkRasterPipeline::gather_i8,   gather); break;
+#endif
             case kGray_8_SkColorType:    p->append(SkRasterPipeline::gather_g8,   gather); break;
             case kRGB_565_SkColorType:   p->append(SkRasterPipeline::gather_565,  gather); break;
             case kARGB_4444_SkColorType: p->append(SkRasterPipeline::gather_4444, gather); break;
@@ -390,9 +392,11 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
         p->append(SkRasterPipeline::move_dst_src);
     }
 
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
     if (info.colorType() == kIndex_8_SkColorType && kN32_SkColorType == kBGRA_8888_SkColorType) {
         p->append(SkRasterPipeline::swap_rb);
     }
+#endif
     if (info.colorType() == kAlpha_8_SkColorType) {
         p->append(SkRasterPipeline::set_rgb, &misc->paint_color);
     }

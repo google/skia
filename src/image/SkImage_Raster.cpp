@@ -57,10 +57,11 @@ public:
         if (kUnknown_SkColorType == info.colorType()) {
             return false;
         }
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         if (kIndex_8_SkColorType == info.colorType()) {
             return false;
         }
-
+#endif
         if (rowBytes < info.minRowBytes()) {
             return false;
         }
