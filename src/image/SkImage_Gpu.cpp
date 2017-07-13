@@ -891,7 +891,7 @@ sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, con
     }
     const DeferredTextureImage* dti = reinterpret_cast<const DeferredTextureImage*>(data);
 
-    if (!context || context->uniqueID() != dti->fContextUniqueID) {
+    if (!context || context->uniqueID() != dti->fContextUniqueID || context->abandoned()) {
         return nullptr;
     }
     int mipLevelCount = dti->fMipMapLevelCount;
