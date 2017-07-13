@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1077c8f2_342abf0c",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-13T12:16:53Z",
+      "side": 1,
+      "message": "Oops, this makes 8888 fall through to f16. I have a fix in https://skia-review.googlesource.com/c/23020/",
+      "range": {
+        "startLine": 155,
+        "startChar": 7,
+        "endLine": 155,
+        "endChar": 42
+      },
+      "revId": "580501382fb1418fff7acc63680f3a9a6bf3938c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
