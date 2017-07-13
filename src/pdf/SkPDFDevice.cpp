@@ -2211,22 +2211,30 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         }
     }
 
-    // TODO(halcanary) support isAlphaOnly & getMaskFilter.
-    bool imageAlphaOnly = imageSubset.image()->isAlphaOnly() && !paint.getMaskFilter();
-    if (imageAlphaOnly) {
-        if (SkColorFilter* colorFilter = paint.getColorFilter()) {
-            sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
-            paint.setColorFilter(nullptr);
-            imageSubset = SkKeyedImage(std::move(img));
-            if (!imageSubset) {
+    if (imageSubset.image()->isAlphaOnly() && !paint.getColorFilter()) {
+        SkIPoint xy = {0, 0};
+        sk_sp<SkImage> mask;
+        if (paint.getMaskFilter()) {
+            SkBitmap srcMaskBmp;
+            if (!imageSubset.image()->asLegacyBitmap(&srcMaskBmp, SkImage::kRO_LegacyBitmapMode)) {
                 return;
             }
-            imageAlphaOnly = imageSubset.image()->isAlphaOnly();
-            // The colorfilter can make a alphonly image no longer be alphaonly.
+            SkASSERT_RELEASE(srcMaskBmp.colorType() == kAlpha_8_SkColorType);
+            SkMask srcMask;
+            srcMask.fImage = (uint8_t*)srcMaskBmp.getPixels();
+            srcMask.fBounds = {0, 0, srcMaskBmp.width(), srcMaskBmp.height()};
+            srcMask.fRowBytes = srcMaskBmp.rowBytes();
+            srcMask.fFormat = SkMask::kA8_Format;
+
+            SkMask dstMask;
+            if (!paint.getMaskFilter()->filterMask(&dstMask, srcMask, ctm, nullptr)) {
+                return;
+            }
+            xy = {dstMask.fBounds.x(), dstMask.fBounds.y()};
+            mask = mask_to_greyscale_image(&dstMask);
+        } else {
+            mask = alpha_image_to_greyscale_image(imageSubset.image().get());
         }
-    }
-    if (imageAlphaOnly) {
-        sk_sp<SkImage> mask = alpha_image_to_greyscale_image(imageSubset.image().get());
         if (!mask) {
             return;
         }
@@ -2238,7 +2246,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
             canvas.concat(transform);
             canvas.concat(ctm);
             // TODO(halcanary): investigate sub-pixel clipping.
-            canvas.drawImage(mask, 0, 0);
+            canvas.drawImage(mask, xy.x(), xy.y());
         }
         remove_color_filter(&paint);
         if (!ctm.isIdentity() && paint.getShader()) {
@@ -2373,11 +2381,6 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
 
     if (SkColorFilter* colorFilter = paint.getColorFilter()) {
-        // TODO(https://bug.skia.org/4378): implement colorfilter on other
-        // draw calls.  This code here works for all
-        // drawBitmap*()/drawImage*() calls amd ImageFilters (which
-        // rasterize a layer on this backend).  Fortuanely, this seems
-        // to be how Chromium impements most color-filters.
         sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
         imageSubset = SkKeyedImage(std::move(img));
         if (!imageSubset) {
