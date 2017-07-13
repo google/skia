@@ -11,7 +11,11 @@
 
 #include "FenceSync.h"
 #include "GrTypes.h"
+#include "SkRefCnt.h"
 #include "../private/SkTemplates.h"
+
+class GrContext;
+struct GrContextOptions;
 
 namespace sk_gpu_test {
 
@@ -24,8 +28,6 @@ class GpuTimer;
 class TestContext : public SkNoncopyable {
 public:
     virtual ~TestContext();
-
-    virtual bool isValid() const = 0;
 
     bool fenceSyncSupport() const { return fFenceSync != nullptr; }
     FenceSync* fenceSync() { SkASSERT(fFenceSync); return fFenceSync.get(); }
@@ -45,6 +47,8 @@ public:
 
     virtual GrBackend backend() = 0;
     virtual GrBackendContext backendContext() = 0;
+
+    virtual sk_sp<GrContext> makeGrContext(const GrContextOptions&);
 
     /** Swaps front and back buffer (if the context has such buffers) */
     void swapBuffers();

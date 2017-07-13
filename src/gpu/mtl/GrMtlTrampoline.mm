@@ -9,9 +9,13 @@
 
 #include "GrMtlGpu.h"
 
-GrGpu* GrMtlTrampoline::CreateGpu(GrBackendContext backendContext,
+GrGpu* GrMtlTrampoline::CreateGpu(GrContext* context,
                                   const GrContextOptions& options,
-                                  GrContext* context) {
-    return GrMtlGpu::Create(backendContext, options, context);
+                                  void* device,
+                                  void* queue) {
+    return GrMtlGpu::Create(context,
+                            options,
+                            (__bridge_transfer id<MTLDevice>)device,
+                            (__bridge_transfer id<MTLCommandQueue>)queue);
 }
 

@@ -20,6 +20,9 @@
 #ifdef SK_VULKAN
 #include "vk/VkTestContext.h"
 #endif
+#ifdef SK_METAL
+#include "mtl/MtlTestContext.h"
+#endif
 #include "gl/null/NullGLTestContext.h"
 #include "gl/GrGLGpu.h"
 #include "mock/MockTestContext.h"
@@ -221,6 +224,16 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             break;
         }
 #endif
+#ifdef SK_METAL
+        case kMetal_GrBackend: {
+            SkASSERT(!masterContext);
+            testCtx.reset(CreatePlatformMtlTestContext(nullptr));
+            if (!testCtx) {
+                return ContextInfo();
+            }
+            break;
+        }
+#endif
         case kMock_GrBackend: {
             TestContext* sharedContext = masterContext ? masterContext->fTestContext : nullptr;
             SkASSERT(kMock_ContextType == type);
@@ -252,7 +265,10 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     if (ContextOverrides::kAvoidStencilBuffers & overrides) {
         grOptions.fAvoidStencilBuffers = true;
     }
-    sk_sp<GrContext> grCtx(GrContext::Create(backend, backendContext, grOptions));
+    sk_sp<GrContext> grCtx = testCtx->makeGrContext(grOptions);
+    if (!grCtx.get() && kMetal_GrBackend != backend) {
+        grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
+    }
     if (!grCtx.get()) {
         return ContextInfo();
     }

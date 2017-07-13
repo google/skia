@@ -994,6 +994,9 @@ if (skia_enable_tools) {
           libs += [ "vulkan" ]
         }
       }
+      if (skia_use_metal) {
+        sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+      }
     }
   }
 

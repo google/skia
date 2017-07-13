@@ -28,6 +28,10 @@
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
 
+#ifdef SK_METAL
+#include "mtl/GrMtlTrampoline.h"
+#endif
+
 #define ASSERT_OWNED_PROXY(P) \
 SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
 #define ASSERT_OWNED_PROXY_PRIV(P) \
@@ -61,6 +65,21 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
     return context.release();
 }
 
+#ifdef SK_METAL
+sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrContext);
+    context->fGpu = GrMtlTrampoline::CreateGpu(context.get(), options, device, queue);
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fBackend = kMetal_GrBackend;
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+#endif
+
 static int32_t gNextID = 1;
 static int32_t next_id() {
     int32_t id;
@@ -89,7 +108,11 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext,
     if (!fGpu) {
         return false;
     }
+    return this->init(options);
+}
 
+bool GrContext::init(const GrContextOptions& options) {
+    ASSERT_SINGLE_OWNER
     fCaps = SkRef(fGpu->caps());
     fResourceCache = new GrResourceCache(fCaps, fUniqueID);
     fResourceProvider = new GrResourceProvider(fGpu, fResourceCache, &fSingleOwner);
