@@ -35,10 +35,6 @@ public:
         return sk_sp<SkData>(this->onEncode(pixmap));
     }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
-    SkData* encode(const SkPixmap& pixmap);
-#endif
-
 protected:
     /**
      *  Return true if you want to serialize the encoded data, false if you want
