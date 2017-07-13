@@ -792,6 +792,10 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
     desc.fConfig = config;
     desc.fSampleCnt = sampleCnt;
 
+    if (this->abandoned()) {
+        return nullptr;
+    }
+
     sk_sp<GrTextureProxy> rtp = GrSurfaceProxy::MakeDeferred(this->resourceProvider(),
                                                              desc, fit, budgeted);
     if (!rtp) {
