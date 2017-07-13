@@ -33,8 +33,8 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
             uniform.fType = uniformInfo.fVariable.getType();
         );
 
-        if (kVertex_GrShaderFlag == uniformInfo.fVisibility ||
-            kGeometry_GrShaderFlag == uniformInfo.fVisibility) {
+        static const uint32_t kGeomStages = kVertex_GrShaderFlag | kGeometry_GrShaderFlag;
+        if (kGeomStages & uniformInfo.fVisibility) {
             uniform.fBinding = GrVkUniformHandler::kGeometryBinding;
         } else {
             SkASSERT(kFragment_GrShaderFlag == uniformInfo.fVisibility);
