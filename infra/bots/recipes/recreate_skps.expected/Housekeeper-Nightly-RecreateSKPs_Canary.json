@@ -133,22 +133,6 @@
   },
   {
     "cmd": [
-      "ninja",
-      "-C",
-      "[CUSTOM_/_B_WORK]/src/out/Release",
-      "chrome"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/src",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "Build Chrome"
-  },
-  {
-    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -174,26 +158,6 @@
     ],
     "infra_step": true,
     "name": "makedirs skp_output"
-  },
-  {
-    "cmd": [
-      "python",
-      "[CUSTOM_/_B_WORK]/skia/infra/bots/assets/skp/create.py",
-      "--chrome_src_path",
-      "[CUSTOM_/_B_WORK]/src",
-      "--browser_executable",
-      "[CUSTOM_/_B_WORK]/src/out/Release/chrome",
-      "--target_dir",
-      "[START_DIR]/skp_output"
-    ],
-    "cwd": "[CUSTOM_/_B_WORK]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "name": "Recreate SKPs"
   },
   {
     "name": "$result",
