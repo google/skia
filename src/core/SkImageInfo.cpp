@@ -9,6 +9,66 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
+// These values must be constant over revisions, though they can be renamed to reflect if/when
+// they are deprecated.
+enum Stored_SkColorType {
+    kUnknown_Stored_SkColorType             = 0,
+    kAlpha_8_Stored_SkColorType             = 1,
+    kRGB_565_Stored_SkColorType             = 2,
+    kARGB_4444_Stored_SkColorType           = 3,
+    kRGBA_8888_Stored_SkColorType           = 4,
+    kBGRA_8888_Stored_SkColorType           = 5,
+    kIndex_8_Stored_SkColorType_DEPRECATED  = 6,
+    kGray_8_Stored_SkColorType              = 7,
+    kRGBA_F16_Stored_SkColorType            = 8,
+
+    kLast_Stored_SkColorType                = kRGBA_F16_Stored_SkColorType,
+};
+
+// Index with Stored_SkColorType
+const SkColorType gStoredToLive[] = {
+    kUnknown_SkColorType,
+    kAlpha_8_SkColorType,
+    kRGB_565_SkColorType,
+    kARGB_4444_SkColorType,
+    kRGBA_8888_SkColorType,
+    kBGRA_8888_SkColorType,
+    kUnknown_SkColorType,       // was kIndex_8
+    kGray_8_SkColorType,
+    kRGBA_F16_SkColorType,
+};
+
+// Index with SkColorType
+const Stored_SkColorType gLiveToStored[] = {
+    kUnknown_Stored_SkColorType,
+    kAlpha_8_Stored_SkColorType,
+    kRGB_565_Stored_SkColorType,
+    kARGB_4444_Stored_SkColorType,
+    kRGBA_8888_Stored_SkColorType,
+    kBGRA_8888_Stored_SkColorType,
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
+    kIndex_8_Stored_SkColorType_DEPRECATED,
+#endif
+    kGray_8_Stored_SkColorType,
+    kRGBA_F16_Stored_SkColorType,
+};
+
+static uint8_t live_to_stored(unsigned ct) {
+    static_assert(SK_ARRAY_COUNT(gLiveToStored) == (kLastEnum_SkColorType + 1), "");
+    SkASSERT(ct < SK_ARRAY_COUNT(gLiveToStored));
+
+    return gLiveToStored[ct];
+}
+
+static SkColorType stored_to_live(unsigned stored) {
+    static_assert(SK_ARRAY_COUNT(gStoredToLive) == (kLast_Stored_SkColorType + 1), "");
+    SkASSERT(stored < SK_ARRAY_COUNT(gStoredToLive));
+
+    return gStoredToLive[stored];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 static bool alpha_type_is_valid(SkAlphaType alphaType) {
     return (alphaType >= 0) && (alphaType <= kLastEnum_SkAlphaType);
 }
@@ -30,7 +90,7 @@ void SkImageInfo::unflatten(SkReadBuffer& buffer) {
     fHeight = buffer.read32();
 
     uint32_t packed = buffer.read32();
-    fColorType = (SkColorType)((packed >> 0) & kColorTypeMask);
+    fColorType = stored_to_live((SkColorType)((packed >> 0) & kColorTypeMask));
     fAlphaType = (SkAlphaType)((packed >> 8) & kAlphaTypeMask);
     buffer.validate(alpha_type_is_valid(fAlphaType) && color_type_is_valid(fColorType));
 
@@ -44,7 +104,7 @@ void SkImageInfo::flatten(SkWriteBuffer& buffer) const {
 
     SkASSERT(0 == (fAlphaType & ~kAlphaTypeMask));
     SkASSERT(0 == (fColorType & ~kColorTypeMask));
-    uint32_t packed = (fAlphaType << 8) | fColorType;
+    uint32_t packed = (fAlphaType << 8) | live_to_stored(fColorType);
     buffer.write32(packed);
 
     if (fColorSpace) {
@@ -71,7 +131,9 @@ bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alphaType,
                 alphaType = kPremul_SkAlphaType;
             }
             // fall-through
+#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
         case kIndex_8_SkColorType:
+#endif
         case kARGB_4444_SkColorType:
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
