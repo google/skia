@@ -401,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "86cf29a0_082d55b3",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-14T14:59:39Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly about this but a macro could be used to avoid the %s\u0027s\n\n#define P \"P\"\n\n\"highp vec2 mipPoint \u003d \" P \"* vec4(...)\"\n\nI\u0027m not sure it\u0027s any better, though.",
+      "parentUuid": "65884ec9_f643697b",
+      "range": {
+        "startLine": 98,
+        "startChar": 42,
+        "endLine": 98,
+        "endChar": 43
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71547ada_b81e7f89",
         "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
         "patchSetId": 10
