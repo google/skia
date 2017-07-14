@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b262616f_21e8a7d2",
+        "filename": "src/gpu/effects/GrEllipseEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-14T17:32:52Z",
+      "side": 1,
+      "message": "Changing prevRadii here is definitely a behavior change from before (when it was initialized in the constructor). That\u0027s probably not meaningfully different - unless a new shader variant is emitted after we\u0027ve done some draws? Even then, the perf hit is minimal (just re-uploading the uniforms), so no big deal.",
+      "revId": "84ab85e00a14774cb57f7742c1a557b981bbef57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe0be50e_6ca17835",
+        "filename": "src/gpu/effects/GrEllipseEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-14T17:32:52Z",
+      "side": 1,
+      "message": "Similarly - I\u0027m guessing that the presence of prevRadii/prevCenter in the .fp forces them to be injected/initialized here, but dead-code elimination is going to strip them out (because they\u0027re not referenced)?",
+      "revId": "84ab85e00a14774cb57f7742c1a557b981bbef57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
