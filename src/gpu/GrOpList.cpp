@@ -23,13 +23,15 @@ uint32_t GrOpList::CreateUniqueID() {
 }
 
 GrOpList::GrOpList(GrResourceProvider* resourceProvider,
-                   GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
+                   GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail, const char* name)
     : fAuditTrail(auditTrail)
     , fUniqueID(CreateUniqueID())
-    , fFlags(0) {
+    , fFlags(0)
+    , fName(name) {
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 
+#if 0
     // MDB TODO: remove this! We are currently moving to having all the ops that target
     // the RT as a dest (e.g., clear, etc.) rely on the opList's 'fTarget' pointer
     // for the IO Ref. This works well but until they are all swapped over (and none
@@ -37,6 +39,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
     // here so that the GrSurfaces are created in an order that preserves the GrSurface
     // re-use assumptions.
     fTarget.get()->instantiate(resourceProvider);
+#endif
     fTarget.markPendingIO();
 }
 
@@ -87,6 +90,10 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
 }
 
 #ifdef SK_DEBUG
+bool GrOpList::isInstantiated() const {
+    return fTarget.get()->isInstantiated();
+}
+
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()

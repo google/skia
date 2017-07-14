@@ -107,7 +107,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                                                      SkBackingFit::kApprox,
                                                                      1, 1, kRGBA_8888_GrPixelConfig,
-                                                                     nullptr));
+                                                                     nullptr, "test"));
     if (!renderTargetContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;

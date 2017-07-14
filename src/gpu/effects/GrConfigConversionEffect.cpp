@@ -124,11 +124,11 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     sk_sp<GrRenderTargetContext> readRTC(context->makeDeferredRenderTargetContext(
                                                                           SkBackingFit::kExact,
                                                                           kSize, kSize,
-                                                                          kConfig, nullptr));
+                                                                          kConfig, nullptr, "PM conv"));
     sk_sp<GrRenderTargetContext> tempRTC(context->makeDeferredRenderTargetContext(
                                                                           SkBackingFit::kExact,
                                                                           kSize, kSize,
-                                                                          kConfig, nullptr));
+                                                                          kConfig, nullptr, "PM conv"));
     if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
         return false;
     }

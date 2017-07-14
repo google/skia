@@ -64,6 +64,8 @@ public:
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
 
 private:
+    void gatherOpList(GrResourceAllocator*) const override;
+
     void recordOp(std::unique_ptr<GrOp>);
 
     SkSTArray<2, std::unique_ptr<GrOp>, true> fRecordedOps;

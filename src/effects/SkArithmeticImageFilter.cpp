@@ -390,7 +390,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
             SkBackingFit::kApprox, bounds.width(), bounds.height(),
             GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-            sk_ref_sp(outputProperties.colorSpace())));
+            sk_ref_sp(outputProperties.colorSpace()), "arith IF"));
     if (!renderTargetContext) {
         return nullptr;
     }

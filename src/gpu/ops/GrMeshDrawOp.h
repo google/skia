@@ -97,6 +97,9 @@ private:
  */
 class GrLegacyMeshDrawOp : public GrMeshDrawOp {
 public:
+    void gatherOp(GrResourceAllocator* alloc) const override {
+    }
+
     /**
      * Performs analysis of the fragment processors in GrProcessorSet and GrAppliedClip using the
      * initial color and coverage from this op's geometry processor.

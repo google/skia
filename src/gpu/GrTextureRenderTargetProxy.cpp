@@ -56,3 +56,18 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 
     return true;
 }
+
+sk_sp<GrSurface> GrTextureRenderTargetProxy::foo(GrResourceProvider* resourceProvider) const {
+    static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
+
+    sk_sp<GrSurface> surface = this->fooImpl(resourceProvider, this->numStencilSamples(),
+                                             kFlags, this->isMipMapped(), this->mipColorMode());
+    if (!surface) {
+        return nullptr;
+    }
+    SkASSERT(fTarget->asRenderTarget());
+    SkASSERT(fTarget->asTexture());
+
+    return surface;
+}
+
