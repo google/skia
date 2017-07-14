@@ -8,6 +8,7 @@
 #include "GrOnFlushResourceProvider.h"
 
 #include "GrDrawingManager.h"
+#include "GrGpu.h"
 #include "GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
@@ -70,6 +71,21 @@ sk_sp<GrBuffer> GrOnFlushResourceProvider::makeBuffer(GrBufferType intendedType,
     return sk_sp<GrBuffer>(rp->createBuffer(size, intendedType, kDynamic_GrAccessPattern,
                                             GrResourceProvider::kNoPendingIO_Flag,
                                             data));
+}
+
+sk_sp<GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(const GrUniqueKey& key,
+                                                                  GrBufferType intendedType,
+                                                                  size_t size, const void* data) {
+    GrResourceProvider* rp = fDrawingMgr->getContext()->resourceProvider();
+    sk_sp<GrBuffer> buffer(rp->findAndRefTByUniqueKey<GrBuffer>(key));
+    if (!buffer) {
+        buffer.reset(rp->gpu()->createBuffer(size, intendedType, kStatic_GrAccessPattern, data));
+        if (!buffer) {
+            return nullptr;
+        }
+        buffer->resourcePriv().setUniqueKey(key);
+    }
+    return buffer;
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {

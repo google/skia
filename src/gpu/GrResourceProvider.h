@@ -281,6 +281,8 @@ private:
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
+
+    friend class GrOnFlushResourceProvider; // for access to gpu.
 };
 
 #endif
