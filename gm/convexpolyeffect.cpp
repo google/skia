@@ -13,17 +13,15 @@
 
 #include "GrContext.h"
 #include "GrDefaultGeoProcFactory.h"
-#include "GrRenderTargetContextPriv.h"
+#include "GrOpFlushState.h"
 #include "GrPathUtils.h"
+#include "GrRenderTargetContextPriv.h"
 #include "GrTest.h"
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
 #include "SkTLList.h"
-
-#include "ops/GrMeshDrawOp.h"
-#include "ops/GrTestMeshDrawOp.h"
-
 #include "effects/GrConvexPolyEffect.h"
+#include "ops/GrMeshDrawOp.h"
 
 /** outset rendered rect to visualize anti-aliased poly edges */
 static SkRect outset(const SkRect& unsorted) {
@@ -40,24 +38,37 @@ static SkRect sorted_rect(const SkRect& unsorted) {
 }
 
 namespace skiagm {
-class PolyBoundsOp : public GrTestMeshDrawOp {
+class PolyBoundsOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
     const char* name() const override { return "PolyBoundsOp"; }
 
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make(const SkRect& rect, GrColor color) {
-        return std::unique_ptr<GrLegacyMeshDrawOp>(new PolyBoundsOp(rect, color));
+    static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& rect) {
+        return std::unique_ptr<GrDrawOp>(new PolyBoundsOp(std::move(paint), rect));
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        auto analysis = fProcessors.finalize(
+                fColor, GrProcessorAnalysisCoverage::kNone, clip, false, caps, &fColor);
+        return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
     }
 
 private:
-    PolyBoundsOp(const SkRect& rect, GrColor color)
-            : INHERITED(ClassID(), outset(sorted_rect(rect)), color), fRect(outset(rect)) {}
+    PolyBoundsOp(GrPaint&& paint, const SkRect& rect)
+            : INHERITED(ClassID())
+            , fColor(paint.getColor())
+            , fProcessors(std::move(paint))
+            , fRect(outset(rect)) {
+        this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsZeroArea::kNo);
+    }
 
     void onPrepareDraws(Target* target) const override {
         using namespace GrDefaultGeoProcFactory;
 
-        Color color(this->color());
+        Color color(fColor);
         sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
                 color, Coverage::kSolid_Type, LocalCoords::kUnused_Type, SkMatrix::I()));
 
@@ -71,12 +82,16 @@ private:
 
         fRect.toQuad(verts);
 
-        helper.recordDraw(target, gp.get(), this->pipeline());
+        helper.recordDraw(target, gp.get(), target->makePipeline(0, &fProcessors));
     }
 
+    bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
+
+    GrColor fColor;
+    GrProcessorSet fProcessors;
     SkRect fRect;
 
-    typedef GrTestMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 /**
@@ -180,14 +195,13 @@ protected:
                 }
 
                 GrPaint grPaint;
+                grPaint.setColor4f(GrColor4f(0, 0, 0, 1.f));
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                std::unique_ptr<GrLegacyMeshDrawOp> op =
-                        PolyBoundsOp::Make(p.getBounds(), 0xff000000);
-
-                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                        std::move(grPaint), GrAAType::kNone, std::move(op));
+                std::unique_ptr<GrDrawOp> op =
+                        PolyBoundsOp::Make(std::move(grPaint), p.getBounds());
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(path->getBounds().width() + kDX);
             }
@@ -221,13 +235,12 @@ protected:
                 }
 
                 GrPaint grPaint;
+                grPaint.setColor4f(GrColor4f(0, 0, 0, 1.f));
                 grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                 grPaint.addCoverageFragmentProcessor(std::move(fp));
 
-                std::unique_ptr<GrLegacyMeshDrawOp> op = PolyBoundsOp::Make(rect, 0xff000000);
-
-                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                        std::move(grPaint), GrAAType::kNone, std::move(op));
+                std::unique_ptr<GrDrawOp> op = PolyBoundsOp::Make(std::move(grPaint), rect);
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 
                 x += SkScalarCeilToScalar(rect.width() + kDX);
             }
