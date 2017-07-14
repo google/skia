@@ -61,6 +61,22 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
+sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
+    static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
+
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, kFlags,
+                                                       /* isMipped = */ false,
+                                                       SkDestinationSurfaceColorMode::kLegacy);
+    if (!surface) {
+        return nullptr;
+    }
+    SkASSERT(surface->asRenderTarget());
+    // Check that our a priori computation matched the ultimate reality
+    SkASSERT(fRenderTargetFlags == surface->asRenderTarget()->renderTargetPriv().flags());
+
+    return surface;
+}
+
 int GrRenderTargetProxy::worstCaseWidth() const {
     if (fTarget) {
         return fTarget->width();
