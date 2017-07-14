@@ -43,6 +43,16 @@ GrProcessorSet::GrProcessorSet(SkBlendMode mode)
         , fFragmentProcessorOffset(0)
         , fFlags(0) {}
 
+GrProcessorSet::GrProcessorSet(sk_sp<GrFragmentProcessor> colorFP)
+        : fFragmentProcessors(1)
+        , fXP((const GrXPFactory*)nullptr)
+        , fColorFragmentProcessorCnt(1)
+        , fFragmentProcessorOffset(0)
+        , fFlags(0) {
+    SkASSERT(colorFP);
+    fFragmentProcessors[0] = colorFP.release();
+}
+
 GrProcessorSet::~GrProcessorSet() {
     for (int i = fFragmentProcessorOffset; i < fFragmentProcessors.count(); ++i) {
         if (this->isFinalized()) {
