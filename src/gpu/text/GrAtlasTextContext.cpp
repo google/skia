@@ -353,7 +353,7 @@ GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(TextBlobOp) {
 
     // Setup dummy SkPaint / GrPaint / GrRenderTargetContext
     sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContext(
-        SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
+        SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr, "textBlob test"));
 
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPaint skPaint;

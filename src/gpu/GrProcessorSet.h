@@ -42,6 +42,9 @@ public:
     const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
         return fFragmentProcessors[idx + fColorFragmentProcessorCnt + fFragmentProcessorOffset];
     }
+    const GrFragmentProcessor* fragmentProcessor(int idx) const {
+        return fFragmentProcessors[idx + fFragmentProcessorOffset];
+    }
 
     const GrXferProcessor* xferProcessor() const {
         SkASSERT(this->isFinalized());

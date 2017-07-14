@@ -250,7 +250,11 @@ public:
         return fUniqueID;
     }
 
+    void GrSurfaceProxy::assign(sk_sp<GrSurface> surface);
+
     virtual bool instantiate(GrResourceProvider* resourceProvider) = 0;
+
+    virtual sk_sp<GrSurface> foo(GrResourceProvider*) const = 0;
 
     /**
      * Helper that gets the width and height of the surface as a bounding rectangle.
@@ -315,6 +319,7 @@ public:
 
     bool isWrapped_ForTesting() const;
 
+    SkDEBUGCODE(bool isInstantiated() const { return SkToBool(fTarget); })
     SkDEBUGCODE(void validate(GrContext*) const;)
 
     // Provides access to functions that aren't part of the public API.
@@ -352,6 +357,10 @@ protected:
     bool hasPendingWrite() const {
         return this->internalHasPendingWrite();
     }
+
+    sk_sp<GrSurface> GrSurfaceProxy::fooImpl(GrResourceProvider*, int sampleCnt,
+                                             GrSurfaceFlags flags, bool isMipMapped,
+                                             SkDestinationSurfaceColorMode mipColorMode) const;
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
                          GrSurfaceFlags flags, bool isMipMapped,
