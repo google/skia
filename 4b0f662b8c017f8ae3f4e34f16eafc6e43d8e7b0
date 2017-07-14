@@ -22,6 +22,30 @@
       "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21e89c19_e6720118",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-14T14:20:22Z",
+      "side": 1,
+      "message": "Haha, yep. This is what you get when you don\u0027t try to implement/compile...\n\nBut I hope this gives you the gist of what I\u0027m thinking.\n\nThe one thing I\u0027m not sure about is what to do with the SkStream. In the other factories, I delete it on failure. This makes sense for Android, where they\u0027re not going to try to use it again. But it means you have to create a new one if there wasn\u0027t enough data. Yours is just a wrapper for your SegmentReader, but it seems friendlier to not delete it. On an actual failure, though, maybe I should delete it, since you\u0027re not going to use it?",
+      "parentUuid": "827b6f48_ffc1ea74",
+      "range": {
+        "startLine": 121,
+        "startChar": 16,
+        "endLine": 121,
+        "endChar": 22
+      },
+      "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
