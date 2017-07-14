@@ -18,19 +18,47 @@
 #include "effects/GrProxyMove.h"
 class GrDitherEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new GrDitherEffect());
+    float maxOffset() const { return fMaxOffset; }
+
+    static sk_sp<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+        float maxOffset;
+        switch (dstConfig) {
+            case kAlpha_8_GrPixelConfig:
+            case kGray_8_GrPixelConfig:
+            case kRGBA_8888_GrPixelConfig:
+            case kBGRA_8888_GrPixelConfig:
+            case kSRGBA_8888_GrPixelConfig:
+            case kSBGRA_8888_GrPixelConfig:
+                maxOffset = 0.5f / 255.f;
+                break;
+            case kRGB_565_GrPixelConfig:
+                maxOffset = 0.5f / 31.f;
+                break;
+            case kRGBA_4444_GrPixelConfig:
+                maxOffset = 0.5f / 15.f;
+                break;
+            case kUnknown_GrPixelConfig:
+            case kAlpha_half_GrPixelConfig:
+            case kRGBA_8888_sint_GrPixelConfig:
+            case kRGBA_float_GrPixelConfig:
+            case kRG_float_GrPixelConfig:
+            case kRGBA_half_GrPixelConfig:
+                return nullptr;
+        }
+        return sk_sp<GrFragmentProcessor>(new GrDitherEffect(maxOffset));
     }
     const char* name() const override { return "DitherEffect"; }
 private:
-    GrDitherEffect()
-    : INHERITED(kNone_OptimizationFlags) {
+    GrDitherEffect(float maxOffset)
+    : INHERITED(kNone_OptimizationFlags)
+    , fMaxOffset(maxOffset) {
         this->initClassID<GrDitherEffect>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    float fMaxOffset;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
