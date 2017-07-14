@@ -70,7 +70,7 @@ void SkGaussianColorFilter::toString(SkString* str) const {
 
 sk_sp<GrFragmentProcessor> SkGaussianColorFilter::asFragmentProcessor(GrContext*,
                                                                       SkColorSpace*) const {
-    return GrBlurredEdgeFP::Make(GrBlurredEdgeFP::kGaussian_Mode);
+    return GrBlurredEdgeFragmentProcessor::Make(GrBlurredEdgeFragmentProcessor::kGaussian_Mode);
 }
 #endif
 
