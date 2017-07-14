@@ -19,7 +19,6 @@
 #include "GrQuad.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "ops/GrSimpleMeshDrawOpHelper.h"
-#include "ops/GrTestMeshDrawOp.h"
 
 namespace {
 // This is a simplified mesh drawing op that can be used in the atlas generation test.
