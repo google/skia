@@ -41,6 +41,10 @@ private:
 
     String getSamplerHandle(const Variable& var);
 
+    void writeIfStatement(const IfStatement& s) override;
+
+    void writeSwitchStatement(const SwitchStatement& s) override;
+
     void writeFunctionCall(const FunctionCall& c) override;
 
     void writeFunction(const FunctionDefinition& f) override;

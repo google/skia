@@ -162,7 +162,7 @@ protected:
 
     void writeBlock(const Block& b);
 
-    void writeIfStatement(const IfStatement& stmt);
+    virtual void writeIfStatement(const IfStatement& stmt);
 
     void writeForStatement(const ForStatement& f);
 
@@ -170,7 +170,7 @@ protected:
 
     void writeDoStatement(const DoStatement& d);
 
-    void writeSwitchStatement(const SwitchStatement& s);
+    virtual void writeSwitchStatement(const SwitchStatement& s);
 
     void writeReturnStatement(const ReturnStatement& r);
 

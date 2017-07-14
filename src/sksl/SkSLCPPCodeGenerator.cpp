@@ -225,6 +225,20 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     }
 }
 
+void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
+    if (s.fIsStatic) {
+        this->write("@");
+    }
+    INHERITED::writeIfStatement(s);
+}
+
+void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
+    if (s.fIsStatic) {
+        this->write("@");
+    }
+    INHERITED::writeSwitchStatement(s);
+}
+
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "COLORSPACE") {
         String tmpVar = "_tmpVar" + to_string(++fVarCount);

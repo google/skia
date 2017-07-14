@@ -95,7 +95,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".h")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(SkSL::Compiler::kPermitInvalidStaticTests_Flag);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
@@ -112,7 +112,7 @@ int main(int argc, const char** argv) {
         }
     } else if (name.endsWith(".cpp")) {
         SkSL::FileOutputStream out(argv[2]);
-        SkSL::Compiler compiler;
+        SkSL::Compiler compiler(SkSL::Compiler::kPermitInvalidStaticTests_Flag);
         if (!out.isValid()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
