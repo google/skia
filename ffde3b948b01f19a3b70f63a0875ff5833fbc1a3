@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3cdfce09_3730a49f",
+        "filename": "tests/PictureShaderTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-14T13:50:54Z",
+      "side": 1,
+      "message": "Right, what I really want is to assert that the ref count \u003d\u003d 3, but no way to do that, so just a sanity check.  The actual/relevant test is below.\n\n(i thought about counting the cache entries, but it\u0027s a global cache and the test is run in parallel.  hmm, maybe i can scan the cache for this particular key... i\u0027ll look into it).",
+      "parentUuid": "5c4cd946_03c94876",
+      "range": {
+        "startLine": 65,
+        "startChar": 24,
+        "endLine": 65,
+        "endChar": 32
+      },
+      "revId": "ffde3b948b01f19a3b70f63a0875ff5833fbc1a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e064209_65b7063f",
         "filename": "tests/PictureShaderTest.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-14T12:45:18Z",
       "side": 1,
       "message": "not sure I understand this block (its purpose)",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 19
+      },
+      "revId": "ffde3b948b01f19a3b70f63a0875ff5833fbc1a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83683873_5b3e2b61",
+        "filename": "tests/PictureShaderTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-14T13:50:54Z",
+      "side": 1,
+      "message": "The purge mailbox is only checked on cache access.  This triggers the actual purge (deletion only sends the purge message).",
+      "parentUuid": "9e064209_65b7063f",
       "range": {
         "startLine": 68,
         "startChar": 12,
