@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "765e45cc_91e03d5c",
+        "filename": "src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-07-14T20:09:09Z",
+      "side": 1,
+      "message": "I don\u0027t think this is right -- where did this division by 2 come from?",
+      "range": {
+        "startLine": 26,
+        "startChar": 277,
+        "endLine": 26,
+        "endChar": 282
+      },
+      "revId": "69735ffeb7cc7298602f25e78c9b136189cc7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b8873c0_f280ad3e",
+        "filename": "src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-07-14T20:09:09Z",
+      "side": 1,
+      "message": "If there\u0027s no input color, this ends up being 0, and the whole shader just outputs opaque coverage. Are we expecting that the GLSL compiler will optimize that away?",
+      "range": {
+        "startLine": 26,
+        "startChar": 49,
+        "endLine": 26,
+        "endChar": 59
+      },
+      "revId": "69735ffeb7cc7298602f25e78c9b136189cc7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
