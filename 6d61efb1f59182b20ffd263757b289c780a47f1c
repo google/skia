@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63ed1452_3288b49d",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-14T19:54:35Z",
+      "side": 1,
+      "message": "Curious about the need for this. Is the plan to use the unique key to store/find things in the free pool?\n\nJust checking my understanding: We will need a way to get back to resources that have been used once or more already because scratch lookups won\u0027t work since the resource is already ref\u0027ed in another proxy. Which I assume also means that resources assigned to a proxy by the allocator are not in pending-IO state.\n\nCould we just use the ptr to the resource? Either by taking a ref in the free pool or by claiming that another proxy must already be holding the surface since it is in the free pool?",
+      "range": {
+        "startLine": 63,
+        "startChar": 11,
+        "endLine": 63,
+        "endChar": 27
+      },
+      "revId": "6d61efb1f59182b20ffd263757b289c780a47f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
