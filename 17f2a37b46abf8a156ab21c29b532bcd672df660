@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21994db3_d1d8f8f7",
+        "filename": "src/gpu/GrOnFlushResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-14T12:08:28Z",
+      "side": 1,
+      "message": "Can we call GrResourceProvider::createBuffer here instead? That would keep the OFRP more of a shim around the RP.",
+      "revId": "17f2a37b46abf8a156ab21c29b532bcd672df660",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
