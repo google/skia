@@ -24,6 +24,7 @@ private:
 
 public:
     GrProcessorSet(GrPaint&& paint);
+    GrProcessorSet(SkBlendMode mode);
 
     ~GrProcessorSet();
 
