@@ -23,7 +23,8 @@ public:
     static bool IsPng(const char*, size_t);
 
     // Assume IsPng was called and returned true.
-    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromStream(SkStream*, Result*,
+                                  SkPngChunkReader* = nullptr);
 
     // FIXME (scroggo): Temporarily needed by AutoCleanPng.
     void setIdatLength(size_t len) { fIdatLength = len; }

@@ -185,15 +185,15 @@ static sk_sp<SkData> get_icc_profile(jpeg_decompress_struct* dinfo) {
     return iccData;
 }
 
-bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMgr** decoderMgrOut,
-        sk_sp<SkColorSpace> defaultColorSpace) {
+SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
+        JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace) {
 
     // Create a JpegDecoderMgr to own all of the decompress information
     std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 
     // libjpeg errors will be caught and reported here
     if (setjmp(decoderMgr->getJmpBuf())) {
-        return decoderMgr->returnFalse("ReadHeader");
+        return decoderMgr->returnFailure("ReadHeader", kInvalidInput);
     }
 
     // Initialize the decompress info and the source manager
@@ -208,15 +208,20 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMg
     }
 
     // Read the jpeg header
-    if (JPEG_HEADER_OK != jpeg_read_header(decoderMgr->dinfo(), true)) {
-        return decoderMgr->returnFalse("ReadHeader");
+    switch (jpeg_read_header(decoderMgr->dinfo(), true)) {
+        case JPEG_HEADER_OK:
+            break;
+        case JPEG_SUSPENDED:
+            return decoderMgr->returnFailure("ReadHeader", kIncompleteInput);
+        default:
+            return decoderMgr->returnFailure("ReadHeader", kInvalidInput);
     }
 
     if (codecOut) {
         // Get the encoded color type
         SkEncodedInfo::Color color;
         if (!decoderMgr->getEncodedColor(&color)) {
-            return false;
+            return kInvalidInput;
         }
 
         // Create image info object and the codec
@@ -254,17 +259,19 @@ bool SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut, JpegDecoderMg
         SkASSERT(nullptr != decoderMgrOut);
         *decoderMgrOut = decoderMgr.release();
     }
-    return true;
+    return kSuccess;
 }
 
-SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
-    return SkJpegCodec::NewFromStream(stream, SkColorSpace::MakeSRGB());
+SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, Result* result) {
+    return SkJpegCodec::NewFromStream(stream, result, SkColorSpace::MakeSRGB());
 }
 
-SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, sk_sp<SkColorSpace> defaultColorSpace) {
+SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, Result* result,
+                                    sk_sp<SkColorSpace> defaultColorSpace) {
     std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
-    if (ReadHeader(stream, &codec, nullptr, std::move(defaultColorSpace))) {
+    *result = ReadHeader(stream, &codec, nullptr, std::move(defaultColorSpace));
+    if (kSuccess == *result) {
         // Codec has taken ownership of the stream, we do not need to delete it
         SkASSERT(codec);
         streamDeleter.release();
@@ -347,7 +354,7 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
 
 bool SkJpegCodec::onRewind() {
     JpegDecoderMgr* decoderMgr = nullptr;
-    if (!ReadHeader(this->stream(), nullptr, &decoderMgr, nullptr)) {
+    if (kSuccess != ReadHeader(this->stream(), nullptr, &decoderMgr, nullptr)) {
         return fDecoderMgr->returnFalse("onRewind");
     }
     SkASSERT(nullptr != decoderMgr);

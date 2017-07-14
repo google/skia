@@ -29,10 +29,9 @@ public:
 
     /*
      * Assumes IsJpeg was called and returned true
-     * Creates a jpeg decoder
      * Takes ownership of the stream
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, Result*);
 
 protected:
 
@@ -64,7 +63,7 @@ private:
     /*
      * Allows SkRawCodec to communicate the color space from the exif data.
      */
-    static SkCodec* NewFromStream(SkStream*, sk_sp<SkColorSpace> defaultColorSpace);
+    static SkCodec* NewFromStream(SkStream*, Result*, sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
      * Read enough of the stream to initialize the SkJpegCodec.
@@ -88,7 +87,7 @@ private:
      * If the jpeg does not have an embedded color space, the image data should
      * be tagged with this color space.
      */
-    static bool ReadHeader(SkStream* stream, SkCodec** codecOut,
+    static Result ReadHeader(SkStream* stream, SkCodec** codecOut,
             JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
 
     /*

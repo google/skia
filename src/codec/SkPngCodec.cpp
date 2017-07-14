@@ -761,31 +761,30 @@ private:
 //      png_structp on success.
 // @param info_ptrp Optional output variable. If non-NULL, will be set to a new
 //      png_infop on success;
-// @return true on success, in which case the caller is responsible for calling
+// @return if kSuccess, the caller is responsible for calling
 //      png_destroy_read_struct(png_ptrp, info_ptrp).
-//      If it returns false, the passed in fields (except stream) are unchanged.
-static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec** outCodec,
-                        png_structp* png_ptrp, png_infop* info_ptrp) {
+//      Otherwise, the passed in fields (except stream) are unchanged.
+static SkCodec::Result read_header(SkStream* stream, SkPngChunkReader* chunkReader,
+                                   SkCodec** outCodec,
+                                   png_structp* png_ptrp, png_infop* info_ptrp) {
     // The image is known to be a PNG. Decode enough to know the SkImageInfo.
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr,
                                                  sk_error_fn, sk_warning_fn);
     if (!png_ptr) {
-        return false;
+        return SkCodec::kInternalError;
     }
 
     AutoCleanPng autoClean(png_ptr, stream, chunkReader, outCodec);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == nullptr) {
-        return false;
+        return SkCodec::kInternalError;
     }
 
     autoClean.setInfoPtr(info_ptr);
 
-    // FIXME: Could we use the return value of setjmp to specify the type of
-    // error?
     if (setjmp(PNG_JMPBUF(png_ptr))) {
-        return false;
+        return SkCodec::kInvalidInput;
     }
 
 #ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
@@ -801,7 +800,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
     const bool decodedBounds = autoClean.decodeBounds();
 
     if (!decodedBounds) {
-        return false;
+        return SkCodec::kIncompleteInput;
     }
 
     // On success, decodeBounds releases ownership of png_ptr and info_ptr.
@@ -816,7 +815,7 @@ static bool read_header(SkStream* stream, SkPngChunkReader* chunkReader, SkCodec
     if (outCodec) {
         SkASSERT(*outCodec);
     }
-    return true;
+    return SkCodec::kSuccess;
 }
 
 void AutoCleanPng::infoCallback(size_t idatLength) {
@@ -1071,7 +1070,8 @@ bool SkPngCodec::onRewind() {
 
     png_structp png_ptr;
     png_infop info_ptr;
-    if (!read_header(this->stream(), fPngChunkReader.get(), nullptr, &png_ptr, &info_ptr)) {
+    if (kSuccess != read_header(this->stream(), fPngChunkReader.get(), nullptr,
+                                &png_ptr, &info_ptr)) {
         return false;
     }
 
@@ -1145,16 +1145,15 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     return INHERITED::onGetFillValue(dstInfo);
 }
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
+SkCodec* SkPngCodec::NewFromStream(SkStream* stream, Result* result, SkPngChunkReader* chunkReader) {
     std::unique_ptr<SkStream> streamDeleter(stream);
 
     SkCodec* outCodec = nullptr;
-    if (read_header(streamDeleter.get(), chunkReader, &outCodec, nullptr, nullptr)) {
+    *result = read_header(stream, chunkReader, &outCodec, nullptr, nullptr);
+    if (kSuccess == *result) {
         // Codec has taken ownership of the stream.
         SkASSERT(outCodec);
         streamDeleter.release();
-        return outCodec;
     }
-
-    return nullptr;
+    return outCodec;
 }

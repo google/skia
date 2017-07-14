@@ -28,7 +28,7 @@ public:
      * Creates a RAW decoder
      * Takes ownership of the stream
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, Result*);
 
     ~SkRawCodec() override;
 

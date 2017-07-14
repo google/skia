@@ -26,7 +26,7 @@
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);
-    SkCodec* (*NewFromStream)(SkStream*);
+    SkCodec* (*NewFromStream)(SkStream*, SkCodec::Result*);
 };
 
 static const DecoderProc gDecoderProcs[] = {
@@ -49,8 +49,14 @@ size_t SkCodec::MinBufferedBytesNeeded() {
 }
 
 SkCodec* SkCodec::NewFromStream(SkStream* stream,
-                                SkPngChunkReader* chunkReader) {
+        Result* outResult, SkPngChunkReader* chunkReader) {
+    Result resultStorage;
+    if (!outResult) {
+        outResult = &resultStorage;
+    }
+
     if (!stream) {
+        *outResult = kInvalidInput;
         return nullptr;
     }
 
@@ -81,6 +87,7 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
         bytesRead = stream->read(buffer, bytesToRead);
         if (!stream->rewind()) {
             SkCodecPrintf("Encoded image data could not peek or rewind to determine format!\n");
+            *outResult = kCouldNotRewind;
             return nullptr;
         }
     }
@@ -89,20 +96,26 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     // But this code follows the same pattern as the loop.
 #ifdef SK_HAS_PNG_LIBRARY
     if (SkPngCodec::IsPng(buffer, bytesRead)) {
-        return SkPngCodec::NewFromStream(streamDeleter.release(), chunkReader);
+        return SkPngCodec::NewFromStream(streamDeleter.release(), outResult, chunkReader);
     } else
 #endif
     {
         for (DecoderProc proc : gDecoderProcs) {
             if (proc.IsFormat(buffer, bytesRead)) {
-                return proc.NewFromStream(streamDeleter.release());
+                return proc.NewFromStream(streamDeleter.release(), outResult);
             }
         }
 
 #ifdef SK_CODEC_DECODES_RAW
         // Try to treat the input as RAW if all the other checks failed.
-        return SkRawCodec::NewFromStream(streamDeleter.release());
+        return SkRawCodec::NewFromStream(streamDeleter.release(), outResult);
 #endif
+    }
+
+    if (bytesRead < bytesToRead) {
+        *outResult = kIncompleteInput;
+    } else {
+        *outResult = kUnimplemented;
     }
 
     return nullptr;
@@ -112,7 +125,7 @@ SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
     if (!data) {
         return nullptr;
     }
-    return NewFromStream(new SkMemoryStream(data), reader);
+    return NewFromStream(new SkMemoryStream(data), nullptr, reader);
 }
 
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,

@@ -66,21 +66,17 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
     return result;
 }
 
-/*
- * Assumes IsGif was called and returned true
- * Creates a gif decoder
- * Reads enough of the stream to determine the image format
- */
-SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkGifCodec::NewFromStream(SkStream* stream, Result* result) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
-    if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
-        // Fatal error occurred.
+    *result = reader->parse(SkGifImageReader::SkGIFSizeQuery);
+    if (*result != kSuccess) {
         return nullptr;
     }
 
     // If no images are in the data, or the first header is not yet defined, we cannot
     // create a codec. In either case, the width and height are not yet known.
     if (0 == reader->imagesCount() || !reader->frameContext(0)->isHeaderDefined()) {
+        *result = kInvalidInput;
         return nullptr;
     }
 

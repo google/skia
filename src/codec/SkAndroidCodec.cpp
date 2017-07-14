@@ -66,7 +66,7 @@ SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
 {}
 
 SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream, chunkReader));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream, nullptr, chunkReader));
     if (nullptr == codec) {
         return nullptr;
     }
