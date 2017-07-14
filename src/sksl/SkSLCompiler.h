@@ -43,7 +43,15 @@ class IRGenerator;
  */
 class Compiler : public ErrorReporter {
 public:
-    Compiler();
+    enum Flags {
+        kNone_Flags = 0,
+        // permits static if/switch statements to be used with non-constant tests. This is used when
+        // producing H and CPP code; the static tests don't have to have constant values *yet*, but
+        // the generated code will contain a static test which then does have to be a constant.
+        kPermitInvalidStaticTests_Flag = 1,
+    };
+
+    Compiler(Flags flags = kNone_Flags);
 
     ~Compiler() override;
 
@@ -109,6 +117,7 @@ private:
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
     String fSkiaVertText; // FIXME store parsed version instead
+    int fFlags;
 
     Context fContext;
     int fErrorCount;

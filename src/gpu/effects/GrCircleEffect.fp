@@ -37,15 +37,15 @@ void main() {
     // radius and then denormalized. This is to prevent overflow on devices that have a "real"
     // mediump. It'd be nice to only do this on mediump devices.
     float d;
-    if (edgeType == 2 /* kInverseFillBW_GrProcessorEdgeType */ ||
-        edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */) {
+    @if (edgeType == 2 /* kInverseFillBW_GrProcessorEdgeType */ ||
+         edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */) {
         d = (length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z;
     } else {
         d = (1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z;
     }
-    if (edgeType == 1 /* kFillAA_GrProcessorEdgeType */ ||
-        edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */ ||
-        edgeType == 4 /* kHairlineAA_GrProcessorEdgeType */) {
+    @if (edgeType == 1 /* kFillAA_GrProcessorEdgeType */ ||
+         edgeType == 3 /* kInverseFillAA_GrProcessorEdgeType */ ||
+         edgeType == 4 /* kHairlineAA_GrProcessorEdgeType */) {
         d = clamp(d, 0.0, 1.0);
     } else {
         d = d > 0.5 ? 1.0 : 0.0;

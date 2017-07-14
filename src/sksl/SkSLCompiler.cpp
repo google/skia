@@ -54,8 +54,9 @@ static const char* SKSL_FP_INCLUDE =
 
 namespace SkSL {
 
-Compiler::Compiler()
-: fErrorCount(0) {
+Compiler::Compiler(Flags flags)
+: fFlags(flags)
+, fErrorCount(0) {
     auto types = std::shared_ptr<SymbolTable>(new SymbolTable(this));
     auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(types, this));
     fIRGenerator = new IRGenerator(&fContext, symbols, *this);
@@ -931,7 +932,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                             (*iter)->setStatement(std::move(newBlock));
                             break;
                         } else {
-                            if (s.fIsStatic) {
+                            if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
                                 this->error(s.fPosition,
                                             "static switch contains non-static conditional break");
                                 s.fIsStatic = false;
@@ -947,7 +948,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock));
                         } else {
-                            if (s.fIsStatic) {
+                            if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
                                 this->error(s.fPosition,
                                             "static switch contains non-static conditional break");
                                 s.fIsStatic = false;
@@ -1047,13 +1048,15 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                 const Statement& s = **iter->statement();
                 switch (s.fKind) {
                     case Statement::kIf_Kind:
-                        if (((const IfStatement&) s).fIsStatic) {
+                        if (((const IfStatement&) s).fIsStatic &&
+                            !(fFlags & kPermitInvalidStaticTests_Flag)) {
                             this->error(s.fPosition, "static if has non-static test");
                         }
                         ++iter;
                         break;
                     case Statement::kSwitch_Kind:
-                        if (((const SwitchStatement&) s).fIsStatic) {
+                        if (((const SwitchStatement&) s).fIsStatic &&
+                             !(fFlags & kPermitInvalidStaticTests_Flag)) {
                             this->error(s.fPosition, "static switch has non-static test");
                         }
                         ++iter;
