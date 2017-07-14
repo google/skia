@@ -23,6 +23,7 @@ public:
 
     // Actually instantiate the backing texture, if necessary
     bool instantiate(GrResourceProvider*) override;
+    sk_sp<GrSurface> foo(GrResourceProvider*) const override;
 
     void setMipColorMode(SkDestinationSurfaceColorMode colorMode);
 
