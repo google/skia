@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c4cd946_03c94876",
+        "filename": "tests/PictureShaderTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-14T12:45:18Z",
+      "side": 1,
+      "message": "Won\u0027t this be true just because you\u0027ve made a shader from the picture? How is this testing the cache?",
+      "range": {
+        "startLine": 65,
+        "startChar": 24,
+        "endLine": 65,
+        "endChar": 32
+      },
+      "revId": "ffde3b948b01f19a3b70f63a0875ff5833fbc1a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e064209_65b7063f",
+        "filename": "tests/PictureShaderTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-14T12:45:18Z",
+      "side": 1,
+      "message": "not sure I understand this block (its purpose)",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 19
+      },
+      "revId": "ffde3b948b01f19a3b70f63a0875ff5833fbc1a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
