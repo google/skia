@@ -422,7 +422,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
                                                                       3*kDrawnTileSize,
                                                                       kDrawnTileSize,
                                                                       kRGBA_8888_GrPixelConfig,
-                                                                      nullptr));
+                                                                      nullptr, "foo"));
 
     rtc->clear(nullptr, GrColorPackRGBA(255, 0, 0, 255), true);
 
@@ -557,7 +557,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
                                                                       kFinalWidth,
                                                                       kFinalHeight,
                                                                       kRGBA_8888_GrPixelConfig,
-                                                                      nullptr));
+                                                                      nullptr, "foo"));
 
     rtc->clear(nullptr, 0xFFFFFFFF, true);
 

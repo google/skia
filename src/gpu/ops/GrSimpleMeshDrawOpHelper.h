@@ -13,6 +13,7 @@
 #include "GrPipeline.h"
 #include "GrProcessorSet.h"
 #include "GrRect.h"
+#include "GrResourceAllocator.h"
 #include "GrUserStencilSettings.h"
 
 /**
@@ -56,6 +57,22 @@ public:
             fPipelineFlags |= GrPipeline::kSnapVerticesToPixelCenters_Flag;
         }
     }
+
+    void gatherOp(GrResourceAllocator* alloc) const {
+        if (fProcessors) {
+            for (int i = 0; i < fProcessors->numFragmentProcessors(); ++i) {
+                const GrFragmentProcessor* fp = fProcessors->fragmentProcessor(i);
+
+                GrFragmentProcessor::TextureAccessIter iter(fp);
+                while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+                    alloc->addInterval(sampler->proxy());
+    //                opList->addDependency(sampler->proxy(), caps);
+                }
+
+            }
+        }
+    }
+
 
     ~GrSimpleMeshDrawOpHelper() {
         if (fProcessors) {
@@ -198,6 +215,7 @@ class GrSimpleMeshDrawOpHelperWithStencil : private GrSimpleMeshDrawOpHelper {
 public:
     using MakeArgs = GrSimpleMeshDrawOpHelper::MakeArgs;
     using Flags = GrSimpleMeshDrawOpHelper::Flags;
+    using GrSimpleMeshDrawOpHelper::gatherOp;
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>

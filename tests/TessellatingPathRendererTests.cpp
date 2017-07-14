@@ -394,6 +394,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
                                                                   800, 800,
                                                                   kRGBA_8888_GrPixelConfig,
                                                                   nullptr,
+                                                                  "test",
                                                                   0,
                                                                   kTopLeft_GrSurfaceOrigin));
     if (!rtc) {
