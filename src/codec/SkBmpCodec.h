@@ -47,9 +47,9 @@ protected:
      * Read enough of the stream to initialize the SkBmpCodec. Returns a bool
      * representing success or failure. If it returned true, and codecOut was
      * not nullptr, it will be set to a new SkBmpCodec.
-     * Does *not* take ownership of the passed in SkStream.
+     * If an SkCodec is created, it will take ownership of the SkStream.
      */
-    static bool ReadHeader(SkStream*, bool inIco, SkCodec** codecOut);
+    static bool ReadHeader(SkStream*, bool inIco, std::unique_ptr<SkCodec>* codecOut);
 
     bool onRewind() override;
 

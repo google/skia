@@ -136,9 +136,11 @@ static BmpHeaderType get_header_type(size_t infoBytes) {
  * Read enough of the stream to initialize the SkBmpCodec. Returns a bool
  * representing success or failure. If it returned true, and codecOut was
  * not nullptr, it will be set to a new SkBmpCodec.
- * Does *not* take ownership of the passed in SkStream.
+ * If codecOut is set to a new SkCodec, it will take ownership of the stream.
+ * Otherwise, the stream will not be deleted.
  */
-bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
+bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
+        std::unique_ptr<SkCodec>* codecOut) {
     // The total bytes in the bmp file
     // We only need to use this value for RLE decoding, so we will only
     // check that it is valid in the RLE case.
@@ -481,13 +483,10 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
 
                 // Set the image info and create a codec.
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, bitsPerComponent);
-                std::unique_ptr<SkBmpStandardCodec> codec(new SkBmpStandardCodec(width, height,
-                        info, stream, bitsPerPixel, numColors, bytesPerColor, offset - bytesRead,
-                        rowOrder, isOpaque, inIco));
-                if (!codec->didCreateSrcBuffer()) {
-                    return false;
-                }
-                *codecOut = codec.release();
+                codecOut->reset(new SkBmpStandardCodec(width, height, info, stream, bitsPerPixel,
+                                                       numColors, bytesPerColor, offset - bytesRead,
+                                                       rowOrder, isOpaque, inIco));
+                return static_cast<SkBmpStandardCodec*>(codecOut->get())->didCreateSrcBuffer();
             }
             return true;
         }
@@ -539,12 +538,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                     alpha = SkEncodedInfo::kOpaque_Alpha;
                 }
                 const SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-                std::unique_ptr<SkBmpMaskCodec> codec(new SkBmpMaskCodec(width, height, info,
-                        stream, bitsPerPixel, masks.release(), rowOrder));
-                if (!codec->didCreateSrcBuffer()) {
-                    return false;
-                }
-                *codecOut = codec.release();
+                codecOut->reset(new SkBmpMaskCodec(width, height, info, stream, bitsPerPixel,
+                                                   masks.release(), rowOrder));
+                return static_cast<SkBmpMaskCodec*>(codecOut->get())->didCreateSrcBuffer();
             }
             return true;
         }
@@ -572,8 +568,9 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
                 // For that reason, we always indicate that we are kBGRA.
                 const SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kBGRA_Color,
                         SkEncodedInfo::kBinary_Alpha, 8);
-                *codecOut = new SkBmpRLECodec(width, height, info, stream, bitsPerPixel, numColors,
-                        bytesPerColor, offset - bytesRead, rowOrder);
+                codecOut->reset(new SkBmpRLECodec(width, height, info, stream, bitsPerPixel,
+                                                  numColors, bytesPerColor, offset - bytesRead,
+                                                  rowOrder));
             }
             return true;
         }
@@ -589,15 +586,14 @@ bool SkBmpCodec::ReadHeader(SkStream* stream, bool inIco, SkCodec** codecOut) {
  */
 SkCodec* SkBmpCodec::NewFromStream(SkStream* stream, bool inIco) {
     std::unique_ptr<SkStream> streamDeleter(stream);
-    SkCodec* codec = nullptr;
-    if (ReadHeader(stream, inIco, &codec)) {
+    std::unique_ptr<SkCodec> codec;
+    bool success = ReadHeader(stream, inIco, &codec);
+    if (codec) {
         // codec has taken ownership of stream, so we do not need to
         // delete it.
-        SkASSERT(codec);
         streamDeleter.release();
-        return codec;
     }
-    return nullptr;
+    return success ? codec.release() : nullptr;
 }
 
 SkBmpCodec::SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
