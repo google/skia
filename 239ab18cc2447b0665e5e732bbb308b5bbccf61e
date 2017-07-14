@@ -16,6 +16,24 @@
       "revId": "239ab18cc2447b0665e5e732bbb308b5bbccf61e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77426e3b_acb25095",
+        "filename": "src/gpu/effects/GrEllipseEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-14T17:12:29Z",
+      "side": 1,
+      "message": "Can and should.",
+      "parentUuid": "4001f2e2_df0a5108",
+      "revId": "239ab18cc2447b0665e5e732bbb308b5bbccf61e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
