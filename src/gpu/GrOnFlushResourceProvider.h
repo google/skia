@@ -71,6 +71,10 @@ public:
     // Creates a GPU buffer with a "dynamic" access pattern.
     sk_sp<GrBuffer> makeBuffer(GrBufferType, size_t, const void* data = nullptr);
 
+    // Either finds and refs, or creates a static GPU buffer with the given data.
+    sk_sp<GrBuffer> findOrMakeStaticBuffer(const GrUniqueKey&, GrBufferType,
+                                           size_t, const void* data);
+
     const GrCaps* caps() const;
 
 private:
