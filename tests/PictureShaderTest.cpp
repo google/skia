@@ -8,7 +8,9 @@
 #include "SkCanvas.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
+#include "SkPictureShader.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "Test.h"
 
 // Test that attempting to create a picture shader with a nullptr picture or
@@ -37,4 +39,42 @@ DEF_TEST(PictureShader_empty, reporter) {
 
     canvas.drawRect(SkRect::MakeWH(1,1), paint);
     REPORTER_ASSERT(reporter, *bitmap.getAddr32(0,0) == SK_ColorGREEN);
+}
+
+// Test that the SkPictureShader cache is purged on shader deletion.
+DEF_TEST(PictureShader_caching, reporter) {
+    auto makePicture = [] () {
+        SkPictureRecorder recorder;
+        recorder.beginRecording(100, 100)->drawColor(SK_ColorGREEN);
+        return recorder.finishRecordingAsPicture();
+    };
+
+    sk_sp<SkPicture> picture = makePicture();
+    REPORTER_ASSERT(reporter, picture->unique());
+
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(100, 100);
+
+    {
+        SkPaint paint;
+        paint.setShader(SkPictureShader::Make(picture,
+                                              SkShader::kRepeat_TileMode,
+                                              SkShader::kRepeat_TileMode, nullptr, nullptr));
+        surface->getCanvas()->drawPaint(paint);
+
+        // We should have about 3 refs by now: local + shader + shader cache.
+        REPORTER_ASSERT(reporter, !picture->unique());
+    }
+
+    // Draw another picture shader to have a chance to purge.
+    {
+        SkPaint paint;
+        paint.setShader(SkPictureShader::Make(makePicture(),
+                                              SkShader::kRepeat_TileMode,
+                                              SkShader::kRepeat_TileMode, nullptr, nullptr));
+        surface->getCanvas()->drawPaint(paint);
+
+    }
+
+    // All but the local ref should be gone now.
+    REPORTER_ASSERT(reporter, picture->unique());
 }
