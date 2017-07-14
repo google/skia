@@ -26,12 +26,7 @@ bool SkIcoCodec::IsIco(const void* buffer, size_t bytesRead) {
             !memcmp(buffer, curSig, sizeof(curSig)));
 }
 
-/*
- * Assumes IsIco was called and returned true
- * Creates an Ico decoder
- * Reads enough of the stream to determine the image format
- */
-SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
     // Ensure that we do not leak the input stream
     std::unique_ptr<SkStream> inputStream(stream);
 
@@ -44,6 +39,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
             kIcoDirectoryBytes) {
         SkCodecPrintf("Error: unable to read ico directory header.\n");
+        *result = kIncompleteInput;
         return nullptr;
     }
 
@@ -51,6 +47,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     const uint16_t numImages = get_short(dirBuffer.get(), 4);
     if (0 == numImages) {
         SkCodecPrintf("Error: No images embedded in ico.\n");
+        *result = kInvalidInput;
         return nullptr;
     }
 
@@ -66,6 +63,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     if (!dirEntryBuffer) {
         SkCodecPrintf("Error: OOM allocating ICO directory for %i images.\n",
                       numImages);
+        *result = kInternalError;
         return nullptr;
     }
     auto* directoryEntries = reinterpret_cast<Entry*>(dirEntryBuffer.get());
@@ -76,6 +74,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         if (inputStream->read(entryBuffer, kIcoDirEntryBytes) !=
                 kIcoDirEntryBytes) {
             SkCodecPrintf("Error: Dir entries truncated in ico.\n");
+            *result = kIncompleteInput;
             return nullptr;
         }
 
@@ -97,6 +96,9 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
         directoryEntries[i].offset = offset;
         directoryEntries[i].size = size;
     }
+
+    // Default Result, if no valid embedded codecs are found.
+    *result = kInvalidInput;
 
     // It is "customary" that the embedded images will be stored in order of
     // increasing offset.  However, the specification does not indicate that
@@ -141,6 +143,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
         if (inputStream->read(buffer.get(), size) != size) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
+            *result = kIncompleteInput;
             break;
         }
 
@@ -150,10 +153,11 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
 
         // Check if the embedded codec is bmp or png and create the codec
         SkCodec* codec = nullptr;
+        Result dummyResult;
         if (SkPngCodec::IsPng((const char*) data->bytes(), data->size())) {
-            codec = SkPngCodec::NewFromStream(embeddedStream.release());
+            codec = SkPngCodec::NewFromStream(embeddedStream.release(), &dummyResult);
         } else {
-            codec = SkBmpCodec::NewFromIco(embeddedStream.release());
+            codec = SkBmpCodec::NewFromIco(embeddedStream.release(), &dummyResult);
         }
 
         // Save a valid codec
@@ -185,8 +189,9 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream) {
     SkEncodedInfo info = codecs->operator[](maxIndex)->getEncodedInfo();
     SkColorSpace* colorSpace = codecs->operator[](maxIndex)->getInfo().colorSpace();
 
-    // Note that stream is owned by the embedded codec, the ico does not need
-    // direct access to the stream.
+    *result = kSuccess;
+    // The original stream is no longer needed, because the embedded codecs own their
+    // own streams.
     return new SkIcoCodec(width, height, info, codecs.release(), sk_ref_sp(colorSpace));
 }
 

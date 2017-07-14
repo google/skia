@@ -312,9 +312,7 @@ public:
 
     // Parse incoming GIF data stream into internal data structures.
     // Non-negative values are used to indicate to parse through that frame.
-    // Return true if parsing has progressed or there is not enough data.
-    // Return false if a fatal error is encountered.
-    bool parse(SkGIFParseQuery);
+    SkCodec::Result parse(SkGIFParseQuery);
 
     // Decode the frame indicated by frameIndex.
     // frameComplete will be set to true if the frame is completely decoded.

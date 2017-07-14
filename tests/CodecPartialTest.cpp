@@ -419,3 +419,38 @@ DEF_TEST(Codec_emptyIDAT, r) {
     const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 }
+
+DEF_TEST(Codec_incomplete, r) {
+    for (const char* name : { "baby_tux.png",
+                              "baby_tux.webp",
+                              "CMYK.jpg",
+                              "color_wheel.gif",
+                              "google_chrome.ico",
+                              "rle.bmp",
+                              "mandrill.wbmp",
+                              }) {
+        sk_sp<SkData> file = GetResourceAsData(name);
+        if (!name) {
+            continue;
+        }
+
+        for (size_t len = 14; len <= file->size(); len += 5) {
+            SkCodec::Result result;
+            auto* stream = new SkMemoryStream(file->data(), len);
+            std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream, &result));
+            if (codec) {
+                if (result != SkCodec::kSuccess) {
+                    ERRORF(r, "Created an SkCodec for %s with %lu bytes, but "
+                              "reported an error %i", name, len, result);
+                }
+                break;
+            }
+
+            if (SkCodec::kIncompleteInput != result) {
+                ERRORF(r, "Reported error %i for %s with %lu bytes",
+                       result, name, len);
+                break;
+            }
+        }
+    }
+}

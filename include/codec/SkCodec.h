@@ -53,6 +53,59 @@ public:
     static size_t MinBufferedBytesNeeded();
 
     /**
+     *  Error codes for various SkCodec methods.
+     */
+    enum Result {
+        /**
+         *  General return value for success.
+         */
+        kSuccess,
+        /**
+         *  The input is incomplete. A partial image was generated.
+         */
+        kIncompleteInput,
+        /**
+         *  Like kIncompleteInput, except the input had an error.
+         *
+         *  If returned from an incremental decode, decoding cannot continue,
+         *  even with more data.
+         */
+        kErrorInInput,
+        /**
+         *  The generator cannot convert to match the request, ignoring
+         *  dimensions.
+         */
+        kInvalidConversion,
+        /**
+         *  The generator cannot scale to requested size.
+         */
+        kInvalidScale,
+        /**
+         *  Parameters (besides info) are invalid. e.g. NULL pixels, rowBytes
+         *  too small, etc.
+         */
+        kInvalidParameters,
+        /**
+         *  The input did not contain a valid image.
+         */
+        kInvalidInput,
+        /**
+         *  Fulfilling this request requires rewinding the input, which is not
+         *  supported for this input.
+         */
+        kCouldNotRewind,
+        /**
+         *  An internal error, such as OOM.
+         */
+        kInternalError,
+        /**
+         *  This method is not implemented by this codec.
+         *  FIXME: Perhaps this should be kUnsupported?
+         */
+        kUnimplemented,
+    };
+
+    /**
      *  If this stream represents an encoded image that we know how to decode,
      *  return an SkCodec that can decode it. Otherwise return NULL.
      *
@@ -64,6 +117,9 @@ public:
      *  so falling back to reading would not provide more data. If peek()
      *  returns zero bytes, this call will instead attempt to read(). This
      *  will require that the stream can be rewind()ed.
+     *
+     *  If Result is not NULL, it will be set to either kSuccess if an SkCodec
+     *  is returned or a reason for the failure if NULL is returned.
      *
      *  If SkPngChunkReader is not NULL, take a ref and pass it to libpng if
      *  the image is a png.
@@ -83,7 +139,8 @@ public:
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
+    static SkCodec* NewFromStream(SkStream*, Result* = nullptr,
+                                  SkPngChunkReader* = nullptr);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
@@ -179,57 +236,6 @@ public:
      *  Format of the encoded data.
      */
     SkEncodedImageFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
-
-    /**
-     *  Used to describe the result of a call to getPixels().
-     *
-     *  Result is the union of possible results from subclasses.
-     */
-    enum Result {
-        /**
-         *  General return value for success.
-         */
-        kSuccess,
-        /**
-         *  The input is incomplete. A partial image was generated.
-         */
-        kIncompleteInput,
-        /**
-         *  Like kIncompleteInput, except the input had an error.
-         *
-         *  If returned from an incremental decode, decoding cannot continue,
-         *  even with more data.
-         */
-        kErrorInInput,
-        /**
-         *  The generator cannot convert to match the request, ignoring
-         *  dimensions.
-         */
-        kInvalidConversion,
-        /**
-         *  The generator cannot scale to requested size.
-         */
-        kInvalidScale,
-        /**
-         *  Parameters (besides info) are invalid. e.g. NULL pixels, rowBytes
-         *  too small, etc.
-         */
-        kInvalidParameters,
-        /**
-         *  The input did not contain a valid image.
-         */
-        kInvalidInput,
-        /**
-         *  Fulfilling this request requires rewinding the input, which is not
-         *  supported for this input.
-         */
-        kCouldNotRewind,
-        /**
-         *  This method is not implemented by this codec.
-         *  FIXME: Perhaps this should be kUnsupported?
-         */
-        kUnimplemented,
-    };
 
     /**
      *  Whether or not the memory passed to getPixels is zero initialized.

@@ -43,7 +43,7 @@ static SkAlphaType alpha_type(bool hasAlpha) {
 
 // Parse headers of RIFF container, and check for valid Webp (VP8) content.
 // Returns an SkWebpCodec on success
-SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkWebpCodec::NewFromStream(SkStream* stream, Result* result) {
     std::unique_ptr<SkStream> streamDeleter(stream);
 
     // Webp demux needs a contiguous data buffer.
@@ -62,9 +62,19 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     // pointer in |webpData| to remain valid.  This works because the pointer remains valid
     // until the SkData is freed.
     WebPData webpData = { data->bytes(), data->size() };
-    SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> demux(WebPDemuxPartial(&webpData, nullptr));
-    if (nullptr == demux) {
-        return nullptr;
+    WebPDemuxState state;
+    SkAutoTCallVProc<WebPDemuxer, WebPDemuxDelete> demux(WebPDemuxPartial(&webpData, &state));
+    switch (state) {
+        case WEBP_DEMUX_PARSE_ERROR:
+            *result = kInvalidInput;
+            return nullptr;
+        case WEBP_DEMUX_PARSING_HEADER:
+            *result = kIncompleteInput;
+            return nullptr;
+        case WEBP_DEMUX_PARSED_HEADER:
+        case WEBP_DEMUX_DONE:
+            SkASSERT(demux);
+            break;
     }
 
     const int width = WebPDemuxGetI(demux, WEBP_FF_CANVAS_WIDTH);
@@ -73,11 +83,9 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     // Sanity check for image size that's about to be decoded.
     {
         const int64_t size = sk_64_mul(width, height);
-        if (!sk_64_isS32(size)) {
-            return nullptr;
-        }
         // now check that if we are 4-bytes per pixel, we also don't overflow
-        if (sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
+        if (!sk_64_isS32(size) || sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
+            *result = kInvalidInput;
             return nullptr;
         }
     }
@@ -96,13 +104,21 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
     WebPIterator frame;
     SkAutoTCallVProc<WebPIterator, WebPDemuxReleaseIterator> autoFrame(&frame);
     if (!WebPDemuxGetFrame(demux, 1, &frame)) {
+        *result = kIncompleteInput;
         return nullptr;
     }
 
     WebPBitstreamFeatures features;
-    VP8StatusCode status = WebPGetFeatures(frame.fragment.bytes, frame.fragment.size, &features);
-    if (VP8_STATUS_OK != status) {
-        return nullptr;
+    switch (WebPGetFeatures(frame.fragment.bytes, frame.fragment.size, &features)) {
+        case VP8_STATUS_OK:
+            break;
+        case VP8_STATUS_SUSPENDED:
+        case VP8_STATUS_NOT_ENOUGH_DATA:
+            *result = kIncompleteInput;
+            return nullptr;
+        default:
+            *result = kInvalidInput;
+            return nullptr;
     }
 
     const bool hasAlpha = SkToBool(frame.has_alpha)
@@ -139,14 +155,15 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream) {
             }
             break;
         default:
+            *result = kInvalidInput;
             return nullptr;
     }
 
+    *result = kSuccess;
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    SkWebpCodec* codecOut = new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                            streamDeleter.release(), demux.release(),
-                                            std::move(data));
-    return codecOut;
+    return new SkWebpCodec(width, height, info, std::move(colorSpace),
+                           streamDeleter.release(), demux.release(),
+                           std::move(data));
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
