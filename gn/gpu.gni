@@ -161,6 +161,8 @@ skia_gpu_sources = [
   "$_src/gpu/GrPathRenderingRenderTargetContext.h",
   "$_src/gpu/GrRenderTargetOpList.cpp",
   "$_src/gpu/GrRenderTargetOpList.h",
+  "$_src/gpu/GrResourceAllocator.cpp",
+  "$_src/gpu/GrResourceAllocator.h",
   "$_src/gpu/GrResourceCache.cpp",
   "$_src/gpu/GrResourceCache.h",
   "$_src/gpu/GrResourceHandle.h",
