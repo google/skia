@@ -59,6 +59,11 @@ protected:
 
     bool onDimensionsSupported(const SkISize&) override;
 
+    Result onStartIncrementalDecode(const SkImageInfo& /*dstInfo*/, void*, size_t,
+            const SkCodec::Options&) override;
+
+    Result onIncrementalDecode(int*) override;
+
 private:
 
     /*
@@ -125,6 +130,11 @@ private:
     int onGetScanlines(void* dst, int count, size_t rowBytes) override;
     bool onSkipScanlines(int count) override;
 
+   /*
+    * Does necessary setup, including setting up the color table and swizzler.
+    */
+    Result prepareToDecode(const SkImageInfo& dstInfo, const Options& opts);
+
     std::unique_ptr<JpegDecoderMgr>    fDecoderMgr;
 
     // We will save the state of the decompress struct after reading the header.
@@ -142,6 +152,8 @@ private:
     SkIRect                            fSwizzlerSubset;
 
     std::unique_ptr<SkSwizzler>        fSwizzler;
+    void*                              fDst;
+    size_t                             fDstRowBytes;
 
     friend class SkRawCodec;
 

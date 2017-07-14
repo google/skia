@@ -973,7 +973,7 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     opts.fSampleSize = 12;
     auto sampledInfo = codec->getInfo().makeWH(width / 12, height / 12);
     auto result = codec->getAndroidPixels(sampledInfo, pixelStorage.get(), rowBytes, &opts);
-    REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
+    REPORTER_ASSERT(r, (SkCodec::kIncompleteInput == result || SkCodec::kSuccess == result));
 
     // Rewind the codec and perform a full image decode.
     result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
@@ -997,6 +997,30 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     opts.fSubset = nullptr;
     result = codec->getAndroidPixels(codec->getInfo(), pixelStorage.get(), rowBytes, &opts);
     REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
+}
+
+DEF_TEST(Codec_jpeg_progressive, r) {
+    const char* path = "dog.jpg";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        return;
+    }
+
+    data = SkData::MakeSubset(data.get(), 0, data->size());
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(data));
+    if (!codec) {
+        ERRORF(r, "Unable to create codec '%s'.", path);
+        return;
+    }
+
+    const int width = codec->getInfo().width();
+    const int height = codec->getInfo().height();
+    size_t rowBytes = sizeof(SkPMColor) * width;
+    SkAutoMalloc pixelStorage(height * rowBytes);
+
+    // Perform progressive jpeg image decode.
+    SkCodec::Result result = codec->getAndroidPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 }
 
 static void check_color_xform(skiatest::Reporter* r, const char* path) {
@@ -1182,7 +1206,7 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
 
 DEF_TEST(Codec_F16ConversionPossible, r) {
     test_conversion_possible(r, "color_wheel.webp", false, false);
-    test_conversion_possible(r, "mandrill_512_q075.jpg", true, false);
+    test_conversion_possible(r, "mandrill_512_q075.jpg", true, true);
     test_conversion_possible(r, "yellow_rose.png", false, true);
 }
 
@@ -1282,7 +1306,6 @@ DEF_TEST(Codec_fallBack, r) {
 
     // Formats that currently do not support incremental decoding
     auto files = {
-            "CMYK.jpg",
             "color_wheel.ico",
             "mandrill.wbmp",
             "randPixels.bmp",
