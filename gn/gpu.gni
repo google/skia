@@ -237,8 +237,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrAALinearizingConvexPathRenderer.cpp",
   "$_src/gpu/ops/GrAALinearizingConvexPathRenderer.h",
   "$_src/gpu/ops/GrAAStrokeRectOp.cpp",
-  "$_src/gpu/ops/GrAnalyticRectOp.cpp",
-  "$_src/gpu/ops/GrAnalyticRectOp.h",
   "$_src/gpu/ops/GrAtlasTextOp.cpp",
   "$_src/gpu/ops/GrAtlasTextOp.h",
   "$_src/gpu/ops/GrClearOp.cpp",

@@ -307,13 +307,7 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, GrContext*, GrFSAAType)
-
-#define LEGACY_MESH_DRAW_OP_TEST_EXTERN(Op) \
-    extern std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom*, GrContext*)
-
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
-
-LEGACY_MESH_DRAW_OP_TEST_EXTERN(AnalyticRectOp);
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
 DRAW_OP_TEST_EXTERN(AAFillRectOp);
@@ -339,11 +333,6 @@ DRAW_OP_TEST_EXTERN(TesselatingPathOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
-    using MakeTestLegacyMeshDrawOpFn = std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom*, GrContext*);
-    static constexpr MakeTestLegacyMeshDrawOpFn* gLegacyFactories[] = {
-        DRAW_OP_TEST_ENTRY(AnalyticRectOp),
-    };
-
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
         DRAW_OP_TEST_ENTRY(AAConvexPathOp),
@@ -369,24 +358,10 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(TesselatingPathOp),
     };
 
-    static constexpr size_t kTotal = SK_ARRAY_COUNT(gLegacyFactories) + SK_ARRAY_COUNT(gFactories);
-
+    static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
-    if (index < SK_ARRAY_COUNT(gLegacyFactories)) {
-        const GrUserStencilSettings* uss = GrGetRandomStencil(random, context);
-        // We don't use kHW because we will hit an assertion if the render target is not
-        // multisampled
-        static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
-        GrAAType aaType = kAATypes[random->nextULessThan(SK_ARRAY_COUNT(kAATypes))];
-        bool snapToCenters = random->nextBool();
-        auto op = gLegacyFactories[index](random, context);
-        SkASSERT(op);
-        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                std::move(paint), aaType, std::move(op), uss, snapToCenters);
-    } else {
-        auto op = gFactories[index - SK_ARRAY_COUNT(gLegacyFactories)](
-                std::move(paint), random, context, renderTargetContext->fsaaType());
-        SkASSERT(op);
-        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
-    }
+    auto op = gFactories[index](
+            std::move(paint), random, context, renderTargetContext->fsaaType());
+    SkASSERT(op);
+    renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 }
