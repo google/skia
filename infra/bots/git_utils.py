@@ -74,6 +74,8 @@ class GitBranch(object):
       upload_cmd.extend(['-t', 'Patch set %d' % self._patch_set])
     if use_commit_queue:
       upload_cmd.append('--use-commit-queue')
+      # Need the --send-mail flag to publish the CL and remove WIP bit.
+      upload_cmd.append('--send-mail')
     subprocess.check_call(upload_cmd)
     output = subprocess.check_output(['git', 'cl', 'issue']).rstrip()
     return re.match('^Issue number: (?P<issue>\d+) \((?P<issue_url>.+)\)$',
