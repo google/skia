@@ -377,6 +377,30 @@
     },
     {
       "key": {
+        "uuid": "65884ec9_f643697b",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-14T14:49:31Z",
+      "side": 1,
+      "message": "Well in the base class in emitGeometryShader you would create a string and store the name of the shader variable in it. You would then pass that string into emitWind, onEmitGeometryShader, emitCubicGemeotry, etc.\n\nI\u0027m not going to block landing this cause of this, just feel like it could be cleaner. But I would at least add comments to the other places and classes this variable is used",
+      "parentUuid": "b0ee7487_d1372894",
+      "range": {
+        "startLine": 98,
+        "startChar": 42,
+        "endLine": 98,
+        "endChar": 43
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71547ada_b81e7f89",
         "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
         "patchSetId": 10
