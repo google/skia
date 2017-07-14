@@ -28,13 +28,13 @@ public:
      * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, Result*);
 
     /*
      * Creates a bmp decoder for a bmp embedded in ico
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromIco(SkStream*);
+    static SkCodec* NewFromIco(SkStream*, Result*);
 
 protected:
 
@@ -44,12 +44,11 @@ protected:
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
 
     /*
-     * Read enough of the stream to initialize the SkBmpCodec. Returns a bool
-     * representing success or failure. If it returned true, and codecOut was
-     * not nullptr, it will be set to a new SkBmpCodec.
+     * Read enough of the stream to initialize the SkBmpCodec.
+     * On kSuccess, if codecOut is not nullptr, it will be set to a new SkBmpCodec.
      * If an SkCodec is created, it will take ownership of the SkStream.
      */
-    static bool ReadHeader(SkStream*, bool inIco, std::unique_ptr<SkCodec>* codecOut);
+    static Result ReadHeader(SkStream*, bool inIco, std::unique_ptr<SkCodec>* codecOut);
 
     bool onRewind() override;
 
@@ -113,7 +112,7 @@ private:
      * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*, bool inIco);
+    static SkCodec* NewFromStream(SkStream*, Result*, bool inIco);
 
     /*
      * Decodes the next dstInfo.height() lines.
