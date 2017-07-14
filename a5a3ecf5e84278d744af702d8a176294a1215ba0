@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "433e06a3_72ee94ed",
+        "filename": "src/gpu/GrProcessorSet.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-14T19:21:59Z",
+      "side": 1,
+      "message": "And so GrAtlasTextOp does not use the GrSimpleMeshDrawOp class.",
+      "range": {
+        "startLine": 137,
+        "startChar": 8,
+        "endLine": 137,
+        "endChar": 50
+      },
+      "revId": "a5a3ecf5e84278d744af702d8a176294a1215ba0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
