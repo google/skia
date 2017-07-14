@@ -638,11 +638,9 @@ static bool suitableForAAA(const SkPath& path) {
     if (gSkForceAnalyticAA.load()) {
         return true;
     }
-#ifndef SK_SUPPORT_LEGACY_RECT
     if (path.isRect(nullptr)) {
         return true;
     }
-#endif
     const SkRect& bounds = path.getBounds();
     // When the path have so many points compared to the size of its bounds/resolution,
     // it indicates that the path is not quite smooth in the current resolution:
