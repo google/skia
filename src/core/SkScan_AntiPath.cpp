@@ -664,7 +664,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
     // Do not use AAA if path is too complicated:
     // there won't be any speedup or significant visual improvement.
     if (gSkUseAnalyticAA.load() && suitableForAAA(path)) {
-        fillPathProc = &SkScan::AAAFillPath;
+        fillPathProc = &SkScan::DAAFillPath;
     }
 
     if (clip.isBW()) {
