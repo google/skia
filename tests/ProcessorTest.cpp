@@ -19,25 +19,41 @@
 #include "GrResourceProvider.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "ops/GrMeshDrawOp.h"
 #include "ops/GrRectOpFactory.h"
-#include "ops/GrTestMeshDrawOp.h"
 
 namespace {
-class TestOp : public GrTestMeshDrawOp {
+class TestOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
-    static std::unique_ptr<GrLegacyMeshDrawOp> Make() {
-        return std::unique_ptr<GrLegacyMeshDrawOp>(new TestOp);
+    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrFragmentProcessor> fp) {
+        return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
+    }
+
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        static constexpr GrProcessorAnalysisColor kUnknownColor;
+        GrColor overrideColor;
+        fProcessors.finalize(kUnknownColor, GrProcessorAnalysisCoverage::kNone, clip, false, caps,
+                             &overrideColor);
+        return RequiresDstTexture::kNo;
     }
 
 private:
-    TestOp() : INHERITED(ClassID(), SkRect::MakeWH(100, 100), 0xFFFFFFFF) {}
+    TestOp(sk_sp<GrFragmentProcessor> fp) : INHERITED(ClassID()), fProcessors(std::move(fp)) {
+        this->setBounds(SkRect::MakeWH(100, 100), HasAABloat::kNo, IsZeroArea::kNo);
+    }
 
     void onPrepareDraws(Target* target) const override { return; }
 
-    typedef GrTestMeshDrawOp INHERITED;
+    bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
+
+    GrProcessorSet fProcessors;
+
+    typedef GrMeshDrawOp INHERITED;
 };
 
 /**
@@ -171,15 +187,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     images.emplace_back(proxy3, GrIOType::kWrite_GrIOType);
                     images.emplace_back(proxy4, GrIOType::kRW_GrIOType);
                 }
-                std::unique_ptr<GrLegacyMeshDrawOp> op(TestOp::Make());
-                GrPaint paint;
                 auto fp = TestFP::Make(std::move(proxies), std::move(buffers), std::move(images));
                 for (int i = 0; i < parentCnt; ++i) {
                     fp = TestFP::Make(std::move(fp));
                 }
-                paint.addColorFragmentProcessor(std::move(fp));
-                renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
-                        std::move(paint), GrAAType::kNone, std::move(op));
+                std::unique_ptr<GrDrawOp> op(TestOp::Make(std::move(fp)));
+                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
             int refCnt, readCnt, writeCnt;
 

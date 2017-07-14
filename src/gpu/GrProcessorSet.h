@@ -25,6 +25,7 @@ private:
 public:
     GrProcessorSet(GrPaint&& paint);
     GrProcessorSet(SkBlendMode mode);
+    GrProcessorSet(sk_sp<GrFragmentProcessor> colorFP);
 
     ~GrProcessorSet();
 
