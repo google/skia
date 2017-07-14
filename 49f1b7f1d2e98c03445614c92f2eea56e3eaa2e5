@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6decea28_ad419b6c",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T17:11:02Z",
+      "side": 1,
+      "message": "Thoughts on calling \"prepend\" instead?\n\nIt\u0027s kind of nice being able to define the bezier points in this more central location, and it solves the issue of implicitly expecting emitWind to be called first.",
+      "range": {
+        "startLine": 100,
+        "startChar": 11,
+        "endLine": 100,
+        "endChar": 18
+      },
+      "revId": "49f1b7f1d2e98c03445614c92f2eea56e3eaa2e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
