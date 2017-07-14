@@ -46,6 +46,30 @@
       "revId": "a2978297cfaceeede8c3198423e14fa502c6c0b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8c96d95_5365a117",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-14T11:52:23Z",
+      "side": 1,
+      "message": "My take is that I don\u0027t want to manually indent initializer lists ever again. If a tool could do \"indent x spaces if no body otherwise 2x\" I\u0027d be fine with it but I don\u0027t really care either way.",
+      "parentUuid": "e2d8c637_627b2b87",
+      "range": {
+        "startLine": 143,
+        "startChar": 54,
+        "endLine": 143,
+        "endChar": 2
+      },
+      "revId": "a2978297cfaceeede8c3198423e14fa502c6c0b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
