@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21bc40da_ee91a995",
+        "filename": "tests/OnFlushCallbackTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-14T11:52:55Z",
+      "side": 1,
+      "message": "Don\u0027t we want to force outside users to go through the Make functions ?",
+      "revId": "9ac3d961270fdf72d629368d646d0405e803cc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65f722e6_a65df800",
+        "filename": "tests/OnFlushCallbackTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-14T11:52:55Z",
+      "side": 1,
+      "message": "Same here",
+      "revId": "9ac3d961270fdf72d629368d646d0405e803cc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
