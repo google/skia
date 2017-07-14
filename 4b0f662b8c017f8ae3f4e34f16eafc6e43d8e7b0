@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8700234b_682d0ccc",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-14T20:34:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4076df88_2d78fc43",
+      "range": {
+        "startLine": 86,
+        "startChar": 20,
+        "endLine": 86,
+        "endChar": 33
+      },
+      "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "827b6f48_ffc1ea74",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "I think that is reasonable. On error, I\u0027m not going to be recreating it. On not-enough-data, recreating it is extra work.\n\nIt is a bit odd to have different behavior, but I think it is reasonable.",
       "parentUuid": "21e89c19_e6720118",
+      "range": {
+        "startLine": 121,
+        "startChar": 16,
+        "endLine": 121,
+        "endChar": 22
+      },
+      "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae5679db_e247cc30",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-14T20:34:07Z",
+      "side": 1,
+      "message": "I ended up dropping this entirely, and just adding a Result to NewFromStream. It will still behave the same as it always did - delete the stream on failure.",
+      "parentUuid": "54a6553f_a438ec87",
       "range": {
         "startLine": 121,
         "startChar": 16,

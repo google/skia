@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a418ca0_93a68d6f",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-14T20:34:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a9edaf5b_1fb9aa9e",
+      "range": {
+        "startLine": 56,
+        "startChar": 5,
+        "endLine": 56,
+        "endChar": 0
+      },
+      "revId": "740dbd60e34b230aeb90741c534c09b6f05bc9d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e366dd0_f45a2001",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c3facd79_6b550a80",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-14T20:34:07Z",
+      "side": 1,
+      "message": ":)",
+      "parentUuid": "9e366dd0_f45a2001",
+      "range": {
+        "startLine": 105,
+        "startChar": 67,
+        "endLine": 105,
+        "endChar": 76
+      },
+      "revId": "740dbd60e34b230aeb90741c534c09b6f05bc9d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b3d77449_b3bc0bb7",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2017-07-14T20:05:01Z",
       "side": 1,
       "message": "It just occurred to me...should we be returning a unique_ptr to clearly mark that we\u0027re passing ownership?\n\nThat could be a separate CL but I thought I would make a comment since it\u0027s an API change.\nI guess Skia\u0027s API is typically as C-like as possible so maybe no unique_ptr.",
+      "range": {
+        "startLine": 165,
+        "startChar": 4,
+        "endLine": 165,
+        "endChar": 10
+      },
+      "revId": "740dbd60e34b230aeb90741c534c09b6f05bc9d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daa00f9c_f0d3d9e8",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-14T20:34:07Z",
+      "side": 1,
+      "message": "We use unique_ptr in Skia, but we didn\u0027t when I originally wrote this method.\n\nI would rather switch to it in a separate change, if at all.",
+      "parentUuid": "b3d77449_b3bc0bb7",
       "range": {
         "startLine": 165,
         "startChar": 4,
