@@ -45,6 +45,30 @@
       "revId": "69735ffeb7cc7298602f25e78c9b136189cc7b14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00ace19c_44363830",
+        "filename": "src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-14T20:17:27Z",
+      "side": 1,
+      "message": "I had stuck a division by 2 in there to alter the shader\u0027s output and see which GM\u0027s were using it, then removed it and uploaded this... apparently forgetting to regenerate the source. Oops!",
+      "parentUuid": "765e45cc_91e03d5c",
+      "range": {
+        "startLine": 26,
+        "startChar": 277,
+        "endLine": 26,
+        "endChar": 282
+      },
+      "revId": "69735ffeb7cc7298602f25e78c9b136189cc7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
