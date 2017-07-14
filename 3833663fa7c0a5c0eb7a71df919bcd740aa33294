@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46466431_d0ca2010",
+        "filename": "src/codec/SkWbmpCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-14T18:52:36Z",
+      "side": 1,
+      "message": "is it possible it could fail the second time due to an issue rewinding the stream?",
+      "range": {
+        "startLine": 155,
+        "startChar": 19,
+        "endLine": 155,
+        "endChar": 30
+      },
+      "revId": "3833663fa7c0a5c0eb7a71df919bcd740aa33294",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
