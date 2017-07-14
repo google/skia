@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5ea19f79_7a42d057",
+        "filename": "tests/OnFlushCallbackTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-14T12:04:27Z",
+      "side": 1,
+      "message": "This can\u0027t be called by anything other than FactoryHelper because Helper::MakeArgs\u0027s only constructor is private.",
+      "parentUuid": "21bc40da_ee91a995",
+      "revId": "9ac3d961270fdf72d629368d646d0405e803cc0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65f722e6_a65df800",
         "filename": "tests/OnFlushCallbackTest.cpp",
         "patchSetId": 3
