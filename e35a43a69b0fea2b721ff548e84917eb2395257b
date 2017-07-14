@@ -353,6 +353,30 @@
     },
     {
       "key": {
+        "uuid": "b0ee7487_d1372894",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T14:31:48Z",
+      "side": 1,
+      "message": "Hmm, I personally am not very thrilled about putting more %s in these strings. My take is that they are already hard enough to read without it. If the sksl variable were set up in a different file I would agree with passing the string in, but since this is a short file and it\u0027s all contained within here, I still feel like improved readability is quite valuable.\n\nJust curious what you mean by passing a string around to the functions? Who would pass this string to the functions?",
+      "parentUuid": "4fb2f10a_b1731dfc",
+      "range": {
+        "startLine": 98,
+        "startChar": 42,
+        "endLine": 98,
+        "endChar": 43
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71547ada_b81e7f89",
         "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
         "patchSetId": 10
