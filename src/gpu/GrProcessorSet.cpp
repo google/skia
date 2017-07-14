@@ -9,6 +9,7 @@
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrXferProcessor.h"
+#include "SkBlendModePriv.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 
 const GrProcessorSet& GrProcessorSet::EmptySet() {
@@ -35,6 +36,12 @@ GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
         fColorFragmentProcessorCnt = 0;
     }
 }
+
+GrProcessorSet::GrProcessorSet(SkBlendMode mode)
+        : fXP(SkBlendMode_AsXPFactory(mode))
+        , fColorFragmentProcessorCnt(0)
+        , fFragmentProcessorOffset(0)
+        , fFlags(0) {}
 
 GrProcessorSet::~GrProcessorSet() {
     for (int i = fFragmentProcessorOffset; i < fFragmentProcessors.count(); ++i) {
