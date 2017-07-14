@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4076df88_2d78fc43",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-14T14:31:31Z",
+      "side": 1,
+      "message": "let\u0027s just add an outResult* to this function.",
+      "range": {
+        "startLine": 86,
+        "startChar": 20,
+        "endLine": 86,
+        "endChar": 33
+      },
+      "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "827b6f48_ffc1ea74",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 2
