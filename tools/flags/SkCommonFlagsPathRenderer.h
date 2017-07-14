@@ -40,6 +40,8 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
         return GpuPathRenderers::kAALinearizing;
     } else if (!strcmp(name, "small")) {
         return GpuPathRenderers::kSmall;
+    } else if (!strcmp(name, "ccpr")) {
+        return GpuPathRenderers::kCoverageCounting;
     } else if (!strcmp(name, "tess")) {
         return GpuPathRenderers::kTessellating;
     } else if (!strcmp(name, "grdefault")) {

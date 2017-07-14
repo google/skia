@@ -91,10 +91,11 @@ struct GrContextOptions {
         kAAConvex          = 1 << 4,
         kAALinearizing     = 1 << 5,
         kSmall             = 1 << 6,
-        kTessellating      = 1 << 7,
-        kDefault           = 1 << 8,
+        kCoverageCounting  = 1 << 7,
+        kTessellating      = 1 << 8,
+        kDefault           = 1 << 9,
 
-        kAll               = kDefault | (kDefault - 1),
+        kAll               = (kDefault | (kDefault - 1)) & ~kCoverageCounting,
 
         // For legacy. To be removed when updated in Android.
         kDistanceField     = kSmall
