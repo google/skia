@@ -8,6 +8,7 @@
 #include "SkGeometry.h"
 #include "Test.h"
 #include "SkRandom.h"
+#include <array>
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
     return SkScalarNearlyEqual(a.fX, b.fX) && SkScalarNearlyEqual(a.fY, b.fY);
@@ -205,6 +206,24 @@ static void test_cubic_tangents(skiatest::Reporter* reporter) {
     }
 }
 
+static void check_cubic_type(skiatest::Reporter* reporter,
+                             const std::array<SkPoint, 4>& bezierPoints, SkCubicType expectedType) {
+    SkCubicType actualType = SkClassifyCubic(bezierPoints.data());
+    REPORTER_ASSERT(reporter, actualType == expectedType);
+}
+
+static void test_classify_cubic(skiatest::Reporter* reporter) {
+    check_cubic_type(reporter, {{{149.325f, 107.705f}, {149.325f, 103.783f},
+                                 {151.638f, 100.127f}, {156.263f, 96.736f}}},
+                     SkCubicType::kQuadratic);
+    check_cubic_type(reporter, {{{225.694f, 223.15f}, {209.831f, 224.837f},
+                                 {195.994f, 230.237f}, {184.181f, 239.35f}}},
+                     SkCubicType::kQuadratic);
+    check_cubic_type(reporter, {{{4.873f, 5.581f}, {5.083f, 5.2783f},
+                                 {5.182f, 4.8593f}, {5.177f, 4.3242f}}},
+                     SkCubicType::kSerpentine);
+}
+
 DEF_TEST(Geometry, reporter) {
     SkPoint pts[3], dst[5];
 
@@ -233,4 +252,5 @@ DEF_TEST(Geometry, reporter) {
     test_quad_tangents(reporter);
     test_conic_tangents(reporter);
     test_conic_to_quads(reporter);
+    test_classify_cubic(reporter);
 }
