@@ -69,6 +69,30 @@
       "revId": "69735ffeb7cc7298602f25e78c9b136189cc7b14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c73c749e_e3452bda",
+        "filename": "src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-07-14T20:22:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b8873c0_f280ad3e",
+      "range": {
+        "startLine": 26,
+        "startChar": 49,
+        "endLine": 26,
+        "endChar": 59
+      },
+      "revId": "69735ffeb7cc7298602f25e78c9b136189cc7b14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
