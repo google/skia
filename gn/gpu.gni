@@ -288,7 +288,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrStencilPathOp.h",
   "$_src/gpu/ops/GrTessellatingPathRenderer.cpp",
   "$_src/gpu/ops/GrTessellatingPathRenderer.h",
-  "$_src/gpu/ops/GrTestMeshDrawOp.h",
 
   "$_src/gpu/effects/Gr1DKernelEffect.h",
   "$_src/gpu/effects/GrBlurredEdgeFragmentProcessor.cpp",
