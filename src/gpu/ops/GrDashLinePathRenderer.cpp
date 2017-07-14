@@ -9,7 +9,6 @@
 
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
-#include "GrPipelineBuilder.h"
 #include "ops/GrDashOp.h"
 #include "ops/GrMeshDrawOp.h"
 

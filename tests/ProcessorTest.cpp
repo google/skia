@@ -13,7 +13,6 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrGpuResource.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"

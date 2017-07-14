@@ -14,7 +14,6 @@
 #if GR_TEST_UTILS
 
 class GrDrawOp;
-class GrLegacyMeshDrawOp;
 class GrPaint;
 class GrRenderTargetContext;
 struct GrUserStencilSettings;

@@ -12,7 +12,6 @@
 #include "GrFixedClip.h"
 #include "GrGpu.h"
 #include "GrPath.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "GrStencilPathOp.h"
