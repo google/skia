@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "014f46e8_1261d18c",
+        "filename": "src/gpu/effects/GrEllipseEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-14T19:31:41Z",
+      "side": 1,
+      "message": "There\u0027s a different GrGLSLEllipseEffect for each shader variant, so it shouldn\u0027t matter whether other variants get created... correct? They shouldn\u0027t interfere with each other in any way, unless I\u0027m misunderstanding the point you\u0027re raising.\n\nAgreed, if emitCode() gets called multiple times on the same instance, this would result in extra uniform uploads relative to the existing version. But if there are circumstances under which that happens, DM doesn\u0027t seem to exercise them - I added an assert to catch multiple calls to emitCode() in all of my fragment processors, and none of them trip. As far as I know emitCode() only ever gets called once, which should mean that initializing it here vs. in the constructor is purely cosmetic.\n\n...I think, at least. Now you\u0027ve got me nervous :-). Is my reasoning sound here?",
+      "parentUuid": "b262616f_21e8a7d2",
+      "revId": "84ab85e00a14774cb57f7742c1a557b981bbef57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe0be50e_6ca17835",
         "filename": "src/gpu/effects/GrEllipseEffect.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-14T17:32:52Z",
       "side": 1,
       "message": "Similarly - I\u0027m guessing that the presence of prevRadii/prevCenter in the .fp forces them to be injected/initialized here, but dead-code elimination is going to strip them out (because they\u0027re not referenced)?",
+      "revId": "84ab85e00a14774cb57f7742c1a557b981bbef57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f208a909_0ff827e8",
+        "filename": "src/gpu/effects/GrEllipseEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-07-14T19:31:41Z",
+      "side": 1,
+      "message": "Yep, they\u0027re definitely killed.",
+      "parentUuid": "fe0be50e_6ca17835",
       "revId": "84ab85e00a14774cb57f7742c1a557b981bbef57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
