@@ -27,10 +27,9 @@ public:
 
     /*
      * Assumes IsGif was called and returned true
-     * Creates a gif decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*);
+    static SkCodec* NewFromStream(SkStream*, Result*);
 
     // Callback for SkGifImageReader when a row is available.
     bool haveDecodedRow(int frameIndex, const unsigned char* rowBegin,

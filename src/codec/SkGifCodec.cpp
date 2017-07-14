@@ -66,15 +66,10 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
     return result;
 }
 
-/*
- * Assumes IsGif was called and returned true
- * Creates a gif decoder
- * Reads enough of the stream to determine the image format
- */
-SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
+SkCodec* SkGifCodec::NewFromStream(SkStream* stream, Result* result) {
     std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
-    if (!reader->parse(SkGifImageReader::SkGIFSizeQuery)) {
-        // Fatal error occurred.
+    *result = reader->parse(SkGifImageReader::SkGIFSizeQuery);
+    if (*result != kSuccess) {
         return nullptr;
     }
 
@@ -83,6 +78,8 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream) {
     if (0 == reader->imagesCount() || !reader->frameContext(0)->isHeaderDefined()) {
         return nullptr;
     }
+
+    SkASSERT(1 == reader->imagesCount() && reader->frameContext(0)->isHeaderDefined());
 
     // isHeaderDefined() will not return true if the screen size is empty.
     SkASSERT(reader->screenHeight() > 0 && reader->screenWidth() > 0);
