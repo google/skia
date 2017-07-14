@@ -24,7 +24,6 @@
 class GrBlobRegenHelper;
 struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
-class GrLegacyMeshDrawOp;
 class SkDrawFilter;
 class SkTextBlob;
 class SkTextBlobRunIterator;

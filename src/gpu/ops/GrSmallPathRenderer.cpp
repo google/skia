@@ -13,7 +13,6 @@
 #include "GrDistanceFieldGenFromVector.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
-#include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
 #include "GrSimpleMeshDrawOpHelper.h"
@@ -383,7 +382,7 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addDFPathToAtlas(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           uint32_t dimension, SkScalar scale) const {
         const SkRect& bounds = shape.bounds();
@@ -500,7 +499,7 @@ private:
         return true;
     }
 
-    bool addBMPathToAtlas(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, ShapeData* shapeData, const GrShape& shape,
                           const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
@@ -672,7 +671,7 @@ private:
         textureCoords[1] = t;
     }
 
-    void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+    void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         if (flushInfo->fInstancesToFlush) {
             GrMesh mesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =

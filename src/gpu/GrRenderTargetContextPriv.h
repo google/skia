@@ -102,11 +102,6 @@ public:
         return fRenderTargetContext->fRenderTargetProxy->uniqueID();
     }
 
-    uint32_t testingOnly_addLegacyMeshDrawOp(GrPaint&&, GrAAType,
-                                             std::unique_ptr<GrLegacyMeshDrawOp>,
-                                             const GrUserStencilSettings* = nullptr,
-                                             bool snapToCenters = false);
-
     uint32_t testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
 
     bool refsWrappedObjects() const {

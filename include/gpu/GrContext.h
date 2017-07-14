@@ -28,7 +28,6 @@ class GrGpu;
 class GrIndexBuffer;
 class GrOvalRenderer;
 class GrPath;
-class GrPipelineBuilder;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
