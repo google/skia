@@ -8,6 +8,7 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
+#include "SkAtomics.h"
 #include "SkShaderBase.h"
 
 class SkArenaAlloc;
@@ -22,6 +23,8 @@ class SkPicture;
  */
 class SkPictureShader : public SkShaderBase {
 public:
+    ~SkPictureShader() override;
+
     static sk_sp<SkShader> Make(sk_sp<SkPicture>, TileMode, TileMode, const SkMatrix*,
                                 const SkRect*);
 
@@ -49,10 +52,6 @@ private:
                                     SkColorSpace* dstColorSpace,
                                     const int maxTextureSize = 0) const;
 
-    sk_sp<SkPicture>    fPicture;
-    SkRect              fTile;
-    TileMode            fTmx, fTmy;
-
     class PictureShaderContext : public Context {
     public:
         PictureShaderContext(
@@ -70,9 +69,16 @@ private:
         typedef Context INHERITED;
     };
 
+    sk_sp<SkPicture>    fPicture;
+    SkRect              fTile;
+    TileMode            fTmx, fTmy;
+
     // Should never be set by a public constructor.  This is only used when onMakeColorSpace()
     // forces a deferred color space xform.
-    sk_sp<SkColorSpace>   fColorSpace;
+    sk_sp<SkColorSpace>    fColorSpace;
+
+    const uint32_t         fUniqueID;
+    mutable SkAtomic<bool> fAddedToCache;
 
     typedef SkShaderBase INHERITED;
 };
