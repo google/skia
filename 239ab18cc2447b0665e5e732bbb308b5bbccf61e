@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4001f2e2_df0a5108",
+        "filename": "src/gpu/effects/GrEllipseEffect.fp",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-14T16:51:26Z",
+      "side": 1,
+      "message": "Should (can) these be @if ?",
+      "revId": "239ab18cc2447b0665e5e732bbb308b5bbccf61e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
