@@ -21,8 +21,8 @@ public:
         kYes,
     };
 
-    GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
-            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0) {}
+    constexpr GrProcessorAnalysisColor(Opaque opaque = Opaque::kNo)
+            : fFlags(opaque == Opaque::kYes ? kIsOpaque_Flag : 0), fColor(0) {}
 
     GrProcessorAnalysisColor(GrColor color) { this->setToConstant(color); }
 
