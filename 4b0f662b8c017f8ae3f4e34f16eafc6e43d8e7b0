@@ -69,6 +69,30 @@
       "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54a6553f_a438ec87",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-07-14T20:05:01Z",
+      "side": 1,
+      "message": "I think that is reasonable. On error, I\u0027m not going to be recreating it. On not-enough-data, recreating it is extra work.\n\nIt is a bit odd to have different behavior, but I think it is reasonable.",
+      "parentUuid": "21e89c19_e6720118",
+      "range": {
+        "startLine": 121,
+        "startChar": 16,
+        "endLine": 121,
+        "endChar": 22
+      },
+      "revId": "4b0f662b8c017f8ae3f4e34f16eafc6e43d8e7b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
