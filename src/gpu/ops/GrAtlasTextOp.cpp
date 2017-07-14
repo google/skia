@@ -34,40 +34,45 @@ SkString GrAtlasTextOp::dumpInfo() const {
                     fGeoData[i].fBlob->runCount());
     }
 
-    str.append(DumpPipelineInfo(*this->pipeline()));
-    str.append(INHERITED::dumpInfo());
+    str += fProcessors.dumpProcessors();
+    str += INHERITED::dumpInfo();
     return str;
 }
 
-void GrAtlasTextOp::getProcessorAnalysisInputs(GrProcessorAnalysisColor* color,
-                                               GrProcessorAnalysisCoverage* coverage) const {
+GrDrawOp::FixedFunctionFlags GrAtlasTextOp::fixedFunctionFlags() const {
+    return FixedFunctionFlags::kNone;
+}
+
+GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
+                                                     const GrAppliedClip* clip) {
+    GrProcessorAnalysisCoverage coverage;
+    GrProcessorAnalysisColor color;
     if (kColorBitmapMask_MaskType == fMaskType) {
-        color->setToUnknown();
+        color.setToUnknown();
     } else {
-        color->setToConstant(fColor);
+        color.setToConstant(fColor);
     }
     switch (fMaskType) {
         case kGrayscaleCoverageMask_MaskType:
         case kAliasedDistanceField_MaskType:
         case kGrayscaleDistanceField_MaskType:
-            *coverage = GrProcessorAnalysisCoverage::kSingleChannel;
+            coverage = GrProcessorAnalysisCoverage::kSingleChannel;
             break;
         case kLCDCoverageMask_MaskType:
         case kLCDDistanceField_MaskType:
         case kLCDBGRDistanceField_MaskType:
-            *coverage = GrProcessorAnalysisCoverage::kLCD;
+            coverage = GrProcessorAnalysisCoverage::kLCD;
             break;
         case kColorBitmapMask_MaskType:
-            *coverage = GrProcessorAnalysisCoverage::kNone;
+            coverage = GrProcessorAnalysisCoverage::kNone;
             break;
     }
-}
-
-void GrAtlasTextOp::applyPipelineOptimizations(const PipelineOptimizations& optimizations) {
-    optimizations.getOverrideColorIfSet(&fGeoData[0].fColor);
-
-    fColor = fGeoData[0].fColor;
-    fUsesLocalCoords = optimizations.readsLocalCoords();
+    auto analysis = fProcessors.finalize(color, coverage, clip, false, caps, &fColor);
+    fUsesLocalCoords = analysis.usesLocalCoords();
+    fCanCombineOnTouchOrOverlap =
+            !analysis.requiresDstTexture() &&
+            !(fProcessors.xferProcessor() && fProcessors.xferProcessor()->xferBarrierType(caps));
+    return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 
 void GrAtlasTextOp::onPrepareDraws(Target* target) const {
@@ -88,15 +93,16 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
     GrMaskFormat maskFormat = this->maskFormat();
 
     FlushInfo flushInfo;
+    flushInfo.fPipeline = target->makePipeline(fSRGBFlags, &fProcessors);
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor =
                 this->setupDfProcessor(this->viewMatrix(),
                                        fLuminanceColor, this->color(), std::move(proxy));
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
-        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                this->color(), std::move(proxy), params,
-                maskFormat, localMatrix, this->usesLocalCoords());
+        flushInfo.fGeometryProcessor =
+                GrBitmapTextGeoProc::Make(this->color(), std::move(proxy), params, maskFormat,
+                                          localMatrix, this->usesLocalCoords());
     }
 
     flushInfo.fGlyphsToFlush = 0;
@@ -145,15 +151,18 @@ void GrAtlasTextOp::flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushIn
     mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,
                              flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
     mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-    target->draw(flushInfo->fGeometryProcessor.get(), this->pipeline(), mesh);
+    target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline, mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }
 
 bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
-    if (!GrPipeline::CanCombine(*this->pipeline(), this->bounds(), *that->pipeline(),
-                                that->bounds(), caps)) {
+    if (fProcessors != that->fProcessors) {
+        return false;
+    }
+
+    if (!fCanCombineOnTouchOrOverlap && GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
         return false;
     }
 
@@ -239,9 +248,8 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
 
-        return GrDistanceFieldLCDTextGeoProc::Make(color, viewMatrix, std::move(proxy),
-                                                   params, widthAdjust, flags,
-                                                   this->usesLocalCoords());
+        return GrDistanceFieldLCDTextGeoProc::Make(color, viewMatrix, std::move(proxy), params,
+                                                   widthAdjust, flags, this->usesLocalCoords());
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
         float correction = 0;
@@ -250,10 +258,8 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const SkMatrix& viewM
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(color,
-                                                  viewMatrix, std::move(proxy),
-                                                  params, correction, flags,
-                                                  this->usesLocalCoords());
+        return GrDistanceFieldA8TextGeoProc::Make(color, viewMatrix, std::move(proxy), params,
+                                                  correction, flags, this->usesLocalCoords());
 #else
         return GrDistanceFieldA8TextGeoProc::Make(color,
                                                   viewMatrix, std::move(proxy),
