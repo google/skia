@@ -33,6 +33,7 @@ struct BitmapShaderKey : public SkResourceCache::Key {
 public:
     BitmapShaderKey(sk_sp<SkColorSpace> colorSpace,
                     uint32_t pictureID,
+                    uint32_t shaderID,
                     const SkRect& tile,
                     SkShader::TileMode tmx,
                     SkShader::TileMode tmy,
@@ -60,10 +61,22 @@ public:
                                       sizeof(fBlendBehavior);
         // This better be packed.
         SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - (uint32_t*)&fColorSpace) == keySize);
-        this->init(&gBitmapSkaderKeyNamespaceLabel, 0, keySize);
+        this->init(&gBitmapSkaderKeyNamespaceLabel, MakeSharedID(shaderID), keySize);
+    }
+
+    static uint64_t MakeSharedID(uint32_t shaderID) {
+        uint64_t sharedID = SkSetFourByteTag('p', 's', 'd', 'r');
+        return (sharedID << 32) | shaderID;
     }
 
 private:
+    // TODO: there are some fishy things about using CS sk_sps in the key:
+    //   - false negatives: keys are memcmp'ed, so we don't detect equivalent CSs
+    //     (SkColorspace::Equals)
+    //   - we're keeping the CS alive, even when the client releases it
+    //
+    // Ideally we'd be using unique IDs or some other weak ref + purge mechanism
+    // when the CS is deleted.
     sk_sp<SkColorSpace>        fColorSpace;
     uint32_t                   fPictureID;
     SkRect                     fTile;
@@ -104,6 +117,15 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
     }
 };
 
+static int32_t gNextID = 1;
+uint32_t next_id() {
+    int32_t id;
+    do {
+        id = sk_atomic_inc(&gNextID);
+    } while (id == SK_InvalidGenID);
+    return static_cast<uint32_t>(id);
+}
+
 } // namespace
 
 SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
@@ -115,7 +137,14 @@ SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMod
     , fTmx(tmx)
     , fTmy(tmy)
     , fColorSpace(std::move(colorSpace))
-{}
+    , fUniqueID(next_id())
+    , fAddedToCache(false) {}
+
+SkPictureShader::~SkPictureShader() {
+    if (fAddedToCache.load()) {
+        SkResourceCache::PostPurgeSharedID(BitmapShaderKey::MakeSharedID(fUniqueID));
+    }
+}
 
 sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
                                       const SkMatrix* localMatrix, const SkRect* tile) {
@@ -232,6 +261,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     sk_sp<SkShader> tileShader;
     BitmapShaderKey key(std::move(keyCS),
                         fPicture->uniqueID(),
+                        fUniqueID,
                         fTile,
                         fTmx,
                         fTmy,
@@ -260,6 +290,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
         tileShader = tileImage->makeShader(fTmx, fTmy, &shaderMatrix);
 
         SkResourceCache::Add(new BitmapShaderRec(key, tileShader.get()));
+        fAddedToCache.store(true);
     }
 
     return tileShader;
