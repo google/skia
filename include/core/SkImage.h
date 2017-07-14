@@ -390,6 +390,12 @@ public:
      */
     sk_sp<SkData> refEncodedData() const;
 
+#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
+    SkData* encode(SkEncodedImageFormat, int quality) const;
+    SkData* encode(SkPixelSerializer* = nullptr) const;
+    SkData* refEncoded() const;
+#endif
+
     const char* toString(SkString*) const;
 
     /**
