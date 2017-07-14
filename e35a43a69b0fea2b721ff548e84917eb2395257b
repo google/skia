@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2e0d3cda_d4b20c7e",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done. Added a comment.",
+      "parentUuid": "d432faf3_8fdd74e1",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "752dfaa3_73d2df8f",
         "filename": "samplecode/SampleCCPRGeometry.cpp",
         "patchSetId": 10
@@ -33,6 +51,24 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6aa4e7c9_657422d0",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done. Oops!",
+      "parentUuid": "752dfaa3_73d2df8f",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b029f735_ecce362a",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3db3ccc0_5ff2dae1",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb067fec_ddcf749a",
         "filename": "samplecode/SampleCCPRGeometry.cpp",
         "patchSetId": 10
@@ -67,6 +121,24 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d5beab7_e96a62a5",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb067fec_ddcf749a",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "13dc9b49_7e469396",
+        "filename": "samplecode/SampleCCPRGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7968611_50a5861a",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d0d3433_3842594b",
         "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
         "patchSetId": 10
@@ -101,6 +191,24 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b093355_0ac70bcd",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done.\n\nOh, when did this happen?",
+      "parentUuid": "7d0d3433_3842594b",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "50c2f459_0c857aea",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Maybe not if the including file includes SkTypes.h first. But the sk_sp\u0027s make my IDE uhappy without it.",
+      "parentUuid": "1f70cab1_3ee80d5e",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7ceb33c_3edcde84",
         "filename": "src/gpu/ccpr/GrCCPRAtlas.h",
         "patchSetId": 10
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "7aa44384_46afe60d",
+        "filename": "src/gpu/ccpr/GrCCPRAtlas.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7ceb33c_3edcde84",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c108742_c151c5b2",
         "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
         "patchSetId": 10
@@ -149,6 +293,30 @@
       "writtenOn": "2017-07-13T20:10:19Z",
       "side": 1,
       "message": "what is P here? If this is a variable you defined in another function I think you should pass in the string to this function to use. Otherwise this looks like magic",
+      "range": {
+        "startLine": 98,
+        "startChar": 42,
+        "endLine": 98,
+        "endChar": 43
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70bb6845_e80c49ee",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "It gets defined by this same class a few lines above in emitWind, so the base class can\u0027t really pass it into the function.\n\nI\u0027m also not a fan of littering these strings with %s, for the sake of readability.\n\nDoes this change with the more descriptive name and comment seem sufficient for you?",
+      "parentUuid": "0c108742_c151c5b2",
       "range": {
         "startLine": 98,
         "startChar": 42,
@@ -184,6 +352,30 @@
     },
     {
       "key": {
+        "uuid": "911da214_359f8310",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71547ada_b81e7f89",
+      "range": {
+        "startLine": 244,
+        "startChar": 41,
+        "endLine": 244,
+        "endChar": 42
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b33824a3_8f5dd721",
         "filename": "src/gpu/ccpr/GrCCPRQuadraticProcessor.cpp",
         "patchSetId": 10
@@ -204,6 +396,30 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12df63b1_545b5f46",
+        "filename": "src/gpu/ccpr/GrCCPRQuadraticProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b33824a3_8f5dd721",
+      "range": {
+        "startLine": 87,
+        "startChar": 46,
+        "endLine": 87,
+        "endChar": 47
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -230,6 +446,30 @@
     },
     {
       "key": {
+        "uuid": "e2fd2992_db7e8135",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7a1d71b_ed3ecee0",
+      "range": {
+        "startLine": 47,
+        "startChar": 45,
+        "endLine": 47,
+        "endChar": 46
+      },
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6b8cab3_1229519c",
         "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
         "patchSetId": 10
@@ -244,6 +484,24 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c785f89_5c4f5548",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6b8cab3_1229519c",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -264,6 +522,24 @@
     },
     {
       "key": {
+        "uuid": "be33d380_189ab29e",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84dd9778_4429b606",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c47967f_17282e9f",
         "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
         "patchSetId": 10
@@ -278,6 +554,24 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c409b0dd_0ed67de1",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done. This is also documented on the parsePath function and in GrCCPRPathProcessor::Instance.",
+      "parentUuid": "0c47967f_17282e9f",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -298,6 +592,24 @@
     },
     {
       "key": {
+        "uuid": "92ca9ef1_b202cad1",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7c3846c_d04509b0",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8746f1b2_9fd82d50",
         "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
         "patchSetId": 10
@@ -312,6 +624,24 @@
       "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed1949ea_251230c5",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-14T08:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8746f1b2_9fd82d50",
+      "revId": "e35a43a69b0fea2b721ff548e84917eb2395257b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
