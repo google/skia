@@ -339,7 +339,7 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
 
 #if GR_TEST_UTILS
 
-GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(TextBlobOp) {
     static uint32_t gContextID = SK_InvalidGenID;
     static GrAtlasTextContext* gTextContext = nullptr;
     static SkSurfaceProps gSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
@@ -356,15 +356,11 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
         SkBackingFit::kApprox, 1024, 1024, kRGBA_8888_GrPixelConfig, nullptr));
 
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
-
-    // Because we the GrTextUtils::Paint requires an SkPaint for font info, we ignore the GrPaint
-    // param.
     SkPaint skPaint;
     skPaint.setColor(random->nextU());
     skPaint.setLCDRenderText(random->nextBool());
     skPaint.setAntiAlias(skPaint.isLCDRenderText() ? true : random->nextBool());
     skPaint.setSubpixelText(random->nextBool());
-    GrTextUtils::Paint utilsPaint(&skPaint, rtc->getColorSpace(), rtc->getColorXformFromSRGB());
 
     const char* text = "The quick brown fox jumps over the lazy dog.";
     int textLen = (int)strlen(text);
@@ -378,17 +374,17 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     SkScalar x = SkIntToScalar(xInt);
     SkScalar y = SkIntToScalar(yInt);
 
+    GrTextUtils::Paint paint(&skPaint, rtc->getColorSpace(), rtc->getColorXformFromSRGB());
     // right now we don't handle textblobs, nor do we handle drawPosText. Since we only intend to
     // test the text op with this unit test, that is okay.
     sk_sp<GrAtlasTextBlob> blob(GrAtlasTextContext::MakeDrawTextBlob(
             context->getTextBlobCache(), context->getAtlasGlyphCache(),
-            *context->caps()->shaderCaps(), utilsPaint,
+            *context->caps()->shaderCaps(), paint,
             GrAtlasTextContext::kTextBlobOpScalerContextFlags, viewMatrix, gSurfaceProps, text,
             static_cast<size_t>(textLen), x, y));
 
-    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, gSurfaceProps,
-                             gTextContext->dfAdjustTable(), context->getAtlasGlyphCache(),
-                             rtc.get());
+    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, paint, gSurfaceProps,
+                             gTextContext->dfAdjustTable(), context->getAtlasGlyphCache());
 }
 
 #endif
