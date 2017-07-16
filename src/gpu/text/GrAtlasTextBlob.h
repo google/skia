@@ -271,11 +271,10 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, int run, int subRun,
-                                          const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                          const GrTextUtils::Paint&, const SkSurfaceProps&,
-                                          const GrDistanceFieldAdjustTable*, GrAtlasGlyphCache*,
-                                          GrRenderTargetContext*);
+    std::unique_ptr<GrLegacyMeshDrawOp> test_makeOp(
+            int glyphCount, int run, int subRun, const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+            const GrTextUtils::Paint& paint, const SkSurfaceProps& props,
+            const GrDistanceFieldAdjustTable* distanceAdjustTable, GrAtlasGlyphCache* cache);
 
 private:
     GrAtlasTextBlob()
@@ -498,12 +497,11 @@ private:
                    Run* run, Run::SubRunInfo* info, SkAutoGlyphCache*, int glyphCount,
                    size_t vertexStride, GrColor color, SkScalar transX, SkScalar transY) const;
 
-    inline std::unique_ptr<GrDrawOp> makeOp(const Run::SubRunInfo& info, int glyphCount, int run,
-                                            int subRun, const SkMatrix& viewMatrix, SkScalar x,
-                                            SkScalar y, const GrTextUtils::Paint& paint,
-                                            const SkSurfaceProps& props,
-                                            const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                                            GrAtlasGlyphCache* cache, GrRenderTargetContext*);
+    inline std::unique_ptr<GrLegacyMeshDrawOp> makeOp(
+            const Run::SubRunInfo& info, int glyphCount, int run, int subRun,
+            const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const GrTextUtils::Paint& paint,
+            const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
+            bool useGammaCorrectDistanceTable, GrAtlasGlyphCache* cache);
 
     struct BigGlyph {
         BigGlyph(const SkPath& path, SkScalar vx, SkScalar vy, SkScalar scale, bool treatAsBMP)

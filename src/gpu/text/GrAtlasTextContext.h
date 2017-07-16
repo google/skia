@@ -89,7 +89,7 @@ private:
 #if GR_TEST_UTILS
     static const uint32_t kTextBlobOpScalerContextFlags =
             SkPaint::kFakeGammaAndBoostContrast_ScalerContextFlags;
-    GR_DRAW_OP_TEST_FRIEND(GrAtlasTextOp);
+    GR_LEGACY_MESH_DRAW_OP_TEST_FRIEND(TextBlobOp);
 #endif
 };
 

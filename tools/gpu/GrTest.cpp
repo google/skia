@@ -314,6 +314,7 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 LEGACY_MESH_DRAW_OP_TEST_EXTERN(AnalyticRectOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(TextBlobOp);
 
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
 DRAW_OP_TEST_EXTERN(AAFillRectOp);
@@ -325,7 +326,6 @@ DRAW_OP_TEST_EXTERN(DashOp);
 DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(DIEllipseOp);
 DRAW_OP_TEST_EXTERN(EllipseOp);
-DRAW_OP_TEST_EXTERN(GrAtlasTextOp);
 DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
 DRAW_OP_TEST_EXTERN(GrDrawVerticesOp);
 DRAW_OP_TEST_EXTERN(NonAAFillRectOp);
@@ -342,6 +342,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     using MakeTestLegacyMeshDrawOpFn = std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom*, GrContext*);
     static constexpr MakeTestLegacyMeshDrawOpFn* gLegacyFactories[] = {
         DRAW_OP_TEST_ENTRY(AnalyticRectOp),
+        DRAW_OP_TEST_ENTRY(TextBlobOp),
     };
 
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
@@ -356,7 +357,6 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(DefaultPathOp),
         DRAW_OP_TEST_ENTRY(DIEllipseOp),
         DRAW_OP_TEST_ENTRY(EllipseOp),
-        DRAW_OP_TEST_ENTRY(GrAtlasTextOp),
         DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
         DRAW_OP_TEST_ENTRY(GrDrawVerticesOp),
         DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
