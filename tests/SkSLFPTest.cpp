@@ -205,7 +205,7 @@ DEF_TEST(SkSLFPInUniform, r) {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType, "
                                                          "kDefault_GrSLPrecision, \"color\");",
             "const SkRect colorValue = _outer.color();",
-            "pdman.set4fv(fColorVar, 4, (float*) &colorValue);"
+            "pdman.set4fv(fColorVar, 1, (float*) &colorValue);"
          });
 }
 

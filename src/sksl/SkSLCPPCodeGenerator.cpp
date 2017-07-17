@@ -442,7 +442,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             const char* name = u->fName.c_str();
             if (u->fType == *fContext.fVec4_Type) {
                 this->writef("        const SkRect %sValue = _outer.%s();\n"
-                             "        %s.set4fv(%sVar, 4, (float*) &%sValue);\n",
+                             "        %s.set4fv(%sVar, 1, (float*) &%sValue);\n",
                              name, name, pdman, HCodeGenerator::FieldName(name).c_str(), name);
             } else if (u->fType == *fContext.fMat4x4_Type) {
                 this->writef("        float %sValue[16];\n"
