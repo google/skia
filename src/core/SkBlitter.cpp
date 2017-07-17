@@ -41,6 +41,108 @@ void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
 }
  */
 
+// Blit an empty rect may trigger some asserts
+#define BLIT_NONEMPTY_RECT(l, t, w, h) \
+    if ((w) > 0 && (h) > 0) { this->blitRect((l), (t), (w), (h)); }
+
+void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                   bool isEvenOdd, bool isInverse, bool isConvex) {
+    if (isInverse) {
+        BLIT_NONEMPTY_RECT(clip.fLeft, clip.fTop, clip.width(), deltas->top() - clip.fTop);
+        BLIT_NONEMPTY_RECT(clip.fLeft, deltas->bottom(), clip.width(),
+                           clip.fBottom - deltas->bottom());
+    }
+
+    int         runSize = clip.width() + 1; // +1 so we can set runs[clip.width()] = 0
+    void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
+    SkAlpha*    alphas  = reinterpret_cast<SkAlpha*>(storage);
+    int16_t*    runs    = reinterpret_cast<int16_t*>(alphas + runSize);
+    runs[clip.width()]  = 0; // we must set the last run to 0 so blitAntiH can stop there
+
+    bool canUseMask = SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
+    const SkAntiRect& antiRect = deltas->getAntiRect();
+    for(int y = deltas->top(); y < deltas->bottom(); ++y) {
+        // If antiRect is non-empty and we're at its top row, blit it and skip to the bottom
+        if (antiRect.fHeight && y == antiRect.fY) {
+            this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,
+                               antiRect.fLeftAlpha, antiRect.fRightAlpha);
+            y += antiRect.fHeight - 1; // -1 because ++y in the for loop
+            continue;
+        }
+
+        // If there are too many deltas, sorting will be slow. Using a mask will be much faster.
+        // This is such an important optimization that will bring ~2x speedup for benches like
+        // path_fill_small_long_line and path_stroke_small_sawtooth.
+        if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
+            SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
+            SkCoverageDeltaMask mask(rowIR);
+            for(int i = 0; i < deltas->count(y); ++i) {
+                const SkCoverageDelta& delta = deltas->getDelta(y, i);
+                mask.addDelta(delta.fX, y, delta.fDelta);
+            }
+            this->SkBlitter::blitCoverageDeltas(&mask, rowIR, isEvenOdd, isInverse, isConvex);
+            continue;
+        }
+
+        // The normal flow of blitting deltas starts from here. First sort deltas.
+        deltas->sort(y);
+
+        int     i = 0;              // init delta index to 0
+        int     lastX = clip.fLeft; // init x to clip.fLeft
+        SkFixed coverage = 0;       // init coverage to 0
+
+        // skip deltas with x less than clip.fLeft; they must be precision errors
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
+            const SkCoverageDelta& delta = deltas->getDelta(y, i);
+            SkASSERT(delta.fX >= lastX);    // delta must be x sorted
+            if (delta.fX > lastX) {         // we have proceeded to a new x (different from lastX)
+                SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                         : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+                alphas[lastX - clip.fLeft]  = alpha;            // set alpha at lastX
+                runs[lastX - clip.fLeft]    = delta.fX - lastX; // set the run length
+                lastX                       = delta.fX;         // now set lastX to current x
+            }
+            coverage += delta.fDelta; // cumulate coverage with the current delta
+        }
+
+        // Set the alpha and run length from the right-most delta to the right clip boundary
+        SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                 : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+        alphas[lastX - clip.fLeft]  = alpha;
+        runs[lastX - clip.fLeft]    = clip.fRight - lastX;
+
+        this->blitAntiH(clip.fLeft, y, alphas, runs); // finally blit the current row
+    }
+}
+
+void SkBlitter::blitCoverageDeltas(SkCoverageDeltaMask* deltas, const SkIRect& clip,
+                        bool isEvenOdd, bool isInverse, bool isConvex) {
+    if (isInverse) { // blit everything between clip and deltas->getBounds()
+        BLIT_NONEMPTY_RECT(clip.fLeft, clip.fTop, clip.width(), deltas->top() - clip.fTop);
+        BLIT_NONEMPTY_RECT(clip.fLeft, deltas->bottom(), clip.width(),
+                           clip.fBottom - deltas->bottom());
+        BLIT_NONEMPTY_RECT(clip.fLeft, deltas->top(), deltas->getBounds().fLeft - clip.fLeft,
+                           deltas->getBounds().height());
+        BLIT_NONEMPTY_RECT(deltas->getBounds().fRight, deltas->top(),
+                           clip.fRight - deltas->getBounds().fRight, deltas->getBounds().height());
+    }
+
+    // if the mask has height 0, the blitMask may fail some asserts; check it before blitMask
+    if (deltas->getBounds().height()) {
+        // Maybe we shall convert coverage in the first init-once stage and only send the alpha mask
+        // to the second draw-in-orderstage of the threaded backend.
+        deltas->convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
+        SkMask mask;
+        mask.fImage     = deltas->getMask();
+        mask.fBounds    = deltas->getBounds();
+        mask.fRowBytes  = mask.fBounds.width();
+        mask.fFormat    = SkMask::kA8_Format;
+        this->blitMask(mask, mask.fBounds);
+    }
+}
+
+
 void SkBlitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (alpha == 255) {
         this->blitRect(x, y, 1, height);

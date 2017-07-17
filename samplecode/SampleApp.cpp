@@ -1891,9 +1891,14 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'A':
             if (gSkUseAnalyticAA.load() && !gSkForceAnalyticAA.load()) {
                 gSkForceAnalyticAA = true;
-            } else {
-                gSkUseAnalyticAA = !gSkUseAnalyticAA.load();
+            } else if (gSkUseAnalyticAA.load() && !gSkUseDeltaAA.load()) {
+                gSkUseAnalyticAA = false;
                 gSkForceAnalyticAA = false;
+                gSkUseDeltaAA = true;
+            } else if (gSkUseDeltaAA.load()) {
+                gSkUseDeltaAA = false;
+            } else {
+                gSkUseAnalyticAA = true;
             }
             this->inval(nullptr);
             this->updateTitle();
@@ -2256,7 +2261,9 @@ void SampleWindow::updateTitle() {
         title.prependf("[T%d/%d] ", gSampleWindow->getTiles(), gSampleWindow->getThreads());
     }
 
-    if (gSkUseAnalyticAA) {
+    if (gSkUseDeltaAA) {
+        title.prepend("<DAA> ");
+    } else if (gSkUseAnalyticAA) {
         if (gSkForceAnalyticAA) {
             title.prepend("<FAAA> ");
         } else {
