@@ -13,8 +13,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDocument.h"
 #include "SkDeflate.h"
+#include "SkDocument.h"
 #include "SkImageEncoder.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
@@ -23,10 +23,12 @@
 #include "SkPDFFont.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
+#include "SkPaint.h"
 #include "SkReadBuffer.h"
 #include "SkScalar.h"
 #include "SkSpecialImage.h"
 #include "SkStream.h"
+#include "SkTypeface.h"
 #include "SkTypes.h"
 #include "sk_tool_utils.h"
 
@@ -492,4 +494,23 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
         REPORTER_ASSERT(reporter, roundTrip == i);
     }
 }
-#endif
+
+#ifdef SK_BUILD_FOR_MAC
+DEF_TEST(SkPDF_non_outline_glyphs, r) {
+    SkPaint p;
+    if (auto face = SkTypeface::MakeFromName("Apple Color Emoji", SkFontStyle())) {
+        p.setTypeface(std::move(face));
+        SkUnichar codepoints[] = {
+            0x2705, ' ', 0x26BD, ' ', 0x1F3C8, ' ', 0x1F3C9, ' ', 0x1F3BE, ' ',
+            0x1F3BE, ' ', 0x1F3BE, ' ', 0x1F3BE, };
+        p.setTextSize(32);
+        p.setTextEncoding(SkPaint::kUTF32_TextEncoding);
+        SkNullWStream o;
+        auto doc = SkDocument::MakePDF(&o);
+        SkCanvas* c = doc->beginPage(612, 792);
+        c->drawText(codepoints, sizeof(codepoints), 30, 62, p);
+        // for now, verify that it draws without crashing.
+    }
+}
+#endif  // SK_BUILD_FOR_MAC
+#endif  // SK_SUPPORT_PDF

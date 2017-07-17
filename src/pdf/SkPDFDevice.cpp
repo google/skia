@@ -1320,6 +1320,12 @@ static SkPath draw_text_as_path(const void* sourceText, size_t sourceByteCount,
     return path;
 }
 
+static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
+    const SkGlyph& glyph = cache->getGlyphIDMetrics(gid);
+    const SkPath* path = cache->findPath(glyph);
+    return (path && !path->isEmpty()) || (glyph.fWidth == 0 && glyph.fHeight == 0);
+}
+
 static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkGlyphCache* cache,
                                             SkScalar xScale, SkScalar yScale,
                                             SkPoint xy, const SkMatrix& ctm) {
@@ -1336,6 +1342,46 @@ static SkRect get_glyph_bounds_device_space(SkGlyphID gid, SkGlyphCache* cache,
 static bool contains(const SkRect& r, SkPoint p) {
    return r.left() <= p.x() && p.x() <= r.right() &&
           r.top()  <= p.y() && p.y() <= r.bottom();
+}
+
+static sk_sp<SkImage> image_from_mask(const SkMask& mask) {
+    if (!mask.fImage) {
+        return nullptr;
+    }
+    SkIRect bounds = mask.fBounds;
+    SkBitmap bm;
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            bm.allocPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()));
+            for (int y = 0; y < bm.height(); ++y) {
+                for (int x8 = 0; x8 < bm.width(); x8 += 8) {
+                    uint8_t v = *mask.getAddr1(x8 + bounds.x(), y + bounds.y());
+                    int e = SkTMin(x8 + 8, bm.width());
+                    for (int x = x8; x < e; ++x) {
+                        *bm.getAddr8(x, y) = (v >> (x & 0x7)) & 0x1 ? 0xFF : 0x00;
+                    }
+                }
+            }
+            bm.setImmutable();
+            return SkImage::MakeFromBitmap(bm);
+        case SkMask::kA8_Format:
+            bm.installPixels(SkImageInfo::MakeA8(bounds.width(), bounds.height()),
+                             mask.fImage, mask.fRowBytes);
+            return SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode);
+        case SkMask::kARGB32_Format:
+            bm.installPixels(SkImageInfo::MakeN32Premul(bounds.width(), bounds.height()),
+                             mask.fImage, mask.fRowBytes);
+            return SkMakeImageFromRasterBitmap(bm, kAlways_SkCopyPixelsMode);
+        case SkMask::k3D_Format:
+            SkASSERT(false);
+            return nullptr;
+        case SkMask::kLCD16_Format:
+            SkASSERT(false);
+            return nullptr;
+        default:
+            SkASSERT(false);
+            return nullptr;
+    }
 }
 
 void SkPDFDevice::internalDrawText(
@@ -1439,6 +1485,12 @@ void SkPDFDevice::internalDrawText(
         offset.offset(alignmentFactor * advance, 0);
     }
     SkRect clipStackBounds = this->cs().bounds(size(*this));
+    struct PositionedGlyph {
+        SkPoint fPos;
+        SkGlyphID fGlyph;
+    };
+    SkTArray<PositionedGlyph> fMissingGlyphs;
+    {
     ScopedContentEntry content(this, paint, true);
     if (!content.entry()) {
         return;
@@ -1520,10 +1572,9 @@ void SkPDFDevice::internalDrawText(
                 }
                 SkASSERT(font->multiByteGlyphs() == multiByteGlyphs);
             }
-            SkPoint xy{0, 0};
-            SkScalar advance{0};
+            SkPoint xy = {};
+            SkScalar advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
             if (!defaultPositioning) {
-                advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
                 xy = SkTextBlob::kFull_Positioning == positioning
                    ? SkPoint{pos[2 * index], pos[2 * index + 1]}
                    : SkPoint{pos[index], 0};
@@ -1542,10 +1593,57 @@ void SkPDFDevice::internalDrawText(
                         continue;  // reject glyphs as out of bounds
                     }
                 }
+                if (!has_outline_glyph(gid, glyphCache.get())) {
+                    fMissingGlyphs.push_back({xy, gid});
+                }
+            } else {
+                if (!has_outline_glyph(gid, glyphCache.get())) {
+                    fMissingGlyphs.push_back({offset, gid});
+                }
+                offset += SkPoint{advance, 0};
             }
             font->noteGlyphUsage(gid);
+
             SkGlyphID encodedGlyph = multiByteGlyphs ? gid : font->glyphToPDFFontEncoding(gid);
             glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
+        }
+    }
+    }
+    if (fMissingGlyphs.count() > 0) {
+        // Fall back on images.
+        SkPaint scaledGlyphCachePaint;
+        scaledGlyphCachePaint.setTextSize(paint.getTextSize());
+        scaledGlyphCachePaint.setTextScaleX(paint.getTextScaleX());
+        scaledGlyphCachePaint.setTextSkewX(paint.getTextSkewX());
+        scaledGlyphCachePaint.setTypeface(sk_ref_sp(typeface));
+        SkAutoGlyphCache scaledGlyphCache(scaledGlyphCachePaint, nullptr, nullptr);
+        SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
+            &this->getCanon()->fBitmapGlyphImages;
+        for (PositionedGlyph positionedGlyph : fMissingGlyphs) {
+            SkPDFCanon::BitmapGlyphKey key = {typeface->uniqueID(),
+                                              paint.getTextSize(),
+                                              paint.getTextScaleX(),
+                                              paint.getTextSkewX(),
+                                              positionedGlyph.fGlyph,
+                                              0};
+            SkImage* img = nullptr;
+            SkIPoint imgOffset = {0, 0};
+            if (SkPDFCanon::BitmapGlyph* ptr = map->find(key)) {
+                img = ptr->fImage.get();
+                imgOffset = ptr->fOffset;
+            } else {
+                (void)scaledGlyphCache->findImage(
+                        scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph));
+                SkMask mask;
+                scaledGlyphCache->getGlyphIDMetrics(positionedGlyph.fGlyph).toMask(&mask);
+                imgOffset = {mask.fBounds.x(), mask.fBounds.y()};
+                img = map->set(key, {image_from_mask(mask), imgOffset})->fImage.get();
+            }
+            if (img) {
+                SkPoint pt = positionedGlyph.fPos +
+                             SkPoint{(SkScalar)imgOffset.x(), (SkScalar)imgOffset.y()};
+                this->drawImage(img, pt.x(), pt.y(), SkPaint());
+            }
         }
     }
 }
