@@ -206,14 +206,6 @@ SkImage_Lazy::Validator::Validator(sk_sp<SharedGenerator> gen, const SkIRect* su
         fInfo = fInfo.makeColorSpace(colorSpace);
         fUniqueID = SkNextID::ImageID();
     }
-
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    // colortables are poorly to not-at-all supported in our resourcecache, so we
-    // bully them into N32 (the generator will perform the up-sample)
-    if (fInfo.colorType() == kIndex_8_SkColorType) {
-        fInfo = fInfo.makeColorType(kN32_SkColorType);
-    }
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -248,9 +240,6 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
         , fInfo(validator->fInfo)
         , fOrigin(validator->fOrigin) {
     SkASSERT(fSharedGenerator);
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    SkASSERT(kIndex_8_SkColorType != fInfo.colorType());
-#endif
     // We explicit set the legacy format slot, but leave the others uninitialized (via SkOnce)
     // and only resolove them to IDs as needed (by calling getUniqueID()).
     fIDRecs[kLegacy_CachedFormat].fOnce([this, validator] {
@@ -316,12 +305,6 @@ SkImageCacherator::CachedFormat SkImage_Lazy::chooseCacheFormat(SkColorSpace* ds
             // We don't support color space on these formats, so always decode in legacy mode:
             // TODO: Ask the codec to decode these to something else (at least sRGB 8888)?
             return kLegacy_CachedFormat;
-
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        case kIndex_8_SkColorType:
-            SkDEBUGFAIL("Index_8 should have been remapped at construction time.");
-            return kLegacy_CachedFormat;
-#endif
 
         case kGray_8_SkColorType:
             // TODO: What do we do with grayscale sources that have strange color spaces attached?

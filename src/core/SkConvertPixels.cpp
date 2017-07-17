@@ -243,21 +243,6 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
             }
             break;
         }
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        case kIndex_8_SkColorType: {
-            SkASSERT(ctable);
-            const uint32_t* table = ctable->readColors();
-            auto src8 = (const uint8_t*)src;
-            for (int y = 0; y < srcInfo.height(); y++) {
-                for (int x = 0; x < srcInfo.width(); x++) {
-                    dst[x] = table[src8[x]] >> 24;
-                }
-                dst = SkTAddOffset<uint8_t>(dst, dstRB);
-                src8 = SkTAddOffset<const uint8_t>(src8, srcRB);
-            }
-            break;
-        }
-#endif
         case kRGBA_F16_SkColorType: {
             auto src64 = (const uint64_t*) src;
             for (int y = 0; y < srcInfo.height(); y++) {
@@ -429,16 +414,6 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
         apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, behavior);
         return;
     }
-
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    // Fast Path 4: Index 8 sources.
-    if (kIndex_8_SkColorType == srcInfo.colorType()) {
-        SkASSERT(ctable);
-        convert_from_index8(dstInfo, dstPixels, dstRB, srcInfo, (const uint8_t*) srcPixels, srcRB,
-                            ctable, behavior);
-        return;
-    }
-#endif
 
     // Fast Path 5: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
