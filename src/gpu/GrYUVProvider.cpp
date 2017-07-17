@@ -127,6 +127,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
                                                                           SkBackingFit::kExact,
                                                                           desc.fWidth, desc.fHeight,
                                                                           desc.fConfig, nullptr,
+                                                                          "yuv provider",
                                                                           desc.fSampleCnt));
     if (!renderTargetContext) {
         return nullptr;

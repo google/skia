@@ -30,6 +30,10 @@ protected:
 public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "NonAARectOp"; }
+    
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
 
     // This creates an instance of a simple non-AA solid color rect-drawing Op
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkRect& r) {
@@ -433,7 +437,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
                                                                       3*kDrawnTileSize,
                                                                       kDrawnTileSize,
                                                                       kRGBA_8888_GrPixelConfig,
-                                                                      nullptr));
+                                                                      nullptr, "foo"));
 
     rtc->clear(nullptr, GrColorPackRGBA(255, 0, 0, 255), true);
 
@@ -565,7 +569,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
                                                                       kFinalWidth,
                                                                       kFinalHeight,
                                                                       kRGBA_8888_GrPixelConfig,
-                                                                      nullptr));
+                                                                      nullptr, "foo"));
 
     rtc->clear(nullptr, 0xFFFFFFFF, true);
 

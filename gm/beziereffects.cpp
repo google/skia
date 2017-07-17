@@ -74,6 +74,8 @@ public:
         return std::unique_ptr<GrDrawOp>(new BezierCubicTestOp(std::move(gp), rect, color));
     }
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
 private:
     BezierCubicTestOp(sk_sp<GrGeometryProcessor> gp, const SkRect& rect, GrColor color)
             : INHERITED(std::move(gp), rect, color, ClassID()) {}
@@ -242,6 +244,8 @@ public:
         return std::unique_ptr<GrMeshDrawOp>(
                 new BezierConicTestOp(std::move(gp), rect, color, klm));
     }
+
+    void gatherOp(GrResourceAllocator*) const override { }
 
 private:
     BezierConicTestOp(sk_sp<GrGeometryProcessor> gp, const SkRect& rect, GrColor color,
@@ -456,6 +460,8 @@ public:
                                           GrColor color, const GrPathUtils::QuadUVMatrix& devToUV) {
         return std::unique_ptr<GrDrawOp>(new BezierQuadTestOp(std::move(gp), rect, color, devToUV));
     }
+
+    void gatherOp(GrResourceAllocator*) const override { }
 
 private:
     BezierQuadTestOp(sk_sp<GrGeometryProcessor> gp, const SkRect& rect, GrColor color,

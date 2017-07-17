@@ -28,6 +28,8 @@ public:
 
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     CoverageOp(const SkISize& drawBounds, sk_sp<GrBuffer> pointsBuffer,
                sk_sp<GrBuffer> trianglesBuffer,
                const PrimitiveTallies baseInstances[kNumScissorModes],

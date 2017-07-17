@@ -468,7 +468,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                 SkBackingFit::kApprox, offsetBounds.width(), offsetBounds.height(),
                                 GrRenderableConfigForColorSpace(outputProperties.colorSpace()),
-                                sk_ref_sp(outputProperties.colorSpace())));
+                                sk_ref_sp(outputProperties.colorSpace()), "lighting IF"));
     if (!renderTargetContext) {
         return nullptr;
     }

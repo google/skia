@@ -240,7 +240,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
 
         dstRenderTargetContext = context->makeDeferredRenderTargetContext(fit, width, height,
-                                                                          config, colorSpace);
+                                                                          config, colorSpace, "GaussianBlur 2d");
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -265,7 +265,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                                                 fit,
                                                                 SkTMin(dstRect.fRight, width),
                                                                 SkTMin(dstRect.fBottom, height),
-                                                                config, colorSpace);
+                                                                config, colorSpace, "GaussianBlur decimate");
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -321,7 +321,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkASSERT(srcRect.width() <= width && srcRect.height() <= height);
         dstRenderTargetContext = context->makeDeferredRenderTargetContext(fit, srcRect.width(),
                                                                           srcRect.height(),
-                                                                          config, colorSpace);
+                                                                          config, colorSpace, "GaussianBlur x-pass");
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -357,7 +357,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         SkASSERT(srcRect.width() <= width && srcRect.height() <= height);
         dstRenderTargetContext = context->makeDeferredRenderTargetContext(fit, srcRect.width(),
                                                                           srcRect.height(),
-                                                                          config, colorSpace);
+                                                                          config, colorSpace, "GaussianBlur y-pass");
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -391,7 +391,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
         dstRenderTargetContext = context->makeDeferredRenderTargetContext(
                                                                 fit, SkTMin(dstRect.width(), width),
                                                                 SkTMin(dstRect.height(), height),
-                                                                config, colorSpace);
+                                                                config, colorSpace, "GaussianBlur re-inflate");
         if (!dstRenderTargetContext) {
             return nullptr;
         }

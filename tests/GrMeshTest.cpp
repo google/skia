@@ -83,7 +83,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 
     sk_sp<GrRenderTargetContext> rtc(
         context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kImageWidth, kImageHeight,
-                                                 kRGBA_8888_GrPixelConfig, nullptr));
+                                                 kRGBA_8888_GrPixelConfig, nullptr, "test"));
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;
@@ -251,6 +251,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
+
+    void gatherOp(GrResourceAllocator*) const override { }
 
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> testFn)
         : INHERITED(ClassID())
