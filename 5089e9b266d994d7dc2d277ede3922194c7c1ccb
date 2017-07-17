@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20682690_76e1d32b",
+        "filename": "tests/PDFPrimitivesTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-17T20:28:07Z",
+      "side": 1,
+      "message": "We have coloremoji gm... though it requires \"--key os Mac\" and changes names.",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 1
+      },
+      "revId": "5089e9b266d994d7dc2d277ede3922194c7c1ccb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
