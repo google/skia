@@ -72,9 +72,6 @@ enum SkColorType {
     kARGB_4444_SkColorType,
     kRGBA_8888_SkColorType,
     kBGRA_8888_SkColorType,
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    kIndex_8_SkColorType,
-#endif
     kGray_8_SkColorType,
     kRGBA_F16_SkColorType,
 
@@ -97,9 +94,6 @@ static int SkColorTypeBytesPerPixel(SkColorType ct) {
         2,  // ARGB_4444
         4,  // RGBA_8888
         4,  // BGRA_8888
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        1,  // kIndex_8
-#endif
         1,  // kGray_8
         8,  // kRGBA_F16
     };
@@ -118,9 +112,6 @@ static int SkColorTypeShiftPerPixel(SkColorType ct) {
         1,  // ARGB_4444
         2,  // RGBA_8888
         2,  // BGRA_8888
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        0,  // kIndex_8
-#endif
         0,  // kGray_8
         3,  // kRGBA_F16
     };

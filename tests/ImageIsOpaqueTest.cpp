@@ -61,11 +61,6 @@ DEF_TEST(ImageInfo_flattening, reporter) {
     };
 
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        if (ct == kIndex_8_SkColorType) {
-            continue;
-        }
-#endif
         for (int at = 0; at <= kLastEnum_SkAlphaType; ++at) {
             for (auto& cs : spaces) {
                 SkImageInfo info = SkImageInfo::Make(100, 200,
