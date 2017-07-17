@@ -1555,7 +1555,83 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
 
 void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcType,
                                          const Type& dstType, OutputStream& out) {
-    ABORT("unimplemented");
+    ASSERT(srcType.kind() == Type::kMatrix_Kind);
+    ASSERT(dstType.kind() == Type::kMatrix_Kind);
+    ASSERT(srcType.componentType() == dstType.componentType());
+    SpvId srcColumnType = this->getType(srcType.componentType().toCompound(fContext,
+                                                                           srcType.rows(),
+                                                                           1));
+    SpvId dstColumnType = this->getType(dstType.componentType().toCompound(fContext,
+                                                                           dstType.rows(),
+                                                                           1));
+    SpvId zeroId;
+    if (dstType.componentType() == *fContext.fFloat_Type) {
+        FloatLiteral zero(fContext, Position(), 0.0);
+        zeroId = this->writeFloatLiteral(zero);
+    } else if (dstType.componentType() == *fContext.fInt_Type) {
+        IntLiteral zero(fContext, Position(), 0);
+        zeroId = this->writeIntLiteral(zero);
+    } else {
+        ABORT("unsupported matrix component type");
+    }
+    SpvId zeroColumn = 0;
+    SpvId columns[4];
+    for (int i = 0; i < dstType.columns(); i++) {
+        if (i < srcType.columns()) {
+            // we're still inside the src matrix, copy the column
+            SpvId srcColumn = this->nextId();
+            this->writeInstruction(SpvOpCompositeExtract, srcColumnType, srcColumn, src, i, out);
+            SpvId dstColumn;
+            if (srcType.rows() == dstType.rows()) {
+                // columns are equal size, don't need to do anything
+                dstColumn = srcColumn;
+            }
+            else if (dstType.rows() > srcType.rows()) {
+                // dst column is bigger, need to zero-pad it
+                dstColumn = this->nextId();
+                int delta = dstType.rows() - srcType.rows();
+                this->writeOpCode(SpvOpCompositeConstruct, 4 + delta, out);
+                this->writeWord(dstColumnType, out);
+                this->writeWord(dstColumn, out);
+                this->writeWord(srcColumn, out);
+                for (int i = 0; i < delta; ++i) {
+                    this->writeWord(zeroId, out);
+                }
+            }
+            else {
+                // dst column is smaller, need to swizzle the src column
+                dstColumn = this->nextId();
+                int count = dstType.rows();
+                this->writeOpCode(SpvOpVectorShuffle, 5 + count, out);
+                this->writeWord(dstColumnType, out);
+                this->writeWord(dstColumn, out);
+                this->writeWord(srcColumn, out);
+                this->writeWord(srcColumn, out);
+                for (int i = 0; i < count; i++) {
+                    this->writeWord(i, out);
+                }
+            }
+            columns[i] = dstColumn;
+        } else {
+            // we're past the end of the src matrix, need a vector of zeroes
+            if (!zeroColumn) {
+                zeroColumn = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.rows(), out);
+                this->writeWord(dstColumnType, out);
+                this->writeWord(zeroColumn, out);
+                for (int i = 0; i < dstType.rows(); ++i) {
+                    this->writeWord(zeroId, out);
+                }
+            }
+            columns[i] = zeroColumn;
+        }
+    }
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.columns(), out);
+    this->writeWord(this->getType(dstType), out);
+    this->writeWord(id, out);
+    for (int i = 0; i < dstType.columns(); i++) {
+        this->writeWord(columns[i], out);
+    }
 }
 
 SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStream& out) {
