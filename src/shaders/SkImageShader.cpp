@@ -75,8 +75,19 @@ bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
     return false;
 }
 
+static bool valid_for_legacy_filtering(unsigned dimension) {
+    // for filtering, width and height must fit in 14bits, since we use steal
+    // 2 bits from each to store our 4bit subpixel data
+    return (dimension & ~0x3FFF) == 0;
+}
+
 bool SkImageShader::onIsRasterPipelineOnly() const {
     SkBitmapProvider provider(fImage.get(), nullptr);
+    const SkImageInfo info = provider.info();
+
+    if (!valid_for_legacy_filtering(info.width()) || !valid_for_legacy_filtering(info.height())) {
+        return true;
+    }
     return IsRasterPipelineOnly(provider.info().colorType(), fTileModeX, fTileModeY);
 }
 
