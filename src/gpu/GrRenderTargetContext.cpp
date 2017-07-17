@@ -109,6 +109,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
                                              const SkSurfaceProps* surfaceProps,
                                              GrAuditTrail* auditTrail,
                                              GrSingleOwner* singleOwner,
+                                             const char* name,
                                              bool managedOpList)
     : GrSurfaceContext(context, drawingMgr, std::move(colorSpace), auditTrail, singleOwner)
     , fRenderTargetProxy(std::move(rtp))
@@ -116,6 +117,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
     , fInstancedPipelineInfo(fRenderTargetProxy.get())
     , fColorXformFromSRGB(nullptr)
     , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
+    , fName(name)
     , fManagedOpList(managedOpList) {
     if (fColorSpace) {
         // sRGB sources are very common (SkColor, etc...), so we cache that gamut transformation
@@ -123,10 +125,12 @@ GrRenderTargetContext::GrRenderTargetContext(GrContext* context,
         fColorXformFromSRGB = GrColorSpaceXform::Make(srgbColorSpace.get(), fColorSpace.get());
     }
 
+#if 0
     // MDB TODO: to ensure all resources still get allocated in the correct order in the hybrid
     // world we need to get the correct opList here so that it, in turn, can grab and hold
     // its rendertarget.
     this->getRTOpList();
+#endif
     SkDEBUGCODE(this->validate();)
 }
 
@@ -158,7 +162,7 @@ GrRenderTargetOpList* GrRenderTargetContext::getRTOpList() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpList || fOpList->isClosed()) {
-        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get(), fManagedOpList);
+        fOpList = this->drawingManager()->newRTOpList(fRenderTargetProxy.get(), fManagedOpList, fName);
     }
 
     return fOpList.get();

@@ -55,6 +55,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     const char* name() const override { return "NonAAStrokeRectOp"; }
 
     SkString dumpInfo() const override {

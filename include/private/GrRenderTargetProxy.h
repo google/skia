@@ -23,7 +23,7 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    bool instantiate(GrResourceProvider* resourceProvider) override;
+    bool instantiate(GrResourceProvider*) override;
 
     GrFSAAType fsaaType() const {
         if (!fSampleCnt) {
@@ -67,6 +67,8 @@ protected:
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>);
+
+    sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
     size_t onUninstantiatedGpuMemorySize() const override;

@@ -171,7 +171,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
     return context->makeDeferredRenderTargetContext(
                                     SkBackingFit::kExact,
                                     origInfo.width(), origInfo.height(),
-                                    config, origInfo.refColorSpace(), sampleCount,
+                                    config, origInfo.refColorSpace(), "gpu device", sampleCount,
                                     origin, surfaceProps, budgeted);
 }
 
@@ -1766,6 +1766,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
                                                    cinfo.fInfo.width(), cinfo.fInfo.height(),
                                                    fRenderTargetContext->config(),
                                                    fRenderTargetContext->refColorSpace(),
+                                                   "onCreateDevice",
                                                    fRenderTargetContext->numStencilSamples(),
                                                    kBottomLeft_GrSurfaceOrigin,
                                                    &props));

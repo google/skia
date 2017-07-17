@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkRandom.h"
+#include "SkBlurImageFilter.h"
 
 namespace skiagm {
 
@@ -46,10 +47,11 @@ protected:
             SkColor color = rand.nextU();
             color |= 0xff000000;
             p.setColor(color);
+            p.setImageFilter(SkBlurImageFilter::Make(5, 5, nullptr));
 
             canvas->save();
             canvas->translate(SkIntToScalar(xOffset), SkIntToScalar(yOffset));
-            canvas->drawArc(rect, 0, arc, false, p);
+            canvas->drawRect(rect, p);
             canvas->restore();
 
             switch (direction) {
@@ -70,6 +72,7 @@ protected:
                 xOffset += 10;
                 break;
             }
+            break;
         }
 
     }

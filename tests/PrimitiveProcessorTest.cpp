@@ -28,6 +28,8 @@ class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     const char* name() const override { return "Dummy Op"; }
 
     static std::unique_ptr<GrDrawOp> Make(int numAttribs) {
@@ -109,7 +111,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                                                      SkBackingFit::kApprox,
                                                                      1, 1, kRGBA_8888_GrPixelConfig,
-                                                                     nullptr));
+                                                                     nullptr, "test"));
     if (!renderTargetContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;

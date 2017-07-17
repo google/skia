@@ -400,6 +400,7 @@ static sk_sp<SkImage> make_from_yuv_textures_copy(GrContext* ctx, SkYUVColorSpac
                                                                          width, height,
                                                                          kRGBA_8888_GrPixelConfig,
                                                                          std::move(imageColorSpace),
+                                                                         "make_from_yuv_textures_copy",
                                                                          0,
                                                                          origin));
     if (!renderTargetContext) {
@@ -973,7 +974,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
     }
 
     sk_sp<GrRenderTargetContext> renderTargetContext(fContext->makeDeferredRenderTargetContext(
-        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr));
+        SkBackingFit::kExact, this->width(), this->height(), kRGBA_8888_GrPixelConfig, nullptr, "onMakeColorSpace"));
     if (!renderTargetContext) {
         return nullptr;
     }

@@ -127,6 +127,10 @@ class AAFlatteningConvexPathOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
 public:
     DEFINE_OP_CLASS_ID
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint,
