@@ -10,6 +10,7 @@
 
 #include "Resources.h"
 #include "SkOSFile.h"
+#include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkStream.h"
@@ -214,14 +215,14 @@ static SkString strip_final(const SkString& str) {
     return result;
 }
 
-static void output_font(SkTypeface* face, const char* name, SkTypeface::Style style, FILE* out) {
+static void output_font(sk_sp<SkTypeface> face, const char* name, SkTypeface::Style style, FILE* out) {
     int emSize = face->getUnitsPerEm() * 2;
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setTextAlign(SkPaint::kLeft_Align);
     paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
     paint.setTextSize(emSize);
-    SkSafeUnref(paint.setTypeface(face));
+    paint.setTypeface(std::move(face));
     SkTDArray<SkPath::Verb> verbs;
     SkTDArray<unsigned> charCodes;
     SkTDArray<SkScalar> widths;
@@ -305,6 +306,8 @@ static void output_font(SkTypeface* face, const char* name, SkTypeface::Style st
     output_scalar(metrics.fCapHeight, emSize, &metricsStr);
     output_scalar(metrics.fUnderlineThickness, emSize, &metricsStr);
     output_scalar(metrics.fUnderlinePosition, emSize, &metricsStr);
+    output_scalar(metrics.fStrikeoutThickness, emSize, &metricsStr);
+    output_scalar(metrics.fStrikeoutPosition, emSize, &metricsStr);
     metricsStr = strip_final(metricsStr);
     fprintf(out, "%s\n};\n\n", metricsStr.c_str());
 }
@@ -326,7 +329,7 @@ static int written_index(const FontDesc& fontDesc) {
     return -1;
 }
 
-static void generate_fonts() {
+static void generate_fonts(const char* basepath) {
     FILE* out = nullptr;
     for (int index = 0; index < gFontsCount; ++index) {
         FontDesc& fontDesc = gFonts[index];
@@ -338,14 +341,13 @@ static void generate_fonts() {
             fontDesc.fFontIndex = fontIndex;
             continue;
         }
-        SkTypeface* systemTypeface = SkTypeface::CreateFromName(fontDesc.fFont, fontDesc.fStyle);
+        sk_sp<SkTypeface> systemTypeface(SkTypeface::MakeFromName(fontDesc.fFont, SkFontStyle::FromOldStyle(fontDesc.fStyle)));
         SkASSERT(systemTypeface);
-        SkString filepath("/Library/Fonts/");
-        filepath.append(fontDesc.fFile);
+        SkString filepath(SkOSPath::Join(basepath, fontDesc.fFile));
         SkASSERT(sk_exists(filepath.c_str()));
-        SkTypeface* resourceTypeface = SkTypeface::CreateFromFile(filepath.c_str());
+        sk_sp<SkTypeface> resourceTypeface = SkTypeface::MakeFromFile(filepath.c_str());
         SkASSERT(resourceTypeface);
-        output_font(resourceTypeface, fontDesc.fFont, fontDesc.fStyle, out);
+        output_font(std::move(resourceTypeface), fontDesc.fFont, fontDesc.fStyle, out);
         fontDesc.fFontIndex = gWritten.count();
         FontWritten* writ = gWritten.append();
         writ->fName = fontDesc.fFont;
@@ -400,7 +402,7 @@ static void generate_index(const char* defaultName) {
     fprintf(out,
                 "struct SubFont {\n"
                 "    const char* fName;\n"
-                "    SkTypeface::Style fStyle;\n"
+                "    SkFontStyle fStyle;\n"
                 "    SkTestFontData& fFont;\n"
                 "    const char* fFile;\n"
                 "};\n\n"
@@ -412,13 +414,13 @@ static void generate_index(const char* defaultName) {
             defaultIndex = subIndex;
         }
         fprintf(out,
-                "    { \"%s\", SkTypeface::k%s, gTestFonts[%d], \"%s\" },\n", desc.fName,
+                "    { \"%s\", SkFontStyle::FromOldStyle(SkTypeface::k%s), gTestFonts[%d], \"%s\" },\n", desc.fName,
                 gStyleName[desc.fStyle], desc.fFontIndex, desc.fFile);
     }
     for (int subIndex = 0; subIndex < gFontsCount; subIndex++) {
         const FontDesc& desc = gFonts[subIndex];
         fprintf(out,
-                "    { \"Toy %s\", SkTypeface::k%s, gTestFonts[%d], \"%s\" },\n", desc.fFont,
+                "    { \"Toy %s\", SkFontStyle::FromOldStyle(SkTypeface::k%s), gTestFonts[%d], \"%s\" },\n", desc.fFont,
                 gStyleName[desc.fStyle], desc.fFontIndex, desc.fFile);
     }
     fprintf(out, "};\n\n");
@@ -429,10 +431,7 @@ static void generate_index(const char* defaultName) {
 }
 
 int main(int , char * const []) {
-#ifndef SK_BUILD_FOR_MAC
-    #error "use fonts installed on Mac"
-#endif
-    generate_fonts();
+    generate_fonts("/Library/Fonts/");
     generate_index(DEFAULT_FONT_NAME);
     return 0;
 }
