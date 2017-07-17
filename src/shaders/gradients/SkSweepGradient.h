@@ -14,16 +14,6 @@ class SkSweepGradient final : public SkGradientShaderBase {
 public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
 
-    class SweepGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
-    public:
-        SweepGradientContext(const SkSweepGradient& shader, const ContextRec&);
-
-        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-
-    private:
-        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
-    };
-
     GradientType asAGradient(GradientInfo* info) const override;
 
 #if SK_SUPPORT_GPU
@@ -35,7 +25,6 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override;
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
@@ -43,7 +32,7 @@ protected:
                                      SkRasterPipeline* tPipeline,
                                      SkRasterPipeline* postPipeline) const override;
 
-    bool onIsRasterPipelineOnly() const override;
+    bool onIsRasterPipelineOnly() const override { return true; }
 
 private:
     const SkPoint fCenter;
