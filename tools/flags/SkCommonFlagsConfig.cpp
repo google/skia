@@ -55,6 +55,8 @@ static const struct {
     { "glesinst",              "gpu", "api=gles,inst=true" },
     { "glesinst4",             "gpu", "api=gles,inst=true,samples=4" },
     { "glesinstdit4",          "gpu", "api=gles,inst=true,samples=4,dit=true" },
+    { "gl4444",                "gpu", "api=gl,color=4444" },
+    { "gl565",                 "gpu", "api=gl,color=565" },
     { "glf16",                 "gpu", "api=gl,color=f16" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
     { "glsrgbnl",              "gpu", "api=gl,color=srgbnl" },
@@ -151,6 +153,8 @@ static const char configExtendedHelp[] =
     "\t    Select framebuffer color format.\n"
     "\t    Options:\n"
     "\t\t8888\t\t\tLinear 8888.\n"
+    "\t\t4444\t\t\tLinear 4444.\n"
+    "\t\t565\t\t\tLinear 565.\n"
     "\t\tf16{_gamut}\t\tLinear 16-bit floating point.\n"
     "\t\tsrgb{_gamut}\t\tsRGB 8888.\n"
     "\t  gamut\ttype: string\tdefault: srgb.\n"
@@ -195,7 +199,7 @@ SkCommandLineConfig::~SkCommandLineConfig() {
 #if SK_SUPPORT_GPU
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(
     const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType, bool useNVPR,
-    bool useInstanced, bool useDIText, int samples, SkColorType colorType,
+    bool useInstanced, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
     sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
@@ -203,6 +207,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fUseDIText(useDIText)
         , fSamples(samples)
         , fColorType(colorType)
+        , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace)) {
     if (useNVPR) {
         fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
@@ -320,9 +325,22 @@ static bool parse_option_gpu_api(const SkString& value,
 }
 static bool parse_option_gpu_color(const SkString& value,
                                    SkColorType* outColorType,
+                                   SkAlphaType* alphaType,
                                    sk_sp<SkColorSpace>* outColorSpace) {
+    // We always use premul unless the color type is 565.
+    *alphaType = kPremul_SkAlphaType;
+
     if (value.equals("8888")) {
         *outColorType = kRGBA_8888_SkColorType;
+        *outColorSpace = nullptr;
+        return true;
+    } else if (value.equals("4444")) {
+        *outColorType = kARGB_4444_SkColorType;
+        *outColorSpace = nullptr;
+        return true;
+    } else if (value.equals("565")) {
+        *outColorType = kRGB_565_SkColorType;
+        *alphaType = kOpaque_SkAlphaType;
         *outColorSpace = nullptr;
         return true;
     }
@@ -397,6 +415,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     int samples = 0;
     bool seenColor = false;
     SkColorType colorType = kRGBA_8888_SkColorType;
+    SkAlphaType alphaType = kPremul_SkAlphaType;
     sk_sp<SkColorSpace> colorSpace = nullptr;
     bool seenUseStencils = false;
     bool useStencils = true;
@@ -428,7 +447,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
             valueOk = parse_option_int(value, &samples);
             seenSamples = true;
         } else if (key.equals("color") && !seenColor) {
-            valueOk = parse_option_gpu_color(value, &colorType, &colorSpace);
+            valueOk = parse_option_gpu_color(value, &colorType, &alphaType, &colorSpace);
             seenColor = true;
         } else if (key.equals("stencils") && !seenUseStencils) {
             valueOk = parse_option_bool(value, &useStencils);
@@ -442,7 +461,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
         return nullptr;
     }
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useInstanced, useDIText,
-                                      samples, colorType, colorSpace, useStencils);
+                                      samples, colorType, alphaType, colorSpace, useStencils);
 }
 #endif
 

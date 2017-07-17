@@ -119,7 +119,9 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
         "glnarrow",
         "glnostencils",
         "mock",
-        "mtl"
+        "mtl",
+        "gl4444",
+        "gl565"
     });
 
     SkCommandLineConfigArray configs;
@@ -226,6 +228,14 @@ DEF_TEST(ParseConfigs_DefaultConfigs, reporter) {
     REPORTER_ASSERT(reporter, configs[19]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[20]->asConfigGpu());
     REPORTER_ASSERT(reporter, configs[21]->asConfigGpu());
+    REPORTER_ASSERT(reporter, configs[45]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[45]->asConfigGpu()->getColorType() == kARGB_4444_SkColorType);
+    REPORTER_ASSERT(reporter, configs[45]->asConfigGpu()->getAlphaType() == kPremul_SkAlphaType);
+    REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getContextType() ==
+                              GrContextFactory::kGL_ContextType);
+    REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getColorType() == kRGB_565_SkColorType);
+    REPORTER_ASSERT(reporter, configs[46]->asConfigGpu()->getAlphaType() == kOpaque_SkAlphaType);
 #if SK_MESA
     REPORTER_ASSERT(reporter, configs[23]->asConfigGpu());
 #else
