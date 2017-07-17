@@ -1325,6 +1325,7 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* metrics) {
     metrics->fUnderlineThickness = CGToScalar( CTFontGetUnderlineThickness(fCTFont.get()));
     metrics->fUnderlinePosition = -CGToScalar( CTFontGetUnderlinePosition(fCTFont.get()));
 
+    metrics->fFlags = 0;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlineThicknessIsValid_Flag;
     metrics->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
