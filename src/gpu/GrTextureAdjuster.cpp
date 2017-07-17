@@ -109,7 +109,8 @@ sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace) {
+                                        SkColorSpace* dstColorSpace,
+                                        bool scaleDownWithHighQuality) {
 
     SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();

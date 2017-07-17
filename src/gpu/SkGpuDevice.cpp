@@ -1422,7 +1422,7 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
-                                          &kMode, fRenderTargetContext->getColorSpace()));
+                                          &kMode, fRenderTargetContext->getColorSpace(), false));
     if (!fp) {
         return;
     }
@@ -1480,7 +1480,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
-                                          &kMode, fRenderTargetContext->getColorSpace()));
+                                          &kMode, fRenderTargetContext->getColorSpace(), false));
     if (!fp) {
         return;
     }

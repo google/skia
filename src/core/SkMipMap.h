@@ -29,7 +29,8 @@ typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 class SkMipMap : public SkCachedData {
 public:
     static SkMipMap* Build(const SkPixmap& src, SkDestinationSurfaceColorMode,
-                           SkDiscardableFactoryProc);
+                           SkDiscardableFactoryProc,
+                           bool scaleDownWithHighQuality);
     static SkMipMap* Build(const SkBitmap& src, SkDestinationSurfaceColorMode,
                            SkDiscardableFactoryProc);
 

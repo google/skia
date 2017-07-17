@@ -1,6 +1,6 @@
 /*
  * Copyright 2016 Google Inc.
- *
+ // *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -14,7 +14,8 @@
 sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerParams& params,
                                                                SkColorSpace* dstColorSpace,
                                                                sk_sp<SkColorSpace>* texColorSpace,
-                                                               SkScalar scaleAdjust[2]) {
+                                                               SkScalar scaleAdjust[2],
+                                                               bool scaleDownWithHighQuality) {
     CopyParams copyParams;
     bool willBeMipped = params.filterMode() == GrSamplerParams::kMipMap_FilterMode;
 
@@ -27,7 +28,8 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
     }
 
     sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
-                                                                 AllowedTexGenType::kCheap));
+                                                                 AllowedTexGenType::kCheap,
+                                                                 scaleDownWithHighQuality));
     if (original) {
         if (!fContext->getGpu()->isACopyNeededForTextureParams(original.get(), params, &copyParams,
                                                                scaleAdjust)) {
@@ -37,7 +39,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
         if (!fContext->getGpu()->isACopyNeededForTextureParams(this->width(), this->height(),
                                                                params, &copyParams, scaleAdjust)) {
             return this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
-                                                 AllowedTexGenType::kAny);
+                                                 AllowedTexGenType::kAny, scaleDownWithHighQuality);
         }
     }
 
@@ -74,8 +76,8 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace) {
-
+                                        SkColorSpace* dstColorSpace,
+                                        bool scaleDownWithHighQuality) {
     const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {
@@ -99,7 +101,8 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(params, dstColorSpace,
                                                                &texColorSpace,
-                                                               scaleAdjust));
+                                                               scaleAdjust,
+                                                               scaleDownWithHighQuality));
     if (!proxy) {
         return nullptr;
     }
@@ -123,7 +126,8 @@ sk_sp<GrTextureProxy> GrTextureMaker::generateTextureProxyForParams(const CopyPa
                                                                     bool willBeMipped,
                                                                     SkColorSpace* dstColorSpace) {
     sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
-                                                                 AllowedTexGenType::kAny));
+                                                                 AllowedTexGenType::kAny,
+                                                                 false));
     if (!original) {
         return nullptr;
     }

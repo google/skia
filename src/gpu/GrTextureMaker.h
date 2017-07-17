@@ -28,7 +28,8 @@ public:
     sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
                                                    SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* texColorSpace,
-                                                   SkScalar scaleAdjust[2]);
+                                                   SkScalar scaleAdjust[2],
+                                                   bool scaleDownWithHighQuality);
 
     sk_sp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
@@ -36,7 +37,8 @@ public:
                                 FilterConstraint filterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace) override;
+                                SkColorSpace* dstColorSpace,
+                                bool scaleDownWithHighQuality) override;
 
 protected:
     GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
@@ -52,7 +54,8 @@ protected:
      */
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
                                                           SkColorSpace* dstColorSpace,
-                                                          AllowedTexGenType genType) = 0;
+                                                          AllowedTexGenType genType,
+                                                          bool scaleDownWithHighQuality) = 0;
 
     /**
      *  Returns the color space of the maker's "original" texture, assuming it was retrieved with
