@@ -1193,8 +1193,9 @@ const SkFixed LiberationMonoNormalWidths[] = {
 const int LiberationMonoNormalCharCodesCount = (int) SK_ARRAY_COUNT(LiberationMonoNormalCharCodes);
 
 const SkPaint::FontMetrics LiberationMonoNormalMetrics = {
-0x30307833, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.633301f, 0.00989532f,
--0.0244141f, 0.608887f, 0.538086f, 0.0104446f, 0.0410156f, 0.23291f
+0x0000000f, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.600098f, 0.00989532f,
+-0.0244141f, 0.608887f, 0.52832f, 0.0102921f, 0.0410156f, 0.23291f, 0.000778198f,
+-0.00404358f
 };
 
 const SkScalar LiberationMonoBoldPoints[] = {
@@ -2343,8 +2344,9 @@ const SkFixed LiberationMonoBoldWidths[] = {
 const int LiberationMonoBoldCharCodesCount = (int) SK_ARRAY_COUNT(LiberationMonoBoldCharCodes);
 
 const SkPaint::FontMetrics LiberationMonoBoldMetrics = {
-0x30307833, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.641602f, 0.010025f, -0.0268555f,
-0.614746f, 0.538086f, 0.0104446f, 0.100098f, 0.23291f
+0x0000000f, -0.833496f, -0.833496f, 0.300293f, 0.300293f, 0, 0.600098f, 0.010025f,
+-0.0268555f, 0.614746f, 0.52832f, 0.0102921f, 0.100098f, 0.23291f, 0.000778198f,
+-0.00404358f
 };
 
 const SkScalar LiberationMonoItalicPoints[] = {
@@ -3609,8 +3611,9 @@ const SkFixed LiberationMonoItalicWidths[] = {
 const int LiberationMonoItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationMonoItalicCharCodes);
 
 const SkPaint::FontMetrics LiberationMonoItalicMetrics = {
-0x30307833, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.798828f, 0.0124817f,
--0.0942383f, 0.70459f, 0.538086f, 0.0104446f, 0.0410156f, 0.23291f
+0x0000000f, -0.833496f, -0.833496f, 0.300293f, 0.300293f, 0, 0.600098f, 0.0124817f,
+-0.0942383f, 0.70459f, 0.52832f, 0.0102921f, 0.0410156f, 0.23291f, 0.000778198f,
+-0.00404358f
 };
 
 const SkScalar LiberationMonoBoldItalicPoints[] = {
@@ -4842,6 +4845,8 @@ const SkFixed LiberationMonoBoldItalicWidths[] = {
 const int LiberationMonoBoldItalicCharCodesCount = (int) SK_ARRAY_COUNT(LiberationMonoBoldItalicCharCodes);
 
 const SkPaint::FontMetrics LiberationMonoBoldItalicMetrics = {
-0x30307833, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.791992f, 0.0123749f,
--0.0942383f, 0.697754f, 0.538086f, 0.0104446f, 0.100098f, 0.23291f
+0x0000000f, -0.83252f, -0.83252f, 0.300293f, 0.300293f, 0, 0.600098f, 0.0123749f,
+-0.0942383f, 0.697754f, 0.52832f, 0.0102921f, 0.100098f, 0.23291f, 0.000778198f,
+-0.00404358f
 };
+

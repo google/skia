@@ -891,12 +891,14 @@ if (skia_enable_tools) {
     if (defined(invoker.is_shared_library) && invoker.is_shared_library) {
       shared_library("lib" + target_name) {
         forward_variables_from(invoker, "*", [ "is_shared_library" ])
+        configs += [ ":skia_private", ]
         testonly = true
       }
     } else {
       _executable = target_name
       executable(_executable) {
         forward_variables_from(invoker, "*", [ "is_shared_library" ])
+        configs += [ ":skia_private", ]
         testonly = true
       }
     }
@@ -1388,6 +1390,19 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":skia",
+      ":tool_utils",
+    ]
+  }
+
+  test_app("create_test_font") {
+    sources = [
+      "tools/create_test_font.cpp",
+    ]
+    deps = [
+      ":skia",
+    ]
+    assert_no_deps = [
+      # tool_utils requires the output of this app.
       ":tool_utils",
     ]
   }
