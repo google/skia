@@ -198,6 +198,12 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
     for (int i = 0; i < inputPolygonSize; ++i) {
         int j = (i + 1) % inputPolygonSize;
+        int k = (i + 2) % inputPolygonSize;
+        // check for convexity just to be sure
+        if (compute_side(inputPolygonVerts[i], inputPolygonVerts[j],
+                         inputPolygonVerts[k])*winding < 0) {
+            return false;
+        }
         SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
                         insetDistanceFunc(i), insetDistanceFunc(j),
                         winding,
@@ -284,7 +290,6 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
                                                  kCleanupTolerance)) {
         insetPolygon->pop();
     }
-    SkASSERT(is_convex(*insetPolygon));
 
-    return (insetPolygon->count() >= 3);
+    return (insetPolygon->count() >= 3 && is_convex(*insetPolygon));
 }
