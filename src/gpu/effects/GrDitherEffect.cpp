@@ -23,7 +23,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrDitherEffect& _outer = args.fFp.cast<GrDitherEffect>();
         (void) _outer;
-        fragBuilder->codeAppendf("float r = fract(sin(dot(sk_FragCoord.xy, vec2(12.989800000000001, 78.233000000000004))) * 43758.545299999998);\n%s = clamp(0.0039215686274509803 * vec4(r) + %s, 0.0, 1.0);\n", args.fOutputColor, args.fInputColor ? args.fInputColor : "vec4(1)");
+        fragBuilder->codeAppendf("float r = fract(sin(dot(sk_FragCoord.xy, vec2(12.989800000000001, 78.233000000000004))) * 43758.545299999998) - 0.5;\n%s = clamp(0.0039215686274509803 * vec4(r) + %s, 0.0, 1.0);\n", args.fOutputColor, args.fInputColor ? args.fInputColor : "vec4(1)");
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
