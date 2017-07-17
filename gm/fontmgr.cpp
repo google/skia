@@ -230,18 +230,55 @@ public:
     }
 
     static void show_bounds(SkCanvas* canvas, const SkPaint& paint, SkScalar x, SkScalar y,
-                            SkColor boundsColor) {
-        const char str[] = "jyHO[]{}@-_&%$";
+                            SkColor boundsColor)
+    {
+        SkPaint glyphPaint(paint);
+        SkRect fontBounds = glyphPaint.getFontBounds();
+        fontBounds.offset(x, y);
+        SkPaint boundsPaint(glyphPaint);
+        boundsPaint.setColor(boundsColor);
+        canvas->drawRect(fontBounds, boundsPaint);
 
-        for (int i = 0; str[i]; ++i) {
-            canvas->drawText(&str[i], 1, x, y, paint);
+        SkPaint::FontMetrics fm;
+        glyphPaint.getFontMetrics(&fm);
+        SkPaint metricsPaint(boundsPaint);
+        metricsPaint.setStyle(SkPaint::kFill_Style);
+        metricsPaint.setAlpha(0x40);
+        if ((fm.fFlags & SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag) &&
+            (fm.fFlags & SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag))
+        {
+            SkRect underline{ fontBounds.fLeft,  fm.fUnderlinePosition+y,
+                              fontBounds.fRight, fm.fUnderlinePosition+y + fm.fUnderlineThickness };
+            canvas->drawRect(underline, metricsPaint);
         }
 
-        SkRect r = paint.getFontBounds();
-        r.offset(x, y);
-        SkPaint p(paint);
-        p.setColor(boundsColor);
-        canvas->drawRect(r, p);
+        if ((fm.fFlags & SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag) &&
+            (fm.fFlags & SkPaint::FontMetrics::kStrikeoutPositionIsValid_Flag))
+        {
+            SkRect strikeout{ fontBounds.fLeft,  fm.fStrikeoutPosition+y - fm.fStrikeoutThickness,
+                              fontBounds.fRight, fm.fStrikeoutPosition+y };
+            canvas->drawRect(strikeout, metricsPaint);
+        }
+
+        SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
+        {
+            int numGlyphs = glyphPaint.getTypeface()->countGlyphs();
+            SkRect min = {0, 0, 0, 0};
+            glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            for (int i = 0; i < numGlyphs; ++i) {
+                SkGlyphID glyphId = i;
+                SkRect cur;
+                glyphPaint.measureText(&glyphId, sizeof(glyphId), &cur);
+                if (cur.fLeft   < min.fLeft  ) { min.fLeft   = cur.fLeft;   left   = i; }
+                if (cur.fTop    < min.fTop   ) { min.fTop    = cur.fTop ;   top    = i; }
+                if (min.fRight  < cur.fRight ) { min.fRight  = cur.fRight;  right  = i; }
+                if (min.fBottom < cur.fBottom) { min.fBottom = cur.fBottom; bottom = i; }
+            }
+        }
+        SkGlyphID str[] = { left, right, top, bottom };
+        for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
+            canvas->drawText(&str[i], sizeof(str[0]), x, y, glyphPaint);
+        }
     }
 
 protected:
@@ -270,21 +307,23 @@ protected:
         int index = 0;
         SkScalar x = 0, y = 0;
 
-        canvas->translate(80, 120);
+        canvas->translate(10, 120);
 
         for (int i = 0; i < count; ++i) {
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
-            for (int j = 0; j < set->count(); ++j) {
+            for (int j = 0; j < set->count() && j < 3; ++j) {
                 paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 if (paint.getTypeface()) {
+                    SkRect fontBounds = paint.getFontBounds();
+                    x -= fontBounds.fLeft;
                     show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
+                    x += fontBounds.fRight + 20;
                     index += 1;
-                    x += 160;
-                    if (0 == (index % 6)) {
+                    if (x > 900) {
                         x = 0;
                         y += 160;
                     }
-                    if (index >= 30) {
+                    if (y >= 700) {
                         return;
                     }
                 }
