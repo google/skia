@@ -45,7 +45,7 @@ toolchain("msvc") {
     env_setup = ""
     if (target_cpu == "x86") {
       print("Be sure to run")
-      print("$windk/VC/Auxiliary/Build/vcvarsall.bat amd64_x86")
+      print("\"$windk/VC/Auxiliary/Build/vcvarsall.bat\" amd64_x86")
       print("to set up your environment before running ninja.")
     }
   }
