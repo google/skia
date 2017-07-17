@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16b05df7_1cbb5835",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-17T19:40:09Z",
+      "side": 1,
+      "message": "Currently dead code, but probably something we want to keep around?",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 123,
+        "endChar": 5
+      },
+      "revId": "ee34669191bc8cdfd4fd7ee7646058fec3d8c67f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
