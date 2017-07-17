@@ -23,15 +23,12 @@ struct SkMask;
 class SK_API SkPixmap {
 public:
     SkPixmap()
-        : fPixels(NULL), fCTable(NULL), fRowBytes(0), fInfo(SkImageInfo::MakeUnknown(0, 0))
+        : fPixels(NULL), fRowBytes(0), fInfo(SkImageInfo::MakeUnknown(0, 0))
     {}
 
-    SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes,
-             SkColorTable* ctable = NULL)
-        : fPixels(addr), fCTable(ctable), fRowBytes(rowBytes), fInfo(info)
-    {
-        SkASSERT(NULL == ctable);
-    }
+    SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable* = NULL)
+        : fPixels(addr), fRowBytes(rowBytes), fInfo(info)
+    {}
 
     void reset();
     void reset(const SkImageInfo& info, const void* addr, size_t rowBytes,
@@ -60,7 +57,7 @@ public:
     const SkImageInfo& info() const { return fInfo; }
     size_t rowBytes() const { return fRowBytes; }
     const void* addr() const { return fPixels; }
-    SkColorTable* ctable() const { return fCTable; }
+    SkColorTable* ctable() const { return nullptr; }
 
     int width() const { return fInfo.width(); }
     int height() const { return fInfo.height(); }
@@ -215,7 +212,6 @@ public:
 
 private:
     const void*     fPixels;
-    SkColorTable*   fCTable;
     size_t          fRowBytes;
     SkImageInfo     fInfo;
 };

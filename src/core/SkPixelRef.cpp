@@ -30,11 +30,9 @@ uint32_t SkNextID::ImageID() {
     static int32_t gInstCounter;
 #endif
 
-SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes,
-                       sk_sp<SkColorTable> ctable)
+SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes, sk_sp<SkColorTable>)
     : fWidth(width)
     , fHeight(height)
-    , fCTable(std::move(ctable))
     , fPixels(pixels)
     , fRowBytes(rowBytes)
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
