@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "526ff101_0c8704cd",
+        "filename": "gn/toolchain/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-07-17T14:39:07Z",
+      "side": 1,
+      "message": "Just for a small amount of sanity, can the closing quote go at the end of the path? It doesn\u0027t make a difference to cmd, but the parser in my head cringes at having the path only partially quoted.",
+      "range": {
+        "startLine": 48,
+        "startChar": 56,
+        "endLine": 48,
+        "endChar": 57
+      },
+      "revId": "1fc6155bb14cb30653bdc29b85cda2dbc94bc5fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
