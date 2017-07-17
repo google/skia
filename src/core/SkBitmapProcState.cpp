@@ -61,6 +61,18 @@ static bool just_trans_general(const SkMatrix& matrix) {
         && SkScalarNearlyZero(matrix[SkMatrix::kMScaleY] - SK_Scalar1, tol);
 }
 
+/**
+ *  Determine if the matrix can be treated as integral-only-translate,
+ *  for the purpose of filtering.
+ */
+static bool just_trans_integral(const SkMatrix& m) {
+    static constexpr SkScalar tol = SK_Scalar1 / 256;
+
+    return m.getType() <= SkMatrix::kTranslate_Mask
+        && SkScalarNearlyEqual(m.getTranslateX(), SkScalarRoundToScalar(m.getTranslateX()), tol)
+        && SkScalarNearlyEqual(m.getTranslateY(), SkScalarRoundToScalar(m.getTranslateY()), tol);
+}
+
 static bool valid_for_filtering(unsigned dimension) {
     // for filtering, width and height must fit in 14bits, since we use steal
     // 2 bits from each to store our 4bit subpixel data
@@ -118,11 +130,10 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     fInvType = fInvMatrix.getType();
 
     if (kLow_SkFilterQuality == fFilterQuality &&
-        !valid_for_filtering(fPixmap.width() | fPixmap.height())) {
+        (!valid_for_filtering(fPixmap.width() | fPixmap.height()) ||
+         just_trans_integral(fInvMatrix))) {
         fFilterQuality = kNone_SkFilterQuality;
     }
-
-    // TODO: skip bilerp for integral translates
 
     return true;
 }
