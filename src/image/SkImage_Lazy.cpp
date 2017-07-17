@@ -111,7 +111,8 @@ public:
                                            SkImage::CachingHint,
                                            bool willBeMipped,
                                            SkColorSpace* dstColorSpace,
-                                           GrTextureMaker::AllowedTexGenType genType) override;
+                                           GrTextureMaker::AllowedTexGenType genType,
+                                           bool scaleDownWithHighQuality) override;
 
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even
@@ -633,7 +634,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
     }
 
     GrImageTextureMaker textureMaker(context, this, kAllow_CachingHint);
-    return textureMaker.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+    return textureMaker.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust,
+                                                 false);
 }
 #endif
 
@@ -724,7 +726,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                                                      SkImage::CachingHint chint,
                                                      bool willBeMipped,
                                                      SkColorSpace* dstColorSpace,
-                                                     GrTextureMaker::AllowedTexGenType genType) {
+                                                     GrTextureMaker::AllowedTexGenType genType,
+                                                     bool scaleDownWithHighQuality) {
     // Values representing the various texture lock paths we can take. Used for logging the path
     // taken to a histogram.
     enum LockTexturePath {
@@ -806,7 +809,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
     if (this->lockAsBitmap(&bitmap, chint, format, genPixelsInfo, behavior)) {
         sk_sp<GrTextureProxy> proxy;
         if (willBeMipped) {
-            proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx, bitmap, dstColorSpace);
+            proxy = GrGenerateMipMapsAndUploadToTextureProxy(ctx,
+                                                             bitmap,
+                                                             dstColorSpace,
+                                                             scaleDownWithHighQuality);
         }
         if (!proxy) {
             proxy = GrUploadBitmapToTextureProxy(ctx->resourceProvider(), bitmap, dstColorSpace);

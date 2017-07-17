@@ -174,7 +174,8 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 
 sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
                                                                const SkBitmap& bitmap,
-                                                               SkColorSpace* dstColorSpace) {
+                                                               SkColorSpace* dstColorSpace,
+                                                               bool scaleDownWithHighQuality) {
     SkDestinationSurfaceColorMode colorMode = dstColorSpace
         ? SkDestinationSurfaceColorMode::kGammaAndColorSpaceAware
         : SkDestinationSurfaceColorMode::kLegacy;
@@ -190,7 +191,8 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
+    std::unique_ptr<SkMipMap> mipmaps(
+            SkMipMap::Build(pixmap, colorMode, nullptr, scaleDownWithHighQuality));
     if (!mipmaps) {
         return nullptr;
     }
@@ -243,7 +245,8 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
                                                     SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
     return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
-                                                                      nullptr, scaleAdjust);
+                                                                      nullptr, scaleAdjust,
+                                                                      false);
 }
 
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,

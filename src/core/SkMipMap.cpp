@@ -196,6 +196,77 @@ template <typename F> void downsample_2_2(void* dst, const void* src, size_t src
     }
 }
 
+inline float cubicInterpolate(float a, float b, float c, float d, float factor) {
+    return b + 0.5 * factor * (c - a + factor * (2.0 * a - 5.0 * b + 4.0 * c -
+                                                 d + factor * (3.0 * (b - c) + d - a)));
+}
+
+// Using bicubic interpolation
+template <typename F> void downsample_4_4(void* dst, const void* src, size_t srcRB, int count, int y) {
+    SkASSERT(count > 0);
+    auto d = static_cast<typename F::Type*>(dst);
+
+    auto p0 = static_cast<const typename F::Type*>(src);
+    auto p1 = (const typename F::Type*)((const char*)p0 + srcRB);
+    auto p2 = (const typename F::Type*)((const char*)p0 - srcRB); //above p0
+    auto p3 = (const typename F::Type*)((const char*)p0 + 2 * srcRB); // two rows below p0
+    float yfactor = (float)(y % 2) / 2;
+    int pixel_byte = srcRB / count;
+    for (int i = 0; i < count; ++i) {
+        float xfactor = (float)(i % 2) / 2;
+        // Special case: the first and last col in this row, using bilinear
+        // interpolation
+        if (i == 0 || i == count - 1 || i == count - 2) {
+            auto c00 = F::Expand(p0[0]);
+            auto c01 = F::Expand(p0[1]);
+            auto c10 = F::Expand(p1[0]);
+            auto c11 = F::Expand(p1[1]);
+
+            auto c = c00 + c10 + c01 + c11;
+            d[i] = F::Compact(shift_right(c, 2));
+        } else {
+            // first row
+            auto c00 = F::Expand(p0[0]);
+            auto c01 = F::Expand(p0[1]);
+            auto c02 = F::Expand(p0[2]);
+            auto c03 = F::Expand(p0[3]);
+            // second row
+            auto c10 = F::Expand(p1[0]);
+            auto c11 = F::Expand(p1[1]);
+            auto c12 = F::Expand(p1[2]);
+            auto c13 = F::Expand(p1[3]);
+            // third row
+            auto c20 = F::Expand(p2[0]);
+            auto c21 = F::Expand(p2[1]);
+            auto c22 = F::Expand(p2[2]);
+            auto c23 = F::Expand(p2[3]);
+            // fourth row
+            auto c30 = F::Expand(p3[0]);
+            auto c31 = F::Expand(p3[1]);
+            auto c32 = F::Expand(p3[2]);
+            auto c33 = F::Expand(p3[3]);
+
+            float r[4] = {0, 0, 0, 0};
+            // do it for r, g, b, a channels
+            for (int j = 0; j < 4; j++) {
+                float m = cubicInterpolate(c00[j], c01[j], c02[j], c03[j], xfactor);
+                float n = cubicInterpolate(c10[j], c11[j], c12[j], c13[j], xfactor);
+                float p = cubicInterpolate(c20[j], c21[j], c22[j], c23[j], xfactor);
+                float q = cubicInterpolate(c30[j], c31[j], c32[j], c33[j], xfactor);
+                r[j] = cubicInterpolate(m, n, p, q, yfactor);
+            }
+            Sk4h tmp = {static_cast<uint16_t>(r[0]), static_cast<uint16_t>(r[1]),
+                        static_cast<uint16_t>(r[2]), static_cast<uint16_t>(r[3])};
+            // Sk4h v = SkNx_cast<uint16_t>(tmp);
+            d[i] = F::Compact(tmp);
+        }
+        p0 += 2;
+        p1 += 2;
+        p2 += 2;
+        p3 += 2;
+    }
+}
+
 template <typename F> void downsample_2_3(void* dst, const void* src, size_t srcRB, int count) {
     SkASSERT(count > 0);
     auto p0 = static_cast<const typename F::Type*>(src);
@@ -483,8 +554,10 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
 }
 
 SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode colorMode,
-                          SkDiscardableFactoryProc fact) {
+                          SkDiscardableFactoryProc fact,
+                          bool scaleDownWithHighQuality) {
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
+    typedef void FilterProc1(void*, const void* srcPtr, size_t srcRB, int count, int y);
 
     FilterProc* proc_1_2 = nullptr;
     FilterProc* proc_1_3 = nullptr;
@@ -494,6 +567,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
     FilterProc* proc_3_1 = nullptr;
     FilterProc* proc_3_2 = nullptr;
     FilterProc* proc_3_3 = nullptr;
+    FilterProc1* proc_4_4 = nullptr;
 
     const SkColorType ct = src.colorType();
     const SkAlphaType at = src.alphaType();
@@ -521,6 +595,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
                 proc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
                 proc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
                 proc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
+                proc_4_4 = downsample_4_4<ColorTypeFilter_8888>;
             }
             break;
         case kRGB_565_SkColorType:
@@ -659,7 +734,11 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDestinationSurfaceColorMode col
 
         const size_t srcRB = srcPM.rowBytes();
         for (int y = 0; y < height; y++) {
-            proc(dstBasePtr, srcBasePtr, srcRB, width);
+            // If it is the first and last row, do bilinear interpolation
+            if (scaleDownWithHighQuality && y != 0 && y != height - 1)
+                proc_4_4(dstBasePtr, srcBasePtr, srcRB, width, y);
+            else
+                proc(dstBasePtr, srcBasePtr, srcRB, width);
             srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
             dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
         }
@@ -783,7 +862,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src, SkDestinationSurfaceColorMode col
     if (!src.peekPixels(&srcPixmap)) {
         return nullptr;
     }
-    return Build(srcPixmap, colorMode, fact);
+    return Build(srcPixmap, colorMode, fact, false);
 }
 
 int SkMipMap::countLevels() const {

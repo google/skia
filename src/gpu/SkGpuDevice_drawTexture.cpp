@@ -166,6 +166,9 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     GrSamplerParams::FilterMode fm =
         GrSkFilterQualityToGrFilterMode(paint.getFilterQuality(), viewMatrix, srcToDstMatrix,
                                         &doBicubic);
+    bool scaleDownWithHighQuality = srcToDstMatrix.getScaleX() < 1 &&
+            srcToDstMatrix.getScaleY() < 1 &&
+            paint.getFilterQuality() == kHigh_SkFilterQuality;
     const GrSamplerParams::FilterMode* filterMode = doBicubic ? nullptr : &fm;
 
     GrTextureProducer::FilterConstraint constraintMode;
@@ -203,7 +206,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
     sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
         *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        fRenderTargetContext->getColorSpace()));
+        fRenderTargetContext->getColorSpace(), scaleDownWithHighQuality));
     if (!fp) {
         return;
     }

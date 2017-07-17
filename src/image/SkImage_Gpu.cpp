@@ -449,7 +449,8 @@ static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker
     sk_sp<SkColorSpace> texColorSpace;
     sk_sp<GrTextureProxy> proxy(maker->refTextureProxyForParams(GrSamplerParams::ClampNoFilter(),
                                                                 dstColorSpace,
-                                                                &texColorSpace, nullptr));
+                                                                &texColorSpace, nullptr,
+                                                                false));
     if (!proxy) {
         return nullptr;
     }
@@ -498,7 +499,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
                            buildMips ? GrSamplerParams::kMipMap_FilterMode
                                      : GrSamplerParams::kBilerp_FilterMode);
     sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(params, dstColorSpace,
-                                                               &texColorSpace, nullptr));
+                                                               &texColorSpace, nullptr,
+                                                               false));
     if (!proxy) {
         return codecImage;
     }
@@ -847,7 +849,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
         static_assert(std::is_standard_layout<MipMapLevelData>::value,
                       "offsetof, which we use below, requires the type have a standard layout");
 
-        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
+        std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr, false));
         // SkMipMap holds only the mipmap levels it generates.
         // A programmer can use the data they provided to SkMipMap::Build as level 0.
         // So the SkMipMap provides levels 1-x but it stores them in its own

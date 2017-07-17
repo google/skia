@@ -51,7 +51,8 @@ public:
     virtual sk_sp<GrTextureProxy> lockTextureProxy(GrContext*, const GrUniqueKey& key,
                                                    SkImage::CachingHint, bool willBeMipped,
                                                    SkColorSpace* dstColorSpace,
-                                                   GrTextureMaker::AllowedTexGenType genType) = 0;
+                                                   GrTextureMaker::AllowedTexGenType genType,
+                                                   bool scaleDownWithHighQuality) = 0;
 
     // Returns the color space of the texture that would be returned if you called lockTexture.
     // Separate code path to allow querying of the color space for textures that cached (even

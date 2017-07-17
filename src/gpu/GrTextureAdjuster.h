@@ -33,7 +33,8 @@ public:
                                 FilterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace) override;
+                                SkColorSpace* dstColorSpace,
+                                bool scaleDownWithHighQuality) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.

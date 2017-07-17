@@ -29,7 +29,8 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 
 sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                     SkColorSpace* dstColorSpace,
-                                                                    AllowedTexGenType onlyIfFast) {
+                                                                    AllowedTexGenType onlyIfFast,
+                                                                    bool scaleDownWithHighQuality) {
     if (AllowedTexGenType::kCheap == onlyIfFast) {
         return nullptr;
     }
@@ -43,7 +44,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         }
     }
     if (willBeMipped) {
-        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace);
+        proxy = GrGenerateMipMapsAndUploadToTextureProxy(this->context(), fBitmap, dstColorSpace, false);
     }
     if (!proxy) {
         proxy = GrUploadBitmapToTextureProxy(this->context()->resourceProvider(), fBitmap,
