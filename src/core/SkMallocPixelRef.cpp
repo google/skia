@@ -144,14 +144,7 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeWithData(const SkImageInfo& info,
 ///////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkColorTable> sanitize(const SkImageInfo& info, sk_sp<SkColorTable> ctable) {
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    if (kIndex_8_SkColorType == info.colorType()) {
-        SkASSERT(ctable);
-    } else
-#endif
-    {
-        ctable.reset(nullptr);
-    }
+    ctable.reset(nullptr);
     return ctable;
 }
 

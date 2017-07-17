@@ -57,10 +57,6 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     SkImageInfo decodeInfo = SkImageInfo::Make(scaledSize.width(), scaledSize.height(),
                                                dstColorType, dstAlphaType, dstColorSpace);
 
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    SkASSERT(dstColorType != kIndex_8_SkColorType);
-#endif
-
     // Initialize the destination bitmap
     int scaledOutX = 0;
     int scaledOutY = 0;

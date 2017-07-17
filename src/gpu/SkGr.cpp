@@ -113,20 +113,6 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
         pmap = tmpPixmap;
         // must rebuild desc, since we've forced the info to be N32
         *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-    } else if (kIndex_8_SkColorType == pixmap.colorType()) {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(pixmap.width(), pixmap.height());
-        tmpBitmap->allocPixels(info);
-        if (!pixmap.readPixels(info, tmpBitmap->getPixels(), tmpBitmap->rowBytes())) {
-            return nullptr;
-        }
-        if (!tmpBitmap->peekPixels(tmpPixmap)) {
-            return nullptr;
-        }
-        pmap = tmpPixmap;
-        // must rebuild desc, since we've forced the info to be N32
-        *desc = GrImageInfoToSurfaceDesc(pmap->info(), caps);
-#endif
     }
 
     return pmap;
@@ -341,10 +327,6 @@ GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& c
         case kBGRA_8888_SkColorType:
             return (caps.srgbSupport() && cs && cs->gammaCloseToSRGB())
                    ? kSBGRA_8888_GrPixelConfig : kBGRA_8888_GrPixelConfig;
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        case kIndex_8_SkColorType:
-            return kSkia8888_GrPixelConfig;
-#endif
         case kGray_8_SkColorType:
             return kGray_8_GrPixelConfig;
         case kRGBA_F16_SkColorType:

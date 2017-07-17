@@ -29,9 +29,6 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
 
     const char* gColorTypeStrings[] = {
         "None", "A8", "565", "4444", "RGBA", "BGRA",
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        "Index8",
-#endif
         "G8", "RGBAf16"
     };
     static_assert(kLastEnum_SkColorType + 1 == SK_ARRAY_COUNT(gColorTypeStrings),

@@ -113,17 +113,6 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             jpegColorType = JCS_RGB;
             numComponents = 3;
             break;
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-        case kIndex_8_SkColorType:
-            if (SkJpegEncoder::AlphaOption::kBlendOnBlack == options.fAlphaOption) {
-                return false;
-            }
-
-            fProc = transform_scanline_index8_opaque;
-            jpegColorType = JCS_RGB;
-            numComponents = 3;
-            break;
-#endif
         case kGray_8_SkColorType:
             SkASSERT(srcInfo.isOpaque());
             jpegColorType = JCS_GRAYSCALE;

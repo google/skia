@@ -132,42 +132,6 @@ public:
                    gammaType == kSRGB_SkGammaType ? Sk4f_fromS32(pixel) : Sk4f_fromL32(pixel));
     }
 };
-
-#ifdef SK_SUPPORT_LEGACY_INDEX_8_COLORTYPE
-template <SkGammaType gammaType>
-class PixelConverter<kIndex_8_SkColorType, gammaType> {
-public:
-    using Element = uint8_t;
-    PixelConverter(const SkPixmap& srcPixmap)
-    : fColorTableSize(srcPixmap.ctable()->count()){
-        SkColorTable* skColorTable = srcPixmap.ctable();
-        SkASSERT(skColorTable != nullptr);
-
-        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
-        for (int i = 0; i < fColorTableSize; i++) {
-            fColorTable[i] = pmcolor_to_rgba<gammaType>((*skColorTable)[i]);
-        }
-    }
-
-    PixelConverter(const PixelConverter& strategy)
-    : fColorTableSize{strategy.fColorTableSize}{
-        fColorTable = (Sk4f*)SkAlign16((intptr_t)fColorTableStorage.get());
-        for (int i = 0; i < fColorTableSize; i++) {
-            fColorTable[i] = strategy.fColorTable[i];
-        }
-    }
-
-    Sk4f toSk4f(Element index) const {
-        return fColorTable[index];
-    }
-
-private:
-    static const size_t kColorTableSize = sizeof(Sk4f[256]) + 12;
-    const int           fColorTableSize;
-    SkAutoMalloc        fColorTableStorage{kColorTableSize};
-    Sk4f*               fColorTable;
-};
-#endif
     
 template <SkGammaType gammaType>
 class PixelConverter<kGray_8_SkColorType, gammaType> {
