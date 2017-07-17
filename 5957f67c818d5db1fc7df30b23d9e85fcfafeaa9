@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d48a52f3_5d6ab101",
+        "filename": "src/core/SkImageInfoPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-17T16:06:25Z",
+      "side": 1,
+      "message": "nit: Remove these two lines?",
+      "range": {
+        "startLine": 94,
+        "startChar": 31,
+        "endLine": 94,
+        "endChar": 38
+      },
+      "revId": "5957f67c818d5db1fc7df30b23d9e85fcfafeaa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20366e7b_46a6df70",
+        "filename": "src/core/SkLinearBitmapPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-17T16:06:25Z",
+      "side": 1,
+      "message": "nit: Remove this line?",
+      "range": {
+        "startLine": 373,
+        "startChar": 19,
+        "endLine": 373,
+        "endChar": 37
+      },
+      "revId": "5957f67c818d5db1fc7df30b23d9e85fcfafeaa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c45d1947_c119c437",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-17T16:06:25Z",
+      "side": 1,
+      "message": "Maybe go ahead and remove this method entirely? It does nothing now, and is only referenced in this file.",
+      "range": {
+        "startLine": 264,
+        "startChar": 22,
+        "endLine": 264,
+        "endChar": 32
+      },
+      "revId": "5957f67c818d5db1fc7df30b23d9e85fcfafeaa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a59be292_2bd7d1bc",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-17T16:06:25Z",
+      "side": 1,
+      "message": "nit: Down to one format. \"This format needs\"?",
+      "range": {
+        "startLine": 229,
+        "startChar": 15,
+        "endLine": 229,
+        "endChar": 32
+      },
+      "revId": "5957f67c818d5db1fc7df30b23d9e85fcfafeaa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
