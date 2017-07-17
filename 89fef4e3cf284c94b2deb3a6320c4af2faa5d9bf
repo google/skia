@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dece9ed_a6ec509e",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-17T17:01:50Z",
+      "side": 1,
+      "message": "Are we going to want gles(4444|565) ? I\u0027d assume that we\u0027re only going to be using these configs on ES devices?",
+      "revId": "89fef4e3cf284c94b2deb3a6320c4af2faa5d9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
