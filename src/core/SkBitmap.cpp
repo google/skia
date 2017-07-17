@@ -121,10 +121,6 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
     bounds->set(0, 0, fInfo.width(), fInfo.height());
 }
 
-SkColorTable* SkBitmap::getColorTable() const {
-    return fPixelRef ? fPixelRef->colorTable() : nullptr;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::setInfo(const SkImageInfo& info, size_t rowBytes) {

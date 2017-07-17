@@ -40,7 +40,7 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     void* pixels() const { return fPixels; }
-    SkColorTable* colorTable() const { return fCTable.get(); }
+    SkColorTable* colorTable() const { return nullptr; }
     size_t rowBytes() const { return fRowBytes; }
 
     /** Returns a non-zero, unique value corresponding to the pixels in this
@@ -115,7 +115,6 @@ protected:
 private:
     int                 fWidth;
     int                 fHeight;
-    sk_sp<SkColorTable> fCTable;
     void*               fPixels;
     size_t              fRowBytes;
 

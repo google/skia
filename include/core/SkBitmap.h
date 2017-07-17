@@ -249,8 +249,8 @@ public:
      */
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, sk_sp<SkColorTable> ctable,
                                               uint32_t flags = 0);
-    void allocPixels(const SkImageInfo& info, sk_sp<SkColorTable> ctable, uint32_t flags = 0) {
-        if (!this->tryAllocPixels(info, std::move(ctable), flags)) {
+    void allocPixels(const SkImageInfo& info, sk_sp<SkColorTable>, uint32_t flags = 0) {
+        if (!this->tryAllocPixels(info, nullptr, flags)) {
             sk_throw();
         }
     }
@@ -292,8 +292,8 @@ public:
     }
 
     // TEMPORARY -- remove after updating Android BitmapTests.cpp:35
-    void allocPixels(const SkImageInfo& info, std::nullptr_t, SkColorTable* ctable) {
-        this->allocPixels(info, sk_ref_sp(ctable));
+    void allocPixels(const SkImageInfo& info, std::nullptr_t, SkColorTable*) {
+        this->allocPixels(info);
     }
 
     /**
@@ -358,12 +358,12 @@ public:
         @return true if the allocation succeeds. If not the pixelref field of
                      the bitmap will be unchanged.
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(SkColorTable* ctable = NULL) {
-        return this->tryAllocPixels(NULL, ctable);
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels(SkColorTable* = NULL) {
+        return this->tryAllocPixels(nullptr, nullptr);
     }
 
-    void allocPixels(SkColorTable* ctable = NULL) {
-        this->allocPixels(NULL, ctable);
+    void allocPixels(SkColorTable* = NULL) {
+        this->allocPixels(nullptr, nullptr);
     }
 
     /** Use the specified Allocator to create the pixelref that manages the
@@ -386,8 +386,8 @@ public:
     */
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator, SkColorTable* ctable);
 
-    void allocPixels(Allocator* allocator, SkColorTable* ctable) {
-        if (!this->tryAllocPixels(allocator, ctable)) {
+    void allocPixels(Allocator* allocator, SkColorTable*) {
+        if (!this->tryAllocPixels(allocator, nullptr)) {
             sk_throw();
         }
     }
@@ -432,7 +432,7 @@ public:
         Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
-    SkColorTable* getColorTable() const;
+    SkColorTable* getColorTable() const { return nullptr; }
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged

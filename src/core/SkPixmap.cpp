@@ -24,17 +24,15 @@
 
 void SkPixmap::reset() {
     fPixels = nullptr;
-    fCTable = nullptr;
     fRowBytes = 0;
     fInfo = SkImageInfo::MakeUnknown();
 }
 
-void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable* ct) {
+void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable*) {
     if (addr) {
         SkASSERT(info.validRowBytes(rowBytes));
     }
     fPixels = addr;
-    fCTable = ct;
     fRowBytes = rowBytes;
     fInfo = info;
 }
@@ -70,7 +68,7 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
         const size_t bpp = fInfo.bytesPerPixel();
         pixels = (const uint8_t*)fPixels + r.fTop * fRowBytes + r.fLeft * bpp;
     }
-    result->reset(fInfo.makeWH(r.width(), r.height()), pixels, fRowBytes, fCTable);
+    result->reset(fInfo.makeWH(r.width(), r.height()), pixels, fRowBytes);
     return true;
 }
 
