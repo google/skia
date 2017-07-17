@@ -8,9 +8,6 @@
 #include "SkColorSpaceXformer.h"
 #include "SkSweepGradient.h"
 
-#include <algorithm>
-#include <cmath>
-
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 
@@ -50,68 +47,6 @@ sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter);
-}
-
-SkShaderBase::Context* SkSweepGradient::onMakeContext(
-    const ContextRec& rec, SkArenaAlloc* alloc) const
-{
-    return CheckedMakeContext<SweepGradientContext>(alloc, *this, rec);
-}
-
-SkSweepGradient::SweepGradientContext::SweepGradientContext(
-        const SkSweepGradient& shader, const ContextRec& rec)
-    : INHERITED(shader, rec) {}
-
-bool SkSweepGradient::onIsRasterPipelineOnly() const {
-#ifdef SK_LEGACY_SWEEP_GRADIENT
-    return false;
-#else
-    return true;
-#endif
-}
-
-//  returns angle in a circle [0..2PI) -> [0..255]
-static unsigned SkATan2_255(float y, float x) {
-    //    static const float g255Over2PI = 255 / (2 * SK_ScalarPI);
-    static const float g255Over2PI = 40.584510488433314f;
-
-    float result = sk_float_atan2(y, x);
-    if (!SkScalarIsFinite(result)) {
-        return 0;
-    }
-    if (result < 0) {
-        result += 2 * SK_ScalarPI;
-    }
-    SkASSERT(result >= 0);
-    // since our value is always >= 0, we can cast to int, which is faster than
-    // calling floorf()
-    int ir = (int)(result * g255Over2PI);
-    SkASSERT(ir >= 0 && ir <= 255);
-    return ir;
-}
-
-void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
-                                                      int count) {
-    SkMatrix::MapXYProc proc = fDstToIndexProc;
-    const SkMatrix&     matrix = fDstToIndex;
-    const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
-    int                 toggle = init_dither_toggle(x, y);
-    SkPoint             srcPt;
-
-    proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
-                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-    SkScalar fx = srcPt.fX,
-             fy = srcPt.fY;
-
-    SkScalar dx = matrix.getScaleX(),
-             dy = matrix.getSkewY();
-
-        for (; count > 0; --count) {
-            *dstC++ = cache[toggle + SkATan2_255(fy, fx)];
-            fx += dx;
-            fy += dy;
-            toggle = next_dither_toggle(toggle);
-        }
 }
 
 /////////////////////////////////////////////////////////////////////
