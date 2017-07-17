@@ -229,7 +229,9 @@ GrGLSLUniformHandler::TexelBufferHandle GrVkUniformHandler::addTexelBuffer(uint3
                                                                            GrSLPrecision precision,
                                                                            const char* name) {
     SkASSERT(name && strlen(name));
-    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag | kFragment_GrShaderFlag);
+    SkDEBUGCODE(static const uint32_t kVisMask = kVertex_GrShaderFlag |
+                                                 kGeometry_GrShaderFlag |
+                                                 kFragment_GrShaderFlag);
     SkASSERT(0 == (~kVisMask & visibility));
     SkASSERT(0 != visibility);
     SkString mangleName;
@@ -271,25 +273,43 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 
-    SkDEBUGCODE(bool firstOffsetCheck = false);
+#ifdef SK_DEBUG
+    bool firstGeomOffsetCheck = false;
+    bool firstFragOffsetCheck = false;
+    for (int i = 0; i < fUniforms.count(); ++i) {
+        const UniformInfo& localUniform = fUniforms[i];
+        if (kVertex_GrShaderFlag == localUniform.fVisibility ||
+            kGeometry_GrShaderFlag == localUniform.fVisibility ||
+            (kVertex_GrShaderFlag | kGeometry_GrShaderFlag) == localUniform.fVisibility) {
+            if (!firstGeomOffsetCheck) {
+                // Check to make sure we are starting our offset at 0 so the offset qualifier we
+                // set on each variable in the uniform block is valid.
+                SkASSERT(0 == localUniform.fUBOffset);
+                firstGeomOffsetCheck = true;
+            }
+        } else {
+            SkASSERT(kFragment_GrShaderFlag == localUniform.fVisibility);
+            if (!firstFragOffsetCheck) {
+                // Check to make sure we are starting our offset at 0 so the offset qualifier we
+                // set on each variable in the uniform block is valid.
+                SkASSERT(0 == localUniform.fUBOffset);
+                firstFragOffsetCheck = true;
+            }
+        }
+    }
+#endif
+
     SkString uniformsString;
     for (int i = 0; i < fUniforms.count(); ++i) {
         const UniformInfo& localUniform = fUniforms[i];
         if (visibility & localUniform.fVisibility) {
             if (GrSLTypeIsFloatType(localUniform.fVariable.getType())) {
-#ifdef SK_DEBUG
-                if (!firstOffsetCheck) {
-                    // Check to make sure we are starting our offset at 0 so the offset qualifier we
-                    // set on each variable in the uniform block is valid.
-                    SkASSERT(0 == localUniform.fUBOffset);
-                    firstOffsetCheck = true;
-                }
-#endif
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }
         }
     }
+
     if (!uniformsString.isEmpty()) {
         uint32_t uniformBinding;
         const char* stage;
