@@ -1300,15 +1300,17 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  int samples,
                  bool diText,
                  SkColorType colorType,
+                 SkAlphaType alphaType,
                  sk_sp<SkColorSpace> colorSpace,
                  bool threaded)
-    : fContextType(ct)
-    , fContextOverrides(overrides)
-    , fSampleCount(samples)
-    , fUseDIText(diText)
-    , fColorType(colorType)
-    , fColorSpace(std::move(colorSpace))
-    , fThreaded(threaded) {}
+        : fContextType(ct)
+        , fContextOverrides(overrides)
+        , fSampleCount(samples)
+        , fUseDIText(diText)
+        , fColorType(colorType)
+        , fAlphaType(alphaType)
+        , fColorSpace(std::move(colorSpace))
+        , fThreaded(threaded) {}
 
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
@@ -1319,9 +1321,8 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
 
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
-    const SkImageInfo info =
-        SkImageInfo::Make(size.width(), size.height(), fColorType,
-                          kPremul_SkAlphaType, fColorSpace);
+    SkImageInfo info =
+            SkImageInfo::Make(size.width(), size.height(), fColorType, fAlphaType, fColorSpace);
 #if SK_SUPPORT_GPU
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
     const int maxDimension = context->caps()->maxTextureSize();
@@ -1347,6 +1348,12 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
     if (FLAGS_gpuStats) {
         canvas->getGrContext()->dumpCacheStats(log);
         canvas->getGrContext()->dumpGpuStats(log);
+    }
+    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType) {
+        // We don't currently support readbacks into these formats on the GPU backend. Convert to
+        // 32 bit.
+        info = SkImageInfo::Make(size.width(), size.height(), kRGBA_8888_SkColorType,
+                                 kPremul_SkAlphaType, fColorSpace);
     }
     dst->allocPixels(info);
     canvas->readPixels(*dst, 0, 0);

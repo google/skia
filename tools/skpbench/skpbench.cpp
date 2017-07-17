@@ -300,8 +300,9 @@ int main(int argc, char** argv) {
     }
 
     // Create a render target.
-    SkImageInfo info = SkImageInfo::Make(width, height, config->getColorType(),
-                                         kPremul_SkAlphaType, sk_ref_sp(config->getColorSpace()));
+    SkImageInfo info =
+            SkImageInfo::Make(width, height, config->getColorType(), config->getAlphaType(),
+                              sk_ref_sp(config->getColorSpace()));
     uint32_t flags = config->getUseDIText() ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
     SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
     sk_sp<SkSurface> surface =
