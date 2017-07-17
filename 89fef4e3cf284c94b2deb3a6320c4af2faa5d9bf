@@ -16,6 +16,24 @@
       "revId": "89fef4e3cf284c94b2deb3a6320c4af2faa5d9bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38868088_587d1d55",
+        "filename": "tools/flags/SkCommonFlagsConfig.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-17T17:06:12Z",
+      "side": 1,
+      "message": "We may. I was really just adding this for local testing for now so I could tune GrDitherEffect. There *may* be some other issues that come with readback support on GLES. I can look at adding it as a follow on.",
+      "parentUuid": "9dece9ed_a6ec509e",
+      "revId": "89fef4e3cf284c94b2deb3a6320c4af2faa5d9bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
