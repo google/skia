@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1db1bcf9_2a2791e7",
+        "filename": "src/gpu/vk/GrVkPipelineStateDataManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-17T13:05:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87a55b7d_f3726016",
+      "revId": "57b36ebf05dc072a540b9b80389a0e5a746ac73f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37e86090_96bb4f3d",
         "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-07-14T19:34:59Z",
       "side": 1,
       "message": "Do we double indent here or do we align with the opening parentheses?",
+      "range": {
+        "startLine": 233,
+        "startChar": 13,
+        "endLine": 233,
+        "endChar": 34
+      },
+      "revId": "57b36ebf05dc072a540b9b80389a0e5a746ac73f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00fa5add_580a4643",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-17T13:05:53Z",
+      "side": 1,
+      "message": "Went with a 3rd way of formatting :)",
+      "parentUuid": "37e86090_96bb4f3d",
       "range": {
         "startLine": 233,
         "startChar": 13,
