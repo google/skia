@@ -8,8 +8,8 @@ void main() {
 
     // For each channel c, add the random offset to the pixel to either bump
     // it up or let it remain constant during quantization.
-    float r = fract(sin(dot(sk_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
-    sk_OutColor = clamp(1.0 / 255.0 * vec4(r) + sk_InColor, 0, 1);
+    float r = fract(sin(dot(sk_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - .5;
+    sk_OutColor = clamp(1 / 255.0 * vec4(r) + sk_InColor, 0, 1);
 }
 
 @test(testData) {
