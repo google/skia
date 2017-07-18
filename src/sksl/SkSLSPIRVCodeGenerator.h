@@ -173,6 +173,8 @@ private:
 
     SpvId writeVectorConstructor(const Constructor& c, OutputStream& out);
 
+    SpvId writeArrayConstructor(const Constructor& c, OutputStream& out);
+
     SpvId writeConstructor(const Constructor& c, OutputStream& out);
 
     SpvId writeFieldAccess(const FieldAccess& f, OutputStream& out);

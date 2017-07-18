@@ -1760,6 +1760,24 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
     return result;
 }
 
+SpvId SPIRVCodeGenerator::writeArrayConstructor(const Constructor& c, OutputStream& out) {
+    ASSERT(c.fType.kind() == Type::kArray_Kind);
+    // go ahead and write the arguments so we don't try to write new instructions in the middle of
+    // an instruction
+    std::vector<SpvId> arguments;
+    for (size_t i = 0; i < c.fArguments.size(); i++) {
+        arguments.push_back(this->writeExpression(*c.fArguments[i], out));
+    }
+    SpvId result = this->nextId();
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + (int32_t) c.fArguments.size(), out);
+    this->writeWord(this->getType(c.fType), out);
+    this->writeWord(result, out);
+    for (SpvId id : arguments) {
+        this->writeWord(id, out);
+    }
+    return result;
+}
+
 SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& out) {
     if (c.fType == *fContext.fFloat_Type) {
         return this->writeFloatConstructor(c, out);
@@ -1773,6 +1791,8 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
             return this->writeVectorConstructor(c, out);
         case Type::kMatrix_Kind:
             return this->writeMatrixConstructor(c, out);
+        case Type::kArray_Kind:
+            return this->writeArrayConstructor(c, out);
         default:
             ABORT("unsupported constructor: %s", c.description().c_str());
     }
