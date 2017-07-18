@@ -457,7 +457,8 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& 
                                           std::move(statements)));
     }
     return std::unique_ptr<Statement>(new SwitchStatement(s.fPosition, s.fIsStatic,
-                                                          std::move(value), std::move(cases)));
+                                                          std::move(value), std::move(cases),
+                                                          fSymbolTable));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(

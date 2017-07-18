@@ -18,10 +18,12 @@ namespace SkSL {
  */
 struct SwitchStatement : public Statement {
     SwitchStatement(Position position, bool isStatic, std::unique_ptr<Expression> value,
-                    std::vector<std::unique_ptr<SwitchCase>> cases)
+                    std::vector<std::unique_ptr<SwitchCase>> cases,
+                    const std::shared_ptr<SymbolTable> symbols)
     : INHERITED(position, kSwitch_Kind)
     , fIsStatic(isStatic)
     , fValue(std::move(value))
+    , fSymbols(std::move(symbols))
     , fCases(std::move(cases)) {}
 
     String description() const override {
@@ -39,6 +41,9 @@ struct SwitchStatement : public Statement {
 
     bool fIsStatic;
     std::unique_ptr<Expression> fValue;
+    // it's important to keep fCases defined after (and thus destroyed before) fSymbols, because
+    // destroying statements can modify reference counts in symbols
+    const std::shared_ptr<SymbolTable> fSymbols;
     std::vector<std::unique_ptr<SwitchCase>> fCases;
 
     typedef Statement INHERITED;
