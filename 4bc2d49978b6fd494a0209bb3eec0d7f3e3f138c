@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "99b3f72f_45334464",
+        "filename": "src/gpu/effects/GrDitherEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T16:04:22Z",
+      "side": 1,
+      "message": "Yeah, I wasn\u0027t sure how to do that from an .fp file. I\u0027ll ask Ethan, but maybe as a follow-up.",
+      "parentUuid": "08d4c864_023a6660",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4dcf55a_d25189be",
         "filename": "src/gpu/effects/GrDitherEffect.fp",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "64d81ecd_7e181775",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T16:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4dcf55a_d25189be",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20ef93af_f1b14c8a",
         "filename": "src/gpu/effects/GrDitherEffect.fp",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-18T15:27:53Z",
       "side": 1,
       "message": "Why not 1/15 or, alternatively, why isn\u0027t 565\u0027s range something like .5/63 ?",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4444617c_41688c9e",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T16:04:22Z",
+      "side": 1,
+      "message": "I found this looks better than 1/15 experimentally. I also experimented with 565 and it was a toss up between 1/63 and 1/31, though neither looked very good. I also tried doing 1/31 for the red and blue and 1/63 for green and that wasn\u0027t really noticeably better.",
+      "parentUuid": "20ef93af_f1b14c8a",
       "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "4f95582f_fdbe70bd",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T16:04:22Z",
+      "side": 1,
+      "message": "Done, I had lifted this from the CPU code which had 2/128. I believe SkSL\u0027s constant folding would handle it, though.",
+      "parentUuid": "5accd4d1_3d8b3aa8",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e3eded0e_2a605fa4",
         "filename": "src/gpu/effects/GrDitherEffect.fp",
         "patchSetId": 4
@@ -84,6 +156,24 @@
       "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6b19f23_13e3e4a5",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T16:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3eded0e_2a605fa4",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
