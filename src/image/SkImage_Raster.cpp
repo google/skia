@@ -37,8 +37,7 @@ static bool is_not_subset(const SkBitmap& bm) {
 
 class SkImage_Raster : public SkImage_Base {
 public:
-    static bool ValidArgs(const Info& info, size_t rowBytes, bool hasColorTable,
-                          size_t* minSize) {
+    static bool ValidArgs(const Info& info, size_t rowBytes, size_t* minSize) {
         const int maxDimension = SK_MaxS32 >> 2;
 
         if (info.width() <= 0 || info.height() <= 0) {
@@ -72,7 +71,7 @@ public:
         return true;
     }
 
-    SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb, SkColorTable*,
+    SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb,
                    uint32_t id = kNeedNewImageUniqueID);
     ~SkImage_Raster() override;
 
@@ -139,13 +138,12 @@ static void release_data(void* addr, void* context) {
     data->unref();
 }
 
-SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowBytes,
-                               SkColorTable* ctable, uint32_t id)
+SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowBytes, uint32_t id)
     : INHERITED(info.width(), info.height(), id)
 {
     void* addr = const_cast<void*>(data->data());
 
-    fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
+    fBitmap.installPixels(info, addr, rowBytes, release_data, data.release());
     fBitmap.setImmutable();
 }
 
@@ -258,15 +256,13 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
 
 sk_sp<SkImage> MakeRasterCopyPriv(const SkPixmap& pmap, uint32_t id) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(),
-        pmap.ctable() != nullptr, &size) || !pmap.addr()) {
+    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), &size) || !pmap.addr()) {
         return nullptr;
     }
 
     // Here we actually make a copy of the caller's pixel data
     sk_sp<SkData> data(SkData::MakeWithCopy(pmap.addr(), size));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable(),
-                                      id);
+    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), id);
 }
 
 sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
@@ -276,7 +272,7 @@ sk_sp<SkImage> SkImage::MakeRasterCopy(const SkPixmap& pmap) {
 sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> data,
                                        size_t rowBytes) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(info, rowBytes, false, &size) || !data) {
+    if (!SkImage_Raster::ValidArgs(info, rowBytes, &size) || !data) {
         return nullptr;
     }
 
@@ -285,21 +281,18 @@ sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> da
         return nullptr;
     }
 
-    SkColorTable* ctable = nullptr;
-    return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes, ctable);
+    return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes);
 }
 
 sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc proc,
                                        ReleaseContext ctx) {
     size_t size;
-    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), pmap.ctable(), &size) ||
-        !pmap.addr())
-    {
+    if (!SkImage_Raster::ValidArgs(pmap.info(), pmap.rowBytes(), &size) || !pmap.addr()) {
         return nullptr;
     }
 
     sk_sp<SkData> data(SkData::MakeWithProc(pmap.addr(), size, proc, ctx));
-    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes(), pmap.ctable());
+    return sk_make_sp<SkImage_Raster>(pmap.info(), std::move(data), pmap.rowBytes());
 }
 
 sk_sp<SkImage> SkMakeImageFromRasterBitmapPriv(const SkBitmap& bm, SkCopyPixelsMode cpm,

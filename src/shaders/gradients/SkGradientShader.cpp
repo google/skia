@@ -730,7 +730,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kCache32Count, kNumberOfDitherRows);
 
     SkASSERT(nullptr == cache->fCache32PixelRef);
-    cache->fCache32PixelRef = SkMallocPixelRef::MakeAllocate(info, 0, nullptr);
+    cache->fCache32PixelRef = SkMallocPixelRef::MakeAllocate(info, 0);
     cache->fCache32 = (SkPMColor*)cache->fCache32PixelRef->pixels();
     if (cache->fShader.fColorCount == 2) {
         Build32bitCache(cache->fCache32, cache->fShader.fOrigColors[0],
