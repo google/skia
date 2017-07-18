@@ -5,15 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "SkPDFUtils.h"
 
 #include "SkData.h"
 #include "SkFixed.h"
 #include "SkGeometry.h"
+#include "SkImage_Base.h"
 #include "SkPDFResourceDict.h"
-#include "SkPDFUtils.h"
+#include "SkPDFTypes.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkPDFTypes.h"
 
 #include <cmath>
 
@@ -515,4 +516,17 @@ void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,
     if (!matrix.isIdentity()) {
         pattern->insertObject("Matrix", SkPDFUtils::MatrixToArray(matrix));
     }
+}
+
+bool SkPDFUtils::ToBitmap(const SkImage* img, SkBitmap* dst) {
+    SkASSERT(img);
+    SkASSERT(dst);
+    SkBitmap bitmap;
+    if(as_IB(img)->getROPixels(&bitmap, nullptr)) {
+        SkASSERT(bitmap.dimensions() == img->dimensions());
+        SkASSERT(!bitmap.drawsNothing());
+        *dst = std::move(bitmap);
+        return true;
+    }
+    return false;
 }

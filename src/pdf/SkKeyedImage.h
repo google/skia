@@ -37,4 +37,10 @@ private:
     sk_sp<SkImage> fImage;
     SkBitmapKey fKey = {{0, 0, 0, 0}, 0};
 };
+
+/**
+ *  Given an Image, return the Bitmap Key that corresponds to it.  If the Image
+ *  wraps a Bitmap, use that Bitmap's key.
+ */
+SkBitmapKey SkBitmapKeyFromImage(const SkImage*);
 #endif  // SkKeyedImage_DEFINED
