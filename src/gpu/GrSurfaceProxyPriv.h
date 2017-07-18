@@ -43,6 +43,15 @@ public:
     // future when the proxy is actually used/instantiated.
     bool hasPendingWrite() const { return fProxy->hasPendingWrite(); }
 
+    // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
+    // of the GrSurfaceProxy.
+    sk_sp<GrSurface> createSurface(GrResourceProvider* resourceProvider) const {
+        return fProxy->createSurface(resourceProvider);
+    }
+
+    // Assign this proxy the provided GrSurface as its backing surface
+    void assign(sk_sp<GrSurface> surface) { fProxy->assign(std::move(surface)); }
+
     // Don't abuse this call!!!!!!!
     bool isExact() const { return SkBackingFit::kExact == fProxy->fFit; }
 

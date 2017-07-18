@@ -49,6 +49,8 @@ protected:
 
     SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
 
+    sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
+
 private:
     bool fIsMipMapped;
     SkDestinationSurfaceColorMode fMipColorMode;
