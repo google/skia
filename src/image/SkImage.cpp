@@ -138,21 +138,6 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
     return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(encoded), subset);
 }
 
-#ifdef SK_SUPPORT_LEGACY_IMAGE_ENCODE_API
-SkData* SkImage::encode(SkEncodedImageFormat format, int quality) const {
-    return this->encodeToData(format, quality).release();
-}
-SkData* SkImage::encode(SkPixelSerializer* serial) const {
-    return this->encodeToData(serial).release();
-}
-SkData* SkImage::refEncoded() const {
-    return this->refEncodedData().release();
-}
-SkData* SkPixelSerializer::encode(const SkPixmap& pixmap) {
-    return this->encodeToData(pixmap).release();
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const char* SkImage::toString(SkString* str) const {
