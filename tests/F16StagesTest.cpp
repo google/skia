@@ -7,6 +7,7 @@
 
 #include "SkRasterPipeline.h"
 #include "Test.h"
+#include "../src/jumper/SkJumper.h"
 
 DEF_TEST(F16Stages, r) {
     // Make sure SkRasterPipeline::load_f16 and store_f16 can handle a range of
@@ -18,14 +19,14 @@ DEF_TEST(F16Stages, r) {
     };
     uint16_t halfs[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
 
-    float*    f32 = floats;
-    uint16_t* f16 = halfs;
+    SkJumper_MemoryCtx f32 = { floats, 0 },
+                       f16 = { halfs,  0 };
 
     {
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline:: load_f32, &f32);
         p.append(SkRasterPipeline::store_f16, &f16);
-        p.run(0,0,16/4);
+        p.run(0,0,16/4,1);
     }
     REPORTER_ASSERT(r, f16[0] == 0x0000);
     REPORTER_ASSERT(r, f16[1] == 0x3400);
@@ -40,7 +41,7 @@ DEF_TEST(F16Stages, r) {
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline:: load_f16, &f16);
         p.append(SkRasterPipeline::store_f32, &f32);
-        p.run(0,0,16/4);
+        p.run(0,0,16/4,1);
     }
     REPORTER_ASSERT(r, f32[0] ==  0.00f);
     REPORTER_ASSERT(r, f32[1] ==  0.25f);
