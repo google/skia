@@ -22,6 +22,30 @@
       "revId": "b0bb7acd413103d1124e24032a9cb6899c8e781c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46e12688_382d3077",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-18T18:11:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c674e062_a0a1df4f",
+      "range": {
+        "startLine": 118,
+        "startChar": 20,
+        "endLine": 118,
+        "endChar": 23
+      },
+      "revId": "b0bb7acd413103d1124e24032a9cb6899c8e781c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
