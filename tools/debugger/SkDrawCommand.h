@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkFlattenable.h"
 #include "SkTLazy.h"
 #include "SkPath.h"
 #include "SkRegion.h"

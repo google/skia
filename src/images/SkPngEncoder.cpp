@@ -9,6 +9,7 @@
 
 #ifdef SK_HAS_PNG_LIBRARY
 
+#include "SkColorTable.h"
 #include "SkImageEncoderFns.h"
 #include "SkImageInfoPriv.h"
 #include "SkStream.h"
@@ -51,8 +52,6 @@ public:
     static std::unique_ptr<SkPngEncoderMgr> Make(SkWStream* stream);
 
     bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
-    bool setPalette(const SkImageInfo& srcInfo, SkColorTable* colorTable,
-                    SkTransferFunctionBehavior);
     bool setColorSpace(const SkImageInfo& info);
     bool writeInfo(const SkImageInfo& srcInfo);
     void chooseProc(const SkImageInfo& srcInfo, SkTransferFunctionBehavior unpremulBehavior);
@@ -261,14 +260,6 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
     }
 }
 
-bool SkPngEncoderMgr::setPalette(const SkImageInfo& srcInfo, SkColorTable* colorTable,
-                                 SkTransferFunctionBehavior unpremulBehavior) {
-    if (setjmp(png_jmpbuf(fPngPtr))) {
-        return false;
-    }
-    return true;
-}
-
 static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkImageInfo& info) {
     sk_sp<SkData> icc = icc_from_color_space(info);
     if (!icc) {
@@ -334,10 +325,6 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
     }
 
     if (!encoderMgr->setHeader(src.info(), options)) {
-        return nullptr;
-    }
-
-    if (!encoderMgr->setPalette(src.info(), src.ctable(), options.fUnpremulBehavior)) {
         return nullptr;
     }
 

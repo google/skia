@@ -8,6 +8,7 @@
 #include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkColorTable.h"
 #include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkFilterQuality.h"
@@ -208,7 +209,7 @@ void SkBitmap::setPixelRef(sk_sp<SkPixelRef> pr, int dx, int dy) {
     SkDEBUGCODE(this->validate();)
 }
 
-void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
+void SkBitmap::setPixels(void* p) {
     if (nullptr == p) {
         this->setPixelRef(nullptr, 0, 0);
         return;
@@ -219,20 +220,24 @@ void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
         return;
     }
 
-    this->setPixelRef(SkMallocPixelRef::MakeDirect(fInfo, p, fRowBytes, sk_ref_sp(ctable)), 0, 0);
+    this->setPixelRef(SkMallocPixelRef::MakeDirect(fInfo, p, fRowBytes), 0, 0);
     if (!fPixelRef) {
         return;
     }
     SkDEBUGCODE(this->validate();)
 }
 
-bool SkBitmap::tryAllocPixels(Allocator* allocator, SkColorTable* ctable) {
+bool SkBitmap::tryAllocPixels(Allocator* allocator) {
     HeapAllocator stdalloc;
 
     if (nullptr == allocator) {
         allocator = &stdalloc;
     }
-    return allocator->allocPixelRef(this, ctable);
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
+    return allocator->allocPixelRef(this, nullptr);
+#else
+    return allocator->allocPixelRef(this);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -247,7 +252,7 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     // setInfo may have computed a valid rowbytes if 0 were passed in
     rowBytes = this->rowBytes();
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(correctedInfo, rowBytes, nullptr);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(correctedInfo, rowBytes);
     if (!pr) {
         return reset_return_false(this);
     }
@@ -259,8 +264,7 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, size_t rowBytes)
     return true;
 }
 
-bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, sk_sp<SkColorTable> ctable,
-                              uint32_t allocFlags) {
+bool SkBitmap::tryAllocPixelsFlags(const SkImageInfo& requestedInfo, uint32_t allocFlags) {
     if (!this->setInfo(requestedInfo)) {
         return reset_return_false(this);
     }
@@ -269,8 +273,8 @@ bool SkBitmap::tryAllocPixels(const SkImageInfo& requestedInfo, sk_sp<SkColorTab
     const SkImageInfo& correctedInfo = this->info();
 
     sk_sp<SkPixelRef> pr = (allocFlags & kZeroPixels_AllocFlag) ?
-        SkMallocPixelRef::MakeZeroed(correctedInfo, correctedInfo.minRowBytes(), ctable) :
-        SkMallocPixelRef::MakeAllocate(correctedInfo, correctedInfo.minRowBytes(), ctable);
+        SkMallocPixelRef::MakeZeroed(correctedInfo, correctedInfo.minRowBytes()) :
+        SkMallocPixelRef::MakeAllocate(correctedInfo, correctedInfo.minRowBytes());
     if (!pr) {
         return reset_return_false(this);
     }
@@ -289,8 +293,7 @@ static void invoke_release_proc(void (*proc)(void* pixels, void* ctx), void* pix
 }
 
 bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, size_t rb,
-                             SkColorTable* ct, void (*releaseProc)(void* addr, void* context),
-                             void* context) {
+                             void (*releaseProc)(void* addr, void* context), void* context) {
     if (!this->setInfo(requestedInfo, rb)) {
         invoke_release_proc(releaseProc, pixels, context);
         this->reset();
@@ -304,8 +307,8 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
     // setInfo may have corrected info (e.g. 565 is always opaque).
     const SkImageInfo& correctedInfo = this->info();
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeWithProc(correctedInfo, rb, sk_ref_sp(ct),
-                                                          pixels, releaseProc, context);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeWithProc(correctedInfo, rb, pixels,
+                                                          releaseProc, context);
     if (!pr) {
         this->reset();
         return false;
@@ -317,8 +320,7 @@ bool SkBitmap::installPixels(const SkImageInfo& requestedInfo, void* pixels, siz
 }
 
 bool SkBitmap::installPixels(const SkPixmap& pixmap) {
-    return this->installPixels(pixmap.info(), pixmap.writable_addr(),
-                               pixmap.rowBytes(), pixmap.ctable(),
+    return this->installPixels(pixmap.info(), pixmap.writable_addr(), pixmap.rowBytes(),
                                nullptr, nullptr);
 }
 
@@ -356,15 +358,18 @@ void SkBitmap::notifyPixelsChanged() const {
 /** We explicitly use the same allocator for our pixels that SkMask does,
  so that we can freely assign memory allocated by one class to the other.
  */
-bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
-                                            SkColorTable* ctable) {
+bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
+                                            , SkColorTable*
+#endif
+                                            ) {
     const SkImageInfo info = dst->info();
     if (kUnknown_SkColorType == info.colorType()) {
 //        SkDebugf("unsupported config for info %d\n", dst->config());
         return false;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, dst->rowBytes(), sk_ref_sp(ctable));
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeAllocate(info, dst->rowBytes());
     if (!pr) {
         return false;
     }
@@ -526,7 +531,7 @@ bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY,
     void* dstPixels = this->getAddr(rec.fX, rec.fY);
     const SkImageInfo dstInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(dstInfo, dstPixels, this->rowBytes(), rec.fInfo, rec.fPixels, rec.fRowBytes,
-                    src.ctable(), behavior);
+                    nullptr, behavior);
     return true;
 }
 
@@ -545,7 +550,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha, int 
         return false;
     }
     SkConvertPixels(SkImageInfo::MakeA8(pmap.width(), pmap.height()), alpha, alphaRowBytes,
-                    pmap.info(), pmap.addr(), pmap.rowBytes(), pmap.ctable(),
+                    pmap.info(), pmap.addr(), pmap.rowBytes(), nullptr,
                     SkTransferFunctionBehavior::kRespect);
     return true;
 }
@@ -578,7 +583,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     } else {
     NO_FILTER_CASE:
         tmpBitmap.setInfo(SkImageInfo::MakeA8(this->width(), this->height()), srcM.fRowBytes);
-        if (!tmpBitmap.tryAllocPixels(allocator, nullptr)) {
+        if (!tmpBitmap.tryAllocPixels(allocator)) {
             // Allocation of pixels for alpha bitmap failed.
             SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
                     tmpBitmap.width(), tmpBitmap.height());
@@ -602,7 +607,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 
     tmpBitmap.setInfo(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
                       dstM.fRowBytes);
-    if (!tmpBitmap.tryAllocPixels(allocator, nullptr)) {
+    if (!tmpBitmap.tryAllocPixels(allocator)) {
         // Allocation of pixels for alpha bitmap failed.
         SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
                 tmpBitmap.width(), tmpBitmap.height());
@@ -702,9 +707,8 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
         SkASSERT(srcRow == dstRow); // first row does not need to be moved
     }
 
-    sk_sp<SkColorTable> ctable;
     if (buffer->readBool()) {
-        ctable = SkColorTable::Create(*buffer);
+        sk_sp<SkColorTable> ctable = SkColorTable::Create(*buffer);
         if (!ctable) {
             return false;
         }
@@ -729,7 +733,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     }
 
     sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeWithData(info, info.minRowBytes(),
-                                                          std::move(ctable), std::move(data));
+                                                          std::move(data));
     if (!pr) {
         return false;
     }
@@ -814,7 +818,7 @@ void SkBitmap::toString(SkString* str) const {
 bool SkBitmap::peekPixels(SkPixmap* pmap) const {
     if (fPixels) {
         if (pmap) {
-            pmap->reset(fInfo, fPixels, fRowBytes, this->getColorTable());
+            pmap->reset(fInfo, fPixels, fRowBytes);
         }
         return true;
     }
