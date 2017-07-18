@@ -76,7 +76,8 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream, Result* result) {
 
     // If no images are in the data, or the first header is not yet defined, we cannot
     // create a codec. In either case, the width and height are not yet known.
-    if (0 == reader->imagesCount() || !reader->frameContext(0)->isHeaderDefined()) {
+    auto* frame = reader->frameContext(0);
+    if (!frame || !frame->isHeaderDefined()) {
         *result = kInvalidInput;
         return nullptr;
     }
@@ -136,9 +137,7 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
     }
 
     const SkGIFFrameContext* frameContext = fReader->frameContext(i);
-    if (!frameContext->reachedStartOfData()) {
-        return false;
-    }
+    SkASSERT(frameContext->reachedStartOfData());
 
     if (frameInfo) {
         frameInfo->fDuration = frameContext->getDuration();
