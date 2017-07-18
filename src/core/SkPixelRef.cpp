@@ -30,7 +30,7 @@ uint32_t SkNextID::ImageID() {
     static int32_t gInstCounter;
 #endif
 
-SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes, sk_sp<SkColorTable>)
+SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
     : fWidth(width)
     , fHeight(height)
     , fPixels(pixels)

@@ -680,8 +680,7 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
     SkAutoPixmapStorage pixmap;
     SkImageInfo info;
     size_t pixelSize = 0;
-    if (!isScaled && this->peekPixels(&pixmap) && !pixmap.ctable() &&
-        pixmap.info().colorType() == dstColorType) {
+    if (!isScaled && this->peekPixels(&pixmap) && pixmap.info().colorType() == dstColorType) {
         info = pixmap.info();
         pixelSize = SkAlign8(pixmap.getSafeSize());
         if (!dstColorSpace) {
@@ -723,7 +722,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy& prox
                     return 0;
                 }
             }
-            SkASSERT(!decodePixmap.ctable());
 
             if (decodeInfo.colorType() != info.colorType()) {
                 pixmap.alloc(info);

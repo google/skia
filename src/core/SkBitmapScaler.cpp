@@ -241,7 +241,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr, const SkPixmap& source, ResizeM
     // this could be scaling in sRGB.
     result.setInfo(SkImageInfo::MakeN32(destWidth, destHeight, source.alphaType(),
                                         sk_ref_sp(source.info().colorSpace())));
-    result.allocPixels(allocator, nullptr);
+    result.allocPixels(allocator);
 
     SkPixmap resultPM;
     if (!result.peekPixels(&resultPM) || !Resize(resultPM, source, method)) {

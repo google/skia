@@ -9,6 +9,7 @@
 
 #ifdef SK_HAS_PNG_LIBRARY
 
+#include "SkColorTable.h"
 #include "SkImageEncoderFns.h"
 #include "SkImageInfoPriv.h"
 #include "SkStream.h"
@@ -337,7 +338,7 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
         return nullptr;
     }
 
-    if (!encoderMgr->setPalette(src.info(), src.ctable(), options.fUnpremulBehavior)) {
+    if (!encoderMgr->setPalette(src.info(), nullptr, options.fUnpremulBehavior)) {
         return nullptr;
     }
 

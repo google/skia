@@ -121,7 +121,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
     } else {
         // This bitmap has transparency, so we'll zero the pixels (to transparent).
         // We use the flag as a faster alloc-then-eraseColor(SK_ColorTRANSPARENT).
-        if (!bitmap.tryAllocPixels(info, nullptr/*colortable*/, SkBitmap::kZeroPixels_AllocFlag)) {
+        if (!bitmap.tryAllocPixelsFlags(info, SkBitmap::kZeroPixels_AllocFlag)) {
             return nullptr;
         }
     }
@@ -152,8 +152,7 @@ bool SkBitmapDevice::onAccessPixels(SkPixmap* pmap) {
 bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
     const SkImageInfo info = fBitmap.info();
     if (fBitmap.getPixels() && (kUnknown_SkColorType != info.colorType())) {
-        SkColorTable* ctable = nullptr;
-        pmap->reset(fBitmap.info(), fBitmap.getPixels(), fBitmap.rowBytes(), ctable);
+        pmap->reset(fBitmap.info(), fBitmap.getPixels(), fBitmap.rowBytes());
         return true;
     }
     return false;
