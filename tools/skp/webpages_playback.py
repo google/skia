@@ -252,12 +252,12 @@ class SkPicturePlayback(object):
           try:
             subprocess.check_call(' '.join(record_wpr_cmd), shell=True)
 
-            # Move over the created archive into the local webpages archive
+            # Copy over the created archive into the local webpages archive
             # directory.
-            shutil.move(
+            shutil.copy(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR, wpr_data_file),
               self._local_record_webpages_archive_dir)
-            shutil.move(
+            shutil.copy(
               os.path.join(LOCAL_REPLAY_WEBPAGES_ARCHIVE_DIR,
                            page_set_json_name),
               self._local_record_webpages_archive_dir)
