@@ -190,8 +190,8 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
         auto scale =  fRadius2 / dRadius;
         auto bias  = -fRadius1 / dRadius;
 
-        p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
-                                                 SkMatrix::MakeScale(scale, 1)));
+        p->append_matrix(SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
+                                          SkMatrix::MakeScale(scale, 1)));
 
         return true;
     }

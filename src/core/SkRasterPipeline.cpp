@@ -76,7 +76,7 @@ void SkRasterPipeline::dump() const {
     #define INC_COLOR
 #endif
 
-void SkRasterPipeline::append_uniform_color(SkArenaAlloc* alloc, const SkPM4f& c) {
+void SkRasterPipeline::append_uniform_color(const SkPM4f& c) {
     if (c.r() == 0 && c.g() == 0 && c.b() == 0 && c.a() == 1) {
         this->append(black_color);
         INC_BLACK;
@@ -84,9 +84,7 @@ void SkRasterPipeline::append_uniform_color(SkArenaAlloc* alloc, const SkPM4f& c
         this->append(white_color);
         INC_WHITE;
     } else {
-        float* storage = alloc->makeArray<float>(4);
-        memcpy(storage, c.fVec, 4 * sizeof(float));
-        this->append(uniform_color, storage);
+        this->append(uniform_color, fAlloc->make<SkPM4f>(c));
         INC_COLOR;
     }
 
@@ -123,7 +121,7 @@ void SkRasterPipeline::append_from_srgb_dst(SkAlphaType at) {
 
 //static int gCounts[5] = { 0, 0, 0, 0, 0 };
 
-void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix) {
+void SkRasterPipeline::append_matrix(const SkMatrix& matrix) {
     SkMatrix::TypeMask mt = matrix.getType();
 #if 0
     if (mt > 4) mt = 4;
@@ -139,20 +137,20 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
         return;
     }
     if (mt == SkMatrix::kTranslate_Mask) {
-        float* trans = alloc->makeArrayDefault<float>(2);
+        float* trans = fAlloc->makeArrayDefault<float>(2);
         trans[0] = matrix.getTranslateX();
         trans[1] = matrix.getTranslateY();
         this->append(SkRasterPipeline::matrix_translate, trans);
     } else if ((mt | (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) ==
                      (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
-        float* scaleTrans = alloc->makeArrayDefault<float>(4);
+        float* scaleTrans = fAlloc->makeArrayDefault<float>(4);
         scaleTrans[0] = matrix.getTranslateX();
         scaleTrans[1] = matrix.getTranslateY();
         scaleTrans[2] = matrix.getScaleX();
         scaleTrans[3] = matrix.getScaleY();
         this->append(SkRasterPipeline::matrix_scale_translate, scaleTrans);
     } else {
-        float* storage = alloc->makeArrayDefault<float>(9);
+        float* storage = fAlloc->makeArrayDefault<float>(9);
         if (matrix.asAffine(storage)) {
             // note: asAffine and the 2x3 stage really only need 6 entries
             this->append(SkRasterPipeline::matrix_2x3, storage);

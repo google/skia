@@ -132,10 +132,10 @@ public:
 
     // Appends a stage for the specified matrix. Tries to optimize the stage by analyzing
     // the type of matrix.
-    void append_matrix(SkArenaAlloc*, const SkMatrix&);
+    void append_matrix(const SkMatrix&);
 
     // Appends a stage for the uniform color. Tries to optimize the stage based on the color.
-    void append_uniform_color(SkArenaAlloc*, const SkPM4f& color);
+    void append_uniform_color(const SkPM4f& color);
 
     bool empty() const { return fStages == nullptr; }
 

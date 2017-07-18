@@ -299,7 +299,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
     auto misc = alloc->make<MiscCtx>();
     misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
     misc->paint_color = SkColor4f_from_SkColor(paint.getColor(), dstCS);
-    p->append_matrix(alloc, matrix);
+    p->append_matrix(matrix);
 
     auto gather = alloc->make<SkJumper_GatherCtx>();
     gather->pixels  = pm.addr();

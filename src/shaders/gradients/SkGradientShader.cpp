@@ -382,7 +382,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     }
 
     p->append(SkRasterPipeline::seed_shader);
-    p->append_matrix(alloc, matrix);
+    p->append_matrix(matrix);
     p->extend(tPipeline);
 
     switch(fTileMode) {
