@@ -17,6 +17,7 @@
 #include <vector>
 
 struct SkJumper_constants;
+struct SkJumper_Engine;
 struct SkPM4f;
 
 /**
@@ -91,8 +92,8 @@ struct SkPM4f;
     M(xy_to_2pt_conical_linear)                                  \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)         \
     M(byte_tables) M(byte_tables_rgb)                            \
-    M(rgb_to_hsl)                                                \
-    M(hsl_to_rgb)
+    M(rgb_to_hsl) M(hsl_to_rgb)                                  \
+    M(store_8888_2d)
 
 class SkRasterPipeline {
 public:
@@ -120,6 +121,9 @@ public:
     // Runs the pipeline walking x through [x,x+n).
     void run(size_t x, size_t y, size_t n) const;
 
+    // Runs the pipeline in 2d from (x,y) inclusive to (x+w,y+h) exclusive.
+    void run_2d(size_t x, size_t y, size_t w, size_t h) const;
+
     // Allocates a thunk which amortizes run() setup cost in alloc.
     std::function<void(size_t, size_t, size_t)> compile() const;
 
@@ -140,15 +144,13 @@ public:
     bool empty() const { return fStages == nullptr; }
 
 private:
-    using StartPipelineFn = void(size_t,size_t,size_t,void**,const SkJumper_constants*);
-
     struct StageList {
         StageList* prev;
         StockStage stage;
         void*      ctx;
     };
 
-    StartPipelineFn* build_pipeline(void**) const;
+    const SkJumper_Engine& build_pipeline(void**) const;
     void unchecked_append(StockStage, void*);
 
     SkArenaAlloc* fAlloc;
