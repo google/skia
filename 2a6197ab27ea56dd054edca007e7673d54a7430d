@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75d35439_dfb371ed",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-07-18T14:05:26Z",
+      "side": 1,
+      "message": "as I mentioned in the other CL, it would be nice if update() / updateCubic() / updateQuadratic() agreed on true / false return values",
+      "range": {
+        "startLine": 59,
+        "startChar": 23,
+        "endLine": 59,
+        "endChar": 28
+      },
+      "revId": "2a6197ab27ea56dd054edca007e7673d54a7430d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90df3e6a_6b7eddf4",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 21
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-07-18T14:05:26Z",
+      "side": 1,
+      "message": "it looks like this only returns false when last_y \u003c fLowerY, which presumably never happens.\nCould this just SkASSERT(last_y \u003e\u003d fLowerY); and remove logic that is never executed?",
+      "range": {
+        "startLine": 64,
+        "startChar": 12,
+        "endLine": 64,
+        "endChar": 13
+      },
+      "revId": "2a6197ab27ea56dd054edca007e7673d54a7430d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6486865d_59874588",
+        "filename": "src/core/SkCoverageDelta.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-07-18T14:05:26Z",
+      "side": 1,
+      "message": "that would be surprising if 16 ints here are faster",
+      "range": {
+        "startLine": 16,
+        "startChar": 34,
+        "endLine": 16,
+        "endChar": 37
+      },
+      "revId": "2a6197ab27ea56dd054edca007e7673d54a7430d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
