@@ -749,7 +749,7 @@ private:
     int getClosestUmbraPoint(const SkPoint& point);
 
     void handleLine(const SkPoint& p) override;
-    void handlePolyPoint(const SkPoint& p);
+    bool handlePolyPoint(const SkPoint& p);
 
     void mapPoints(SkScalar scale, const SkVector& xlate, SkPoint* pts, int count);
     bool addInnerPoint(const SkPoint& pathPoint);
@@ -890,7 +890,9 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     }
     fCurrUmbraPoint = 0;
     for (int i = 0; i < fPathPolygon.count(); ++i) {
-        this->handlePolyPoint(fPathPolygon[i]);
+        if (!this->handlePolyPoint(fPathPolygon[i])) {
+            return;
+        }
     }
 
     if (!this->indexCount()) {
@@ -1195,10 +1197,14 @@ static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
     return distSq < kCloseSqd;
 }
 
-static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+static SkScalar perp_dot(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
     SkVector v0 = p1 - p0;
     SkVector v1 = p2 - p0;
-    return (SkScalarNearlyZero(v0.cross(v1)));
+    return v0.cross(v1);
+}
+
+static bool is_collinear(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    return (SkScalarNearlyZero(perp_dot(p0, p1, p2)));
 }
 
 void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
@@ -1224,21 +1230,19 @@ void SkSpotShadowTessellator::handleLine(const SkPoint& p) {
     }
 }
 
-void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
+bool SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
     if (fInitPoints.count() < 2) {
         *fInitPoints.push() = p;
-        return;
+        return true;
     }
 
     if (fInitPoints.count() == 2) {
         // determine if cw or ccw
-        SkVector v0 = fInitPoints[1] - fInitPoints[0];
-        SkVector v1 = p - fInitPoints[0];
-        SkScalar perpDot = v0.cross(v1);
+        SkScalar perpDot = perp_dot(fInitPoints[0], fInitPoints[1], p);
         if (SkScalarNearlyZero(perpDot)) {
             // nearly parallel, just treat as straight line and continue
             fInitPoints[1] = p;
-            return;
+            return true;
         }
 
         // if perpDot > 0, winding is ccw
@@ -1248,7 +1252,7 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
         if (!compute_normal(fInitPoints[0], fInitPoints[1], fDirection, &fFirstOutset)) {
             // first two points are incident, make the third point the second and continue
             fInitPoints[1] = p;
-            return;
+            return true;
         }
 
         fFirstOutset *= fRadius;
@@ -1263,7 +1267,8 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
 
         if (!fTransparent) {
             SkPoint clipPoint;
-            bool isOutside = this->clipUmbraPoint(fPositions[fFirstVertexIndex], fCentroid, &clipPoint);
+            bool isOutside = this->clipUmbraPoint(fPositions[fFirstVertexIndex],
+                                                  fCentroid, &clipPoint);
             if (isOutside) {
                 *fPositions.push() = clipPoint;
                 *fColors.push() = fUmbraColor;
@@ -1281,12 +1286,22 @@ void SkSpotShadowTessellator::handlePolyPoint(const SkPoint& p) {
         *fInitPoints.push() = p;
     }
 
+    // if concave, abort
+    SkScalar perpDot = perp_dot(fInitPoints[1], fInitPoints[2], p);
+    if (fDirection*perpDot > 0) {
+        return false;
+    }
+
     SkVector normal;
     if (compute_normal(fPrevPoint, p, fDirection, &normal)) {
         normal *= fRadius;
         this->addArc(normal, true);
         this->addEdge(p, normal);
+        fInitPoints[1] = fInitPoints[2];
+        fInitPoints[2] = p;
     }
+
+    return true;
 }
 
 bool SkSpotShadowTessellator::addInnerPoint(const SkPoint& pathPoint) {
