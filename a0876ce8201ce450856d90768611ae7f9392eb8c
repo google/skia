@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77070662_11265bd6",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2017-07-18T09:43:49Z",
+      "side": 1,
+      "message": "I find it confusing that if updateCubic returns true update returns false.\nWhat does \u0027true\u0027 and \u0027false\u0027 mean then? Can these functions agree among themselves?\n\n(If it makes sense, that\u0027s fine -- I see that this function has been around for a while)",
+      "range": {
+        "startLine": 55,
+        "startChar": 23,
+        "endLine": 55,
+        "endChar": 28
+      },
+      "revId": "a0876ce8201ce450856d90768611ae7f9392eb8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
