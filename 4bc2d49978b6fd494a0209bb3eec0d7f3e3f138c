@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08d4c864_023a6660",
+        "filename": "src/gpu/effects/GrDitherEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T15:27:53Z",
+      "side": 1,
+      "message": "The new code is generating a uniform for range. In this case it seems like we would want to burn that into the program rather than having a uniform. This is based on the assumption that if a user is memory sensitive enough to be doing any 565 or 4444 rendering that is probably all they\u0027re going to be doing. Doesn\u0027t seem all that critical though.",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4dcf55a_d25189be",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T15:27:53Z",
+      "side": 1,
+      "message": "Do we ever really want to dither A8?",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20ef93af_f1b14c8a",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T15:27:53Z",
+      "side": 1,
+      "message": "Why not 1/15 or, alternatively, why isn\u0027t 565\u0027s range something like .5/63 ?",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5accd4d1_3d8b3aa8",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T15:27:53Z",
+      "side": 1,
+      "message": "one divide rather than 2 ?",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3eded0e_2a605fa4",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T15:27:53Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
