@@ -95,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "00b12607_78fa3628",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-18T15:25:47Z",
+      "side": 1,
+      "message": "Ah, guess I was getting ahead of myself assuming that you were going to remove setPalette. Without that method, I don\u0027t think we should need it. (With that method, we could use a forward declare.)",
+      "parentUuid": "51b66c2a_3e72fa65",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 22
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe28b374_eabcf1d2",
         "filename": "src/images/SkPngEncoder.cpp",
         "patchSetId": 3
