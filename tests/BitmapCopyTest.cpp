@@ -13,11 +13,7 @@
 
 static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
-        if (bitmap.getColorTable()) {
-            sk_bzero(bitmap.getPixels(), bitmap.getSize());
-        } else {
-            bitmap.eraseColor(SK_ColorWHITE);
-        }
+        bitmap.eraseColor(SK_ColorWHITE);
     }
 }
 
@@ -114,12 +110,6 @@ DEF_TEST(BitmapCopy_extractSubset, reporter) {
 
                 REPORTER_ASSERT(reporter, copy.width() == W);
                 REPORTER_ASSERT(reporter, copy.height() == 2);
-
-                if (gPairs[i].fColorType == gPairs[j].fColorType) {
-                    // they should both have, or both not-have, a colortable
-                    bool hasCT = subset.getColorTable() != nullptr;
-                    REPORTER_ASSERT(reporter, (copy.getColorTable() != nullptr) == hasCT);
-                }
             }
         }
 

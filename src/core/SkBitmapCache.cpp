@@ -225,8 +225,7 @@ public:
             SkASSERT(fDM->data());
         }
 
-        bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, nullptr,
-                              ReleaseProc, this);
+        bitmap->installPixels(fInfo, fDM ? fDM->data() : fMalloc, fRowBytes, ReleaseProc, this);
         SkBitmapCache_setImmutableWithID(bitmap->pixelRef(), fPrUniqueID);
 
         REC_TRACE(" Rec: [%d] install new pr\n", fPrUniqueID);
