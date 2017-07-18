@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "beaefee6_5685888c",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T19:56:53Z",
+      "side": 1,
+      "message": "I wonder if LRU or MRU is better?",
+      "revId": "2194a2d22cb8eb1983b059c6bae78f55e4bcdc7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
