@@ -4,11 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
+#include "SkPDFTypes.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkShader.h"
@@ -124,6 +123,8 @@ void PopulateTilingPatternDict(SkPDFDict* pattern,
                                SkRect& bbox,
                                sk_sp<SkPDFDict> resources,
                                const SkMatrix& matrix);
+
+bool ToBitmap(const SkImage* img, SkBitmap* dst);
 }  // namespace SkPDFUtils
 
 #endif

@@ -9,15 +9,19 @@
 
 #include "SkImage_Base.h"
 
-SkKeyedImage::SkKeyedImage(sk_sp<SkImage> i) : fImage(std::move(i)) {
-    if (fImage) {
-        if (const SkBitmap* bm = as_IB(fImage.get())->onPeekBitmap()) {
-            SkIPoint o = bm->pixelRefOrigin();
-            fKey = {fImage->bounds().makeOffset(o.fX, o.fY), bm->getGenerationID()};
-        } else {
-            fKey = {fImage->bounds(), fImage->uniqueID()};
-        }
+SkBitmapKey SkBitmapKeyFromImage(const SkImage* image) {
+    if (!image) {
+        return {{0, 0, 0, 0}, 0};
     }
+    if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
+        SkIPoint o = bm->pixelRefOrigin();
+        return {image->bounds().makeOffset(o.x(), o.y()), bm->getGenerationID()};
+    }
+    return {image->bounds(), image->uniqueID()};
+}
+
+SkKeyedImage::SkKeyedImage(sk_sp<SkImage> i) : fImage(std::move(i)) {
+    fKey = SkBitmapKeyFromImage(fImage.get());
 }
 
 SkKeyedImage::SkKeyedImage(const SkBitmap& bm) : fImage(SkImage::MakeFromBitmap(bm)) {
