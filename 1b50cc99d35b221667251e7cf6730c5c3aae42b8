@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "51b66c2a_3e72fa65",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-18T14:51:57Z",
+      "side": 1,
+      "message": "Doesn\u0027t compile without it (now that other headers don\u0027t always include it).",
+      "parentUuid": "df3e13c7_e20157da",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 22
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fe28b374_eabcf1d2",
         "filename": "src/images/SkPngEncoder.cpp",
         "patchSetId": 3
@@ -91,6 +115,30 @@
       "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23fb8c3c_18877339",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-18T14:51:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe28b374_eabcf1d2",
+      "range": {
+        "startLine": 341,
+        "startChar": 21,
+        "endLine": 341,
+        "endChar": 31
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
