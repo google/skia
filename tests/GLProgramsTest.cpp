@@ -145,7 +145,7 @@ static sk_sp<GrRenderTargetContext> random_render_target_context(GrContext* cont
                                                                  const GrCaps* caps) {
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
-    int sampleCnt = random->nextBool() ? SkTMin(4, caps->maxSampleCount()) : 0;
+    int sampleCnt = random->nextBool() ? caps->getSampleCount(4, kRGBA_8888_GrPixelConfig) : 0;
 
     sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                                                                            SkBackingFit::kExact,
