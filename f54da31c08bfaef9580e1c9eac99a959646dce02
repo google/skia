@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "56cf49e0_d8c81f18",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-18T20:56:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30dfe4c3_88cdbec9",
+      "revId": "f54da31c08bfaef9580e1c9eac99a959646dce02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8fdbf979_4ca31261",
         "filename": "src/gpu/gl/GrGLInterface.cpp",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-18T20:50:19Z",
       "side": 1,
       "message": "We might need to stage this for Chrome",
+      "revId": "f54da31c08bfaef9580e1c9eac99a959646dce02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca40628_fa40f353",
+        "filename": "src/gpu/gl/GrGLInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-18T20:56:47Z",
+      "side": 1,
+      "message": "Duh, I meant to comment this out before uploading.",
+      "parentUuid": "8fdbf979_4ca31261",
       "revId": "f54da31c08bfaef9580e1c9eac99a959646dce02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
