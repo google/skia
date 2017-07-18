@@ -111,8 +111,10 @@ public:
         SK_RASTER_PIPELINE_STAGES(M)
     #undef M
     };
-    void append(StockStage, void* = nullptr);
-    void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
+    void append(StockStage, void* ctx=nullptr, size_t rb=0);
+    void append(StockStage stage, const void* ctx, size_t rb=0) {
+        this->append(stage, const_cast<void*>(ctx), rb);
+    }
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -146,10 +148,11 @@ private:
         StageList* prev;
         StockStage stage;
         void*      ctx;
+        size_t     rb;
     };
 
     StartPipelineFn* build_pipeline(void**) const;
-    void unchecked_append(StockStage, void*);
+    void unchecked_append(StockStage, void*, size_t);
 
     SkArenaAlloc* fAlloc;
     StageList*    fStages;

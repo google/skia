@@ -17,12 +17,12 @@ void SkRasterPipeline::reset() {
     fSlotsNeeded = 1;  // We always need one extra slot for just_return().
 }
 
-void SkRasterPipeline::append(StockStage stage, void* ctx) {
+void SkRasterPipeline::append(StockStage stage, void* ctx, size_t rb) {
     SkASSERT(stage != from_srgb);
-    this->unchecked_append(stage, ctx);
+    this->unchecked_append(stage, ctx, rb);
 }
-void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
-    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
+void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx, size_t rb) {
+    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx, rb} );
     fNumStages   += 1;
     fSlotsNeeded += ctx ? 2 : 1;
 }
@@ -108,14 +108,14 @@ void SkRasterPipeline::append_uniform_color(SkArenaAlloc* alloc, const SkPM4f& c
 // This is an annoying problem with no known good solution.  So apply the clamp hammer.
 
 void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
-    this->unchecked_append(from_srgb, nullptr);
+    this->unchecked_append(from_srgb, nullptr, 0);
     if (at == kPremul_SkAlphaType) {
         this->append(SkRasterPipeline::clamp_a);
     }
 }
 
 void SkRasterPipeline::append_from_srgb_dst(SkAlphaType at) {
-    this->unchecked_append(from_srgb_dst, nullptr);
+    this->unchecked_append(from_srgb_dst, nullptr, 0);
     if (at == kPremul_SkAlphaType) {
         this->append(SkRasterPipeline::clamp_a_dst);
     }
