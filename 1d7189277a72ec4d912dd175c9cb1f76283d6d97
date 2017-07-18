@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7817d730_7fadb0d9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T17:21:34Z",
+      "side": 1,
+      "message": "Is this right?",
+      "range": {
+        "startLine": 151,
+        "startChar": 24,
+        "endLine": 151,
+        "endChar": 28
+      },
+      "revId": "1d7189277a72ec4d912dd175c9cb1f76283d6d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee0eb182_4bc62895",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-18T17:21:34Z",
+      "side": 1,
+      "message": "and this one?",
+      "range": {
+        "startLine": 160,
+        "startChar": 32,
+        "endLine": 160,
+        "endChar": 36
+      },
+      "revId": "1d7189277a72ec4d912dd175c9cb1f76283d6d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
