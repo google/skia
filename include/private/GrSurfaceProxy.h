@@ -368,6 +368,8 @@ protected:
         return this->internalHasPendingWrite();
     }
 
+    void computeScratchKey(GrScratchKey*) const;
+
     virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
     void assign(sk_sp<GrSurface> surface);
 
