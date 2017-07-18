@@ -145,11 +145,36 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 #undef CAP
 }
 
+static void default_caps(std::unordered_map<String, Program::Settings::Value>* capsMap) {
+#define CAP(name, value) capsMap->insert(std::make_pair(String(#name), \
+                                         Program::Settings::Value(value)));
+    CAP(fbFetchSupport, true);
+    CAP(fbFetchNeedsCustomOutput, false);
+    CAP(bindlessTextureSupport, true);
+    CAP(dropsTileOnZeroDivide, false);
+    CAP(flatInterpolationSupport, true);
+    CAP(noperspectiveInterpolationSupport, true);
+    CAP(multisampleInterpolationSupport, true);
+    CAP(sampleVariablesSupport, true);
+    CAP(sampleMaskOverrideCoverageSupport, true);
+    CAP(externalTextureSupport, true);
+    CAP(texelFetchSupport, true);
+    CAP(imageLoadStoreSupport, true);
+    CAP(mustEnableAdvBlendEqs, false);
+    CAP(mustEnableSpecificAdvBlendEqs, false);
+    CAP(mustDeclareFragmentShaderOutput, true);
+    CAP(canUseAnyFunctionInShader, true);
+    CAP(floatPrecisionVaries, true);
+    CAP(integerSupport, true);
+#undef CAP
+}
 void IRGenerator::start(const Program::Settings* settings) {
     fSettings = settings;
     fCapsMap.clear();
     if (settings->fCaps) {
         fill_caps(*settings->fCaps, &fCapsMap);
+    } else {
+        default_caps(&fCapsMap);
     }
     this->pushSymbolTable();
     fInvocations = -1;
