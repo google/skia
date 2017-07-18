@@ -8,6 +8,7 @@
 #include "SkColorSpace.h"
 #include "SkRasterPipeline.h"
 #include "Test.h"
+#include "../src/jumper/SkJumper.h"
 
 static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransferFn fn) {
     float in[256], out[256];
@@ -16,8 +17,8 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
         out[i] = 0.0f;  // Not likely important.  Just being tidy.
     }
 
-    const float* ip = in;
-    float*       op = out;
+    SkJumper_MemoryCtx ip = { in, 0},
+                       op = {out, 0};
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32, &ip);
@@ -27,7 +28,7 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
     p.append(SkRasterPipeline::parametric_a, &fn);
     p.append(SkRasterPipeline::store_f32, &op);
 
-    p.run(0,0, 256/4);
+    p.run(0,0, 256/4,1);
 
 
     for (int i = 0; i < 256; i++) {

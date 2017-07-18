@@ -12,6 +12,7 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkSpriteBlitter.h"
+#include "../jumper/SkJumper.h"
 
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
     : fSource(source) {}
@@ -101,7 +102,7 @@ public:
         : INHERITED(src)
         , fAlloc(alloc)
         , fBlitter(nullptr)
-        , fSrcPtr(nullptr)
+        , fSrcPtr{nullptr, 0}
     {}
 
     void setup(const SkPixmap& dst, int left, int top, const SkPaint& paint) override {
@@ -141,23 +142,20 @@ public:
     }
 
     void blitRect(int x, int y, int width, int height) override {
-        fSrcPtr = (const char*)fSource.addr(x-fLeft,y-fTop);
+        int bpp = fSource.info().bytesPerPixel();
 
-        // Our pipeline will load from fSrcPtr+x, fSrcPtr+x+1, etc.,
-        // so we back up an extra x pixels to start at 0.
-        fSrcPtr -= fSource.info().bytesPerPixel() * x;
+        fSrcPtr.stride = fSource.rowBytesAsPixels();
+        fSrcPtr.pixels = (char*)fSource.addr(x-fLeft, y-fTop) - bpp * x
+                                                              - bpp * y * fSrcPtr.stride;
 
-        while (height --> 0) {
-            fBlitter->blitH(x,y++, width);
-            fSrcPtr += fSource.rowBytes();
-        }
+        fBlitter->blitRect(x,y,width,height);
     }
 
 private:
-    SkArenaAlloc* fAlloc;
-    SkBlitter*    fBlitter;
-    const char*   fSrcPtr;
-    SkColor4f     fPaintColor;
+    SkArenaAlloc*      fAlloc;
+    SkBlitter*         fBlitter;
+    SkJumper_MemoryCtx fSrcPtr;
+    SkColor4f          fPaintColor;
 
     typedef SkSpriteBlitter INHERITED;
 };
