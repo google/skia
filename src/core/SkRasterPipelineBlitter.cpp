@@ -55,7 +55,7 @@ private:
     void append_store (SkRasterPipeline*) const;
 
     // If we have an burst context, use it to fill our shader buffer.
-    void maybe_shade(int x, int y, int w);
+    void burst_shade(int x, int y, int w);
 
     SkPixmap               fDst;
     SkBlendMode            fBlend;
@@ -63,23 +63,24 @@ private:
     SkShaderBase::Context* fBurstCtx;
     SkRasterPipeline       fColorPipeline;
 
+    SkJumper_MemoryCtx fShaderOutput = {nullptr,0},  // Possibly updated each call to burst_shade().
+                       fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
+                       fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
+
     // We may be able to specialize blitH() into a memset.
     bool     fCanMemsetInBlitH = false;
     uint64_t fMemsetColor      = 0;     // Big enough for largest dst format, F16.
 
     // Built lazily on first use.
-    std::function<void(size_t, size_t, size_t)> fBlitH,
-                                                fBlitAntiH,
-                                                fBlitMaskA8,
-                                                fBlitMaskLCD16;
+    std::function<void(size_t, size_t, size_t, size_t)> fBlitH,
+                                                        fBlitAntiH,
+                                                        fBlitMaskA8,
+                                                        fBlitMaskLCD16;
 
     // These values are pointed to by the blit pipelines above,
     // which allows us to adjust them from call to call.
-    void*              fShaderOutput    = nullptr;
-    void*              fDstPtr          = nullptr;
-    const void*        fMaskPtr         = nullptr;
-    float              fCurrentCoverage = 0.0f;
-    float              fDitherRate      = 0.0f;
+    float fCurrentCoverage = 0.0f;
+    float fDitherRate      = 0.0f;
 
     std::vector<SkPM4f> fShaderBuffer;
 
@@ -191,14 +192,14 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 
     // A pipeline that's still constant here can collapse back into a constant color.
     if (is_constant) {
-        SkPM4f storage;
-        SkPM4f* constantColor = &storage;
-        colorPipeline->append(SkRasterPipeline::store_f32, &constantColor);
-        colorPipeline->run(0,0,1);
+        SkPM4f constantColor;
+        SkJumper_MemoryCtx constantColorPtr = { &constantColor, 0 };
+        colorPipeline->append(SkRasterPipeline::store_f32, &constantColorPtr);
+        colorPipeline->run(0,0,1,1);
         colorPipeline->reset();
-        colorPipeline->append_uniform_color(alloc, *constantColor);
+        colorPipeline->append_uniform_color(alloc, constantColor);
 
-        is_opaque = constantColor->a() == 1.0f;
+        is_opaque = constantColor.a() == 1.0f;
     }
 
     // We can strength-reduce SrcOver into Src when opaque.
@@ -213,12 +214,17 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         // Not all blits can memset, so we need to keep colorPipeline too.
         SkRasterPipeline_<256> p;
         p.extend(*colorPipeline);
-        blitter->fDstPtr = &blitter->fMemsetColor;
+        blitter->fDstPtr = SkJumper_MemoryCtx{&blitter->fMemsetColor, 0};
         blitter->append_store(&p);
-        p.run(0,0,1);
+        p.run(0,0,1,1);
 
         blitter->fCanMemsetInBlitH = true;
     }
+
+    blitter->fDstPtr = SkJumper_MemoryCtx{
+        blitter->fDst.writable_addr(),
+        blitter->fDst.rowBytesAsPixels(),
+    };
 
     return blitter;
 }
@@ -275,26 +281,23 @@ void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
     SkBlendMode_AppendClampIfNeeded(fBlend, p);
 }
 
-void SkRasterPipelineBlitter::maybe_shade(int x, int y, int w) {
-    if (fBurstCtx) {
-        if (w > SkToInt(fShaderBuffer.size())) {
-            fShaderBuffer.resize(w);
-        }
-        fBurstCtx->shadeSpan4f(x,y, fShaderBuffer.data(), w);
-        // We'll be reading from fShaderOutput + x.
-        fShaderOutput = fShaderBuffer.data() - x;
+void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
+    SkASSERT(fBurstCtx);
+    if (w > SkToInt(fShaderBuffer.size())) {
+        fShaderBuffer.resize(w);
     }
+    fBurstCtx->shadeSpan4f(x,y, fShaderBuffer.data(), w);
+    // We'll be reading from fShaderOutput.pixels + x, so back up by x.
+    fShaderOutput = SkJumper_MemoryCtx{ fShaderBuffer.data() - x, 0 };
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
-    fDstPtr = fDst.writable_addr(0,y);
-
     if (fCanMemsetInBlitH) {
         switch (fDst.shiftPerPixel()) {
-            case 0:    memset  ((uint8_t *)fDstPtr + x, fMemsetColor, w); return;
-            case 1: sk_memset16((uint16_t*)fDstPtr + x, fMemsetColor, w); return;
-            case 2: sk_memset32((uint32_t*)fDstPtr + x, fMemsetColor, w); return;
-            case 3: sk_memset64((uint64_t*)fDstPtr + x, fMemsetColor, w); return;
+            case 0:    memset  (fDst.writable_addr8 (x,y), fMemsetColor, w); return;
+            case 1: sk_memset16(fDst.writable_addr16(x,y), fMemsetColor, w); return;
+            case 2: sk_memset32(fDst.writable_addr32(x,y), fMemsetColor, w); return;
+            case 3: sk_memset64(fDst.writable_addr64(x,y), fMemsetColor, w); return;
             default: break;
         }
     }
@@ -318,8 +321,10 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         }
         fBlitH = p.compile();
     }
-    this->maybe_shade(x,y,w);
-    fBlitH(x,y,w);
+    if (fBurstCtx) {
+        this->burst_shade(x,y,w);
+    }
+    fBlitH(x,y,w,1);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
@@ -340,15 +345,16 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         fBlitAntiH = p.compile();
     }
 
-    fDstPtr = fDst.writable_addr(0,y);
     for (int16_t run = *runs; run > 0; run = *runs) {
         switch (*aa) {
             case 0x00:                       break;
             case 0xff: this->blitH(x,y,run); break;
             default:
-                this->maybe_shade(x,y,run);
                 fCurrentCoverage = *aa * (1/255.0f);
-                fBlitAntiH(x,y,run);
+                if (fBurstCtx) {
+                    this->burst_shade(x,y,run);
+                }
+                fBlitAntiH(x,y,run,1);
         }
         x    += run;
         runs += run;
@@ -375,6 +381,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         return INHERITED::blitMask(mask, clip);
     }
 
+    // Lazily build whichever pipeline we need, specialized for each mask format.
     if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
@@ -391,7 +398,6 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         this->append_store(&p);
         fBlitMaskA8 = p.compile();
     }
-
     if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
@@ -403,23 +409,35 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         fBlitMaskLCD16 = p.compile();
     }
 
-    int x = clip.left();
-    for (int y = clip.top(); y < clip.bottom(); y++) {
-        fDstPtr = fDst.writable_addr(0,y);
+    std::function<void(size_t,size_t,size_t,size_t)>* blitter = nullptr;
+    // Update fMaskPtr to point "into" this current mask, but lined up with fDstPtr at (0,0).
+    switch (mask.fFormat) {
+        case SkMask::kA8_Format:
+            fMaskPtr.stride = mask.fRowBytes;
+            fMaskPtr.pixels = (uint8_t*)mask.fImage - mask.fBounds.left()
+                                                    - mask.fBounds.top() * fMaskPtr.stride;
+            blitter = &fBlitMaskA8;
+            break;
+        case SkMask::kLCD16_Format:
+            fMaskPtr.stride = mask.fRowBytes / 2;
+            fMaskPtr.pixels = (uint16_t*)mask.fImage - mask.fBounds.left()
+                                                     - mask.fBounds.top() * fMaskPtr.stride;
+            blitter = &fBlitMaskLCD16;
+            break;
+        default:
+            return;
+    }
 
-        this->maybe_shade(x,y,clip.width());
-        switch (mask.fFormat) {
-            case SkMask::kA8_Format:
-                fMaskPtr = mask.getAddr8(x,y)-x;
-                fBlitMaskA8(x,y,clip.width());
-                break;
-            case SkMask::kLCD16_Format:
-                fMaskPtr = mask.getAddrLCD16(x,y)-x;
-                fBlitMaskLCD16(x,y,clip.width());
-                break;
-            default:
-                // TODO
-                break;
+    SkASSERT(blitter);
+    if (fBurstCtx) {
+        // We can only burst shade one row at a time.
+        int x = clip.left();
+        for (int y = clip.top(); y < clip.bottom(); y++) {
+            this->burst_shade(x,y,clip.width());
+            (*blitter)(x,y, clip.width(),1);
         }
+    } else {
+        // If not bursting we can blit the entire mask at once.
+        (*blitter)(clip.left(),clip.top(), clip.width(),clip.height());
     }
 }
