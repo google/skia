@@ -48,6 +48,16 @@ bool SkAnalyticEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1, 
     return true;
 }
 
+bool SkAnalyticEdge::update(SkFixed last_y) {
+    SkASSERT(last_y >= fLowerY); // we shouldn't update edge if last_y < fLowerY
+    if (fCurveCount < 0) {
+        return static_cast<SkAnalyticCubicEdge*>(this)->updateCubic();
+    } else if (fCurveCount > 0) {
+        return static_cast<SkAnalyticQuadraticEdge*>(this)->updateQuadratic();
+    }
+    return false;
+}
+
 bool SkAnalyticQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
     fRiteE = nullptr;
 
