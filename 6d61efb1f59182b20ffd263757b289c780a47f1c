@@ -22,6 +22,30 @@
       "revId": "6d61efb1f59182b20ffd263757b289c780a47f1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e354e3_15d03774",
+        "filename": "src/gpu/GrResourceAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T18:45:42Z",
+      "side": 1,
+      "message": "Right, this is will (or something related to it) be used for the free pool. It will have to be GrScratchKey-based and be an SkTMultiMap.\n\nCorrect. The resources will be refed and will no longer be accessible as scratch textures. When initially pulled out of the resource cache the GrSurfaces should have no pending IO. As they are assigned to multiple GrSurfaceProxies they do accumulate IORefs (but that probably isn\u0027t required).\n\nRight. We don\u0027t need a ref in the free pool b.c. to be there they already need to be in use by another proxy.\n\nI will post another CL that has an initial implementation of the free pool so you can see where this is going.",
+      "parentUuid": "63ed1452_3288b49d",
+      "range": {
+        "startLine": 63,
+        "startChar": 11,
+        "endLine": 63,
+        "endChar": 27
+      },
+      "revId": "6d61efb1f59182b20ffd263757b289c780a47f1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
