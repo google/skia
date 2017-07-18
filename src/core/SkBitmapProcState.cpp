@@ -66,11 +66,15 @@ static bool just_trans_general(const SkMatrix& matrix) {
  *  for the purpose of filtering.
  */
 static bool just_trans_integral(const SkMatrix& m) {
+#ifdef SK_SUPPORT_LEGACY_BILERP
+    return false;
+#else
     static constexpr SkScalar tol = SK_Scalar1 / 256;
 
     return m.getType() <= SkMatrix::kTranslate_Mask
         && SkScalarNearlyEqual(m.getTranslateX(), SkScalarRoundToScalar(m.getTranslateX()), tol)
         && SkScalarNearlyEqual(m.getTranslateY(), SkScalarRoundToScalar(m.getTranslateY()), tol);
+#endif
 }
 
 static bool valid_for_filtering(unsigned dimension) {
