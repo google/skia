@@ -70,29 +70,20 @@ using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,
     __attribute__((disable_tail_calls))
 #endif
 MAYBE_MSABI
-extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
+extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
+                                     void** program, K* k) {
     F v;
     auto start = (Stage*)load_and_inc(program);
-    while (x + kStride <= limit) {
-        start(k,program,x,y,0,    v,v,v,v, v,v,v,v);
-        x += kStride;
-    }
-    if (size_t tail = limit - x) {
-        start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
-    }
-}
-
-#if defined(__AVX__)
-    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
-    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
-    __attribute__((disable_tail_calls))
-#endif
-__attribute__((flatten))  // Force-inline the call to start_pipeline().
-MAYBE_MSABI
-extern "C" void WRAP(start_pipeline_2d)(size_t x, size_t y, size_t xlimit, size_t ylimit,
-                                        void** program, K* k) {
+    size_t x0 = x;
     for (; y < ylimit; y++) {
-        WRAP(start_pipeline)(x,y,xlimit, program, k);
+        x = x0;
+        while (x + kStride <= xlimit) {
+            start(k,program,x,y,0,    v,v,v,v, v,v,v,v);
+            x += kStride;
+        }
+        if (size_t tail = xlimit - x) {
+            start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
+        }
     }
 }
 
@@ -219,6 +210,11 @@ SI U32 to_8888(F r, F g, F b, F a) {
          | __builtin_convertvector(to_wide_byte(a), U32) << 24;
 }
 
+template <typename T>
+SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
+    return (T*)ctx->pixels + y*ctx->stride + x;
+}
+
 // Stages!
 
 STAGE(uniform_color) {
@@ -256,60 +252,60 @@ STAGE(premul) {
 }
 
 STAGE(load_8888) {
-    auto ptr = *(const uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
     from_8888(load<U32>(ptr, tail), &r,&g,&b,&a);
 }
 STAGE(load_8888_dst) {
-    auto ptr = *(const uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
     from_8888(load<U32>(ptr, tail), &dr,&dg,&db,&da);
 }
 STAGE(store_8888) {
-    auto ptr = *(uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
     store(ptr, to_8888(r,g,b,a), tail);
 }
 
 STAGE(load_bgra) {
-    auto ptr = *(const uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
     from_8888(load<U32>(ptr, tail), &b,&g,&r,&a);
 }
 STAGE(load_bgra_dst) {
-    auto ptr = *(const uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
     from_8888(load<U32>(ptr, tail), &db,&dg,&dr,&da);
 }
 STAGE(store_bgra) {
-    auto ptr = *(uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
     store(ptr, to_8888(b,g,r,a), tail);
 }
 
 STAGE(load_a8) {
-    auto ptr = *(const uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
     r = g = b = 0.0f;
     a = from_byte(load<U8>(ptr, tail));
 }
 STAGE(load_a8_dst) {
-    auto ptr = *(const uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
     dr = dg = db = 0.0f;
     da = from_byte(load<U8>(ptr, tail));
 }
 STAGE(store_a8) {
-    auto ptr = *(uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<uint8_t>(ctx, x,y);
     store(ptr, to_byte(a), tail);
 }
 
 STAGE(load_g8) {
-    auto ptr = *(const uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
     r = g = b = from_byte(load<U8>(ptr, tail));
     a = 1.0f;
 }
 
 STAGE(load_g8_dst) {
-    auto ptr = *(const uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
     dr = dg = db = from_byte(load<U8>(ptr, tail));
     da = 1.0f;
 }
 
 STAGE(srcover_rgba_8888) {
-    auto ptr = *(uint32_t**)ctx + x;
+    auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
 
     from_8888(load<U32>(ptr, tail), &dr,&dg,&db,&da);
 
@@ -330,7 +326,7 @@ STAGE(scale_1_float) {
     a = a * c;
 }
 STAGE(scale_u8) {
-    auto ptr = *(const uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
 
     U8 scales = load<U8>(ptr, tail);
     F c = from_byte(scales);
@@ -350,7 +346,7 @@ STAGE(lerp_1_float) {
     a = lerp(da, a, c);
 }
 STAGE(lerp_u8) {
-    auto ptr = *(const uint8_t**)ctx + x;
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
 
     U8 scales = load<U8>(ptr, tail);
     F c = from_byte(scales);
