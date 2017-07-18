@@ -846,7 +846,7 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase*
     for (const auto& s : statementPtrs) {
         statements.push_back(std::move(*s));
     }
-    return std::unique_ptr<Statement>(new Block(Position(), std::move(statements)));
+    return std::unique_ptr<Statement>(new Block(Position(), std::move(statements), s->fSymbols));
 }
 
 void Compiler::simplifyStatement(DefinitionMap& definitions,
