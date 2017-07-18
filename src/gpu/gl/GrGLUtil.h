@@ -90,6 +90,12 @@ enum GrGLDriver {
         GR_GL_CALL(gl, GetFramebufferAttachmentParameteriv(t, a, pname, p));   \
     } while (0)
 
+#define GR_GL_GetInternalformativ(gl, t, f, n, s, p)                           \
+    do {                                                                       \
+        *(p) = GR_GL_INIT_ZERO;                                                \
+        GR_GL_CALL(gl, GetInternalformativ(t, f, n, s, p));                    \
+    } while (0)
+
 #define GR_GL_GetNamedFramebufferAttachmentParameteriv(gl, fb, a, pname, p)          \
     do {                                                                             \
         *(p) = GR_GL_INIT_ZERO;                                                      \
