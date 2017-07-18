@@ -1508,7 +1508,7 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 
     dst->allocPixels(SkImageInfo::Make(size.width(), size.height(),
                                        fColorType, alphaType, fColorSpace),
-                     nullptr/*colortable*/, SkBitmap::kZeroPixels_AllocFlag);
+                     SkBitmap::kZeroPixels_AllocFlag);
     SkCanvas canvas(*dst);
     return src.draw(&canvas);
 }
