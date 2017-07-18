@@ -44,6 +44,7 @@
 #include "SkTLogic.h"
 #include <cmath>
 #include <functional>
+#include "../src/jumper/SkJumper.h"
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
@@ -324,15 +325,14 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
     }
 
     switch (bitmap.colorType()) {
-        case kRGBA_F16_SkColorType:
-            for (int y = 0; y < bitmap.height(); y++) {
-                void* row = bitmap.getAddr(0, y);
-                SkRasterPipeline_<256> p;
-                p.append(SkRasterPipeline::load_f16, &row);
-                p.append(SkRasterPipeline::premul);
-                p.append(SkRasterPipeline::store_f16, &row);
-                p.run(0,y, bitmap.width());
-            }
+        case kRGBA_F16_SkColorType: {
+            SkJumper_MemoryCtx ctx = { bitmap.getAddr(0,0), bitmap.rowBytesAsPixels() };
+            SkRasterPipeline_<256> p;
+            p.append(SkRasterPipeline::load_f16, &ctx);
+            p.append(SkRasterPipeline::premul);
+            p.append(SkRasterPipeline::store_f16, &ctx);
+            p.run(0,0, bitmap.width(), bitmap.height());
+        }
             break;
         case kN32_SkColorType:
             for (int y = 0; y < bitmap.height(); y++) {
@@ -1020,7 +1020,8 @@ void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
         return;
     }
 
-    void* ptr = bitmap.getAddr(0, 0);
+    SkJumper_MemoryCtx ptr = { bitmap.getAddr(0,0), bitmap.rowBytesAsPixels() };
+
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &ptr);
     p.append(SkRasterPipeline::clamp_0);
@@ -1031,11 +1032,7 @@ void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
     }
     p.append(SkRasterPipeline::store_f16, &ptr);
 
-    auto run = p.compile();
-    for (int y = 0; y < bitmap.height(); y++) {
-        run(0, y, bitmap.width());
-        ptr = SkTAddOffset<void>(ptr, bitmap.rowBytes());
-    }
+    p.run(0,0, bitmap.width(), bitmap.height());
 }
 
 Error ColorCodecSrc::draw(SkCanvas* canvas) const {
