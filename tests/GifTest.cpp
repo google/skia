@@ -251,11 +251,34 @@ DEF_TEST(Gif_Sampled, r) {
 // If a GIF file is truncated before the header for the first image is defined,
 // we should not create an SkCodec.
 DEF_TEST(Codec_GifTruncated, r) {
-    SkString path = GetResourcePath("test640x479.gif");
-    sk_sp<SkData> data(SkData::MakeFromFileName(path.c_str()));
+    sk_sp<SkData> data(GetResourceAsData("test640x479.gif"));
+    if (!data) {
+        return;
+    }
 
     // This is right before the header for the first image.
     data = SkData::MakeSubset(data.get(), 0, 446);
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
     REPORTER_ASSERT(r, !codec);
+}
+
+DEF_TEST(Codec_GifTruncated2, r) {
+    sk_sp<SkData> data(GetResourceAsData("box.gif"));
+    if (!data) {
+        return;
+    }
+
+    // This is after the header, but before the color table.
+    data = SkData::MakeSubset(data.get(), 0, 23);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec with partial data");
+        return;
+    }
+
+    // Although we correctly created a codec, no frame is
+    // complete enough that it has its metadata. Returning 0
+    // ensures that Chromium will not try to create a frame
+    // too early.
+    REPORTER_ASSERT(r, codec->getFrameCount() == 0);
 }

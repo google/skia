@@ -321,11 +321,9 @@ public:
 
     int imagesCount() const
     {
-        // Report the first frame immediately, so the parser can stop when it
-        // sees the size on a SizeQuery.
         const size_t frames = m_frames.size();
-        if (frames <= 1) {
-            return static_cast<int>(frames);
+        if (!frames) {
+            return 0;
         }
 
         // This avoids counting an empty frame when the file is truncated (or
