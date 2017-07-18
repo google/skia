@@ -318,7 +318,8 @@
       "~matrixconvolution",
       "~blur_image_filter",
       "~blur_0.01",
-      "~GM_animated-image-blurs"
+      "~GM_animated-image-blurs",
+      "~blendmode_mask_"
     ],
     "env": {
       "BUILDTYPE": "Debug",
