@@ -78,11 +78,11 @@
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
-        const uint32_t HWCAP_CRC32 = (1<<7);
+        const uint32_t kHWCAP_CRC32 = (1<<7);
 
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & HWCAP_CRC32) { features |= SkCpu::CRC32; }
+        if (hwcaps & kHWCAP_CRC32) { features |= SkCpu::CRC32; }
         return features;
     }
 
@@ -91,11 +91,11 @@
     #include <sys/auxv.h>
 
     static uint32_t read_cpu_features() {
-        const uint32_t HWCAP_VFPv4 = (1<<16);
+        const uint32_t kHWCAP_VFPv4 = (1<<16);
 
         uint32_t features = 0;
         uint32_t hwcaps = getauxval(AT_HWCAP);
-        if (hwcaps & HWCAP_VFPv4) { features |= SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
+        if (hwcaps & kHWCAP_VFPv4) { features |= SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16; }
         return features;
     }
 
