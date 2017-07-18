@@ -934,24 +934,6 @@ static SkAnalyticEdge* sort_edges(SkAnalyticEdge* list[], int count, SkAnalyticE
     #define validate_sort(edge)
 #endif
 
-// return true if we're done with this edge
-static bool update_edge(SkAnalyticEdge* edge, SkFixed last_y) {
-    if (last_y >= edge->fLowerY) {
-        if (edge->fCurveCount < 0) {
-            if (static_cast<SkAnalyticCubicEdge*>(edge)->updateCubic()) {
-                return false;
-            }
-        } else if (edge->fCurveCount > 0) {
-            if (static_cast<SkAnalyticQuadraticEdge*>(edge)->updateQuadratic()) {
-                return false;
-            }
-        }
-        return true;
-    }
-    SkASSERT(false);
-    return false;
-}
-
 // For an edge, we consider it smooth if the Dx doesn't change much, and Dy is large enough
 // For curves that are updating, the Dx is not changing much if fQDx/fCDx and fQDy/fCDy are
 // relatively large compared to fQDDx/QCDDx and fQDDy/fCDDy
@@ -1019,7 +1001,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead,
         // We have to check fLowerY first because some edges might be alone (e.g., there's only
         // a left edge but no right edge in a given y scan line) due to precision limit.
         while (leftE->fLowerY <= y) { // Due to smooth jump, we may pass multiple short edges
-            if (update_edge(leftE, y)) {
+            if (!leftE->update(y)) {
                 if (SkFixedFloorToInt(currE->fUpperY) >= stop_y) {
                     goto END_WALK;
                 }
@@ -1028,7 +1010,7 @@ static inline void aaa_walk_convex_edges(SkAnalyticEdge* prevHead,
             }
         }
         while (riteE->fLowerY <= y) { // Due to smooth jump, we may pass multiple short edges
-            if (update_edge(riteE, y)) {
+            if (!riteE->update(y)) {
                 if (SkFixedFloorToInt(currE->fUpperY) >= stop_y) {
                     goto END_WALK;
                 }

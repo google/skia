@@ -80,6 +80,9 @@ struct SkAnalyticEdge {
     inline bool setLine(const SkPoint& p0, const SkPoint& p1);
     inline bool updateLine(SkFixed ax, SkFixed ay, SkFixed bx, SkFixed by, SkFixed slope);
 
+    // return true if we're NOT done with this edge
+    bool update(SkFixed last_y);
+
 #ifdef SK_DEBUG
     void dump() const {
         SkDebugf("edge: upperY:%d lowerY:%d y:%g x:%g dx:%g w:%d\n",

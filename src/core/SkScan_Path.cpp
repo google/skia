@@ -185,24 +185,24 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
     }
 }
 
-// return true if we're done with this edge
+// return true if we're NOT done with this edge
 static bool update_edge(SkEdge* edge, int last_y) {
     SkASSERT(edge->fLastY >= last_y);
     if (last_y == edge->fLastY) {
         if (edge->fCurveCount < 0) {
             if (((SkCubicEdge*)edge)->updateCubic()) {
                 SkASSERT(edge->fFirstY == last_y + 1);
-                return false;
+                return true;
             }
         } else if (edge->fCurveCount > 0) {
             if (((SkQuadraticEdge*)edge)->updateQuadratic()) {
                 SkASSERT(edge->fFirstY == last_y + 1);
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
-    return false;
+    return true;
 }
 
 static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
@@ -267,14 +267,14 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
         leftE->fX = left;
         riteE->fX = rite;
 
-        if (update_edge(leftE, local_bot)) {
+        if (!update_edge(leftE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
                 break;
             }
             leftE = currE;
             currE = currE->fNext;
         }
-        if (update_edge(riteE, local_bot)) {
+        if (!update_edge(riteE, local_bot)) {
             if (currE->fFirstY >= stop_y) {
                 break;
             }
