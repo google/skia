@@ -110,13 +110,10 @@ protected:
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    // This is undefined if there are clients in-flight trying to use us
 #ifdef SK_SUPPORT_LEGACY_COLORTABLE
     void android_only_reset(int width, int height, size_t rowBytes, sk_sp<SkColorTable>);
 #else
     void android_only_reset(int width, int height, size_t rowBytes);
-#endif
 #endif
 
 private:
