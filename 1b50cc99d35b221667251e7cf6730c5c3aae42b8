@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5280d41_eaeb6cf2",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-18T11:14:25Z",
+      "side": 1,
+      "message": "nit: Remove this comment?",
+      "range": {
+        "startLine": 377,
+        "startChar": 9,
+        "endLine": 377,
+        "endChar": 21
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f66996a_7ce88a24",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-18T11:14:25Z",
+      "side": 1,
+      "message": "Remove this comment?",
+      "range": {
+        "startLine": 401,
+        "startChar": 9,
+        "endLine": 401,
+        "endChar": 21
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df3e13c7_e20157da",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-18T11:14:25Z",
+      "side": 1,
+      "message": "Why is this necessary?",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 22
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe28b374_eabcf1d2",
+        "filename": "src/images/SkPngEncoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-18T11:14:25Z",
+      "side": 1,
+      "message": "I think this method should be removed.",
+      "range": {
+        "startLine": 341,
+        "startChar": 21,
+        "endLine": 341,
+        "endChar": 31
+      },
+      "revId": "1b50cc99d35b221667251e7cf6730c5c3aae42b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
