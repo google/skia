@@ -380,3 +380,9 @@ std::function<void(size_t, size_t, size_t)> SkRasterPipeline::compile() const {
         start_pipeline(x,y,x+n, program, &kConstants);
     };
 }
+
+void SkRasterPipeline::run_2d(size_t x, size_t y, size_t w, size_t h) const {
+    for (size_t limit = y+h; y < limit; y++) {
+        this->run(x,y,w);
+    }
+}
