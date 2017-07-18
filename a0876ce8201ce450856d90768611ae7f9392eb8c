@@ -22,6 +22,30 @@
       "revId": "a0876ce8201ce450856d90768611ae7f9392eb8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49018388_25acec00",
+        "filename": "src/core/SkAnalyticEdge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-07-18T14:04:54Z",
+      "side": 1,
+      "message": "I agree that it\u0027s confusing. I ended up putting comments everywhere I used it to clarify the confusion.\n\nI\u0027ve now negated the boolean in the new patch. Maybe we should consult Mike to see if there\u0027s any specific reason why his original update_edge function returns boolean in that way, and whether we can negate it.",
+      "parentUuid": "77070662_11265bd6",
+      "range": {
+        "startLine": 55,
+        "startChar": 23,
+        "endLine": 55,
+        "endChar": 28
+      },
+      "revId": "a0876ce8201ce450856d90768611ae7f9392eb8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
