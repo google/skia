@@ -5,26 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "SkPDFBitmap.h"
+
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDeflate.h"
-#include "SkImage_Base.h"
+#include "SkImage.h"
 #include "SkJpegInfo.h"
-#include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
 #include "SkPDFTypes.h"
+#include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkUnPreMultiply.h"
-
-void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
-    SkColorSpace* legacyColorSpace = nullptr;
-    if(as_IB(image)->getROPixels(dst, legacyColorSpace)
-       && dst->dimensions() == image->dimensions()) {
-        return;
-    }
-    // no pixels or wrong size: fill with zeros.
-    dst->setInfo(SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType()));
-}
 
 bool image_compute_is_opaque(const SkImage* image) {
     if (image->isOpaque()) {
@@ -32,8 +24,8 @@ bool image_compute_is_opaque(const SkImage* image) {
     }
     // keep output PDF small at cost of possible resource use.
     SkBitmap bm;
-    image_get_ro_pixels(image, &bm);
-    return SkBitmap::ComputeIsOpaque(bm);
+    // if image can not be read, treat as transparent.
+    return SkPDFUtils::ToBitmap(image, &bm) && SkBitmap::ComputeIsOpaque(bm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -286,7 +278,10 @@ static void emit_image_xobject(SkWStream* stream,
                                const sk_sp<SkPDFObject>& smask,
                                const SkPDFObjNumMap& objNumMap) {
     SkBitmap bitmap;
-    image_get_ro_pixels(image, &bitmap);      // TODO(halcanary): test
+    if (!SkPDFUtils::ToBitmap(image, &bitmap)) {
+        // no pixels or wrong size: fill with zeros.
+        bitmap.setInfo(SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType()));
+    }
 
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
@@ -433,8 +428,7 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
     if (pixelSerializer) {
         SkBitmap bm;
         SkPixmap pmap;
-        SkColorSpace* legacyColorSpace = nullptr;
-        if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
+        if (SkPDFUtils::ToBitmap(image.get(), &bm) && bm.peekPixels(&pmap)) {
             data = pixelSerializer->encodeToData(pmap);
             if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
