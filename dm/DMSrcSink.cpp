@@ -44,6 +44,7 @@
 #include "SkTLogic.h"
 #include <cmath>
 #include <functional>
+#include "../src/jumper/SkJumper.h"
 
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
@@ -1020,7 +1021,8 @@ void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
         return;
     }
 
-    void* ptr = bitmap.getAddr(0, 0);
+    SkJumper_MemoryCtx ptr = { bitmap.getAddr(0,0), bitmap.rowBytesAsPixels() };
+
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &ptr);
     p.append(SkRasterPipeline::clamp_0);
@@ -1031,11 +1033,7 @@ void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
     }
     p.append(SkRasterPipeline::store_f16, &ptr);
 
-    auto run = p.compile();
-    for (int y = 0; y < bitmap.height(); y++) {
-        run(0, y, bitmap.width());
-        ptr = SkTAddOffset<void>(ptr, bitmap.rowBytes());
-    }
+    p.run(0,0, bitmap.width(), bitmap.height());
 }
 
 Error ColorCodecSrc::draw(SkCanvas* canvas) const {

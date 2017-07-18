@@ -247,9 +247,9 @@ DEF_TEST(SkRasterPipeline_2d, r) {
 
     // Write out to rgba, with row stride = 2 pixels.
     SkJumper_MemoryCtx ctx = { rgba, 2 };
-    p.append(SkRasterPipeline::store_8888_2d, &ctx);
+    p.append(SkRasterPipeline::store_8888, &ctx);
 
-    p.run_2d(0,0, 2,2);
+    p.run(0,0, 2,2);
 
     REPORTER_ASSERT(r, ((rgba[0] >> 0) & 0xff) ==   0);
     REPORTER_ASSERT(r, ((rgba[1] >> 0) & 0xff) == 128);
