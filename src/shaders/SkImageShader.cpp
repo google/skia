@@ -300,10 +300,9 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
     misc->paint_color = SkColor4f_from_SkColor(paint.getColor(), dstCS);
     p->append_matrix(alloc, matrix);
 
-    auto gather = alloc->make<SkJumper_GatherCtx>();
-    gather->pixels  = pm.addr();
-    gather->ctable  = nullptr;  // TODO: remove this field
-    gather->stride  = pm.rowBytesAsPixels();
+    auto gather = alloc->make<SkJumper_MemoryCtx>();
+    gather->pixels = pm.writable_addr();  // Don't worry, we won't write to it.
+    gather->stride = pm.rowBytesAsPixels();
 
     auto limit_x = alloc->make<SkJumper_TileCtx>(),
          limit_y = alloc->make<SkJumper_TileCtx>();

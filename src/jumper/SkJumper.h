@@ -57,10 +57,9 @@ struct SkJumper_constants {
     uint32_t iota_U32[SkJumper_kMaxStride];   //  0,1,2,3,4,...
 };
 
-struct SkJumper_GatherCtx {
-    const void*     pixels;
-    const uint32_t* ctable;
-    int             stride;
+struct SkJumper_MemoryCtx {
+    void* pixels;
+    int   stride;
 };
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
@@ -115,11 +114,6 @@ struct SkJumper_2PtConicalCtx {
              fInvCoeffA,
              fR0,
              fDR;
-};
-
-struct SkJumper_PtrStride {
-    void*  ptr;
-    size_t stride;
 };
 
 #endif//SkJumper_DEFINED
