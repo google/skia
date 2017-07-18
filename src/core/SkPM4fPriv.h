@@ -15,6 +15,7 @@
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
+#include "../jumper/SkJumper.h"
 
 static inline Sk4f set_alpha(const Sk4f& px, float alpha) {
     return { px[0], px[1], px[2], alpha };
@@ -148,16 +149,16 @@ static inline void append_gamut_transform(SkRasterPipeline* p, SkArenaAlloc* scr
 static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
     SkColor4f color4f = c;
     if (src && dst) {
-        void* color4f_ptr = &color4f;
+        SkJumper_MemoryCtx color4f_ptr = { &color4f, 0 };
 
         float scratch_matrix_3x4[12];
 
         SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline::uniform_color, color4f_ptr);
+        p.append(SkRasterPipeline::uniform_color, &color4f);
         append_gamut_transform(&p, scratch_matrix_3x4, src, dst, kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
-        p.run(0,0,1);
+        p.run(0,0,1,1);
     }
     return color4f;
 }
