@@ -71,11 +71,12 @@ void finalize_helper(GrVkVaryingHandler::VarArray& vars) {
         var.addLayoutQualifier(location.c_str());
 
         int elementSize = grsltype_to_location_size(var.getType());
-        SkASSERT(elementSize);
+        SkASSERT(elementSize > 0);
         int numElements = 1;
-        if (var.isArray()) {
-           numElements = var.getArrayCount();
+        if (var.isArray() && !var.isUnsizedArray()) {
+            numElements = var.getArrayCount();
         }
+        SkASSERT(numElements > 0);
         locationIndex += elementSize * numElements;
     }
     // Vulkan requires at least 64 locations to be supported for both vertex output and fragment

@@ -49,7 +49,10 @@ bool GrCoverageCountingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) 
 
     SkPath path;
     args.fShape->asPath(&path);
-    return !SkPathPriv::ConicWeightCnt(path);
+	if (SkPathPriv::ConicWeightCnt(path)) {
+		return false;
+	}
+    return true;
 }
 
 bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
