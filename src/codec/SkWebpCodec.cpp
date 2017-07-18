@@ -16,6 +16,7 @@
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
 #include "SkWebpCodec.h"
+#include "../jumper/SkJumper.h"
 
 // A WebP decoder on top of (subset of) libwebp
 // For more information on WebP image format, and libwebp library, see:
@@ -351,7 +352,7 @@ static void pick_memory_stages(SkColorType ct, SkRasterPipeline::StockStage* loa
 }
 
 static void blend_line(SkColorType dstCT, void* dst,
-                       SkColorType srcCT, void* src,
+                       SkColorType srcCT, const void* src,
                        bool needsSrgbToLinear, SkAlphaType at,
                        int width) {
     // Setup conversion from the source and dest, which will be the same.
@@ -364,19 +365,22 @@ static void blend_line(SkColorType dstCT, void* dst,
         convert_to_linear_premul.append(SkRasterPipeline::premul);
     }
 
+    SkJumper_MemoryCtx dst_ctx = { (void*)dst, 0 },
+                       src_ctx = { (void*)src, 0 };
+
     SkRasterPipeline_<256> p;
     SkRasterPipeline::StockStage load_dst, store_dst;
     pick_memory_stages(dstCT, &load_dst, &store_dst);
 
     // Load the final dst.
-    p.append(load_dst, dst);
+    p.append(load_dst, &dst_ctx);
     p.extend(convert_to_linear_premul);
     p.append(SkRasterPipeline::move_src_dst);
 
     // Load the src.
     SkRasterPipeline::StockStage load_src;
     pick_memory_stages(srcCT, &load_src, nullptr);
-    p.append(load_src, src);
+    p.append(load_src, &src_ctx);
     p.extend(convert_to_linear_premul);
 
     p.append(SkRasterPipeline::srcover);
@@ -388,9 +392,9 @@ static void blend_line(SkColorType dstCT, void* dst,
     if (needsSrgbToLinear) {
         p.append(SkRasterPipeline::to_srgb);
     }
-    p.append(store_dst, dst);
+    p.append(store_dst, &dst_ctx);
 
-    p.run(0,0, width);
+    p.run(0,0, width,1);
 }
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
@@ -601,7 +605,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         for (int y = 0; y < rowsDecoded; y++) {
             this->applyColorXform(xformDst, xformSrc, scaledWidth, xformAlphaType);
             if (blendWithPrevFrame) {
-                blend_line(dstCT, &dst, dstCT, &xformDst, needsSrgbToLinear, xformAlphaType,
+                blend_line(dstCT, dst, dstCT, xformDst, needsSrgbToLinear, xformAlphaType,
                         scaledWidth);
                 dst = SkTAddOffset<void>(dst, rowBytes);
             } else {
@@ -613,7 +617,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         const uint8_t* src = config.output.u.RGBA.rgba;
 
         for (int y = 0; y < rowsDecoded; y++) {
-            blend_line(dstCT, &dst, webpDst.colorType(), &src, needsSrgbToLinear,
+            blend_line(dstCT, dst, webpDst.colorType(), src, needsSrgbToLinear,
                     xformAlphaType, scaledWidth);
             src = SkTAddOffset<const uint8_t>(src, srcRowBytes);
             dst = SkTAddOffset<void>(dst, rowBytes);

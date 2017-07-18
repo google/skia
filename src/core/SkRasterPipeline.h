@@ -91,8 +91,7 @@ struct SkPM4f;
     M(xy_to_2pt_conical_linear)                                  \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)         \
     M(byte_tables) M(byte_tables_rgb)                            \
-    M(rgb_to_hsl) M(hsl_to_rgb)                                  \
-    M(store_8888_2d)
+    M(rgb_to_hsl) M(hsl_to_rgb)
 
 class SkRasterPipeline {
 public:
@@ -117,14 +116,11 @@ public:
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
 
-    // Runs the pipeline walking x through [x,x+n).
-    void run(size_t x, size_t y, size_t n) const;
-
     // Runs the pipeline in 2d from (x,y) inclusive to (x+w,y+h) exclusive.
-    void run_2d(size_t x, size_t y, size_t w, size_t h) const;
+    void run(size_t x, size_t y, size_t w, size_t h) const;
 
     // Allocates a thunk which amortizes run() setup cost in alloc.
-    std::function<void(size_t, size_t, size_t)> compile() const;
+    std::function<void(size_t, size_t, size_t, size_t)> compile() const;
 
     void dump() const;
 

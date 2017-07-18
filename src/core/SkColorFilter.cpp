@@ -71,9 +71,9 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& c) const {
 
     pipeline.append_uniform_color(&alloc, src);
     this->onAppendStages(&pipeline, nullptr, &alloc, c.fA == 1);
-    SkPM4f* dstPtr = &dst;
+    SkJumper_MemoryCtx dstPtr = { &dst, 0 };
     pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
-    pipeline.run(0,0, 1);
+    pipeline.run(0,0, 1,1);
 
     return dst.unpremul();
 }

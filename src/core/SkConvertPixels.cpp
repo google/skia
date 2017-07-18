@@ -264,25 +264,29 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                   const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
                                   bool isColorAware, SkTransferFunctionBehavior behavior) {
+
+    SkJumper_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
+                       dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
+
     SkRasterPipeline_<256> pipeline;
     switch (srcInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::load_8888, &srcRow);
+            pipeline.append(SkRasterPipeline::load_8888, &src);
             break;
         case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::load_bgra, &srcRow);
+            pipeline.append(SkRasterPipeline::load_bgra, &src);
             break;
         case kRGB_565_SkColorType:
-            pipeline.append(SkRasterPipeline::load_565, &srcRow);
+            pipeline.append(SkRasterPipeline::load_565, &src);
             break;
         case kRGBA_F16_SkColorType:
-            pipeline.append(SkRasterPipeline::load_f16, &srcRow);
+            pipeline.append(SkRasterPipeline::load_f16, &src);
             break;
         case kGray_8_SkColorType:
-            pipeline.append(SkRasterPipeline::load_g8, &srcRow);
+            pipeline.append(SkRasterPipeline::load_g8, &src);
             break;
         case kARGB_4444_SkColorType:
-            pipeline.append(SkRasterPipeline::load_4444, &srcRow);
+            pipeline.append(SkRasterPipeline::load_4444, &src);
             break;
         default:
             SkASSERT(false);
@@ -359,33 +363,26 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
 
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::store_8888, &dstRow);
+            pipeline.append(SkRasterPipeline::store_8888, &dst);
             break;
         case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::store_bgra, &dstRow);
+            pipeline.append(SkRasterPipeline::store_bgra, &dst);
             break;
         case kRGB_565_SkColorType:
-            pipeline.append(SkRasterPipeline::store_565, &dstRow);
+            pipeline.append(SkRasterPipeline::store_565, &dst);
             break;
         case kRGBA_F16_SkColorType:
-            pipeline.append(SkRasterPipeline::store_f16, &dstRow);
+            pipeline.append(SkRasterPipeline::store_f16, &dst);
             break;
         case kARGB_4444_SkColorType:
-            pipeline.append(SkRasterPipeline::store_4444, &dstRow);
+            pipeline.append(SkRasterPipeline::store_4444, &dst);
             break;
         default:
             SkASSERT(false);
             break;
     }
 
-    auto run = pipeline.compile();
-    for (int y = 0; y < srcInfo.height(); ++y) {
-        run(0,y, srcInfo.width());
-        // The pipeline has pointers to srcRow and dstRow, so we just need to update them in the
-        // loop to move between rows of src/dst.
-        dstRow = SkTAddOffset<void>(dstRow, dstRB);
-        srcRow = SkTAddOffset<const void>(srcRow, srcRB);
-    }
+    pipeline.run(0,0, srcInfo.width(), srcInfo.height());
 }
 
 void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,

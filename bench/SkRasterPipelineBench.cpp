@@ -8,6 +8,7 @@
 #include "Benchmark.h"
 #include "SkOpts.h"
 #include "SkRasterPipeline.h"
+#include "../src/jumper/SkJumper.h"
 
 static const int N = 15;
 
@@ -35,9 +36,9 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        void* mask_ctx = mask;
-        void*  src_ctx = src;
-        void*  dst_ctx = dst;
+        SkJumper_MemoryCtx mask_ctx = {mask, 0},
+                            src_ctx = {src,  0},
+                            dst_ctx = {dst,  0};
 
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &src_ctx);
@@ -59,7 +60,7 @@ public:
         }
 
         while (loops --> 0) {
-            p.run(0,0,N);
+            p.run(0,0,N,1);
         }
     }
 };
@@ -76,8 +77,8 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        void*  src_ctx = src;
-        void*  dst_ctx = dst;
+        SkJumper_MemoryCtx src_ctx = {src, 0},
+                           dst_ctx = {dst, 0};
 
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &dst_ctx);
@@ -89,11 +90,11 @@ public:
         if (fCompile) {
             auto fn = p.compile();
             while (loops --> 0) {
-                fn(0,0,N);
+                fn(0,0,N,1);
             }
         } else {
             while (loops --> 0) {
-                p.run(0,0,N);
+                p.run(0,0,N,1);
             }
         }
     }
@@ -132,7 +133,7 @@ public:
         p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
 
         while (loops --> 0) {
-            p.run(0,0,N);
+            p.run(0,0,N,1);
         }
     }
 };
@@ -150,7 +151,7 @@ public:
         p.append(SkRasterPipeline::to_srgb);
 
         while (loops --> 0) {
-            p.run(0,0,N);
+            p.run(0,0,N,1);
         }
     }
 };
