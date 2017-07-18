@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "e2033ea4_6aa19c84",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-18T16:06:18Z",
+      "side": 1,
+      "message": "Can you add a comment for future generations?",
+      "parentUuid": "4444617c_41688c9e",
+      "revId": "4bc2d49978b6fd494a0209bb3eec0d7f3e3f138c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5accd4d1_3d8b3aa8",
         "filename": "src/gpu/effects/GrDitherEffect.fp",
         "patchSetId": 4
