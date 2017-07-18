@@ -75,11 +75,12 @@ SkPixelRef::~SkPixelRef() {
     this->callGenIDChangeListeners();
 }
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-
 // This is undefined if there are clients in-flight trying to use us
-void SkPixelRef::android_only_reset(int width, int height, size_t rowBytes,
-                                    sk_sp<SkColorTable> ctable) {
+void SkPixelRef::android_only_reset(int width, int height, size_t rowBytes
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
+                                    , sk_sp<SkColorTable> ctable
+#endif
+                                    ) {
     fWidth = width;
     fHeight = height;
     fRowBytes = rowBytes;
@@ -88,8 +89,6 @@ void SkPixelRef::android_only_reset(int width, int height, size_t rowBytes,
     // conservative, since its possible the "new" settings are the same as the old.
     this->notifyPixelsChanged();
 }
-
-#endif
 
 void SkPixelRef::needsNewGenID() {
     fTaggedGenID.store(0);
