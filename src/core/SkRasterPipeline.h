@@ -91,8 +91,7 @@ struct SkPM4f;
     M(xy_to_2pt_conical_linear)                                  \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)         \
     M(byte_tables) M(byte_tables_rgb)                            \
-    M(rgb_to_hsl) M(hsl_to_rgb)                                  \
-    M(store_8888_2d)
+    M(rgb_to_hsl) M(hsl_to_rgb)
 
 class SkRasterPipeline {
 public:
