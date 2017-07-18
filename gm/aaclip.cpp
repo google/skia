@@ -11,6 +11,22 @@
 #include "SkPath.h"
 #include "SkMakeUnique.h"
 
+#include "SkSurface.h"
+static void test_unpre(SkCanvas* canvas) {
+    auto info = SkImageInfo::Make(100, 100, kN32_SkColorType, kUnpremul_SkAlphaType);
+    auto surf = SkSurface::MakeRaster(info);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    surf->getCanvas()->drawCircle(50, 50, 45, paint);
+
+    auto img = surf->makeImageSnapshot();
+    surf->getCanvas()->drawImage(img, 0, 0, nullptr);
+
+    auto data = img->encodeToData();
+    SkFILEWStream("unpremul.png").write(data->data(), data->size());
+}
+
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
@@ -141,6 +157,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (true) { test_unpre(canvas); return; }
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

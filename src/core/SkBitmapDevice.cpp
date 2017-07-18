@@ -39,6 +39,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
         return true;
     }
 
+#if 0
     switch (info.alphaType()) {
         case kPremul_SkAlphaType:
         case kOpaque_SkAlphaType:
@@ -46,6 +47,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
         default:
             return false;
     }
+#endif
 
     SkAlphaType canonicalAlphaType = info.alphaType();
 

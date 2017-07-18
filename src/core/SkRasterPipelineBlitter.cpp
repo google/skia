@@ -262,7 +262,13 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
+    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
+        p->append(SkRasterPipeline::premul_dst);
+    }
     SkBlendMode_AppendStagesNoClamp(fBlend, p);
+    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
+        p->append(SkRasterPipeline::unpremul);
+    }
 }
 
 void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
@@ -299,6 +305,7 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
         if (fBlend == SkBlendMode::kSrcOver
                 && fDst.info().colorType() == kRGBA_8888_SkColorType
                 && !fDst.colorSpace()
+                && fDst.info().alphaType() != kUnpremul_SkAlphaType
                 && fDitherRate == 0.0f) {
             p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
         } else {
