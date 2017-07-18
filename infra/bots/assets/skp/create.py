@@ -19,6 +19,8 @@ import utils
 
 SKIA_TOOLS = os.path.join(common.INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools')
 
+PRIVATE_SKPS_GS = 'gs://skia-skps/private/skps'
+
 
 def create_asset(chrome_src_path, browser_executable, target_dir,
                  upload_to_partner_bucket):
@@ -73,6 +75,10 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
     for f in os.listdir(src):
       if f.endswith('.skp'):
         shutil.copyfile(os.path.join(src, f), os.path.join(target_dir, f))
+
+  # Copy over private SKPs from Google storage into the target_dir.
+  subprocess.check_call([
+        'gsutil', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), target_dir])
 
 
 def main():
