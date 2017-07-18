@@ -30,6 +30,25 @@ uint32_t SkNextID::ImageID() {
     static int32_t gInstCounter;
 #endif
 
+SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes)
+    : fWidth(width)
+    , fHeight(height)
+    , fPixels(pixels)
+    , fRowBytes(rowBytes)
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    , fStableID(SkNextID::ImageID())
+#endif
+{
+#ifdef SK_TRACE_PIXELREF_LIFETIME
+    SkDebugf(" pixelref %d\n", sk_atomic_inc(&gInstCounter));
+#endif
+
+    this->needsNewGenID();
+    fMutability = kMutable;
+    fAddedToCache.store(false);
+}
+
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
 SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes, sk_sp<SkColorTable>)
     : fWidth(width)
     , fHeight(height)
@@ -47,6 +66,7 @@ SkPixelRef::SkPixelRef(int width, int height, void* pixels, size_t rowBytes, sk_
     fMutability = kMutable;
     fAddedToCache.store(false);
 }
+#endif
 
 SkPixelRef::~SkPixelRef() {
 #ifdef SK_TRACE_PIXELREF_LIFETIME

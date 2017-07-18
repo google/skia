@@ -95,7 +95,7 @@ static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
         // destination (claim they're linear):
         SkImageInfo linSrcInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
                                                    pixmap.colorType(), pixmap.alphaType());
-        SkPixmap linSrcPixmap(linSrcInfo, pixmap.addr(), pixmap.rowBytes(), pixmap.ctable());
+        SkPixmap linSrcPixmap(linSrcInfo, pixmap.addr(), pixmap.rowBytes());
 
         SkImageInfo dstInfo = SkImageInfo::Make(pixmap.width(), pixmap.height(),
                                                 kN32_SkColorType, kPremul_SkAlphaType,

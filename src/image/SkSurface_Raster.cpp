@@ -99,7 +99,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t
                                    const SkSurfaceProps* props)
     : INHERITED(info, props)
 {
-    fBitmap.installPixels(info, pixels, rb, nullptr, releaseProc, context);
+    fBitmap.installPixels(info, pixels, rb, releaseProc, context);
     fRowBytes = 0;              // don't need to track the rowbytes
     fWeOwnThePixels = false;    // We are "Direct"
 }
@@ -203,7 +203,7 @@ sk_sp<SkSurface> SkSurface::MakeRaster(const SkImageInfo& info, size_t rowBytes,
         return nullptr;
     }
 
-    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, rowBytes, nullptr);
+    sk_sp<SkPixelRef> pr = SkMallocPixelRef::MakeZeroed(info, rowBytes);
     if (!pr) {
         return nullptr;
     }

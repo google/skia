@@ -28,7 +28,7 @@ void SkPixmap::reset() {
     fInfo = SkImageInfo::MakeUnknown();
 }
 
-void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable*) {
+void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes) {
     if (addr) {
         SkASSERT(info.validRowBytes(rowBytes));
     }
@@ -40,7 +40,7 @@ void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes,
 bool SkPixmap::reset(const SkMask& src) {
     if (SkMask::kA8_Format == src.fFormat) {
         this->reset(SkImageInfo::MakeA8(src.fBounds.width(), src.fBounds.height()),
-                    src.fImage, src.fRowBytes, nullptr);
+                    src.fImage, src.fRowBytes);
         return true;
     }
     this->reset();
@@ -86,7 +86,7 @@ bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
     const void* srcPixels = this->addr(rec.fX, rec.fY);
     const SkImageInfo srcInfo = fInfo.makeWH(rec.fInfo.width(), rec.fInfo.height());
     SkConvertPixels(rec.fInfo, rec.fPixels, rec.fRowBytes, srcInfo, srcPixels, this->rowBytes(),
-                    this->ctable(), behavior);
+                    nullptr, behavior);
     return true;
 }
 

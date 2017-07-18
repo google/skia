@@ -9,7 +9,6 @@
 #include "SkBitmapController.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
-#include "SkColorTable.h"
 #include "SkEmptyShader.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
@@ -303,7 +302,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
 
     auto gather = alloc->make<SkJumper_GatherCtx>();
     gather->pixels  = pm.addr();
-    gather->ctable  = pm.ctable() ? pm.ctable()->readColors() : nullptr;
+    gather->ctable  = nullptr;  // TODO: remove this field
     gather->stride  = pm.rowBytesAsPixels();
 
     auto limit_x = alloc->make<SkJumper_TileCtx>(),

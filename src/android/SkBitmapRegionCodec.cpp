@@ -82,7 +82,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
         outInfo = outInfo.makeColorType(kAlpha_8_SkColorType).makeAlphaType(kPremul_SkAlphaType);
     }
     bitmap->setInfo(outInfo);
-    if (!bitmap->tryAllocPixels(allocator, nullptr)) {
+    if (!bitmap->tryAllocPixels(allocator)) {
         SkCodecPrintf("Error: Could not allocate pixels.\n");
         return false;
     }

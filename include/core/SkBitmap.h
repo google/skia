@@ -9,7 +9,9 @@
 #define SkBitmap_DEFINED
 
 #include "SkColor.h"
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
 #include "SkColorTable.h"
+#endif
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
 #include "SkPoint.h"
@@ -240,6 +242,7 @@ public:
     enum AllocFlags {
         kZeroPixels_AllocFlag   = 1 << 0,
     };
+
     /**
      *  Allocate the bitmap's pixels to match the requested image info. If the Factory
      *  is non-null, call it to allcoate the pixelref. If the ImageInfo requires
@@ -247,13 +250,22 @@ public:
      *
      *  On failure, the bitmap will be set to empty and return false.
      */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, sk_sp<SkColorTable> ctable,
-                                              uint32_t flags = 0);
-    void allocPixels(const SkImageInfo& info, sk_sp<SkColorTable>, uint32_t flags = 0) {
-        if (!this->tryAllocPixels(info, nullptr, flags)) {
+    bool SK_WARN_UNUSED_RESULT tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
+    void allocPixelsFlags(const SkImageInfo& info, uint32_t flags) {
+        if (!this->tryAllocPixelsFlags(info, flags)) {
             sk_throw();
         }
     }
+
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, sk_sp<SkColorTable>,
+                                              uint32_t flags = 0) {
+        return this->tryAllocPixelsFlags(info, flags);
+    }
+    void allocPixels(const SkImageInfo& info, sk_sp<SkColorTable>, uint32_t flags = 0) {
+        this->allocPixels(info, flags);
+    }
+#endif
 
     /**
      *  Allocate the bitmap's pixels to match the requested image info and
@@ -291,10 +303,12 @@ public:
         this->allocPixels(info);
     }
 
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
     // TEMPORARY -- remove after updating Android BitmapTests.cpp:35
     void allocPixels(const SkImageInfo& info, std::nullptr_t, SkColorTable*) {
         this->allocPixels(info);
     }
+#endif
 
     /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
@@ -306,7 +320,7 @@ public:
      *  If specified, the releaseProc will always be called, even on failure. It is also possible
      *  for success but the releaseProc is immediately called (e.g. valid Info but NULL pixels).
      */
-    bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes, SkColorTable*,
+    bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
                        void (*releaseProc)(void* addr, void* context), void* context);
 
     /**
@@ -315,8 +329,15 @@ public:
      *  of the created bitmap (and its pixelRef).
      */
     bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-        return this->installPixels(info, pixels, rowBytes, NULL, NULL, NULL);
+        return this->installPixels(info, pixels, rowBytes, nullptr, nullptr);
     }
+
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
+    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkColorTable*,
+                       void (*releaseProc)(void* addr, void* context), void* context) {
+        return this->installPixels(info, pixels, rowBytes, releaseProc, context);
+    }
+#endif
 
     /**
      *  Call installPixels with no ReleaseProc specified. This means
@@ -343,7 +364,7 @@ public:
         @param pixels   Address for the pixels, managed by the caller.
         @param ctable   ColorTable (or null) that matches the specified pixels
     */
-    void setPixels(void* p, SkColorTable* ctable = NULL);
+    void setPixels(void* p);
 
     /** Use the standard HeapAllocator to create the pixelref that manages the
         pixel memory. It will be sized based on the current ImageInfo.
@@ -358,12 +379,12 @@ public:
         @return true if the allocation succeeds. If not the pixelref field of
                      the bitmap will be unchanged.
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(SkColorTable* = NULL) {
-        return this->tryAllocPixels(nullptr, nullptr);
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels() {
+        return this->tryAllocPixels((Allocator*)nullptr);
     }
 
-    void allocPixels(SkColorTable* = NULL) {
-        this->allocPixels(nullptr, nullptr);
+    void allocPixels() {
+        this->allocPixels((Allocator*)nullptr);
     }
 
     /** Use the specified Allocator to create the pixelref that manages the
@@ -384,13 +405,32 @@ public:
         @return true if the allocation succeeds. If not the pixelref field of
                      the bitmap will be unchanged.
     */
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator, SkColorTable* ctable);
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator);
 
-    void allocPixels(Allocator* allocator, SkColorTable*) {
-        if (!this->tryAllocPixels(allocator, nullptr)) {
+    void allocPixels(Allocator* allocator) {
+        if (!this->tryAllocPixels(allocator)) {
             sk_throw();
         }
     }
+
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
+    void setPixels(void* p, SkColorTable*) {
+        this->setPixels(p);
+    }
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels(SkColorTable*) {
+        return this->tryAllocPixels();
+    }
+
+    void allocPixels(SkColorTable*) {
+        this->allocPixels();
+    }
+    bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator, SkColorTable*) {
+        return this->tryAllocPixels(allocator);
+    }
+    void allocPixels(Allocator* allocator, SkColorTable*) {
+        this->allocPixels(allocator);
+    }
+#endif
 
     /**
      *  Return the current pixelref object or NULL if there is none. This does
@@ -432,7 +472,9 @@ public:
         Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
     SkColorTable* getColorTable() const { return nullptr; }
+#endif
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged
@@ -654,7 +696,11 @@ public:
             it also must be installed via setColorTable. If false is returned,
             the bitmap and colortable should be left unchanged.
         */
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
         virtual bool allocPixelRef(SkBitmap*, SkColorTable*) = 0;
+#else
+        virtual bool allocPixelRef(SkBitmap*) = 0;
+#endif
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -665,7 +711,11 @@ public:
     */
     class HeapAllocator : public Allocator {
     public:
+#ifdef SK_SUPPORT_LEGACY_COLORTABLE
         bool allocPixelRef(SkBitmap*, SkColorTable*) override;
+#else
+        bool allocPixelRef(SkBitmap*) override;
+#endif
     };
 
     SK_TO_STRING_NONVIRT()

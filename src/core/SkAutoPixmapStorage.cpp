@@ -16,7 +16,7 @@ SkAutoPixmapStorage::~SkAutoPixmapStorage() {
 
 SkAutoPixmapStorage& SkAutoPixmapStorage::operator=(SkAutoPixmapStorage&& other) {
     this->fStorage = other.fStorage;
-    this->INHERITED::reset(other.info(), this->fStorage, other.rowBytes(), other.ctable());
+    this->INHERITED::reset(other.info(), this->fStorage, other.rowBytes());
 
     other.fStorage = nullptr;
     other.INHERITED::reset();

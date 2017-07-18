@@ -2974,8 +2974,7 @@ SkRasterHandleAllocator::Handle SkCanvas::accessTopRasterHandle() const {
 
 static bool install(SkBitmap* bm, const SkImageInfo& info,
                     const SkRasterHandleAllocator::Rec& rec) {
-    return bm->installPixels(info, rec.fPixels, rec.fRowBytes, nullptr,
-                             rec.fReleaseProc, rec.fReleaseCtx);
+    return bm->installPixels(info, rec.fPixels, rec.fRowBytes, rec.fReleaseProc, rec.fReleaseCtx);
 }
 
 SkRasterHandleAllocator::Handle SkRasterHandleAllocator::allocBitmap(const SkImageInfo& info,

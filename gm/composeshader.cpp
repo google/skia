@@ -243,10 +243,10 @@ DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     SkImageInfo imageInfo = SkImageInfo::Make(width, height,
             SkColorType::kN32_SkColorType, kPremul_SkAlphaType);
     skBitmap.installPixels(imageInfo, dst32Storage.begin(), width * sizeof(int32_t),
-            nullptr, nullptr, nullptr);
+                           nullptr, nullptr);
     imageInfo = SkImageInfo::Make(width, height,
             SkColorType::kAlpha_8_SkColorType, kPremul_SkAlphaType);
-    skMask.installPixels(imageInfo, dst8Storage.begin(), width, nullptr, nullptr, nullptr);
+    skMask.installPixels(imageInfo, dst8Storage.begin(), width, nullptr, nullptr);
     sk_sp<SkImage> skSrc = SkImage::MakeFromBitmap(skBitmap);
     sk_sp<SkImage> skMaskImage = SkImage::MakeFromBitmap(skMask);
     paint.setShader(
