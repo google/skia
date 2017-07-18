@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkHalf.h"
 #include "SkRasterPipeline.h"
+#include "../src/jumper/SkJumper.h"
 
 DEF_TEST(SkRasterPipeline, r) {
     // Build and run a simple pipeline to exercise SkRasterPipeline,
@@ -228,5 +229,74 @@ DEF_TEST(SkRasterPipeline_lowp, r) {
         if (rgba[i] != want) {
             ERRORF(r, "got %08x, want %08x\n", rgba[i], want);
         }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_2d, r) {
+    uint32_t rgba[2*2];
+
+    // First we're going to demonstrate what 1d operation looks like.
+    {
+        SkSTArenaAlloc<256> alloc;
+        SkRasterPipeline p(&alloc);
+
+        // Splat out the 1d dst coordinates: (0.5,0.5), (1.5,0.5), (2.5,0.5), (3.5,0.5).
+        p.append(SkRasterPipeline::seed_shader);
+
+        // Scale down to [0,1] range.
+        p.append_matrix(&alloc, SkMatrix::Concat(SkMatrix::MakeScale(0.25f),
+                                                 SkMatrix::MakeTrans(-0.5f, -0.5f)));
+
+        // Write back out to dst.
+        uint32_t* dst = rgba;
+        p.append(SkRasterPipeline::store_8888, &dst);
+
+        sk_bzero(rgba, sizeof(rgba));
+        p.run(0,0,4);
+
+        REPORTER_ASSERT(r, ((rgba[0] >> 0) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[1] >> 0) & 0xff) ==  64);
+        REPORTER_ASSERT(r, ((rgba[2] >> 0) & 0xff) == 128);
+        REPORTER_ASSERT(r, ((rgba[3] >> 0) & 0xff) == 191);
+
+        REPORTER_ASSERT(r, ((rgba[0] >> 8) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[1] >> 8) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[2] >> 8) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[3] >> 8) & 0xff) ==   0);
+    }
+
+    // Now let's show off 2d.
+    {
+        SkSTArenaAlloc<256> alloc;
+        SkRasterPipeline p(&alloc);
+
+        // Splat out the 2d dst coordinates: (0.5,0.5), (1.5,0.5), (0.5,1.5), (1.5,1.5).
+        p.append(SkRasterPipeline::seed_shader);
+
+        // Scale down to [0,1] range.
+        p.append_matrix(&alloc, SkMatrix::Concat(SkMatrix::MakeScale(0.50f),
+                                                 SkMatrix::MakeTrans(-0.5f, -0.5f)));
+
+        // Write back out to dst.
+        SkJumper_PtrStride ctx = { rgba, 2 };
+        p.append(SkRasterPipeline::store_8888_2d, &ctx);
+
+        sk_bzero(rgba, sizeof(rgba));
+#if 0
+        p.run(0,0,2);
+        p.run(0,1,2);
+#else
+        p.run_2d(0,0, 2,2);
+#endif
+
+        REPORTER_ASSERT(r, ((rgba[0] >> 0) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[1] >> 0) & 0xff) == 128);
+        REPORTER_ASSERT(r, ((rgba[2] >> 0) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[3] >> 0) & 0xff) == 128);
+
+        REPORTER_ASSERT(r, ((rgba[0] >> 8) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[1] >> 8) & 0xff) ==   0);
+        REPORTER_ASSERT(r, ((rgba[2] >> 8) & 0xff) == 128);
+        REPORTER_ASSERT(r, ((rgba[3] >> 8) & 0xff) == 128);
     }
 }

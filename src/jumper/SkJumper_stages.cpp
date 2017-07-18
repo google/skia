@@ -910,6 +910,17 @@ STAGE(store_8888) {
     store(ptr, px, tail);
 }
 
+STAGE(store_8888_2d) {
+    auto c = (const SkJumper_PtrStride*)ctx;
+    auto ptr = (uint32_t*)c->ptr + y*c->stride + x;
+
+    U32 px = round(r, 255.0f)
+           | round(g, 255.0f) <<  8
+           | round(b, 255.0f) << 16
+           | round(a, 255.0f) << 24;
+    store(ptr, px, tail);
+}
+
 STAGE(load_bgra) {
     auto ptr = *(const uint32_t**)ctx + x;
     from_8888(load<U32>(ptr, tail), &b,&g,&r,&a);
