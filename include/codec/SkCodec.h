@@ -172,6 +172,14 @@ public:
 
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
+    /**
+     * If this object stores its input as an SkStream, return an unowned pointer
+     * to it.
+     */
+    SkStream* stream() {
+        return fStream.get();
+    }
+
     enum Origin {
         kTopLeft_Origin     = 1, // Default
         kTopRight_Origin    = 2, // Reflected across y-axis
@@ -782,13 +790,6 @@ protected:
      * kGray_8_SkColorType: Black
      */
     virtual uint64_t onGetFillValue(const SkImageInfo& dstInfo) const;
-
-    /**
-     * Get method for the input stream
-     */
-    SkStream* stream() {
-        return fStream.get();
-    }
 
     /**
      *  The remaining functions revolve around decoding scanlines.
