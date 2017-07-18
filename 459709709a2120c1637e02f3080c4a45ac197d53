@@ -22,6 +22,30 @@
       "revId": "459709709a2120c1637e02f3080c4a45ac197d53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "416656ab_0deda438",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-18T15:59:29Z",
+      "side": 1,
+      "message": "Both of these devices have different graphics drivers with their own unique idiosyncrasies. Eventually I plan to remove these bots again and just include ccpr in the regular runs, but for now I think we need unique bots while we work out the issues on all the different platforms.",
+      "parentUuid": "1719befd_533226f5",
+      "range": {
+        "startLine": 776,
+        "startChar": 0,
+        "endLine": 776,
+        "endChar": 74
+      },
+      "revId": "459709709a2120c1637e02f3080c4a45ac197d53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
