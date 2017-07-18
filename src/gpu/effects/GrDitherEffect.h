@@ -18,19 +18,48 @@
 #include "effects/GrProxyMove.h"
 class GrDitherEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new GrDitherEffect());
+    float range() const { return fRange; }
+
+    static sk_sp<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+        float range;
+        switch (dstConfig) {
+            case kAlpha_8_GrPixelConfig:
+            case kGray_8_GrPixelConfig:
+            case kRGBA_8888_GrPixelConfig:
+            case kBGRA_8888_GrPixelConfig:
+            case kSRGBA_8888_GrPixelConfig:
+            case kSBGRA_8888_GrPixelConfig:
+                range = 1.f / 255.f;
+                break;
+            case kRGB_565_GrPixelConfig:
+                range = 1.f / 63.f;
+                break;
+            case kRGBA_4444_GrPixelConfig:
+                
+                range = 0.125f / 15.f;
+                break;
+            case kUnknown_GrPixelConfig:
+            case kAlpha_half_GrPixelConfig:
+            case kRGBA_8888_sint_GrPixelConfig:
+            case kRGBA_float_GrPixelConfig:
+            case kRG_float_GrPixelConfig:
+            case kRGBA_half_GrPixelConfig:
+                return nullptr;
+        }
+        return sk_sp<GrFragmentProcessor>(new GrDitherEffect(range));
     }
     const char* name() const override { return "DitherEffect"; }
 private:
-    GrDitherEffect()
-    : INHERITED(kNone_OptimizationFlags) {
+    GrDitherEffect(float range)
+    : INHERITED(kNone_OptimizationFlags)
+    , fRange(range) {
         this->initClassID<GrDitherEffect>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+    float fRange;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
