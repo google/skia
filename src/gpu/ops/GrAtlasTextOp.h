@@ -9,11 +9,10 @@
 #define GrAtlasTextOp_DEFINED
 
 #include "ops/GrMeshDrawOp.h"
-
 #include "text/GrAtlasTextContext.h"
 #include "text/GrDistanceFieldAdjustTable.h"
 
-class GrAtlasTextOp final : public GrLegacyMeshDrawOp {
+class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
@@ -37,9 +36,9 @@ public:
         GrColor fColor;
     };
 
-    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrMaskFormat maskFormat, int glyphCount,
-                                                     GrAtlasGlyphCache* fontCache) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
+    static std::unique_ptr<GrAtlasTextOp> MakeBitmap(GrPaint&& paint, GrMaskFormat maskFormat,
+                                                     int glyphCount, GrAtlasGlyphCache* fontCache) {
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
         op->fFontCache = fontCache;
         switch (maskFormat) {
@@ -61,11 +60,11 @@ public:
     }
 
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
-            int glyphCount, GrAtlasGlyphCache* fontCache,
+            GrPaint&& paint, int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
             bool useGammaCorrectDistanceTable, SkColor luminanceColor, bool isLCD, bool useBGR,
             bool isAntiAliased) {
-        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
+        std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp(std::move(paint)));
 
         op->fFontCache = fontCache;
         op->fMaskType = !isAntiAliased ? kAliasedDistanceField_MaskType
@@ -100,22 +99,27 @@ public:
 
     SkString dumpInfo() const override;
 
+    FixedFunctionFlags fixedFunctionFlags() const override;
+
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override;
+
 private:
-    void getProcessorAnalysisInputs(GrProcessorAnalysisColor*,
-                                    GrProcessorAnalysisCoverage*) const override;
-    void applyPipelineOptimizations(const PipelineOptimizations&) override;
+    GrAtlasTextOp(GrPaint&& paint)
+            : INHERITED(ClassID())
+            , fColor(paint.getColor())
+            , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
+            , fProcessors(std::move(paint)) {}
 
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor> fGeometryProcessor;
+        const GrPipeline* fPipeline;
         int fGlyphsToFlush;
         int fVertexOffset;
     };
 
     void onPrepareDraws(Target* target) const override;
-
-    GrAtlasTextOp() : INHERITED(ClassID()) {}  // initialized in factory functions.
 
     GrMaskFormat maskFormat() const {
         switch (fMaskType) {
@@ -159,14 +163,9 @@ private:
     sk_sp<GrGeometryProcessor> setupDfProcessor(const SkMatrix& viewMatrix, SkColor luminanceColor,
                                                 GrColor color, sk_sp<GrTextureProxy> proxy) const;
 
-    GrColor fColor;
-    bool fUsesLocalCoords;
-    int fNumGlyphs;
 
     // The minimum number of Geometry we will try to allocate.
     enum { kMinGeometryAllocated = 4 };
-    SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
-    int fGeoCount;
 
     enum MaskType {
         kGrayscaleCoverageMask_MaskType,
@@ -176,10 +175,18 @@ private:
         kGrayscaleDistanceField_MaskType,
         kLCDDistanceField_MaskType,
         kLCDBGRDistanceField_MaskType,
-    } fMaskType;
+    };
 
+    SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
+    GrColor fColor;
+    uint32_t fSRGBFlags;
+    GrProcessorSet fProcessors;
+    bool fUsesLocalCoords;
+    bool fCanCombineOnTouchOrOverlap;
+    int fGeoCount;
+    int fNumGlyphs;
+    MaskType fMaskType;
     GrAtlasGlyphCache* fFontCache;
-
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
     SkColor fLuminanceColor;
@@ -187,7 +194,7 @@ private:
 
     friend class GrBlobRegenHelper;  // Needs to trigger flushes
 
-    typedef GrLegacyMeshDrawOp INHERITED;
+    typedef GrMeshDrawOp INHERITED;
 };
 
 /*

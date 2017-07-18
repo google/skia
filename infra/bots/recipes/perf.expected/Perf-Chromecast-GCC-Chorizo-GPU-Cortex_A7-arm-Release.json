@@ -355,6 +355,7 @@
       "~blur_image_filter",
       "~blur_0.01",
       "~GM_animated-image-blurs",
+      "~blendmode_mask_",
       "--outResultsFile",
       "/cache/skia/perf/nanobench_abc123_1337000001.json",
       "--properties",

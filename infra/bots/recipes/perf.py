@@ -266,6 +266,7 @@ def perf_steps(api):
       '~blur_image_filter',
       '~blur_0.01',
       '~GM_animated-image-blurs',
+      '~blendmode_mask_',
     ])
 
   if api.vars.upload_perf_results:
