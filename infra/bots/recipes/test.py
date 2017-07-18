@@ -158,6 +158,10 @@ def dm_flags(api, bot):
   args.append('--config')
   args.extend(configs)
 
+  # Test coverage counting path renderer.
+  if 'CCPR' in bot:
+    args.extend(['--pr', 'ccpr'])
+
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image colorImage svg'.split(' '))
   if 'Vulkan' in bot and 'NexusPlayer' in bot:
@@ -766,6 +770,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android',
   'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
+  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR',
   'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan',
   'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android',

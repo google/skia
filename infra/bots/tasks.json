@@ -1437,6 +1437,12 @@
         "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android"
       ]
     },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR"
+      ]
+    },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
       "priority": 0.8,
       "tasks": [
@@ -1579,6 +1585,12 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android"
+      ]
+    },
+    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR": {
+      "priority": 0.8,
+      "tasks": [
+        "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR"
       ]
     },
     "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan": {
@@ -11100,6 +11112,40 @@
       "max_attempts": 1,
       "priority": 0.8
     },
+    "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:NRD90M",
+        "device_type:foster",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
     "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Debug-Android_Vulkan",
@@ -11904,6 +11950,40 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR": {
+      "dependencies": [
+        "Build-Debian9-Clang-arm64-Debug-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:OPP3.170518.006",
+        "device_type:marlin",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -19436,6 +19516,33 @@
       "isolate": "upload_dm_results.isolate",
       "priority": 0.8
     },
+    "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR": {
+      "dependencies": [
+        "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
     "Upload-Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan": {
       "dependencies": [
         "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_Vulkan"
@@ -20073,6 +20180,33 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)",
+        "gs_bucket=skia-infra-gm"
+      ],
+      "isolate": "upload_dm_results.isolate",
+      "priority": 0.8
+    },
+    "Upload-Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR": {
+      "dependencies": [
+        "Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR"
+      ],
+      "dimensions": [
+        "cpu:x86-64-avx2",
+        "gpu:none",
+        "os:Debian-9.0",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "upload_dm_results",
+        "repository=<(REPO)",
+        "buildername=Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
