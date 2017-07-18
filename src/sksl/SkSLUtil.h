@@ -139,6 +139,10 @@ public:
         return false;
     }
 
+    bool integerSupport() const {
+        return false;
+    }
+
     const char* shaderDerivativeExtensionString() const {
         return nullptr;
     }

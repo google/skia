@@ -141,6 +141,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(mustDeclareFragmentShaderOutput);
     CAP(canUseAnyFunctionInShader);
     CAP(floatPrecisionVaries);
+    CAP(integerSupport);
 #undef CAP
 }
 
