@@ -246,7 +246,7 @@ DEF_TEST(SkRasterPipeline_2d, r) {
                                              SkMatrix::MakeTrans(-0.5f, -0.5f)));
 
     // Write out to rgba, with row stride = 2 pixels.
-    SkJumper_PtrStride ctx = { rgba, 2 };
+    SkJumper_MemoryCtx ctx = { rgba, 2 };
     p.append(SkRasterPipeline::store_8888_2d, &ctx);
 
     p.run_2d(0,0, 2,2);

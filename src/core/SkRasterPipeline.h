@@ -46,7 +46,6 @@ struct SkPM4f;
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                     \
     M(black_color) M(white_color) M(uniform_color)               \
     M(seed_shader) M(dither)                                     \
-                                                M(gather_i8)     \
     M(load_a8)   M(load_a8_dst)   M(store_a8)   M(gather_a8)     \
     M(load_g8)   M(load_g8_dst)                 M(gather_g8)     \
     M(load_565)  M(load_565_dst)  M(store_565)  M(gather_565)    \
