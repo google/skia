@@ -68,6 +68,22 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** pr
     }
 }
 
+#if defined(JUMPER) && defined(__AVX__)
+    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
+    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
+    __attribute__((disable_tail_calls))
+#endif
+#if defined(JUMPER)
+    __attribute__((flatten))  // Force-inline the call to start_pipeline().
+#endif
+MAYBE_MSABI
+extern "C" void WRAP(start_pipeline_2d)(size_t x, size_t y, size_t xlimit, size_t ylimit,
+                                        void** program, K* k) {
+    for (; y < ylimit; y++) {
+        WRAP(start_pipeline)(x,y,xlimit, program, k);
+    }
+}
+
 #define STAGE(name)                                                                   \
     SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
                      F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
@@ -902,6 +918,17 @@ STAGE(gather_8888) {
 }
 STAGE(store_8888) {
     auto ptr = *(uint32_t**)ctx + x;
+
+    U32 px = round(r, 255.0f)
+           | round(g, 255.0f) <<  8
+           | round(b, 255.0f) << 16
+           | round(a, 255.0f) << 24;
+    store(ptr, px, tail);
+}
+
+STAGE(store_8888_2d) {
+    auto c = (const SkJumper_PtrStride*)ctx;
+    auto ptr = (uint32_t*)c->ptr + y*c->stride + x;
 
     U32 px = round(r, 255.0f)
            | round(g, 255.0f) <<  8

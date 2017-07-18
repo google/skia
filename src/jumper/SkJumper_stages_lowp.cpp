@@ -70,12 +70,8 @@ using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,
     __attribute__((disable_tail_calls))
 #endif
 MAYBE_MSABI
-extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
-#if defined(JUMPER)
+extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** program, K* k) {
     F v;
-#else
-    F v{};
-#endif
     auto start = (Stage*)load_and_inc(program);
     while (x + kStride <= limit) {
         start(k,program,x,y,0,    v,v,v,v, v,v,v,v);
@@ -84,8 +80,22 @@ extern "C" size_t WRAP(start_pipeline)(size_t x, size_t y, size_t limit, void** 
     if (size_t tail = limit - x) {
         start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
     }
-    return limit;
 }
+
+#if defined(__AVX__)
+    // We really want to make sure all paths go through this function's (implicit) vzeroupper.
+    // If they don't, we'll experience severe slowdowns when we first use SSE instructions again.
+    __attribute__((disable_tail_calls))
+#endif
+__attribute__((flatten))  // Force-inline the call to start_pipeline().
+MAYBE_MSABI
+extern "C" void WRAP(start_pipeline_2d)(size_t x, size_t y, size_t xlimit, size_t ylimit,
+                                        void** program, K* k) {
+    for (; y < ylimit; y++) {
+        WRAP(start_pipeline)(x,y,xlimit, program, k);
+    }
+}
+
 extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
 
 #define STAGE(name)                                                                   \

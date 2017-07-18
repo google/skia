@@ -117,4 +117,9 @@ struct SkJumper_2PtConicalCtx {
              fDR;
 };
 
+struct SkJumper_PtrStride {
+    void*  ptr;
+    size_t stride;
+};
+
 #endif//SkJumper_DEFINED
