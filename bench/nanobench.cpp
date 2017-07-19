@@ -1197,9 +1197,9 @@ int main(int argc, char** argv) {
     if (FLAGS_forceAnalyticAA) {
         gSkForceAnalyticAA = true;
     }
-    if (FLAGS_forceRasterPipeline) {
+//    if (FLAGS_forceRasterPipeline) {
         gSkForceRasterPipelineBlitter = true;
-    }
+//    }
 
     int runs = 0;
     BenchmarkStream benchStream;
