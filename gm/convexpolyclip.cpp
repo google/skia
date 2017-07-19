@@ -13,6 +13,8 @@
 #include "SkPath.h"
 #include "SkTLList.h"
 
+extern bool gSkForceRasterPipelineBlitter;
+
 static SkBitmap make_bmp(int w, int h) {
     SkBitmap bmp;
     bmp.allocN32Pixels(w, h, true);
@@ -135,7 +137,9 @@ protected:
         rotRect.transform(rotM);
         fClips.addToTail()->setPath(rotRect);
 
+        gSkForceRasterPipelineBlitter = true;
         fBmp = make_bmp(100, 100);
+        gSkForceRasterPipelineBlitter = false;
     }
 
     void onDraw(SkCanvas* canvas) override {
