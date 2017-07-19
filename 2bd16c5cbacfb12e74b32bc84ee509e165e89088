@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14890975_4aae9593",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T15:22:05Z",
+      "side": 1,
+      "message": "nit: remove colortable?",
+      "range": {
+        "startLine": 318,
+        "startChar": 8,
+        "endLine": 318,
+        "endChar": 18
+      },
+      "revId": "2bd16c5cbacfb12e74b32bc84ee509e165e89088",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "738025aa_df06c1f2",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T15:22:05Z",
+      "side": 1,
+      "message": "nit: Remove colortable?",
+      "range": {
+        "startLine": 418,
+        "startChar": 17,
+        "endLine": 418,
+        "endChar": 27
+      },
+      "revId": "2bd16c5cbacfb12e74b32bc84ee509e165e89088",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55a3990e_274768f1",
+        "filename": "include/core/SkBitmap.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T15:22:05Z",
+      "side": 1,
+      "message": "nit: Remove references to color tables?",
+      "range": {
+        "startLine": 640,
+        "startChar": 39,
+        "endLine": 642,
+        "endChar": 63
+      },
+      "revId": "2bd16c5cbacfb12e74b32bc84ee509e165e89088",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
