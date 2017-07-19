@@ -39,7 +39,8 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
     // should receive special attention.
     // Note: When switching over to the deferred proxy, use the kExact flag to create
     // the atlas and assert that the width & height are powers of 2.
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture));
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(texture),
+                                                              kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
         return nullptr;
     }

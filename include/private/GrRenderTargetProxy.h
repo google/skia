@@ -66,7 +66,7 @@ protected:
                         SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Wrapped version
-    GrRenderTargetProxy(sk_sp<GrSurface>);
+    GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
