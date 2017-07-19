@@ -33,7 +33,7 @@ void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
             pixels[i] = SkPM4f::FromPMColor(ctx->colors[alpha]);
         }
     };
-    p->append(SkRasterPipeline::callback, ctx);
+    p->append_callback(ctx);
 }
 
 void SkOverdrawColorFilter::toString(SkString* str) const {
