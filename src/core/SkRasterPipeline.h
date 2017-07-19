@@ -41,7 +41,7 @@ struct SkPM4f;
     M(callback)                                                  \
     M(move_src_dst) M(move_dst_src)                              \
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst)              \
-    M(unpremul) M(premul)                                        \
+    M(unpremul) M(premul) M(premul_dst)                          \
     M(set_rgb) M(swap_rb)                                        \
     M(from_srgb) M(from_srgb_dst) M(to_srgb)                     \
     M(black_color) M(white_color) M(uniform_color)               \

@@ -564,6 +564,11 @@ STAGE(premul) {
     g = g * a;
     b = b * a;
 }
+STAGE(premul_dst) {
+    dr = dr * da;
+    dg = dg * da;
+    db = db * da;
+}
 STAGE(unpremul) {
     auto scale = if_then_else(a == 0, 0, 1.0f / a);
     r *= scale;
