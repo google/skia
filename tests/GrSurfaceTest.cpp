@@ -54,9 +54,8 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                                                                kRGBA_8888_GrPixelConfig,
                                                                backendTexHandle);
 
-    sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapBackendTexture(
-        backendTex, kTopLeft_GrSurfaceOrigin, kRenderTarget_GrBackendTextureFlag, 0,
-        kBorrow_GrWrapOwnership);
+    sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapRenderableBackendTexture(
+            backendTex, kTopLeft_GrSurfaceOrigin, 0, kBorrow_GrWrapOwnership);
 
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());

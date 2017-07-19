@@ -12,9 +12,10 @@
 #include "GrSurfaceContext.h"
 
 class GrBackendRenderTarget;
+class GrOnFlushCallbackObject;
 class GrSemaphore;
 class GrSurfaceProxy;
-class GrOnFlushCallbackObject;
+class GrTextureContext;
 
 /** Class that adds methods to GrContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrContext. It should never have additional
@@ -29,12 +30,8 @@ public:
                                                        SkBackingFit,
                                                        SkBudgeted);
 
-    // TODO: Maybe add a 'surfaceProps' param (that is ignored for non-RTs) and remove
-    // makeBackendTextureRenderTargetContext & makeBackendTextureAsRenderTargetRenderTargetContext
-    sk_sp<GrSurfaceContext> makeBackendSurfaceContext(const GrBackendTexture& tex,
+    sk_sp<GrTextureContext> makeBackendTextureContext(const GrBackendTexture& tex,
                                                       GrSurfaceOrigin origin,
-                                                      GrBackendTextureFlags flags,
-                                                      int sampleCnt,
                                                       sk_sp<SkColorSpace> colorSpace);
 
     sk_sp<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
