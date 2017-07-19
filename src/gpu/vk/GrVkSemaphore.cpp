@@ -18,7 +18,7 @@
 
 sk_sp<GrVkSemaphore> GrVkSemaphore::Make(const GrVkGpu* gpu, bool isOwned) {
     VkSemaphoreCreateInfo createInfo;
-    memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
+    memset(&createInfo, 0, sizeof(VkSemaphoreCreateInfo));
     createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
