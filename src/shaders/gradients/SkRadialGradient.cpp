@@ -11,15 +11,6 @@
 
 namespace {
 
-// GCC doesn't like using static functions as template arguments.  So force these to be non-static.
-inline SkFixed mirror_tileproc_nonstatic(SkFixed x) {
-    return mirror_tileproc(x);
-}
-
-inline SkFixed repeat_tileproc_nonstatic(SkFixed x) {
-    return repeat_tileproc(x);
-}
-
 SkMatrix rad_to_unit_matrix(const SkPoint& center, SkScalar radius) {
     SkScalar    inv = SkScalarInvert(radius);
 
@@ -48,7 +39,9 @@ SkShaderBase::Context* SkRadialGradient::onMakeContext(
 
 SkRadialGradient::RadialGradientContext::RadialGradientContext(
         const SkRadialGradient& shader, const ContextRec& rec)
-    : INHERITED(shader, rec) {}
+    : INHERITED(shader, rec) {
+    SkASSERT(shader.getTileMode() == SkShader::kClamp_TileMode);
+}
 
 SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     if (info) {
@@ -85,11 +78,6 @@ inline bool radial_completely_pinned(SkScalar fx, SkScalar dx, SkScalar fy, SkSc
     bool yClamped = (fy >= 1 && dy >= 0) || (fy <= -1 && dy <= 0);
     return xClamped || yClamped;
 }
-
-typedef void (* RadialShadeProc)(SkScalar sfx, SkScalar sdx,
-        SkScalar sfy, SkScalar sdy,
-        SkPMColor* dstC, const SkPMColor* cache,
-        int count, int toggle);
 
 static inline Sk4f fast_sqrt(const Sk4f& R) {
     return R * R.rsqrt();
@@ -154,43 +142,11 @@ void shadeSpan_radial_clamp2(SkScalar sfx, SkScalar sdx, SkScalar sfy, SkScalar 
     }
 }
 
-// Unrolling this loop doesn't seem to help (when float); we're stalling to
-// get the results of the sqrt (?), and don't have enough extra registers to
-// have many in flight.
-template <SkFixed (*TileProc)(SkFixed)>
-void shadeSpan_radial(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
-                      SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-                      int count, int toggle) {
-    do {
-        const SkFixed dist = SkFloatToFixed(sk_float_sqrt(fx*fx + fy*fy));
-        const unsigned fi = TileProc(dist);
-        SkASSERT(fi <= 0xFFFF);
-        *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache32Shift)];
-        toggle = next_dither_toggle(toggle);
-        fx += dx;
-        fy += dy;
-    } while (--count != 0);
-}
-
-void shadeSpan_radial_mirror(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
-                             SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-                             int count, int toggle) {
-    shadeSpan_radial<mirror_tileproc_nonstatic>(fx, dx, fy, dy, dstC, cache, count, toggle);
-}
-
-void shadeSpan_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
-                             SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-                             int count, int toggle) {
-    shadeSpan_radial<repeat_tileproc_nonstatic>(fx, dx, fy, dy, dstC, cache, count, toggle);
-}
-
 }  // namespace
 
 void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
                                                         SkPMColor* SK_RESTRICT dstC, int count) {
     SkASSERT(count > 0);
-
-    const SkRadialGradient& radialGradient = static_cast<const SkRadialGradient&>(fShader);
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
@@ -202,15 +158,7 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
     SkScalar sdx = fDstToIndex.getScaleX();
     SkScalar sdy = fDstToIndex.getSkewY();
 
-    RadialShadeProc shadeProc = shadeSpan_radial_repeat;
-    if (SkShader::kClamp_TileMode == radialGradient.fTileMode) {
-        shadeProc = shadeSpan_radial_clamp2;
-    } else if (SkShader::kMirror_TileMode == radialGradient.fTileMode) {
-        shadeProc = shadeSpan_radial_mirror;
-    } else {
-        SkASSERT(SkShader::kRepeat_TileMode == radialGradient.fTileMode);
-    }
-    (*shadeProc)(srcPt.fX, sdx, srcPt.fY, sdy, dstC, cache, count, toggle);
+    shadeSpan_radial_clamp2(srcPt.fX, sdx, srcPt.fY, sdy, dstC, cache, count, toggle);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -357,6 +305,15 @@ sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer)
     return SkGradientShader::MakeRadial(fCenter, fRadius, xformedColors.begin(), fOrigPos,
                                         fColorCount, fTileMode, fGradFlags,
                                         &this->getLocalMatrix());
+}
+
+bool SkRadialGradient::onIsRasterPipelineOnly() const {
+#ifdef SK_SUPPORT_LEGACY_RADIAL_GRADIENT
+    return false;
+#else
+    // We have a clamp fast path; everything else -> RP.
+    return fTileMode != SkShader::kClamp_TileMode;
+#endif
 }
 
 bool SkRadialGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
