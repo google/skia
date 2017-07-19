@@ -11,13 +11,13 @@
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
+#include "SkSurface.h"
 #include "SkTLList.h"
 
 static SkBitmap make_bmp(int w, int h) {
-    SkBitmap bmp;
-    bmp.allocN32Pixels(w, h, true);
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(w, h);
 
-    SkCanvas canvas(bmp);
+    SkCanvas* canvas = surface->getCanvas();
     SkScalar wScalar = SkIntToScalar(w);
     SkScalar hScalar = SkIntToScalar(h);
 
@@ -50,7 +50,7 @@ static SkBitmap make_bmp(int w, int h) {
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
                         0, &mat));
-        canvas.drawRect(rect, paint);
+        canvas->drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);
         mat.postScale(SK_Scalar1 / 3, SK_Scalar1 / 3);
@@ -63,11 +63,16 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
-    canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+    canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
     paint.setColor(SK_ColorBLACK);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
-    canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+    canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+
+    sk_sp<SkImage> img = surface->makeImageSnapshot();
+
+    SkBitmap bmp;
+    SkAssertResult(img->asLegacyBitmap(&bmp, SkImage::kRO_LegacyBitmapMode));
     return bmp;
 }
 
