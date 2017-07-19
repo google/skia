@@ -310,7 +310,7 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
 
 /**
  * Types used to describe format of vertices in arrays.
-  */
+ */
 enum GrVertexAttribType {
     kFloat_GrVertexAttribType = 0,
     kVec2f_GrVertexAttribType,
@@ -324,7 +324,7 @@ enum GrVertexAttribType {
     kUByte_GrVertexAttribType,   // unsigned byte, e.g. coverage
     kVec4ub_GrVertexAttribType,  // vector of 4 unsigned bytes, e.g. colors
 
-    kVec2us_GrVertexAttribType,   // vector of 2 shorts, e.g. texture coordinates
+    kVec2us_GrVertexAttribType,  // vector of 2 shorts, e.g. texture coordinates
 
     kInt_GrVertexAttribType,
     kUint_GrVertexAttribType,
@@ -332,7 +332,6 @@ enum GrVertexAttribType {
     kLast_GrVertexAttribType = kUint_GrVertexAttribType
 };
 static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
-
 
 /**
  * Returns the size of the attrib type in bytes.
@@ -342,23 +341,23 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
         case kFloat_GrVertexAttribType:
             return sizeof(float);
         case kVec2f_GrVertexAttribType:
-            return 2*sizeof(float);
+            return 2 * sizeof(float);
         case kVec3f_GrVertexAttribType:
-            return 3*sizeof(float);
+            return 3 * sizeof(float);
         case kVec4f_GrVertexAttribType:
-            return 4*sizeof(float);
+            return 4 * sizeof(float);
         case kVec2i_GrVertexAttribType:
-            return 2*sizeof(int32_t);
+            return 2 * sizeof(int32_t);
         case kVec3i_GrVertexAttribType:
-            return 3*sizeof(int32_t);
+            return 3 * sizeof(int32_t);
         case kVec4i_GrVertexAttribType:
-            return 4*sizeof(int32_t);
+            return 4 * sizeof(int32_t);
         case kUByte_GrVertexAttribType:
-            return 1*sizeof(char);
+            return 1 * sizeof(char);
         case kVec4ub_GrVertexAttribType:
-            return 4*sizeof(char);
+            return 4 * sizeof(char);
         case kVec2us_GrVertexAttribType:
-            return 2*sizeof(int16_t);
+            return 2 * sizeof(int16_t);
         case kInt_GrVertexAttribType:
             return sizeof(int32_t);
         case kUint_GrVertexAttribType:
@@ -470,11 +469,11 @@ enum class GrSLRestrict {
 //////////////////////////////////////////////////////////////////////////////
 
 /**
-* We have coverage effects that clip rendering to the edge of some geometric primitive.
-* This enum specifies how that clipping is performed. Not all factories that take a
-* GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
-* a NULL return.
-*/
+ * We have coverage effects that clip rendering to the edge of some geometric primitive.
+ * This enum specifies how that clipping is performed. Not all factories that take a
+ * GrProcessorEdgeType will succeed with all values and it is up to the caller to check for
+ * a NULL return.
+ */
 enum GrPrimitiveEdgeType {
     kFillBW_GrProcessorEdgeType,
     kFillAA_GrProcessorEdgeType,
@@ -497,7 +496,8 @@ static inline bool GrProcessorEdgeTypeIsInverseFill(const GrPrimitiveEdgeType ed
 }
 
 static inline bool GrProcessorEdgeTypeIsAA(const GrPrimitiveEdgeType edgeType) {
-    return (kFillBW_GrProcessorEdgeType != edgeType && kInverseFillBW_GrProcessorEdgeType != edgeType);
+    return (kFillBW_GrProcessorEdgeType != edgeType &&
+            kInverseFillBW_GrProcessorEdgeType != edgeType);
 }
 
 static inline GrPrimitiveEdgeType GrInvertProcessorEdgeType(const GrPrimitiveEdgeType edgeType) {
@@ -513,7 +513,7 @@ static inline GrPrimitiveEdgeType GrInvertProcessorEdgeType(const GrPrimitiveEdg
         case kHairlineAA_GrProcessorEdgeType:
             SkFAIL("Hairline fill isn't invertible.");
     }
-    return kFillAA_GrProcessorEdgeType; // suppress warning.
+    return kFillAA_GrProcessorEdgeType;  // suppress warning.
 }
 
 /**
@@ -526,8 +526,8 @@ enum GrIOType {
 };
 
 /**
-* Indicates the type of data that a GPU buffer will be used for.
-*/
+ * Indicates the type of data that a GPU buffer will be used for.
+ */
 enum GrBufferType {
     kVertex_GrBufferType,
     kIndex_GrBufferType,
@@ -549,8 +549,8 @@ static inline bool GrBufferTypeIsVertexOrIndex(GrBufferType type) {
 }
 
 /**
-* Provides a performance hint regarding the frequency at which a data store will be accessed.
-*/
+ * Provides a performance hint regarding the frequency at which a data store will be accessed.
+ */
 enum GrAccessPattern {
     /** Data store will be respecified repeatedly and used many times. */
     kDynamic_GrAccessPattern,
@@ -585,9 +585,9 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrRenderTargetFlags)
 
 #ifdef SK_DEBUG
 // Takes a pointer to a GrCaps, and will suppress prints if required
-#define GrCapsDebugf(caps, ...)         \
-    if (!(caps)->suppressPrints()) {    \
-        SkDebugf(__VA_ARGS__);          \
+#define GrCapsDebugf(caps, ...)      \
+    if (!(caps)->suppressPrints()) { \
+        SkDebugf(__VA_ARGS__);       \
     }
 #else
 #define GrCapsDebugf(caps, ...)
