@@ -90,7 +90,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     fInvMatrix = inv;
     fFilterQuality = paint.getFilterQuality();
 
-    SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kNo);
+    SkDefaultBitmapController controller;
     fBMState = controller.requestBitmap(fProvider, inv, paint.getFilterQuality(),
                                         fBMStateStorage.get(), fBMStateStorage.size());
     // Note : we allow the controller to return an empty (zero-dimension) result. Should we?
