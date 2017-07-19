@@ -17,7 +17,6 @@ bench_sources = [
   "$_bench/BitmapBench.cpp",
   "$_bench/BitmapRectBench.cpp",
   "$_bench/BitmapRegionDecoderBench.cpp",
-  "$_bench/BitmapScaleBench.cpp",
   "$_bench/BlendmodeBench.cpp",
   "$_bench/BlurBench.cpp",
   "$_bench/BlurImageFilterBench.cpp",
