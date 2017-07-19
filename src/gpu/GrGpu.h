@@ -119,7 +119,13 @@ public:
      * Implements GrResourceProvider::wrapBackendTexture
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
-                                        GrBackendTextureFlags, int sampleCnt, GrWrapOwnership);
+                                        GrWrapOwnership);
+
+    /**
+     * Implements GrResourceProvider::wrapRenderableBackendTexture
+     */
+    sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
+                                        int sampleCnt, GrWrapOwnership);
 
     /**
      * Implements GrResourceProvider::wrapBackendRenderTarget
@@ -546,9 +552,11 @@ private:
 
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                                   GrSurfaceOrigin,
-                                                  GrBackendTextureFlags,
-                                                  int sampleCnt,
                                                   GrWrapOwnership) = 0;
+    virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
+                                                            GrSurfaceOrigin,
+                                                            int sampleCnt,
+                                                            GrWrapOwnership) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
                                                             GrSurfaceOrigin) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,

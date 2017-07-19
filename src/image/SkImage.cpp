@@ -334,11 +334,6 @@ sk_sp<SkImage> MakeTextureFromMipMap(GrContext*, const SkImageInfo&, const GrMip
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
-                                        sk_sp<SkColorSpace>, TextureReleaseProc, ReleaseContext) {
-    return nullptr;
-}
-
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
                                         const GrBackendTexture& tex, GrSurfaceOrigin origin,
                                         SkAlphaType at, sk_sp<SkColorSpace> cs,
@@ -356,11 +351,6 @@ size_t SkImage::getDeferredTextureImageData(const GrContextThreadSafeProxy&,
 
 sk_sp<SkImage> SkImage::MakeFromDeferredTextureImageData(GrContext* context, const void*,
                                                          SkBudgeted) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
-                                               SkAlphaType, sk_sp<SkColorSpace>) {
     return nullptr;
 }
 

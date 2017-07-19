@@ -249,7 +249,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrBackendTexture& backendTex,
                                                          GrSurfaceOrigin origin) {
     sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(
-            backendTex, origin, kNone_GrBackendTextureFlag, 0));
+            backendTex, origin));
     return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
