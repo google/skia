@@ -1598,7 +1598,7 @@ void SkPDFDevice::internalDrawText(
                         }
                     }
                     if (!has_outline_glyph(gid, glyphCache.get())) {
-                        fMissingGlyphs.push_back({xy, gid});
+                        fMissingGlyphs.push_back({xy + offset, gid});
                     }
                 } else {
                     if (!has_outline_glyph(gid, glyphCache.get())) {
