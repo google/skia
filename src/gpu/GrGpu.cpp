@@ -175,31 +175,44 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budg
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            GrSurfaceOrigin origin,
-                                           GrBackendTextureFlags flags,
-                                           int sampleCnt,
                                            GrWrapOwnership ownership) {
     this->handleDirtyContext();
     if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
     }
-    if ((flags & kRenderTarget_GrBackendTextureFlag) &&
-        !this->caps()->isConfigRenderable(backendTex.config(), sampleCnt > 0)) {
+    if (backendTex.width() > this->caps()->maxTextureSize() ||
+        backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
-    int maxSize = this->caps()->maxTextureSize();
-    if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
-        return nullptr;
-    }
-    sk_sp<GrTexture> tex = this->onWrapBackendTexture(backendTex, origin, flags, sampleCnt,
-                                                      ownership);
+    sk_sp<GrTexture> tex = this->onWrapBackendTexture(backendTex, origin, ownership);
     if (!tex) {
         return nullptr;
     }
+    return tex;
+}
 
+sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
+                                                     GrSurfaceOrigin origin, int sampleCnt,
+                                                     GrWrapOwnership ownership) {
+    this->handleDirtyContext();
+    if (!this->caps()->isConfigTexturable(backendTex.config()) ||
+        !this->caps()->isConfigRenderable(backendTex.config(), sampleCnt > 0)) {
+        return nullptr;
+    }
+
+    if (backendTex.width() > this->caps()->maxRenderTargetSize() ||
+        backendTex.height() > this->caps()->maxRenderTargetSize()) {
+        return nullptr;
+    }
+    sk_sp<GrTexture> tex =
+            this->onWrapRenderableBackendTexture(backendTex, origin, sampleCnt, ownership);
+    if (!tex) {
+        return nullptr;
+    }
+    SkASSERT(tex->asRenderTarget());
     if (!this->caps()->avoidStencilBuffers()) {
         // TODO: defer this and attach dynamically
-        GrRenderTarget* tgt = tex->asRenderTarget();
-        if (tgt && !fContext->resourceProvider()->attachStencilAttachment(tgt)) {
+        if (!fContext->resourceProvider()->attachStencilAttachment(tex->asRenderTarget())) {
             return nullptr;
         }
     }
