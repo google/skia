@@ -35,27 +35,26 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        void* mask_ctx = mask;
-        void*  src_ctx = src;
-        void*  dst_ctx = dst;
+        const uint8_t*  mask_ctx = mask;
+        const uint32_t*  src_ctx = src;
+        void* dst_ctx = dst;
 
         SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline::load_8888, &src_ctx);
+        p.append_load_8888(&src_ctx);
         p.append_from_srgb(kUnpremul_SkAlphaType);
-        p.append(SkRasterPipeline::scale_u8, &mask_ctx);
-        p.append(SkRasterPipeline::move_src_dst);
+        p.append_scale_u8(&mask_ctx);
         if (kF16) {
-            p.append(SkRasterPipeline::load_f16, &dst_ctx);
+            p.append_load_f16_dst((const uint64_t**)&dst_ctx);
         } else {
-            p.append(SkRasterPipeline::load_8888, &dst_ctx);
-            p.append_from_srgb(kPremul_SkAlphaType);
+            p.append_load_8888_dst((const uint32_t**)&dst_ctx);
+            p.append_from_srgb_dst(kPremul_SkAlphaType);
         }
-        p.append(SkRasterPipeline::dstover);
+        p.append_srcover();
         if (kF16) {
-            p.append(SkRasterPipeline::store_f16, &dst_ctx);
+            p.append_store_f16((uint64_t**)&dst_ctx);
         } else {
-            p.append(SkRasterPipeline::to_srgb);
-            p.append(SkRasterPipeline::store_8888, &dst_ctx);
+            p.append_to_srgb();
+            p.append_store_8888((uint32_t**)&dst_ctx);
         }
 
         while (loops --> 0) {
@@ -81,7 +80,7 @@ public:
 
         SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &dst_ctx);
-        p.append(SkRasterPipeline::move_src_dst);
+        p.append_move_src_dst();
         p.append(SkRasterPipeline::load_8888, &src_ctx);
         p.append(SkRasterPipeline::srcover);
         p.append(SkRasterPipeline::store_8888, &dst_ctx);
