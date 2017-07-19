@@ -9,7 +9,6 @@
 #include "sk_tool_utils.h"
 
 #include "Resources.h"
-#include "SkBitmapScaler.h"
 #include "SkGradientShader.h"
 #include "SkTypeface.h"
 #include "SkStream.h"
@@ -114,9 +113,7 @@ protected:
         return str;
     }
 
-    SkISize onISize() override {
-        return { 824, 862 };
-    }
+    SkISize onISize() override { return { 150, 862 }; }
 
     static void DrawAndFrame(SkCanvas* canvas, const SkBitmap& orig, SkScalar x, SkScalar y) {
         SkBitmap bm;
@@ -169,25 +166,6 @@ protected:
             bm.installPixels(curr);
             return bm;
         });
-
-        const SkBitmapScaler::ResizeMethod methods[] = {
-            SkBitmapScaler::RESIZE_BOX,
-            SkBitmapScaler::RESIZE_TRIANGLE,
-            SkBitmapScaler::RESIZE_LANCZOS3,
-            SkBitmapScaler::RESIZE_HAMMING,
-            SkBitmapScaler::RESIZE_MITCHELL,
-        };
-
-        SkPixmap basePM;
-        orig.peekPixels(&basePM);
-        for (auto method : methods) {
-            canvas->translate(orig.width()/2 + 8.0f, 0);
-            drawLevels(canvas, orig, [method](const SkPixmap& prev, const SkPixmap& curr) {
-                SkBitmap bm;
-                SkBitmapScaler::Resize(&bm, prev, method, curr.width(), curr.height());
-                return bm;
-            });
-        }
     }
 
     void onOnceBeforeDraw() override {

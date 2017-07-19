@@ -6,14 +6,12 @@
  */
 
 #include "SkBitmap.h"
+#include "SkBitmapCache.h"
 #include "SkBitmapController.h"
 #include "SkBitmapProvider.h"
 #include "SkMatrix.h"
-#include "SkPixelRef.h"
+#include "SkMipMap.h"
 #include "SkTemplates.h"
-
-// RESIZE_LANCZOS3 is another good option, but chrome prefers mitchell at the moment
-#define kHQ_RESIZE_METHOD   SkBitmapScaler::RESIZE_MITCHELL
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,70 +31,24 @@ SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvi
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "SkBitmapCache.h"
-#include "SkBitmapScaler.h"
-#include "SkMipMap.h"
-#include "SkResourceCache.h"
-
 class SkDefaultBitmapControllerState : public SkBitmapController::State {
 public:
-    SkDefaultBitmapControllerState(const SkBitmapProvider&,
-                                   const SkMatrix& inv,
-                                   SkFilterQuality,
-                                   bool canShadeHQ);
+    SkDefaultBitmapControllerState(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
 
 private:
-    SkBitmap                      fResultBitmap;
-    sk_sp<const SkMipMap>         fCurrMip;
-    bool                          fCanShadeHQ;
+    SkBitmap                fResultBitmap;
+    sk_sp<const SkMipMap>   fCurrMip;
 
-    bool processHQRequest(const SkBitmapProvider&);
+    bool processHighRequest(const SkBitmapProvider&);
     bool processMediumRequest(const SkBitmapProvider&);
 };
 
-// Check to see that the size of the bitmap that would be produced by
-// scaling by the given inverted matrix is less than the maximum allowed.
-static inline bool cache_size_okay(const SkBitmapProvider& provider, const SkMatrix& invMat) {
-    size_t maximumAllocation = SkResourceCache::GetEffectiveSingleAllocationByteLimit();
-    if (0 == maximumAllocation) {
-        return true;
-    }
-    // float matrixScaleFactor = 1.0 / (invMat.scaleX * invMat.scaleY);
-    // return ((origBitmapSize * matrixScaleFactor) < maximumAllocationSize);
-    // Skip the division step:
-    const size_t size = provider.info().getSafeSize(provider.info().minRowBytes());
-    SkScalar invScaleSqr = invMat.getScaleX() * invMat.getScaleY();
-    return size < (maximumAllocation * SkScalarAbs(invScaleSqr));
-}
-
-/*
- *  High quality is implemented by performing up-right scale-only filtering and then
- *  using bilerp for any remaining transformations.
- */
-bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& provider) {
+bool SkDefaultBitmapControllerState::processHighRequest(const SkBitmapProvider& provider) {
     if (fQuality != kHigh_SkFilterQuality) {
         return false;
     }
 
-    // Our default return state is to downgrade the request to Medium, w/ or w/o setting fBitmap
-    // to a valid bitmap. If we succeed, we will set this to Low instead.
     fQuality = kMedium_SkFilterQuality;
-#ifdef SK_USE_MIP_FOR_DOWNSCALE_HQ
-    return false;
-#endif
-
-    bool supported = false;
-    switch (provider.info().colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            supported = true;
-            break;
-        default:
-            break;
-    }
-    if (!supported || !cache_size_okay(provider, fInvMatrix) || fInvMatrix.hasPerspective()) {
-        return false; // can't handle the reqeust
-    }
 
     SkScalar invScaleX = fInvMatrix.getScaleX();
     SkScalar invScaleY = fInvMatrix.getScaleY();
@@ -111,68 +63,14 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     invScaleX = SkScalarAbs(invScaleX);
     invScaleY = SkScalarAbs(invScaleY);
 
-    if (SkScalarNearlyEqual(invScaleX, 1) && SkScalarNearlyEqual(invScaleY, 1)) {
-        return false; // no need for HQ
+    if (invScaleX >= 1 - SK_ScalarNearlyZero || invScaleY >= 1 - SK_ScalarNearlyZero) {
+        // we're down-scaling so abort HQ
+        return false;
     }
 
-    if (invScaleX > 1 || invScaleY > 1) {
-        return false; // only use HQ when upsampling
-    }
-
-    // If the shader can natively handle HQ filtering, let it do it.
-    if (fCanShadeHQ) {
-        fQuality = kHigh_SkFilterQuality;
-        SkAssertResult(provider.asBitmap(&fResultBitmap));
-        return true;
-    }
-
-    const int dstW = SkScalarRoundToScalar(provider.width() / invScaleX);
-    const int dstH = SkScalarRoundToScalar(provider.height() / invScaleY);
-    const SkBitmapCacheDesc desc = provider.makeCacheDesc(dstW, dstH);
-
-    if (!SkBitmapCache::Find(desc, &fResultBitmap)) {
-        SkBitmap orig;
-        if (!provider.asBitmap(&orig)) {
-            return false;
-        }
-        SkPixmap src;
-        if (!orig.peekPixels(&src)) {
-            return false;
-        }
-
-        SkPixmap dst;
-        SkBitmapCache::RecPtr rec;
-        const SkImageInfo info = SkImageInfo::Make(desc.fScaledWidth, desc.fScaledHeight,
-                                                   src.colorType(), src.alphaType());
-        if (provider.isVolatile()) {
-            if (!fResultBitmap.tryAllocPixels(info)) {
-                return false;
-            }
-            SkASSERT(fResultBitmap.getPixels());
-            fResultBitmap.peekPixels(&dst);
-            fResultBitmap.setImmutable();   // a little cheat, as we haven't resized yet, but ok
-        } else {
-            rec = SkBitmapCache::Alloc(desc, info, &dst);
-            if (!rec) {
-                return false;
-            }
-        }
-        if (!SkBitmapScaler::Resize(dst, src, kHQ_RESIZE_METHOD)) {
-            return false; // we failed to create fScaledBitmap
-        }
-        if (rec) {
-            SkBitmapCache::Add(std::move(rec), &fResultBitmap);
-            SkASSERT(fResultBitmap.getPixels());
-            provider.notifyAddedToCache();
-        }
-    }
-
-    SkASSERT(fResultBitmap.getPixels());
-    SkASSERT(fResultBitmap.isImmutable());
-
-    fInvMatrix.postScale(SkIntToScalar(dstW) / provider.width(),
-                         SkIntToScalar(dstH) / provider.height());
-    fQuality = kLow_SkFilterQuality;
+    // Confirmed that we can use HQ (w/ rasterpipeline)
+    fQuality = kHigh_SkFilterQuality;
+    (void)provider.asBitmap(&fResultBitmap);
     return true;
 }
 
@@ -235,20 +133,15 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
 
 SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapProvider& provider,
                                                                const SkMatrix& inv,
-                                                               SkFilterQuality qual,
-                                                               bool canShadeHQ) {
+                                                               SkFilterQuality qual) {
     fInvMatrix = inv;
     fQuality = qual;
-    fCanShadeHQ = canShadeHQ;
 
-    bool processed = this->processHQRequest(provider) || this->processMediumRequest(provider);
-
-    if (processed) {
+    if (this->processHighRequest(provider) || this->processMediumRequest(provider)) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)provider.asBitmap(&fResultBitmap);
     }
-    SkASSERT(fCanShadeHQ || fQuality <= kLow_SkFilterQuality);
 
     // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()
     // and will destroy us if it is nullptr.
@@ -259,6 +152,5 @@ SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBi
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
                                                                       void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size,
-                                                             bm, inverse, quality, fCanShadeHQ);
+    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
 }

@@ -798,21 +798,16 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (paint.getColorFilter()) {
         return true;
     }
-#ifndef SK_SUPPORT_LEGACY_HQ_SCALER
     if (paint.getFilterQuality() == kHigh_SkFilterQuality) {
         return true;
     }
-#endif
     // ... unless the blend mode is complicated enough.
     if (paint.getBlendMode() > SkBlendMode::kLastSeparableMode) {
         return true;
     }
-
-    // ... or unless we have to deal with perspective.
     if (matrix.hasPerspective()) {
         return true;
     }
-
     // ... or unless the shader is raster pipeline-only.
     if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly()) {
         return true;
