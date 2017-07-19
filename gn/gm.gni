@@ -13,6 +13,7 @@ gm_sources = [
   "$_gm/aaxfermodes.cpp",
   "$_gm/addarc.cpp",
   "$_gm/all_bitmap_configs.cpp",
+  "$_gm/alpha_image.cpp",
   "$_gm/alphagradients.cpp",
   "$_gm/animatedGif.cpp",
   "$_gm/animatedimageblurs.cpp",
