@@ -256,7 +256,7 @@ bool SkImageShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* dstCS, SkA
     auto quality = paint.getFilterQuality();
 
     SkBitmapProvider provider(fImage.get(), dstCS);
-    SkDefaultBitmapController controller(SkDefaultBitmapController::CanShadeHQ::kYes);
+    SkDefaultBitmapController controller;
     std::unique_ptr<SkBitmapController::State> state {
         controller.requestBitmap(provider, matrix, quality)
     };

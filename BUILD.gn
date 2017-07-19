@@ -297,22 +297,6 @@ opts("avx") {
   }
 }
 
-opts("hsw") {
-  enabled = is_x86
-  sources = skia_opts.hsw_sources
-  if (is_win) {
-    cflags = [ "/arch:AVX2" ]
-  } else {
-    cflags = [
-      "-mavx2",
-      "-mbmi",
-      "-mbmi2",
-      "-mf16c",
-      "-mfma",
-    ]
-  }
-}
-
 # Any feature of Skia that requires third-party code should be optional and use this template.
 template("optional") {
   if (invoker.enabled) {
@@ -668,7 +652,6 @@ component("skia") {
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":gpu",
-    ":hsw",
     ":jpeg",
     ":none",
     ":pdf",
