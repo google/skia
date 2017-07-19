@@ -83,21 +83,6 @@ private:
     friend std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 };
 
-struct LoadTablesContext {
-    const void*  fSrc;
-    const float* fR;
-    const float* fG;
-    const float* fB;
-};
-
-// Must be kept in sync with "Tables" struct in RasterPipeline_opts byte_tables_rgb.
-struct TablesContext {
-    const uint8_t* fR;
-    const uint8_t* fG;
-    const uint8_t* fB;
-    int            fCount;
-};
-
 // For testing.  Bypasses opts for when src and dst color spaces are equal.
 std::unique_ptr<SkColorSpaceXform> SlowIdentityXform(SkColorSpace_XYZ* space);
 

@@ -1162,30 +1162,30 @@ bool SkColorSpaceXform_XYZ<kCSM>
                 const void* src, int len, SkAlphaType alphaType) const {
     SkRasterPipeline_<256> pipeline;
 
-    LoadTablesContext loadTables;
+    SkJumper_LoadTablesCtx loadTables;
     switch (srcColorFormat) {
         case kRGBA_8888_ColorFormat:
             if (kLinear_SrcGamma == fSrcGamma) {
-                pipeline.append(SkRasterPipeline::load_8888, &src);
+                pipeline.append_load_8888((const uint32_t**)&src);
             } else {
-                loadTables.fSrc = src;
-                loadTables.fR = fSrcGammaTables[0];
-                loadTables.fG = fSrcGammaTables[1];
-                loadTables.fB = fSrcGammaTables[2];
-                pipeline.append(SkRasterPipeline::load_tables, &loadTables);
+                loadTables.src = src;
+                loadTables.r = fSrcGammaTables[0];
+                loadTables.g = fSrcGammaTables[1];
+                loadTables.b = fSrcGammaTables[2];
+                pipeline.append_load_tables(&loadTables);
             }
 
             break;
         case kBGRA_8888_ColorFormat:
             if (kLinear_SrcGamma == fSrcGamma) {
-                pipeline.append(SkRasterPipeline::load_bgra, &src);
+                pipeline.append_load_bgra((const uint32_t**)&src);
             } else {
-                loadTables.fSrc = src;
-                loadTables.fR = fSrcGammaTables[2];
-                loadTables.fG = fSrcGammaTables[1];
-                loadTables.fB = fSrcGammaTables[0];
-                pipeline.append(SkRasterPipeline::load_tables, &loadTables);
-                pipeline.append(SkRasterPipeline::swap_rb);
+                loadTables.src = src;
+                loadTables.r = fSrcGammaTables[2];
+                loadTables.g = fSrcGammaTables[1];
+                loadTables.b = fSrcGammaTables[0];
+                pipeline.append_load_tables(&loadTables);
+                pipeline.append_swap_rb();
             }
 
             break;
@@ -1193,47 +1193,47 @@ bool SkColorSpaceXform_XYZ<kCSM>
             if (kLinear_SrcGamma != fSrcGamma) {
                 return false;
             }
-            pipeline.append(SkRasterPipeline::load_f16, &src);
+            pipeline.append_load_f16((const uint64_t**)&src);
             break;
         case kRGBA_F32_ColorFormat:
             if (kLinear_SrcGamma != fSrcGamma) {
                 return false;
             }
-            pipeline.append(SkRasterPipeline::load_f32, &src);
+            pipeline.append_load_f32((const float**)&src);
             break;
         case kRGBA_U16_BE_ColorFormat:
             switch (fSrcGamma) {
                 case kLinear_SrcGamma:
-                    pipeline.append(SkRasterPipeline::load_u16_be, &src);
+                    pipeline.append_load_u16_be((const uint16_t**)&src);
                     break;
                 case kSRGB_SrcGamma:
-                    pipeline.append(SkRasterPipeline::load_u16_be, &src);
+                    pipeline.append_load_u16_be((const uint16_t**)&src);
                     pipeline.append_from_srgb(kUnpremul_SkAlphaType);
                     break;
                 case kTable_SrcGamma:
-                    loadTables.fSrc = src;
-                    loadTables.fR = fSrcGammaTables[0];
-                    loadTables.fG = fSrcGammaTables[1];
-                    loadTables.fB = fSrcGammaTables[2];
-                    pipeline.append(SkRasterPipeline::load_tables_u16_be, &loadTables);
+                    loadTables.src = src;
+                    loadTables.r = fSrcGammaTables[0];
+                    loadTables.g = fSrcGammaTables[1];
+                    loadTables.b = fSrcGammaTables[2];
+                    pipeline.append_load_tables_u16_be(&loadTables);
                     break;
             }
             break;
         case kRGB_U16_BE_ColorFormat:
             switch (fSrcGamma) {
                 case kLinear_SrcGamma:
-                    pipeline.append(SkRasterPipeline::load_rgb_u16_be, &src);
+                    pipeline.append_load_rgb_u16_be((const uint16_t**)&src);
                     break;
                 case kSRGB_SrcGamma:
-                    pipeline.append(SkRasterPipeline::load_rgb_u16_be, &src);
+                    pipeline.append_load_rgb_u16_be((const uint16_t**)&src);
                     pipeline.append_from_srgb(kUnpremul_SkAlphaType);
                     break;
                 case kTable_SrcGamma:
-                    loadTables.fSrc = src;
-                    loadTables.fR = fSrcGammaTables[0];
-                    loadTables.fG = fSrcGammaTables[1];
-                    loadTables.fB = fSrcGammaTables[2];
-                    pipeline.append(SkRasterPipeline::load_tables_rgb_u16_be, &loadTables);
+                    loadTables.src = src;
+                    loadTables.r = fSrcGammaTables[0];
+                    loadTables.g = fSrcGammaTables[1];
+                    loadTables.b = fSrcGammaTables[2];
+                    pipeline.append_load_tables_rgb_u16_be(&loadTables);
                     break;
             }
             break;
@@ -1242,7 +1242,7 @@ bool SkColorSpaceXform_XYZ<kCSM>
     }
 
     if (kNone_ColorSpaceMatch == kCSM) {
-        pipeline.append(SkRasterPipeline::matrix_3x4, fSrcToDst);
+        pipeline.append_matrix_3x4(fSrcToDst);
 
         if (kRGBA_F16_ColorFormat != dstColorFormat &&
             kRGBA_F32_ColorFormat != dstColorFormat)
@@ -1250,68 +1250,68 @@ bool SkColorSpaceXform_XYZ<kCSM>
             bool need_clamp_0, need_clamp_1;
             analyze_3x4_matrix(fSrcToDst, &need_clamp_0, &need_clamp_1);
 
-            if (need_clamp_0) { pipeline.append(SkRasterPipeline::clamp_0); }
-            if (need_clamp_1) { pipeline.append(SkRasterPipeline::clamp_1); }
+            if (need_clamp_0) { pipeline.append_clamp_0(); }
+            if (need_clamp_1) { pipeline.append_clamp_1(); }
         }
     }
 
     if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kRespect == fPremulBehavior)
     {
-        pipeline.append(SkRasterPipeline::premul);
+        pipeline.append_premul();
     }
 
-    TablesContext tables;
-    SkColorSpaceTransferFn to_2dot2 = {0,0,0,0,0,0,0};
-    to_2dot2.fG = 1/2.2f;
-    to_2dot2.fA = 1;
+    SkJumper_ParametricTransferFunction to_2dot2 = {0,0,0,0,0,0,0};
+    to_2dot2.G = 1/2.2f;
+    to_2dot2.A = 1;
+    SkJumper_ByteTablesRGBCtx tables;
     switch (fDstGamma) {
         case kSRGB_DstGamma:
-            pipeline.append(SkRasterPipeline::to_srgb);
+            pipeline.append_to_srgb();
             break;
         case k2Dot2_DstGamma:
-            pipeline.append(SkRasterPipeline::parametric_r, &to_2dot2);
-            pipeline.append(SkRasterPipeline::parametric_g, &to_2dot2);
-            pipeline.append(SkRasterPipeline::parametric_b, &to_2dot2);
+            pipeline.append_parametric_r(&to_2dot2);
+            pipeline.append_parametric_g(&to_2dot2);
+            pipeline.append_parametric_b(&to_2dot2);
             break;
         case kTable_DstGamma:
-            tables.fR = fDstGammaTables[0];
-            tables.fG = fDstGammaTables[1];
-            tables.fB = fDstGammaTables[2];
-            tables.fCount = SkColorSpaceXform_Base::kDstGammaTableSize;
-            pipeline.append(SkRasterPipeline::byte_tables_rgb, &tables);
+            tables.r = fDstGammaTables[0];
+            tables.g = fDstGammaTables[1];
+            tables.b = fDstGammaTables[2];
+            tables.n = SkColorSpaceXform_Base::kDstGammaTableSize;
+            pipeline.append_byte_tables_rgb(&tables);
         default:
             break;
     }
 
     if (kPremul_SkAlphaType == alphaType && SkTransferFunctionBehavior::kIgnore == fPremulBehavior)
     {
-        pipeline.append(SkRasterPipeline::premul);
+        pipeline.append_premul();
     }
 
     switch (dstColorFormat) {
         case kRGBA_8888_ColorFormat:
-             pipeline.append(SkRasterPipeline::store_8888, &dst);
+             pipeline.append_store_8888((uint32_t**)&dst);
             break;
         case kBGRA_8888_ColorFormat:
-            pipeline.append(SkRasterPipeline::store_bgra, &dst);
+            pipeline.append_store_bgra((uint32_t**)&dst);
             break;
         case kRGBA_F16_ColorFormat:
             if (kLinear_DstGamma != fDstGamma) {
                 return false;
             }
-            pipeline.append(SkRasterPipeline::store_f16, &dst);
+            pipeline.append_store_f16((uint64_t**)&dst);
             break;
         case kRGBA_F32_ColorFormat:
             if (kLinear_DstGamma != fDstGamma) {
                 return false;
             }
-            pipeline.append(SkRasterPipeline::store_f32, &dst);
+            pipeline.append_store_f32((float**)&dst);
             break;
         case kBGR_565_ColorFormat:
             if (kOpaque_SkAlphaType != alphaType) {
                 return false;
             }
-            pipeline.append(SkRasterPipeline::store_565, &dst);
+            pipeline.append_store_565((uint16_t**)&dst);
             break;
         default:
             return false;

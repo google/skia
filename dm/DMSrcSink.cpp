@@ -326,11 +326,13 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
     switch (bitmap.colorType()) {
         case kRGBA_F16_SkColorType:
             for (int y = 0; y < bitmap.height(); y++) {
-                void* row = bitmap.getAddr(0, y);
+                auto dst = (uint64_t*)bitmap.getAddr(0,y);
+                auto src = (const uint64_t*)dst;
+
                 SkRasterPipeline_<256> p;
-                p.append(SkRasterPipeline::load_f16, &row);
-                p.append(SkRasterPipeline::premul);
-                p.append(SkRasterPipeline::store_f16, &row);
+                p.append_load_f16(&src);
+                p.append_premul();
+                p.append_store_f16(&dst);
                 p.run(0,y, bitmap.width());
             }
             break;
@@ -1020,21 +1022,24 @@ void clamp_if_necessary(const SkBitmap& bitmap, SkColorType dstCT) {
         return;
     }
 
-    void* ptr = bitmap.getAddr(0, 0);
+    auto dst = (uint64_t*)bitmap.getAddr(0,0);
+    auto src = (const uint64_t*)dst;
+
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_f16, &ptr);
-    p.append(SkRasterPipeline::clamp_0);
+    p.append_load_f16(&src);
+    p.append_clamp_0();
     if (kPremul_SkAlphaType == bitmap.alphaType()) {
-        p.append(SkRasterPipeline::clamp_a);
+        p.append_clamp_a();
     } else {
-        p.append(SkRasterPipeline::clamp_1);
+        p.append_clamp_1();
     }
-    p.append(SkRasterPipeline::store_f16, &ptr);
+    p.append_store_f16(&dst);
 
     auto run = p.compile();
     for (int y = 0; y < bitmap.height(); y++) {
         run(0, y, bitmap.width());
-        ptr = SkTAddOffset<void>(ptr, bitmap.rowBytes());
+        src = SkTAddOffset<const uint64_t>(src, bitmap.rowBytes());
+        dst = SkTAddOffset<uint64_t>      (dst, bitmap.rowBytes());
     }
 }
 

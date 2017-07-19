@@ -106,7 +106,7 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
     // We now have our logical 'dst' in r,g,b,a, but we need it in dr,dg,db,da for the mode/lerp
     // so we have to shuttle them. If we had a stage the would load_into_dst, then we could
     // reverse the two shader invocations, and avoid this move...
-    pipeline->append(SkRasterPipeline::move_src_dst);
+    pipeline->append_move_src_dst();
     pipeline->append(SkRasterPipeline::load_rgba, storage->fRGBA);
 
     if (!this->isJustLerp()) {

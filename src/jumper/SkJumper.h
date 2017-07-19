@@ -108,12 +108,24 @@ struct SkJumper_GradientCtx {
     float* ts;
 };
 
+struct SkJumper_2StopGradientCtx {
+    float f[4], b[4];
+};
+
 struct SkJumper_2PtConicalCtx {
     uint32_t fMask[SkJumper_kMaxStride];
     float    fCoeffA,
              fInvCoeffA,
              fR0,
              fDR;
+};
+
+struct SkJumper_ByteTablesCtx {
+    const uint8_t *r,*g,*b,*a;
+};
+struct SkJumper_ByteTablesRGBCtx {
+    const uint8_t *r,*g,*b;
+    int n;
 };
 
 #endif//SkJumper_DEFINED
