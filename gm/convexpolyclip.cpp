@@ -16,6 +16,7 @@
 static SkBitmap make_bmp(int w, int h) {
     SkBitmap bmp;
     bmp.allocN32Pixels(w, h, true);
+    bmp.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bmp);
     SkScalar wScalar = SkIntToScalar(w);
