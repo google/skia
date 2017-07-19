@@ -946,6 +946,7 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
 
     unsigned int profileSize = SkScalarCeilToInt(6*sigma);
 
+    texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     texDesc.fWidth = profileSize;
     texDesc.fHeight = 1;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;
@@ -957,7 +958,8 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
     builder[0] = profileSize;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile(resourceProvider->findProxyByUniqueKey(key));
+    sk_sp<GrTextureProxy> blurProfile(resourceProvider->findProxyByUniqueKey(
+                                                                  key, kTopLeft_GrSurfaceOrigin));
     if (!blurProfile) {
         std::unique_ptr<uint8_t[]> profile(SkBlurMask::ComputeBlurProfile(sigma));
 
@@ -967,6 +969,7 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
             return nullptr;
         }
 
+        SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
         resourceProvider->assignUniqueKeyToProxy(key, blurProfile.get());
     }
 
@@ -1117,7 +1120,8 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
     }
     builder.finish();
 
-    sk_sp<GrTextureProxy> mask(context->resourceProvider()->findProxyByUniqueKey(key));
+    sk_sp<GrTextureProxy> mask(context->resourceProvider()->findProxyByUniqueKey(
+                                                                key, kBottomLeft_GrSurfaceOrigin));
     if (!mask) {
         // TODO: this could be approx but the texture coords will need to be updated
         sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
@@ -1154,6 +1158,7 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
         if (!mask) {
             return nullptr;
         }
+        SkASSERT(mask->origin() == kBottomLeft_GrSurfaceOrigin);
         context->resourceProvider()->assignUniqueKeyToProxy(key, mask.get());
     }
 

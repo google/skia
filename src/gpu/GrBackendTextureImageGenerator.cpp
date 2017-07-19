@@ -94,8 +94,8 @@ GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo
     , fRefHelper(new RefHelper(texture, owningContextID))
     , fSemaphore(std::move(semaphore))
     , fLastBorrowingContextID(SK_InvalidGenID)
-    , fBackendTexture(backendTex)
-    , fSurfaceOrigin(texture->origin()) { }
+    , fBackendTexture(backendTex) {}
+//    , fSurfaceOrigin(texture->origin()) { }
 
 GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {
     fRefHelper->unref();
@@ -166,7 +166,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
 
     SkASSERT(fRefHelper->fBorrowingContextID == context->uniqueID());
 
-    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+    sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), fSurfaceOrigin);
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height()) {

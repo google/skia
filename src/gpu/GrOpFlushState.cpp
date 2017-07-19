@@ -63,10 +63,10 @@ void GrOpFlushState::doUpload(GrDrawOp::DeferredUploadFn& upload) {
                                            rowBytes);
         }
         GrSurfaceDesc desc;
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fConfig = surface->config();
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fOrigin = surface->origin();
         sk_sp<GrTexture> temp(this->fResourceProvider->createApproxTexture(
                 desc, GrResourceProvider::kNoPendingIO_Flag));
         if (!temp) {

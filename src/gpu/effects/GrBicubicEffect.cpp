@@ -120,13 +120,14 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                   const GrFragmentProcessor& processor) {
     const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
-    GrTexture* texture = processor.textureSampler(0).peekTexture();
+    GrSurfaceProxy* proxy = processor.textureSampler(0).proxy();
+    GrTexture* texture = proxy->priv().peekTexture();
 
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture->width();
     imageIncrement[1] = 1.0f / texture->height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    fDomain.setData(pdman, bicubicEffect.domain(), texture);
+    fDomain.setData(pdman, bicubicEffect.domain(), proxy);
     if (SkToBool(bicubicEffect.colorSpaceXform())) {
         fColorSpaceHelper.setData(pdman, bicubicEffect.colorSpaceXform());
     }

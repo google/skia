@@ -346,10 +346,9 @@ int PrimitiveProcessor::defineSoftSampleLocations(GrGLSLFragmentBuilder* f,
 
 #include "GrRenderTarget.h"
 
-void GrCCPRCoverageProcessor::Validate(GrRenderTarget* atlasTexture) {
-    SkASSERT(kAtlasOrigin == atlasTexture->origin());
-    SkASSERT(GrPixelConfigIsAlphaOnly(atlasTexture->config()));
-    SkASSERT(GrPixelConfigIsFloatingPoint(atlasTexture->config()));
+void GrCCPRCoverageProcessor::Validate(GrSurface* atlasSurface) {
+    SkASSERT(GrPixelConfigIsAlphaOnly(atlasSurface->config()));
+    SkASSERT(GrPixelConfigIsFloatingPoint(atlasSurface->config()));
 }
 
 #endif
