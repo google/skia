@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dbcb449_2fd76af7",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-19T19:04:22Z",
+      "side": 1,
+      "message": "Let\u0027s delete this whole thing?  It doesn\u0027t do anything without sources.",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 313,
+        "endChar": 1
+      },
+      "revId": "1aad9939fe97d6d3b7ac0bd2f06f9eaab1b3b760",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

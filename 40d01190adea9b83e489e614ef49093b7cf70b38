@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57c3b982_05952392",
+        "filename": "gn/shared_sources.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-19T19:04:22Z",
+      "side": 0,
+      "message": "I think you\u0027re going to have to keep this as an empty list or Chrome won\u0027t build.",
+      "range": {
+        "startLine": 27,
+        "startChar": 2,
+        "endLine": 27,
+        "endChar": 13
+      },
+      "revId": "40d01190adea9b83e489e614ef49093b7cf70b38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
