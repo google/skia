@@ -492,6 +492,8 @@ DM_SRCS_ALL = struct(
         "tools/test_font_index.inc",
         "tools/timer/*.cpp",
         "tools/timer/*.h",
+        "tools/trace/*.cpp",
+        "tools/trace/*.h",
     ],
     exclude = [
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
@@ -559,6 +561,7 @@ DM_INCLUDES = [
     "tools/flags",
     "tools/gpu",
     "tools/timer",
+    "tools/trace",
 ]
 
 ################################################################################
