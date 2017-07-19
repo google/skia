@@ -13,8 +13,10 @@
 #include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrGpu.h"
+#include "GrTest.h"
 #endif
 
 #include <initializer_list>
@@ -429,26 +431,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsNonTexture_Gpu, reporter, ctxInfo)
 
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         for (int sampleCnt : {0, 4}) {
-            GrBackendTextureDesc desc;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            desc.fWidth = DEV_W;
-            desc.fHeight = DEV_H;
-            desc.fFlags = kRenderTarget_GrBackendTextureFlag;
-            desc.fSampleCnt = sampleCnt;
-            desc.fOrigin = origin;
-            desc.fTextureHandle = context->getGpu()->createTestingOnlyBackendTexture(
-                nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true);
-            sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(context, desc,
-                                                                                     nullptr));
+            auto handle = context->getGpu()->createTestingOnlyBackendTexture(
+                    nullptr, DEV_W, DEV_H, kSkia8888_GrPixelConfig, true);
+            GrBackendTexture backendTexture = GrTest::CreateBackendTexture(
+                    ctxInfo.backend(), DEV_W, DEV_H, kSkia8888_GrPixelConfig, handle);
+            sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
+                    context, backendTexture, origin, sampleCnt, nullptr, nullptr));
             if (!surface) {
-                context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
+                context->getGpu()->deleteTestingOnlyBackendTexture(handle);
                 continue;
             }
 
             test_write_pixels(reporter, surface.get());
 
             surface.reset();
-            context->getGpu()->deleteTestingOnlyBackendTexture(desc.fTextureHandle);
+            context->getGpu()->deleteTestingOnlyBackendTexture(handle);
         }
     }
 }

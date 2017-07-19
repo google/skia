@@ -59,13 +59,6 @@ public:
 private:
     bool isValid() const { return fConfig != kUnknown_GrPixelConfig; }
 
-    // Temporary constructor which can be used to convert from a GrBackendTextureDesc.
-    GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend backend);
-
-    // Friending for access to above constructor taking a GrBackendTextureDesc
-    friend class SkImage;
-    friend class SkSurface;
-
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
     GrPixelConfig fConfig;
@@ -118,7 +111,7 @@ private:
     // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
     GrBackendRenderTarget(const GrBackendRenderTargetDesc& desc, GrBackend backend);
 
-    // Friending for access to above constructor taking a GrBackendTextureDesc
+    // Friending for access to above constructor taking a GrBackendRenderTargetDesc
     friend class SkSurface;
 
     int fWidth;         //<! width in pixels

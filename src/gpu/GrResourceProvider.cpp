@@ -239,14 +239,23 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& inDe
 
 sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& tex,
                                                         GrSurfaceOrigin origin,
-                                                        GrBackendTextureFlags flags,
-                                                        int sampleCnt,
                                                         GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->wrapBackendTexture(tex, origin, flags, sampleCnt, ownership);
+    return fGpu->wrapBackendTexture(tex, origin, ownership);
+}
+
+sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBackendTexture& tex,
+                                                                  GrSurfaceOrigin origin,
+                                                                  int sampleCnt,
+                                                                  GrWrapOwnership ownership) {
+    ASSERT_SINGLE_OWNER
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+    return fGpu->wrapRenderableBackendTexture(tex, origin, sampleCnt, ownership);
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendRenderTarget(
