@@ -1028,6 +1028,7 @@ if (skia_enable_tools) {
       "tools",
       "tools/debugger",
       "tools/timer",
+      "tools/trace",
     ]
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
@@ -1046,6 +1047,8 @@ if (skia_enable_tools) {
       "tools/sk_tool_utils.cpp",
       "tools/sk_tool_utils_font.cpp",
       "tools/timer/Timer.cpp",
+      "tools/trace/SkDebugfTracer.cpp",
+      "tools/trace/SkDebugfTracer.h",
     ]
     libs = []
     if (is_ios) {

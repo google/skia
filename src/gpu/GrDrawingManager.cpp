@@ -22,6 +22,7 @@
 #include "SkSurface_Gpu.h"
 #include "SkTTopoSort.h"
 
+#include "GrTracing.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -83,6 +84,8 @@ gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
 
 // MDB TODO: make use of the 'proxy' parameter.
 void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType type) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "internalFlush", fContext);
+
     if (fFlushing || this->wasAbandoned()) {
         return;
     }
