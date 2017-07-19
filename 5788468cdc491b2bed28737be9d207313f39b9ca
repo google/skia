@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "d4278c96_6c589f81",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-19T19:11:17Z",
+      "side": 1,
+      "message": "Only to serve as a form of documentation.  It also prevents the option from showing up on a windows build of DM where it would currently be ignored.",
+      "parentUuid": "e205fb5e_4f5e9bca",
+      "range": {
+        "startLine": 90,
+        "startChar": 1,
+        "endLine": 90,
+        "endChar": 27
+      },
+      "revId": "5788468cdc491b2bed28737be9d207313f39b9ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35da9ac_2a16eff2",
         "filename": "dm/DM.cpp",
         "patchSetId": 1
