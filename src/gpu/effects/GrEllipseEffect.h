@@ -25,16 +25,17 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
     }
     const char* name() const override { return "EllipseEffect"; }
+
 private:
     GrEllipseEffect(int edgeType, SkPoint center, SkPoint radii)
-    : INHERITED((OptimizationFlags)  kCompatibleWithCoverageAsAlpha_OptimizationFlag )
-    , fEdgeType(edgeType)
-    , fCenter(center)
-    , fRadii(radii) {
+            : INHERITED((OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            , fEdgeType(edgeType)
+            , fCenter(center)
+            , fRadii(radii) {
         this->initClassID<GrEllipseEffect>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     int fEdgeType;

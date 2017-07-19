@@ -18,24 +18,19 @@
 #include "effects/GrProxyMove.h"
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
-
-    enum Mode {
-        kGaussian_Mode = 0,
-        kSmoothStep_Mode = 1
-    };
+    enum Mode { kGaussian_Mode = 0, kSmoothStep_Mode = 1 };
     int mode() const { return fMode; }
     static sk_sp<GrFragmentProcessor> Make(int mode) {
         return sk_sp<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
+
 private:
-    GrBlurredEdgeFragmentProcessor(int mode)
-    : INHERITED(kNone_OptimizationFlags)
-    , fMode(mode) {
+    GrBlurredEdgeFragmentProcessor(int mode) : INHERITED(kNone_OptimizationFlags), fMode(mode) {
         this->initClassID<GrBlurredEdgeFragmentProcessor>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     int fMode;

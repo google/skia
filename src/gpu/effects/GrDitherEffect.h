@@ -48,14 +48,13 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrDitherEffect(rangeType));
     }
     const char* name() const override { return "DitherEffect"; }
+
 private:
-    GrDitherEffect(int rangeType)
-    : INHERITED(kNone_OptimizationFlags)
-    , fRangeType(rangeType) {
+    GrDitherEffect(int rangeType) : INHERITED(kNone_OptimizationFlags), fRangeType(rangeType) {
         this->initClassID<GrDitherEffect>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     int fRangeType;
