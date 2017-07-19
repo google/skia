@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "544ea3b9_dbdf2987",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-19T14:22:15Z",
+      "side": 1,
+      "message": "I think you can write this nowadays as\n\n  static sk_sp\u003cSkColorFilter\u003e gSingleton \u003d sk_make_sp\u003cSkSRGBGammaColorFilter\u003e(dir);\n  return gSingleton;\n\ni.e. you can rely on thread-safe local statics.\n\nBut I think having a static sk_sp in general is not what we want.  That will create a global destructor, which I think Chrome will complain about.  So maybe more like this, leaking it?\n\n  static SkColorFilter* gSingleton \u003d new SkSRGBGammaColorFilter(dir);\n  return sk_ref_sp(gSingleton);",
+      "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
