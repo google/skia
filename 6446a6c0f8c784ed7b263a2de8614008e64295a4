@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "917bc330_d298b14a",
+        "filename": "infra/bots/assets/protoc/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-19T18:05:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cd18533_45dd2d8f",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "6446a6c0f8c784ed7b263a2de8614008e64295a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94839c8f_8aec6f5f",
         "filename": "infra/bots/assets/protoc/create.py",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "77819f36_8a858302",
+        "filename": "infra/bots/assets/protoc/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-19T18:05:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94839c8f_8aec6f5f",
+      "range": {
+        "startLine": 22,
+        "startChar": 55,
+        "endLine": 22,
+        "endChar": 65
+      },
+      "revId": "6446a6c0f8c784ed7b263a2de8614008e64295a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f48fc27_263ca6b7",
         "filename": "infra/bots/assets/protoc/create_and_upload.py",
         "patchSetId": 1
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "c7746bbe_dc7e2132",
+        "filename": "infra/bots/assets/protoc/create_and_upload.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-19T18:05:50Z",
+      "side": 1,
+      "message": "Copy/paste failure, evidently.",
+      "parentUuid": "9f48fc27_263ca6b7",
+      "revId": "6446a6c0f8c784ed7b263a2de8614008e64295a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "809339b3_38296867",
         "filename": "infra/bots/assets/protoc/create_and_upload.py",
         "patchSetId": 1
@@ -76,6 +142,24 @@
       "writtenOn": "2017-07-19T17:58:39Z",
       "side": 1,
       "message": "What is this used for?",
+      "revId": "6446a6c0f8c784ed7b263a2de8614008e64295a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9ee86b3_60e0a558",
+        "filename": "infra/bots/assets/protoc/create_and_upload.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-19T18:05:50Z",
+      "side": 1,
+      "message": "Required for the upload if gsutil is not in PATH.",
+      "parentUuid": "809339b3_38296867",
       "revId": "6446a6c0f8c784ed7b263a2de8614008e64295a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
