@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfb4174d_e64de6bf",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-19T18:28:08Z",
+      "side": 1,
+      "message": "Minor preference to keep the first person plural out of public facing docs. E.g. \"After issuing all commands, numSemaphore semaphores will be signaled by the gpu.\"",
+      "range": {
+        "startLine": 345,
+        "startChar": 95,
+        "endLine": 345,
+        "endChar": 97
+      },
+      "revId": "760c35ab88145abcc9df14f4a8ffe331ca9eb286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "888fe5a4_85f9ff37",
+        "filename": "include/core/SkSurface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-19T18:28:08Z",
+      "side": 1,
+      "message": "\"use the passed in semaphores.\"? I don\u0027t think it matters from the reader\u0027s perspective that we wrap them in a GrSemaphore.",
+      "range": {
+        "startLine": 348,
+        "startChar": 60,
+        "endLine": 349,
+        "endChar": 19
+      },
+      "revId": "760c35ab88145abcc9df14f4a8ffe331ca9eb286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
