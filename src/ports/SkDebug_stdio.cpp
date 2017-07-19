@@ -15,6 +15,7 @@ void SkDebugf(const char format[], ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
+    fflush(stderr);
     va_end(args);
 }
 #endif//!defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_ANDROID)
