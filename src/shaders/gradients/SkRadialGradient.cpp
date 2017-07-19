@@ -48,11 +48,7 @@ SkShaderBase::Context* SkRadialGradient::onMakeContext(
 
 SkRadialGradient::RadialGradientContext::RadialGradientContext(
         const SkRadialGradient& shader, const ContextRec& rec)
-    : INHERITED(shader, rec) {
-#ifndef SK_SUPPORT_LEGACY_RADIAL_GRADIENT
-    SkASSERT(shader.getTileMode() == SkShader::kClamp_TileMode);
-#endif
-}
+    : INHERITED(shader, rec) {}
 
 SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     if (info) {
@@ -361,15 +357,6 @@ sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer)
     return SkGradientShader::MakeRadial(fCenter, fRadius, xformedColors.begin(), fOrigPos,
                                         fColorCount, fTileMode, fGradFlags,
                                         &this->getLocalMatrix());
-}
-
-bool SkRadialGradient::onIsRasterPipelineOnly() const {
-#ifdef SK_SUPPORT_LEGACY_RADIAL_GRADIENT
-    return false;
-#else
-    // We have a clamp fast path; everything else -> RP.
-    return fTileMode != SkShader::kClamp_TileMode;
-#endif
 }
 
 bool SkRadialGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
