@@ -43,33 +43,6 @@ GrBackendTexture::GrBackendTexture(int width,
         , fBackend(kMock_GrBackend)
         , fMockInfo(mockInfo) {}
 
-GrBackendTexture::GrBackendTexture(const GrBackendTextureDesc& desc, GrBackend backend)
-        : fWidth(desc.fWidth)
-        , fHeight(desc.fHeight)
-        , fConfig(desc.fConfig)
-        , fBackend(backend) {
-    switch (backend) {
-        case kOpenGL_GrBackend:
-            fGLInfo = *reinterpret_cast<const GrGLTextureInfo*>(desc.fTextureHandle);
-            break;
-#ifdef SK_VULKAN
-        case kVulkan_GrBackend: {
-            const GrVkImageInfo* vkInfo =
-                    reinterpret_cast<const GrVkImageInfo*>(desc.fTextureHandle);
-            fConfig = GrVkFormatToPixelConfig(vkInfo->fFormat);
-            fVkInfo = *vkInfo;
-            break;
-        }
-#endif
-        case kMock_GrBackend:
-            fMockInfo = *reinterpret_cast<const GrMockTextureInfo*>(desc.fTextureHandle);
-            break;
-        default:
-            fConfig = kUnknown_GrPixelConfig;
-            break;
-    }
-}
-
 #ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendTexture::getVkImageInfo() const {
     if (this->isValid() && kVulkan_GrBackend == fBackend) {
