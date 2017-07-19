@@ -132,6 +132,8 @@ public:
 
     SkPDFCanon* getCanon() const;
 
+    SkIRect bounds() const { return this->imageInfo().bounds(); }
+
     // It is important to not confuse GraphicStateEntry with SkPDFGraphicState, the
     // later being our representation of an object in the PDF file.
     struct GraphicStateEntry {
