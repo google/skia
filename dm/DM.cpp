@@ -87,6 +87,10 @@ DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 DEFINE_pathrenderer_flag;
 #endif
 
+#ifdef SK_BUILD_FOR_ANDROID
+DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
+#endif
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -275,6 +279,16 @@ static void find_culprit() {
         for (int sig : kSignals) {
             previous_handler[sig] = signal(sig, crash_handler);
         }
+
+    #ifdef SK_BUILD_FOR_ANDROID
+        // Android's kernel will occasionally attempt to kill our process, using
+        // SIGINT, in an effort to free up resources. If requested, that signal
+        // is ignored and dm will keep attempting to proceed until we actually
+        // exhaust the available resources.
+        if (FLAGS_ignoreSigInt) {
+            signal(SIGINT, SIG_IGN);
+        }
+    #endif
     }
 #endif
 
