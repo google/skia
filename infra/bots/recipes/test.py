@@ -44,6 +44,15 @@ def dm_flags(api, bot):
   if 'Test-iOS' in bot:
     args.extend(['--threads', '0'])
 
+  # Android's kernel will occasionally attempt to kill our process, using
+  # SIGINT, in an effort to free up resources. If requested, that signal
+  # is ignored and dm will keep attempting to proceed until we actually
+  # exhaust the available resources.
+  if ('NexusPlayer' in bot or
+      'Nexus10' in bot or
+      'PixelC' in bot):
+    args.append('--ignoreSigInt')
+
   # These are the canonical configs that we would ideally run on all bots. We
   # may opt out or substitute some below for specific bots
   configs = ['8888', 'srgb', 'pdf']

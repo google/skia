@@ -89,6 +89,8 @@ DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 DEFINE_pathrenderer_flag;
 #endif
 
+DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -277,6 +279,10 @@ static void find_culprit() {
         const int kSignals[] = { SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV };
         for (int sig : kSignals) {
             previous_handler[sig] = signal(sig, crash_handler);
+        }
+
+        if (FLAGS_ignoreSigInt) {
+            signal(SIGINT, SIG_IGN);
         }
     }
 #endif
