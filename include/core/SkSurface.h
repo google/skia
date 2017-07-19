@@ -343,10 +343,16 @@ public:
 
     /**
      * Issue any pending surface IO to the current backend 3D API. After issuing all commands, we
-     * will issue numSemaphore semaphores for the gpu to signal. We will then fill in the array
-     * signalSemaphores with the info on the semaphores we submitted. The client is reposonsible for
-     * allocating enough space in signalSemaphores to handle numSemaphores of GrBackendSemaphores.
-     * The client will also take ownership of the returned underlying backend semaphores.
+     * will issue numSemaphore semaphores for the gpu to signal. The client passes in an array of
+     * numSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's can be either
+     * initialized or not. If they are initialized, we will wrap the underlying backend semaphore
+     * and use that. If it is not initialized, we will create a new semaphore and initialize the
+     * GrBackendSemaphore object with that semaphore.
+     *
+     * If the backend API is OpenGL we only support uninitialized GrBackendSemaphores.
+     * If the backend API is Vulkan we support either initialized or unitialized. If unitialized,
+     * the semaphores we create will be valid for use only with the VkDevice with which they were
+     * created.
      *
      * If this call returns false, the GPU backend will not have created or added any semaphores to
      * signal. Thus the array of semaphores will remain uninitialized. However, we will still flush
