@@ -8,7 +8,6 @@
 #ifndef SkOpts_DEFINED
 #define SkOpts_DEFINED
 
-#include "SkConvolver.h"
 #include "SkRasterPipeline.h"
 #include "SkTypes.h"
 #include "SkXfermodePriv.h"
@@ -62,15 +61,6 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
-
-    extern void (*convolve_vertically)(const SkConvolutionFilter1D::ConvolutionFixed* filter_values,
-                                       int filter_length, unsigned char* const* source_data_rows,
-                                       int pixel_width, unsigned char* out_row, bool has_alpha);
-    extern void (*convolve_4_rows_horizontally)(const unsigned char* src_data[4],
-                                                const SkConvolutionFilter1D& filter,
-                                                unsigned char* out_row[4], size_t out_row_bytes);
-    extern void (*convolve_horizontally)(const unsigned char* src_data, const SkConvolutionFilter1D& filter,
-                                         unsigned char* out_row, bool has_alpha);
 }
 
 #endif//SkOpts_DEFINED
