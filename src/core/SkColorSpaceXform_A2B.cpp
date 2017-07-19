@@ -206,7 +206,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                         c->results[4*i+3] = (3 == c->clut->inputChannels()) ? c->rgba[4*i+3] : 1.0f;
                     }
                 };
-                fElementsPipeline.append(SkRasterPipeline::callback, cb);
+                fElementsPipeline.append_callback(cb);
                 break;
             }
             case SkColorSpace_A2B::Element::Type::kMatrix:
