@@ -153,6 +153,8 @@ private:
 
     SpvId writeIntConstructor(const Constructor& c, OutputStream& out);
 
+    SpvId writeUIntConstructor(const Constructor& c, OutputStream& out);
+
     /**
      * Writes a matrix with the diagonal entries all equal to the provided expression, and all other
      * entries equal to zero.
