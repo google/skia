@@ -314,7 +314,7 @@ bool SkShaderBase::onAppendStages(SkRasterPipeline* p,
 
     if (cb->ctx) {
         p->append(SkRasterPipeline::seed_shader);
-        p->append(SkRasterPipeline::callback, cb);
+        p->append_callback(cb);
         return true;
     }
     return false;

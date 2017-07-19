@@ -128,7 +128,7 @@ SkPM4f SkBlendMode_Apply(SkBlendMode mode, const SkPM4f& src, const SkPM4f& dst)
                            *res_ctx = &result_storage;
 
     p.append(SkRasterPipeline::load_f32, &dst_ctx);
-    p.append(SkRasterPipeline::move_src_dst);
+    p.append_move_src_dst();
     p.append(SkRasterPipeline::load_f32, &src_ctx);
     SkBlendMode_AppendStages(mode, &p);
     p.append(SkRasterPipeline::store_f32, &res_ctx);
