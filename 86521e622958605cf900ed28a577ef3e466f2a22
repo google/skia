@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe762f8e_7f7e0d8e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2114,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-19T00:02:51Z",
+      "side": 1,
+      "message": "Until the chrome change lands to add the new func you probably need to check GrGLInterface for a null function here.",
+      "revId": "86521e622958605cf900ed28a577ef3e466f2a22",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
