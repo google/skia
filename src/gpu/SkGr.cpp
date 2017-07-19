@@ -535,10 +535,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     GrPixelConfigToColorType(rtc->config(), &ct);
     if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0
         && !rtc->isGammaCorrect()) {
-        auto ditherFP = GrDitherEffect::Make(rtc->config());
-        if (ditherFP) {
-            grPaint->addColorFragmentProcessor(std::move(ditherFP));
-        }
+        grPaint->addColorFragmentProcessor(GrDitherEffect::Make());
     }
 #endif
     return true;
