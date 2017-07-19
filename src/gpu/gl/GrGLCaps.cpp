@@ -2109,6 +2109,46 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
+    bool hasInternalformatFunction = gli->fFunctions.fGetInternalformativ != nullptr;
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        if (ConfigInfo::kRenderableWithMSAA_Flag & fConfigTable[i].fFlags) {
+            if (hasInternalformatFunction && // This check is temporary until chrome is updated
+                ((kGL_GrGLStandard == ctxInfo.standard() &&
+                 (ctxInfo.version() >= GR_GL_VER(4,2) ||
+                  ctxInfo.hasExtension("GL_ARB_internalformat_query"))) ||
+                (kGLES_GrGLStandard == ctxInfo.standard() && ctxInfo.version() >= GR_GL_VER(3,0)))) {
+                int count;
+                GrGLenum format = fConfigTable[i].fFormats.fInternalFormatRenderbuffer;
+                GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, format, GR_GL_NUM_SAMPLE_COUNTS,
+                                          1, &count);
+                if (count) {
+                    int* temp = new int[count];
+                    GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, format, GR_GL_SAMPLES, count,
+                                              temp);
+                    fConfigTable[i].fColorSampleCounts.setCount(count+1);
+                    // We initialize our supported values with 0 (no msaa) and reverse the order
+                    // returned by GL so that the array is ascending.
+                    fConfigTable[i].fColorSampleCounts[0] = 0;
+                    for (int j = 0; j < count; ++j) {
+                        fConfigTable[i].fColorSampleCounts[j+1] = temp[count - j - 1];
+                    }
+                    delete[] temp;
+                }
+            } else {
+                static const int kDefaultSamples[] = {0,1,2,4,8};
+                int count = SK_ARRAY_COUNT(kDefaultSamples);
+                for (; count > 0; --count) {
+                    if (kDefaultSamples[count-i] <= fMaxColorSampleCount) {
+                        break;
+                    }
+                }
+                if (count > 0) {
+                    fConfigTable[i].fColorSampleCounts.append(count, kDefaultSamples);
+                }
+            }
+        }
+    }
+
 #ifdef SK_DEBUG
     // Make sure we initialized everything.
     ConfigInfo defaultEntry;
@@ -2231,3 +2271,18 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         fUseDrawInsteadOfAllRenderTargetWrites = true;
     }
 }
+
+int GrGLCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
+    int count = fConfigTable[config].fColorSampleCounts.count();
+    if (!count || !this->isConfigRenderable(config, true)) {
+        return 0;
+    }
+
+    for (int i = 0; i < count; ++i) {
+        if (fConfigTable[config].fColorSampleCounts[i] >= requestedCount) {
+            return fConfigTable[config].fColorSampleCounts[i];
+        }
+    }
+    return fConfigTable[config].fColorSampleCounts[count-1];
+}
+

@@ -22,6 +22,9 @@ public:
         fShaderCaps.reset(new GrShaderCaps(contextOptions));
         this->applyOptionsOverrides(contextOptions);
     }
+    int getSampleCount(int /*requestCount*/, GrPixelConfig /*config*/) const override {
+        return 0;
+    }
     bool isConfigTexturable(GrPixelConfig config) const override {
         return fOptions.fConfigOptions[config].fTexturable;
     }

@@ -157,9 +157,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     check_surface(reporter, proxy.get(), origin,
                                                   widthHeight, widthHeight, config,
                                                   kInvalidResourceID, budgeted);
+                                    int supportedSamples = caps.getSampleCount(numSamples, config);
                                     check_rendertarget(reporter, caps, provider,
                                                        proxy->asRenderTargetProxy(),
-                                                       SkTMin(numSamples, caps.maxSampleCount()),
+                                                       supportedSamples,
                                                        fit, caps.maxWindowRectangles(), false);
                                 }
                             }
@@ -214,9 +215,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto config : { kAlpha_8_GrPixelConfig, kRGBA_8888_GrPixelConfig }) {
             for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                 for (auto numSamples: { 0, 4}) {
-                    if (caps.maxSampleCount() < numSamples) {
-                        continue;
-                    }
+                    int supportedNumSamples = caps.getSampleCount(numSamples, config);
 
                     bool renderable = caps.isConfigRenderable(config, numSamples > 0);
 
@@ -225,7 +224,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     desc.fWidth = kWidthHeight;
                     desc.fHeight = kWidthHeight;
                     desc.fConfig = config;
-                    desc.fSampleCnt = numSamples;
+                    desc.fSampleCnt = supportedNumSamples;
 
                     // External on-screen render target.
                     if (renderable && kOpenGL_GrBackend == ctxInfo.backend()) {
