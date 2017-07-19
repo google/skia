@@ -294,8 +294,7 @@ with open('Android.bp', 'w') as f:
                                      defs['ssse3'] +
                                      defs['sse41'] +
                                      defs['sse42'] +
-                                     defs['avx'  ] +
-                                     defs['hsw'  ])),
+                                     defs['avx'  ])),
 
     'tool_cflags'       : bpfmt(8, tool_cflags),
     'tool_shared_libs'  : bpfmt(8, tool_shared_libs),

@@ -299,7 +299,6 @@ opts("avx") {
 
 opts("hsw") {
   enabled = is_x86
-  sources = skia_opts.hsw_sources
   if (is_win) {
     cflags = [ "/arch:AVX2" ]
   } else {
