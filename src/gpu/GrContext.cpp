@@ -22,6 +22,7 @@
 #include "GrSurfaceProxyPriv.h"
 #include "GrTexture.h"
 #include "GrTextureContext.h"
+#include "GrTracing.h"
 #include "SkConvertPixels.h"
 #include "SkGr.h"
 #include "SkUnPreMultiplyPriv.h"
@@ -325,7 +326,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     RETURN_FALSE_IF_ABANDONED_PRIV
     SkASSERT(dst);
     ASSERT_OWNED_PROXY_PRIV(dst->asSurfaceProxy());
-    GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::writeSurfacePixels");
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "writeSurfacePixels", fContext);
 
     if (!dst->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {
         return false;
@@ -454,7 +455,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     RETURN_FALSE_IF_ABANDONED_PRIV
     SkASSERT(src);
     ASSERT_OWNED_PROXY_PRIV(src->asSurfaceProxy());
-    GR_AUDIT_TRAIL_AUTO_FRAME(&fContext->fAuditTrail, "GrContextPriv::readSurfacePixels");
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrContextPriv", "readSurfacePixels", fContext);
 
     // MDB TODO: delay this instantiation until later in the method
     if (!src->asSurfaceProxy()->instantiate(fContext->resourceProvider())) {

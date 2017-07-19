@@ -18,13 +18,10 @@
 #include "CrashHandler.h"
 #include "GMBench.h"
 #include "ProcStats.h"
-#include "ResultsWriter.h"
 #include "RecordingBench.h"
+#include "ResultsWriter.h"
 #include "SKPAnimationBench.h"
 #include "SKPBench.h"
-#include "Stats.h"
-#include "ios_utils.h"
-
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
 #include "SkBBoxHierarchy.h"
@@ -35,6 +32,7 @@
 #include "SkCommonFlagsConfig.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
+#include "SkDebugfTracer.h"
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
@@ -46,7 +44,9 @@
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
 #include "SkThreadUtils.h"
+#include "Stats.h"
 #include "ThermalManager.h"
+#include "ios_utils.h"
 
 #include <stdlib.h>
 
@@ -1099,6 +1099,9 @@ static void start_keepalive() {
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+    if (FLAGS_trace) {
+        SkEventTracer::SetInstance(new SkDebugfTracer);
+    }
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif

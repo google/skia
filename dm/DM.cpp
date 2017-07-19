@@ -19,6 +19,8 @@
 #include "SkCommonFlagsConfig.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
+#include "SkDebugfTracer.h"
+#include "SkEventTracer.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
@@ -29,6 +31,7 @@
 #include "SkOSPath.h"
 #include "SkPM4fPriv.h"
 #include "SkPngEncoder.h"
+#include "SkScan.h"
 #include "SkSpinlock.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
@@ -38,7 +41,6 @@
 #include "ios_utils.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
-#include "SkScan.h"
 
 #include <vector>
 
@@ -236,7 +238,8 @@ static void find_culprit() {
     #include <signal.h>
     #if !defined(SK_BUILD_FOR_ANDROID)
         #include <execinfo.h>
-    #endif
+
+#endif
 
     static constexpr int max_of() { return 0; }
     template <typename... Rest>
@@ -1263,7 +1266,10 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
-#if defined(SK_BUILD_FOR_IOS)
+    if (FLAGS_trace) {
+        SkAssertResult(SkEventTracer::SetInstance(new SkDebugfTracer()));
+    }
+    #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
     setbuf(stdout, nullptr);
