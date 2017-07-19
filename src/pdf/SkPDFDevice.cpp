@@ -2286,11 +2286,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         return;
     }
 
+    // First, figure out the src->dst transform and subset the image if needed.
     SkIRect bounds = imageSubset.image()->bounds();
-    SkPaint paint = srcPaint;
-    if (imageSubset.image()->isOpaque()) {
-        replace_srcmode_on_opaque_paint(&paint);
-    }
     SkRect srcRect = src ? *src : SkRect::Make(bounds);
     SkMatrix transform;
     transform.setRectToRect(srcRect, dst, SkMatrix::kFill_ScaleToFit);
@@ -2309,21 +2306,36 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         }
     }
 
-    // TODO(halcanary) support isAlphaOnly & getMaskFilter.
-    bool imageAlphaOnly = imageSubset.image()->isAlphaOnly() && !paint.getMaskFilter();
-    if (imageAlphaOnly) {
-        if (SkColorFilter* colorFilter = paint.getColorFilter()) {
-            sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
-            paint.setColorFilter(nullptr);
-            imageSubset = SkKeyedImage(std::move(img));
-            if (!imageSubset) {
-                return;
-            }
-            imageAlphaOnly = imageSubset.image()->isAlphaOnly();
-            // The colorfilter can make a alphonly image no longer be alphaonly.
-        }
+    // If the image is opaque and the paint's alpha is too, replace
+    // kSrc blendmode with kSrcOver.
+    SkPaint paint = srcPaint;
+    if (imageSubset.image()->isOpaque()) {
+        replace_srcmode_on_opaque_paint(&paint);
     }
-    if (imageAlphaOnly) {
+
+    // Alpha-only images need to get their color from the shader, before
+    // applying the colorfilter.
+    if (imageSubset.image()->isAlphaOnly() && paint.getColorFilter()) {
+        // must blend alpha image and shader before applying colorfilter.
+        auto surface =
+            SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(imageSubset.image()->dimensions()));
+        SkCanvas* canvas = surface->getCanvas();
+        SkPaint tmpPaint;
+        // In the case of alpha images with shaders, the shader's coordinate
+        // system is the image's coordiantes.
+        tmpPaint.setShader(sk_ref_sp(paint.getShader()));
+        tmpPaint.setColor(paint.getColor());
+        canvas->clear(0x00000000);
+        canvas->drawImage(imageSubset.image().get(), 0, 0, &tmpPaint);
+        paint.setShader(nullptr);
+        imageSubset = SkKeyedImage(surface->makeImageSnapshot());
+        SkASSERT(!imageSubset.image()->isAlphaOnly());
+    }
+
+    if (imageSubset.image()->isAlphaOnly()) {
+        // The ColorFilter applies to the paint color/shader, not the alpha layer.
+        SkASSERT(nullptr == paint.getColorFilter());
+
         sk_sp<SkImage> mask = alpha_image_to_greyscale_image(imageSubset.image().get());
         if (!mask) {
             return;
@@ -2333,12 +2345,24 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();
         {
             SkCanvas canvas(maskDevice.get());
-            canvas.concat(transform);
-            canvas.concat(ctm);
-            // TODO(halcanary): investigate sub-pixel clipping.
-            canvas.drawImage(mask, 0, 0);
+            if (paint.getMaskFilter()) {
+                // This clip prevents the mask image shader from covering
+                // entire device if unnecessary.
+                canvas.clipRect(this->cs().bounds(this->bounds()));
+                canvas.concat(ctm);
+                SkPaint tmpPaint;
+                tmpPaint.setShader(mask->makeShader(&transform));
+                tmpPaint.setMaskFilter(sk_ref_sp(paint.getMaskFilter()));
+                canvas.drawRect(dst, tmpPaint);
+            } else {
+                canvas.concat(ctm);
+                if (src && !is_integral(*src)) {
+                    canvas.clipRect(dst);
+                }
+                canvas.concat(transform);
+                canvas.drawImage(mask, 0, 0);
+            }
         }
-        remove_color_filter(&paint);
         if (!ctm.isIdentity() && paint.getShader()) {
             transform_shader(&paint, ctm); // Since we are using identity matrix.
         }
@@ -2355,8 +2379,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     if (paint.getMaskFilter()) {
         paint.setShader(imageSubset.image()->makeShader(&transform));
         SkPath path;
-        path.addRect(SkRect::Make(imageSubset.image()->bounds()));
-        this->internalDrawPath(this->cs(), this->ctm(), path, paint, &transform, true);
+        path.addRect(dst);  // handles non-integral clipping.
+        this->internalDrawPath(this->cs(), this->ctm(), path, paint, nullptr, true);
         return;
     }
     transform.postConcat(ctm);
@@ -2471,11 +2495,6 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
 
     if (SkColorFilter* colorFilter = paint.getColorFilter()) {
-        // TODO(https://bug.skia.org/4378): implement colorfilter on other
-        // draw calls.  This code here works for all
-        // drawBitmap*()/drawImage*() calls amd ImageFilters (which
-        // rasterize a layer on this backend).  Fortuanely, this seems
-        // to be how Chromium impements most color-filters.
         sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
         imageSubset = SkKeyedImage(std::move(img));
         if (!imageSubset) {
