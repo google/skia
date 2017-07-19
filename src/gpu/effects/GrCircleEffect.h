@@ -25,16 +25,17 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
     }
     const char* name() const override { return "CircleEffect"; }
+
 private:
     GrCircleEffect(int edgeType, SkPoint center, float radius)
-    : INHERITED((OptimizationFlags)  kCompatibleWithCoverageAsAlpha_OptimizationFlag )
-    , fEdgeType(edgeType)
-    , fCenter(center)
-    , fRadius(radius) {
+            : INHERITED((OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            , fEdgeType(edgeType)
+            , fCenter(center)
+            , fRadius(radius) {
         this->initClassID<GrCircleEffect>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     int fEdgeType;

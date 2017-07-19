@@ -22,18 +22,34 @@ public:
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrSimpleTextureEffect& _outer = args.fFp.cast<GrSimpleTextureEffect>();
-        (void) _outer;
+        (void)_outer;
         fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
-        SkSL::String sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-        fragBuilder->codeAppendf("vec4 _tmpVar1;%s = %s * %stexture(%s, %s).%s%s;\n", args.fOutputColor, args.fInputColor ? args.fInputColor : "vec4(1)", fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "", fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(), sk_TransformedCoords2D_0.c_str(), fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(), fColorSpaceHelper.isValid() ? SkStringPrintf(", vec4(clamp((%s * vec4(_tmpVar1.rgb, 1.0)).rgb, 0.0, _tmpVar1.a), _tmpVar1.a))", args.fUniformHandler->getUniformCStr(fColorSpaceHelper.gamutXformUniform())).c_str() : "");
+        SkSL::String sk_TransformedCoords2D_0 =
+                fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+        fragBuilder->codeAppendf(
+                "vec4 _tmpVar1;%s = %s * %stexture(%s, %s).%s%s;\n", args.fOutputColor,
+                args.fInputColor ? args.fInputColor : "vec4(1)",
+                fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "",
+                fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
+                sk_TransformedCoords2D_0.c_str(),
+                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
+                fColorSpaceHelper.isValid()
+                        ? SkStringPrintf(", vec4(clamp((%s * vec4(_tmpVar1.rgb, 1.0)).rgb, 0.0, "
+                                         "_tmpVar1.a), _tmpVar1.a))",
+                                         args.fUniformHandler->getUniformCStr(
+                                                 fColorSpaceHelper.gamutXformUniform()))
+                                  .c_str()
+                        : "");
     }
+
 private:
-    void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& _proc) override {
         const GrSimpleTextureEffect& _outer = _proc.cast<GrSimpleTextureEffect>();
         {
-        if (fColorSpaceHelper.isValid()) {
-            fColorSpaceHelper.setData(pdman, _outer.colorXform().get());
-        }
+            if (fColorSpaceHelper.isValid()) {
+                fColorSpaceHelper.setData(pdman, _outer.colorXform().get());
+            }
         }
     }
     UniformHandle fImageVar;
@@ -42,12 +58,13 @@ private:
 GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
     return new GrGLSLSimpleTextureEffect();
 }
-void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                                  GrProcessorKeyBuilder* b) const {
     b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
 }
 bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSimpleTextureEffect& that = other.cast<GrSimpleTextureEffect>();
-    (void) that;
+    (void)that;
     if (fImage != that.fImage) return false;
     if (fColorXform != that.fColorXform) return false;
     if (fMatrix != that.fMatrix) return false;
@@ -56,21 +73,18 @@ bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData* testData) {
-
     int texIdx = testData->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                                : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
-        SkShader::kClamp_TileMode,
-        SkShader::kRepeat_TileMode,
-        SkShader::kMirror_TileMode,
+            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
-        kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
-        kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+            kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
+            kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],
     };
-    GrSamplerParams params(tileModes, testData->fRandom->nextBool()
-                                                               ? GrSamplerParams::kBilerp_FilterMode
-                                                               : GrSamplerParams::kNone_FilterMode);
+    GrSamplerParams params(tileModes,
+                           testData->fRandom->nextBool() ? GrSamplerParams::kBilerp_FilterMode
+                                                         : GrSamplerParams::kNone_FilterMode);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrTest::TestColorXform(testData->fRandom);

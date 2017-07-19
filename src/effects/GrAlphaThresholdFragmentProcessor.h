@@ -13,49 +13,46 @@
 #include "SkTypes.h"
 #if SK_SUPPORT_GPU
 
-    #include "GrColorSpaceXform.h"
+#include "GrColorSpaceXform.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrColorSpaceXform.h"
 #include "effects/GrProxyMove.h"
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
-
     inline OptimizationFlags optFlags(float outerThreshold);
     sk_sp<GrColorSpaceXform> colorXform() const { return fColorXform; }
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
-                                           sk_sp<GrColorSpaceXform> colorXform,
-                                           sk_sp<GrTextureProxy> mask,
+                                           sk_sp<GrColorSpaceXform>
+                                                   colorXform,
+                                           sk_sp<GrTextureProxy>
+                                                   mask,
                                            float innerThreshold,
                                            float outerThreshold,
                                            const SkIRect& bounds) {
-        return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(image,
-                                                                                colorXform,
-                                                                                mask,
-                                                                                innerThreshold,
-                                                                                outerThreshold,
-                                                                                bounds));
+        return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
+                image, colorXform, mask, innerThreshold, outerThreshold, bounds));
     }
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
+
 private:
-    GrAlphaThresholdFragmentProcessor(sk_sp<GrTextureProxy> image, sk_sp<GrColorSpaceXform> colorXform, sk_sp<GrTextureProxy> mask, float innerThreshold, float outerThreshold, 
-    const SkIRect& bounds
-)
-    : INHERITED(kNone_OptimizationFlags)
-    , fImage(std::move(image))
-    , fColorXform(colorXform)
-    , fMask(std::move(mask))
-    , fInnerThreshold(innerThreshold)
-    , fOuterThreshold(outerThreshold)
-    , fImageCoordTransform(
-    SkMatrix::I()
-, fImage.proxy())
-    , fMaskCoordTransform(
-    SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y()))
-, fMask.proxy()) {
+    GrAlphaThresholdFragmentProcessor(sk_sp<GrTextureProxy> image,
+                                      sk_sp<GrColorSpaceXform> colorXform,
+                                      sk_sp<GrTextureProxy> mask, float innerThreshold,
+                                      float outerThreshold, const SkIRect& bounds)
+            : INHERITED(kNone_OptimizationFlags)
+            , fImage(std::move(image))
+            , fColorXform(colorXform)
+            , fMask(std::move(mask))
+            , fInnerThreshold(innerThreshold)
+            , fOuterThreshold(outerThreshold)
+            , fImageCoordTransform(SkMatrix::I(), fImage.proxy())
+            , fMaskCoordTransform(
+                      SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
+                      fMask.proxy()) {
         this->addTextureSampler(&fImage);
         this->addTextureSampler(&fMask);
         this->addCoordTransform(&fImageCoordTransform);
@@ -63,7 +60,7 @@ private:
         this->initClassID<GrAlphaThresholdFragmentProcessor>();
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     TextureSampler fImage;
