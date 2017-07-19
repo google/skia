@@ -23,10 +23,6 @@ struct GrPoint;
 
 /**
  *  Base class for drawing paths into a GrOpList.
- *
- *  Derived classes can use stages GrPaint::kTotalStages through GrPipelineBuilder::kNumStages-1.
- *  The stages before GrPaint::kTotalStages are reserved for setting up the draw (i.e., textures and
- *  filter masks).
  */
 class SK_API GrPathRenderer : public SkRefCnt {
 public:
@@ -40,11 +36,10 @@ public:
      * rendered into the stencil.
      *
      * A GrPathRenderer can provide three levels of support for stenciling paths:
-     * 1) kNoRestriction: This is the most general. The caller sets up the GrPipelineBuilder on the
-     *                    target and calls drawPath(). The path is rendered exactly as the draw
-     *                    state indicates including support for simultaneous color and stenciling
-     *                    with arbitrary stenciling rules. Pixels partially covered by AA paths are
-     *                    affected by the stencil settings.
+     * 1) kNoRestriction: This is the most general. The caller passes a GrPaint and calls drawPath().
+     *                    The path is rendered exactly as the draw state indicates including support
+     *                    for simultaneous color and stenciling with arbitrary stenciling rules.
+     *                    Pixels partially covered by AA paths are affected by the stencil settings.
      * 2) kStencilOnly: The path renderer cannot apply arbitrary stencil rules nor shade and stencil
      *                  simultaneously. The path renderer does support the stencilPath() function
      *                  which performs no color writes and writes a non-zero stencil value to pixels
@@ -147,7 +142,7 @@ public:
 
     /**
      * Draws the path into the draw target. If getStencilSupport() would return kNoRestriction then
-     * the subclass must respect the stencil settings of the GrPipelineBuilder.
+     * the subclass must respect the stencil settings.
      */
     bool drawPath(const DrawPathArgs& args) {
         SkDEBUGCODE(args.validate();)

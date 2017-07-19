@@ -14,7 +14,6 @@
 #include "GrOpFlushState.h"
 #include "GrPathStencilSettings.h"
 #include "GrPathUtils.h"
-#include "GrPipelineBuilder.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkAutoMalloc.h"
 #include "SkGeometry.h"

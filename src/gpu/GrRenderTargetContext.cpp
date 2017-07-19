@@ -16,7 +16,6 @@
 #include "GrFixedClip.h"
 #include "GrGpuResourcePriv.h"
 #include "GrPathRenderer.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
@@ -1797,69 +1796,6 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     op->setClippedBounds(bounds);
     return this->getRTOpList()->addOp(std::move(op), *this->caps(),
                                       std::move(appliedClip), dstProxy);
-}
-
-uint32_t GrRenderTargetContext::addLegacyMeshDrawOp(GrPipelineBuilder&& pipelineBuilder,
-                                                    const GrClip& clip,
-                                                    std::unique_ptr<GrLegacyMeshDrawOp> op) {
-    ASSERT_SINGLE_OWNER
-    if (this->drawingManager()->wasAbandoned()) {
-        return SK_InvalidUniqueID;
-    }
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "addLegacyMeshDrawOp", fContext);
-
-    // Setup clip
-    SkRect bounds;
-    op_bounds(&bounds, op.get());
-    GrAppliedClip appliedClip;
-    if (!clip.apply(fContext, this, pipelineBuilder.isHWAntialias(),
-                    pipelineBuilder.hasUserStencilSettings(), &appliedClip, &bounds)) {
-        return SK_InvalidUniqueID;
-    }
-
-    // This forces instantiation of the render target. Pipeline creation is moving to flush time
-    // by which point instantiation must have occurred anyway.
-    GrRenderTarget* rt = this->accessRenderTarget();
-    if (!rt) {
-        return SK_InvalidUniqueID;
-    }
-
-    GrResourceProvider* resourceProvider = fContext->resourceProvider();
-    bool usesStencil = pipelineBuilder.hasUserStencilSettings() || appliedClip.hasStencilClip();
-    if (usesStencil) {
-        if (!resourceProvider->attachStencilAttachment(this->accessRenderTarget())) {
-            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-            return SK_InvalidUniqueID;
-        }
-    }
-
-    bool isMixedSamples = GrFSAAType::kMixedSamples == this->fsaaType() &&
-                          (pipelineBuilder.isHWAntialias() || usesStencil);
-
-    GrColor overrideColor;
-    GrProcessorSet::Analysis analysis = op->analyzeUpdateAndRecordProcessors(
-            &pipelineBuilder, &appliedClip, isMixedSamples, *this->caps(), &overrideColor);
-
-    GrPipeline::InitArgs args;
-    pipelineBuilder.getPipelineInitArgs(&args);
-    args.fAppliedClip = &appliedClip;
-    args.fRenderTarget = rt;
-    args.fCaps = this->caps();
-    args.fResourceProvider = resourceProvider;
-
-    if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, bounds, &args.fDstProxy)) {
-            return SK_InvalidUniqueID;
-        }
-    }
-    op->initPipeline(args, analysis, overrideColor);
-
-    // Add the pipeline dependencies on textures, etc before recording this op.
-    op->addDependenciesTo(this->getOpList(), *this->caps());
-
-    op->setClippedBounds(bounds);
-    return this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,

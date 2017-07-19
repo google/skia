@@ -13,7 +13,6 @@
 #include "GrGeometryProcessor.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
-#include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrStyle.h"
 #include "SkGeometry.h"

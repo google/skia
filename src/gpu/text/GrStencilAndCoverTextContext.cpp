@@ -10,7 +10,6 @@
 #include "GrContext.h"
 #include "GrPath.h"
 #include "GrPathRange.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
 #include "GrTextUtils.h"

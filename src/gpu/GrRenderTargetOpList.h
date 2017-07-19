@@ -25,7 +25,6 @@
 class GrAuditTrail;
 class GrClearOp;
 class GrCaps;
-class GrPipelineBuilder;
 class GrRenderTargetProxy;
 
 namespace gr_instanced {

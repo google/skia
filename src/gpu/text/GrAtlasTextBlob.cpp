@@ -8,7 +8,6 @@
 #include "GrAtlasTextBlob.h"
 #include "GrBlurUtils.h"
 #include "GrContext.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrTextUtils.h"
 #include "SkColorFilter.h"

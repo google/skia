@@ -29,12 +29,12 @@
 class GrAppliedClip;
 class GrDeviceCoordTexture;
 class GrOp;
-class GrPipelineBuilder;
 class GrRenderTargetContext;
 
 /**
- * Class that holds an optimized version of a GrPipelineBuilder. It is meant to be an immutable
- * class, and contains all data needed to set the state for a gpu draw.
+ * This immutable object contains information needed to set build a shader program and set API
+ * state for a draw. It is used along with a GrPrimitiveProcessor and a source of geometric
+ * data (GrMesh or GrPath) to draw.
  */
 class GrPipeline : public GrNonAtomicRef<GrPipeline> {
 public:

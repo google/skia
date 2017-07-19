@@ -14,7 +14,6 @@
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
-#include "GrPipelineBuilder.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
 #include "GrTessellator.h"
@@ -104,7 +103,7 @@ private:
 
 class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
 public:
-    DynamicVertexAllocator(size_t stride, GrLegacyMeshDrawOp::Target* target)
+    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
             : VertexAllocator(stride)
             , fTarget(target)
             , fVertexBuffer(nullptr)
@@ -121,7 +120,7 @@ public:
     const GrBuffer* vertexBuffer() const { return fVertexBuffer; }
     int firstVertex() const { return fFirstVertex; }
 private:
-    GrLegacyMeshDrawOp::Target* fTarget;
+    GrMeshDrawOp::Target* fTarget;
     const GrBuffer* fVertexBuffer;
     int fVertexCount;
     int fFirstVertex;

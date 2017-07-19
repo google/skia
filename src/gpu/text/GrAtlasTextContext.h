@@ -20,7 +20,6 @@
 
 class GrDrawOp;
 class GrRenderTargetContext;
-class GrPipelineBuilder;
 class GrTextBlobCache;
 class SkGlyph;
 

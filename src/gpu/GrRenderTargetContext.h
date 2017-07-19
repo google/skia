@@ -26,8 +26,6 @@ class GrCoverageCountingPathRenderer;
 class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
-class GrLegacyMeshDrawOp;
-class GrPipelineBuilder;
 class GrRenderTarget;
 class GrRenderTargetContextPriv;
 class GrRenderTargetOpList;
@@ -414,8 +412,6 @@ private:
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
     // dropped (e.g., due to clipping).
     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
-    uint32_t addLegacyMeshDrawOp(GrPipelineBuilder&&, const GrClip&,
-                                 std::unique_ptr<GrLegacyMeshDrawOp>);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return

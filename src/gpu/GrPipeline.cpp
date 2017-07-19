@@ -10,7 +10,6 @@
 #include "GrAppliedClip.h"
 #include "GrCaps.h"
 #include "GrGpu.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetOpList.h"
 #include "GrRenderTargetPriv.h"
@@ -50,8 +49,7 @@ void GrPipeline::init(const InitArgs& args) {
         fDstTextureOffset = args.fDstProxy.offset();
     }
 
-    // Copy GrFragmentProcessors from GrPipelineBuilder to Pipeline, possibly removing some of the
-    // color fragment processors.
+    // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
     fNumColorProcessors = args.fProcessors->numColorFragmentProcessors();
     int numTotalProcessors =
             fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();

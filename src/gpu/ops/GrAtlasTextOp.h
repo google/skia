@@ -150,7 +150,7 @@ private:
                kLCDBGRDistanceField_MaskType == fMaskType;
     }
 
-    inline void flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
+    inline void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
 
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
@@ -203,7 +203,7 @@ private:
  */
 class GrBlobRegenHelper {
 public:
-    GrBlobRegenHelper(const GrAtlasTextOp* op, GrLegacyMeshDrawOp::Target* target,
+    GrBlobRegenHelper(const GrAtlasTextOp* op, GrMeshDrawOp::Target* target,
                       GrAtlasTextOp::FlushInfo* flushInfo)
             : fOp(op), fTarget(target), fFlushInfo(flushInfo) {}
 
@@ -213,7 +213,7 @@ public:
 
 private:
     const GrAtlasTextOp* fOp;
-    GrLegacyMeshDrawOp::Target* fTarget;
+    GrMeshDrawOp::Target* fTarget;
     GrAtlasTextOp::FlushInfo* fFlushInfo;
 };
 

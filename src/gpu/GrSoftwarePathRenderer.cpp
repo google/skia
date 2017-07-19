@@ -9,7 +9,6 @@
 #include "GrAuditTrail.h"
 #include "GrClip.h"
 #include "GrGpuResourcePriv.h"
-#include "GrPipelineBuilder.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
 #include "ops/GrDrawOp.h"

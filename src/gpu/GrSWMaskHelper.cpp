@@ -9,7 +9,6 @@
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"

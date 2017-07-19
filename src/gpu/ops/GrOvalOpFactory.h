@@ -12,7 +12,6 @@
 #include "SkRefCnt.h"
 
 class GrDrawOp;
-class GrLegacyMeshDrawOp;
 class GrPaint;
 class GrShaderCaps;
 class GrStyle;

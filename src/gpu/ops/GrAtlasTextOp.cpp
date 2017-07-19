@@ -144,7 +144,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
     this->flush(target, &flushInfo);
 }
 
-void GrAtlasTextOp::flush(GrLegacyMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
     GrMesh mesh(GrPrimitiveType::kTriangles);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);

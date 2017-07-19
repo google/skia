@@ -13,7 +13,6 @@
 #if SK_SUPPORT_GPU
 
 #include "GrAppliedClip.h"
-#include "GrPipelineBuilder.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetPriv.h"
 #include "GrTypesPriv.h"
