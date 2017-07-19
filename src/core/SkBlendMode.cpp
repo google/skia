@@ -62,48 +62,46 @@ bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoe
 }
 
 void SkBlendMode_AppendStagesNoClamp(SkBlendMode mode, SkRasterPipeline* p) {
-    auto stage = SkRasterPipeline::srcover;
     switch (mode) {
-        case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
-        case SkBlendMode::kSrc:      return;  // This stage is a no-op.
-        case SkBlendMode::kDst:      stage = SkRasterPipeline::move_dst_src; break;
-        case SkBlendMode::kSrcOver:  stage = SkRasterPipeline::srcover; break;
-        case SkBlendMode::kDstOver:  stage = SkRasterPipeline::dstover; break;
-        case SkBlendMode::kSrcIn:    stage = SkRasterPipeline::srcin; break;
-        case SkBlendMode::kDstIn:    stage = SkRasterPipeline::dstin; break;
-        case SkBlendMode::kSrcOut:   stage = SkRasterPipeline::srcout; break;
-        case SkBlendMode::kDstOut:   stage = SkRasterPipeline::dstout; break;
-        case SkBlendMode::kSrcATop:  stage = SkRasterPipeline::srcatop; break;
-        case SkBlendMode::kDstATop:  stage = SkRasterPipeline::dstatop; break;
-        case SkBlendMode::kXor:      stage = SkRasterPipeline::xor_; break;
-        case SkBlendMode::kPlus:     stage = SkRasterPipeline::plus_; break;
-        case SkBlendMode::kModulate: stage = SkRasterPipeline::modulate; break;
+        case SkBlendMode::kClear:    p->append_clear(); break;
+        case SkBlendMode::kSrc:      break;  // This stage is a no-op.
+        case SkBlendMode::kDst:      p->append_move_dst_src(); break;
+        case SkBlendMode::kSrcOver:  p->append_srcover(); break;
+        case SkBlendMode::kDstOver:  p->append_dstover(); break;
+        case SkBlendMode::kSrcIn:    p->append_srcin(); break;
+        case SkBlendMode::kDstIn:    p->append_dstin(); break;
+        case SkBlendMode::kSrcOut:   p->append_srcout(); break;
+        case SkBlendMode::kDstOut:   p->append_dstout(); break;
+        case SkBlendMode::kSrcATop:  p->append_srcatop(); break;
+        case SkBlendMode::kDstATop:  p->append_dstatop(); break;
+        case SkBlendMode::kXor:      p->append_xor_(); break;
+        case SkBlendMode::kPlus:     p->append_plus_(); break;
+        case SkBlendMode::kModulate: p->append_modulate(); break;
 
-        case SkBlendMode::kScreen:     stage = SkRasterPipeline::screen; break;
-        case SkBlendMode::kOverlay:    stage = SkRasterPipeline::overlay; break;
-        case SkBlendMode::kDarken:     stage = SkRasterPipeline::darken; break;
-        case SkBlendMode::kLighten:    stage = SkRasterPipeline::lighten; break;
-        case SkBlendMode::kColorDodge: stage = SkRasterPipeline::colordodge; break;
-        case SkBlendMode::kColorBurn:  stage = SkRasterPipeline::colorburn; break;
-        case SkBlendMode::kHardLight:  stage = SkRasterPipeline::hardlight; break;
-        case SkBlendMode::kSoftLight:  stage = SkRasterPipeline::softlight; break;
-        case SkBlendMode::kDifference: stage = SkRasterPipeline::difference; break;
-        case SkBlendMode::kExclusion:  stage = SkRasterPipeline::exclusion; break;
-        case SkBlendMode::kMultiply:   stage = SkRasterPipeline::multiply; break;
+        case SkBlendMode::kScreen:     p->append_screen(); break;
+        case SkBlendMode::kOverlay:    p->append_overlay(); break;
+        case SkBlendMode::kDarken:     p->append_darken(); break;
+        case SkBlendMode::kLighten:    p->append_lighten(); break;
+        case SkBlendMode::kColorDodge: p->append_colordodge(); break;
+        case SkBlendMode::kColorBurn:  p->append_colorburn(); break;
+        case SkBlendMode::kHardLight:  p->append_hardlight(); break;
+        case SkBlendMode::kSoftLight:  p->append_softlight(); break;
+        case SkBlendMode::kDifference: p->append_difference(); break;
+        case SkBlendMode::kExclusion:  p->append_exclusion(); break;
+        case SkBlendMode::kMultiply:   p->append_multiply(); break;
 
-        case SkBlendMode::kHue:        stage = SkRasterPipeline::hue; break;
-        case SkBlendMode::kSaturation: stage = SkRasterPipeline::saturation; break;
-        case SkBlendMode::kColor:      stage = SkRasterPipeline::color; break;
-        case SkBlendMode::kLuminosity: stage = SkRasterPipeline::luminosity; break;
+        case SkBlendMode::kHue:        p->append_hue(); break;
+        case SkBlendMode::kSaturation: p->append_saturation(); break;
+        case SkBlendMode::kColor:      p->append_color(); break;
+        case SkBlendMode::kLuminosity: p->append_luminosity(); break;
     }
-    p->append(stage);
 }
 
 void SkBlendMode_AppendClampIfNeeded(SkBlendMode mode, SkRasterPipeline* p) {
     if (mode == SkBlendMode::kPlus) {
         // Both clamp_a and clamp_1 would preserve premultiplication invariants here,
         // so we pick clamp_1 for being a smidge faster.
-        p->append(SkRasterPipeline::clamp_1);
+        p->append_clamp_1();
     }
 }
 
@@ -122,16 +120,16 @@ SkPM4f SkBlendMode_Apply(SkBlendMode mode, const SkPM4f& src, const SkPM4f& dst)
     SkRasterPipeline_<256> p;
     SkPM4f                 src_storage = src,
                            dst_storage = dst,
-                           result_storage,
-                           *src_ctx = &src_storage,
-                           *dst_ctx = &dst_storage,
-                           *res_ctx = &result_storage;
+                           res_storage;
 
-    p.append(SkRasterPipeline::load_f32, &dst_ctx);
-    p.append(SkRasterPipeline::move_src_dst);
-    p.append(SkRasterPipeline::load_f32, &src_ctx);
+    const float *src_ctx = src_storage.fVec,
+                *dst_ctx = dst_storage.fVec;
+    float* res_ctx = res_storage.fVec;
+
+    p.append_load_f32    (&src_ctx);
+    p.append_load_f32_dst(&dst_ctx);
     SkBlendMode_AppendStages(mode, &p);
-    p.append(SkRasterPipeline::store_f32, &res_ctx);
+    p.append_store_f32   (&res_ctx);
     p.run(0, 0, 1);
-    return result_storage;
+    return res_storage;
 }

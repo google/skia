@@ -371,7 +371,7 @@ static void blend_line(SkColorType dstCT, void* dst,
     // Load the final dst.
     p.append(load_dst, dst);
     p.extend(convert_to_linear_premul);
-    p.append(SkRasterPipeline::move_src_dst);
+    p.append_move_src_dst();
 
     // Load the src.
     SkRasterPipeline::StockStage load_src;

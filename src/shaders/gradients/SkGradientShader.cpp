@@ -381,20 +381,20 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         return false;
     }
 
-    p->append(SkRasterPipeline::seed_shader);
+    p->append_seed_shader();
     p->append_matrix(alloc, matrix);
     p->extend(tPipeline);
 
     switch(fTileMode) {
-        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
-        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x_1); break;
+        case kMirror_TileMode: p->append_mirror_x_1(); break;
+        case kRepeat_TileMode: p->append_repeat_x_1(); break;
         case kClamp_TileMode:
             if (!fOrigPos) {
                 // We clamp only when the stops are evenly spaced.
                 // If not, there may be hard stops, and clamping ruins hard stops at 0 and/or 1.
                 // In that case, we must make sure we're using the general "gradient" stage,
                 // which is the only stage that will correctly handle unclamped t.
-                p->append(SkRasterPipeline::clamp_x_1);
+                p->append_clamp_x_1();
             }
     }
 
@@ -411,11 +411,11 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             c_r = prepareColor(1);
 
         // See F and B below.
-        auto* f_and_b = alloc->makeArrayDefault<SkPM4f>(2);
-        f_and_b[0] = SkPM4f::From4f(c_r.to4f() - c_l.to4f());
-        f_and_b[1] = c_l;
+        auto* f_and_b = alloc->make<SkJumper_2StopGradientCtx>();
+        (c_r.to4f() - c_l.to4f()).store(f_and_b->f);
+        c_l.to4f().store(f_and_b->b);
 
-        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, f_and_b);
+        p->append_evenly_spaced_2_stop_gradient(f_and_b);
     } else {
         auto* ctx = alloc->make<SkJumper_GradientCtx>();
 
@@ -442,7 +442,7 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             add_const_color(ctx, stopCount - 1, c_l);
 
             ctx->stopCount = stopCount;
-            p->append(SkRasterPipeline::evenly_spaced_gradient, ctx);
+            p->append_evenly_spaced_gradient(ctx);
         } else {
             // Handle arbitrary stops.
 
@@ -481,12 +481,12 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
             add_const_color(ctx, stopCount++, c_l);
 
             ctx->stopCount = stopCount;
-            p->append(SkRasterPipeline::gradient, ctx);
+            p->append_gradient(ctx);
         }
     }
 
     if (!premulGrad && !this->colorsAreOpaque()) {
-        p->append(SkRasterPipeline::premul);
+        p->append_premul();
     }
 
     p->extend(postPipeline);

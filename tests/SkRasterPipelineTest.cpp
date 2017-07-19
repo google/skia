@@ -17,15 +17,15 @@ DEF_TEST(SkRasterPipeline, r) {
              blue = 0x3800380000000000ull,
              result;
 
-    void* load_s_ctx = &blue;
-    void* load_d_ctx = &red;
-    void* store_ctx  = &result;
+    const uint64_t* load_s_ctx = &blue;
+    const uint64_t* load_d_ctx = &red;
+    uint64_t* store_ctx  = &result;
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_f16,     &load_s_ctx);
-    p.append(SkRasterPipeline::load_f16_dst, &load_d_ctx);
-    p.append(SkRasterPipeline::srcover);
-    p.append(SkRasterPipeline::store_f16, &store_ctx);
+    p.append_load_f16    (&load_s_ctx);
+    p.append_load_f16_dst(&load_d_ctx);
+    p.append_srcover();
+    p.append_store_f16(&store_ctx);
     p.run(0,0,1);
 
     // We should see half-intensity magenta.
@@ -45,7 +45,7 @@ DEF_TEST(SkRasterPipeline_nonsense, r) {
     // No asserts... just a test that this is safe to run and terminates.
     // srcover() calls st->next(); this makes sure we've always got something there to call.
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::srcover);
+    p.append_srcover();
     p.run(0,0,20);
 }
 
@@ -66,8 +66,8 @@ DEF_TEST(SkRasterPipeline_JIT, r) {
 
     // Copy buf[x] to buf[x+36] for x in [15,35).
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline:: load_8888, &src);
-    p.append(SkRasterPipeline::store_8888, &dst);
+    p.append_load_8888 (&src);
+    p.append_store_8888(&dst);
     p.run(15,0, 20);
 
     for (int i = 0; i < 36; i++) {
@@ -111,14 +111,14 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         };
 
         float buffer[4][4];
-        float* src = &data[0][0];
+        const float* src = &data[0][0];
         float* dst = &buffer[0][0];
 
         for (unsigned i = 1; i <= 4; i++) {
             memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
-            p.append(SkRasterPipeline::load_f32, &src);
-            p.append(SkRasterPipeline::store_f32, &dst);
+            p.append_load_f32 (&src);
+            p.append_store_f32(&dst);
             p.run(0,0, i);
             for (unsigned j = 0; j < i; j++) {
                 for (unsigned k = 0; k < 4; k++) {
@@ -143,14 +143,14 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             {h(30), h(31), h(32), h(33)},
         };
         uint16_t buffer[4][4];
-        uint16_t* src = &data[0][0];
-        uint16_t* dst = &buffer[0][0];
+        auto src = (const uint64_t*)&data[0][0];
+        auto dst = (      uint64_t*)&buffer[0][0];
 
         for (unsigned i = 1; i <= 4; i++) {
             memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
-            p.append(SkRasterPipeline::load_f16, &src);
-            p.append(SkRasterPipeline::store_f16, &dst);
+            p.append_load_f16 (&src);
+            p.append_store_f16(&dst);
             p.run(0,0, i);
             for (unsigned j = 0; j < i; j++) {
                 REPORTER_ASSERT(r,
@@ -180,14 +180,14 @@ DEF_TEST(SkRasterPipeline_tail, r) {
         };
 
         float buffer[4][4];
-        uint16_t* src = &data[0][0];
+        const uint16_t* src = &data[0][0];
         float* dst = &buffer[0][0];
 
         for (unsigned i = 1; i <= 4; i++) {
             memset(buffer, 0xff, sizeof(buffer));
             SkRasterPipeline_<256> p;
-            p.append(SkRasterPipeline::load_rgb_u16_be, &src);
-            p.append(SkRasterPipeline::store_f32, &dst);
+            p.append_load_rgb_u16_be(&src);
+            p.append_store_f32(&dst);
             p.run(0,0, i);
             for (unsigned j = 0; j < i; j++) {
                 for (unsigned k = 0; k < 4; k++) {
@@ -214,11 +214,12 @@ DEF_TEST(SkRasterPipeline_lowp, r) {
                 | (4*i+3) << 24;
     }
 
-    void* ptr = rgba;
+    const uint32_t* src = rgba;
+    uint32_t* dst = rgba;
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_bgra,  &ptr);
-    p.append(SkRasterPipeline::store_8888, &ptr);
+    p.append_load_bgra(&src);
+    p.append_store_8888(&dst);
     p.run(0,0,64);
 
     for (int i = 0; i < 64; i++) {
@@ -239,7 +240,7 @@ DEF_TEST(SkRasterPipeline_2d, r) {
     SkRasterPipeline p(&alloc);
 
     // Splat out the (2d) dst coordinates: (0.5,0.5), (1.5,0.5), (0.5,1.5), (1.5,1.5).
-    p.append(SkRasterPipeline::seed_shader);
+    p.append_seed_shader();
 
     // Scale down to [0,1] range to write out as bytes.
     p.append_matrix(&alloc, SkMatrix::Concat(SkMatrix::MakeScale(0.5f),
@@ -247,7 +248,7 @@ DEF_TEST(SkRasterPipeline_2d, r) {
 
     // Write out to rgba, with row stride = 2 pixels.
     SkJumper_MemoryCtx ctx = { rgba, 2 };
-    p.append(SkRasterPipeline::store_8888_2d, &ctx);
+    p.append_store_8888_2d(&ctx);
 
     p.run_2d(0,0, 2,2);
 
