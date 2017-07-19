@@ -70,12 +70,6 @@ public:
         return this->INHERITED::reset(mask);
     }
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    void reset(const SkImageInfo& info, const void* addr, size_t rb, SkColorTable*) {
-        this->freeStorage();
-        this->INHERITED::reset(info, addr, rb);
-    }
-#endif
 private:
     void*   fStorage;
 

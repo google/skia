@@ -19,9 +19,6 @@
 #include "SkSize.h"
 #include "SkString.h"
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-class SkColorTable;
-#endif
 struct SkIRect;
 
 class GrTexture;
@@ -102,19 +99,11 @@ public:
 
     virtual SkDiscardableMemory* diagnostic_only_getDiscardable() const { return NULL; }
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    SkPixelRef(int width, int height, void* addr, size_t rowBytes, sk_sp<SkColorTable>);
-    SkColorTable* colorTable() const { return nullptr; }
-#endif
 protected:
     // default impl does nothing.
     virtual void onNotifyPixelsChanged();
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    void android_only_reset(int width, int height, size_t rowBytes, sk_sp<SkColorTable>);
-#else
     void android_only_reset(int width, int height, size_t rowBytes);
-#endif
 
 private:
     int                 fWidth;
