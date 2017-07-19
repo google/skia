@@ -14,7 +14,6 @@
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
-#include "GrPipelineBuilder.h"
 #include "GrProcessor.h"
 #include "GrResourceProvider.h"
 #include "GrSimpleMeshDrawOpHelper.h"

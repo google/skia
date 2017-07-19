@@ -13,7 +13,6 @@
 #include "GrMesh.h"
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
-#include "GrPipelineBuilder.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
 #include "SkString.h"
