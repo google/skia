@@ -34,6 +34,24 @@
       "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6c82a05_5a8f897c",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-19T14:31:46Z",
+      "side": 1,
+      "message": "Beats me.",
+      "parentUuid": "14f1da1c_dca73385",
+      "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
