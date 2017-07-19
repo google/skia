@@ -126,15 +126,17 @@ private:
     void initSampleCount(const VkPhysicalDeviceProperties& properties);
 
 
-    void initConfigTable(const GrVkInterface*, VkPhysicalDevice);
+    void initConfigTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
     void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
 
     struct ConfigInfo {
         ConfigInfo() : fOptimalFlags(0), fLinearFlags(0) {}
 
-        void init(const GrVkInterface*, VkPhysicalDevice, VkFormat);
+        void init(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&,
+                  VkFormat);
         static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags);
-        void initSampleCounts(const GrVkInterface*, VkPhysicalDevice, VkFormat);
+        void initSampleCounts(const GrVkInterface*, VkPhysicalDevice,
+                              const VkPhysicalDeviceProperties&, VkFormat);
 
         enum {
             kTextureable_Flag = 0x1,
