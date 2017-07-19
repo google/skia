@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9a54684_1d94f11a",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-19T01:00:04Z",
+      "side": 1,
+      "message": "Are these subclass deletes not implicit due to the base class having deleted the methods?  If so, I don\u0027t think it hurts anything to have them here explicitly.  I just want to make sure I understand what\u0027s going on.",
+      "range": {
+        "startLine": 156,
+        "startChar": 4,
+        "endLine": 157,
+        "endChar": 71
+      },
+      "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
