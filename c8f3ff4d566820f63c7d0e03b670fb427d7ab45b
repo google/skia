@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b34b1e7a_60c1860c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T13:59:26Z",
+      "side": 1,
+      "message": "nit: onQueryYUV8",
+      "range": {
+        "startLine": 7,
+        "startChar": 30,
+        "endLine": 7,
+        "endChar": 41
+      },
+      "revId": "c8f3ff4d566820f63c7d0e03b670fb427d7ab45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d8561e3_64b7a661",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T13:59:26Z",
+      "side": 1,
+      "message": "nit: \"the\"\n\nI think this sentence would also be fine if you removed the word and said \"improving code readability\".",
+      "range": {
+        "startLine": 10,
+        "startChar": 14,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "c8f3ff4d566820f63c7d0e03b670fb427d7ab45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de92e2ae_949e8547",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T13:59:26Z",
+      "side": 1,
+      "message": "We typically put a space after \"for\": \"for (\"\n\nAlso, I don\u0027t think \"yuvIdx\" helps readability. \"i\" seems fine. But I think you could make this even better by tracking the enum explicitly. e.g.\n\n  for (auto i : { SkYUVSizeInfo::kY, SkYUVSizeInfo::kU, SkYUVSizeInfo::kV }) {",
+      "range": {
+        "startLine": 826,
+        "startChar": 4,
+        "endLine": 826,
+        "endChar": 45
+      },
+      "revId": "c8f3ff4d566820f63c7d0e03b670fb427d7ab45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0a28515_7ea3540c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T13:59:26Z",
+      "side": 1,
+      "message": "Please line this up better. Often in Skia, we\u0027ll line up the second line\u0027s first parameter with the first parameter e.g.\n\n  method(param1,\n         param2);\n\nThis also makes it easier to see how similar the two parameters are.\n\nAlternatively, you could use a temporary variable for |dinfo-\u003ecomp_info|, and you could then fit both parameters on one line. (Skia allows up to 100 characters on a single line.)",
+      "range": {
+        "startLine": 828,
+        "startChar": 43,
+        "endLine": 828,
+        "endChar": 59
+      },
+      "revId": "c8f3ff4d566820f63c7d0e03b670fb427d7ab45b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
