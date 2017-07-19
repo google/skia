@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b0032b29_fe826805",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-19T19:06:54Z",
+      "side": 1,
+      "message": "except for windows. would you rather see !defined(SK_BUILD_FOR_WIN32)?",
+      "parentUuid": "2fae9e5b_d4e152c7",
+      "range": {
+        "startLine": 90,
+        "startChar": 1,
+        "endLine": 90,
+        "endChar": 27
+      },
+      "revId": "5788468cdc491b2bed28737be9d207313f39b9ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35da9ac_2a16eff2",
         "filename": "dm/DM.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "5788468cdc491b2bed28737be9d207313f39b9ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5974104f_965049e0",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-07-19T19:06:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b35da9ac_2a16eff2",
+      "range": {
+        "startLine": 285,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 1
+      },
+      "revId": "5788468cdc491b2bed28737be9d207313f39b9ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
