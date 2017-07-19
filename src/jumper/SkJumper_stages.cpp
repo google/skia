@@ -751,8 +751,7 @@ STAGE(load_tables_rgb_u16_be) {
 }
 
 STAGE(byte_tables) {
-    struct Tables { const uint8_t *r, *g, *b, *a; };
-    auto tables = (const Tables*)ctx;
+    auto tables = (const SkJumper_ByteTablesCtx*)ctx;
 
     r = from_byte(gather(tables->r, round(r, 255.0f)));
     g = from_byte(gather(tables->g, round(g, 255.0f)));
@@ -761,8 +760,7 @@ STAGE(byte_tables) {
 }
 
 STAGE(byte_tables_rgb) {
-    struct Tables { const uint8_t *r, *g, *b; int n; };
-    auto tables = (const Tables*)ctx;
+    auto tables = (const SkJumper_ByteTablesRGBCtx*)ctx;
 
     F scale = tables->n - 1;
     r = from_byte(gather(tables->r, round(r, scale)));
@@ -1212,8 +1210,7 @@ STAGE(gradient) {
 }
 
 STAGE(evenly_spaced_2_stop_gradient) {
-    struct Ctx { float f[4], b[4]; };
-    auto c = (const Ctx*)ctx;
+    auto c = (const SkJumper_2StopGradientCtx*)ctx;
 
     auto t = r;
     r = mad(t, c->f[0], c->b[0]);
