@@ -16,6 +16,24 @@
       "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14f1da1c_dca73385",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-19T14:28:27Z",
+      "side": 1,
+      "message": "It did cross my mind that this could be problematic, but when I grepped I found e.g. https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/SkGr.cpp?rcl\u003d11f898f1548605a188fe3488b22ddc5f7620895d\u0026l\u003d568.\n\nHow does SkGr get away with it?",
+      "parentUuid": "544ea3b9_dbdf2987",
+      "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
