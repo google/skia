@@ -10,7 +10,7 @@
 
 #include "SkGradientShaderPriv.h"
 
-class SkRadialGradient final : public SkGradientShaderBase {
+class SkRadialGradient : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
@@ -41,9 +41,7 @@ protected:
     bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                      SkMatrix* matrix,
                                      SkRasterPipeline* tPipeline,
-                                     SkRasterPipeline* postPipeline) const override;
-
-    bool onIsRasterPipelineOnly() const override;
+                                     SkRasterPipeline* postPipeline) const final;
 
 private:
     const SkPoint fCenter;
