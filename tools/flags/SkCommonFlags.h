@@ -35,6 +35,7 @@ DECLARE_bool(pre_log);
 DECLARE_bool(analyticAA);
 DECLARE_bool(forceAnalyticAA);
 DECLARE_bool(trace)
+DECLARE_string(jsonTrace)
 
 DECLARE_string(key);
 DECLARE_string(properties);
