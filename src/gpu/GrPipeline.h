@@ -36,7 +36,7 @@ class GrRenderTargetContext;
  * state for a draw. It is used along with a GrPrimitiveProcessor and a source of geometric
  * data (GrMesh or GrPath) to draw.
  */
-class GrPipeline : public GrNonAtomicRef<GrPipeline> {
+class GrPipeline {
 public:
     ///////////////////////////////////////////////////////////////////////////
     /// @name Creation
@@ -108,6 +108,9 @@ public:
     GrPipeline(GrRenderTarget*, ScissorState, SkBlendMode);
 
     GrPipeline(const InitArgs& args) { this->init(args); }
+
+    GrPipeline(const GrPipeline&) = delete;
+    GrPipeline& operator=(const GrPipeline&) = delete;
 
     /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
     void init(const InitArgs&);
