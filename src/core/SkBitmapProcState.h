@@ -10,8 +10,8 @@
 
 #include "SkBitmap.h"
 #include "SkBitmapController.h"
-#include "SkBitmapFilter.h"
 #include "SkBitmapProvider.h"
+#include "SkFixed.h"
 #include "SkFloatBits.h"
 #include "SkMatrix.h"
 #include "SkMipMap.h"
