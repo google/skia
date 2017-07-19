@@ -233,11 +233,7 @@ bool SkBitmap::tryAllocPixels(Allocator* allocator) {
     if (nullptr == allocator) {
         allocator = &stdalloc;
     }
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    return allocator->allocPixelRef(this, nullptr);
-#else
     return allocator->allocPixelRef(this);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -358,11 +354,7 @@ void SkBitmap::notifyPixelsChanged() const {
 /** We explicitly use the same allocator for our pixels that SkMask does,
  so that we can freely assign memory allocated by one class to the other.
  */
-bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-                                            , SkColorTable*
-#endif
-                                            ) {
+bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst) {
     const SkImageInfo info = dst->info();
     if (kUnknown_SkColorType == info.colorType()) {
 //        SkDebugf("unsupported config for info %d\n", dst->config());

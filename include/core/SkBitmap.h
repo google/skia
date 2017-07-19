@@ -9,9 +9,6 @@
 #define SkBitmap_DEFINED
 
 #include "SkColor.h"
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-#include "SkColorTable.h"
-#endif
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
 #include "SkPoint.h"
@@ -245,8 +242,7 @@ public:
 
     /**
      *  Allocate the bitmap's pixels to match the requested image info. If the Factory
-     *  is non-null, call it to allcoate the pixelref. If the ImageInfo requires
-     *  a colortable, then ColorTable must be non-null.
+     *  is non-null, call it to allcoate the pixelref.
      *
      *  On failure, the bitmap will be set to empty and return false.
      */
@@ -256,16 +252,6 @@ public:
             sk_throw();
         }
     }
-
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, sk_sp<SkColorTable>,
-                                              uint32_t flags = 0) {
-        return this->tryAllocPixelsFlags(info, flags);
-    }
-    void allocPixels(const SkImageInfo& info, sk_sp<SkColorTable>, uint32_t flags = 0) {
-        this->allocPixels(info, flags);
-    }
-#endif
 
     /**
      *  Allocate the bitmap's pixels to match the requested image info and
@@ -303,13 +289,6 @@ public:
         this->allocPixels(info);
     }
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    // TEMPORARY -- remove after updating Android BitmapTests.cpp:35
-    void allocPixels(const SkImageInfo& info, std::nullptr_t, SkColorTable*) {
-        this->allocPixels(info);
-    }
-#endif
-
     /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
      *  optional ReleaseProc and context. When the pixels are no longer
@@ -332,17 +311,9 @@ public:
         return this->installPixels(info, pixels, rowBytes, nullptr, nullptr);
     }
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, SkColorTable*,
-                       void (*releaseProc)(void* addr, void* context), void* context) {
-        return this->installPixels(info, pixels, rowBytes, releaseProc, context);
-    }
-#endif
-
     /**
-     *  Call installPixels with no ReleaseProc specified. This means
-     *  that the caller must ensure that the specified pixels and
-     *  colortable are valid for the lifetime of the created bitmap
+     *  Call installPixels with no ReleaseProc specified. This means that the caller must ensure
+     *  that the specified pixels are valid for the lifetime of the created bitmap
      *  (and its pixelRef).
      */
     bool installPixels(const SkPixmap&);
@@ -358,11 +329,7 @@ public:
         will automatically release any pixelref previously installed. Only call
         this if you are handling ownership/lifetime of the pixel memory.
 
-        If the bitmap retains a reference to the colortable (assuming it is
-        not null) it will take care of incrementing the reference count.
-
         @param pixels   Address for the pixels, managed by the caller.
-        @param ctable   ColorTable (or null) that matches the specified pixels
     */
     void setPixels(void* p);
 
@@ -371,11 +338,6 @@ public:
         If this is called multiple times, a new pixelref object will be created
         each time.
 
-        If the bitmap retains a reference to the colortable (assuming it is
-        not null) it will take care of incrementing the reference count.
-
-        @param ctable   ColorTable (or null) to use with the pixels that will
-                        be allocated. Only used if colortype == kIndex_8_SkColorType
         @return true if the allocation succeeds. If not the pixelref field of
                      the bitmap will be unchanged.
     */
@@ -392,16 +354,9 @@ public:
         If this is called multiple times, a new pixelref object will be created
         each time.
 
-        If the bitmap retains a reference to the colortable (assuming it is
-        not null) it will take care of incrementing the reference count.
-
         @param allocator The Allocator to use to create a pixelref that can
                          manage the pixel memory for the current ImageInfo.
                          If allocator is NULL, the standard HeapAllocator will be used.
-        @param ctable   ColorTable (or null) to use with the pixels that will
-                        be allocated. Only used if colortype == kIndex_8_SkColorType.
-                        If it is non-null and the colortype is not indexed, it will
-                        be ignored.
         @return true if the allocation succeeds. If not the pixelref field of
                      the bitmap will be unchanged.
     */
@@ -412,25 +367,6 @@ public:
             sk_throw();
         }
     }
-
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    void setPixels(void* p, SkColorTable*) {
-        this->setPixels(p);
-    }
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(SkColorTable*) {
-        return this->tryAllocPixels();
-    }
-
-    void allocPixels(SkColorTable*) {
-        this->allocPixels();
-    }
-    bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator, SkColorTable*) {
-        return this->tryAllocPixels(allocator);
-    }
-    void allocPixels(Allocator* allocator, SkColorTable*) {
-        this->allocPixels(allocator);
-    }
-#endif
 
     /**
      *  Return the current pixelref object or NULL if there is none. This does
@@ -460,21 +396,11 @@ public:
     void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
 
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
-        it has non-null pixels, and if required by its colortype, it has a
-        non-null colortable. Returns true if all of the above are met.
+        it has non-null pixels).
     */
     bool readyToDraw() const {
         return this->getPixels() != NULL;
     }
-
-    /** Return the bitmap's colortable, if it uses one (i.e. colorType is
-        Index_8).
-        Otherwise returns NULL. Does not affect the colortable's
-        reference count.
-    */
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    SkColorTable* getColorTable() const { return nullptr; }
-#endif
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged
@@ -570,14 +496,6 @@ public:
      *  in the release build.
      */
     inline uint8_t* getAddr8(int x, int y) const;
-
-    /** Returns the color corresponding to the pixel specified by x,y for
-     *  colortable based bitmaps.
-     *  In debug build, this asserts that the pixels are allocated,
-     *  that the colortype is indexed, and that the colortable is allocated,
-     *  however none of these checks are performed in the release build.
-     */
-    inline SkPMColor getIndex8Color(int x, int y) const;
 
     /** Set dst to be a setset of this bitmap. If possible, it will share the
         pixel memory, and just point into a subset of it. However, if the colortype
@@ -692,15 +610,9 @@ public:
     public:
         /** Allocate the pixel memory for the bitmap, given its dimensions and
             colortype. Return true on success, where success means either setPixels
-            or setPixelRef was called. If the colortype requires a colortable,
-            it also must be installed via setColorTable. If false is returned,
-            the bitmap and colortable should be left unchanged.
+            or setPixelRef was called.
         */
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-        virtual bool allocPixelRef(SkBitmap*, SkColorTable*) = 0;
-#else
         virtual bool allocPixelRef(SkBitmap*) = 0;
-#endif
     private:
         typedef SkRefCnt INHERITED;
     };
@@ -711,11 +623,7 @@ public:
     */
     class HeapAllocator : public Allocator {
     public:
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-        bool allocPixelRef(SkBitmap*, SkColorTable*) override;
-#else
         bool allocPixelRef(SkBitmap*) override;
-#endif
     };
 
     SK_TO_STRING_NONVIRT()
@@ -739,7 +647,7 @@ private:
     uint32_t            fRowBytes;
     uint8_t             fFlags;
 
-    /*  Unreference any pixelrefs or colortables
+    /*  Unreference any pixelrefs
     */
     void freePixels();
     void updatePixelsFromRef();

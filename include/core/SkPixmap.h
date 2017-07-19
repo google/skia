@@ -12,9 +12,6 @@
 #include "SkFilterQuality.h"
 #include "SkImageInfo.h"
 
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-class SkColorTable;
-#endif
 class SkData;
 struct SkMask;
 
@@ -209,17 +206,6 @@ public:
 
     bool erase(SkColor color) const { return this->erase(color, this->bounds()); }
     bool erase(const SkColor4f&, const SkIRect* subset = nullptr) const;
-
-#ifdef SK_SUPPORT_LEGACY_COLORTABLE
-    SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes, SkColorTable*)
-    : fPixels(addr), fRowBytes(rowBytes), fInfo(info)
-    {}
-    void reset(const SkImageInfo& info, const void* addr, size_t rowBytes,
-               SkColorTable*) {
-        this->reset(info, addr, rowBytes);
-    }
-    SkColorTable* ctable() const { return nullptr; }
-#endif
 
 private:
     const void*     fPixels;
