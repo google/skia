@@ -152,7 +152,6 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         // with it. This is unfortunate - we'll have two texture objects referencing the same GPU
         // object. However, no client can ever see the original texture, so this should be safe.
         tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture, fSurfaceOrigin,
-                                                              kNone_GrBackendTextureFlag, 0,
                                                               kBorrow_GrWrapOwnership);
         if (!tex) {
             fRefHelper->fBorrowingContextID = SK_InvalidGenID;

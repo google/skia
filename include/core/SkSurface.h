@@ -81,15 +81,6 @@ public:
     }
 
     /**
-     *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. The kRenderTarget flag
-     *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
-     *  of the texture and the client must ensure the texture is valid for the lifetime of the
-     *  SkSurface.
-     */
-    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext*, const GrBackendTextureDesc&,
-                                                   sk_sp<SkColorSpace>, const SkSurfaceProps*);
-
-    /**
      *  Used to wrap a pre-existing backend 3D API texture as a SkSurface. Skia will not assume
      *  ownership of the texture and the client must ensure the texture is valid for the lifetime
      *  of the SkSurface. If sampleCnt > 0, then we will create an intermediate mssa surface which
@@ -123,9 +114,6 @@ public:
      *  of the texture and the client must ensure the texture is valid for the lifetime of the
      *  SkSurface.
      */
-    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(
-        GrContext*, const GrBackendTextureDesc&, sk_sp<SkColorSpace>, const SkSurfaceProps*);
-
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*,
                                                                  const GrBackendTexture&,
                                                                  GrSurfaceOrigin origin,
@@ -134,23 +122,13 @@ public:
                                                                  const SkSurfaceProps*);
 
     /**
-     * Legacy versions of the above factories, without color space support. These create "legacy"
-     * surfaces that operate without gamma correction or color management.
+     * Legacy version of the above factory, without color space support. This creates a "legacy"
+     * surface that operate without gamma correction or color management.
      */
-    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                                   const SkSurfaceProps* props) {
-        return MakeFromBackendTexture(ctx, desc, nullptr, props);
-    }
-
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* ctx,
                                                         const GrBackendRenderTargetDesc& desc,
                                                         const SkSurfaceProps* props) {
         return MakeFromBackendRenderTarget(ctx, desc, nullptr, props);
-    }
-
-    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(
-            GrContext* ctx, const GrBackendTextureDesc& desc, const SkSurfaceProps* props) {
-        return MakeFromBackendTextureAsRenderTarget(ctx, desc, nullptr, props);
     }
 
 

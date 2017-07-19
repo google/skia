@@ -71,9 +71,14 @@ private:
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrSurfaceOrigin,
-                                          GrBackendTextureFlags,
-                                          int sampleCnt,
                                           GrWrapOwnership) override {
+        return nullptr;
+    }
+
+    sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
+                                                    GrSurfaceOrigin,
+                                                    int sampleCnt,
+                                                    GrWrapOwnership) override {
         return nullptr;
     }
 

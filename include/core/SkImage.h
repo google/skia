@@ -87,54 +87,7 @@ public:
      */
     static sk_sp<SkImage> MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* subset = nullptr);
 
-    /**
-     *  Create a new image from the specified descriptor. Note - the caller is responsible for
-     *  managing the lifetime of the underlying platform texture.
-     *
-     *  Will return NULL if the specified descriptor is unsupported.
-     *
-     *  It is preferred to use the new methods which take a GrBackendTexture instead of a
-     *  GrBackendTextureDesc. This method will eventually be removed.
-     */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc) {
-        return MakeFromTexture(ctx, desc, kPremul_SkAlphaType, nullptr, nullptr, nullptr);
-    }
-
-    static sk_sp<SkImage> MakeFromTexture(GrContext* ctx, const GrBackendTextureDesc& de,
-                                          SkAlphaType at) {
-        return MakeFromTexture(ctx, de, at, nullptr, nullptr, nullptr);
-    }
-
     typedef void (*TextureReleaseProc)(ReleaseContext);
-
-    /**
-     *  Create a new image from the specified descriptor. The underlying platform texture must stay
-     *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
-     *  no longer is holding a reference to it.
-     *
-     *  Will return NULL if the specified descriptor is unsupported.
-     *
-     *  It is preferred to use the new methods which take a GrBackendTexture instead of a
-     *  GrBackendTextureDesc. This method will eventually be removed.
-     */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                          SkAlphaType at, TextureReleaseProc trp,
-                                          ReleaseContext rc) {
-        return MakeFromTexture(ctx, desc, at, nullptr, trp, rc);
-    }
-
-    /**
-    *  Create a new image from the specified descriptor. The underlying platform texture must stay
-    *  valid and unaltered until the specified release-proc is invoked, indicating that Skia
-    *  no longer is holding a reference to it.
-    *
-    *  Will return NULL if the specified descriptor is unsupported.
-     *
-     *  It is preferred to use the new methods which take a GrBackendTexture instead of a
-     *  GrBackendTextureDesc. This method will eventually be removed.
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrContext*, const GrBackendTextureDesc&, SkAlphaType,
-                                          sk_sp<SkColorSpace>, TextureReleaseProc, ReleaseContext);
 
     /**
      *  Create a new image from the specified descriptor. Note - the caller is responsible for
@@ -175,19 +128,6 @@ public:
      */
     static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext*, sk_sp<SkData>, bool buildMips,
                                                       SkColorSpace* dstColorSpace);
-
-    /**
-     *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the
-     *  texture when the image is released.
-     *
-     *  Will return NULL if the specified descriptor is unsupported.
-     *
-     *  It is preferred to use the new methods which take a GrBackendTexture instead of a
-     *  GrBackendTextureDesc. This method will eventually be removed.
-     */
-    static sk_sp<SkImage> MakeFromAdoptedTexture(GrContext*, const GrBackendTextureDesc&,
-                                                 SkAlphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> = nullptr);
 
     /**
      *  Create a new image from the specified descriptor. Note - Skia will delete or recycle the

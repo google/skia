@@ -266,11 +266,8 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    GrBackendTextureFlags flags = kNone_GrBackendTextureFlag;
     sk_sp<GrTexture> tex = ctx->resourceProvider()->wrapBackendTexture(backendTex,
                                                                        origin,
-                                                                       flags,
-                                                                       0,
                                                                        ownership);
     if (!tex) {
         return nullptr;
@@ -283,25 +280,6 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(tex)));
     return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
                                    at, std::move(proxy), std::move(colorSpace), budgeted);
-}
-
-sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                        SkAlphaType at, sk_sp<SkColorSpace> cs,
-                                        TextureReleaseProc releaseP, ReleaseContext releaseC) {
-    SkASSERT(!(kRenderTarget_GrBackendTextureFlag & desc.fFlags));
-    GrBackendTexture tex(desc, ctx->contextPriv().getBackend());
-    return new_wrapped_texture_common(ctx, tex, desc.fOrigin, at, std::move(cs),
-                                      kBorrow_GrWrapOwnership,
-                                      releaseP, releaseC);
-}
-
-sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx, const GrBackendTextureDesc& desc,
-                                               SkAlphaType at, sk_sp<SkColorSpace> cs) {
-    SkASSERT(!(kRenderTarget_GrBackendTextureFlag & desc.fFlags));
-    GrBackendTexture tex(desc, ctx->contextPriv().getBackend());
-    return new_wrapped_texture_common(ctx, tex, desc.fOrigin, at, std::move(cs),
-                                      kAdopt_GrWrapOwnership,
-                                      nullptr, nullptr);
 }
 
 sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,

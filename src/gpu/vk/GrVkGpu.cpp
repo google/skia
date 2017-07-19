@@ -855,43 +855,60 @@ static GrSurfaceOrigin resolve_origin(GrSurfaceOrigin origin) {
     }
 }
 
-sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrSurfaceOrigin origin,
-                                               GrBackendTextureFlags flags,
-                                               int sampleCnt,
-                                               GrWrapOwnership ownership) {
+static bool check_backend_texture(const GrBackendTexture& backendTex) {
     const GrVkImageInfo* info = backendTex.getVkImageInfo();
     if (!info) {
-        return nullptr;
-    }
-
-    int maxSize = this->caps()->maxTextureSize();
-    if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
-        return nullptr;
+        return false;
     }
 
     if (VK_NULL_HANDLE == info->fImage || VK_NULL_HANDLE == info->fAlloc.fMemory) {
-        return nullptr;
+        return false;
     }
 
     SkASSERT(backendTex.config() == GrVkFormatToPixelConfig(info->fFormat));
+    return true;
+}
+
+sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
+                                               GrSurfaceOrigin origin,
+                                               GrWrapOwnership ownership) {
+    if (!check_backend_texture(backendTex)) {
+        return nullptr;
+    }
 
     GrSurfaceDesc surfDesc;
-    // next line relies on GrBackendTextureFlags matching GrTexture's
-    surfDesc.fFlags = (GrSurfaceFlags)flags;
+    surfDesc.fFlags = kNone_GrSurfaceFlags;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
-    surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
-    bool renderTarget = SkToBool(flags & kRenderTarget_GrBackendTextureFlag);
+    surfDesc.fSampleCnt = 0;
     // In GL, Chrome assumes all textures are BottomLeft
     // In VK, we don't have this restriction
     surfDesc.fOrigin = resolve_origin(origin);
 
-    if (!renderTarget) {
-        return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, info);
+    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, backendTex.getVkImageInfo());
+}
+
+sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
+                                                         GrSurfaceOrigin origin,
+                                                         int sampleCnt,
+                                                         GrWrapOwnership ownership) {
+    if (!check_backend_texture(backendTex)) {
+        return nullptr;
     }
-    return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership, info);
+
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    surfDesc.fWidth = backendTex.width();
+    surfDesc.fHeight = backendTex.height();
+    surfDesc.fConfig = backendTex.config();
+    surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
+    // In GL, Chrome assumes all textures are BottomLeft
+    // In VK, we don't have this restriction
+    surfDesc.fOrigin = resolve_origin(origin);
+
+    return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership,
+                                                                   backendTex.getVkImageInfo());
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,

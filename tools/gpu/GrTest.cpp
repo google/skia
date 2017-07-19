@@ -30,6 +30,7 @@
 #include "text/GrTextBlobCache.h"
 
 namespace GrTest {
+
 void SetupAlwaysEvictAtlas(GrContext* context) {
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
@@ -61,17 +62,27 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
 
 GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
                                       GrPixelConfig config, GrBackendObject handle) {
+    switch (backend) {
 #ifdef SK_VULKAN
-    if (kVulkan_GrBackend == backend) {
-        GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
-        return GrBackendTexture(width, height, *vkInfo);
-    }
+        case kVulkan_GrBackend: {
+            GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
+            return GrBackendTexture(width, height, *vkInfo);
+        }
 #endif
-    SkASSERT(kOpenGL_GrBackend == backend);
-    GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
-    return GrBackendTexture(width, height, config, *glInfo);
+        case kOpenGL_GrBackend: {
+            GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
+            return GrBackendTexture(width, height, config, *glInfo);
+        }
+        case kMock_GrBackend: {
+            GrMockTextureInfo* mockInfo = (GrMockTextureInfo*)(handle);
+            return GrBackendTexture(width, height, config, *mockInfo);
+        }
+        default:
+            return GrBackendTexture();
+    }
 }
-};
+
+}  // namespace GrTest
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
     return SkToBool(fTarget);

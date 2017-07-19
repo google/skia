@@ -203,17 +203,6 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* ctx, SkBudgeted budgeted
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
-                                                   const GrBackendTextureDesc& desc,
-                                                   sk_sp<SkColorSpace> colorSpace,
-                                                   const SkSurfaceProps* props) {
-    if (!context) {
-        return nullptr;
-    }
-    GrBackendTexture tex(desc, context->contextPriv().getBackend());
-    return MakeFromBackendTexture(context, tex, desc.fOrigin, desc.fSampleCnt, colorSpace, props);
-}
-
 sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace> colorSpace,
@@ -286,18 +275,6 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     }
 
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
-}
-
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
-                                                                 const GrBackendTextureDesc& desc,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 const SkSurfaceProps* props) {
-    if (!context) {
-        return nullptr;
-    }
-    GrBackendTexture tex(desc, context->contextPriv().getBackend());
-    return MakeFromBackendTextureAsRenderTarget(context, tex, desc.fOrigin, desc.fSampleCnt,
-                                                std::move(colorSpace), props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,

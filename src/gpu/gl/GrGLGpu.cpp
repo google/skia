@@ -523,41 +523,71 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 }
 
-sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrSurfaceOrigin origin,
-                                               GrBackendTextureFlags flags,
-                                               int sampleCnt,
-                                               GrWrapOwnership ownership) {
+static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGLCaps& caps,
+                                  GrGLTexture::IDDesc* idDesc) {
     const GrGLTextureInfo* info = backendTex.getGLTextureInfo();
     if (!info || !info->fID) {
-        return nullptr;
+        return false;
     }
 
-    // next line relies on GrBackendTextureFlags matching GrTexture's
-    bool renderTarget = SkToBool(flags & kRenderTarget_GrBackendTextureFlag);
+    idDesc->fInfo = *info;
 
+    if (GR_GL_TEXTURE_EXTERNAL == idDesc->fInfo.fTarget) {
+        if (!caps.shaderCaps()->externalTextureSupport()) {
+            return false;
+        }
+    } else if (GR_GL_TEXTURE_RECTANGLE == idDesc->fInfo.fTarget) {
+        if (!caps.rectangleTextureSupport()) {
+            return false;
+        }
+    } else if (GR_GL_TEXTURE_2D != idDesc->fInfo.fTarget) {
+        return false;
+    }
+    return true;
+}
+
+sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
+                                               GrSurfaceOrigin origin,
+                                               GrWrapOwnership ownership) {
     GrGLTexture::IDDesc idDesc;
-    idDesc.fInfo = *info;
+    if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
+        return nullptr;
+    }
+    if (kBorrow_GrWrapOwnership == ownership) {
+        idDesc.fOwnership = GrBackendObjectOwnership::kBorrowed;
+    } else {
+        idDesc.fOwnership = GrBackendObjectOwnership::kOwned;
+    }
 
-    if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
-        if (renderTarget) {
-            // This combination is not supported.
-            return nullptr;
-        }
-        if (!this->caps()->shaderCaps()->externalTextureSupport()) {
-            return nullptr;
-        }
-    } else  if (GR_GL_TEXTURE_RECTANGLE == idDesc.fInfo.fTarget) {
-        if (!this->glCaps().rectangleTextureSupport()) {
-            return nullptr;
-        }
-    } else if (GR_GL_TEXTURE_2D != idDesc.fInfo.fTarget) {
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kNone_GrSurfaceFlags;
+    surfDesc.fWidth = backendTex.width();
+    surfDesc.fHeight = backendTex.height();
+    surfDesc.fConfig = backendTex.config();
+    surfDesc.fSampleCnt = 0;
+    // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
+    // assuming the old behaviour, which is that backend textures are always
+    // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
+    // glTexDesc.fOrigin = resolve_origin(desc.fOrigin, renderTarget);
+    if (kDefault_GrSurfaceOrigin == origin) {
+        surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    } else {
+        surfDesc.fOrigin = origin;
+    }
+    return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
+}
+
+sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
+                                                         GrSurfaceOrigin origin,
+                                                         int sampleCnt,
+                                                         GrWrapOwnership ownership) {
+    GrGLTexture::IDDesc idDesc;
+    if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
         return nullptr;
     }
 
-    // Sample count is interpreted to mean the number of samples that Gr code should allocate
-    // for a render buffer that resolves to the texture. We don't support MSAA textures.
-    if (sampleCnt && !renderTarget) {
+    // We don't support rendering to a EXTERNAL texture.
+    if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
         return nullptr;
     }
 
@@ -568,7 +598,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     }
 
     GrSurfaceDesc surfDesc;
-    surfDesc.fFlags = (GrSurfaceFlags) flags;
+    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
@@ -583,18 +613,14 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         surfDesc.fOrigin = origin;
     }
 
-    if (renderTarget) {
-        GrGLRenderTarget::IDDesc rtIDDesc;
-        if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
-            return nullptr;
-        }
-        sk_sp<GrGLTextureRenderTarget> texRT(
-                GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc));
-        texRT->baseLevelWasBoundToFBO();
-        return texRT;
+    GrGLRenderTarget::IDDesc rtIDDesc;
+    if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
+        return nullptr;
     }
-
-    return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
+    sk_sp<GrGLTextureRenderTarget> texRT(
+            GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc));
+    texRT->baseLevelWasBoundToFBO();
+    return std::move(texRT);
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,

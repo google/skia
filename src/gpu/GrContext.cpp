@@ -666,15 +666,12 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(const GrSurfac
     return this->makeWrappedSurfaceContext(std::move(proxy), nullptr);
 }
 
-sk_sp<GrSurfaceContext> GrContextPriv::makeBackendSurfaceContext(const GrBackendTexture& tex,
+sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
-                                                                 GrBackendTextureFlags flags,
-                                                                 int sampleCnt,
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex, origin,
-                                                                              flags, sampleCnt));
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex, origin));
     if (!surface) {
         return nullptr;
     }
@@ -684,7 +681,7 @@ sk_sp<GrSurfaceContext> GrContextPriv::makeBackendSurfaceContext(const GrBackend
         return nullptr;
     }
 
-    return this->makeWrappedSurfaceContext(std::move(proxy), std::move(colorSpace));
+    return this->drawingManager()->makeTextureContext(std::move(proxy), std::move(colorSpace));
 }
 
 sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
@@ -695,9 +692,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    static const GrBackendTextureFlags kForceRT = kRenderTarget_GrBackendTextureFlag;
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex, origin, kForceRT,
-                                                                              sampleCnt));
+    sk_sp<GrSurface> surface(
+            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt));
     if (!surface) {
         return nullptr;
     }
