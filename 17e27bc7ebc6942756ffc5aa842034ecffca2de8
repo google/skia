@@ -52,6 +52,24 @@
       "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7505e19b_c2db2c50",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-19T14:33:35Z",
+      "side": 1,
+      "message": "Done (leaky raw ptr).",
+      "parentUuid": "e6c82a05_5a8f897c",
+      "revId": "17e27bc7ebc6942756ffc5aa842034ecffca2de8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
