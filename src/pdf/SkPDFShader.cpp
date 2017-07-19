@@ -19,19 +19,22 @@
 #include "SkPDFUtils.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkTemplates.h"
 
 
-static void draw_image_matrix(SkCanvas* canvas, const SkImage* img, const SkMatrix& matrix) {
+static void draw_image_matrix(SkCanvas* canvas, const SkImage* img,
+                              const SkMatrix& matrix, const SkPaint& paint) {
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);
-    canvas->drawImage(img, 0, 0);
+    canvas->drawImage(img, 0, 0, &paint);
 }
 
-static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm, const SkMatrix& matrix) {
+static void draw_bitmap_matrix(SkCanvas* canvas, const SkBitmap& bm,
+                               const SkMatrix& matrix, const SkPaint& paint) {
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);
-    canvas->drawBitmap(bm, 0, 0);
+    canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
 static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
@@ -87,19 +90,21 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
     SkScalar width = SkIntToScalar(image->width());
     SkScalar height = SkIntToScalar(image->height());
 
+    SkPaint paint;
+    paint.setColor(key.fPaintColor);
     // Tiling is implied.  First we handle mirroring.
     if (tileModes[0] == SkShader::kMirror_TileMode) {
         SkMatrix xMirror;
         xMirror.setScale(-1, 1);
         xMirror.postTranslate(2 * width, 0);
-        draw_image_matrix(&canvas, image, xMirror);
+        draw_image_matrix(&canvas, image, xMirror, paint);
         patternBBox.fRight += width;
     }
     if (tileModes[1] == SkShader::kMirror_TileMode) {
         SkMatrix yMirror;
         yMirror.setScale(SK_Scalar1, -SK_Scalar1);
         yMirror.postTranslate(0, 2 * height);
-        draw_image_matrix(&canvas, image, yMirror);
+        draw_image_matrix(&canvas, image, yMirror, paint);
         patternBBox.fBottom += height;
     }
     if (tileModes[0] == SkShader::kMirror_TileMode &&
@@ -107,7 +112,7 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
         SkMatrix mirror;
         mirror.setScale(-1, -1);
         mirror.postTranslate(2 * width, 2 * height);
-        draw_image_matrix(&canvas, image, mirror);
+        draw_image_matrix(&canvas, image, mirror, paint);
     }
 
     // Then handle Clamping, which requires expanding the pattern canvas to
@@ -171,12 +176,12 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
             SkMatrix leftMatrix;
             leftMatrix.setScale(-deviceBounds.left(), 1);
             leftMatrix.postTranslate(deviceBounds.left(), 0);
-            draw_bitmap_matrix(&canvas, left, leftMatrix);
+            draw_bitmap_matrix(&canvas, left, leftMatrix, paint);
 
             if (tileModes[1] == SkShader::kMirror_TileMode) {
                 leftMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 leftMatrix.postTranslate(0, 2 * height);
-                draw_bitmap_matrix(&canvas, left, leftMatrix);
+                draw_bitmap_matrix(&canvas, left, leftMatrix, paint);
             }
             patternBBox.fLeft = 0;
         }
@@ -189,12 +194,12 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
             SkMatrix rightMatrix;
             rightMatrix.setScale(deviceBounds.right() - width, 1);
             rightMatrix.postTranslate(width, 0);
-            draw_bitmap_matrix(&canvas, right, rightMatrix);
+            draw_bitmap_matrix(&canvas, right, rightMatrix, paint);
 
             if (tileModes[1] == SkShader::kMirror_TileMode) {
                 rightMatrix.postScale(SK_Scalar1, -SK_Scalar1);
                 rightMatrix.postTranslate(0, 2 * height);
-                draw_bitmap_matrix(&canvas, right, rightMatrix);
+                draw_bitmap_matrix(&canvas, right, rightMatrix, paint);
             }
             patternBBox.fRight = deviceBounds.width();
         }
@@ -210,12 +215,12 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
             SkMatrix topMatrix;
             topMatrix.setScale(SK_Scalar1, -deviceBounds.top());
             topMatrix.postTranslate(0, deviceBounds.top());
-            draw_bitmap_matrix(&canvas, top, topMatrix);
+            draw_bitmap_matrix(&canvas, top, topMatrix, paint);
 
             if (tileModes[0] == SkShader::kMirror_TileMode) {
                 topMatrix.postScale(-1, 1);
                 topMatrix.postTranslate(2 * width, 0);
-                draw_bitmap_matrix(&canvas, top, topMatrix);
+                draw_bitmap_matrix(&canvas, top, topMatrix, paint);
             }
             patternBBox.fTop = 0;
         }
@@ -228,12 +233,12 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
             SkMatrix bottomMatrix;
             bottomMatrix.setScale(SK_Scalar1, deviceBounds.bottom() - height);
             bottomMatrix.postTranslate(0, height);
-            draw_bitmap_matrix(&canvas, bottom, bottomMatrix);
+            draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
 
             if (tileModes[0] == SkShader::kMirror_TileMode) {
                 bottomMatrix.postScale(-1, 1);
                 bottomMatrix.postTranslate(2 * width, 0);
-                draw_bitmap_matrix(&canvas, bottom, bottomMatrix);
+                draw_bitmap_matrix(&canvas, bottom, bottomMatrix, paint);
             }
             patternBBox.fBottom = deviceBounds.height();
         }
@@ -252,7 +257,8 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
 static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
                                                SkShader* shader,
                                                const SkMatrix& canvasTransform,
-                                               const SkIRect& surfaceBBox) {
+                                               const SkIRect& surfaceBBox,
+                                               SkColor paintColor) {
     // TODO(vandebo) This drops SKComposeShader on the floor.  We could
     // handle compose shader by pulling things up to a layer, drawing with
     // the first shader, applying the xfer mode and drawing again with the
@@ -262,7 +268,8 @@ static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
         SkMatrix::I(),
         surfaceBBox,
         {{0, 0, 0, 0}, 0},  // don't need the key; won't de-dup.
-        {SkShader::kClamp_TileMode, SkShader::kClamp_TileMode}};
+        {SkShader::kClamp_TileMode, SkShader::kClamp_TileMode},
+        paintColor};
 
     key.fShaderTransform = shader->getLocalMatrix();
 
@@ -287,31 +294,40 @@ static sk_sp<SkPDFObject> make_fallback_shader(SkPDFDocument* doc,
     SkSize scale = {SkIntToScalar(size.width()) / shaderRect.width(),
                     SkIntToScalar(size.height()) / shaderRect.height()};
 
-    SkBitmap bitmap;
-    bitmap.allocN32Pixels(size.width(), size.height());
-    bitmap.eraseColor(SK_ColorTRANSPARENT);
+    auto surface = SkSurface::MakeRasterN32Premul(size.width(), size.height());
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(SK_ColorTRANSPARENT);
 
     SkPaint p;
     p.setShader(sk_ref_sp(shader));
+    p.setColor(paintColor);
 
-    SkCanvas canvas(bitmap);
-    canvas.scale(scale.width(), scale.height());
-    canvas.translate(-shaderRect.x(), -shaderRect.y());
-    canvas.drawPaint(p);
+    canvas->scale(scale.width(), scale.height());
+    canvas->translate(-shaderRect.x(), -shaderRect.y());
+    canvas->drawPaint(p);
 
     key.fShaderTransform.setTranslate(shaderRect.x(), shaderRect.y());
     key.fShaderTransform.preScale(1 / scale.width(), 1 / scale.height());
 
-    SkASSERT (!bitmap.isNull());
-    bitmap.setImmutable();
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bitmap);
+    sk_sp<SkImage> image = surface->makeImageSnapshot();
     return make_image_shader(doc, key, image.get());
+}
+
+static SkColor adjust_color(SkShader* shader, SkColor paintColor) {
+    if (SkImage* img = shader->isAImage(nullptr, nullptr)) {
+        if (img->isAlphaOnly()) {
+            return paintColor;
+        }
+    }
+    // only preserve the alpha.
+    return paintColor & SK_ColorBLACK;
 }
 
 sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
                                   SkShader* shader,
                                   const SkMatrix& canvasTransform,
-                                  const SkIRect& surfaceBBox) {
+                                  const SkIRect& surfaceBBox,
+                                  SkColor paintColor) {
     SkASSERT(shader);
     SkASSERT(doc);
     if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
@@ -326,7 +342,8 @@ sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
         SkMatrix::I(),
         surfaceBBox,
         {{0, 0, 0, 0}, 0},
-        {SkShader::kClamp_TileMode, SkShader::kClamp_TileMode}};
+        {SkShader::kClamp_TileMode, SkShader::kClamp_TileMode},
+        adjust_color(shader, paintColor)};
 
     SkASSERT(shader->asAGradient(nullptr) == SkShader::kNone_GradientType) ;
     if (SkImage* skimg = shader->isAImage(&key.fShaderTransform, key.fImageTileModes)) {
@@ -341,5 +358,5 @@ sk_sp<SkPDFObject> SkPDFMakeShader(SkPDFDocument* doc,
         return pdfShader;
     }
     // Don't bother to de-dup fallback shader.
-    return make_fallback_shader(doc, shader, canvasTransform, surfaceBBox);
+    return make_fallback_shader(doc, shader, canvasTransform, surfaceBBox, key.fPaintColor);
 }

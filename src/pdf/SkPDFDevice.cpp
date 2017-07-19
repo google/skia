@@ -2180,7 +2180,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
             SkIRect bounds;
             clipStackBounds.roundOut(&bounds);
 
-            pdfShader = SkPDFMakeShader(fDocument, shader, transform, bounds);
+            pdfShader = SkPDFMakeShader(fDocument, shader, transform, bounds, paint.getColor());
 
             if (pdfShader.get()) {
                 // pdfShader has been canonicalized so we can directly compare
