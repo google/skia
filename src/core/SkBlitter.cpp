@@ -785,6 +785,9 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (gSkForceRasterPipelineBlitter) {
         return true;
     }
+    if (device.info().alphaType() == kUnpremul_SkAlphaType) {
+        return true;
+    }
 #if 0 || defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
     return true;
 #else
