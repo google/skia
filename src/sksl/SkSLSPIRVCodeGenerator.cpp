@@ -1642,6 +1642,8 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         return this->writeFloatConstructor(c, out);
     } else if (c.fType == *fContext.fInt_Type) {
         return this->writeIntConstructor(c, out);
+    } else if (c.fType == *fContext.fUInt_Type) {
+        return this->writeIntConstructor(c, out);
     }
     switch (c.fType.kind()) {
         case Type::kVector_Kind:
