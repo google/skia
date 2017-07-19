@@ -329,6 +329,7 @@ public:
     virtual GrGLvoid pushDebugGroup(GrGLenum source, GrGLuint id, GrGLsizei length,  const GrGLchar * message) {}
     virtual GrGLvoid popDebugGroup() {}
     virtual GrGLvoid objectLabel(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label) {}
+    virtual GrGLvoid getInternalformativ(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params) {}
 
 protected:
     // This must be called by leaf class

@@ -324,4 +324,5 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fPushDebugGroup = bind_to_member(this, &GrGLTestInterface::pushDebugGroup);
     fFunctions.fPopDebugGroup = bind_to_member(this, &GrGLTestInterface::popDebugGroup);
     fFunctions.fObjectLabel = bind_to_member(this, &GrGLTestInterface::objectLabel);
+    fFunctions.fGetInternalformativ = bind_to_member(this, &GrGLTestInterface::getInternalformativ);
 }

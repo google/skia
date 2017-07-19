@@ -808,5 +808,14 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    // getInternalformativ was added in GL 4.2, ES 3.0, and with extension ARB_internalformat_query
+    if ((kGL_GrGLStandard == fStandard &&
+         (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_internalformat_query"))) ||
+        (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0))) {
+        if (nullptr == fFunctions.fGetInternalformativ) {
+        //    RETURN_FALSE_INTERFACE;
+        }
+    }
+
     return true;
 }

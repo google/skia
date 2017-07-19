@@ -636,7 +636,8 @@ int GrContext::getRecommendedSampleCount(GrPixelConfig config,
             chosenSampleCount = 16;
         }
     }
-    return chosenSampleCount <= fGpu->caps()->maxSampleCount() ? chosenSampleCount : 0;
+    int supportedSampleCount = fGpu->caps()->getSampleCount(chosenSampleCount, config);
+    return chosenSampleCount <= supportedSampleCount ? supportedSampleCount : 0;
 }
 
 sk_sp<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy> proxy,

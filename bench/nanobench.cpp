@@ -61,6 +61,7 @@ extern bool gSkForceRasterPipelineBlitter;
     #include "GrCaps.h"
     #include "GrContextFactory.h"
     #include "gl/GrGLUtil.h"
+    #include "SkGr.h"
     using sk_gpu_test::GrContextFactory;
     using sk_gpu_test::TestContext;
     std::unique_ptr<GrContextFactory> gGrFactory;
@@ -416,12 +417,16 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         const auto ctxType = gpuConfig->getContextType();
         const auto ctxOverrides = gpuConfig->getContextOverrides();
         const auto sampleCount = gpuConfig->getSamples();
+        const auto colorType = gpuConfig->getColorType();
+        auto colorSpace = gpuConfig->getColorSpace();
 
         if (const GrContext* ctx = gGrFactory->get(ctxType, ctxOverrides)) {
-            const auto maxSampleCount = ctx->caps()->maxSampleCount();
-            if (sampleCount > ctx->caps()->maxSampleCount()) {
-                SkDebugf("Configuration sample count %d exceeds maximum %d.\n",
-                    sampleCount, maxSampleCount);
+            GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(colorType, colorSpace,
+                                                                  *ctx->caps());
+            int supportedSampleCount = ctx->caps()->getSampleCount(sampleCount, grPixConfig);
+            if (sampleCount != supportedSampleCount) {
+                SkDebugf("Configuration sample count %d is not a supported sample count.\n",
+                    sampleCount);
                 return;
             }
         } else {
@@ -432,9 +437,9 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         Config target = {
             gpuConfig->getTag(),
             Benchmark::kGPU_Backend,
-            gpuConfig->getColorType(),
+            colorType,
             kPremul_SkAlphaType,
-            sk_ref_sp(gpuConfig->getColorSpace()),
+            sk_ref_sp(colorSpace),
             sampleCount,
             ctxType,
             ctxOverrides,

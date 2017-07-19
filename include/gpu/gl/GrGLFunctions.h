@@ -357,6 +357,9 @@ typedef GrGLenum (GR_GL_FUNCTION_TYPE* GrGLClientWaitSyncProc)(GrGLsync sync, Gr
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLWaitSyncProc)(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteSyncProc)(GrGLsync sync);
 
+/* ARB_internalformat_query */
+typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetInternalformativProc)(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params);
+
 /* KHR_debug */
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageControlProc)(GrGLenum source, GrGLenum type, GrGLenum severity, GrGLsizei count, const GrGLuint* ids, GrGLboolean enabled);
 typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDebugMessageInsertProc)(GrGLenum source, GrGLenum type, GrGLuint id, GrGLenum severity, GrGLsizei length,  const GrGLchar* buf);

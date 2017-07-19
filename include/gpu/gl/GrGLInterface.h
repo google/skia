@@ -460,6 +460,9 @@ public:
         GrGLFunction<GrGLWaitSyncProc> fWaitSync;
         GrGLFunction<GrGLDeleteSyncProc> fDeleteSync;
 
+        /* ARB_internalforamt_query */
+        GrGLFunction<GrGLGetInternalformativProc> fGetInternalformativ;
+
         /* KHR_debug */
         GrGLFunction<GrGLDebugMessageControlProc> fDebugMessageControl;
         GrGLFunction<GrGLDebugMessageInsertProc> fDebugMessageInsert;

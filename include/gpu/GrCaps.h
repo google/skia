@@ -132,22 +132,11 @@ public:
         It is usually the max texture size, unless we're overriding it for testing. */
     int maxTileSize() const { SkASSERT(fMaxTileSize <= fMaxTextureSize); return fMaxTileSize; }
 
-    // Will be 0 if MSAA is not supported
-    int maxColorSampleCount() const { return fMaxColorSampleCount; }
-    // Will be 0 if MSAA is not supported
-    int maxStencilSampleCount() const { return fMaxStencilSampleCount; }
-    // Will be 0 if raster multisample is not supported. Raster multisample is a special HW mode
-    // where the rasterizer runs with more samples than are in the target framebuffer.
     int maxRasterSamples() const { return fMaxRasterSamples; }
-    // We require the sample count to be less than maxColorSampleCount and maxStencilSampleCount.
-    // If we are using mixed samples, we only care about stencil.
-    int maxSampleCount() const {
-        if (this->usesMixedSamples()) {
-            return this->maxStencilSampleCount();
-        } else {
-            return SkTMin(this->maxColorSampleCount(), this->maxStencilSampleCount());
-        }
-    }
+
+    // Find a sample count greater than or equal to the requested count which is supported for a
+    // color buffer of the given config. If MSAA is not support for the config we will return 0.
+    virtual int getSampleCount(int requestedCount, GrPixelConfig config) const = 0;
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 

@@ -340,6 +340,47 @@ void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_
     }
 }
 
+void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
+                                            VkPhysicalDevice physDev,
+                                            VkFormat format) {
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                              VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                              VK_IMAGE_USAGE_SAMPLED_BIT |
+                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    VkImageCreateFlags createFlags = GrVkFormatIsSRGB(format, nullptr)
+        ? VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT : 0;
+    VkImageFormatProperties properties;
+    GR_VK_CALL(interface, GetPhysicalDeviceImageFormatProperties(physDev,
+                                                                 format,
+                                                                 VK_IMAGE_TYPE_2D,
+                                                                 VK_IMAGE_TILING_OPTIMAL,
+                                                                 usage,
+                                                                 createFlags,
+                                                                 &properties));
+    VkSampleCountFlags flags = properties.sampleCounts;
+    if (flags & VK_SAMPLE_COUNT_1_BIT) {
+        fColorSampleCounts.push(0);
+    }
+    if (flags & VK_SAMPLE_COUNT_2_BIT) {
+        fColorSampleCounts.push(2);
+    }
+    if (flags & VK_SAMPLE_COUNT_4_BIT) {
+        fColorSampleCounts.push(4);
+    }
+    if (flags & VK_SAMPLE_COUNT_8_BIT) {
+        fColorSampleCounts.push(8);
+    }
+    if (flags & VK_SAMPLE_COUNT_16_BIT) {
+        fColorSampleCounts.push(16);
+    }
+    if (flags & VK_SAMPLE_COUNT_32_BIT) {
+        fColorSampleCounts.push(32);
+    }
+    if (flags & VK_SAMPLE_COUNT_64_BIT) {
+        fColorSampleCounts.push(64);
+    }
+}
+
 void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
                                 VkPhysicalDevice physDev,
                                 VkFormat format) {
@@ -348,4 +389,22 @@ void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
     GR_VK_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
     InitConfigFlags(props.linearTilingFeatures, &fLinearFlags);
     InitConfigFlags(props.optimalTilingFeatures, &fOptimalFlags);
+    if (fOptimalFlags & kRenderable_Flag) {
+        this->initSampleCounts(interface, physDev, format);
+    }
 }
+
+int GrVkCaps::getSampleCount(int requestedCount, GrPixelConfig config) const {
+    int count = fConfigTable[config].fColorSampleCounts.count();
+    if (!count || !this->isConfigRenderable(config, true)) {
+        return 0;
+    }
+
+    for (int i = 0; i < count; ++i) {
+        if (fConfigTable[config].fColorSampleCounts[i] >= requestedCount) {
+            return fConfigTable[config].fColorSampleCounts[i];
+        }
+    }
+    return fConfigTable[config].fColorSampleCounts[count-1];
+}
+

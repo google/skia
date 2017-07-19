@@ -143,7 +143,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& origDesc, SkBudgeted 
         return nullptr;
     }
 
-    desc.fSampleCnt = SkTMin(desc.fSampleCnt, caps->maxSampleCount());
+    desc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(desc.fSampleCnt >= 0 && desc.fSampleCnt <= 64);
 

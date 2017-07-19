@@ -151,6 +151,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
 // Misc Sk to Gr type conversions
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&, const GrCaps&);
+GrPixelConfig SkImageInfo2GrPixelConfig(const SkColorType, SkColorSpace*, const GrCaps& caps);
 GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info, const GrCaps& caps);
 
 bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);

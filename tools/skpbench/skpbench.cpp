@@ -7,6 +7,8 @@
 
 #include "GpuTimer.h"
 #include "GrContextFactory.h"
+#include "SkGr.h"
+
 #include "SkCanvas.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkOSFile.h"
@@ -287,9 +289,13 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "render target size %ix%i not supported by platform (max: %i)",
                                      width, height, ctx->caps()->maxRenderTargetSize());
     }
-    if (ctx->caps()->maxSampleCount() < config->getSamples()) {
-        exitf(ExitErr::kUnavailable, "sample count %i not supported by platform (max: %i)",
-                                     config->getSamples(), ctx->caps()->maxSampleCount());
+    GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(config->getColorType(),
+                                                          config->getColorSpace(),
+                                                          *ctx->caps());
+    int supportedSampleCount = ctx->caps()->getSampleCount(config->getSamples(), grPixConfig);
+    if (supportedSampleCount != config->getSamples()) {
+        exitf(ExitErr::kUnavailable, "sample count %i not supported by platform",
+                                     config->getSamples());
     }
     sk_gpu_test::TestContext* testCtx = ctxInfo.testContext();
     if (!testCtx) {
