@@ -83,7 +83,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     this->initGrCaps(properties, memoryProperties, featureFlags);
     this->initShaderCaps(properties, featureFlags);
-    this->initConfigTable(vkInterface, physDev);
+    this->initConfigTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
 
     if (SkToBool(extensionFlags & kNV_glsl_shader_GrVkExtensionFlag)) {
@@ -309,12 +309,13 @@ void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevic
     }
 }
 
-void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice physDev) {
+void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice physDev,
+                               const VkPhysicalDeviceProperties& properties) {
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         VkFormat format;
         if (GrPixelConfigToVkFormat(static_cast<GrPixelConfig>(i), &format)) {
             if (!GrPixelConfigIsSRGB(static_cast<GrPixelConfig>(i)) || fSRGBSupport) {
-                fConfigTable[i].init(interface, physDev, format);
+                fConfigTable[i].init(interface, physDev, properties, format);
             }
         }
     }
@@ -342,6 +343,7 @@ void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_
 
 void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
                                             VkPhysicalDevice physDev,
+                                            const VkPhysicalDeviceProperties& physProps,
                                             VkFormat format) {
     VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                               VK_IMAGE_USAGE_TRANSFER_DST_BIT |
@@ -360,6 +362,10 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
     VkSampleCountFlags flags = properties.sampleCounts;
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
         fColorSampleCounts.push(0);
+    }
+    if (kImagination_VkVendor == physProps.vendorID) {
+        // MSAA does not work on imagination
+        return;
     }
     if (flags & VK_SAMPLE_COUNT_2_BIT) {
         fColorSampleCounts.push(2);
@@ -383,6 +389,7 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
 
 void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
                                 VkPhysicalDevice physDev,
+                                const VkPhysicalDeviceProperties& properties,
                                 VkFormat format) {
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));
@@ -390,7 +397,7 @@ void GrVkCaps::ConfigInfo::init(const GrVkInterface* interface,
     InitConfigFlags(props.linearTilingFeatures, &fLinearFlags);
     InitConfigFlags(props.optimalTilingFeatures, &fOptimalFlags);
     if (fOptimalFlags & kRenderable_Flag) {
-        this->initSampleCounts(interface, physDev, format);
+        this->initSampleCounts(interface, physDev, properties, format);
     }
 }
 
