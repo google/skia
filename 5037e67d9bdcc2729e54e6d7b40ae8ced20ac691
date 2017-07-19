@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1f345208_b5f4b73f",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-19T19:29:12Z",
+      "side": 1,
+      "message": "Not just \u0027Android\u0027 in bot?",
+      "range": {
+        "startLine": 51,
+        "startChar": 7,
+        "endLine": 51,
+        "endChar": 18
+      },
+      "revId": "5037e67d9bdcc2729e54e6d7b40ae8ced20ac691",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
