@@ -1527,6 +1527,24 @@ SpvId SPIRVCodeGenerator::writeIntConstructor(const Constructor& c, OutputStream
     return result;
 }
 
+SpvId SPIRVCodeGenerator::writeUIntConstructor(const Constructor& c, OutputStream& out) {
+    ASSERT(c.fType == *fContext.fUInt_Type);
+    ASSERT(c.fArguments.size() == 1);
+    ASSERT(c.fArguments[0]->fType.isNumber());
+    SpvId result = this->nextId();
+    SpvId parameter = this->writeExpression(*c.fArguments[0], out);
+    if (c.fArguments[0]->fType == *fContext.fFloat_Type) {
+        this->writeInstruction(SpvOpConvertFToU, this->getType(c.fType), result, parameter,
+                               out);
+    } else if (c.fArguments[0]->fType == *fContext.fInt_Type) {
+        this->writeInstruction(SpvOpSatConvertSToU, this->getType(c.fType), result, parameter,
+                               out);
+    } else if (c.fArguments[0]->fType == *fContext.fUInt_Type) {
+        return parameter;
+    }
+    return result;
+}
+
 void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const Type& type,
                                                  OutputStream& out) {
     FloatLiteral zero(fContext, Position(), 0);
@@ -1642,6 +1660,8 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         return this->writeFloatConstructor(c, out);
     } else if (c.fType == *fContext.fInt_Type) {
         return this->writeIntConstructor(c, out);
+    } else if (c.fType == *fContext.fUInt_Type) {
+        return this->writeUIntConstructor(c, out);
     }
     switch (c.fType.kind()) {
         case Type::kVector_Kind:
