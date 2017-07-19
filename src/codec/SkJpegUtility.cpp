@@ -40,6 +40,9 @@ static boolean sk_fill_buffered_input_buffer(j_decompress_ptr dinfo) {
 
     // libjpeg is still happy with a less than full read, as long as the result is non-zero
     if (bytes == 0) {
+        // Let libjpeg know that the buffer needs to be refilled
+        src->next_input_byte = nullptr;
+        src->bytes_in_buffer = 0;
         return false;
     }
 
