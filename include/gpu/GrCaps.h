@@ -8,10 +8,10 @@
 #ifndef GrCaps_DEFINED
 #define GrCaps_DEFINED
 
-#include "GrTypes.h"
-#include "GrTypesPriv.h"
+#include "../private/GrTypesPriv.h"
 #include "GrBlend.h"
 #include "GrShaderCaps.h"
+#include "GrTypes.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
 
