@@ -1,0 +1,395 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8596b28d_0510e24c",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Why are you updating fDst? It looks like you\u0027re operating on dst, and just changing what fDst points to.",
+      "range": {
+        "startLine": 535,
+        "startChar": 8,
+        "endLine": 535,
+        "endChar": 12
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a6f45e9_a60fbaef",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "There\u0027s a reason onGetPixels didn\u0027t call a common prepareToDecode method with the scanline decoder. onGetPixels is not intended to support subsets. This CL appears to change that.",
+      "range": {
+        "startLine": 647,
+        "startChar": 26,
+        "endLine": 647,
+        "endChar": 41
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1d11aa7_c3ab90e3",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Again, please remove this method.",
+      "range": {
+        "startLine": 736,
+        "startChar": 29,
+        "endLine": 736,
+        "endChar": 50
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9369dcb4_dbf0fa1d",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Please remove.",
+      "range": {
+        "startLine": 741,
+        "startChar": 17,
+        "endLine": 741,
+        "endChar": 31
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4ee0a45_8bcbafd9",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Please remove.",
+      "range": {
+        "startLine": 753,
+        "startChar": 18,
+        "endLine": 753,
+        "endChar": 33
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b565f5f_7cfcdc24",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Please either line this up with \"const\", above, or just indent 8 spaces from the left.",
+      "range": {
+        "startLine": 763,
+        "startChar": 53,
+        "endLine": 763,
+        "endChar": 57
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e3a0b1e_3baf99f8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "No need to declare this here. Just declare it below where you first assign it a value.",
+      "range": {
+        "startLine": 765,
+        "startChar": 4,
+        "endLine": 765,
+        "endChar": 10
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f998bc0b_0141fd8b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "This block should happen inside onStartIncrementalDecode. That is how we start an incremental decode. Calls to onIncrementalDecode continue it. So we don\u0027t want to redo setup.",
+      "range": {
+        "startLine": 790,
+        "startChar": 7,
+        "endLine": 790,
+        "endChar": 48
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d55d0c1_25af3b9a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Though you\u0027re adjusting the number of lines to decode, there\u0027s a couple of problems here:\n- you don\u0027t skip lines at the beginning (i.e. from line 0 to options().fSubset-\u003etop())\n- you don\u0027t skip lines within the subset (e.g. if sampleY is 2, we need to skip every other line)",
+      "range": {
+        "startLine": 802,
+        "startChar": 8,
+        "endLine": 802,
+        "endChar": 13
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4b638ee_44567d2a",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "This isn\u0027t quite what we want. We need to return the total number of rows decoded, not just the number of rows decoded on this call.\n\nonIncrementalDecode may be called several times to decode the same image.",
+      "range": {
+        "startLine": 805,
+        "startChar": 7,
+        "endLine": 805,
+        "endChar": 42
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f16f3f2_882d4254",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "Space between \"while\" and \"(\"",
+      "range": {
+        "startLine": 808,
+        "startChar": 4,
+        "endLine": 808,
+        "endChar": 9
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06ab38cb_63afe4d8",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "nit: please add a space between \"if\" and \"(\"",
+      "range": {
+        "startLine": 810,
+        "startChar": 8,
+        "endLine": 810,
+        "endChar": 12
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90acc88d_1578c746",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "I suggested this previously: please remove onStartScanlineDecode, onGetScanlines and onSkipScanlines. These are intended to be replaced by incremental decoding.",
+      "range": {
+        "startLine": 127,
+        "startChar": 11,
+        "endLine": 127,
+        "endChar": 32
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1791348f_f08e2e55",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1003,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "What are you trying to test here? The name makes it look like you want to test progressive decoding, or at least a progressive image. dog.jpg is not a progressive image, and calling getAndroidPixels does not do a progressive decode.\n\nAgain, we already have a test for this. Look at tests/CodecPartialTest.cpp",
+      "range": {
+        "startLine": 1003,
+        "startChar": 9,
+        "endLine": 1003,
+        "endChar": 31
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13abfab1_ad04c97c",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "This line doesn\u0027t really change anything. MakeSubset gives you a subset of the data, in this case from 0, to data-\u003esize(), which is the full size of the data.",
+      "range": {
+        "startLine": 1010,
+        "startChar": 4,
+        "endLine": 1010,
+        "endChar": 59
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8198dd20_57d832a7",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "SkAndroidCodec will test incremental decoding, but only if you request sampling, which you do not do. This will just test getPixels. You want to call startIncrementalDecode/incrementalDecode which call the methods you added to SkJpegCodec, onStartIncrementalDecode and onIncrementalDecode. (Skia often follows a pattern of a non-virtual public method, e.g. publicMethod(), which calls a virtual protected method with the same name but starting with \"on\", e.g. onPublicMethod().)\n\nBut again, there\u0027s already a test for this. It\u0027s in CodecPartialTest.cpp. You shouldn\u0027t have to write much code here; just something like:\n\n  test_partial(\"dog.jpg\");",
+      "range": {
+        "startLine": 1011,
+        "startChar": 42,
+        "endLine": 1011,
+        "endChar": 69
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b66e7ce_22df6993",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1019,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-07-19T14:41:50Z",
+      "side": 1,
+      "message": "This works (assuming that codec-\u003egetInfo() returned kN32), but you can also use\n\n  codec-\u003egetInfo().minRowBytes()",
+      "range": {
+        "startLine": 1019,
+        "startChar": 4,
+        "endLine": 1019,
+        "endChar": 47
+      },
+      "revId": "b7484498176faade2042db0ee49408505341a791",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
