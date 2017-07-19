@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ad464bc_9ab41309",
+        "filename": "src/gpu/ccpr/GrCCPRPathProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-19T22:57:28Z",
+      "side": 1,
+      "message": "atlasProxy?",
+      "range": {
+        "startLine": 61,
+        "startChar": 26,
+        "endLine": 61,
+        "endChar": 31
+      },
+      "revId": "fc56ff2ae1dc132bff1be9e0f0c87882e017004c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
