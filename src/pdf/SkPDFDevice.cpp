@@ -113,8 +113,6 @@ static void draw_points(SkCanvas::PointMode mode,
     draw.drawPoints(mode, count, points, paint, device);
 }
 
-static SkIRect size(const SkBaseDevice& dev) { return {0, 0, dev.width(), dev.height()}; }
-
 // If the paint will definitely draw opaquely, replace kSrc with
 // kSrcOver.  http://crbug.com/473572
 static void replace_srcmode_on_opaque_paint(SkPaint* paint) {
@@ -448,8 +446,7 @@ SkBaseDevice* SkPDFDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
         // need to return a raster device, which we will detect in drawDevice()
         return SkBitmapDevice::Create(cinfo.fInfo, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
     }
-    SkISize size = SkISize::Make(cinfo.fInfo.width(), cinfo.fInfo.height());
-    return new SkPDFDevice(size, fDocument);
+    return new SkPDFDevice(cinfo.fInfo.dimensions(), fDocument);
 }
 
 SkPDFCanon* SkPDFDevice::getCanon() const { return fDocument->canon(); }
@@ -543,8 +540,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc)
     , fInitialTransform(SkMatrix::I())
     , fDocument(doc)
 {
-    SkASSERT(pageSize.width() > 0);
-    SkASSERT(pageSize.height() > 0);
+    SkASSERT(!pageSize.isEmpty());
 }
 
 void SkPDFDevice::setFlip() {
@@ -654,7 +650,7 @@ void SkPDFDevice::drawPoints(SkCanvas::PointMode mode,
     // We only use this when there's a path effect because of the overhead
     // of multiple calls to setUpContentEntry it causes.
     if (passedPaint.getPathEffect()) {
-        if (this->cs().isEmpty(size(*this))) {
+        if (this->cs().isEmpty(this->bounds())) {
             return;
         }
         draw_points(mode, count, points, passedPaint,
@@ -771,7 +767,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     r.sort();
 
     if (paint.getPathEffect() || paint.getMaskFilter()) {
-        if (this->cs().isEmpty(size(*this))) {
+        if (this->cs().isEmpty(this->bounds())) {
             return;
         }
         SkPath path;
@@ -835,7 +831,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     // TODO(halcanary): respect fDocument->rasterDpi().
     //        SkScalar rasterScale = (float)rasterDpi / SkPDFUtils::kDpiForRasterScaleOne;
     // Would it be easier to just change the device size (and pre-scale the canvas)?
-    SkIRect bounds = clipStack.bounds(size(*this)).roundOut();
+    SkIRect bounds = clipStack.bounds(this->bounds()).roundOut();
     SkMask sourceMask;
     if (!SkDraw::DrawToMask(path, &bounds, paint->getMaskFilter(), &SkMatrix::I(),
                             &sourceMask, SkMask::kComputeBoundsAndRenderImage_CreateMode,
@@ -919,7 +915,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     }
 
     if (paint.getPathEffect()) {
-        if (clipStack.isEmpty(size(*this))) {
+        if (clipStack.isEmpty(this->bounds())) {
             return;
         }
         if (!pathIsMutable) {
@@ -1392,7 +1388,7 @@ void SkPDFDevice::internalDrawText(
     if (0 == sourceByteCount || !sourceText) {
         return;
     }
-    if (this->cs().isEmpty(size(*this))) {
+    if (this->cs().isEmpty(this->bounds())) {
         return;
     }
     NOT_IMPLEMENTED(srcPaint.isVerticalText(), false);
@@ -1484,7 +1480,7 @@ void SkPDFDevice::internalDrawText(
         }
         offset.offset(alignmentFactor * advance, 0);
     }
-    SkRect clipStackBounds = this->cs().bounds(size(*this));
+    SkRect clipStackBounds = this->cs().bounds(this->bounds());
     struct PositionedGlyph {
         SkPoint fPos;
         SkGlyphID fGlyph;
@@ -1682,7 +1678,7 @@ void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 }
 
 void SkPDFDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
-    if (this->cs().isEmpty(size(*this))) {
+    if (this->cs().isEmpty(this->bounds())) {
         return;
     }
     // TODO: implement drawVertices
@@ -1780,7 +1776,7 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     GraphicStackState gsState(fExistingClipStack, &buffer);
     for (const auto& entry : fContentEntries) {
         gsState.updateClip(entry.fState.fClipStack,
-                {0, 0}, SkRect::Make(size(*this)));
+                {0, 0}, SkRect::Make(this->bounds()));
         gsState.updateMatrix(entry.fState.fMatrix);
         gsState.updateDrawingState(entry.fState);
 
@@ -1808,7 +1804,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
         return false;
     }
 
-    if (this->cs().isEmpty(size(*this))) {
+    if (this->cs().isEmpty(this->bounds())) {
         return false;
     }
 
@@ -1843,7 +1839,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     if (!totalMatrix.invert(&transformInverse)) {
         return false;
     }
-    SkRect bounds = this->cs().bounds(size(*this));
+    SkRect bounds = this->cs().bounds(this->bounds());
     transformInverse.mapRect(&bounds);
 
     // Extend the bounds by the line width (plus some padding)
@@ -1913,7 +1909,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
                                           const SkClipStack& clipStack,
                                           SkBlendMode mode,
                                           bool invertClip) {
-    if (!invertClip && clipStack.isEmpty(size(*this))) {
+    if (!invertClip && clipStack.isEmpty(this->bounds())) {
         return;
     }
 
@@ -2172,7 +2168,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
             // PDF doesn't support kClamp_TileMode, so we simulate it by making
             // a pattern the size of the current clip.
-            SkRect clipStackBounds = clipStack.bounds(size(*this));
+            SkRect clipStackBounds = clipStack.bounds(this->bounds());
 
             // We need to apply the initial transform to bounds in order to get
             // bounds in a consistent coordinate system.
@@ -2526,7 +2522,7 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPain
         SkMatrix matrix = this->ctm();
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         const SkIRect clipBounds =
-            this->cs().bounds(this->imageInfo().bounds()).roundOut().makeOffset(-x, -y);
+            this->cs().bounds(this->bounds()).roundOut().makeOffset(-x, -y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         // TODO: Should PDF be operating in a specified color space? For now, run the filter
         // in the same color space as the source (this is different from all other backends).
@@ -2557,7 +2553,7 @@ sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
     // by the destination where we're going to draw thing thing (ie this device). But we don't have
     // a color space, so we always decode in legacy mode for now.
     SkColorSpace* legacyColorSpace = nullptr;
-    return SkSpecialImage::MakeFromImage(SkIRect::MakeWH(image->width(), image->height()),
+    return SkSpecialImage::MakeFromImage(image->bounds(),
                                          image->makeNonTextureImage(), legacyColorSpace);
 }
 
