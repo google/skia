@@ -277,14 +277,18 @@ void SkSRGBGammaColorFilter::toString(SkString* str) const {
 }
 #endif
 
+template <SkSRGBGammaColorFilter::Direction dir>
+sk_sp<SkColorFilter> MakeSRGBGammaCF() {
+    static SkColorFilter* gSingleton = new SkSRGBGammaColorFilter(dir);
+    return sk_ref_sp(gSingleton);
+}
+
 sk_sp<SkColorFilter> SkColorFilter::MakeLinearToSRGBGamma() {
-    return sk_sp<SkColorFilter>(new SkSRGBGammaColorFilter(
-                                               SkSRGBGammaColorFilter::Direction::kLinearToSRGB));
+    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kLinearToSRGB>();
 }
 
 sk_sp<SkColorFilter> SkColorFilter::MakeSRGBToLinearGamma() {
-    return sk_sp<SkColorFilter>(new SkSRGBGammaColorFilter(
-                                               SkSRGBGammaColorFilter::Direction::kSRGBToLinear));
+    return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
