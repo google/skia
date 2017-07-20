@@ -29,8 +29,6 @@ public:
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
              VkPhysicalDevice device, uint32_t featureFlags, uint32_t extensionFlags);
 
-    int getSampleCount(int requestedCount, GrPixelConfig config) const override;
-
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
     }
@@ -134,7 +132,6 @@ private:
 
         void init(const GrVkInterface*, VkPhysicalDevice, VkFormat);
         static void InitConfigFlags(VkFormatFeatureFlags, uint16_t* flags);
-        void initSampleCounts(const GrVkInterface*, VkPhysicalDevice, VkFormat);
 
         enum {
             kTextureable_Flag = 0x1,
@@ -145,8 +142,6 @@ private:
 
         uint16_t fOptimalFlags;
         uint16_t fLinearFlags;
-
-        SkTDArray<int> fColorSampleCounts;
     };
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 

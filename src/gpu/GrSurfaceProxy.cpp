@@ -185,7 +185,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
     }
 
     GrSurfaceDesc copyDesc = desc;
-    copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
+    copyDesc.fSampleCnt = SkTMin(desc.fSampleCnt, caps->maxSampleCount());
 
     if (willBeRT) {
         // We know anything we instantiate later from this deferred path will be
