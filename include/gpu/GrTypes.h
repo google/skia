@@ -647,6 +647,39 @@ enum GrWrapOwnership {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Gr can wrap an existing render target created by the client in the 3D API
+ * with a GrRenderTarget object. The client is responsible for ensuring that the
+ * underlying 3D API object lives at least as long as the GrRenderTarget object
+ * wrapping it. We require the client to explicitly provide information about
+ * the target, such as width, height, and pixel config rather than querying the
+ * 3D API for these values. We expect these properties to be immutable even if
+ * the 3D API doesn't require this (OpenGL).
+ */
+
+struct GrBackendRenderTargetDesc {
+    GrBackendRenderTargetDesc() { memset(this, 0, sizeof(*this)); }
+    int                             fWidth;         //<! width in pixels
+    int                             fHeight;        //<! height in pixels
+    GrPixelConfig                   fConfig;        //<! color format
+    GrSurfaceOrigin                 fOrigin;        //<! pixel origin
+    /**
+     * The number of samples per pixel. Gr uses this to influence decisions
+     * about applying other forms of anti-aliasing.
+     */
+    int                             fSampleCnt;
+    /**
+     * Number of bits of stencil per-pixel.
+     */
+    int                             fStencilBits;
+    /**
+     * Handle to the 3D API object.
+     * OpenGL: FBO ID
+     * Vulkan: GrVkImageInfo*
+     */
+    GrBackendObject                 fRenderTargetHandle;
+};
+
+/**
  * The GrContext's cache of backend context state can be partially invalidated.
  * These enums are specific to the GL backend and we'd add a new set for an alternative backend.
  */

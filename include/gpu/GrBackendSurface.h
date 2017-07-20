@@ -108,6 +108,12 @@ public:
 #endif
 
 private:
+    // Temporary constructor which can be used to convert from a GrBackendRenderTargetDesc.
+    GrBackendRenderTarget(const GrBackendRenderTargetDesc& desc, GrBackend backend);
+
+    // Friending for access to above constructor taking a GrBackendRenderTargetDesc
+    friend class SkSurface;
+
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
 
