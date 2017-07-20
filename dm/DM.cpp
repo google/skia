@@ -11,6 +11,7 @@
 #include "Resources.h"
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
+#include "SkChromeTracingTracer.h"
 #include "SkCodec.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
@@ -20,7 +21,7 @@
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
-#include "SkEventTracer.h"
+#include "SkEventTracingPriv.h"
 #include "SkFontMgr.h"
 #include "SkGraphics.h"
 #include "SkHalf.h"
@@ -1272,10 +1273,10 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
-    if (FLAGS_trace) {
-        SkAssertResult(SkEventTracer::SetInstance(new SkDebugfTracer()));
-    }
-    #if defined(SK_BUILD_FOR_IOS)
+
+    initializeEventTracingForTools(&FLAGS_threads);
+
+#if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
     setbuf(stdout, nullptr);
@@ -1386,6 +1387,7 @@ int main(int argc, char** argv) {
 
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
+
     return 0;
 }
 

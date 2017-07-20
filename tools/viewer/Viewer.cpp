@@ -21,6 +21,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkDashPathEffect.h"
+#include "SkEventTracingPriv.h"
 #include "SkGraphics.h"
 #include "SkImagePriv.h"
 #include "SkMetaData.h"
@@ -157,12 +158,11 @@ static DEFINE_string(jpgs, "jpgs", "Directory to read jpgs from.");
 
 static DEFINE_string2(backend, b, "sw", "Backend to use. Allowed values are " BACKENDS_STR ".");
 
-static DEFINE_bool(atrace, false, "Enable support for using ATrace. ATrace is only supported on Android.");
-
 DEFINE_int32(msaa, 0, "Number of subpixel samples. 0 for no HW antialiasing.");
 DEFINE_pathrenderer_flag;
 
 DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
+DECLARE_int32(threads)
 
 const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
@@ -255,7 +255,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomLevel(0.0f)
     , fGestureDevice(GestureDevice::kNone)
 {
-    static SkTaskGroup::Enabler kTaskGroupEnabler;
     SkGraphics::Init();
 
     static SkOnce initPathRendererNames;
@@ -285,9 +284,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SetResourcePath("/data/local/tmp/resources");
 #endif
 
-    if (FLAGS_atrace) {
-        SkAssertResult(SkEventTracer::SetInstance(new SkATrace()));
-    }
+    initializeEventTracingForTools(&FLAGS_threads);
+    static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Window::CreateNativeWindow(platformData);
