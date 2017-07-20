@@ -16,6 +16,24 @@
       "revId": "2194a2d22cb8eb1983b059c6bae78f55e4bcdc7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88372095_5b707740",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-20T15:43:09Z",
+      "side": 1,
+      "message": "Right now a texture in the free pool is reused as soon as it can be. I would think that having a round robin approach where it will eventually cycle back to be reused would reduce ghosting opportunities.",
+      "parentUuid": "beaefee6_5685888c",
+      "revId": "2194a2d22cb8eb1983b059c6bae78f55e4bcdc7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
