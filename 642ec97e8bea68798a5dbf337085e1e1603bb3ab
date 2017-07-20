@@ -16,6 +16,24 @@
       "revId": "642ec97e8bea68798a5dbf337085e1e1603bb3ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97b6a09d_3c259573",
+        "filename": "src/core/SkTMultiMap.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-20T16:57:19Z",
+      "side": 1,
+      "message": "I believe it always correct. Here we are just deleting the ValueList objects - not their data.",
+      "parentUuid": "7c39a32b_d7edba24",
+      "revId": "642ec97e8bea68798a5dbf337085e1e1603bb3ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
