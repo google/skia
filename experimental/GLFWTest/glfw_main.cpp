@@ -32,17 +32,18 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 static void init_skia(int w, int h) {
     sContext = GrContext::Create(kOpenGL_GrBackend, 0);
-    
-    GrBackendRenderTargetDesc desc;
-    desc.fWidth = w;
-    desc.fHeight = h;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    desc.fSampleCnt = 1;
-    desc.fStencilBits = 0;
-    desc.fRenderTargetHandle = 0;  // assume default framebuffer
- 
-    sSurface = SkSurface::MakeFromBackendRenderTarget(sContext, desc, nullptr, nullptr).release();
+
+    GrGLFramebufferInfo framebufferInfo;
+    framebufferInfo.fFBOID = 0;  // assume default framebuffer
+    GrBackendRenderTarget backendRenderTarget(w, h,
+                                              0, // sample count
+                                              0, // stencil bits
+                                              kSkia8888_GrPixelConfig,
+                                              framebufferInfo);
+
+    sSurface = SkSurface::MakeFromBackendRenderTarget(sContext, backendRenderTarget,
+                                                      kBottomLeft_GrSurfaceOrigin,
+                                                      nullptr, nullptr).release();
 }
 
 static void cleanup_skia() {
