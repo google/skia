@@ -5,6 +5,7 @@
 from recipe_engine import recipe_api
 
 import default_flavor
+import re
 import subprocess
 
 
@@ -69,6 +70,12 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if 'Vulkan' in extra_config:
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
+
+    # If an Android API level is specified, use that.
+    m = re.search(r'API(\d+)', extra_config)
+    if m and len(m.groups()) == 1:
+      args['ndk_api'] = m.groups()[0]
+
     if extra_cflags:
       args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
 
