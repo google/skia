@@ -16,6 +16,24 @@
       "revId": "4a1c014fd370fd7bc9f9a565593c14039d72aa29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c262f54a_cf81f83f",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-20T13:54:26Z",
+      "side": 1,
+      "message": "If I were doing it, I\u0027d probably go with one flag, --trace, that picks out atrace and debugf as special values, and treats anything else as the path to dump a json trace to.",
+      "parentUuid": "554d7eaf_2fdbc9a3",
+      "revId": "4a1c014fd370fd7bc9f9a565593c14039d72aa29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
