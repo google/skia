@@ -34,6 +34,24 @@
       "revId": "4a1c014fd370fd7bc9f9a565593c14039d72aa29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8147a183_8167f7f6",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-20T13:54:48Z",
+      "side": 1,
+      "message": "Yes, this was my quick-and-dirty approach to getting things in. Having a single tracing flag certainly makes more sense. If a user does \u0027--trace json\u0027, we just have a default jsonTrace output file? I\u0027m also tempted to make that be a directory, rather than a filename, so that we can support something like running DM and outputting a separate trace file for each GM/test/etc...",
+      "parentUuid": "554d7eaf_2fdbc9a3",
+      "revId": "4a1c014fd370fd7bc9f9a565593c14039d72aa29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
