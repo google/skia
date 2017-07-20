@@ -16,7 +16,6 @@ class SkBitmapProcLegacyShader : public SkShaderBase {
 private:
     friend class SkImageShader;
 
-    static size_t ContextSize(const ContextRec&, const SkImageInfo& srcInfo);
     static Context* MakeContext(const SkShaderBase&, TileMode tmx, TileMode tmy,
                                 const SkBitmapProvider&, const ContextRec&, SkArenaAlloc* alloc);
 

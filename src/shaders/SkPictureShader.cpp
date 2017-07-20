@@ -292,7 +292,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
 }
 
 bool SkPictureShader::onIsRasterPipelineOnly() const {
-    return SkImageShader::IsRasterPipelineOnly(kN32_SkColorType, fTmx, fTmy);
+    return SkImageShader::IsRasterPipelineOnly(kN32_SkColorType, kPremul_SkAlphaType, fTmx, fTmy);
 }
 
 bool SkPictureShader::onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
