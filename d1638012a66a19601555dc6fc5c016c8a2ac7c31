@@ -22,6 +22,30 @@
       "revId": "d1638012a66a19601555dc6fc5c016c8a2ac7c31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "780e5d68_01aea713",
+        "filename": "infra/bots/recipe_modules/flavor/gn_android_flavor.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-20T14:21:47Z",
+      "side": 1,
+      "message": "Yep. Not sure why, but I had it in my head that I was distinguishing between None and the empty string.",
+      "parentUuid": "a5f417cb_d2acd3f1",
+      "range": {
+        "startLine": 76,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 20
+      },
+      "revId": "d1638012a66a19601555dc6fc5c016c8a2ac7c31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
