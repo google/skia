@@ -16,6 +16,24 @@
       "revId": "1889c667f2bfb14635dad3cb8b6bdde0d7f38682",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3202a2d0_8a4937ba",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-20T19:45:42Z",
+      "side": 1,
+      "message": "Ah, good catch. I didn\u0027t notice that we had one here. Also, I tried to force a crash by running the few samples that appear to use SkTaskGroup - but never hit any problems. Regardless, I hooked up the threads argument in viewer, and added the override logic.",
+      "parentUuid": "e95d4413_af2e5c14",
+      "revId": "1889c667f2bfb14635dad3cb8b6bdde0d7f38682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
