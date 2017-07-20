@@ -90,6 +90,16 @@ public:
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    sk_sp<SkColorSpace>, const SkSurfaceProps*);
 
+    /**
+     *  Used to wrap a pre-existing 3D API rendering target as a SkSurface. Skia will not assume
+     *  ownership of the render target and the client must ensure the render target is valid for the
+     *  lifetime of the SkSurface.
+     */
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
+                                                        const GrBackendRenderTargetDesc&,
+                                                        sk_sp<SkColorSpace>,
+                                                        const SkSurfaceProps*);
+
     static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext*,
                                                         const GrBackendRenderTarget&,
                                                         GrSurfaceOrigin origin,
@@ -99,9 +109,10 @@ public:
     /**
      *  Used to wrap a pre-existing 3D API texture as a SkSurface. Skia will treat the texture as
      *  a rendering target only, but unlike NewFromBackendRenderTarget, Skia will manage and own
-     *  the associated render target objects (but not the provided texture). Skia will not assume
-     *  ownership of the texture and the client must ensure the texture is valid for the lifetime
-     *  of the SkSurface.
+     *  the associated render target objects (but not the provided texture). The kRenderTarget flag
+     *  must be set on GrBackendTextureDesc for this to succeed. Skia will not assume ownership
+     *  of the texture and the client must ensure the texture is valid for the lifetime of the
+     *  SkSurface.
      */
     static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrContext*,
                                                                  const GrBackendTexture&,
@@ -109,6 +120,17 @@ public:
                                                                  int sampleCnt,
                                                                  sk_sp<SkColorSpace>,
                                                                  const SkSurfaceProps*);
+
+    /**
+     * Legacy version of the above factory, without color space support. This creates a "legacy"
+     * surface that operate without gamma correction or color management.
+     */
+    static sk_sp<SkSurface> MakeFromBackendRenderTarget(GrContext* ctx,
+                                                        const GrBackendRenderTargetDesc& desc,
+                                                        const SkSurfaceProps* props) {
+        return MakeFromBackendRenderTarget(ctx, desc, nullptr, props);
+    }
+
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
