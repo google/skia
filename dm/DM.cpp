@@ -20,6 +20,7 @@
 #include "SkCommonFlagsConfig.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
+#include "SkDocument.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracingPriv.h"
 #include "SkFontMgr.h"
@@ -877,13 +878,14 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("8888",    RasterSink, kN32_SkColorType);
         SINK("srgb",    RasterSink, kN32_SkColorType, srgbColorSpace);
         SINK("f16",     RasterSink, kRGBA_F16_SkColorType, srgbLinearColorSpace);
-        SINK("pdf",     PDFSink);
+        SINK("pdf",     PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",     SKPSink);
         SINK("pipe",    PipeSink);
         SINK("svg",     SVGSink);
         SINK("null",    NullSink);
         SINK("xps",     XPSSink);
-        SINK("pdfa",    PDFSink, true);
+        SINK("pdfa",    PDFSink, true,  SK_ScalarDefaultRasterDPI);
+        SINK("pdf300",  PDFSink, false, 300);
         SINK("jsdebug", DebugSink);
     }
 #undef SINK
