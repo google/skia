@@ -112,8 +112,6 @@ public:
     GrGLCaps(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
              const GrGLInterface* glInterface);
 
-    int getSampleCount(int requestedCount, GrPixelConfig config) const override;
-
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kTextureable_Flag);
     }
@@ -531,9 +529,7 @@ private:
         };
 
         // Index fStencilFormats.
-        int fStencilFormatIndex;
-
-        SkTDArray<int> fColorSampleCounts;
+        int      fStencilFormatIndex;
 
         enum {
             kVerifiedColorAttachment_Flag = 0x1,
