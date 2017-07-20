@@ -75,16 +75,31 @@ void GrResourceAllocator::IntervalList::insertByIncreasingEnd(Interval* intvl) {
 
 // 'surface' can be reused. Add it back to the free pool.
 void GrResourceAllocator::freeUpSurface(GrSurface* surface) {
-    // TODO: add free pool
+    const GrScratchKey &key = surface->resourcePriv().getScratchKey();
+
+    if (!key.isValid()) {
+        return; // can't do it w/o a valid scratch key
+    }
+
+    // TODO: fix this insertion so we get a more LRU-ish behavior
+    fFreePool.insert(key, surface);
 }
 
 // First try to reuse one of the recently allocated/used GrSurfaces in the free pool.
 // If we can't find a useable one, create a new one.
 // TODO: handle being overbudget
 sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(GrSurfaceProxy* proxy) {
-    // TODO: add free pool
+    // First look in the free pool
+    GrScratchKey key;
 
-    // Try to grab one from the resource cache
+    proxy->priv().computeScratchKey(&key);
+
+    GrSurface* surface = fFreePool.find(key);
+    if (surface) {
+        return sk_ref_sp(surface);
+    }
+
+    // Failing that, try to grab a new one from the resource cache
     return proxy->priv().createSurface(fResourceProvider);
 }
 
@@ -104,6 +119,12 @@ void GrResourceAllocator::assign() {
 
     while (Interval* cur = fIntvlList.popHead()) {
         this->expire(cur->fStart);
+
+        if (cur->fProxy->priv().isInstantiated()) {
+            fActiveIntvls.insertByIncreasingEnd(cur);
+            continue;
+        }
+
         // TODO: add over budget handling here?
         sk_sp<GrSurface> surface = this->findSurfaceFor(cur->fProxy);
         if (surface) {

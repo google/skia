@@ -98,6 +98,32 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     return true;
 }
 
+void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
+    const GrRenderTargetProxy* rtp = this->asRenderTargetProxy();
+    int sampleCount = 0;
+    if (rtp) {
+        sampleCount = rtp->numStencilSamples();
+    }
+
+    const GrTextureProxy* tp = this->asTextureProxy();
+    bool hasMipMaps = false;
+    if (tp) {
+        hasMipMaps = tp->isMipMapped();
+    }
+
+    int width = this->width();
+    int height = this->height();
+    if (SkBackingFit::kApprox == fFit) {
+        // bin by pow2 with a reasonable min
+        width  = SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(width));
+        height = SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(height));
+    }
+
+    GrTexturePriv::ComputeScratchKey(this->config(), width, height,
+                                     this->origin(), SkToBool(rtp), sampleCount,
+                                     hasMipMaps, key);
+}
+
 void GrSurfaceProxy::setLastOpList(GrOpList* opList) {
 #ifdef SK_DEBUG
     if (fLastOpList) {
