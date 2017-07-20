@@ -48,10 +48,6 @@ namespace SkOpts {
                         inverted_CMYK_to_RGB1, // i.e. convert color space
                         inverted_CMYK_to_BGR1; // i.e. convert color space
 
-    // Blend ndst src pixels over dst, where both src and dst point to sRGB pixels (RGBA or BGRA).
-    // If nsrc < ndst, we loop over src to create a pattern.
-    extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
-
     extern void (*memset16)(uint16_t[], uint16_t, int);
     extern void (*memset32)(uint32_t[], uint32_t, int);
     extern void (*memset64)(uint64_t[], uint64_t, int);

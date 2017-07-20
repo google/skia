@@ -61,9 +61,12 @@ bool SkImageShader::isOpaque() const {
     return fImage->isOpaque();
 }
 
-bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
-                                         SkShader::TileMode ty) {
+bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkAlphaType at,
+                                         SkShader::TileMode tx, SkShader::TileMode ty) {
     if (ct != kN32_SkColorType) {
+        return true;
+    }
+    if (at == kUnpremul_SkAlphaType) {
         return true;
     }
 #ifndef SK_SUPPORT_LEGACY_TILED_BITMAPS
@@ -76,7 +79,8 @@ bool SkImageShader::IsRasterPipelineOnly(SkColorType ct, SkShader::TileMode tx,
 
 bool SkImageShader::onIsRasterPipelineOnly() const {
     SkBitmapProvider provider(fImage.get(), nullptr);
-    return IsRasterPipelineOnly(provider.info().colorType(), fTileModeX, fTileModeY);
+    return IsRasterPipelineOnly(provider.info().colorType(), provider.info().alphaType(),
+                                fTileModeX, fTileModeY);
 }
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
