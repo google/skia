@@ -100,79 +100,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "SkLinearBitmapPipeline.h"
-#include "SkPM4f.h"
-
-class LinearPipelineContext : public BitmapProcInfoContext {
-public:
-    LinearPipelineContext(const SkShaderBase& shader, const SkShaderBase::ContextRec& rec,
-                          SkBitmapProcInfo* info, SkArenaAlloc* alloc)
-        : INHERITED(shader, rec, info), fAllocator{alloc}
-    {
-        // Save things off in case we need to build a blitter pipeline.
-        fSrcPixmap = info->fPixmap;
-        fAlpha = SkColorGetA(info->fPaintColor) / 255.0f;
-        fFilterQuality = info->fFilterQuality;
-        fMatrixTypeMask = info->fRealInvMatrix.getType();
-
-        fShaderPipeline = alloc->make<SkLinearBitmapPipeline>(
-            info->fRealInvMatrix, info->fFilterQuality,
-            info->fTileModeX, info->fTileModeY,
-            info->fPaintColor,
-            info->fPixmap,
-            fAllocator);
-    }
-
-    void shadeSpan4f(int x, int y, SkPM4f dstC[], int count) override {
-        fShaderPipeline->shadeSpan4f(x, y, dstC, count);
-    }
-
-    void shadeSpan(int x, int y, SkPMColor dstC[], int count) override {
-        const int N = 128;
-        SkPM4f  tmp[N];
-
-        while (count > 0) {
-            const int n = SkTMin(count, N);
-            fShaderPipeline->shadeSpan4f(x, y, tmp, n);
-            // now convert to SkPMColor
-            for (int i = 0; i < n; ++i) {
-                dstC[i] = Sk4f_toL32(tmp[i].to4f_pmorder());
-            }
-            dstC += n;
-            x += n;
-            count -= n;
-        }
-    }
-
-private:
-    // Store the allocator from the context creation incase we are asked to build a blitter.
-    SkArenaAlloc*           fAllocator;
-    SkLinearBitmapPipeline* fShaderPipeline;
-    SkPixmap                fSrcPixmap;
-    float                   fAlpha;
-    SkMatrix::TypeMask      fMatrixTypeMask;
-    SkFilterQuality         fFilterQuality;
-
-    typedef BitmapProcInfoContext INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-static bool choose_linear_pipeline(const SkShaderBase::ContextRec& rec, const SkImageInfo& srcInfo) {
-    // If we get here, we can reasonably use either context, respect the caller's preference
-    //
-    bool needsPremul = srcInfo.alphaType() == kUnpremul_SkAlphaType;
-    bool needsSwizzle = srcInfo.bytesPerPixel() == 4 && srcInfo.colorType() != kN32_SkColorType;
-    return SkShaderBase::ContextRec::kPM4f_DstType == rec.fPreferredDstType
-           || needsPremul || needsSwizzle;
-}
-
-size_t SkBitmapProcLegacyShader::ContextSize(const ContextRec& rec, const SkImageInfo& srcInfo) {
-    size_t size0 = sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
-    size_t size1 = sizeof(LinearPipelineContext) + sizeof(SkBitmapProcInfo);
-    size_t s = SkTMax(size0, size1);
-    return s;
-}
 
 SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
     const SkShaderBase& shader, TileMode tmx, TileMode tmy,
@@ -184,21 +111,9 @@ SkShaderBase::Context* SkBitmapProcLegacyShader::MakeContext(
         return nullptr;
     }
 
-    // Decide if we can/want to use the new linear pipeline
-    bool useLinearPipeline = choose_linear_pipeline(rec, provider.info());
-
-    if (useLinearPipeline) {
-        SkBitmapProcInfo* info = alloc->make<SkBitmapProcInfo>(provider, tmx, tmy);
-        if (!info->init(totalInverse, *rec.fPaint)) {
-            return nullptr;
-        }
-
-        return alloc->make<LinearPipelineContext>(shader, rec, info, alloc);
-    } else {
-        SkBitmapProcState* state = alloc->make<SkBitmapProcState>(provider, tmx, tmy);
-        if (!state->setup(totalInverse, *rec.fPaint)) {
-            return nullptr;
-        }
-        return alloc->make<BitmapProcShaderContext>(shader, rec, state);
+    SkBitmapProcState* state = alloc->make<SkBitmapProcState>(provider, tmx, tmy);
+    if (!state->setup(totalInverse, *rec.fPaint)) {
+        return nullptr;
     }
+    return alloc->make<BitmapProcShaderContext>(shader, rec, state);
 }
