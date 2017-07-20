@@ -70,6 +70,24 @@
       "revId": "4a1c014fd370fd7bc9f9a565593c14039d72aa29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e7547d_12ac74be",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-20T14:15:28Z",
+      "side": 1,
+      "message": "I like the single flag. We could incorporate Brian\u0027s idea when were ready by checking whether the string is an existing directory or another flag to indicate per-test traces.",
+      "parentUuid": "5f0df148_bb2f4a13",
+      "revId": "4a1c014fd370fd7bc9f9a565593c14039d72aa29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
