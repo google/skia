@@ -27,8 +27,8 @@
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
- #undef CreateSemaphore
- #endif
+#undef CreateSemaphore
+#endif
 #endif
 
 static const int MAIN_W = 8, MAIN_H = 16;
@@ -124,6 +124,24 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     mainCanvas->clear(SK_ColorBLUE);
 
     SkAutoTArray<GrBackendSemaphore> semaphores(2);
+#ifdef SK_VULKAN
+    if (kVulkan_GrBackend == mainInfo.backend()) {
+        // Initialize the secondary semaphore instead of having Ganesh create one internally
+        GrVkGpu* gpu = static_cast<GrVkGpu*>(mainCtx->getGpu());
+        const GrVkInterface* interface = gpu->vkInterface();
+        VkDevice device = gpu->device();
+
+        VkSemaphore vkSem;
+
+        VkSemaphoreCreateInfo createInfo;
+        createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        createInfo.pNext = nullptr;
+        createInfo.flags = 0;
+        GR_VK_CALL_ERRCHECK(interface, CreateSemaphore(device, &createInfo, nullptr, &vkSem));
+
+        semaphores[1].initVulkan(vkSem);
+    }
+#endif
 
     mainSurface->flushAndSignalSemaphores(2, semaphores.get());
 

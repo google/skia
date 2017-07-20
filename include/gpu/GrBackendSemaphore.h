@@ -39,6 +39,8 @@ public:
     }
 #endif
 
+    bool isInitialized() const { return fIsInitialized; }
+
     GrGLsync glSync() const {
         if (!fIsInitialized || kOpenGL_GrBackend != fBackend) {
             return 0;
