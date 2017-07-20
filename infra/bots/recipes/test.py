@@ -262,7 +262,8 @@ def dm_flags(api, bot):
     blacklist('_ test _ GrShape')
 
   # skia:4095
-  bad_serialize_gms = ['bleed_image',
+  bad_serialize_gms = ['all_variants_8888',
+                       'bleed_image',
                        'c_gms',
                        'colortype',
                        'colortype_xfermodes',
