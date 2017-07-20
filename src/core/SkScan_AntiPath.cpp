@@ -659,9 +659,11 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
     using FillPathProc = void(*)(const SkPath&, const SkRegion&, SkBlitter*, bool);
     FillPathProc fillPathProc = &SkScan::AntiFillPath;
 
-    // Do not use AAA if path is too complicated:
-    // there won't be any speedup or significant visual improvement.
-    if (gSkUseAnalyticAA.load() && suitableForAAA(path)) {
+    if (gSkUseDeltaAA.load()) {
+        fillPathProc = &SkScan::DAAFillPath;
+    } else if (gSkUseAnalyticAA.load() && suitableForAAA(path)) {
+        // Do not use AAA if path is too complicated:
+        // there won't be any speedup or significant visual improvement.
         fillPathProc = &SkScan::AAAFillPath;
     }
 
@@ -673,6 +675,6 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
 
         tmp.setRect(clip.getBounds());
         aaBlitter.init(blitter, &clip.aaRgn());
-        fillPathProc(path, tmp, &aaBlitter, true);
+        fillPathProc(path, tmp, &aaBlitter, true); // SkAAClipBlitter can blitMask, why forceRLE?
     }
 }
