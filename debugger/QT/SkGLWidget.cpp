@@ -55,11 +55,10 @@ void SkGLWidget::createRenderTarget() {
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);
     fCurContext->resetContext();
-
-    GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-
-    fGpuSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext.get(), desc, nullptr);
+    GrBackendRenderTarget backendRenderTarget = this->getBackendRenderTarget();
+    fGpuSurface = SkSurface::MakeFromBackendRenderTarget(fCurContext.get(), backendRenderTarget,
+                                                         kBottomLeft_GrSurfaceOrigin,
+                                                         nullptr, nullptr);
     fCanvas = fGpuSurface->getCanvas();
 }
 
@@ -78,18 +77,19 @@ void SkGLWidget::paintGL() {
     }
 }
 
-GrBackendRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
-    GrBackendRenderTargetDesc desc;
-    desc.fWidth = SkScalarRoundToInt(this->width());
-    desc.fHeight = SkScalarRoundToInt(this->height());
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_SAMPLES, &desc.fSampleCnt);
-    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_STENCIL_BITS, &desc.fStencilBits);
-    GrGLint buffer;
-    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_FRAMEBUFFER_BINDING, &buffer);
-    desc.fRenderTargetHandle = buffer;
-
-    return desc;
+GrBackendRenderTarget SkGLWidget::getBackendRenderTarget() {
+    GrGLFramebufferInfo info;
+    int stencilBits;
+    int sampleCnt;
+    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_FRAMEBUFFER_BINDING, &info.fFBOID);
+    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_SAMPLES, &sampleCnt);
+    GR_GL_GetIntegerv(fCurIntf.get(), GR_GL_STENCIL_BITS, &stencilBits);
+    return GrBackendRenderTarget(SkScalarRoundToInt(this->width()),
+                                 SkScalarRoundToInt(this->height()),
+                                 sampleCnt,
+                                 stencilBits,
+                                 kSkia8888_GrPixelConfig,
+                                 info);
 }
 
 #endif
