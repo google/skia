@@ -12,6 +12,7 @@
 #include "SkBlendModePriv.h"
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
+#include "SkSurface.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
@@ -223,4 +224,56 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
 
     canvas->restore();
+}
+
+static uint8_t identity_alpha(uint8_t alpha) { return alpha; }
+
+static uint8_t fake_alpha_bk(uint8_t alpha) {
+    float x = alpha / 255.0f;
+    x = 2*x - x*x;
+    return SkScalarRoundToInt(x * 255);
+}
+
+//static float sqr(float x) { return x * x; }
+
+static uint8_t fake_alpha_wt(uint8_t alpha) {
+    float x = alpha / 255.0f;
+#if 0
+    float d = sqr(1 - x);
+    x = (sqr(1 - x + x*x) - d) / (1 - d);
+#else
+//    x = 1 - sqrt(1 - x);
+    x *= x;
+#endif
+    return SkScalarRoundToInt(x * 255);
+}
+
+DEF_SIMPLE_GM(gamma_fake, canvas, 800, 1024) {
+    auto do_draw = [](SkCanvas* canvas, uint8_t (*proc)(uint8_t)) {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->clear(SK_ColorBLACK);
+        SkPaint p;
+        p.setColor(SK_ColorWHITE);
+        for (int i = 0; i < 12; ++i) {
+            p.setAlpha(proc(0xFF - i * 0xFF / 12));
+            canvas->drawRect({0, 0, 200, 80}, p);
+            canvas->translate(0, 80);
+        }
+    };
+
+    struct {
+        sk_sp<SkColorSpace> fCS;
+        uint8_t (*fAlphaProc)(uint8_t);
+    } recs[] = {
+        { nullptr, identity_alpha },
+        { SkColorSpace::MakeSRGB(), 0 ? fake_alpha_bk : fake_alpha_wt },
+        { SkColorSpace::MakeSRGB(), identity_alpha },
+    };
+
+    for (const auto& r : recs) {
+        auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(200, 1024, r.fCS));
+        do_draw(surf->getCanvas(), r.fAlphaProc);
+        surf->draw(canvas, 0, 0, nullptr);
+        canvas->translate(SkIntToScalar(surf->width()), 0);
+    }
 }
