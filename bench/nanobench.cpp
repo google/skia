@@ -50,6 +50,59 @@
 
 #include <stdlib.h>
 
+static thread_local const char* tls_currently_running = "";
+
+    #include <execinfo.h>
+    #include <fcntl.h>
+    #include <signal.h>
+
+    static int log_fd = 2;
+
+    static void log(const char* msg) {
+        ssize_t res = write(log_fd, msg, strlen(msg));
+        if (res)
+            res++;
+    }
+
+    static void setup_crash_handler() {
+        static void (*original_handlers[32])(int);
+        for (int sig : std::vector<int>{ SIGABRT, SIGBUS, SIGFPE, SIGILL, SIGSEGV, SIGHUP, SIGINT,
+                                         SIGQUIT, SIGPIPE, SIGTERM }) {
+            original_handlers[sig] = signal(sig, [](int sig) {
+                int err = lockf(log_fd, F_LOCK, 0);
+                if (err) {
+                    log("\nlock failed ");
+                }
+
+
+                    log("\ncaught signal ");
+                    switch (sig) {
+                    #define CASE(s) case s: log(#s); break
+                        CASE(SIGABRT);
+                        CASE(SIGBUS);
+                        CASE(SIGFPE);
+                        CASE(SIGILL);
+                        CASE(SIGSEGV);
+                    #undef CASE
+                    }
+                    log(" while running '");
+                    log(tls_currently_running);
+                    log("'\n");
+
+                    void* stack[128];
+                    int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
+                    backtrace_symbols_fd(stack, frames, log_fd);
+                err = lockf(log_fd, F_ULOCK, 0);
+                if (err) {
+                    log("\nlock failed ");
+                }
+
+                signal(sig, original_handlers[sig]);
+                raise(sig);
+            });
+        }
+    }
+
 extern bool gSkForceRasterPipelineBlitter;
 
 #ifndef SK_BUILD_FOR_WIN32
@@ -1098,6 +1151,13 @@ static void start_keepalive() {
 }
 
 int main(int argc, char** argv) {
+    setup_crash_handler();
+    {
+        // sanity check
+        void* stack[128];
+        int frames = backtrace(stack, sizeof(stack)/sizeof(*stack));
+        backtrace_symbols_fd(stack, frames, log_fd);
+    }
     SkCommandLineFlags::Parse(argc, argv);
     if (FLAGS_trace) {
         SkEventTracer::SetInstance(new SkDebugfTracer);
@@ -1197,9 +1257,7 @@ int main(int argc, char** argv) {
     if (FLAGS_forceAnalyticAA) {
         gSkForceAnalyticAA = true;
     }
-    if (FLAGS_forceRasterPipeline) {
-        gSkForceRasterPipelineBlitter = true;
-    }
+    gSkForceRasterPipelineBlitter = true;
 
     int runs = 0;
     BenchmarkStream benchStream;
