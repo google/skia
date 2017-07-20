@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2eeb1830_5f6c5c42",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-20T19:21:28Z",
+      "side": 1,
+      "message": "You\u0027d think so, but we don\u0027t get called with any other types of masks than these three.  3D and ARGB32 must go through some other drawing path.",
+      "parentUuid": "077b6a02_cd826907",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d7de23d3_48da8474",
         "filename": "src/core/SkRasterPipelineBlitter.cpp",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-20T19:06:30Z",
       "side": 1,
       "message": "mask.getAddr8(0, 0)?",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0bf04d7a_b39200e6",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-20T19:21:28Z",
+      "side": 1,
+      "message": "Yeah, these are versions of mask.getAddr{8,LCD16}(0,0) that\n  1) don\u0027t have signed/unsigned integer bugs\n  2) don\u0027t assert that x,y are inside the mask\n\n2) is the real key... (0,0) is usually outside the mask\u0027s clip.  As you can see, we\u0027re backing up from the front of fImage to some pointer to somewhere that\u0027ll only make sense once the stages add back y*stride+x later.",
+      "parentUuid": "d7de23d3_48da8474",
       "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -64,6 +100,24 @@
       "writtenOn": "2017-07-20T19:06:30Z",
       "side": 1,
       "message": "i think we can trim out the switches below by doing something like this\n\n  SkASSERT(mask.fFormat \u003d\u003d SkMask::kA8_Format || mask.fFormat \u003d\u003d SkMask::kLCD16_Format);\n  auto\u0026 blitter \u003d mask.fFormat \u003d\u003d SkMask::kA8_Format ? fBlitMaskA8 : fBlitMaskLCD16;\n\nand then just call blitter(..) uniformly.",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f71ec3e1_79558ea6",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-20T19:21:28Z",
+      "side": 1,
+      "message": "Yes, good idea.  Done.",
+      "parentUuid": "b0eea907_e0082ca8",
       "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
