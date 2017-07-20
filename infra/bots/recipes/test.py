@@ -164,12 +164,13 @@ def dm_flags(api, bot):
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
     configs = ['8888', 'srgb']
 
-  args.append('--config')
-  args.extend(configs)
-
   # Test coverage counting path renderer.
   if 'CCPR' in bot:
+    configs = [c for c in configs if c == 'gl' or c == 'gles']
     args.extend(['--pr', 'ccpr'])
+
+  args.append('--config')
+  args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
   args.extend('--src tests gm image colorImage svg'.split(' '))
@@ -777,11 +778,12 @@ TEST_BUILDERS = [
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android',
   'Test-Android-Clang-GalaxyS7_G930A-GPU-Adreno530-arm64-Debug-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android',
+  "Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-Android_CCPR",
   'Test-Android-Clang-Nexus10-GPU-MaliT604-arm-Release-Android',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-Android',
-  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR',
   'Test-Android-Clang-Nexus6p-GPU-Adreno430-arm64-Debug-Android_Vulkan',
   'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_Vulkan',
+  'Test-Android-Clang-PixelXL-GPU-Adreno530-arm64-Debug-Android_CCPR',
   'Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Debug-Android',
   'Test-Android-Clang-NexusPlayer-CPU-SSE4-x86-Release-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-Android_Vulkan',
