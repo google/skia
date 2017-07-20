@@ -241,7 +241,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                       kWidthHeight, kWidthHeight, config,
                                       defaultFBO->uniqueID(), SkBudgeted::kNo);
                         check_rendertarget(reporter, caps, provider, sProxy->asRenderTargetProxy(),
-                                           numSamples, SkBackingFit::kExact, 0, true);
+                                           supportedNumSamples, SkBackingFit::kExact, 0, true);
                     }
 
                     sk_sp<GrTexture> tex;
@@ -257,7 +257,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                       kWidthHeight, kWidthHeight, config,
                                       rt->uniqueID(), budgeted);
                         check_rendertarget(reporter, caps, provider, sProxy->asRenderTargetProxy(),
-                                           numSamples, SkBackingFit::kExact,
+                                           supportedNumSamples, SkBackingFit::kExact,
                                            caps.maxWindowRectangles(), true);
                     }
 
