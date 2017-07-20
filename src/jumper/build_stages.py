@@ -86,7 +86,9 @@ subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', stages_lowp] +
                       ['-o', 'win_lowp_hsw.o'])
 
-aarch64 = [ '--target=aarch64' ]
+# iOS disallows the use of register x18,
+# so we need to use it as a least-common denominator.
+aarch64 = [ '--target=arm64-apple-ios' ]
 subprocess.check_call(clang + cflags + aarch64 +
                       ['-c', stages] +
                       ['-o', 'aarch64.o'])
