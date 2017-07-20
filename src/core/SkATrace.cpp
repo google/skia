@@ -37,13 +37,11 @@ SkEventTracer::Handle SkATrace::addTraceEvent(char phase,
                                               uint8_t flags) {
     if (fIsEnabled()) {
         if (TRACE_EVENT_PHASE_COMPLETE == phase ||
-            TRACE_EVENT_PHASE_BEGIN == phase ||
             TRACE_EVENT_PHASE_INSTANT == phase) {
             fBeginSection(name);
         }
 
-        if (TRACE_EVENT_PHASE_END == phase ||
-            TRACE_EVENT_PHASE_INSTANT == phase) {
+        if (TRACE_EVENT_PHASE_INSTANT == phase) {
             fEndSection();
         }
     }
