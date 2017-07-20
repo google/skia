@@ -456,6 +456,7 @@ public:
 
         /* ARB_sync */
         GrGLFunction<GrGLFenceSyncProc> fFenceSync;
+        GrGLFunction<GrGLIsSyncProc> fIsSync;
         GrGLFunction<GrGLClientWaitSyncProc> fClientWaitSync;
         GrGLFunction<GrGLWaitSyncProc> fWaitSync;
         GrGLFunction<GrGLDeleteSyncProc> fDeleteSync;

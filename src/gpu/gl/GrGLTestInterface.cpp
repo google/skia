@@ -314,6 +314,7 @@ GrGLTestInterface::GrGLTestInterface() {
     fFunctions.fFlushMappedNamedBufferRange = bind_to_member(this, &GrGLTestInterface::flushMappedNamedBufferRange);
     fFunctions.fTextureBuffer = bind_to_member(this, &GrGLTestInterface::textureBuffer);
     fFunctions.fFenceSync = bind_to_member(this, &GrGLTestInterface::fenceSync);
+    fFunctions.fIsSync = bind_to_member(this, &GrGLTestInterface::isSync);
     fFunctions.fClientWaitSync = bind_to_member(this, &GrGLTestInterface::clientWaitSync);
     fFunctions.fWaitSync = bind_to_member(this, &GrGLTestInterface::waitSync);
     fFunctions.fDeleteSync = bind_to_member(this, &GrGLTestInterface::deleteSync);

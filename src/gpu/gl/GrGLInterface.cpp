@@ -757,6 +757,8 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
             if (nullptr == fFunctions.fFenceSync ||
+                // Is sync needs to be added to chrome before uncommenting
+                // nullptr == fFunctions.fIsSync ||
                 nullptr == fFunctions.fClientWaitSync ||
                 nullptr == fFunctions.fWaitSync ||
                 nullptr == fFunctions.fDeleteSync) {
@@ -766,6 +768,8 @@ bool GrGLInterface::validate() const {
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_APPLE_sync")) {
             if (nullptr == fFunctions.fFenceSync ||
+                // Is sync needs to be added to chrome before uncommenting
+                // nullptr == fFunctions.fIsSync ||
                 nullptr == fFunctions.fClientWaitSync ||
                 nullptr == fFunctions.fWaitSync ||
                 nullptr == fFunctions.fDeleteSync) {
