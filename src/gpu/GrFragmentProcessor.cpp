@@ -505,8 +505,10 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
         return series[0];
     }
     // Run the through the series, do the invariant output processing, and look for eliminations.
-    GrColorFragmentProcessorAnalysis info;
-    info.analyzeProcessors(sk_sp_address_as_pointer_address(series), cnt);
+    GrProcessorAnalysisColor inputColor;
+    inputColor.setToUnknown();
+    GrColorFragmentProcessorAnalysis info(inputColor, sk_sp_address_as_pointer_address(series),
+                                          cnt);
     SkTArray<sk_sp<GrFragmentProcessor>> replacementSeries;
     GrColor4f knownColor;
     int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
