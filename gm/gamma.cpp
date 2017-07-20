@@ -12,6 +12,7 @@
 #include "SkBlendModePriv.h"
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
+#include "SkSurface.h"
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;
@@ -223,4 +224,38 @@ DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     nextXferRect(0xffdbdbdb, SkBlendMode::kModulate, 0xffdbdbdb);
 
     canvas->restore();
+}
+
+DEF_SIMPLE_GM(gamma_fake, canvas, 800, 1024) {
+    auto do_draw = [](SkCanvas* canvas, bool fake) {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->clear(SK_ColorWHITE);
+        SkPaint p;
+        for (int i = 0; i < 12; ++i) {
+            p.setAlpha(0xFF - i * 0xFF / 12);
+            if (fake) {
+                float x = p.getAlpha() / 255.0f;
+                x = powf(x, 1.0f/2.2f);
+                p.setAlpha(SkScalarRoundToInt(x*255));
+            }
+            canvas->drawRect({0, 0, 200, 80}, p);
+            canvas->translate(0, 80);
+        }
+    };
+
+    struct {
+        sk_sp<SkColorSpace> fCS;
+        bool                fFake;
+    } recs[] = {
+        { nullptr, false },
+        { SkColorSpace::MakeSRGB(), true },
+        { SkColorSpace::MakeSRGB(), false },
+    };
+
+    for (const auto& r : recs) {
+        auto surf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(200, 1024, r.fCS));
+        do_draw(surf->getCanvas(), r.fFake);
+        surf->draw(canvas, 0, 0, nullptr);
+        canvas->translate(SkIntToScalar(surf->width()), 0);
+    }
 }
