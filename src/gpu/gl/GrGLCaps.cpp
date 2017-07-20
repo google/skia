@@ -2138,7 +2138,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
                 static const int kDefaultSamples[] = {0,1,2,4,8};
                 int count = SK_ARRAY_COUNT(kDefaultSamples);
                 for (; count > 0; --count) {
-                    if (kDefaultSamples[count-i] <= fMaxColorSampleCount) {
+                    if (kDefaultSamples[count-1] <= fMaxColorSampleCount) {
                         break;
                     }
                 }
