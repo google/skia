@@ -8,49 +8,62 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 
-#include "SkBitmap.h"
 #include "SkGradientShader.h"
+#include "SkImage.h"
 #include "SkPath.h"
+#include "SkSurface.h"
 #include "SkTLList.h"
 
-static SkBitmap make_bmp(int w, int h) {
-    SkBitmap bmp;
-    bmp.allocN32Pixels(w, h, true);
+static sk_sp<SkImage> make_img(int w, int h) {
+    sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(w, h);
+    return surface->makeImageSnapshot();
+    SkCanvas* canvas = surface->getCanvas();
 
-    SkCanvas canvas(bmp);
     SkScalar wScalar = SkIntToScalar(w);
     SkScalar hScalar = SkIntToScalar(h);
 
-    SkPoint     pt = { wScalar / 2, hScalar / 2 };
+//    SkPoint     pt = { wScalar / 2, hScalar / 2 };
 
-    SkScalar    radius = 3 * SkMaxScalar(wScalar, hScalar);
 
-    SkColor     colors[] = { sk_tool_utils::color_to_565(SK_ColorDKGRAY),
-                             sk_tool_utils::color_to_565(0xFF222255),
-                             sk_tool_utils::color_to_565(0xFF331133),
-                             sk_tool_utils::color_to_565(0xFF884422),
-                             sk_tool_utils::color_to_565(0xFF000022), SK_ColorWHITE,
-                             sk_tool_utils::color_to_565(0xFFAABBCC) };
+//    SkColor     colors[] = { sk_tool_utils::color_to_565(SK_ColorDKGRAY),
+//                             sk_tool_utils::color_to_565(0xFF222255),
+//                             sk_tool_utils::color_to_565(0xFF331133),
+//                             sk_tool_utils::color_to_565(0xFF884422),
+//                             sk_tool_utils::color_to_565(0xFF000022), SK_ColorWHITE,
+//                             sk_tool_utils::color_to_565(0xFFAABBCC) };
 
-    SkScalar    pos[] = {0,
-                         SK_Scalar1 / 6,
-                         2 * SK_Scalar1 / 6,
-                         3 * SK_Scalar1 / 6,
-                         4 * SK_Scalar1 / 6,
-                         5 * SK_Scalar1 / 6,
-                         SK_Scalar1};
+//    SkScalar    pos[] = {0,
+//                         SK_Scalar1 / 6,
+//                         2 * SK_Scalar1 / 6,
+//                         3 * SK_Scalar1 / 6,
+//                         4 * SK_Scalar1 / 6,
+//                         5 * SK_Scalar1 / 6,
+//                         SK_Scalar1};
 
     SkPaint paint;
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.setShader(SkGradientShader::MakeRadial(
-                        pt, radius,
-                        colors, pos,
-                        SK_ARRAY_COUNT(colors),
-                        SkShader::kRepeat_TileMode,
-                        0, &mat));
-        canvas.drawRect(rect, paint);
+//    SkScalar    radius = 3 * SkMaxScalar(wScalar, hScalar);
+//        sk_sp<SkShader> sh = SkGradientShader::MakeRadial(
+//                    pt, radius,
+//                    colors, pos,
+//                    SK_ARRAY_COUNT(colors),
+//                    SkShader::kRepeat_TileMode,
+//                    0, &mat);
+
+//        SkPoint pts[] = { pt, { wScalar, hScalar} };
+//        sk_sp<SkShader> sh = SkGradientShader::MakeLinear(
+//                    pts,
+//                    colors, pos,
+//                    SK_ARRAY_COUNT(colors),
+//                    SkShader::kRepeat_TileMode,
+//                    0, &mat);
+//        paint.setShader(sh);
+        paint.setColor(0x80808080);
+        fprintf(stderr, "*** drawRect[%d] in \n", i);
+        canvas->drawRect(rect, paint);
+        fprintf(stderr, "*** drawRect[%d] out \n", i);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);
         mat.postScale(SK_Scalar1 / 3, SK_Scalar1 / 3);
@@ -63,12 +76,13 @@ static SkBitmap make_bmp(int w, int h) {
     paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
-    canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+    canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
     paint.setColor(SK_ColorBLACK);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1);
-    canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
-    return bmp;
+    canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
+
+    return surface->makeImageSnapshot();
 }
 
 namespace skiagm {
@@ -135,7 +149,7 @@ protected:
         rotRect.transform(rotM);
         fClips.addToTail()->setPath(rotRect);
 
-        fBmp = make_bmp(100, 100);
+        fImg = make_img(100, 100);
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -145,7 +159,7 @@ protected:
         SkPaint bgPaint;
         bgPaint.setAlpha(0x15);
         SkISize size = canvas->getBaseLayerSize();
-        canvas->drawBitmapRect(fBmp, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
+        canvas->drawImageRect(fImg, SkRect::MakeIWH(size.fWidth, size.fHeight), &bgPaint);
 
         constexpr char kTxt[] = "Clip Me!";
         SkPaint txtPaint;
@@ -175,9 +189,9 @@ protected:
                     }
                     canvas->translate(x, y);
                     clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
-                    canvas->drawBitmap(fBmp, 0, 0);
+                    canvas->drawImage(fImg, 0, 0);
                     canvas->restore();
-                    x += fBmp.width() + kMargin;
+                    x += fImg->width() + kMargin;
                 }
                 for (int aa = 0; aa < 2; ++aa) {
 
@@ -208,10 +222,10 @@ protected:
                     canvas->restore();
                     x += textW + 2 * kMargin;
                 }
-                y += fBmp.height() + kMargin;
+                y += fImg->height() + kMargin;
             }
             y = 0;
-            startX += 2 * fBmp.width() + SkScalarCeilToInt(2 * textW) + 6 * kMargin;
+            startX += 2 * fImg->width() + SkScalarCeilToInt(2 * textW) + 6 * kMargin;
         }
     }
 
@@ -292,8 +306,8 @@ private:
     };
 
     typedef SkTLList<Clip, 1> ClipList;
-    ClipList         fClips;
-    SkBitmap         fBmp;
+    ClipList       fClips;
+    sk_sp<SkImage> fImg;
 
     typedef GM INHERITED;
 };
