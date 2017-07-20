@@ -516,6 +516,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
 
     if (glVer >= GR_GL_VER(3, 2) || extensions.has("GL_ARB_sync")) {
         GET_PROC(FenceSync);
+        GET_PROC(IsSync);
         GET_PROC(ClientWaitSync);
         GET_PROC(WaitSync);
         GET_PROC(DeleteSync);
@@ -940,11 +941,13 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
 
     if (version >= GR_GL_VER(3, 0)) {
         GET_PROC(FenceSync);
+        GET_PROC(IsSync);
         GET_PROC(ClientWaitSync);
         GET_PROC(WaitSync);
         GET_PROC(DeleteSync);
     } else if (extensions.has("GL_APPLE_sync")) {
         GET_PROC_SUFFIX(FenceSync, APPLE);
+        GET_PROC_SUFFIX(IsSync, APPLE);
         GET_PROC_SUFFIX(ClientWaitSync, APPLE);
         GET_PROC_SUFFIX(WaitSync, APPLE);
         GET_PROC_SUFFIX(DeleteSync, APPLE);
