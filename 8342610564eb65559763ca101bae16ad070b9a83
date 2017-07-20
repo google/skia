@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06db9b44_b0aa83d7",
+        "filename": "src/gpu/gl/GrGLInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-20T19:24:58Z",
+      "side": 1,
+      "message": "If you want to leave this in here, add a comment ?",
+      "revId": "8342610564eb65559763ca101bae16ad070b9a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18306cdf_539327d0",
+        "filename": "src/gpu/gl/GrGLInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-20T19:24:58Z",
+      "side": 1,
+      "message": "here too ?",
+      "revId": "8342610564eb65559763ca101bae16ad070b9a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90a60fa1_29d646e0",
+        "filename": "src/gpu/gl/GrGLTestInterface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-20T19:24:58Z",
+      "side": 1,
+      "message": "shouldn\u0027t these all be overrides ?",
+      "revId": "8342610564eb65559763ca101bae16ad070b9a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc4aa0ee_7ac9fb39",
+        "filename": "tests/SurfaceSemaphoreTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-20T19:24:58Z",
+      "side": 1,
+      "message": "of -\u003e on ?",
+      "revId": "8342610564eb65559763ca101bae16ad070b9a83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
