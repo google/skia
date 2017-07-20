@@ -128,11 +128,22 @@ static size_t pixel_count(const SkBitmap& bm) {
     return SkToSizeT(bm.width()) * SkToSizeT(bm.height());
 }
 
-static const SkBitmap& not4444(const SkBitmap& input, SkBitmap* copy) {
-    if (input.colorType() != kARGB_4444_SkColorType) {
-        return input;
+static const SkBitmap& supported_colortype(const SkBitmap& input, SkBitmap* copy) {
+    switch (input.colorType()) {
+        case kUnknown_SkColorType:
+            SkDEBUGFAIL("kUnknown_SkColorType");
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kGray_8_SkColorType:
+            return input;  // supported
+        default:
+            // if other colortypes are introduced in the future,
+            // they will hit this code.
+            break;
     }
-    // ARGB_4444 is rarely used, so we can do a wasteful tmp copy.
+    // Fallback for rarely used ARGB_4444 and ARGB_F16: do a wasteful tmp copy.
     copy->allocPixels(input.info().makeColorType(kN32_SkColorType));
     SkAssertResult(input.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0));
     copy->setImmutable();
@@ -141,18 +152,16 @@ static const SkBitmap& not4444(const SkBitmap& input, SkBitmap* copy) {
 
 static size_t pdf_color_component_count(SkColorType ct) {
     switch (ct) {
-        case kRGB_565_SkColorType:
-        case kARGB_4444_SkColorType:
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return 3;
+        case kUnknown_SkColorType:
+            SkDEBUGFAIL("kUnknown_SkColorType");
         case kAlpha_8_SkColorType:
         case kGray_8_SkColorType:
             return 1;
-        case kUnknown_SkColorType:
-        default:
-            SkDEBUGFAIL("unexpected color type");
-            return 0;
+        case kRGB_565_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+        default:  // converted to N32
+            return 3;
     }
 }
 
@@ -164,7 +173,7 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
         return;
     }
     SkBitmap copy;
-    const SkBitmap& bm = not4444(bitmap, &copy);
+    const SkBitmap& bm = supported_colortype(bitmap, &copy);
     SkColorType colorType = bm.colorType();
     SkAlphaType alphaType = bm.alphaType();
     switch (colorType) {
@@ -238,7 +247,7 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
         return;
     }
     SkBitmap copy;
-    const SkBitmap& bm = not4444(bitmap, &copy);
+    const SkBitmap& bm = supported_colortype(bitmap, &copy);
     SkColorType colorType = bm.colorType();
     switch (colorType) {
         case kRGBA_8888_SkColorType:
