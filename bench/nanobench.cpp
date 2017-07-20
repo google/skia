@@ -33,6 +33,7 @@
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
+#include "SkEventTracingPriv.h"
 #include "SkGraphics.h"
 #include "SkLeanWindows.h"
 #include "SkOSFile.h"
@@ -1104,9 +1105,9 @@ static void start_keepalive() {
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
-    if (FLAGS_trace) {
-        SkEventTracer::SetInstance(new SkDebugfTracer);
-    }
+
+    initializeEventTracingForTools(&FLAGS_threads);
+
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
