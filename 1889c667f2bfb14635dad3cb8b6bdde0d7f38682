@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e95d4413_af2e5c14",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-20T19:24:33Z",
+      "side": 1,
+      "message": "I believe this thing\u0027s existence turns on threaded rendering for some stuff.  Its default parameter defaults to num-CPUs.",
+      "revId": "1889c667f2bfb14635dad3cb8b6bdde0d7f38682",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
