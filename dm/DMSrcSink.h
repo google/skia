@@ -330,11 +330,12 @@ private:
 
 class PDFSink : public Sink {
 public:
-    PDFSink(bool pdfa = false) : fPDFA(pdfa) {}
+    PDFSink(bool pdfa, SkScalar rasterDpi) : fPDFA(pdfa), fRasterDpi(300) {}
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "pdf"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
     bool fPDFA;
+    SkScalar fRasterDpi;
 };
 
 class XPSSink : public Sink {
