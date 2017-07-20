@@ -153,13 +153,11 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
     SkASSERT(!fFragmentProcessorOffset);
 
     GrProcessorSet::Analysis analysis;
-
-    const GrFragmentProcessor* clipFP = clip ? clip->clipCoverageFragmentProcessor() : nullptr;
-    GrColorFragmentProcessorAnalysis colorAnalysis(colorInput);
     analysis.fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
 
+    const GrFragmentProcessor* clipFP = clip ? clip->clipCoverageFragmentProcessor() : nullptr;
     const GrFragmentProcessor* const* fps = fFragmentProcessors.get() + fFragmentProcessorOffset;
-    colorAnalysis.analyzeProcessors(fps, fColorFragmentProcessorCnt);
+    GrColorFragmentProcessorAnalysis colorAnalysis(colorInput, fps, fColorFragmentProcessorCnt);
     analysis.fCompatibleWithCoverageAsAlpha &=
             colorAnalysis.allProcessorsCompatibleWithCoverageAsAlpha();
     fps += fColorFragmentProcessorCnt;
