@@ -73,6 +73,8 @@ DEFINE_bool(forceAnalyticAA, false, "Force analytic anti-aliasing even if the pa
                                     "if its number of points is comparable to its resolution.");
 
 DEFINE_bool(trace, false, "Show trace events using SkDebugf.");
+DEFINE_string(jsonTrace, "",
+              "Write trace events to specified JSON, for viewing with chrome://tracing");
 
 bool CollectImages(SkCommandLineFlags::StringArray images, SkTArray<SkString>* output) {
     SkASSERT(output);

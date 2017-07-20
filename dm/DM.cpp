@@ -11,6 +11,7 @@
 #include "Resources.h"
 #include "SkBBHFactory.h"
 #include "SkChecksum.h"
+#include "SkChromeTracingTracer.h"
 #include "SkCodec.h"
 #include "SkColorPriv.h"
 #include "SkColorSpace.h"
@@ -1266,8 +1267,21 @@ extern sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char [], SkFontStyle )
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
+    if (FLAGS_trace && !FLAGS_jsonTrace.isEmpty()) {
+        info("Only one trace flag may be specified.");
+        return 1;
+    }
     if (FLAGS_trace) {
         SkAssertResult(SkEventTracer::SetInstance(new SkDebugfTracer()));
+    }
+    SkChromeTracingTracer* tracer = nullptr;
+    if (!FLAGS_jsonTrace.isEmpty()) {
+        if (FLAGS_threads != 0) {
+            info("JSON tracing is not yet thread-safe, disabling threading.\n");
+            FLAGS_threads = 0;
+        }
+        tracer = new SkChromeTracingTracer();
+        SkAssertResult(SkEventTracer::SetInstance(tracer));
     }
     #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();
@@ -1380,6 +1394,11 @@ int main(int argc, char** argv) {
 
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
+
+    if (tracer) {
+        tracer->writeToFile(FLAGS_jsonTrace[0]);
+    }
+
     return 0;
 }
 
