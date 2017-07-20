@@ -191,11 +191,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
         eglDestroyImageKHR(display, image);
         return nullptr;
     }
-    GrBackendTextureFlags flags = kNone_GrBackendTextureFlag;
     sk_sp<GrTexture> tex = context->resourceProvider()->wrapBackendTexture(backendTex,
                                                                        kTopLeft_GrSurfaceOrigin,
-                                                                       flags,
-                                                                       0,
                                                                        kAdopt_GrWrapOwnership);
     if (!tex) {
         glDeleteTextures(1, &texID);
