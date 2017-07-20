@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "077b6a02_cd826907",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-20T19:06:30Z",
+      "side": 1,
+      "message": "since we only handle kA8_Format \u0026 kLCD16_Format below, should this be\n\n  if (mask.fFormat !\u003d kA8 \u0026\u0026 mask.fFormat !\u003d kLCD16)\n\n?",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7de23d3_48da8474",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-20T19:06:30Z",
+      "side": 1,
+      "message": "mask.getAddr8(0, 0)?",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c29ccf89_eeb50999",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-20T19:06:30Z",
+      "side": 1,
+      "message": "mask.getAddrLCD16(0, 0)?",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0eea907_e0082ca8",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-20T19:06:30Z",
+      "side": 1,
+      "message": "i think we can trim out the switches below by doing something like this\n\n  SkASSERT(mask.fFormat \u003d\u003d SkMask::kA8_Format || mask.fFormat \u003d\u003d SkMask::kLCD16_Format);\n  auto\u0026 blitter \u003d mask.fFormat \u003d\u003d SkMask::kA8_Format ? fBlitMaskA8 : fBlitMaskLCD16;\n\nand then just call blitter(..) uniformly.",
+      "revId": "1dc908a095de1255fe1dec3a1bd481f864d76963",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
