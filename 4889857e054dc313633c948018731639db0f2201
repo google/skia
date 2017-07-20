@@ -16,6 +16,24 @@
       "revId": "4889857e054dc313633c948018731639db0f2201",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d321f26_b24f1505",
+        "filename": "site/user/special/vulkan.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-20T15:00:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6274ea7_90123c6f",
+      "revId": "4889857e054dc313633c948018731639db0f2201",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
