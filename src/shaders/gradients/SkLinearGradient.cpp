@@ -72,6 +72,7 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
 }
 
 SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
+        return nullptr;
     const ContextRec& rec, SkArenaAlloc* alloc) const {
 
     // Raster pipeline has a 2-stop specialization faster than our burst.
