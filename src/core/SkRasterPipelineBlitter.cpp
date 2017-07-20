@@ -43,6 +43,7 @@ public:
     void blitAntiH (int x, int y, const SkAlpha[], const int16_t[]) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1)               override;
     void blitMask  (const SkMask&, const SkIRect& clip)             override;
+    void blitRect  (int x, int y, int width, int height)            override;
 
     // TODO: The default implementations of the other blits look fine,
     // but some of them like blitV could probably benefit from custom
@@ -67,12 +68,12 @@ private:
                        fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
                        fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
 
-    // We may be able to specialize blitH() into a memset.
-    bool     fCanMemsetInBlitH = false;
+    // We may be able to specialize blitH() or blitRect() into a memset.
+    bool     fCanMemsetInBlitRect = false;
     uint64_t fMemsetColor      = 0;     // Big enough for largest dst format, F16.
 
     // Built lazily on first use.
-    std::function<void(size_t, size_t, size_t, size_t)> fBlitH,
+    std::function<void(size_t, size_t, size_t, size_t)> fBlitRect,
                                                         fBlitAntiH,
                                                         fBlitMaskA8,
                                                         fBlitMaskLCD16;
@@ -218,7 +219,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         blitter->append_store(&p);
         p.run(0,0,1,1);
 
-        blitter->fCanMemsetInBlitH = true;
+        blitter->fCanMemsetInBlitRect = true;
     }
 
     blitter->fDstPtr = SkJumper_MemoryCtx{
@@ -292,17 +293,24 @@ void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
 }
 
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
-    if (fCanMemsetInBlitH) {
-        switch (fDst.shiftPerPixel()) {
-            case 0:    memset  (fDst.writable_addr8 (x,y), fMemsetColor, w); return;
-            case 1: sk_memset16(fDst.writable_addr16(x,y), fMemsetColor, w); return;
-            case 2: sk_memset32(fDst.writable_addr32(x,y), fMemsetColor, w); return;
-            case 3: sk_memset64(fDst.writable_addr64(x,y), fMemsetColor, w); return;
-            default: break;
+    this->blitRect(x,y,w,1);
+}
+
+void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
+    if (fCanMemsetInBlitRect) {
+        for (int ylimit = y+h; y < ylimit; y++) {
+            switch (fDst.shiftPerPixel()) {
+                case 0:    memset  (fDst.writable_addr8 (x,y), fMemsetColor, w); break;
+                case 1: sk_memset16(fDst.writable_addr16(x,y), fMemsetColor, w); break;
+                case 2: sk_memset32(fDst.writable_addr32(x,y), fMemsetColor, w); break;
+                case 3: sk_memset64(fDst.writable_addr64(x,y), fMemsetColor, w); break;
+                default: break;
+            }
         }
+        return;
     }
 
-    if (!fBlitH) {
+    if (!fBlitRect) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         if (fBlend == SkBlendMode::kSrcOver
@@ -319,12 +327,19 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
             }
             this->append_store(&p);
         }
-        fBlitH = p.compile();
+        fBlitRect = p.compile();
     }
+
     if (fBurstCtx) {
-        this->burst_shade(x,y,w);
+        // We can only burst shade one row at a time.
+        for (int ylimit = y+h; y < ylimit; y++) {
+            this->burst_shade(x,y,w);
+            fBlitRect(x,y, w,1);
+        }
+    } else {
+        // If not bursting we can blit the entire rect at once.
+        fBlitRect(x,y,w,h);
     }
-    fBlitH(x,y,w,1);
 }
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
