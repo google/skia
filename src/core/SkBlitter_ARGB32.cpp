@@ -67,6 +67,79 @@ const SkPixmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
 #pragma warning ( disable : 4701 )
 #endif
 
+static SK_ALWAYS_INLINE void SkARGB32_BlitAlpha(SkAlpha alpha,
+        int x, int y, int width, uint32_t* device, unsigned opaqueMask, uint32_t color) {
+    if (alpha) {
+        if ((opaqueMask & alpha) == 255) {
+            sk_memset32(device, color, width);
+        } else {
+            uint32_t sc = SkAlphaMulQ(color, SkAlpha255To256(alpha));
+            SkBlitRow::Color32(device, device, width, sc);
+        }
+    }
+}
+
+// Future todo: can we use template to save some duplicate code?
+void SkARGB32_Blitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                          bool isEvenOdd, bool isInverse, bool isConvex) {
+    if (isInverse) {
+        this->blitRect(clip.fLeft, clip.fTop, clip.width(), deltas->top() - clip.fTop);
+        if (deltas->bottom() < clip.fBottom) { // empty rect may trigger some asserts
+            this->blitRect(clip.fLeft, deltas->bottom(), clip.width(),
+                    clip.fBottom - deltas->bottom());
+        }
+    }
+
+    const SkAntiRect& antiRect = deltas->getAntiRect();
+
+    bool canUseMask = !deltas->forceRLE() &&
+                      SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
+
+    for(int y = deltas->top(); y < deltas->bottom(); ++y) {
+        if (antiRect.fHeight && y == antiRect.fY) {
+            this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,
+                    antiRect.fLeftAlpha, antiRect.fRightAlpha);
+            y += antiRect.fHeight - 1;
+            continue;
+        }
+        if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
+            // Too many deltas; sorting will be slow; just use a mask to handle it.
+            // This is such an important optimization that will bring ~2x speedup for benches
+            // like path_fill_small_long_line and path_stroke_small_sawtooth
+            SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
+            SkCoverageDeltaMask mask(rowIR);
+            for(int i = 0; i < deltas->count(y); ++i) {
+                const SkCoverageDelta& delta = deltas->getDelta(y, i);
+                mask.addDelta(delta.fX, y, delta.fDelta);
+            }
+            mask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
+            this->blitMask(mask.prepareSkMask(), rowIR);
+            continue;
+        }
+        uint32_t* device = fDevice.writable_addr32(clip.fLeft, y);
+        deltas->sort(y);
+        int lastX = clip.fLeft;
+        SkFixed coverage = 0;
+        int i = 0;
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
+            const SkCoverageDelta& delta = deltas->getDelta(y, i);
+            SkASSERT(delta.fX >= lastX);
+            if (delta.fX > lastX) {
+                SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                         : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+                SkARGB32_BlitAlpha(alpha, lastX, y, delta.fX - lastX, device, fSrcA, fPMColor);
+                device += delta.fX - lastX;
+                lastX = delta.fX;
+            }
+            coverage += delta.fDelta;
+        }
+        SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                 : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+        SkARGB32_BlitAlpha(alpha, lastX, y, clip.fRight - lastX, device, fSrcA, fPMColor);
+    }
+}
+
 void SkARGB32_Blitter::blitH(int x, int y, int width) {
     SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
 
@@ -267,6 +340,83 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
 #endif
 
 ///////////////////////////////////////////////////////////////////////
+
+static SK_ALWAYS_INLINE void SkARGB32_Black_BlitAlpha(SkAlpha alpha,
+        int x, int y, int width, uint32_t* device) {
+    SkPMColor black = (SkPMColor)(SK_A32_MASK << SK_A32_SHIFT);
+    if (alpha) {
+        if (alpha == 255) {
+            sk_memset32(device, black, width);
+        } else {
+            SkPMColor src = alpha << SK_A32_SHIFT;
+            unsigned dst_scale = 256 - alpha;
+            int n = width;
+            do {
+                --n;
+                device[n] = src + SkAlphaMulQ(device[n], dst_scale);
+            } while (n > 0);
+        }
+    }
+}
+
+void SkARGB32_Black_Blitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
+                                          bool isEvenOdd, bool isInverse, bool isConvex) {
+    if (isInverse) {
+        this->blitRect(clip.fLeft, clip.fTop, clip.width(), deltas->top() - clip.fTop);
+        if (deltas->bottom() < clip.fBottom) { // empty rect may trigger some asserts
+            this->blitRect(clip.fLeft, deltas->bottom(), clip.width(),
+                    clip.fBottom - deltas->bottom());
+        }
+    }
+
+    bool canUseMask = !deltas->forceRLE() &&
+                      SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
+
+    const SkAntiRect& antiRect = deltas->getAntiRect();
+    for(int y = deltas->top(); y < deltas->bottom(); ++y) {
+        if (antiRect.fHeight && y == antiRect.fY) {
+            this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,
+                    antiRect.fLeftAlpha, antiRect.fRightAlpha);
+            y += antiRect.fHeight - 1;
+            continue;
+        }
+        if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
+            // Too many deltas; sorting will be slow; just use a mask to handle it.
+            // This is such an important optimization that will bring ~2x speedup for benches
+            // like path_fill_small_long_line and path_stroke_small_sawtooth
+            SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
+            SkCoverageDeltaMask mask(rowIR);
+            for(int i = 0; i < deltas->count(y); ++i) {
+                const SkCoverageDelta& delta = deltas->getDelta(y, i);
+                mask.addDelta(delta.fX, y, delta.fDelta);
+            }
+            mask.convertCoverageToAlpha(isEvenOdd, isInverse, isConvex);
+            this->blitMask(mask.prepareSkMask(), rowIR);
+            continue;
+        }
+        uint32_t* device = fDevice.writable_addr32(clip.fLeft, y);
+        deltas->sort(y);
+        int lastX = clip.fLeft;
+        SkFixed coverage = 0;
+        int i = 0;
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
+            const SkCoverageDelta& delta = deltas->getDelta(y, i);
+            SkASSERT(delta.fX >= lastX);
+            if (delta.fX > lastX) {
+                SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                         : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+                SkARGB32_Black_BlitAlpha(alpha, lastX, y, delta.fX - lastX, device);
+                device += delta.fX - lastX;
+                lastX = delta.fX;
+            }
+            coverage += delta.fDelta;
+        }
+        SkAlpha alpha = isConvex ? ConvexCoverageToAlpha(coverage, isInverse)
+                                 : CoverageToAlpha(coverage, isEvenOdd, isInverse);
+        SkARGB32_Black_BlitAlpha(alpha, lastX, y, clip.fRight - lastX, device);
+    }
+}
 
 void SkARGB32_Black_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                        const int16_t runs[]) {
