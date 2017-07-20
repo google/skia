@@ -97,29 +97,6 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 
-GrBackendRenderTarget::GrBackendRenderTarget(const GrBackendRenderTargetDesc& desc,
-                                             GrBackend backend)
-        : fWidth(desc.fWidth)
-        , fHeight(desc.fHeight)
-        , fSampleCnt(desc.fSampleCnt)
-        , fStencilBits(desc.fStencilBits)
-        , fConfig(desc.fConfig)
-        , fBackend(backend) {
-    if (kOpenGL_GrBackend == backend) {
-        fGLInfo.fFBOID = static_cast<GrGLuint>(desc.fRenderTargetHandle);
-    } else {
-        SkASSERT(kVulkan_GrBackend == backend);
-#ifdef SK_VULKAN
-        const GrVkImageInfo* vkInfo =
-                reinterpret_cast<const GrVkImageInfo*>(desc.fRenderTargetHandle);
-        fConfig = GrVkFormatToPixelConfig(vkInfo->fFormat);
-        fVkInfo = *vkInfo;
-#else
-        fConfig = kUnknown_GrPixelConfig;
-#endif
-    }
-}
-
 #ifdef SK_VULKAN
 const GrVkImageInfo* GrBackendRenderTarget::getVkImageInfo() const {
     if (kVulkan_GrBackend == fBackend) {
