@@ -69,6 +69,8 @@ class GNAndroidFlavorUtils(default_flavor.DefaultFlavorUtils):
     if 'Vulkan' in extra_config:
       args['ndk_api'] = 24
       args['skia_enable_vulkan_debug_layers'] = 'false'
+    if 'API26' in extra_config:
+      args['ndk_api'] = 26
     if extra_cflags:
       args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
 
