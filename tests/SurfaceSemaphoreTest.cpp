@@ -17,8 +17,18 @@
 #include "SkCanvas.h"
 #include "SkSurface.h"
 
+#include "gl/GrGLGpu.h"
+#include "gl/GrGLUtil.h"
+
 #ifdef SK_VULKAN
+#include "vk/GrVkGpu.h"
 #include "vk/GrVkTypes.h"
+#include "vk/GrVkUtil.h"
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+// windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
+ #undef CreateSemaphore
+ #endif
 #endif
 
 static const int MAIN_W = 8, MAIN_H = 16;
@@ -170,6 +180,107 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, factory) {
             surface_semaphore_test(reporter, ctxInfo, child1, child2);
         }
     }
+}
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo) {
+    GrContext* ctx = ctxInfo.grContext();
+    if (!ctx->caps()->fenceSyncSupport()) {
+        return;
+    }
+
+    const SkImageInfo ii = SkImageInfo::Make(MAIN_W, MAIN_H, kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> mainSurface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo,
+                                                             ii, 0, kTopLeft_GrSurfaceOrigin,
+                                                             nullptr));
+
+    // Flush surface once without semaphores to make sure there is no peneding IO for it.
+    mainSurface->flush();
+
+    GrBackendSemaphore semaphore;
+    REPORTER_ASSERT(reporter, mainSurface->flushAndSignalSemaphores(1, &semaphore));
+
+    if (kOpenGL_GrBackend == ctxInfo.backend()) {
+        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->getGpu());
+        const GrGLInterface* interface = gpu->glInterface();
+        GrGLsync sync = semaphore.glSync();
+        REPORTER_ASSERT(reporter, sync);
+        bool result;
+        GR_GL_CALL_RET(interface, result, IsSync(sync));
+        REPORTER_ASSERT(reporter, result);
+    }
+
+#ifdef SK_VULKAN
+    if (kVulkan_GrBackend == ctxInfo.backend()) {
+        GrVkGpu* gpu = static_cast<GrVkGpu*>(ctx->getGpu());
+        const GrVkInterface* interface = gpu->vkInterface();
+        VkDevice device = gpu->device();
+        VkQueue queue = gpu->queue();
+        VkCommandPool cmdPool = gpu->cmdPool();
+        VkCommandBuffer cmdBuffer;
+
+        // Create Command Buffer
+        const VkCommandBufferAllocateInfo cmdInfo = {
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
+            nullptr,                                          // pNext
+            cmdPool,                                          // commandPool
+            VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // level
+            1                                                 // bufferCount
+        };
+
+        VkResult err = GR_VK_CALL(interface, AllocateCommandBuffers(device, &cmdInfo, &cmdBuffer));
+        if (err) {
+            return;
+        }
+
+        VkCommandBufferBeginInfo cmdBufferBeginInfo;
+        memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
+        cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        cmdBufferBeginInfo.pNext = nullptr;
+        cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        cmdBufferBeginInfo.pInheritanceInfo = nullptr;
+
+        GR_VK_CALL_ERRCHECK(interface, BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
+        GR_VK_CALL_ERRCHECK(interface, EndCommandBuffer(cmdBuffer));
+
+        VkFenceCreateInfo fenceInfo;
+        VkFence fence;
+
+        memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        err = GR_VK_CALL(interface, CreateFence(device, &fenceInfo, nullptr, &fence));
+        SkASSERT(!err);
+
+        VkPipelineStageFlags waitStages = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        VkSubmitInfo submitInfo;
+        memset(&submitInfo, 0, sizeof(VkSubmitInfo));
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.pNext = nullptr;
+        submitInfo.waitSemaphoreCount = 1;
+        VkSemaphore vkSem = semaphore.vkSemaphore();
+        submitInfo.pWaitSemaphores = &vkSem;
+        submitInfo.pWaitDstStageMask = &waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &cmdBuffer;
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores = nullptr;
+        GR_VK_CALL_ERRCHECK(interface, QueueSubmit(queue, 1, &submitInfo, fence));
+
+        err = GR_VK_CALL(interface, WaitForFences(device, 1, &fence, true, 3000000000));
+
+        REPORTER_ASSERT(reporter, err != VK_TIMEOUT);
+
+        GR_VK_CALL(interface, DestroyFence(device, fence, nullptr));
+        GR_VK_CALL(interface, DestroySemaphore(device, vkSem, nullptr));
+        // If the above test fails the wait semaphore will never be signaled which can cause the
+        // device to hang when tearing down (even if just tearing down GL). So we Fail here to
+        // kill things.
+        if (err == VK_TIMEOUT) {
+            SkFAIL("Waiting on semaphore indefinitely");
+        }
+    }
+#endif
 }
 
 #endif
