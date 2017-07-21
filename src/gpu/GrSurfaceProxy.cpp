@@ -32,7 +32,9 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
-        , fLastOpList(nullptr) {}
+        , fLastOpList(nullptr) {
+    SkASSERT(kDefault_GrSurfaceOrigin != fOrigin);
+}
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     // For this to be deleted the opList that held a ref on it (if there was one) must have been

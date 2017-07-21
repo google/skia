@@ -42,6 +42,7 @@
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
     desc.fConfig = SkImageInfo2GrPixelConfig(info, caps);
@@ -253,6 +254,7 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
         // we can't necessarily know the |dstColorSpace| at this time.
         proxy = GrUploadBitmapToTextureProxy(resourceProvider, bitmap, nullptr);
         if (proxy && originalKey.isValid()) {
+            SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             resourceProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
             // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
             GrInstallBitmapUniqueKeyInvalidator(originalKey, bitmap.pixelRef());
