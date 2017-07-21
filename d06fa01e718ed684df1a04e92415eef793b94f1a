@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c1e4455_fdf3fc75",
+        "filename": "tools/trace/SkEventTracingPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-21T16:33:16Z",
+      "side": 1,
+      "message": "How cute.",
+      "range": {
+        "startLine": 78,
+        "startChar": 16,
+        "endLine": 78,
+        "endChar": 74
+      },
+      "revId": "d06fa01e718ed684df1a04e92415eef793b94f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
