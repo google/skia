@@ -284,13 +284,13 @@ public:
     bool peekPixels(SkPixmap*);
 
     /**
-     *  Copy the pixels from the surface into the specified buffer (pixels + rowBytes),
-     *  converting them into the requested format (dstInfo). The surface pixels are read
+     *  Copy the pixels from the surface into the specified pixmap,
+     *  converting them into the pixmap's format. The surface pixels are read
      *  starting at the specified (srcX,srcY) location.
      *
-     *  The specified ImageInfo and (srcX,srcY) offset specifies a source rectangle
+     *  The pixmap and (srcX,srcY) offset specifies a source rectangle
      *
-     *      srcR.setXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
+     *      srcR.setXYWH(srcX, srcY, pixmap.width(), pixmap.height());
      *
      *  srcR is intersected with the bounds of the base-layer. If this intersection is not empty,
      *  then we have two sets of pixels (of equal size). Replace the dst pixels with the
@@ -301,8 +301,10 @@ public:
      *  - If srcR does not intersect the surface bounds.
      *  - If the requested colortype/alphatype cannot be converted from the surface's types.
      */
+    bool readPixels(const SkPixmap& dst, int srcX, int srcY);
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY);
+    bool readPixels(const SkBitmap& dst, int srcX, int srcY);
 
     const SkSurfaceProps& props() const { return fProps; }
 

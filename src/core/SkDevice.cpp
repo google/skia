@@ -292,20 +292,19 @@ sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() { return nullptr; }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
-    return this->onReadPixels(info, dstP, rowBytes, x, y);
+bool SkBaseDevice::readPixels(const SkPixmap& pm, int x, int y) {
+    return this->onReadPixels(pm, x, y);
 }
 
-bool SkBaseDevice::writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
-                               int x, int y) {
-    return this->onWritePixels(info, pixels, rowBytes, x, y);
+bool SkBaseDevice::writePixels(const SkPixmap& pm, int x, int y) {
+    return this->onWritePixels(pm, x, y);
 }
 
-bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, int) {
+bool SkBaseDevice::onWritePixels(const SkPixmap&, int, int) {
     return false;
 }
 
-bool SkBaseDevice::onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) {
+bool SkBaseDevice::onReadPixels(const SkPixmap&, int x, int y) {
     return false;
 }
 

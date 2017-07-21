@@ -815,17 +815,13 @@ SkBaseDevice* SkCanvas::getTopDevice() const {
     return fMCRec->fTopLayer->fDevice.get();
 }
 
-bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowBytes, int x, int y) {
+bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
     SkBaseDevice* device = this->getDevice();
-    if (!device) {
-        return false;
-    }
-
-    return device->readPixels(dstInfo, dstP, rowBytes, x, y);
+    return device && pm.addr() && device->readPixels(pm, x, y);
 }
 
-bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
-    return pm.addr() && this->readPixels(pm.info(), pm.writable_addr(), pm.rowBytes(), x, y);
+bool SkCanvas::readPixels(const SkImageInfo& dstInfo, void* dstP, size_t rowBytes, int x, int y) {
+    return this->readPixels({ dstInfo, dstP, rowBytes}, x, y);
 }
 
 bool SkCanvas::readPixels(const SkBitmap& bm, int x, int y) {
@@ -864,7 +860,7 @@ bool SkCanvas::writePixels(const SkImageInfo& srcInfo, const void* pixels, size_
     // conversion.  We could pull those checks into this function and avoid the unnecessary
     // generation ID bump.  But then we would be performing those checks twice, since they
     // are also necessary at the bitmap/pixmap entry points.
-    return device->writePixels(srcInfo, pixels, rowBytes, x, y);
+    return device->writePixels({srcInfo, pixels, rowBytes}, x, y);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -170,9 +170,18 @@ bool SkSurface::peekPixels(SkPixmap* pmap) {
     return this->getCanvas()->peekPixels(pmap);
 }
 
+bool SkSurface::readPixels(const SkPixmap& pm, int srcX, int srcY) {
+    return this->getCanvas()->readPixels(pm, srcX, srcY);
+}
+
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                            int srcX, int srcY) {
-    return this->getCanvas()->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+    return this->readPixels({dstInfo, dstPixels, dstRowBytes}, srcX, srcY);
+}
+
+bool SkSurface::readPixels(const SkBitmap& bitmap, int srcX, int srcY) {
+    SkPixmap pm;
+    return bitmap.peekPixels(&pm) && this->readPixels(pm, srcX, srcY);
 }
 
 GrBackendObject SkSurface::getTextureHandle(BackendHandleAccess access) {

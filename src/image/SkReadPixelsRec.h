@@ -22,6 +22,14 @@ struct SkReadPixelsRec {
         , fY(y)
     {}
 
+    SkReadPixelsRec(const SkPixmap& pm, int x, int y)
+        : fPixels(pm.writable_addr())
+        , fRowBytes(pm.rowBytes())
+        , fInfo(pm.info())
+        , fX(x)
+        , fY(y)
+    {}
+
     void*       fPixels;
     size_t      fRowBytes;
     SkImageInfo fInfo;
