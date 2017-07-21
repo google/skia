@@ -129,7 +129,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
         dstCanvas->flush();
 
         sk_memset32(read.get(), 0, kW * kH);
-        if (!dstCanvas->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
+        if (!dst->readPixels(ii, read.get(), kRowBytes, 0, 0)) {
             ERRORF(reporter, "Error calling readPixels");
             continue;
         }

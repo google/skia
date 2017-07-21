@@ -184,9 +184,8 @@ static bool check_pixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
            SkAbs32(aB - bB) <= 1;
 }
 
-static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const SkBitmap& bitmap,
+static bool check_write(skiatest::Reporter* reporter, SkSurface* surf, const SkBitmap& bitmap,
                        int writeX, int writeY) {
-    const SkImageInfo canvasInfo = canvas->imageInfo();
     size_t canvasRowBytes;
     const uint32_t* canvasPixels;
 
@@ -194,8 +193,8 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
     // At some point this will be unsupported, as we won't allow accessBitmap() to magically call
     // readPixels for the client.
     SkBitmap secretDevBitmap;
-    secretDevBitmap.allocN32Pixels(canvasInfo.width(), canvasInfo.height());
-    if (!canvas->readPixels(secretDevBitmap, 0, 0)) {
+    secretDevBitmap.allocN32Pixels(surf->width(), surf->height());
+    if (!surf->readPixels(secretDevBitmap, 0, 0)) {
         return false;
     }
 
@@ -206,9 +205,7 @@ static bool check_write(skiatest::Reporter* reporter, SkCanvas* canvas, const Sk
         return false;
     }
 
-    if (canvasInfo.width() != DEV_W ||
-        canvasInfo.height() != DEV_H ||
-        canvasInfo.colorType() != kN32_SkColorType) {
+    if (surf->width() != DEV_W || surf->height() != DEV_H) {
         return false;
     }
 
@@ -352,7 +349,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) 
         SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
     };
 
-    SkCanvas& canvas = *surface->getCanvas();
+    SkCanvas* canvas = surface->getCanvas();
 
     static const struct {
         SkColorType fColorType;
@@ -370,21 +367,21 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) 
                 const SkColorType ct = gSrcConfigs[c].fColorType;
                 const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
-                fill_canvas(&canvas);
+                fill_canvas(canvas);
                 SkBitmap bmp;
                 REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
                                                        rect.height(), SkToBool(tightBmp)));
                 uint32_t idBefore = surface->generationID();
 
                 // sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
-                canvas.writePixels(bmp, rect.fLeft, rect.fTop);
+                canvas->writePixels(bmp, rect.fLeft, rect.fTop);
 
                 uint32_t idAfter = surface->generationID();
-                REPORTER_ASSERT(reporter, check_write(reporter, &canvas, bmp,
+                REPORTER_ASSERT(reporter, check_write(reporter, surface, bmp,
                                                       rect.fLeft, rect.fTop));
 
                 // we should change the genID iff pixels were actually written.
-                SkIRect canvasRect = SkIRect::MakeSize(canvas.getBaseLayerSize());
+                SkIRect canvasRect = SkIRect::MakeSize(canvas->getBaseLayerSize());
                 SkIRect writeRect = SkIRect::MakeXYWH(rect.fLeft, rect.fTop,
                                                       bmp.width(), bmp.height());
                 bool intersects = SkIRect::Intersects(canvasRect, writeRect) ;
