@@ -60,7 +60,7 @@ extern void SkPDFImageDumpStats();
 
 extern bool gSkForceRasterPipelineBlitter;
 
-DEFINE_string(src, "tests gm skp image", "Source types to test.");
+DEFINE_string(src, "tests", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
             "to FLAGS_writePath[0]/<config>/<sourceType>/<sourceOptions>/<name>.png");
@@ -1226,7 +1226,7 @@ static void gather_tests() {
         // Despite its name, factory() is returning a reference to
         // link-time static const POD data.
         const skiatest::Test& test = r->factory();
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        if (strcmp("ResourceAllocatorTest", test.name)) {
             continue;
         }
         if (test.needsGpu && gpu_supported()) {
