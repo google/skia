@@ -182,9 +182,6 @@ def dm_flags(api, bot):
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
     args.remove('tests')
 
-  # Some people don't like verbose output.
-  verbose = False
-
   blacklisted = []
   def blacklist(quad):
     config, src, options, name = quad.split(' ') if type(quad) is str else quad
@@ -459,10 +456,6 @@ def dm_flags(api, bot):
   if 'Vulkan' in bot and 'IntelIris540' in bot and api.vars.is_linux:
     match.extend(['~VkHeapTests']) # skia:6245
 
-  if 'Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot:
-    # TODO(dogben): Track down what's causing bots to die.
-    verbose = True
-
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
@@ -571,6 +564,13 @@ def dm_flags(api, bot):
       or 'Win8-MSVC-ShuttleB' in bot):
     args.append('--noRAW_threading')
 
+  # Some people don't like verbose output.
+  verbose = False
+
+  if 'Intel' in bot and api.vars.is_linux and not 'Vulkan' in bot:
+    # TODO(dogben): Track down what's causing bots to die.
+    verbose = True
+
   if 'Valgrind' in bot and 'PreAbandonGpuContext' in bot:
     verbose = True
 
@@ -578,6 +578,10 @@ def dm_flags(api, bot):
     # The Nexus Player's image decoding tests are slow enough that swarming
     # times it out for not printing anything frequently enough.  --verbose
     # makes dm print something every time we start or complete a task.
+    verbose = True
+
+  if 'Android' in bot or 'iOS' in bot:
+    # Enable verbose output on mobile platforms.
     verbose = True
 
   if verbose:
