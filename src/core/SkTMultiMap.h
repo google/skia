@@ -30,14 +30,8 @@ public:
     SkTMultiMap() : fCount(0) {}
 
     ~SkTMultiMap() {
-        typename SkTDynamicHash<ValueList, Key>::Iter iter(&fHash);
-        for ( ; !iter.done(); ++iter) {
-            ValueList* next;
-            for (ValueList* cur = &(*iter); cur; cur = next) {
-                next = cur->fNext;
-                delete cur;
-            }
-        }
+        SkASSERT(fCount == 0);
+        SkASSERT(fHash.count() == 0);
     }
 
     void insert(const Key& key, T* value) {

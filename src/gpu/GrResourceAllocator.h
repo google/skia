@@ -8,11 +8,8 @@
 #ifndef GrResourceAllocator_DEFINED
 #define GrResourceAllocator_DEFINED
 
-#include "GrGpuResourcePriv.h"
-#include "GrSurface.h"
 #include "GrSurfaceProxy.h"
 #include "SkTDynamicHash.h"
-#include "SkTMultiMap.h"
 
 class GrResourceProvider;
 
@@ -63,15 +60,12 @@ private:
     void freeUpSurface(GrSurface* surface);
     sk_sp<GrSurface> findSurfaceFor(GrSurfaceProxy* proxy);
 
-    struct FreePoolTraits {
-        static const GrScratchKey& GetKey(const GrSurface& s) {
-            return s.resourcePriv().getScratchKey();
-        }
+    struct UniqueHashTraits {
+        static const GrUniqueKey& GetKey(const GrSurface& s) { return s.getUniqueKey(); }
 
-        static uint32_t Hash(const GrScratchKey& key) { return key.hash(); }
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
-    typedef SkTMultiMap<GrSurface, GrScratchKey, FreePoolTraits> FreePoolMultiMap;
-
+    typedef SkTDynamicHash<GrSurface, GrUniqueKey, UniqueHashTraits> UniqueHash;
     typedef SkTDynamicHash<Interval, unsigned int> IntvlHash;
 
     class Interval {
@@ -120,7 +114,7 @@ private:
     };
 
     GrResourceProvider* fResourceProvider;
-    FreePoolMultiMap    fFreePool;          // Recently created/used GrSurfaces
+    UniqueHash          fFreePool;          // Recently created/used GrSurfaces
     IntvlHash           fIntvlHash;         // All the intervals, hashed by proxyID
 
     IntervalList        fIntvlList;         // All the intervals sorted by increasing start
