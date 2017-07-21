@@ -19,7 +19,7 @@
 static SkBitmap read_pixels(sk_sp<SkSurface> surface) {
     SkBitmap bmp;
     bmp.allocN32Pixels(surface->width(), surface->height());
-    if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
+    if (!surface->readPixels(bmp, 0, 0)) {
         SkDebugf("readPixels failed\n");
     }
     return bmp;

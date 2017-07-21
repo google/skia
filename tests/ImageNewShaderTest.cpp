@@ -56,12 +56,12 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
 
     SkBitmap bmOrig;
     bmOrig.allocN32Pixels(info.width(), info.height());
-    sourceSurface->getCanvas()->readPixels(bmOrig, 0, 0);
+    sourceSurface->readPixels(bmOrig, 0, 0);
 
 
     SkBitmap bm;
     bm.allocN32Pixels(info.width(), info.height());
-    destinationCanvas->readPixels(bm, 0, 0);
+    destinationSurface->readPixels(bm, 0, 0);
 
     test_bitmap_equality(reporter, bmOrig, bm);
 
@@ -83,7 +83,7 @@ static void run_shader_test(skiatest::Reporter* reporter, SkSurface* sourceSurfa
 
     SkBitmap bmt;
     bmt.allocN32Pixels(info.width(), info.height());
-    destinationCanvas->readPixels(bmt, 0, 0);
+    destinationSurface->readPixels(bmt, 0, 0);
 
     //  Test correctness
     {

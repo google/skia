@@ -236,12 +236,14 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 }
 
 // Readback the blurred draw results from the canvas
-static void readback(SkCanvas* canvas, int* result, int resultCount) {
+static void readback(const SkBitmap& src, int* result, int resultCount) {
     SkBitmap readback;
     readback.allocN32Pixels(resultCount, 30);
-    canvas->readPixels(readback, 0, 0);
+    SkPixmap pm;
+    readback.peekPixels(&pm);
+    src.readPixels(pm, 0, 0);
 
-    SkPMColor* pixels = (SkPMColor*) readback.getAddr32(0, 15);
+    const SkPMColor* pixels = pm.addr32(0, 15);
 
     for (int i = 0; i < resultCount; ++i) {
         result[i] = SkColorGetR(pixels[i]);
@@ -258,32 +260,8 @@ static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
     SkCanvas canvas(bitmap);
 
     blur_path(&canvas, path, gaussianSigma);
-    readback(&canvas, result, resultCount);
+    readback(bitmap, result, resultCount);
 }
-
-#if SK_SUPPORT_GPU
-#if 0
-// temporary disable; see below for explanation
-static bool gpu_blur_path(GrContext* context, const SkPath& path,
-                          SkScalar gaussianSigma,
-                          int* result, int resultCount) {
-    GrSurfaceDesc desc;
-    desc.fConfig = kSkia8888_GrPixelConfig;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = resultCount;
-    desc.fHeight = 30;
-    desc.fSampleCnt = 0;
-
-    sk_sp<GrTexture> texture(grContext->createTexture(desc, false, nullptr, 0));
-    sk_sp<SkGpuDevice> device(new SkGpuDevice(grContext, texture.get()));
-    SkCanvas canvas(device.get());
-
-    blur_path(&canvas, path, gaussianSigma);
-    readback(&canvas, result, resultCount);
-    return true;
-}
-#endif
-#endif
 
 #if WRITE_CSV
 static void write_as_csv(const char* label, SkScalar scale, int* data, int count) {
