@@ -9,8 +9,8 @@
 #include "GrGeometryProcessor.h"
 #include "ops/GrDrawOp.h"
 
-void GrColorFragmentProcessorAnalysis::analyzeProcessors(
-        const GrFragmentProcessor* const* processors, int cnt) {
+void GrColorFragmentProcessorAnalysis::analyzeProcessors(const GrFragmentProcessor* fHead) {
+    for (auto fp = )
     for (int i = 0; i < cnt; ++i) {
         bool knowCurrentOutput = fProcessorsVisitedWithKnownOutput == fTotalProcessorsVisited;
         if (fUsesLocalCoords && !knowCurrentOutput &&
@@ -18,7 +18,7 @@ void GrColorFragmentProcessorAnalysis::analyzeProcessors(
             fTotalProcessorsVisited += cnt - i;
             return;
         }
-        const GrFragmentProcessor* fp = processors[i];
+        //const GrFragmentProcessor* fp = processors[i];
         if (knowCurrentOutput &&
             fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
             ++fProcessorsVisitedWithKnownOutput;

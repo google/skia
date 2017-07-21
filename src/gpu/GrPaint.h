@@ -92,8 +92,14 @@ public:
      */
     void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
         SkASSERT(fp);
-        fColorFragmentProcessors.push_back(std::move(fp));
-        fTrivial = false;
+        if (!fTailColorFP) {
+            fHeadColorFP = std::move(fp);
+            fTailColorFP = fHeadColorFP.get();
+            fTrivial = false;
+        } else {
+            fTailColorFP->setNext(std::move(fp));
+            fTailColorFP = fTailColorFP->next();
+        }
     }
 
     /**
@@ -101,8 +107,14 @@ public:
      */
     void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
         SkASSERT(fp);
-        fCoverageFragmentProcessors.push_back(std::move(fp));
-        fTrivial = false;
+        if (!fTailCoverageFP) {
+            fHeadCoverageFP = std::move(fp);
+            fTailCoverageFP = fHeadColorFP.get();
+            fTrivial = false;
+        } else {
+            fTailCoverageFP->setNext(std::move(fp));
+            fTailCoverageFP = fTailColorFP->next();
+        }
     }
 
     /**
@@ -119,18 +131,14 @@ public:
     void addCoverageTextureProcessor(sk_sp<GrTextureProxy>,
                                      const SkMatrix&, const GrSamplerParams&);
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
-    int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
-    int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
-                                              this->numCoverageFragmentProcessors(); }
-
     const GrXPFactory* getXPFactory() const { return fXPFactory; }
 
-    GrFragmentProcessor* getColorFragmentProcessor(int i) const {
-        return fColorFragmentProcessors[i].get();
+    const GrFragmentProcessor* firstColorFragmentProcessor() const {
+        return fHeadColorFP.get();
     }
-    GrFragmentProcessor* getCoverageFragmentProcessor(int i) const {
-        return fCoverageFragmentProcessors[i].get();
+
+    const GrFragmentProcessor* firstCoverageFragmentProcessor() const {
+        return fHeadCoverageFP.get();
     }
 
     /**
@@ -171,8 +179,12 @@ private:
     friend class GrProcessorSet;
 
     const GrXPFactory* fXPFactory = nullptr;
-    SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
-    SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
+
+    sk_sp<GrFragmentProcessor> fHeadColorFP;
+    sk_sp<GrFragmentProcessor> fHeadCoverageFP;
+    GrFragmentProcessor* fTailColorFP;
+    GrFragmentProcessor* fTailCoverageFP;
+
     bool fDisableOutputConversionToSRGB = false;
     bool fAllowSRGBInputs = false;
     bool fTrivial = true;

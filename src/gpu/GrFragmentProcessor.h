@@ -86,6 +86,12 @@ public:
 
     ~GrFragmentProcessor() override;
 
+    GrFragmentProcessor* next() { return fNext.get(); }
+    const GrFragmentProcessor* next() const { return fNext.get(); }
+    void setNext(sk_sp<GrFragmentProcessor> next) {
+        fNext = std::move(next);
+    }
+
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
@@ -229,6 +235,38 @@ public:
                                          &GrResourceIOProcessor::numTextureSamplers,
                                          &GrResourceIOProcessor::textureSampler>;
 
+    class ChainIter {
+    public:
+        ChainIter() = default;
+        ChainIter(const ChainIter&) = default;
+        ChainIter& operator=(const ChainIter&) = default;
+        bool operator==(const ChainIter& that) const { return fFP == that.fFP; }
+        explicit ChainIter(const GrFragmentProcessor* fp) : fFP(fp) {}
+        const GrFragmentProcessor* operator*() const { return fFP; }
+        const GrFragmentProcessor* operator->() const { return fFP; }
+        ChainIter& operator++() { fFP = fFP->next(); return *this; }
+        ChainIter operator++(int) {
+            auto old = fFP;
+            fFP = fFP->next();
+            return ChainIter(old);
+        }
+
+    private:
+        const GrFragmentProcessor* fFP = nullptr;
+    };
+
+    class Chain {
+    public:
+        Chain() = delete;
+        Chain(const ChainIter&) = delete;
+        Chain& operator=(const Chain&) = delete;
+        explicit Chain(const GrFragmentProcessor* fp)  : fFP(fp) {}
+        ChainIter begin() const { return ChainIter(fFP); }
+        ChainIter end() const { return ChainIter(nullptr); }
+    private:
+        GrFragmentProcessor* fFP;
+    };
+
 protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,
@@ -334,6 +372,7 @@ private:
      * references until notifyRefCntIsZero and then it holds pending executions.
      */
     SkSTArray<1, GrFragmentProcessor*, true> fChildProcessors;
+    sk_sp<GrFragmentProcessor> fNext;
 
     typedef GrResourceIOProcessor INHERITED;
 };

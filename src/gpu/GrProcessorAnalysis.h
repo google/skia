@@ -111,7 +111,7 @@ public:
      * Runs through a series of processors and updates calculated values. This can be called
      * repeatedly for cases when the sequence of processors is not in a contiguous array.
      */
-    void analyzeProcessors(const GrFragmentProcessor* const* processors, int cnt);
+    void analyzeProcessors(const GrFragmentProcessor* head);
 
     bool isOpaque() const { return fIsOpaque; }
 
