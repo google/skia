@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c0072bc_0350ccc0",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-07-21T14:04:44Z",
+      "side": 1,
+      "message": "nit: This if-else is choosing GL parameters, so it\u0027s a bit awkward to put this here since it\u0027s unrelated. Maybe move all the verbose logic to line ~577?",
+      "revId": "faf25b3325fb24736eb03174816b1433f3f175b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7192eb1_7039c07b",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-07-21T14:04:44Z",
+      "side": 1,
+      "message": "unintended change?",
+      "revId": "faf25b3325fb24736eb03174816b1433f3f175b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
