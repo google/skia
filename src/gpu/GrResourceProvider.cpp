@@ -140,7 +140,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
 
     if (make_info(desc.fWidth, desc.fHeight, desc.fConfig, &srcInfo)) {
         sk_sp<GrTexture> tex = this->getExactScratch(desc, budgeted, 0);
-        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+        sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
         if (proxy) {
             sk_sp<GrSurfaceContext> sContext =
                        context->contextPriv().makeWrappedSurfaceContext(std::move(proxy), nullptr);
@@ -153,7 +153,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::createTextureProxy(const GrSurfaceDesc
     }
 
     sk_sp<GrTexture> tex(fGpu->createTexture(desc, budgeted, &mipLevel, 1));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -312,7 +312,8 @@ void GrResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextur
 }
 
 // MDB TODO (caching): this side-steps the issue of texture proxies with unique IDs
-sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key) {
+sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey& key,
+                                                               GrSurfaceOrigin origin) {
     ASSERT_SINGLE_OWNER
 
     sk_sp<GrTexture> texture(this->findAndRefTextureByUniqueKey(key));
@@ -320,7 +321,7 @@ sk_sp<GrTextureProxy> GrResourceProvider::findProxyByUniqueKey(const GrUniqueKey
         return nullptr;
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(texture));
+    return GrSurfaceProxy::MakeWrapped(std::move(texture), origin);
 }
 
 const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* pattern,
