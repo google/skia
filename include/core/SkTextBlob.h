@@ -17,8 +17,13 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_SERIAL_API
 typedef std::function<void(SkTypeface*)> SkTypefaceCataloger;
 typedef std::function<sk_sp<SkTypeface>(uint32_t)> SkTypefaceResolver;
+#endif
+
+typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx);
+typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx);
 
 /** \class SkTextBlob
 
@@ -65,14 +70,20 @@ public:
      *  During this process, each time a typeface is encountered, it is passed to the catalog,
      *  allowing the caller to what typeface IDs will need to be resolved in Deserialize().
      */
-    sk_sp<SkData> serialize(const SkTypefaceCataloger&) const;
+    sk_sp<SkData> serialize(SkTypefaceCatalogerProc, void* ctx) const;
 
     /**
      *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
      *  of its typefaces, deserialization requires that the caller provide the corresponding
      *  SkTypefaces for those IDs.
      */
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
+                                         SkTypefaceResolverProc, void* ctx);
+
+#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_SERIAL_API
+    sk_sp<SkData> serialize(const SkTypefaceCataloger&) const;
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkTypefaceResolver&);
+#endif
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
