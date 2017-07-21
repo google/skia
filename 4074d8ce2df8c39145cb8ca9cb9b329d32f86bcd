@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7e253254_bb62ec65",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-21T18:29:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abaa2b7a_fdb31c2a",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0968437_37baab3f",
         "filename": "include/gpu/GrContext.h",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ff8891b_5d20d7f0",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-21T18:29:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0968437_37baab3f",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "That\u0027s fine by me, especially since we know have the isInitiialized querey on GrBackendSemaphore. It would certainly look nicer without all the awkward return values.",
       "parentUuid": "781ab9dd_a15e133a",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c490b0a6_1ec94e3c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-21T18:29:46Z",
+      "side": 1,
+      "message": "Updated the return from a bool to and enum which will say whether or not the semaphores were submitted. Also updated the comments on GrContext and GrSurface to update the contract with the client with regards to this return value and ownership of semaphores (based on initialization).",
+      "parentUuid": "48a77bee_b24552cc",
       "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
