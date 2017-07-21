@@ -16,6 +16,13 @@
 #include "vk/GrVkTypes.h"
 #endif
 
+// Enum used as return value when flush with semaphores so the client knows whether the
+// semaphores were submitted to GPU or not.
+enum class GrSemaphoresSubmitted {
+    kNo,
+    kYes,
+};
+
 /**
  * Wrapper class for passing into and receiving data from Ganesh about a backend semaphore object.
  */

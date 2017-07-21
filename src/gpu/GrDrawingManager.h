@@ -64,13 +64,15 @@ public:
 
     void flushIfNecessary() {
         if (fContext->getResourceCache()->requestsFlush()) {
-            this->internalFlush(nullptr, GrResourceCache::kCacheRequested);
+            this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
         }
     }
 
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 
-    void prepareSurfaceForExternalIO(GrSurfaceProxy*);
+    GrSemaphoresSubmitted prepareSurfaceForExternalIO(GrSurfaceProxy*,
+                                                      int numSemaphores,
+                                                      GrBackendSemaphore backendSemaphores[]);
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
@@ -93,10 +95,16 @@ private:
     void abandon();
     void cleanup();
     void reset();
-    void flush(GrSurfaceProxy* proxy) {
-        this->internalFlush(proxy, GrResourceCache::FlushType::kExternal);
+    GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
+                                int numSemaphores = 0,
+                                GrBackendSemaphore backendSemaphores[] = nullptr) {
+        return this->internalFlush(proxy, GrResourceCache::FlushType::kExternal,
+                                   numSemaphores, backendSemaphores);
     }
-    void internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType);
+    GrSemaphoresSubmitted internalFlush(GrSurfaceProxy*,
+                                        GrResourceCache::FlushType,
+                                        int numSemaphores,
+                                        GrBackendSemaphore backendSemaphores[]);
 
     friend class GrContext;  // for access to: ctor, abandon, reset & flush
     friend class GrContextPriv; // access to: flush
