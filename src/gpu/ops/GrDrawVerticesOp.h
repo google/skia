@@ -29,6 +29,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     /**
      * Draw a SkVertices. The GrPaint param's color is used if the vertices lack per-vertex color.
      * If the vertices lack local coords then the vertex positions are used as local coords. The

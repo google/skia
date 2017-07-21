@@ -27,7 +27,7 @@ int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
         return fTarget->fRefCnt;
     }
 
-    return fRefCnt;
+    return -1;
 }
 
 int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {

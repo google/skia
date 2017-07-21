@@ -32,7 +32,10 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fNeedsClear(false)
         , fGpuMemorySize(kInvalidGpuMemorySize)
-        , fLastOpList(nullptr) {}
+        , fLastOpList(nullptr) {
+    SkDebugf("New Wrapped Proxy { %d,%d }\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt());
+}
 
 GrSurfaceProxy::~GrSurfaceProxy() {
     // For this to be deleted the opList that held a ref on it (if there was one) must have been
@@ -94,6 +97,12 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
         return false;
     }
 
+    SkDebugf("assign: %d -> %d -- pRef:%d rRef:%d R:%d W:%d\n",
+             this->uniqueID().asUInt(), this->underlyingUniqueID().asUInt(),
+             this->getProxyRefCnt_TestOnly(),
+             this->getBackingRefCnt_TestOnly(),
+             this->getPendingReadCnt_TestOnly(),
+             this->getPendingWriteCnt_TestOnly());
     this->assign(std::move(surface));
     return true;
 }

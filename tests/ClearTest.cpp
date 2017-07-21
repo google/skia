@@ -40,7 +40,7 @@ static bool check_rect(GrRenderTargetContext* rtc, const SkIRect& rect, uint32_t
 
 sk_sp<GrRenderTargetContext> newRTC(GrContext* context, int w, int h) {
     return context->makeDeferredRenderTargetContext(SkBackingFit::kExact, w, h,
-                                                    kRGBA_8888_GrPixelConfig, nullptr);
+                                                    kRGBA_8888_GrPixelConfig, nullptr, "test");
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ClearOp, reporter, ctxInfo) {

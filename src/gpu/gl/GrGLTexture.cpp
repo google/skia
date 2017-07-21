@@ -123,7 +123,7 @@ void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                       texture_id.c_str());
 }
 
-sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+sk_sp<GrGLTexture> GrGLTexture::MakeWrapped1(GrGLGpu* gpu, const GrSurfaceDesc& desc,
                                             const IDDesc& idDesc) {
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }

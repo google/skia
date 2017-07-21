@@ -16,6 +16,8 @@ class GrAtlasTextOp final : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator*) const override { }
+
     ~GrAtlasTextOp() override {
         for (int i = 0; i < fGeoCount; i++) {
             fGeoData[i].fBlob->unref();

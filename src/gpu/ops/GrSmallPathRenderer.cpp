@@ -136,6 +136,10 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
+    void gatherOp(GrResourceAllocator* alloc) const override {
+        fHelper.gatherOp(alloc);
+    }
+
     using ShapeData = GrSmallPathRenderer::ShapeData;
     using ShapeCache = SkTDynamicHash<ShapeData, ShapeData::Key>;
     using ShapeDataList = GrSmallPathRenderer::ShapeDataList;

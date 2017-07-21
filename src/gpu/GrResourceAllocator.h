@@ -43,15 +43,16 @@ public:
 
     // Add a usage interval from start to end inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end);
+    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, const char* msg);
 
     // Add an interval that spans just the current op. Usually this is for texture uses.
     // If an existing interval already exists it will be expanded to include the new operation.
     void addInterval(GrSurfaceProxy* proxy) {
-        this->addInterval(proxy, fNumOps, fNumOps);
+        this->addInterval(proxy, fNumOps, fNumOps, "op");
     }
 
     void assign();
+    SkDEBUGCODE(void dump();)
 
 private:
     class Interval;

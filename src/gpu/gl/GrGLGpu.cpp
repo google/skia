@@ -574,7 +574,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     } else {
         surfDesc.fOrigin = origin;
     }
-    return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
+    return GrGLTexture::MakeWrapped1(this, surfDesc, idDesc);
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -617,6 +617,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
         return nullptr;
     }
+
     sk_sp<GrGLTextureRenderTarget> texRT(
             GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc));
     texRT->baseLevelWasBoundToFBO();

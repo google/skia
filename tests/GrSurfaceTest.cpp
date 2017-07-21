@@ -176,8 +176,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                         for (int i = 0; i < 2; ++i) {
                             sk_sp<GrTexture> tex;
                             if (approx) {
-                                tex = sk_sp<GrTexture>(
-                                        resourceProvider->createApproxTexture(desc, 0));
+                                tex = resourceProvider->createApproxTexture(desc, 0);
                             } else {
                                 tex = resourceProvider->createTexture(desc, SkBudgeted::kYes);
                             }

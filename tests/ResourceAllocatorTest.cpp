@@ -70,8 +70,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
                          bool expectedResult) {
     GrResourceAllocator alloc(resourceProvider);
 
-    alloc.addInterval(p1.get(), 0, 4);
-    alloc.addInterval(p2.get(), 1, 2);
+    alloc.addInterval(p1.get(), 0, 4, nullptr);
+    alloc.addInterval(p2.get(), 1, 2, nullptr);
 
     alloc.assign();
 
@@ -89,8 +89,8 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
                              bool expectedResult) {
     GrResourceAllocator alloc(resourceProvider);
 
-    alloc.addInterval(p1.get(), 0, 2);
-    alloc.addInterval(p2.get(), 3, 5);
+    alloc.addInterval(p1.get(), 0, 2, nullptr);
+    alloc.addInterval(p2.get(), 3, 5, nullptr);
 
     alloc.assign();
 

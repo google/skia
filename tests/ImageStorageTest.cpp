@@ -133,7 +133,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
 
                 sk_sp<GrRenderTargetContext> rtContext =
                     context->makeDeferredRenderTargetContext(SkBackingFit::kExact, kS, kS,
-                                                             kRGBA_8888_GrPixelConfig, nullptr);
+                                                             kRGBA_8888_GrPixelConfig, nullptr, "test");
                 GrPaint paint;
                 paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                 paint.addColorFragmentProcessor(TestFP::Make(imageStorageTexture, mm, restrict));
