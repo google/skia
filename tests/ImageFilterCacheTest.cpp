@@ -190,8 +190,9 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider) 
     SkBitmap srcBM = create_bm();
 
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags  = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth  = kFullSize;
     desc.fHeight = kFullSize;
 
