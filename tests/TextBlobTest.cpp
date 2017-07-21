@@ -434,23 +434,25 @@ DEF_TEST(TextBlob_serialize, reporter) {
     sk_sp<SkTextBlob> blob0 = builder.make();
 
     SkTDArray<SkTypeface*> array;
-    sk_sp<SkData> data = blob0->serialize([&array](SkTypeface* tf) {
-        if (array.find(tf) < 0) {
-            *array.append() = tf;
+    sk_sp<SkData> data = blob0->serialize([](SkTypeface* tf, void* ctx) {
+        auto array = (SkTDArray<SkTypeface*>*)ctx;
+        if (array->find(tf) < 0) {
+            *array->append() = tf;
         }
-    });
+    }, &array);
     REPORTER_ASSERT(reporter, array.count() > 0);
 
     sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(),
-                                                      [&array, reporter](uint32_t uniqueID) {
-        for (int i = 0; i < array.count(); ++i) {
-            if (array[i]->uniqueID() == uniqueID) {
-                return sk_ref_sp(array[i]);
+                                                      [](uint32_t uniqueID, void* ctx) {
+        auto array = (SkTDArray<SkTypeface*>*)ctx;
+        for (int i = 0; i < array->count(); ++i) {
+            if ((*array)[i]->uniqueID() == uniqueID) {
+                return sk_ref_sp((*array)[i]);
             }
         }
-        REPORTER_ASSERT(reporter, false);
+        SkASSERT(false);
         return sk_sp<SkTypeface>(nullptr);
-    });
+    }, &array);
 
     sk_sp<SkImage> img0 = render(blob0.get());
     sk_sp<SkImage> img1 = render(blob1.get());
