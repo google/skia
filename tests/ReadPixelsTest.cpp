@@ -359,7 +359,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
                     fill_dst_bmp_with_init_data(&bmp);
                 }
                 uint32_t idBefore = surface->generationID();
-                bool success = canvas->readPixels(bmp, srcRect.fLeft, srcRect.fTop);
+                bool success = surface->readPixels(bmp, srcRect.fLeft, srcRect.fTop);
                 uint32_t idAfter = surface->generationID();
 
                 // we expect to succeed when the read isn't fully clipped

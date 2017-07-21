@@ -100,7 +100,7 @@ void draw_child(skiatest::Reporter* reporter,
     // read pixels
     SkBitmap bitmap;
     bitmap.allocPixels(childII);
-    childCanvas->readPixels(bitmap, 0, 0);
+    childSurface->readPixels(bitmap, 0, 0);
 
     check_pixels(reporter, bitmap);
 }
