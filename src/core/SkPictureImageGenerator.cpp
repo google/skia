@@ -110,8 +110,7 @@ sk_sp<GrTextureProxy> SkPictureImageGenerator::onGenerateTexture(
     // TODO: respect the usage, by possibly creating a different (pow2) surface
     //
     SkImageInfo surfaceInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo,
-                                                         0, kTopLeft_GrSurfaceOrigin, nullptr));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kYes, surfaceInfo));
     if (!surface) {
         return nullptr;
     }

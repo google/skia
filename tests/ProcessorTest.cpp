@@ -302,10 +302,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
             SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
     GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 256;
     desc.fHeight = 256;
+    desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     sk_sp<GrTextureProxy> proxies[2];

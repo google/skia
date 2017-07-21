@@ -277,7 +277,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
     }
 
     const SkBudgeted budgeted = SkBudgeted::kNo;
-    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(tex), origin));
+    sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(tex)));
     return sk_make_sp<SkImage_Gpu>(ctx, kNeedNewImageUniqueID,
                                    at, std::move(proxy), std::move(colorSpace), budgeted);
 }

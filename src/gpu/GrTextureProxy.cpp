@@ -17,8 +17,8 @@ GrTextureProxy::GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit fit, S
     SkASSERT(!srcData);  // currently handled in Make()
 }
 
-GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
-        : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
+GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf)
+        : INHERITED(std::move(surf), SkBackingFit::kExact)
         , fIsMipMapped(fTarget->asTexture()->texturePriv().hasMipMaps())
         , fMipColorMode(fTarget->asTexture()->texturePriv().mipColorMode()) {
 }
