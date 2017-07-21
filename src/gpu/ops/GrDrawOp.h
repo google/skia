@@ -83,8 +83,6 @@ public:
     virtual RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) = 0;
 
 protected:
-    static SkString DumpPipelineInfo(const GrPipeline& pipeline);
-
     struct QueuedUpload {
         QueuedUpload(DeferredUploadFn&& upload, GrDrawOpUploadToken token)
             : fUpload(std::move(upload))
