@@ -86,7 +86,7 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
 }
 
 void GrCCPRPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
-    b->add32((fFillType << 16) | this->atlas()->origin());
+    b->add32((fFillType << 16) | this->atlasProxy()->origin());
 }
 
 class GLSLPathProcessor : public GrGLSLGeometryProcessor {
@@ -161,10 +161,10 @@ void GLSLPathProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     // Convert to atlas coordinates in order to do our texture lookup.
     v->codeAppendf("highp vec2 atlascoord = octocoord + vec2(%s);",
                    proc.getInstanceAttrib(InstanceAttribs::kAtlasOffset).fName);
-    if (kTopLeft_GrSurfaceOrigin == proc.atlas()->origin()) {
+    if (kTopLeft_GrSurfaceOrigin == proc.atlasProxy()->origin()) {
         v->codeAppendf("%s = atlascoord * %s;", texcoord.vsOut(), atlasAdjust);
     } else {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlas()->origin());
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == proc.atlasProxy()->origin());
         v->codeAppendf("%s = vec2(atlascoord.x * %s.x, 1 - atlascoord.y * %s.y);",
                        texcoord.vsOut(), atlasAdjust, atlasAdjust);
     }
