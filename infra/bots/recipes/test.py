@@ -25,6 +25,9 @@ DEPS = [
 
 
 def dm_flags(api, bot):
+  # Some people don't like verbose output.
+  verbose = False
+
   args = []
 
   # This enables non-deterministic random seeding of the GPU FP optimization
@@ -60,8 +63,11 @@ def dm_flags(api, bot):
   sample_count = '8'
   gl_prefix = 'gl'
   if 'Android' in bot or 'iOS' in bot:
+    # Enable verbose output on mobile platforms.
+    verbose = True
+
     sample_count = '4'
-    # We want to test the OpenGL config not the GLES config on the Shield
+    # We want to test the OpenGL config not the GLES config on the Shieldbuild62-m5
     if 'NVIDIA_Shield' not in bot:
       gl_prefix = 'gles'
   elif 'Intel' in bot:
@@ -181,9 +187,6 @@ def dm_flags(api, bot):
   # Eventually I'd like these to pass, but for now just skip 'em.
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
     args.remove('tests')
-
-  # Some people don't like verbose output.
-  verbose = False
 
   blacklisted = []
   def blacklist(quad):
