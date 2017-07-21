@@ -265,6 +265,8 @@ static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_
                        dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
+    p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
     p.run(0,0, width,1);
@@ -280,6 +282,8 @@ static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const ch
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
     p.run(0,0, width,1);
@@ -295,6 +299,8 @@ static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
                        dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
+    p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
     p.run(0,0, width,1);
@@ -311,6 +317,8 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::unpremul);
+    p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
     p.run(0,0, width,1);
@@ -325,6 +333,8 @@ static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
                        dst_ctx = { (void*)dst, 0 };
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f16, &src_ctx);
+    p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
+    p.append(SkRasterPipeline::clamp_1);
     p.append(SkRasterPipeline::premul);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
