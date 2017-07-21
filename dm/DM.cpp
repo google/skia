@@ -380,7 +380,7 @@ static bool in_shard() {
 
 static void push_src(const char* tag, ImplicitString options, Src* s) {
     std::unique_ptr<Src> src(s);
-    if (in_shard() &&
+    if (false && in_shard() &&
         FLAGS_src.contains(tag) &&
         !SkCommandLineFlags::ShouldSkip(FLAGS_match, src->name().c_str())) {
         TaggedSrc& s = gSrcs.push_back();
@@ -1216,9 +1216,9 @@ struct Task {
 static SkTDArray<skiatest::Test> gParallelTests, gSerialTests;
 
 static void gather_tests() {
-    if (!FLAGS_src.contains("tests")) {
-        return;
-    }
+//    if (!FLAGS_src.contains("tests")) {
+//        return;
+//    }
     for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
         if (!in_shard()) {
             continue;
@@ -1226,7 +1226,7 @@ static void gather_tests() {
         // Despite its name, factory() is returning a reference to
         // link-time static const POD data.
         const skiatest::Test& test = r->factory();
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
+        if (strcmp("ResourceAllocatorTest", test.name)) {
             continue;
         }
         if (test.needsGpu && gpu_supported()) {
