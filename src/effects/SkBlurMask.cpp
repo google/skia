@@ -590,6 +590,9 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
     }
 #else
     SkMaskBlurFilter blurFilter{sigma, sigma};
+    if (blurFilter.hasNoBlur()) {
+        return false;
+    }
     border = blurFilter.blur(src, dst);
 #endif  // SK_SUPPORT_LEGACY_MASK_BLUR
 

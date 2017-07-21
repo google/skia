@@ -70,6 +70,10 @@ SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
     , fBuffer2{skstd::make_unique_default<uint32_t[]>(bufferSize(2))} {
 }
 
+bool SkMaskBlurFilter::hasNoBlur() const {
+    return fInfoW.diameter(0) <= 1 && fInfoH.diameter(0) <= 1;
+}
+
 SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     uint64_t weightW = fInfoW.weight();
