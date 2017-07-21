@@ -265,6 +265,13 @@ void GrContext::flush() {
     fDrawingManager->flush(nullptr);
 }
 
+bool GrContext::flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores) {
+    ASSERT_SINGLE_OWNER
+    RETURN_FALSE_IF_ABANDONED
+
+    return fDrawingManager->flush(nullptr, numSemaphores, signalSemaphores);
+}
+
 void GrContextPriv::flush(GrSurfaceProxy* proxy) {
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
@@ -597,7 +604,7 @@ void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     RETURN_IF_ABANDONED_PRIV
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
-    fContext->fDrawingManager->prepareSurfaceForExternalIO(proxy);
+    fContext->fDrawingManager->prepareSurfaceForExternalIO(proxy, 0, nullptr);
 }
 
 void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {

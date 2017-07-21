@@ -327,6 +327,10 @@ public:
      * If it is not initialized, a new semaphore is created and the GrBackendSemaphore object
      * is initialized with that semaphore.
      *
+     * The client will own and be responsible for deleting the underlying semaphores that are stored
+     * and returned in the GrBackendSemaphore objects. The GrBackendSemaphore objects themselves can
+     * be deleted as soon as this function returns.
+     *
      * If the backend API is OpenGL only uninitialized GrBackendSemaphores are supported.
      * If the backend API is Vulkan either initialized or unitialized semaphores are supported.
      * If unitialized, the semaphores which are created will be valid for use only with the VkDevice

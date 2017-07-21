@@ -17,6 +17,7 @@
 #include "../private/GrSingleOwner.h"
 
 class GrAtlasGlyphCache;
+class GrBackendSemaphore;
 struct GrContextOptions;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
@@ -237,10 +238,32 @@ public:
     // Misc.
 
     /**
-     * Call to ensure all drawing to the context has been issued to the
-     * underlying 3D API.
+     * Call to ensure all drawing to the context has been issued to the underlying 3D API.
      */
     void flush();
+
+    /**
+     * Call to ensure all drawing to the context has been issued to the underlying 3D API. After
+     * issuing all commands, numSemaphore semaphores will be signaled by the gpu. The client passes
+     * in an array of numSemaphores GrBackendSemaphores. In general these GrBackendSemaphore's can
+     * be either initialized or not. If they are initialized, the backend uses the passed in
+     * semaphore. If it is not initialized, a new semaphore is created and the GrBackendSemaphore
+     * object is initialized with that semaphore.
+     *
+     * The client will own and be responsible for deleting the underlying semaphores that are stored
+     * and returned in the GrBackendSemaphore objects. The GrBackendSemaphore objects themselves can
+     * be deleted as soon as this function returns.
+     *
+     * If the backend API is OpenGL only uninitialized GrBackendSemaphores are supported.
+     * If the backend API is Vulkan either initialized or unitialized semaphores are supported.
+     * If unitialized, the semaphores which are created will be valid for use only with the VkDevice
+     * with which they were created.
+     *
+     * If this call returns false, the GPU backend will not have created or added any semaphores to
+     * signal. Thus the array of semaphores will remain uninitialized. However, any pending commands
+     * to the context will still be flush.
+     */
+    bool flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores);
 
     /**
      * An ID associated with this context, guaranteed to be unique.

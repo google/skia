@@ -376,7 +376,7 @@ public:
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits).
-    virtual void finishFlush() {}
+    void finishFlush(int numSemaphores, GrBackendSemaphore* backendSemaphores);
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
@@ -614,6 +614,8 @@ private:
     // overridden by backend specific derived class to perform the multisample queries
     virtual void onQueryMultisampleSpecs(GrRenderTarget*, const GrStencilSettings&,
                                          int* effectiveSampleCnt, SamplePattern*) = 0;
+
+    virtual void onFinishFlush(bool insertedSemaphores) = 0;
 
     void resetContext() {
         this->onResetContext(fResetBits);
