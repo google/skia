@@ -184,7 +184,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) 
                             if (!tex) {
                                 continue;
                             }
-                            auto proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+                            auto proxy = GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
                             auto texCtx = context->contextPriv().makeWrappedSurfaceContext(
                                     std::move(proxy), nullptr);
                             SkImageInfo info = SkImageInfo::Make(

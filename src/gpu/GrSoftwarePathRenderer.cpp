@@ -205,7 +205,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     sk_sp<GrTextureProxy> proxy;
     if (useCache) {
-        proxy = fResourceProvider->findProxyByUniqueKey(maskKey);
+        proxy = fResourceProvider->findProxyByUniqueKey(maskKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
@@ -217,6 +217,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             return false;
         }
         if (useCache) {
+            SkDebugf("pre-9\n");
+            SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+            SkDebugf("post-9\n");
             fResourceProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
         }
     }

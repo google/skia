@@ -37,7 +37,8 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(fOriginalKey);
+        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(
+                                                          fOriginalKey, kTopLeft_GrSurfaceOrigin);
         if (proxy) {
             return proxy;
         }
@@ -50,6 +51,9 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                                              dstColorSpace);
     }
     if (proxy && fOriginalKey.isValid()) {
+        SkDebugf("pre-6\n");
+        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+        SkDebugf("post-6\n");
         this->context()->resourceProvider()->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
         // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
         GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, fBitmap.pixelRef());
