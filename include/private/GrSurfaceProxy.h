@@ -173,8 +173,8 @@ private:
 
 class GrSurfaceProxy : public GrIORefProxy {
 public:
-    static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>);
-    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>);
+    static sk_sp<GrSurfaceProxy> MakeWrapped(sk_sp<GrSurface>, GrSurfaceOrigin);
+    static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
     static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
                                               const GrSurfaceDesc&, SkBackingFit,
@@ -353,7 +353,7 @@ protected:
     }
 
     // Wrapped version
-    GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit);
+    GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit);
 
     virtual ~GrSurfaceProxy();
 
