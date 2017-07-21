@@ -150,23 +150,21 @@ bool SkBitmapDevice::onPeekPixels(SkPixmap* pmap) {
     return false;
 }
 
-bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
-                                   size_t srcRowBytes, int x, int y) {
+bool SkBitmapDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
     // since we don't stop creating un-pixeled devices yet, check for no pixels here
     if (nullptr == fBitmap.getPixels()) {
         return false;
     }
 
-    if (fBitmap.writePixels(SkPixmap(srcInfo, srcPixels, srcRowBytes), x, y)) {
+    if (fBitmap.writePixels(pm, x, y)) {
         fBitmap.notifyPixelsChanged();
         return true;
     }
     return false;
 }
 
-bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                                  int x, int y) {
-    return fBitmap.readPixels(dstInfo, dstPixels, dstRowBytes, x, y);
+bool SkBitmapDevice::onReadPixels(const SkPixmap& pm, int x, int y) {
+    return fBitmap.readPixels(pm, x, y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -303,6 +303,11 @@ public:
      */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY);
+    bool readPixels(const SkPixmap&, int srcX, int srcY);
+    /**
+     *  Helper version of readPixels. To succeed, the bitmap must be already allocated.
+     */
+    bool readPixels(const SkBitmap&, int srcX, int srcY);
 
     const SkSurfaceProps& props() const { return fProps; }
 
