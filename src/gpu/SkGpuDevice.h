@@ -124,8 +124,8 @@ public:
     bool onAccessPixels(SkPixmap*) override;
 
 protected:
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) override;
-    bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) override;
+    bool onReadPixels(const SkPixmap&, int, int) override;
+    bool onWritePixels(const SkPixmap&, int, int) override;
     bool onShouldDisableLCD(const SkPaint&) const final;
 
 private:
