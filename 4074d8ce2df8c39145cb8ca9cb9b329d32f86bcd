@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abaa2b7a_fdb31c2a",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-21T15:34:50Z",
+      "side": 1,
+      "message": "flushed ?",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0429670_981485e1",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-21T15:34:50Z",
+      "side": 1,
+      "message": "This seems a bit odd. It is true that we\u0027ve finished with the semaphores but the world will still be in a bad state.",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
