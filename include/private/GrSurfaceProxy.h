@@ -329,7 +329,6 @@ public:
 
     bool isWrapped_ForTesting() const;
 
-    SkDEBUGCODE(bool isInstantiated() const { return SkToBool(fTarget); })
     SkDEBUGCODE(void validate(GrContext*) const;)
 
     // Provides access to functions that aren't part of the public API.
@@ -367,6 +366,8 @@ protected:
     bool hasPendingWrite() const {
         return this->internalHasPendingWrite();
     }
+
+    void computeScratchKey(GrScratchKey*) const;
 
     virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
     void assign(sk_sp<GrSurface> surface);

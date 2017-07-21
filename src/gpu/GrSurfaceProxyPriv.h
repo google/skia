@@ -15,6 +15,8 @@
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
+    bool isInstantiated() const { return SkToBool(fProxy->fTarget); }
+
     // This should only be called after a successful call to instantiate
     GrSurface* peekSurface() const {
         SkASSERT(fProxy->fTarget);
@@ -42,6 +44,8 @@ public:
     // any pending writes in its current state. It won't tell you about the IO state in the
     // future when the proxy is actually used/instantiated.
     bool hasPendingWrite() const { return fProxy->hasPendingWrite(); }
+
+    void computeScratchKey(GrScratchKey* key) const { return fProxy->computeScratchKey(key); }
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
     // of the GrSurfaceProxy.
