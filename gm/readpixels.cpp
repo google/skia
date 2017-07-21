@@ -41,10 +41,17 @@ static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
 
 sk_sp<SkColorSpace> fix_for_colortype(SkColorSpace* colorSpace, SkColorType colorType) {
     if (kRGBA_F16_SkColorType == colorType) {
+        if (!colorSpace) {
+            return SkColorSpace::MakeSRGBLinear();
+        }
         return as_CSB(colorSpace)->makeLinearGamma();
     }
 
-    return sk_ref_sp(colorSpace);
+    if (colorSpace) {
+        return sk_ref_sp(colorSpace);
+    }
+
+    return SkColorSpace::MakeSRGB();
 }
 
 static const int kWidth = 64;
@@ -55,10 +62,8 @@ static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
 
     SkBitmap bitmap;
-    SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
-                                       .makeColorType(colorType)
-                                       .makeAlphaType(kPremul_SkAlphaType)
-            .makeColorSpace(fix_for_colortype(codec->getInfo().colorSpace(), colorType));
+    auto info = SkImageInfo::Make(kWidth, kHeight, colorType, kPremul_SkAlphaType,
+            fix_for_colortype(codec->colorSpace(), colorType));
     bitmap.allocPixels(info);
     codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
     bitmap.setImmutable();

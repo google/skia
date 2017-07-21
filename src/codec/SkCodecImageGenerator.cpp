@@ -17,16 +17,18 @@ std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk
     return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(codec, data));
 }
 
-static SkImageInfo adjust_info(const SkImageInfo& info) {
-    SkImageInfo newInfo = info;
-    if (kUnpremul_SkAlphaType == info.alphaType()) {
-        newInfo = newInfo.makeAlphaType(kPremul_SkAlphaType);
+static SkImageInfo create_info(const SkCodec* codec) {
+    auto dim = codec->dimensions();
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    sk_sp<SkColorSpace> cs = sk_ref_sp(codec->colorSpace());
+    if (!cs) {
+        cs = SkColorSpace::MakeSRGB();
     }
-    return newInfo;
+    return SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType, at, cs);
 }
 
 SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
-    : INHERITED(adjust_info(codec->getInfo()))
+    : INHERITED(create_info(codec))
     , fCodec(codec)
     , fData(std::move(data))
 {}

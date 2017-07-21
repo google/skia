@@ -17,10 +17,10 @@
 #include "Test.h"
 
 static SkImageInfo standardize_info(SkCodec* codec) {
-    SkImageInfo defaultInfo = codec->getInfo();
+    auto dim = codec->dimensions();
     // Note: This drops the SkColorSpace, allowing the equality check between two
     // different codecs created from the same file to have the same SkImageInfo.
-    return SkImageInfo::MakeN32Premul(defaultInfo.width(), defaultInfo.height());
+    return SkImageInfo::MakeN32Premul(dim.width(), dim.height());
 }
 
 static bool create_truth(sk_sp<SkData> data, SkBitmap* dst) {

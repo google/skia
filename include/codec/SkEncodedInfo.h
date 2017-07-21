@@ -65,6 +65,13 @@ public:
         // be treated as inverted CMYK.
         kInvertedCMYK_Color,
         kYCCK_Color,
+
+        // PNG
+        // 565 images may be encoded to PNG by specifying the number of
+        // significant bits for each channel.  This is a strange 565
+        // representation because the image is still encoded with 8 bits per
+        // component.
+        kRGB_565_Color,
     };
 
     static SkEncodedInfo Make(Color color, Alpha alpha, int bitsPerComponent) {
@@ -87,6 +94,7 @@ public:
             case kRGB_Color:
             case kBGR_Color:
             case kBGRX_Color:
+            case kRGB_565_Color:
                 SkASSERT(kOpaque_Alpha == alpha);
                 SkASSERT(bitsPerComponent >= 8);
                 break;
@@ -148,6 +156,10 @@ public:
                 SkASSERT(kOpaque_Alpha != fAlpha);
                 return SkImageInfo::Make(width, height, kN32_SkColorType,
                                          kUnpremul_SkAlphaType, std::move(colorSpace));
+            case kRGB_565_Color:
+                SkASSERT(kOpaque_Alpha == fAlpha);
+                return SkImageInfo::Make(width, height, kRGB_565_SkColorType,
+                                         kOpaque_SkAlphaType, std::move(colorSpace));
             default:
                 SkASSERT(false);
                 return SkImageInfo::MakeUnknown();
@@ -156,6 +168,7 @@ public:
 
     Color color() const { return fColor; }
     Alpha alpha() const { return fAlpha; }
+    bool opaque() const { return fAlpha == kOpaque_Alpha; }
     uint8_t bitsPerComponent() const { return fBitsPerComponent; }
 
     uint8_t bitsPerPixel() const {
@@ -169,6 +182,8 @@ public:
             case kRGB_Color:
             case kBGR_Color:
             case kYUV_Color:
+            // As noted above, RGB_565 are stored in 8 bits per component.
+            case kRGB_565_Color:
                 return 3 * fBitsPerComponent;
             case kRGBA_Color:
             case kBGRA_Color:

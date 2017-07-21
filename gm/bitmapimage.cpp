@@ -37,9 +37,12 @@ protected:
 
         // Create matching bitmap.
         std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(GetResourceAsStream(path)));
+        auto dim = codec->dimensions();
+        auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                kOpaque_SkAlphaType, sk_ref_sp(codec->colorSpace()));
         SkBitmap bitmap;
-        bitmap.allocPixels(codec->getInfo());
-        codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes());
+        bitmap.allocPixels(info);
+        codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
 
         // The GM will be displayed in a 2x2 grid.
         // The top two squares show an sRGB image, then bitmap, drawn to a legacy canvas.

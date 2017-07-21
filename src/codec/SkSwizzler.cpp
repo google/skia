@@ -951,6 +951,7 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                 }
                 break;
             case SkEncodedInfo::kRGB_Color:
+            case SkEncodedInfo::kRGB_565_Color:
                 switch (dstInfo.colorType()) {
                     case kRGBA_8888_SkColorType:
                         if (16 == encodedInfo.bitsPerComponent()) {

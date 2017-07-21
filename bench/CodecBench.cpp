@@ -42,9 +42,8 @@ bool CodecBench::isSuitableFor(Backend backend) {
 void CodecBench::onDelayedSetup() {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fData));
 
-    fInfo = codec->getInfo().makeColorType(fColorType)
-                            .makeAlphaType(fAlphaType)
-                            .makeColorSpace(nullptr);
+    auto dim = codec->dimensions();
+    fInfo = SkImageInfo::Make(dim.width(), dim.height(), fColorType, fAlphaType);
 
     fPixelStorage.reset(fInfo.getSafeSize(fInfo.minRowBytes()));
 }

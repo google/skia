@@ -12,7 +12,7 @@
 #include "SkPixelRef.h"
 
 SkBitmapRegionCodec::SkBitmapRegionCodec(SkAndroidCodec* codec)
-    : INHERITED(codec->getInfo().width(), codec->getInfo().height())
+    : INHERITED(codec->dimensions().width(), codec->dimensions().height())
     , fCodec(codec)
 {}
 
@@ -37,7 +37,7 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
     int outX;
     int outY;
     SkIRect subset = desiredSubset;
-    SubsetType type = adjust_subset_rect(fCodec->getInfo().dimensions(), &subset, &outX, &outY);
+    SubsetType type = adjust_subset_rect(fCodec->dimensions(), &subset, &outX, &outY);
     if (SubsetType::kOutside_SubsetType == type) {
         return false;
     }
@@ -118,6 +118,22 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 }
 
 bool SkBitmapRegionCodec::conversionSupported(SkColorType colorType) {
-    SkImageInfo dstInfo = fCodec->getInfo().makeColorType(colorType);
-    return conversion_possible(dstInfo, fCodec->getInfo());
+    auto dim = fCodec->dimensions();
+    const auto& encodedInfo = fCodec->getEncodedInfo();
+    bool opaque = encodedInfo.opaque();
+    auto at = opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    sk_sp<SkColorSpace> cs;
+    switch (colorType) {
+        case kRGBA_F16_SkColorType:
+            cs = SkColorSpace::MakeSRGBLinear();
+            break;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            cs = SkColorSpace::MakeSRGB();
+            break;
+        default:
+            break;
+    }
+    auto dstInfo = SkImageInfo::Make(dim.width(), dim.height(), colorType, at, cs);
+    return conversion_possible(dstInfo, encodedInfo.color(), opaque, nullptr);
 }

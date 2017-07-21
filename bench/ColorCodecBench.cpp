@@ -62,8 +62,10 @@ void ColorCodecBench::xformOnly() {
 
 void ColorCodecBench::onDelayedSetup() {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
-    fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
-    fDstInfo = fSrcInfo;
+    auto dim = codec->dimensions();
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    fSrcInfo = SkImageInfo::Make(dim.width(), dim.height(), kRGBA_8888_SkColorType,
+            at, codec->fColorSpace);
 
     fDstSpace = nullptr;
     if (FLAGS_srgb) {
@@ -76,6 +78,10 @@ void ColorCodecBench::onDelayedSetup() {
         SkMatrix44 matrix = SkMatrix44(SkMatrix44::kUninitialized_Constructor);
         matrix.set3x3(0.30f, 0.31f, 0.28f, 0.32f, 0.33f, 0.29f, 0.27f, 0.30f, 0.30f);
         fDstSpace = SkColorSpace::MakeRGB(gamma, matrix);
+    } else if (FLAGS_half) {
+        fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
+        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fDstSpace)->type());
+        fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
     } else {
         sk_sp<SkData> dstData = SkData::MakeFromFileName(
                 GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
@@ -83,19 +89,13 @@ void ColorCodecBench::onDelayedSetup() {
         fDstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }
     SkASSERT(fDstSpace);
-    fDstInfo = fDstInfo.makeColorSpace(fDstSpace);
-
-    if (FLAGS_half) {
-        fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
-        SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fDstSpace)->type());
-        fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
-    }
+    fDstInfo = fSrcInfo.makeColorSpace(fDstSpace);
 
     fDst.reset(fDstInfo.getSafeSize(fDstInfo.minRowBytes()));
 
     if (FLAGS_xform_only) {
         fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
-        fSrcSpace = codec->getInfo().refColorSpace();
+        fSrcSpace = fSrcInfo.refColorSpace();
         codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
     }
 }

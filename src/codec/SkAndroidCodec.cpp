@@ -47,13 +47,13 @@ static float calculate_area(SkPoint abc[]) {
 
 static const float kSRGB_D50_GamutArea = 0.084f;
 
-static bool is_wide_gamut(const SkColorSpace* colorSpace) {
+static bool is_wide_gamut(const SkCodec* codec) {
     // Determine if the source image has a gamut that is wider than sRGB.  If so, we
     // will use P3 as the output color space to avoid clipping the gamut.
-    const SkMatrix44* toXYZD50 = as_CSB(colorSpace)->toXYZD50();
-    if (toXYZD50) {
+    SkMatrix44 toXYZD50;
+    if (codec->toXYZD50(&toXYZD50)) {
         SkPoint rgb[3];
-        load_gamut(rgb, *toXYZD50);
+        load_gamut(rgb, toXYZD50);
         return calculate_area(rgb) > kSRGB_D50_GamutArea;
     }
 
@@ -61,8 +61,7 @@ static bool is_wide_gamut(const SkColorSpace* colorSpace) {
 }
 
 SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
-    : fInfo(codec->getInfo())
-    , fCodec(codec)
+    : fCodec(codec)
 {}
 
 SkAndroidCodec* SkAndroidCodec::NewFromStream(SkStream* stream, SkPngChunkReader* chunkReader) {
@@ -116,12 +115,12 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
             // we allowed clients to request kAlpha_8 when they wanted a
             // grayscale decode.
         case kGray_8_SkColorType:
-            if (kGray_8_SkColorType == this->getInfo().colorType()) {
+            if (SkEncodedInfo::kGray_Color == fCodec->getEncodedInfo().color()) {
                 return kGray_8_SkColorType;
             }
             break;
         case kRGB_565_SkColorType:
-            if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+            if (fCodec->getEncodedInfo().opaque()) {
                 return kRGB_565_SkColorType;
             }
             break;
@@ -136,7 +135,7 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
 }
 
 SkAlphaType SkAndroidCodec::computeOutputAlphaType(bool requestedUnpremul) {
-    if (kOpaque_SkAlphaType == this->getInfo().alphaType()) {
+    if (fCodec->getEncodedInfo().opaque()) {
         return kOpaque_SkAlphaType;
     }
     return requestedUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType;
@@ -153,14 +152,15 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
                 return prefColorSpace;
             }
 
-            SkColorSpace* encodedSpace = fCodec->getInfo().colorSpace();
-            if (encodedSpace->isNumericalTransferFn(&fn)) {
+            SkColorSpace* encodedSpace = fCodec->colorSpace();
+            if (encodedSpace) {
+                SkASSERT(encodedSpace->isNumericalTransferFn(&fn));
                 // Leave the pixels in the encoded color space.  Color space conversion
                 // will be handled after decode time.
                 return sk_ref_sp(encodedSpace);
             }
 
-            if (is_wide_gamut(encodedSpace)) {
+            if (is_wide_gamut(fCodec.get())) {
                 return SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                              SkColorSpace::kDCIP3_D65_Gamut);
             }
@@ -186,14 +186,14 @@ SkISize SkAndroidCodec::getSampledDimensions(int sampleSize) const {
 
     // Fast path for when we are not scaling.
     if (1 == sampleSize) {
-        return fInfo.dimensions();
+        return this->dimensions();
     }
 
     return this->onGetSampledDimensions(sampleSize);
 }
 
 bool SkAndroidCodec::getSupportedSubset(SkIRect* desiredSubset) const {
-    if (!desiredSubset || !is_valid_subset(*desiredSubset, fInfo.dimensions())) {
+    if (!desiredSubset || !is_valid_subset(*desiredSubset, this->dimensions())) {
         return false;
     }
 
@@ -214,7 +214,7 @@ SkISize SkAndroidCodec::getSampledSubsetDimensions(int sampleSize, const SkIRect
     }
 
     // If the subset is the entire image, for consistency, use getSampledDimensions().
-    if (fInfo.dimensions() == subset.size()) {
+    if (this->dimensions() == subset.size()) {
         return this->getSampledDimensions(sampleSize);
     }
 
@@ -237,11 +237,11 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* 
     if (!options) {
         options = &defaultOptions;
     } else if (options->fSubset) {
-        if (!is_valid_subset(*options->fSubset, fInfo.dimensions())) {
+        if (!is_valid_subset(*options->fSubset, this->dimensions())) {
             return SkCodec::kInvalidParameters;
         }
 
-        if (SkIRect::MakeSize(fInfo.dimensions()) == *options->fSubset) {
+        if (SkIRect::MakeSize(fCodec->dimensions()) == *options->fSubset) {
             // The caller wants the whole thing, rather than a subset. Modify
             // the AndroidOptions passed to onGetAndroidPixels to not specify
             // a subset.

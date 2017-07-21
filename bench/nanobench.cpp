@@ -819,12 +819,9 @@ public:
             while (fCurrentColorType < fColorTypes.count()) {
                 const SkColorType colorType = fColorTypes[fCurrentColorType];
 
-                SkAlphaType alphaType = codec->getInfo().alphaType();
+                auto alphaType = codec->getEncodedInfo().opaque()
+                    ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
                 if (FLAGS_simpleCodec) {
-                    if (kUnpremul_SkAlphaType == alphaType) {
-                        alphaType = kPremul_SkAlphaType;
-                    }
-
                     fCurrentColorType++;
                 } else {
                     switch (alphaType) {
@@ -853,8 +850,11 @@ public:
                 }
 
                 // Make sure we can decode to this color type and alpha type.
-                SkImageInfo info =
-                        codec->getInfo().makeColorType(colorType).makeAlphaType(alphaType);
+                auto dim = codec->dimensions();
+                auto info = SkImageInfo::Make(dim.width(), dim.height(), colorType, alphaType);
+                if (colorType == kRGBA_F16_SkColorType) {
+                    info = info.makeColorSpace(SkColorSpace::MakeSRGBLinear());
+                }
                 const size_t rowBytes = info.minRowBytes();
                 SkAutoMalloc storage(info.getSafeSize(rowBytes));
 
@@ -863,6 +863,7 @@ public:
                 switch (result) {
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput:
+                    case SkCodec::kErrorInInput:
                         return new CodecBench(SkOSPath::Basename(path.c_str()),
                                               encoded.get(), colorType, alphaType);
                     case SkCodec::kInvalidConversion:
@@ -898,7 +899,8 @@ public:
             while (fCurrentSampleSize < (int) SK_ARRAY_COUNT(sampleSizes)) {
                 int sampleSize = sampleSizes[fCurrentSampleSize];
                 fCurrentSampleSize++;
-                if (10 * sampleSize > SkTMin(codec->getInfo().width(), codec->getInfo().height())) {
+                if (10 * sampleSize > SkTMin(codec->dimensions().width(),
+                                             codec->dimensions().height())) {
                     // Avoid benchmarking scaled decodes of already small images.
                     break;
                 }

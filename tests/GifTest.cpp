@@ -143,6 +143,13 @@ static void test_gif_data_short(skiatest::Reporter* r,
     }
 }
 
+template <typename Codec>
+SkImageInfo make_info(const Codec& codec) {
+    auto dim = codec.dimensions();
+    return SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType);
+}
+
 /**
   This test will test the ability of the SkCodec to deal with
   GIF files which have been mangled somehow.  We want to display as
@@ -198,7 +205,7 @@ DEF_TEST(Gif, reporter) {
         std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
         REPORTER_ASSERT(reporter, codec);
         if (codec) {
-            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            auto info = make_info(*codec.get());
             SkBitmap bm;
             bm.allocPixels(info);
             REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->startIncrementalDecode(
@@ -241,10 +248,11 @@ DEF_TEST(Gif_Sampled, r) {
     SkAndroidCodec::AndroidOptions options;
     options.fSampleSize = 4;
 
+    auto info = make_info(*codec.get());
     SkBitmap bm;
-    bm.allocPixels(codec->getInfo());
-    const SkCodec::Result result = codec->getAndroidPixels(codec->getInfo(), bm.getPixels(),
-            bm.rowBytes(), &options);
+    bm.allocPixels(info);
+    auto result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(),
+                                          &options);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
 

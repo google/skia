@@ -82,31 +82,20 @@ static inline bool is_coord_necessary(int srcCoord, int sampleFactor, int scaled
     return ((srcCoord - startCoord) % sampleFactor) == 0;
 }
 
-static inline bool valid_alpha(SkAlphaType dstAlpha, SkAlphaType srcAlpha) {
+static inline bool valid_alpha(SkAlphaType dstAlpha, bool srcIsOpaque) {
     if (kUnknown_SkAlphaType == dstAlpha) {
         return false;
     }
 
-    if (srcAlpha != dstAlpha) {
-        if (kOpaque_SkAlphaType == srcAlpha) {
-            // If the source is opaque, we can support any.
+    if (srcIsOpaque) {
+        if (kOpaque_SkAlphaType != dstAlpha) {
             SkCodecPrintf("Warning: an opaque image should be decoded as opaque "
                           "- it is being decoded as non-opaque, which will draw slower\n");
-            return true;
         }
-
-        // The source is not opaque
-        switch (dstAlpha) {
-            case kPremul_SkAlphaType:
-            case kUnpremul_SkAlphaType:
-                // The source is not opaque, so either of these is okay
-                break;
-            default:
-                // We cannot decode a non-opaque image to opaque (or unknown)
-                return false;
-        }
+        return true;
+    } else {
+        return dstAlpha != kOpaque_SkAlphaType;
     }
-    return true;
 }
 
 /*
@@ -282,12 +271,11 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
-static inline bool needs_premul(const SkImageInfo& dstInfo, const SkEncodedInfo& encodedInfo) {
-    return kPremul_SkAlphaType == dstInfo.alphaType() &&
-           SkEncodedInfo::kUnpremul_Alpha == encodedInfo.alpha();
+static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedAlpha) {
+    return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
 }
 
-static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS,
                                      bool needsColorCorrectPremul) {
     // We never perform a color xform in legacy mode.
     if (!dstInfo.colorSpace()) {
@@ -298,13 +286,13 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkImageIn
     bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
 
     // Need a color xform when dst space does not match the src.
-    bool srcDstNotEqual = !SkColorSpace::Equals(srcInfo.colorSpace(), dstInfo.colorSpace());
+    bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
 
     return needsColorCorrectPremul || isF16 || srcDstNotEqual;
 }
 
-static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
-    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
+static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, bool srcOpaque) {
+    return srcOpaque ? kOpaque_SkAlphaType : dstAlphaType;
 }
 
 /*
@@ -318,9 +306,12 @@ static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaTy
  * - Support k565 if kOpaque and color correction is not required
  * - Support k565 if it matches the src, kOpaque, and color correction is not required
  */
-static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo& src) {
+static inline bool conversion_possible(const SkImageInfo& dst,
+                                       SkEncodedInfo::Color srcColor,
+                                       bool srcIsOpaque,
+                                       const SkColorSpace* srcCS) {
     // Ensure the alpha type is valid.
-    if (!valid_alpha(dst.alphaType(), src.alphaType())) {
+    if (!valid_alpha(dst.alphaType(), srcIsOpaque)) {
         return false;
     }
 
@@ -332,10 +323,10 @@ static inline bool conversion_possible(const SkImageInfo& dst, const SkImageInfo
         case kRGBA_F16_SkColorType:
             return dst.colorSpace() && dst.colorSpace()->gammaIsLinear();
         case kRGB_565_SkColorType:
-            return kOpaque_SkAlphaType == src.alphaType();
+            return srcIsOpaque;
         case kGray_8_SkColorType:
-            return kGray_8_SkColorType == src.colorType() &&
-                   kOpaque_SkAlphaType == src.alphaType() && !needs_color_xform(dst, src, false);
+            return SkEncodedInfo::kGray_Color == srcColor && srcIsOpaque &&
+                   !needs_color_xform(dst, srcCS, false);
         default:
             return false;
     }

@@ -464,7 +464,7 @@ int main(int argc, char** argv) {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
     } else {
         codec.reset(SkCodec::NewFromData(data));
-        colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
+        colorSpace = sk_ref_sp(codec->colorSpace());
     }
 
     if (!colorSpace) {
@@ -631,9 +631,9 @@ int main(int argc, char** argv) {
     // Also, if requested, decode and reencode the uncorrected input image.
     if (!FLAGS_uncorrected.isEmpty() && !FLAGS_icc) {
         SkBitmap bitmap;
-        int width = codec->getInfo().width();
-        int height = codec->getInfo().height();
-        bitmap.allocN32Pixels(width, height, kOpaque_SkAlphaType == codec->getInfo().alphaType());
+        int width = codec->dimensions().width();
+        int height = codec->dimensions().height();
+        bitmap.allocN32Pixels(width, height, codec->getEncodedInfo().opaque());
         SkImageInfo decodeInfo = SkImageInfo::MakeN32(width, height, kUnpremul_SkAlphaType);
         if (SkCodec::kSuccess != codec->getPixels(decodeInfo, bitmap.getPixels(),
                                                   bitmap.rowBytes())) {

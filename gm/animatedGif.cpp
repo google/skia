@@ -48,7 +48,9 @@ private:
         }
         SkBitmap& bm = fFrames[frameIndex];
         if (!bm.getPixels()) {
-            const SkImageInfo info = fCodec->getInfo().makeColorType(kN32_SkColorType);
+            auto dim = fCodec->dimensions();
+            const auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                    kPremul_SkAlphaType, canvas->imageInfo().refColorSpace());
             bm.allocPixels(info);
 
             SkCodec::Options opts;
@@ -88,7 +90,7 @@ private:
 
     SkISize onISize() override {
         if (this->initCodec()) {
-            SkISize dim = fCodec->getInfo().dimensions();
+            SkISize dim = fCodec->dimensions();
             // Wide enough to display all the frames.
             dim.fWidth *= fTotalFrames;
             // Tall enough to show the row of frames plus an animating version.
@@ -104,7 +106,7 @@ private:
             SkAutoCanvasRestore acr(canvas, true);
             for (int frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
                 this->drawFrame(canvas, frameIndex);
-                canvas->translate(SkIntToScalar(fCodec->getInfo().width()), 0);
+                canvas->translate(SkIntToScalar(fCodec->dimensions().width()), 0);
             }
         }
     }
@@ -143,7 +145,7 @@ private:
         }
 
         SkAutoCanvasRestore acr(canvas, true);
-        canvas->translate(0, SkIntToScalar(fCodec->getInfo().height()));
+        canvas->translate(0, SkIntToScalar(fCodec->dimensions().height()));
         this->drawFrame(canvas, fFrame);
     }
 

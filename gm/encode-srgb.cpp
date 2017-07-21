@@ -57,9 +57,9 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
 
     sk_sp<SkData> data = GetResourceAsData(resource);
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
-    SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
-                                          .makeAlphaType(alphaType)
-                                          .makeColorSpace(fix_for_colortype(colorSpace, colorType));
+    auto dim = codec->dimensions();
+    auto dstInfo = SkImageInfo::Make(dim.width(), dim.height(), colorType, alphaType,
+            fix_for_colortype(colorSpace, colorType));
     bitmap->allocPixels(dstInfo);
     codec->getPixels(dstInfo, bitmap->getPixels(), bitmap->rowBytes());
 }
