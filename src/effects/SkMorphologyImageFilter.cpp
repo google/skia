@@ -293,7 +293,8 @@ void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
 void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                      const GrFragmentProcessor& proc) {
     const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
-    GrTexture& texture = *m.textureSampler(0).peekTexture();
+    GrSurfaceProxy* proxy = m.textureSampler(0).proxy();
+    GrTexture& texture = *proxy->priv().peekTexture();
 
     float pixelSize = 0.0f;
     switch (m.direction()) {
@@ -311,7 +312,7 @@ void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     if (m.useRange()) {
         const float* range = m.range();
         if (Gr1DKernelEffect::kY_Direction == m.direction() &&
-            texture.origin() == kBottomLeft_GrSurfaceOrigin) {
+            proxy->origin() == kBottomLeft_GrSurfaceOrigin) {
             pdman.set2f(fRangeUni, 1.0f - (range[1]*pixelSize), 1.0f - (range[0]*pixelSize));
         } else {
             pdman.set2f(fRangeUni, range[0] * pixelSize, range[1] * pixelSize);

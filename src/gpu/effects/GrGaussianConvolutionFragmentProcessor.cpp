@@ -121,10 +121,11 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                       const GrFragmentProcessor& processor) {
     const GrGaussianConvolutionFragmentProcessor& conv =
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
-    GrTexture& texture = *conv.textureSampler(0).peekTexture();
+    GrSurfaceProxy* proxy = conv.textureSampler(0).proxy();
+    GrTexture& texture = *proxy->priv().peekTexture();
 
     float imageIncrement[2] = {0};
-    float ySign = texture.origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
+    float ySign = proxy->origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     switch (conv.direction()) {
         case Gr1DKernelEffect::kX_Direction:
             imageIncrement[0] = 1.0f / texture.width();
@@ -149,7 +150,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
             pdman.set2f(fBoundsUni, inv * bounds[0], inv * bounds[1]);
         } else {
             SkScalar inv = SkScalarInvert(SkIntToScalar(texture.height()));
-            if (texture.origin() != kTopLeft_GrSurfaceOrigin) {
+            if (proxy->origin() != kTopLeft_GrSurfaceOrigin) {
                 pdman.set2f(fBoundsUni, 1.0f - (inv * bounds[1]), 1.0f - (inv * bounds[0]));
             } else {
                 pdman.set2f(fBoundsUni, inv * bounds[1], inv * bounds[0]);
