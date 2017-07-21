@@ -70,6 +70,10 @@ SkMaskBlurFilter::SkMaskBlurFilter(double sigmaW, double sigmaH)
     , fBuffer2{skstd::make_unique_default<uint32_t[]>(bufferSize(2))} {
 }
 
+bool SkMaskBlurFilter::hasNoBlur() const {
+    return fInfoW.weight() <= 1 && fInfoH.weight() <= 1;
+}
+
 SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     uint64_t weightW = fInfoW.weight();
@@ -146,7 +150,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         }
     } else {
         // Copy to dst. No Blur.
-
+        SkASSERT(false);    // should not get here
         for (size_t y = 0; y < srcH; y++) {
             std::memcpy(&dst->fImage[y * dst->fRowBytes], &src.fImage[y * src.fRowBytes], dstW);
         }
