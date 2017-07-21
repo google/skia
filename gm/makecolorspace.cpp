@@ -17,12 +17,17 @@ sk_sp<SkImage> make_raster_image(const char* path, SkTransferFunctionBehavior be
     sk_sp<SkData> resourceData = SkData::MakeFromFileName(resourcePath.c_str());
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(resourceData));
 
+    auto dim = codec->dimensions();
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType, at,
+            SkColorSpace::MakeSRGB());
+
     SkBitmap bitmap;
-    bitmap.allocPixels(codec->getInfo());
+    bitmap.allocPixels(info);
 
     SkCodec::Options opts;
     opts.fPremulBehavior = behavior;
-    codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes(), &opts);
+    codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes(), &opts);
     return SkImage::MakeFromBitmap(bitmap);
 }
 

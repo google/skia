@@ -51,7 +51,9 @@ DEF_TEST(Codec_565, r) {
         return;
     }
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
-    auto info = codec->getInfo().makeColorType(kRGB_565_SkColorType);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kRGB_565_SkColorType,
+                                  kOpaque_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(info);
 
@@ -69,8 +71,9 @@ static bool restore_previous(const SkCodec::FrameInfo& info) {
 }
 
 DEF_TEST(Codec_frames, r) {
-    #define kOpaque         kOpaque_SkAlphaType
-    #define kUnpremul       kUnpremul_SkAlphaType
+    #define kOpaque         SkEncodedInfo::kOpaque_Alpha
+    #define kUnpremul       SkEncodedInfo::kUnpremul_Alpha
+    #define kBinary         SkEncodedInfo::kBinary_Alpha
     #define kKeep           SkCodecAnimation::DisposalMethod::kKeep
     #define kRestoreBG      SkCodecAnimation::DisposalMethod::kRestoreBGColor
     #define kRestorePrev    SkCodecAnimation::DisposalMethod::kRestorePrevious
@@ -80,8 +83,8 @@ DEF_TEST(Codec_frames, r) {
         // One less than fFramecount, since the first frame is always
         // independent.
         std::vector<int>                              fRequiredFrames;
-        // Same, since the first frame should match getInfo.
-        std::vector<SkAlphaType>                      fAlphaTypes;
+        // Same, since the first frame should match getEncodedInfo.
+        std::vector<SkEncodedInfo::Alpha>             fAlphas;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
         std::vector<int>                              fDurations;
@@ -90,15 +93,15 @@ DEF_TEST(Codec_frames, r) {
     } gRecs[] = {
         { "required.gif", 7,
             { 0, 1, 1, SkCodec::kNone, 4, 4 },
-            { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
+            { kOpaque, kBinary, kBinary, kOpaque, kOpaque, kOpaque },
             { 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
         { "alphabetAnim.gif", 13,
             { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
               SkCodec::kNone, SkCodec::kNone, 10, 11 },
-            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
-              kUnpremul, kUnpremul, kUnpremul, kOpaque, kOpaque, kUnpremul },
+            { kBinary, kBinary, kBinary, kBinary, kBinary, kBinary,
+              kBinary, kBinary, kBinary, kOpaque, kOpaque, kBinary },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
             0,
             { kKeep, kRestorePrev, kRestorePrev, kRestorePrev, kRestorePrev,
@@ -117,8 +120,8 @@ DEF_TEST(Codec_frames, r) {
         { "randPixelsAnim.gif", 13,
             // required frames
             { SkCodec::kNone, 1, 2, 3, 4, 3, 6, 7, 7, 7, 9, 9 },
-            { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
-              kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
+            { kBinary, kBinary, kBinary, kBinary, kBinary, kBinary,
+              kBinary, kBinary, kBinary, kBinary, kBinary, kBinary },
             // durations
             { 0, 1000, 170, 40, 220, 7770, 90, 90, 90, 90, 90, 90, 90 },
             // repetition count
@@ -162,6 +165,7 @@ DEF_TEST(Codec_frames, r) {
     };
     #undef kOpaque
     #undef kUnpremul
+    #undef kBinary
     #undef kKeep
     #undef kRestorePrev
     #undef kRestoreBG
@@ -206,9 +210,9 @@ DEF_TEST(Codec_frames, r) {
                 continue;
             }
 
-            if (rec.fAlphaTypes.size() + 1 != static_cast<size_t>(expected)) {
-                ERRORF(r, "'%s' has wrong number entries in fAlphaTypes; expected: %i\tactual: %i",
-                       rec.fName, expected - 1, rec.fAlphaTypes.size());
+            if (rec.fAlphas.size() + 1 != static_cast<size_t>(expected)) {
+                ERRORF(r, "'%s' has wrong number entries in fAlphas; expected: %i\tactual: %i",
+                       rec.fName, expected - 1, rec.fAlphas.size());
                 continue;
             }
 
@@ -270,19 +274,19 @@ DEF_TEST(Codec_frames, r) {
                            rec.fName, i, rec.fDurations[i], frameInfo.fDuration);
                 }
 
-                auto to_string = [](SkAlphaType type) {
-                    switch (type) {
-                        case kUnpremul_SkAlphaType:
+                auto to_string = [](SkEncodedInfo::Alpha alpha) {
+                    switch (alpha) {
+                        case SkEncodedInfo::kUnpremul_Alpha:
                             return "unpremul";
-                        case kOpaque_SkAlphaType:
+                        case SkEncodedInfo::kOpaque_Alpha:
                             return "opaque";
-                        default:
-                            return "other";
+                        case SkEncodedInfo::kBinary_Alpha:
+                            return "binary";
                     }
                 };
 
-                auto expectedAlpha = 0 == i ? codec->getInfo().alphaType() : rec.fAlphaTypes[i-1];
-                auto alpha = frameInfo.fAlphaType;
+                auto expectedAlpha = 0 == i ? codec->getEncodedInfo().alpha() : rec.fAlphas[i-1];
+                auto alpha = frameInfo.fAlpha;
                 if (expectedAlpha != alpha) {
                     ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
                            rec.fName, i, to_string(expectedAlpha), to_string(alpha));
@@ -311,12 +315,14 @@ DEF_TEST(Codec_frames, r) {
             //   frame.
             // All should look the same.
             std::vector<SkBitmap> cachedFrames(frameCount);
-            const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            const auto dim = codec->dimensions();
+            const auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                    kPremul_SkAlphaType);
 
             auto decode = [&](SkBitmap* bm, int index, int cachedIndex) {
                 auto decodeInfo = info;
-                if (index > 0) {
-                    decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
+                if (frameInfos[index].fAlpha == SkEncodedInfo::kOpaque_Alpha) {
+                    decodeInfo = info.makeAlphaType(kOpaque_SkAlphaType);
                 }
                 bm->allocPixels(decodeInfo);
                 if (cachedIndex != SkCodec::kNone) {

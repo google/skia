@@ -62,8 +62,10 @@ void ColorCodecBench::xformOnly() {
 
 void ColorCodecBench::onDelayedSetup() {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
-    fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
-    fDstInfo = fSrcInfo;
+    auto dim = codec->dimensions();
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    fSrcInfo = SkImageInfo::Make(dim.width(), dim.height(), kRGBA_8888_SkColorType,
+            at, codec->fColorSpace);
 
     fDstSpace = nullptr;
     if (FLAGS_srgb) {
@@ -83,11 +85,12 @@ void ColorCodecBench::onDelayedSetup() {
         fDstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
     }
     SkASSERT(fDstSpace);
-    fDstInfo = fDstInfo.makeColorSpace(fDstSpace);
+    fDstInfo = fSrcInfo.makeColorSpace(fDstSpace);
 
     if (FLAGS_half) {
         fDstInfo = fDstInfo.makeColorType(kRGBA_F16_SkColorType);
         SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(fDstSpace)->type());
+        // FIXME: Should this be set on fDstInfo?
         fDstSpace = static_cast<SkColorSpace_XYZ*>(fDstSpace.get())->makeLinearGamma();
     }
 
@@ -95,7 +98,7 @@ void ColorCodecBench::onDelayedSetup() {
 
     if (FLAGS_xform_only) {
         fSrc.reset(fSrcInfo.getSafeSize(fSrcInfo.minRowBytes()));
-        fSrcSpace = codec->getInfo().refColorSpace();
+        fSrcSpace = fSrcInfo.refColorSpace();
         codec->getPixels(fSrcInfo, fSrc.get(), fSrcInfo.minRowBytes());
     }
 }

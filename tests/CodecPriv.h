@@ -17,8 +17,10 @@ inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
         return false;
     }
 
-    bm->allocPixels(codec->getInfo());
-    const SkCodec::Result result = codec->getPixels(codec->getInfo(), bm->getPixels(),
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::MakeN32Premul(dim.width(), dim.height());
+    bm->allocPixels(info);
+    const SkCodec::Result result = codec->getPixels(info, bm->getPixels(),
             bm->rowBytes());
     return result == SkCodec::kSuccess || result == SkCodec::kIncompleteInput;
 }

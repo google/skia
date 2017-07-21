@@ -45,8 +45,9 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-            void* png_ptr, void* info_ptr, int bitDepth);
+    SkPngCodec(int width, int height, const SkEncodedInfo&, SkStream*,
+               SkPngChunkReader*, void* png_ptr, void* info_ptr, int bitDepth,
+               sk_sp<SkColorSpace>);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;

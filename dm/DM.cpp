@@ -551,17 +551,13 @@ static void push_codec_srcs(Path path) {
     SkTArray<CodecSrc::DstColorType> colorTypes;
     colorTypes.push_back(CodecSrc::kGetFromCanvas_DstColorType);
     colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
-    switch (codec->getInfo().colorType()) {
-        case kGray_8_SkColorType:
-            colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
-            break;
-        default:
-            break;
+    if (codec->getEncodedInfo().color() == SkEncodedInfo::kGrayAlpha_Color) {
+        colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
     }
 
     SkTArray<SkAlphaType> alphaModes;
     alphaModes.push_back(kPremul_SkAlphaType);
-    if (codec->getInfo().alphaType() != kOpaque_SkAlphaType) {
+    if (!codec->getEncodedInfo().opaque()) {
         alphaModes.push_back(kUnpremul_SkAlphaType);
     }
 
@@ -638,7 +634,8 @@ static void push_codec_srcs(Path path) {
     }
 
     // Push image generator GPU test.
-    push_image_gen_src(path, ImageGenSrc::kCodec_Mode, codec->getInfo().alphaType(), true);
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    push_image_gen_src(path, ImageGenSrc::kCodec_Mode, at, true);
 
     // Push image generator CPU tests.
     for (SkAlphaType alphaType : alphaModes) {

@@ -343,8 +343,8 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
     // Set up a fake decompress struct in order to use libjpeg to calculate output dimensions
     jpeg_decompress_struct dinfo;
     sk_bzero(&dinfo, sizeof(dinfo));
-    dinfo.image_width = this->getInfo().width();
-    dinfo.image_height = this->getInfo().height();
+    dinfo.image_width = this->dimensions().width();
+    dinfo.image_height = this->dimensions().height();
     dinfo.global_state = fReadyState;
     calc_output_dimensions(&dinfo, num, denom);
 
@@ -426,11 +426,11 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             return true;
         case kRGBA_F16_SkColorType:
-            SkASSERT(this->colorXform());
-
-            if (!dstInfo.colorSpace()->gammaIsLinear()) {
+            if (!dstInfo.colorSpace() || !dstInfo.colorSpace()->gammaIsLinear()) {
                 return false;
             }
+
+            SkASSERT(this->colorXform());
 
             if (isCMYK) {
                 fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
@@ -459,8 +459,8 @@ bool SkJpegCodec::onDimensionsSupported(const SkISize& size) {
     // FIXME: Why is this necessary?
     jpeg_decompress_struct dinfo;
     sk_bzero(&dinfo, sizeof(dinfo));
-    dinfo.image_width = this->getInfo().width();
-    dinfo.image_height = this->getInfo().height();
+    dinfo.image_width = this->dimensions().width();
+    dinfo.image_height = this->dimensions().height();
     dinfo.global_state = fReadyState;
 
     // libjpeg-turbo can scale to 1/8, 1/4, 3/8, 1/2, 5/8, 3/4, 7/8, and 1/1
@@ -549,12 +549,12 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
  * xform, the color xform will handle the CMYK->RGB conversion.
  */
 static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorType,
-        const SkImageInfo& srcInfo, bool hasColorSpaceXform) {
+        const SkColorSpace* srcCS, bool hasColorSpaceXform) {
     if (JCS_CMYK != jpegColorType) {
         return false;
     }
 
-    bool hasCMYKColorSpace = as_CSB(srcInfo.colorSpace())->onIsCMYK();
+    bool hasCMYKColorSpace = as_CSB(srcCS)->onIsCMYK();
     return !hasCMYKColorSpace || !hasColorSpaceXform;
 }
 
@@ -578,10 +578,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
-
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
         return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
@@ -595,7 +591,7 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // If it's not, we want to know because it means our strategy is not optimal.
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
-    if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space, this->getInfo(),
+    if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space, fColorSpace.get(),
             this->colorXform())) {
         this->initializeSwizzler(dstInfo, options, true);
     }
@@ -673,7 +669,7 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     }
 
     bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
-            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
+            fDecoderMgr->dinfo()->out_color_space, fColorSpace.get(), this->colorXform());
     this->initializeSwizzler(this->dstInfo(), this->options(), needsCMYKToRGB);
     this->allocateStorage(this->dstInfo());
     return fSwizzler.get();
@@ -687,10 +683,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kInvalidInput;
     }
 
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
-
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
         return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
@@ -702,7 +694,7 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     }
 
     bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
-            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
+            fDecoderMgr->dinfo()->out_color_space, fColorSpace.get(), this->colorXform());
     if (options.fSubset) {
         uint32_t startX = options.fSubset->x();
         uint32_t width = options.fSubset->width();

@@ -97,7 +97,9 @@ struct Sniffer : public SkPixelSerializer {
 
         if (FLAGS_testDecode) {
             SkBitmap bitmap;
-            SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+            auto dim = codec->dimensions();
+            auto info = SkImageInfo::MakeN32Premul(dim.width(), dim.height(),
+                    SkColorSpace::MakeSRGB());
             bitmap.allocPixels(info);
             const SkCodec::Result result = codec->getPixels(
                 info, bitmap.getPixels(),  bitmap.rowBytes());

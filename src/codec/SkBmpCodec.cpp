@@ -614,12 +614,6 @@ int32_t SkBmpCodec::getDstRow(int32_t y, int32_t height) const {
 
 SkCodec::Result SkBmpCodec::prepareToDecode(const SkImageInfo& dstInfo,
         const SkCodec::Options& options) {
-    if (!conversion_possible(dstInfo, this->getInfo()) ||
-        !this->initializeColorXform(dstInfo, options.fPremulBehavior))
-    {
-        return kInvalidConversion;
-    }
-
     return this->onPrepareToDecode(dstInfo, options);
 }
 

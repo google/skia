@@ -42,7 +42,9 @@ bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
         return false;
     }
 
-    if (!resource.fBitmap.setInfo(codec->getInfo().makeColorType(kN32_SkColorType))) {
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::MakeN32Premul(dim.width(), dim.height(), SkColorSpace::MakeSRGB());
+    if (!resource.fBitmap.setInfo(info)) {
         SkDebugf("ERROR: could not set bitmap info for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;

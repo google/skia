@@ -263,7 +263,8 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
     if (png_get_tRNS(fPng_ptr, fInfo_ptr, &alphas, &numColorsWithAlpha, nullptr)) {
         // If we are performing a color xform, it will handle the premultiply.  Otherwise,
         // we'll do it here.
-        bool premultiply = !this->colorXform() && needs_premul(dstInfo, this->getEncodedInfo());
+        bool premultiply = !this->colorXform() && needs_premul(dstInfo.alphaType(),
+                                                               this->getEncodedInfo().alpha());
 
         // Choose which function to use to create the color table. If the final destination's
         // colortype is unpremultiplied, the color table will store unpremultiplied colors.
@@ -480,9 +481,11 @@ void SkPngCodec::applyXformRow(void* dst, const void* src) {
 
 class SkPngNormalDecoder : public SkPngCodec {
 public:
-    SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+    SkPngNormalDecoder(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth,
+            sk_sp<SkColorSpace> colorSpace)
+        : INHERITED(width, height, info, stream, reader, png_ptr, info_ptr, bitDepth,
+                    std::move(colorSpace))
         , fRowsWrittenToOutput(0)
         , fDst(nullptr)
         , fRowBytes(0)
@@ -515,7 +518,7 @@ private:
     }
 
     Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
+        const int height = this->dimensions().height();
         png_set_progressive_read_fn(this->png_ptr(), this, nullptr, AllRowsCallback, nullptr);
         fDst = dst;
         fRowBytes = rowBytes;
@@ -597,10 +600,11 @@ private:
 
 class SkPngInterlacedDecoder : public SkPngCodec {
 public:
-    SkPngInterlacedDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
+    SkPngInterlacedDecoder(int width, int height, const SkEncodedInfo& info,
             SkStream* stream, SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+            int bitDepth, int numberPasses, sk_sp<SkColorSpace> colorSpace)
+        : INHERITED(width, height, info, stream, reader, png_ptr, info_ptr, bitDepth,
+                    std::move(colorSpace))
         , fNumberPasses(numberPasses)
         , fFirstRow(0)
         , fLastRow(0)
@@ -649,7 +653,7 @@ private:
             if (fNumberPasses - 1 == pass && rowNum == fLastRow) {
                 // Last pass, and we have read all of the rows we care about.
                 fInterlacedComplete = true;
-                if (fLastRow != this->getInfo().height() - 1 ||
+                if (fLastRow != this->dimensions().height() - 1 ||
                         (this->swizzler() && this->swizzler()->sampleY() != 1)) {
                     // Fake error to stop decoding scanlines. Only stop if we're not decoding the
                     // whole image, in which case processing the rest of the image might be
@@ -662,7 +666,7 @@ private:
     }
 
     SkCodec::Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) override {
-        const int height = this->getInfo().height();
+        const int height = this->dimensions().height();
         this->setUpInterlaceBuffer(height);
         png_set_progressive_read_fn(this->png_ptr(), this, nullptr, InterlacedRowCallback,
                                     nullptr);
@@ -908,25 +912,25 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
             colorSpace = SkColorSpace::MakeSRGB();
         }
 
-        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);
-        SkImageInfo imageInfo = encodedInfo.makeImageInfo(origWidth, origHeight, colorSpace);
-
         if (SkEncodedInfo::kOpaque_Alpha == alpha) {
             png_color_8p sigBits;
             if (png_get_sBIT(fPng_ptr, fInfo_ptr, &sigBits)) {
                 if (5 == sigBits->red && 6 == sigBits->green && 5 == sigBits->blue) {
                     // Recommend a decode to 565 if the sBIT indicates 565.
-                    imageInfo = imageInfo.makeColorType(kRGB_565_SkColorType);
+                    color = SkEncodedInfo::kRGB_565_Color;
                 }
             }
         }
 
+        SkEncodedInfo encodedInfo = SkEncodedInfo::Make(color, alpha, bitDepth);
+
         if (1 == numberPasses) {
-            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
+            *fOutCodec = new SkPngNormalDecoder(origWidth, origHeight, encodedInfo, fStream,
+                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, std::move(colorSpace));
         } else {
-            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
+            *fOutCodec = new SkPngInterlacedDecoder(origWidth, origHeight, encodedInfo, fStream,
+                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses,
+                    std::move(colorSpace));
         }
         static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
@@ -936,10 +940,11 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
     this->releasePngPtrs();
 }
 
-SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
-                       void* info_ptr, int bitDepth)
-    : INHERITED(encodedInfo, imageInfo, png_select_xform_format(encodedInfo), stream)
+SkPngCodec::SkPngCodec(int width, int height, const SkEncodedInfo& encodedInfo, SkStream* stream,
+                       SkPngChunkReader* chunkReader, void* png_ptr, void* info_ptr, int bitDepth,
+                       sk_sp<SkColorSpace> colorSpace)
+    : INHERITED(width, height, encodedInfo, png_select_xform_format(encodedInfo), stream,
+                std::move(colorSpace))
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
@@ -974,13 +979,9 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    // Reset fSwizzler and this->colorXform().  We can't do this in onRewind() because the
+    // Reset fSwizzler. We can't do this in onRewind() because the
     // interlaced scanline decoder may need to rewind.
     fSwizzler.reset(nullptr);
-
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
 
     // If SkColorSpaceXform directly supports the encoded PNG format, we should skip format
     // conversion in the swizzler (or skip swizzling altogether).
@@ -1084,10 +1085,6 @@ bool SkPngCodec::onRewind() {
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         int* rowsDecoded) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-
     Result result = this->initializeXforms(dstInfo, options);
     if (kSuccess != result) {
         return result;
@@ -1104,9 +1101,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 
 SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
         void* dst, size_t rowBytes, const SkCodec::Options& options) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
 
     Result result = this->initializeXforms(dstInfo, options);
     if (kSuccess != result) {
@@ -1137,9 +1131,8 @@ SkCodec::Result SkPngCodec::onIncrementalDecode(int* rowsDecoded) {
 uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
     if (colorPtr) {
-        SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                   this->getInfo().alphaType());
-        return get_color_table_fill_value(dstInfo.colorType(), alphaType, colorPtr, 0,
+        auto at = select_xform_alpha(dstInfo.alphaType(), this->getEncodedInfo().opaque());
+        return get_color_table_fill_value(dstInfo.colorType(), at, colorPtr, 0,
                                           this->colorXform(), true);
     }
     return INHERITED::onGetFillValue(dstInfo);

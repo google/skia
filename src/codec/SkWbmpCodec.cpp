@@ -98,8 +98,8 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
 SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
     // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
     : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(),
-                stream, SkColorSpace::MakeSRGB())
-    , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
+                stream, nullptr)
+    , fSrcRowBytes(get_src_row_bytes(width))
     , fSwizzler(nullptr)
 {}
 
@@ -117,7 +117,8 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
         return kUnimplemented;
     }
 
-    if (!valid_color_type(info) || !valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
+    bool opaque = this->getEncodedInfo().opaque();
+    if (!valid_color_type(info) || !valid_alpha(info.alphaType(), opaque)) {
         return kInvalidConversion;
     }
 
@@ -184,9 +185,8 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!valid_color_type(dstInfo) ||
-        !valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType()))
-    {
+    bool opaque = this->getEncodedInfo().opaque();
+    if (!valid_color_type(dstInfo) || !valid_alpha(dstInfo.alphaType(), opaque)) {
         return kInvalidConversion;
     }
 

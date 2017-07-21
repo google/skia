@@ -73,7 +73,9 @@ DEF_TEST(Codec_end, r) {
                 continue;
             }
 
-            auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+            auto dim = codec->dimensions();
+            auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                    kPremul_SkAlphaType);
             SkBitmap bm;
             bm.allocPixels(info);
 

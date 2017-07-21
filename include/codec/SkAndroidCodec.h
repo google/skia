@@ -45,8 +45,9 @@ public:
 
     virtual ~SkAndroidCodec() {}
 
+    const SkEncodedInfo& getEncodedInfo() { return fCodec->getEncodedInfo(); }
 
-    const SkImageInfo& getInfo() const { return fInfo; }
+    SkISize dimensions() const { return fCodec->dimensions(); }
 
     /**
      *  Format of the encoded data.
@@ -243,11 +244,6 @@ protected:
             size_t rowBytes, const AndroidOptions& options) = 0;
 
 private:
-
-    // This will always be a reference to the info that is contained by the
-    // embedded SkCodec.
-    const SkImageInfo& fInfo;
-
     std::unique_ptr<SkCodec> fCodec;
 };
 #endif // SkAndroidCodec_DEFINED

@@ -162,8 +162,8 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
     REPORTER_ASSERT(r, result == expectedResult);
 
     md5(bm, digest);
-    if (goodDigest) {
-        REPORTER_ASSERT(r, *digest == *goodDigest);
+    if (goodDigest && *digest != *goodDigest) {
+        ERRORF(r, "Digest does not match expected!");
     }
 
     {
@@ -193,8 +193,10 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
         }
     }
 
-    if (codec->getInfo().colorType() == kGray_8_SkColorType) {
-        SkImageInfo grayInfo = codec->getInfo();
+    if (codec->getEncodedInfo().color() == SkEncodedInfo::kGray_Color) {
+        auto dim = codec->dimensions();
+        auto grayInfo = SkImageInfo::Make(dim.width(), dim.height(), kGray_8_SkColorType,
+                kOpaque_SkAlphaType);
         SkBitmap grayBm;
         grayBm.allocPixels(grayInfo);
 
@@ -285,7 +287,12 @@ static void check(skiatest::Reporter* r,
 
     // Test full image decodes with SkCodec
     SkMD5::Digest codecDigest;
-    const SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    auto dim = codec->dimensions();
+    // Use unpremul. We'll compare output from SkCodec to that of SkAndroidCodec and expect
+    // them to match and SkAndroidCodec uses legacy premultiplication.
+    auto at = codec->getEncodedInfo().opaque() ? kOpaque_SkAlphaType : kUnpremul_SkAlphaType;
+    const auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType, at,
+            sk_ref_sp(codec->colorSpace()));
     SkBitmap bm;
     SkCodec::Result expectedResult = isIncomplete ? SkCodec::kIncompleteInput : SkCodec::kSuccess;
     test_codec(r, codec.get(), bm, info, size, expectedResult, &codecDigest, nullptr);
@@ -587,9 +594,9 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
     for (int sampleSize = 1; sampleSize < 32; sampleSize++) {
         // Scale the output dimensions
         SkISize scaledDims = codec->getSampledDimensions(sampleSize);
-        SkImageInfo scaledInfo = codec->getInfo()
-                .makeWH(scaledDims.width(), scaledDims.height())
-                .makeColorType(kN32_SkColorType);
+        auto scaledInfo = SkImageInfo::Make(scaledDims.width(), scaledDims.height(),
+                kN32_SkColorType, kPremul_SkAlphaType,
+                codec->computeOutputColorSpace(kN32_SkColorType));
 
         // Set up for the decode
         size_t rowBytes = scaledDims.width() * sizeof(SkPMColor);
@@ -797,9 +804,12 @@ DEF_TEST(Codec_pngChunkReader, r) {
 
     // Now compare to the original.
     SkBitmap decodedBm;
-    decodedBm.setInfo(codec->getInfo());
+    auto dim = codec->dimensions();
+    auto imageInfo = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType);
+    decodedBm.setInfo(imageInfo);
     decodedBm.allocPixels();
-    SkCodec::Result result = codec->getPixels(codec->getInfo(), decodedBm.getPixels(),
+    SkCodec::Result result = codec->getPixels(imageInfo, decodedBm.getPixels(),
                                               decodedBm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
@@ -820,7 +830,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
     // Decoding again will read the chunks again.
     chunkReader.reset();
     REPORTER_ASSERT(r, !chunkReader.allHaveBeenSeen());
-    result = codec->getPixels(codec->getInfo(), decodedBm.getPixels(), decodedBm.rowBytes());
+    result = codec->getPixels(imageInfo, decodedBm.getPixels(), decodedBm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     REPORTER_ASSERT(r, chunkReader.allHaveBeenSeen());
 }
@@ -867,7 +877,10 @@ DEF_TEST(Codec_raw_notseekable, r) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(new NotAssetMemStream(std::move(data))));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kOpaque_SkAlphaType);
+    test_info(r, codec.get(), info, SkCodec::kSuccess, nullptr);
 }
 #endif
 
@@ -887,13 +900,16 @@ DEF_TEST(Codec_webp_peek, r) {
                                  new LimitedPeekingMemStream(data, 25)));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType, sk_ref_sp(codec->colorSpace()));
+    test_info(r, codec.get(), info, SkCodec::kSuccess, nullptr);
 
     // Similarly, a stream which does not peek should still succeed.
     codec.reset(SkCodec::NewFromStream(new LimitedPeekingMemStream(data, 0)));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
+    test_info(r, codec.get(), info, SkCodec::kSuccess, nullptr);
 }
 
 // SkCodec's wbmp decoder was initially unnecessarily restrictive.
@@ -918,7 +934,10 @@ DEF_TEST(Codec_wbmp_restrictive, r) {
     if (!codec) {
         return;
     }
-    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, nullptr);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kGray_8_SkColorType,
+            kOpaque_SkAlphaType, sk_ref_sp(codec->colorSpace()));
+    test_info(r, codec.get(), info, SkCodec::kSuccess, nullptr);
 }
 
 // wbmp images have a header that can be arbitrarily large, depending on the
@@ -936,8 +955,8 @@ DEF_TEST(Codec_wbmp_max_size, r) {
     REPORTER_ASSERT(r, codec);
     if (!codec) return;
 
-    REPORTER_ASSERT(r, codec->getInfo().width() == 65535);
-    REPORTER_ASSERT(r, codec->getInfo().height() == 65535);
+    REPORTER_ASSERT(r, codec->dimensions().width() == 65535);
+    REPORTER_ASSERT(r, codec->dimensions().height() == 65535);
 
     // Now test an image which is too big. Any image with a larger header (i.e.
     // has bigger width/height) is also too big.
@@ -964,20 +983,22 @@ DEF_TEST(Codec_jpeg_rewind, r) {
         return;
     }
 
-    const int width = codec->getInfo().width();
-    const int height = codec->getInfo().height();
+    const int width = codec->dimensions().width();
+    const int height = codec->dimensions().height();
     size_t rowBytes = sizeof(SkPMColor) * width;
     SkAutoMalloc pixelStorage(height * rowBytes);
 
     // Perform a sampled decode.
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 12;
-    auto sampledInfo = codec->getInfo().makeWH(width / 12, height / 12);
+    auto sampledInfo = SkImageInfo::Make(width / 12, height / 12, kN32_SkColorType,
+            kOpaque_SkAlphaType);
     auto result = codec->getAndroidPixels(sampledInfo, pixelStorage.get(), rowBytes, &opts);
     REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 
     // Rewind the codec and perform a full image decode.
-    result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    auto info = sampledInfo.makeWH(width, height);
+    result = codec->getPixels(info, pixelStorage.get(), rowBytes);
     REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 
     // Now perform a subset decode.
@@ -985,7 +1006,7 @@ DEF_TEST(Codec_jpeg_rewind, r) {
         opts.fSampleSize = 1;
         SkIRect subset = SkIRect::MakeWH(100, 100);
         opts.fSubset = &subset;
-        result = codec->getAndroidPixels(codec->getInfo().makeWH(100, 100), pixelStorage.get(),
+        result = codec->getAndroidPixels(info.makeWH(100, 100), pixelStorage.get(),
                                          rowBytes, &opts);
         // Though we only have half the data, it is enough to decode this subset.
         REPORTER_ASSERT(r, SkCodec::kSuccess == result);
@@ -996,7 +1017,7 @@ DEF_TEST(Codec_jpeg_rewind, r) {
     // This tests two layers of bugs: both SkJpegCodec::readRows and SkCodec::fillIncompleteImage
     // used to look at the old subset.
     opts.fSubset = nullptr;
-    result = codec->getAndroidPixels(codec->getInfo(), pixelStorage.get(), rowBytes, &opts);
+    result = codec->getAndroidPixels(info, pixelStorage.get(), rowBytes, &opts);
     REPORTER_ASSERT(r, SkCodec::kIncompleteInput == result);
 }
 
@@ -1005,8 +1026,8 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
 
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 3;
-    const int subsetWidth = codec->getInfo().width() / 2;
-    const int subsetHeight = codec->getInfo().height() / 2;
+    const int subsetWidth = codec->dimensions().width() / 2;
+    const int subsetHeight = codec->dimensions().height() / 2;
     SkIRect subset = SkIRect::MakeWH(subsetWidth, subsetHeight);
     opts.fSubset = &subset;
 
@@ -1015,9 +1036,8 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
     sk_sp<SkData> data = SkData::MakeFromFileName(
             GetResourcePath("icc_profiles/HP_ZR30w.icc").c_str());
     sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(data->data(), data->size());
-    SkImageInfo dstInfo = codec->getInfo().makeWH(dstWidth, dstHeight)
-                                          .makeColorType(kN32_SkColorType)
-                                          .makeColorSpace(colorSpace);
+    auto dstInfo = SkImageInfo::Make(dstWidth, dstHeight, kN32_SkColorType, kPremul_SkAlphaType,
+                                     colorSpace);
 
     size_t rowBytes = dstInfo.minRowBytes();
     SkAutoMalloc pixelStorage(dstInfo.getSafeSize(rowBytes));
@@ -1030,29 +1050,45 @@ DEF_TEST(Codec_ColorXform, r) {
     check_color_xform(r, "mandrill_512.png");
 }
 
-static bool color_type_match(SkColorType origColorType, SkColorType codecColorType) {
+static bool color_type_match(SkColorType origColorType, SkEncodedInfo::Color codecColor) {
     switch (origColorType) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            return kRGBA_8888_SkColorType == codecColorType ||
-                   kBGRA_8888_SkColorType == codecColorType;
+            switch (codecColor) {
+                case SkEncodedInfo::kRGB_Color:
+                case SkEncodedInfo::kRGBA_Color:
+                    return true;
+                default:
+                    return false;
+            }
+        case kGray_8_SkColorType:
+            return SkEncodedInfo::kGray_Color == codecColor;
+        case kRGB_565_SkColorType:
+            return SkEncodedInfo::kRGB_565_Color == codecColor;
         default:
-            return origColorType == codecColorType;
+            return false;
     }
 }
 
-static bool alpha_type_match(SkAlphaType origAlphaType, SkAlphaType codecAlphaType) {
+static bool alpha_type_match(SkAlphaType origAlphaType, SkEncodedInfo::Alpha codecAlpha) {
     switch (origAlphaType) {
         case kUnpremul_SkAlphaType:
         case kPremul_SkAlphaType:
-            return kUnpremul_SkAlphaType == codecAlphaType ||
-                    kPremul_SkAlphaType == codecAlphaType;
+            return SkEncodedInfo::kUnpremul_Alpha == codecAlpha ||
+                   SkEncodedInfo::kBinary_Alpha   == codecAlpha;
+        case kOpaque_SkAlphaType:
+            return SkEncodedInfo::kOpaque_Alpha   == codecAlpha;
         default:
-            return origAlphaType == codecAlphaType;
+            return false;
     }
 }
 
-static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const SkImageInfo& info) {
+static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec,
+        SkColorType ct, SkAlphaType at) {
+    // Set color space to nullptr because color correct premultiplies do not round trip.
+    auto dim = origCodec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), ct, at);
+
     SkBitmap bm1;
     bm1.allocPixels(info);
     SkCodec::Result result = origCodec->getPixels(info, bm1.getPixels(), bm1.rowBytes());
@@ -1063,8 +1099,8 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
             sk_sp<SkData>(sk_tool_utils::EncodeImageToData(bm1, SkEncodedImageFormat::kPNG, 100));
 
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
-    REPORTER_ASSERT(r, color_type_match(info.colorType(), codec->getInfo().colorType()));
-    REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
+    REPORTER_ASSERT(r, color_type_match(ct, codec->getEncodedInfo().color()));
+    REPORTER_ASSERT(r, alpha_type_match(at, codec->getEncodedInfo().alpha()));
 
     SkBitmap bm2;
     bm2.allocPixels(info);
@@ -1086,14 +1122,13 @@ DEF_TEST(Codec_PngRoundTrip, r) {
             kRGB_565_SkColorType, kRGBA_8888_SkColorType, kBGRA_8888_SkColorType
     };
     for (SkColorType colorType : colorTypesOpaque) {
-        SkImageInfo newInfo = codec->getInfo().makeColorType(colorType);
-        check_round_trip(r, codec.get(), newInfo);
+        check_round_trip(r, codec.get(), colorType, kOpaque_SkAlphaType);
     }
 
     path = "grayscale.jpg";
     stream.reset(GetResourceAsStream(path));
     codec.reset(SkCodec::NewFromStream(stream.release()));
-    check_round_trip(r, codec.get(), codec->getInfo());
+    check_round_trip(r, codec.get(), kGray_8_SkColorType, kOpaque_SkAlphaType);
 
     path = "yellow_rose.png";
     stream.reset(GetResourceAsStream(path));
@@ -1107,11 +1142,7 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     };
     for (SkColorType colorType : colorTypesWithAlpha) {
         for (SkAlphaType alphaType : alphaTypes) {
-            // Set color space to nullptr because color correct premultiplies do not round trip.
-            SkImageInfo newInfo = codec->getInfo().makeColorType(colorType)
-                                                  .makeAlphaType(alphaType)
-                                                  .makeColorSpace(nullptr);
-            check_round_trip(r, codec.get(), newInfo);
+            check_round_trip(r, codec.get(), colorType, alphaType);
         }
     }
 
@@ -1120,9 +1151,7 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     codec.reset(SkCodec::NewFromStream(stream.release()));
 
     for (SkAlphaType alphaType : alphaTypes) {
-        SkImageInfo newInfo = codec->getInfo().makeAlphaType(alphaType)
-                                              .makeColorSpace(nullptr);
-        check_round_trip(r, codec.get(), newInfo);
+        check_round_trip(r, codec.get(), kN32_SkColorType, alphaType);
     }
 }
 
@@ -1140,7 +1169,9 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
         return;
     }
 
-    SkImageInfo infoF16 = codec->getInfo().makeColorType(kRGBA_F16_SkColorType);
+    auto dim = codec->dimensions();
+    auto infoF16 = SkImageInfo::Make(dim.width(), dim.height(), kRGBA_F16_SkColorType,
+            kPremul_SkAlphaType);
 
     SkBitmap bm;
     bm.allocPixels(infoF16);
@@ -1151,18 +1182,21 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
     if (supportsScanlineDecoder) {
         REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
     } else {
-        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result);
+        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result
+                        || SkCodec::kInvalidConversion == result);
     }
 
     result = codec->startIncrementalDecode(infoF16, bm.getPixels(), bm.rowBytes());
     if (supportsIncrementalDecoder) {
         REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
     } else {
-        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result);
+        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result
+                        || SkCodec::kInvalidConversion == result);
     }
 
-    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(infoF16.colorSpace())->type());
-    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(infoF16.colorSpace());
+    SkColorSpace* cs = codec->colorSpace();
+    SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(cs)->type());
+    SkColorSpace_XYZ* csXYZ = static_cast<SkColorSpace_XYZ*>(cs);
     infoF16 = infoF16.makeColorSpace(csXYZ->makeLinearGamma());
     result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
@@ -1189,7 +1223,9 @@ DEF_TEST(Codec_F16ConversionPossible, r) {
 
 static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
     SkBitmap bm;
-    auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType);
     bm.allocPixels(info);
 
     SkCodec::Options opts;
@@ -1301,7 +1337,9 @@ DEF_TEST(Codec_fallBack, r) {
             continue;
         }
 
-        SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+        auto dim = codec->dimensions();
+        auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+                kPremul_SkAlphaType);
         SkBitmap bm;
         bm.allocPixels(info);
 
@@ -1336,13 +1374,15 @@ DEF_TEST(Codec_reusePng, r) {
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 5;
     auto size = codec->getSampledDimensions(opts.fSampleSize);
-    auto info = codec->getInfo().makeWH(size.fWidth, size.fHeight).makeColorType(kN32_SkColorType);
+    auto info = SkImageInfo::Make(size.fWidth, size.fHeight, kN32_SkColorType,
+            kPremul_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(info);
     auto result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
-    info = codec->getInfo().makeColorType(kN32_SkColorType);
+    auto dim = codec->dimensions();
+    info = info.makeWH(dim.width(), dim.height());
     bm.allocPixels(info);
     opts.fSampleSize = 1;
     result = codec->getAndroidPixels(info, bm.getPixels(), bm.rowBytes(), &opts);
@@ -1364,7 +1404,9 @@ DEF_TEST(Codec_rowsDecoded, r) {
         return;
     }
 
-    auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(info);
     auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
@@ -1388,8 +1430,10 @@ static void test_invalid_images(skiatest::Reporter* r, const char* path,
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec.get(), codec->getInfo().makeColorType(kN32_SkColorType), expectedResult,
-              nullptr);
+    auto dim = codec->dimensions();
+    auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType);
+    test_info(r, codec.get(), info, expectedResult, nullptr);
 }
 
 DEF_TEST(Codec_InvalidImages, r) {
@@ -1434,7 +1478,9 @@ DEF_TEST(Codec_InvalidAnimated, r) {
         return;
     }
 
-    const auto info = codec->getInfo().makeColorType(kN32_SkColorType);
+    auto dim = codec->dimensions();
+    const auto info = SkImageInfo::Make(dim.width(), dim.height(), kN32_SkColorType,
+            kPremul_SkAlphaType);
     SkBitmap bm;
     bm.allocPixels(info);
 
@@ -1491,7 +1537,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     encode_format(&srgbBuf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
-    REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
+    REPORTER_ASSERT(r, srgbCodec->colorSpace() == SkColorSpace::MakeSRGB().get());
 
     // Test with P3 color space.
     SkDynamicMemoryWStream p3Buf;
@@ -1501,12 +1547,12 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     encode_format(&p3Buf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> p3Data = p3Buf.detachAsData();
     std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
-    REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
+    REPORTER_ASSERT(r, p3Codec->colorSpace()->gammaCloseToSRGB());
     SkMatrix44 mat0(SkMatrix44::kUninitialized_Constructor);
     SkMatrix44 mat1(SkMatrix44::kUninitialized_Constructor);
     bool success = p3->toXYZD50(&mat0);
     REPORTER_ASSERT(r, success);
-    success = p3Codec->getInfo().colorSpace()->toXYZD50(&mat1);
+    success = p3Codec->colorSpace()->toXYZD50(&mat1);
     REPORTER_ASSERT(r, success);
 
     for (int i = 0; i < 4; i++) {
