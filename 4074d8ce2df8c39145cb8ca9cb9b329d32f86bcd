@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "a0968437_37baab3f",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-21T16:21:07Z",
+      "side": 1,
+      "message": "minor pref for all the functions that take \"int numSemaphores, GrBackendSemaphore* semaphores\" to be written as \"int numSemaphores, GrBackendSemaphore semaphores[]\" to emphasize the arrayness.",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a0429670_981485e1",
         "filename": "src/gpu/GrDrawingManager.cpp",
         "patchSetId": 2
@@ -48,6 +65,24 @@
       "side": 1,
       "message": "So in this case, the semaphores have been created so someone has to be in charge of waiting on and then deleting them. So the client needs to know to do that regardless of what other things may have failed internally (which we never reported back to them anyways).",
       "parentUuid": "a0429670_981485e1",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "781ab9dd_a15e133a",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-21T16:21:07Z",
+      "side": 1,
+      "message": "Should we make the contract be that the client always has to check the semaphore array for initialization regardless of the return?",
+      "parentUuid": "5612525c_1e721751",
       "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
