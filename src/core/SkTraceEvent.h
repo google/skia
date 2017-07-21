@@ -143,41 +143,6 @@ namespace tracing_internals {
 const int kZeroNumArgs = 0;
 const uint64_t kNoEventId = 0;
 
-// TraceID encapsulates an ID that can either be an integer or pointer. Pointers
-// are by default mangled with the Process ID so that they are unlikely to
-// collide when the same pointer is used on different processes.
-class TraceID {
- public:
-  TraceID(const void* id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(
-              reinterpret_cast<uintptr_t>(id))) {
-    *flags |= TRACE_EVENT_FLAG_MANGLE_ID;
-  }
-  TraceID(uint64_t id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(unsigned int id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(unsigned short id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(unsigned char id, unsigned char* flags)
-      : data_(id) { (void)flags; }
-  TraceID(long long id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(long id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(int id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(short id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-  TraceID(signed char id, unsigned char* flags)
-      : data_(static_cast<uint64_t>(id)) { (void)flags; }
-
-  uint64_t data() const { return data_; }
-
- private:
-  uint64_t data_;
-};
-
 // Simple union to store various types as uint64_t.
 union TraceValueUnion {
   bool as_bool;
