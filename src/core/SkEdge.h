@@ -35,6 +35,22 @@ struct SkEdge {
     uint8_t fCubicDShift;   // applied to fCDx and fCDy only in cubic
     int8_t  fWinding;       // 1 or -1
 
+    inline SkFixed x(int shift = 2) const { return fX >> shift; }
+    inline SkFixed upperY(int shift = 2) const { return fFirstY << (16 - shift); }
+    inline SkFixed lowerY(int shift = 2) const { return (fLastY + 1) << (16 - shift); }
+
+    // return true if we're done with this edge
+    bool update(int last_y);
+
+    inline SkFixed calcDY() {
+        if (fDX == 0) {
+            return SK_MaxS32;
+        }
+        SkFixed absDX = SkAbs32(SkFixedToFDot6(fDX));
+        return absDX < kInverseTableSize ? QuickFDot6Inverse::Lookup(absDX)
+                                         : QuickSkFDot6Div(SK_FDot6One, absDX);
+    }
+
     int setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, int shiftUp);
     // call this version if you know you don't have a clip
     inline int setLine(const SkPoint& p0, const SkPoint& p1, int shiftUp);
@@ -120,9 +136,10 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     }
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
-    const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
+    const SkFDot6 dy  = SkEdge_Compute_DY(top, y0); // + 1/2 pixel (32 in SkFDot6)
 
-    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
+    // dy is SkFDot6, so SkFixedMul(slope, dy) actually returns a SkFDot6
+    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));
     fDX         = slope;
     fFirstY     = top;
     fLastY      = bot - 1;

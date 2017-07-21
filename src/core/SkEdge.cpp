@@ -30,6 +30,25 @@ static inline SkFixed SkFDot6ToFixedDiv2(SkFDot6 value) {
 
 /////////////////////////////////////////////////////////////////////////
 
+bool SkEdge::update(int last_y) {
+    SkASSERT(fLastY >= last_y);
+    if (last_y == fLastY) {
+        if (fCurveCount < 0) {
+            if (((SkCubicEdge*)this)->updateCubic()) {
+                SkASSERT(fFirstY == last_y + 1);
+                return false;
+            }
+        } else if (fCurveCount > 0) {
+            if (((SkQuadraticEdge*)this)->updateQuadratic()) {
+                SkASSERT(fFirstY == last_y + 1);
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip,
                     int shift) {
     SkFDot6 x0, y0, x1, y1;
