@@ -50,6 +50,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     {
         GrSurfaceDesc desc;
         desc.fFlags     = kNone_GrSurfaceFlags;
+        desc.fOrigin    = kTopLeft_GrSurfaceOrigin;
         desc.fConfig    = kAlpha_8_GrPixelConfig;    // it is a single channel texture
         desc.fWidth     = X_SIZE;
         desc.fHeight    = Y_SIZE;
@@ -153,6 +154,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         for (int rt = 0; rt < 2; ++rt) {
             GrSurfaceDesc desc;
             desc.fFlags     = rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+            desc.fOrigin    = rt ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
             desc.fConfig    = config;
             desc.fWidth     = X_SIZE;
             desc.fHeight    = Y_SIZE;

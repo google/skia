@@ -217,6 +217,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             return false;
         }
         if (useCache) {
+            SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             fResourceProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
         }
     }

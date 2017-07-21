@@ -124,6 +124,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     // Create our test texture
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fConfig = kSRGBA_8888_GrPixelConfig;
     desc.fWidth = texS;
     desc.fHeight = texS;

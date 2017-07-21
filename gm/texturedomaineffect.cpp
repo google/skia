@@ -86,6 +86,7 @@ protected:
         }
 
         GrSurfaceDesc desc;
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fWidth = fBmp.width();
         desc.fHeight = fBmp.height();
         desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->caps());

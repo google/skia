@@ -193,11 +193,6 @@ GrTextureStripAtlas::AtlasRow* GrTextureStripAtlas::getLRU() {
 }
 
 void GrTextureStripAtlas::lockTexture() {
-    GrSurfaceDesc texDesc;
-    texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    texDesc.fWidth = fDesc.fWidth;
-    texDesc.fHeight = fDesc.fHeight;
-    texDesc.fConfig = fDesc.fConfig;
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -207,6 +202,12 @@ void GrTextureStripAtlas::lockTexture() {
 
     sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findProxyByUniqueKey(key);
     if (!proxy) {
+        GrSurfaceDesc texDesc;
+        texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
+        texDesc.fWidth  = fDesc.fWidth;
+        texDesc.fHeight = fDesc.fHeight;
+        texDesc.fConfig = fDesc.fConfig;
+
         proxy = GrSurfaceProxy::MakeDeferred(fDesc.fContext->resourceProvider(),
                                              texDesc, SkBackingFit::kExact,
                                              SkBudgeted::kYes,
@@ -215,6 +216,7 @@ void GrTextureStripAtlas::lockTexture() {
             return;
         }
 
+        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         fDesc.fContext->resourceProvider()->assignUniqueKeyToProxy(key, proxy.get());
         // This is a new texture, so all of our cache info is now invalid
         this->initLRU();

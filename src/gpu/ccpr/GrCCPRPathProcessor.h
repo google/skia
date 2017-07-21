@@ -58,6 +58,7 @@ public:
                        const GrShaderCaps&);
 
     const char* name() const override { return "GrCCPRPathProcessor"; }
+    const GrSurfaceProxy* atlasProxy() const { return fAtlasAccess.proxy(); }
     const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
     SkPath::FillType fillType() const { return fFillType; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
