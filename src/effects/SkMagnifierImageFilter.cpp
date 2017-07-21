@@ -202,15 +202,14 @@ void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                     const GrFragmentProcessor& effect) {
     const GrMagnifierEffect& zoom = effect.cast<GrMagnifierEffect>();
 
-    GrSurfaceProxy* proxy = zoom.textureSampler(0).proxy();
-    GrTexture* tex = proxy->priv().peekTexture();
+    GrTexture* tex = zoom.textureSampler(0).peekTexture();
 
     SkScalar invW = 1.0f / tex->width();
     SkScalar invH = 1.0f / tex->height();
 
     {
         SkScalar y = zoom.srcRect().y() * invH;
-        if (proxy->origin() != kTopLeft_GrSurfaceOrigin) {
+        if (tex->origin() != kTopLeft_GrSurfaceOrigin) {
             y = 1.0f - (zoom.srcRect().height() / zoom.bounds().height()) - y;
         }
 
@@ -222,7 +221,7 @@ void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
     {
         SkScalar y = zoom.bounds().y() * invH;
-        if (proxy->origin() != kTopLeft_GrSurfaceOrigin) {
+        if (tex->origin() != kTopLeft_GrSurfaceOrigin) {
             y = 1.0f - zoom.bounds().height() * invH;
         }
 

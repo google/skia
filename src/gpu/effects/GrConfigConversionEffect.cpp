@@ -133,7 +133,6 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
         return false;
     }
     GrSurfaceDesc desc;
-    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = kSize;
     desc.fHeight = kSize;
     desc.fConfig = kConfig;

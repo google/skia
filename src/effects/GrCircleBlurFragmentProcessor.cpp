@@ -174,12 +174,10 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resource
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile = resourceProvider->findProxyByUniqueKey(
-                                                                key, kTopLeft_GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> blurProfile = resourceProvider->findProxyByUniqueKey(key);
     if (!blurProfile) {
         static constexpr int kProfileTextureWidth = 512;
         GrSurfaceDesc texDesc;
-        texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         texDesc.fWidth = kProfileTextureWidth;
         texDesc.fHeight = 1;
         texDesc.fConfig = kAlpha_8_GrPixelConfig;
@@ -199,7 +197,6 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resource
             return nullptr;
         }
 
-        SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
         resourceProvider->assignUniqueKeyToProxy(key, blurProfile.get());
     }
 

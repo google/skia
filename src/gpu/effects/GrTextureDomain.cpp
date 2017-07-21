@@ -161,8 +161,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
-                                        GrSurfaceProxy* proxy) {
-    GrTexture* tex = proxy->priv().peekTexture();
+                                        GrTexture* tex) {
     SkASSERT(textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
         SkScalar wInv = SK_Scalar1 / tex->width();
@@ -181,7 +180,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
         SkASSERT(values[3] >= 0.0f && values[3] <= 1.0f);
 
         // vertical flip if necessary
-        if (kBottomLeft_GrSurfaceOrigin == proxy->origin()) {
+        if (kBottomLeft_GrSurfaceOrigin == tex->origin()) {
             values[1] = 1.0f - values[1];
             values[3] = 1.0f - values[3];
             // The top and bottom were just flipped, so correct the ordering
@@ -271,9 +270,9 @@ GrGLSLFragmentProcessor* GrTextureDomainEffect::onCreateGLSLInstance() const  {
                        const GrFragmentProcessor& fp) override {
             const GrTextureDomainEffect& tde = fp.cast<GrTextureDomainEffect>();
             const GrTextureDomain& domain = tde.fTextureDomain;
-            GrSurfaceProxy* proxy = tde.textureSampler(0).proxy();
+            GrTexture* texture =  tde.textureSampler(0).peekTexture();
 
-            fGLDomain.setData(pdman, domain, proxy);
+            fGLDomain.setData(pdman, domain, texture);
             if (SkToBool(tde.colorSpaceXform())) {
                 fColorSpaceHelper.setData(pdman, tde.colorSpaceXform());
             }
@@ -373,17 +372,16 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                        const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            GrSurfaceProxy* proxy = dstdfp.textureSampler(0).proxy();
-            GrTexture* texture = proxy->priv().peekTexture();
+            GrTexture* texture = dstdfp.textureSampler(0).peekTexture();
 
-            fGLDomain.setData(pdman, dstdfp.fTextureDomain, proxy);
+            fGLDomain.setData(pdman, dstdfp.fTextureDomain, texture);
             float iw = 1.f / texture->width();
             float ih = 1.f / texture->height();
             float scaleAndTransData[4] = {
                 iw, ih,
                 -dstdfp.fDeviceSpaceOffset.fX * iw, -dstdfp.fDeviceSpaceOffset.fY * ih
             };
-            if (proxy->origin() == kBottomLeft_GrSurfaceOrigin) {
+            if (texture->origin() == kBottomLeft_GrSurfaceOrigin) {
                 scaleAndTransData[1] = -scaleAndTransData[1];
                 scaleAndTransData[3] = 1 - scaleAndTransData[3];
             }
