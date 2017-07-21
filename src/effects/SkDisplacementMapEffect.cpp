@@ -597,14 +597,15 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                           const GrFragmentProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
-    GrTexture* colorTex = displacementMap.textureSampler(1).peekTexture();
+    GrSurfaceProxy* proxy = displacementMap.textureSampler(1).proxy();
+    GrTexture* colorTex = proxy->priv().peekTexture();
 
     SkScalar scaleX = displacementMap.scale().fX / colorTex->width();
     SkScalar scaleY = displacementMap.scale().fY / colorTex->height();
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
-                colorTex->origin() == kTopLeft_GrSurfaceOrigin ?
+                proxy->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
-    fGLDomain.setData(pdman, displacementMap.domain(), colorTex);
+    fGLDomain.setData(pdman, displacementMap.domain(), proxy);
     if (SkToBool(displacementMap.colorSpaceXform())) {
         fColorSpaceHelper.setData(pdman, displacementMap.colorSpaceXform());
     }

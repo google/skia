@@ -46,7 +46,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     GrUniqueKey key;
     this->makeCopyKey(copyParams, &key, nullptr);
     if (key.isValid()) {
-        sk_sp<GrTextureProxy> cachedCopy = fContext->resourceProvider()->findProxyByUniqueKey(key);
+        sk_sp<GrTextureProxy> cachedCopy = fContext->resourceProvider()->findProxyByUniqueKey(
+                                                            key, this->originalProxy()->origin());
         if (cachedCopy) {
             return cachedCopy;
         }
@@ -58,6 +59,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     sk_sp<GrTextureProxy> copy = CopyOnGpu(fContext, std::move(proxy), contentArea, copyParams);
     if (copy) {
         if (key.isValid()) {
+            SkASSERT(copy->origin() == this->originalProxy()->origin());
             fContext->resourceProvider()->assignUniqueKeyToProxy(key, copy.get());
             this->didCacheCopy(key);
         }
