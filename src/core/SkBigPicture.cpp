@@ -77,7 +77,7 @@ SkPicture const* const* SkBigPicture::drawablePicts() const {
 }
 
 void SkBigPicture::Analysis::init(const SkRecord& record) {
-    TRACE_EVENT0("disabled-by-default-skia", "SkBigPicture::Analysis::init()");
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "SkBigPicture::Analysis::init()");
     SkBitmapHunter bitmap;
     SkPathCounter  path;
 

@@ -54,9 +54,11 @@
 #error "Another copy of this file has already been included."
 #endif
 
+#define TRACE_DISABLED_BY_DEFAULT_PREFIX "disabled-by-default-"
+
 // This will mark the trace event as disabled by default. The user will need
 // to explicitly enable the event.
-#define TRACE_DISABLED_BY_DEFAULT(name) "disabled-by-default-" name
+#define TRACE_DISABLED_BY_DEFAULT(name) TRACE_DISABLED_BY_DEFAULT_PREFIX name
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. If the category is not enabled, then this does nothing.
