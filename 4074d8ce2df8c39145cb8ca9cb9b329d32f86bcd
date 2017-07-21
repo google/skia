@@ -86,6 +86,24 @@
       "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48a77bee_b24552cc",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-21T16:44:33Z",
+      "side": 1,
+      "message": "That\u0027s fine by me, especially since we know have the isInitiialized querey on GrBackendSemaphore. It would certainly look nicer without all the awkward return values.",
+      "parentUuid": "781ab9dd_a15e133a",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
