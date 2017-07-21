@@ -24,7 +24,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrContext* context,
     const SkRect dstRect = SkRect::MakeIWH(copyParams.fWidth, copyParams.fHeight);
 
     sk_sp<GrRenderTargetContext> copyRTC = context->makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(), nullptr);
+        SkBackingFit::kExact, dstRect.width(), dstRect.height(), inputProxy->config(), nullptr,
+        0, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }

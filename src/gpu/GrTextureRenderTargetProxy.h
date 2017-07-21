@@ -30,7 +30,7 @@ private:
                                SkBackingFit, SkBudgeted, uint32_t flags);
 
     // Wrapped version
-    GrTextureRenderTargetProxy(sk_sp<GrSurface>);
+    GrTextureRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
     bool instantiate(GrResourceProvider*) override;
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;

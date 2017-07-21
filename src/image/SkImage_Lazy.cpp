@@ -697,6 +697,9 @@ public:
 static void set_key_on_proxy(GrResourceProvider* resourceProvider,
                              GrTextureProxy* proxy, const GrUniqueKey& key) {
     if (key.isValid()) {
+        SkDebugf("pre-14\n");
+        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+        SkDebugf("post-14\n");
         resourceProvider->assignUniqueKeyToProxy(key, proxy);
     }
 }
@@ -747,7 +750,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
     // 1. Check the cache for a pre-existing one
     if (key.isValid()) {
-        if (sk_sp<GrTextureProxy> proxy = ctx->resourceProvider()->findProxyByUniqueKey(key)) {
+        if (sk_sp<GrTextureProxy> proxy = ctx->resourceProvider()->findProxyByUniqueKey(
+                                                                key, kTopLeft_GrSurfaceOrigin)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kPreExisting_LockTexturePath,
                                      kLockTexturePathCount);
             return proxy;

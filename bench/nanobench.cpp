@@ -643,7 +643,7 @@ public:
     static sk_sp<SkPicture> ReadPicture(const char* path) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+        if (true) {//SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
             return nullptr;
         }
 
@@ -811,7 +811,7 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true) { //SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -890,7 +890,7 @@ public:
             fBenchType = "skandroidcodec";
 
             const SkString& path = fImages[fCurrentAndroidCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true) { //SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -935,7 +935,7 @@ public:
             fBenchType = "BRD";
 
             const SkString& path = fImages[fCurrentBRDImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (true) { //SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
                 continue;
             }
 
@@ -1211,7 +1211,7 @@ int main(int argc, char** argv) {
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+        if (strcmp("constXTile_MM_filter_trans", bench->getUniqueName())) {
             continue;
         }
 
