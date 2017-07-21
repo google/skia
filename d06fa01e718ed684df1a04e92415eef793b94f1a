@@ -22,6 +22,30 @@
       "revId": "d06fa01e718ed684df1a04e92415eef793b94f1a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "445fefd6_f1848375",
+        "filename": "tools/trace/SkEventTracingPriv.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-21T16:36:56Z",
+      "side": 1,
+      "message": "This is actually how Chrome does things, too. ¯\\_(ツ)_/¯\n\nhttps://cs.chromium.org/chromium/src/base/trace_event/trace_category.h?l\u003d32\u0026rcl\u003dd542d2cff3966fdb9575bae8b538ede8b0805c0f",
+      "parentUuid": "0c1e4455_fdf3fc75",
+      "range": {
+        "startLine": 78,
+        "startChar": 16,
+        "endLine": 78,
+        "endChar": 74
+      },
+      "revId": "d06fa01e718ed684df1a04e92415eef793b94f1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
