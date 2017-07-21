@@ -367,8 +367,7 @@ bool SkRadialGradient::onIsRasterPipelineOnly() const {
 #ifdef SK_SUPPORT_LEGACY_RADIAL_GRADIENT
     return false;
 #else
-    // We have a clamp fast path; everything else -> RP.
-    return fTileMode != SkShader::kClamp_TileMode;
+    return true;
 #endif
 }
 
