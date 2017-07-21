@@ -23,6 +23,9 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
                                                            const uint8_t* argTypes,
                                                            const uint64_t* argValues,
                                                            uint8_t flags) {
+    // TODO: Respect flags (or assert). INSTANT events encode scope in flags, should be stored
+    // using "s" key in JSON. COPY flag should be supported or rejected.
+
     Json::Value traceEvent;
     char phaseString[2] = { phase, 0 };
     traceEvent["ph"] = phaseString;
@@ -32,30 +35,35 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     std::chrono::duration<double, std::nano> ns = now.time_since_epoch();
     traceEvent["ts"] = ns.count() * 1E-3;
     traceEvent["tid"] = static_cast<Json::Int64>(SkGetThreadID());
-    traceEvent["pid"] = 1; // TODO
+
+    // Trace events *must* include a process ID, but for internal tools this isn't particularly
+    // important (and certainly not worth adding a cross-platform API to get it).
+    traceEvent["pid"] = 0;
 
     if (numArgs) {
         Json::Value args;
+        skia::tracing_internals::TraceValueUnion value;
         for (int i = 0; i < numArgs; ++i) {
+            value.as_uint = argValues[i];
             switch (argTypes[i]) {
                 case TRACE_VALUE_TYPE_BOOL:
-                    args[argNames[i]] = (*reinterpret_cast<bool*>(argValues[i]) ? true : false);
+                    args[argNames[i]] = value.as_bool;
                     break;
                 case TRACE_VALUE_TYPE_UINT:
-                    args[argNames[i]] = static_cast<uint32_t>(argValues[i]);
+                    args[argNames[i]] = static_cast<Json::UInt64>(argValues[i]);
                     break;
                 case TRACE_VALUE_TYPE_INT:
-                    args[argNames[i]] = static_cast<int32_t>(argValues[i]);
+                    args[argNames[i]] = static_cast<Json::Int64>(argValues[i]);
                     break;
                 case TRACE_VALUE_TYPE_DOUBLE:
-                    args[argNames[i]] = *SkTCast<const double*>(&argValues[i]);
+                    args[argNames[i]] = value.as_double;
                     break;
                 case TRACE_VALUE_TYPE_POINTER:
-                    args[argNames[i]] = reinterpret_cast<void*>(argValues[i]);
+                    args[argNames[i]] = value.as_pointer;
                     break;
                 case TRACE_VALUE_TYPE_STRING:
                 case TRACE_VALUE_TYPE_COPY_STRING:
-                    args[argNames[i]] = reinterpret_cast<const char*>(argValues[i]);
+                    args[argNames[i]] = value.as_string;
                     break;
                 default:
                     args[argNames[i]] = "<unknown type>";
