@@ -33,6 +33,24 @@
       "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5612525c_1e721751",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-21T15:42:44Z",
+      "side": 1,
+      "message": "So in this case, the semaphores have been created so someone has to be in charge of waiting on and then deleting them. So the client needs to know to do that regardless of what other things may have failed internally (which we never reported back to them anyways).",
+      "parentUuid": "a0429670_981485e1",
+      "revId": "4074d8ce2df8c39145cb8ca9cb9b329d32f86bcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
