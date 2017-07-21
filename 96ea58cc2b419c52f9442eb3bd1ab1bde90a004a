@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2f233c3_87616b7b",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2674,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-21T19:19:42Z",
+      "side": 1,
+      "message": "should this be lined up with the opening paren on the line above?",
+      "range": {
+        "startLine": 2674,
+        "startChar": 29,
+        "endLine": 2674,
+        "endChar": 30
+      },
+      "revId": "96ea58cc2b419c52f9442eb3bd1ab1bde90a004a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
