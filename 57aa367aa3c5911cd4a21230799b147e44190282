@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "563eb65c_f440913a",
+        "filename": "tests/BlurTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-21T17:19:51Z",
+      "side": 0,
+      "message": "Maybe delete the code at line 325 as well?",
+      "revId": "57aa367aa3c5911cd4a21230799b147e44190282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
