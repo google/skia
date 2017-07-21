@@ -22,6 +22,30 @@
       "revId": "b84af14a9e7292a6989e90baa7c69e9e6ce9c946",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f69150e_416a3920",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-21T19:31:29Z",
+      "side": 1,
+      "message": "Ah, true. Easy enough to add (the hard part is going to be merging trace data across multiple processes).",
+      "parentUuid": "633438ac_3c21ae01",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 81
+      },
+      "revId": "b84af14a9e7292a6989e90baa7c69e9e6ce9c946",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
