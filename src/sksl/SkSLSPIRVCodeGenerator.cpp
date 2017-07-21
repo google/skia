@@ -29,6 +29,8 @@ void SPIRVCodeGenerator::setupIntrinsics() {
                                                              GLSLstd450 ## ifInt, \
                                                              GLSLstd450 ## ifUInt, \
                                                              SpvOpUndef)
+#define ALL_SPIRV(x) std::make_tuple(kSPIRV_IntrinsicKind, SpvOp ## x, SpvOp ## x, SpvOp ## x, \
+                                                           SpvOp ## x)
 #define SPECIAL(x) std::make_tuple(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic, \
                                    k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic, \
                                    k ## x ## _SpecialIntrinsic)
@@ -60,6 +62,8 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("exp2")]          = ALL_GLSL(Exp2);
     fIntrinsicMap[String("log2")]          = ALL_GLSL(Log2);
     fIntrinsicMap[String("sqrt")]          = ALL_GLSL(Sqrt);
+    fIntrinsicMap[String("inverse")]       = ALL_GLSL(MatrixInverse);
+    fIntrinsicMap[String("transpose")]     = ALL_SPIRV(Transpose);
     fIntrinsicMap[String("inversesqrt")]   = ALL_GLSL(InverseSqrt);
     fIntrinsicMap[String("determinant")]   = ALL_GLSL(Determinant);
     fIntrinsicMap[String("matrixInverse")] = ALL_GLSL(MatrixInverse);
@@ -1573,7 +1577,83 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
 
 void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcType,
                                          const Type& dstType, OutputStream& out) {
-    ABORT("unimplemented");
+    ASSERT(srcType.kind() == Type::kMatrix_Kind);
+    ASSERT(dstType.kind() == Type::kMatrix_Kind);
+    ASSERT(srcType.componentType() == dstType.componentType());
+    SpvId srcColumnType = this->getType(srcType.componentType().toCompound(fContext,
+                                                                           srcType.rows(),
+                                                                           1));
+    SpvId dstColumnType = this->getType(dstType.componentType().toCompound(fContext,
+                                                                           dstType.rows(),
+                                                                           1));
+    SpvId zeroId;
+    if (dstType.componentType() == *fContext.fFloat_Type) {
+        FloatLiteral zero(fContext, Position(), 0.0);
+        zeroId = this->writeFloatLiteral(zero);
+    } else if (dstType.componentType() == *fContext.fInt_Type) {
+        IntLiteral zero(fContext, Position(), 0);
+        zeroId = this->writeIntLiteral(zero);
+    } else {
+        ABORT("unsupported matrix component type");
+    }
+    SpvId zeroColumn = 0;
+    SpvId columns[4];
+    for (int i = 0; i < dstType.columns(); i++) {
+        if (i < srcType.columns()) {
+            // we're still inside the src matrix, copy the column
+            SpvId srcColumn = this->nextId();
+            this->writeInstruction(SpvOpCompositeExtract, srcColumnType, srcColumn, src, i, out);
+            SpvId dstColumn;
+            if (srcType.rows() == dstType.rows()) {
+                // columns are equal size, don't need to do anything
+                dstColumn = srcColumn;
+            }
+            else if (dstType.rows() > srcType.rows()) {
+                // dst column is bigger, need to zero-pad it
+                dstColumn = this->nextId();
+                int delta = dstType.rows() - srcType.rows();
+                this->writeOpCode(SpvOpCompositeConstruct, 4 + delta, out);
+                this->writeWord(dstColumnType, out);
+                this->writeWord(dstColumn, out);
+                this->writeWord(srcColumn, out);
+                for (int i = 0; i < delta; ++i) {
+                    this->writeWord(zeroId, out);
+                }
+            }
+            else {
+                // dst column is smaller, need to swizzle the src column
+                dstColumn = this->nextId();
+                int count = dstType.rows();
+                this->writeOpCode(SpvOpVectorShuffle, 5 + count, out);
+                this->writeWord(dstColumnType, out);
+                this->writeWord(dstColumn, out);
+                this->writeWord(srcColumn, out);
+                this->writeWord(srcColumn, out);
+                for (int i = 0; i < count; i++) {
+                    this->writeWord(i, out);
+                }
+            }
+            columns[i] = dstColumn;
+        } else {
+            // we're past the end of the src matrix, need a vector of zeroes
+            if (!zeroColumn) {
+                zeroColumn = this->nextId();
+                this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.rows(), out);
+                this->writeWord(dstColumnType, out);
+                this->writeWord(zeroColumn, out);
+                for (int i = 0; i < dstType.rows(); ++i) {
+                    this->writeWord(zeroId, out);
+                }
+            }
+            columns[i] = zeroColumn;
+        }
+    }
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.columns(), out);
+    this->writeWord(this->getType(dstType), out);
+    this->writeWord(id, out);
+    for (int i = 0; i < dstType.columns(); i++) {
+        this->writeWord(columns[i], out);
+    }
 }
 
 SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStream& out) {
@@ -1591,27 +1671,52 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const Constructor& c, OutputStr
         this->writeUniformScaleMatrix(result, arguments[0], c.fType, out);
     } else if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
         this->writeMatrixCopy(result, arguments[0], c.fArguments[0]->fType, c.fType, out);
+    } else if (arguments.size() == 1 && c.fArguments[0]->fType.kind() == Type::kVector_Kind) {
+        ASSERT(c.fType.rows() == 2 && c.fType.columns() == 2);
+        ASSERT(c.fArguments[0]->fType.columns() == 4);
+        SpvId componentType = this->getType(c.fType.componentType());
+        SpvId v[4];
+        for (int i = 0; i < 4; ++i) {
+            v[i] = this->nextId();
+            this->writeInstruction(SpvOpCompositeExtract, componentType, v[i], arguments[0], i, out);
+        }
+        SpvId columnType = this->getType(c.fType.componentType().toCompound(fContext, 2, 1));
+        SpvId column1 = this->nextId();
+        this->writeInstruction(SpvOpCompositeConstruct, columnType, column1, v[0], v[1], out);
+        SpvId column2 = this->nextId();
+        this->writeInstruction(SpvOpCompositeConstruct, columnType, column2, v[2], v[3], out);
+        this->writeInstruction(SpvOpCompositeConstruct, this->getType(c.fType), result, column1,
+                               column2, out);
     } else {
         std::vector<SpvId> columnIds;
+        // ids of vectors and scalars we have written to the current column so far
+        std::vector<SpvId> currentColumn;
+        // the total number of scalars represented by currentColumn's entries
         int currentCount = 0;
         for (size_t i = 0; i < arguments.size(); i++) {
-            if (c.fArguments[i]->fType.kind() == Type::kVector_Kind) {
+            if (c.fArguments[i]->fType.kind() == Type::kVector_Kind &&
+                    c.fArguments[i]->fType.columns() == c.fType.rows()) {
+                // this is a complete column by itself
                 ASSERT(currentCount == 0);
                 columnIds.push_back(arguments[i]);
-                currentCount = 0;
             } else {
-                ASSERT(c.fArguments[i]->fType.kind() == Type::kScalar_Kind);
-                if (currentCount == 0) {
-                    this->writeOpCode(SpvOpCompositeConstruct, 3 + c.fType.rows(), out);
+                currentColumn.push_back(arguments[i]);
+                currentCount += c.fArguments[i]->fType.columns();
+                if (currentCount == rows) {
+                    currentCount = 0;
+                    this->writeOpCode(SpvOpCompositeConstruct, 3 + currentColumn.size(), out);
                     this->writeWord(this->getType(c.fType.componentType().toCompound(fContext, rows,
                                                                                      1)),
                                     out);
-                    SpvId id = this->nextId();
-                    this->writeWord(id, out);
-                    columnIds.push_back(id);
+                    SpvId columnId = this->nextId();
+                    this->writeWord(columnId, out);
+                    columnIds.push_back(columnId);
+                    for (SpvId id : currentColumn) {
+                        this->writeWord(id, out);
+                    }
+                    currentColumn.clear();
                 }
-                this->writeWord(arguments[i], out);
-                currentCount = (currentCount + 1) % rows;
+                ASSERT(currentCount < rows);
             }
         }
         ASSERT(columnIds.size() == (size_t) columns);
@@ -1697,7 +1802,11 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
             if (var.fStorage != Variable::kGlobal_Storage) {
                 return SpvStorageClassFunction;
             }
-            return get_storage_class(var.fModifiers);
+            SpvStorageClass_ result = get_storage_class(var.fModifiers);
+            if (result == SpvStorageClassFunction) {
+                result = SpvStorageClassPrivate;
+            }
+            return result;
         }
         case Expression::kFieldAccess_Kind:
             return get_storage_class(*((FieldAccess&) expr).fBase);
@@ -2779,12 +2888,6 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
         this->writeInstruction(SpvOpVariable, type, id, storageClass, fConstantBuffer);
         this->writeInstruction(SpvOpName, id, var->fName.c_str(), fNameBuffer);
         this->writePrecisionModifier(var->fModifiers, id);
-        if (var->fType.kind() == Type::kMatrix_Kind) {
-            this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationColMajor,
-                                   fDecorationBuffer);
-            this->writeInstruction(SpvOpMemberDecorate, id, (SpvId) i, SpvDecorationMatrixStride,
-                                   (SpvId) fDefaultLayout.stride(var->fType), fDecorationBuffer);
-        }
         if (varDecl.fValue) {
             ASSERT(!fCurrentBlock);
             fCurrentBlock = -1;
