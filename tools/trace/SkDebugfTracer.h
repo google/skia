@@ -9,6 +9,7 @@
 #define SkDebugfTracer_DEFINED
 
 #include "SkEventTracer.h"
+#include "SkEventTracingPriv.h"
 #include "SkString.h"
 
 /**
@@ -32,16 +33,18 @@ public:
                                   const char* name,
                                   SkEventTracer::Handle handle) override;
 
-    const uint8_t* getCategoryGroupEnabled(const char* name) override;
+    const uint8_t* getCategoryGroupEnabled(const char* name) override {
+        return fCategories.getCategoryGroupEnabled(name);
+    }
 
     const char* getCategoryGroupName(const uint8_t* categoryEnabledFlag) override {
-        static const char* category = "category?";
-        return category;
+        return fCategories.getCategoryGroupName(categoryEnabledFlag);
     }
 
 private:
     SkString fIndent;
     int fCnt = 0;
+    SkEventTracingCategories fCategories;
 };
 
 #endif

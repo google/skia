@@ -27,7 +27,7 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     char phaseString[2] = { phase, 0 };
     traceEvent["ph"] = phaseString;
     traceEvent["name"] = name;
-    traceEvent["cat"] = "skia"; // TODO
+    traceEvent["cat"] = this->getCategoryGroupName(categoryEnabledFlag);
     auto now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::nano> ns = now.time_since_epoch();
     traceEvent["ts"] = ns.count() * 1E-3;
@@ -76,11 +76,6 @@ void SkChromeTracingTracer::updateTraceEventDuration(const uint8_t* categoryEnab
     std::chrono::duration<double, std::nano> ns = now.time_since_epoch();
     auto us = ns.count() * 1E-3;
     (*traceEvent)["dur"] = us - (*traceEvent)["ts"].asDouble();
-}
-
-const uint8_t* SkChromeTracingTracer::getCategoryGroupEnabled(const char* name) {
-    static uint8_t yes = SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
-    return &yes;
 }
 
 void SkChromeTracingTracer::flush() {

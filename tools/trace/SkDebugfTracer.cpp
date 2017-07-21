@@ -67,8 +67,9 @@ SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
     }
     bool open = (phase == TRACE_EVENT_PHASE_COMPLETE);
     if (open) {
-        SkDebugf(
-                "[% 2d]%s %s%s #%d {\n", fIndent.size(), fIndent.c_str(), name, args.c_str(), fCnt);
+        const char* category = this->getCategoryGroupName(categoryEnabledFlag);
+        SkDebugf("[% 2d]%s <%s> %s%s #%d {\n", fIndent.size(), fIndent.c_str(), category, name,
+                 args.c_str(), fCnt);
         fIndent.append(" ");
     } else {
         SkDebugf("%s%s #%d\n", name, args.c_str(), fCnt);
@@ -82,9 +83,4 @@ void SkDebugfTracer::updateTraceEventDuration(const uint8_t* categoryEnabledFlag
                                               SkEventTracer::Handle handle) {
     fIndent.resize(fIndent.size() - 1);
     SkDebugf("[% 2d]%s } %s\n", fIndent.size(), fIndent.c_str(), name);
-}
-
-const uint8_t* SkDebugfTracer::getCategoryGroupEnabled(const char* name) {
-    static uint8_t yes = SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
-    return &yes;
 }
