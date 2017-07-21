@@ -672,6 +672,8 @@ DEFINES_ALL = [
     "SK_NO_ANALYTIC_AA",
     # Experiment to diagnose image diffs in Google3
     "SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES",
+    # Rebaseline required for some internal pixel tests.
+    "SK_SUPPORT_LEGACY_RADIAL_GRADIENT",
 ]
 
 ################################################################################
