@@ -17,7 +17,6 @@
 
 class SkData;
 class SkCanvas;
-class SkColorTable;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
