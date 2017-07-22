@@ -862,20 +862,3 @@ sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
     SkTypefaceResolverReadBuffer buffer(data, length, proc, ctx);
     return SkTextBlob::MakeFromBuffer(buffer);
 }
-
-#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_SERIAL_API
-sk_sp<SkData> SkTextBlob::serialize(const SkTypefaceCataloger& cataloger) const {
-    return this->serialize([](SkTypeface* tf, void* ctx) {
-        const SkTypefaceCataloger& cataloger = *(const SkTypefaceCataloger*)ctx;
-        cataloger(tf);
-    }, (void*)&cataloger);
-}
-
-sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
-                                      const SkTypefaceResolver& resolver) {
-    return Deserialize(data, length, [](uint32_t id, void* ctx) {
-        const SkTypefaceResolver& resolver = *(const SkTypefaceResolver*)ctx;
-        return resolver(id);
-    }, (void*)&resolver);
-}
-#endif
