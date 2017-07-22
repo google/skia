@@ -10,6 +10,7 @@
 #include "SkGeometry.h"
 #include "SkInsetConvexPolygon.h"
 #include "SkPath.h"
+#include "SkPoint3.h"
 #include "SkVertices.h"
 
 #if SK_SUPPORT_GPU

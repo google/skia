@@ -9,7 +9,6 @@
 #define SkColor_DEFINED
 
 #include "SkScalar.h"
-#include "SkPoint3.h"
 #include "SkTypes.h"
 
 /** \file SkColor.h
@@ -195,7 +194,6 @@ struct SkColor4f {
     static SkColor4f Pin(float r, float g, float b, float a);
     /** Convert to SkColor4f, assuming SkColor is sRGB */
     static SkColor4f FromColor(SkColor);
-    static SkColor4f FromColor3f(SkColor3f, float a);
 
     SkColor toSkColor() const;
 

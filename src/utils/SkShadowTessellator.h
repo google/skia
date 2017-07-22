@@ -14,6 +14,7 @@
 
 class SkMatrix;
 class SkPath;
+struct SkPoint3;
 class SkVertices;
 
 namespace SkShadowTessellator {

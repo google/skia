@@ -11,6 +11,7 @@
 #include "SkColorSpaceXformer.h"
 #include "SkDrawLooper.h"
 #include "SkLightingImageFilter.h"
+#include "SkPoint3.h"
 #include "SkTypes.h"
 #include "Test.h"
 
