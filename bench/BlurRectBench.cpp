@@ -154,42 +154,10 @@ private:
     typedef BlurRectSeparableBench INHERITED;
 };
 
-class BlurRectGaussianBench: public BlurRectSeparableBench {
-public:
-    BlurRectGaussianBench(SkScalar rad) : INHERITED(rad) {
-        SkString name;
-
-        if (SkScalarFraction(rad) != 0) {
-            name.printf("blurrect_gaussian_%.2f", SkScalarToFloat(rad));
-        } else {
-            name.printf("blurrect_gaussian_%d", SkScalarRoundToInt(rad));
-        }
-
-        this->setName(name);
-    }
-
-protected:
-
-    void makeBlurryRect(const SkRect&) override {
-        SkMask mask;
-        if (!SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                                         &mask, fSrcMask, kNormal_SkBlurStyle)) {
-            return;
-        }
-        SkMask::FreeImage(mask.fImage);
-    }
-private:
-    typedef BlurRectSeparableBench INHERITED;
-};
-
 DEF_BENCH(return new BlurRectBoxFilterBench(SMALL);)
 DEF_BENCH(return new BlurRectBoxFilterBench(BIG);)
 DEF_BENCH(return new BlurRectBoxFilterBench(REALBIG);)
 DEF_BENCH(return new BlurRectBoxFilterBench(REAL);)
-DEF_BENCH(return new BlurRectGaussianBench(SMALL);)
-DEF_BENCH(return new BlurRectGaussianBench(BIG);)
-DEF_BENCH(return new BlurRectGaussianBench(REALBIG);)
-DEF_BENCH(return new BlurRectGaussianBench(REAL);)
 DEF_BENCH(return new BlurRectDirectBench(SMALL);)
 DEF_BENCH(return new BlurRectDirectBench(BIG);)
 DEF_BENCH(return new BlurRectDirectBench(REALBIG);)

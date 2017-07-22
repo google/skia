@@ -35,12 +35,6 @@ public:
                                               SkIPoint* margin = nullptr,
                                               bool forceQuality = false);
 
-    // the "ground truth" blur does a gaussian convolution; it's slow
-    // but useful for comparison purposes.
-    static bool SK_WARN_UNUSED_RESULT BlurGroundTruth(SkScalar sigma, SkMask* dst,
-                                                      const SkMask& src,
-                                                      SkBlurStyle, SkIPoint* margin = nullptr);
-
     // If radius > 0, return the corresponding sigma, else return 0
     static SkScalar ConvertRadiusToSigma(SkScalar radius);
     // If sigma > 0.5, return the corresponding radius, else return 0
