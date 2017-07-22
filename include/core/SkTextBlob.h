@@ -17,11 +17,6 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
-#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_SERIAL_API
-typedef std::function<void(SkTypeface*)> SkTypefaceCataloger;
-typedef std::function<sk_sp<SkTypeface>(uint32_t)> SkTypefaceResolver;
-#endif
-
 typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx);
 typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx);
 
@@ -79,11 +74,6 @@ public:
      */
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
                                          SkTypefaceResolverProc, void* ctx);
-
-#ifdef SK_SUPPORT_LEGACY_TEXTBLOB_SERIAL_API
-    sk_sp<SkData> serialize(const SkTypefaceCataloger&) const;
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkTypefaceResolver&);
-#endif
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
