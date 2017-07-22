@@ -1467,9 +1467,8 @@ void GrVkGpu::addImageMemoryBarrier(VkPipelineStageFlags srcStageMask,
                                        barrier);
 }
 
-void GrVkGpu::onFinishFlush(bool insertedSemaphore) {
-    // Submit the current command buffer to the Queue. Whether we inserted semaphores or not does
-    // not effect what we do here.
+void GrVkGpu::finishFlush() {
+    // Submit the current command buffer to the Queue
     this->submitCommandBuffer(kSkip_SyncQueue);
 }
 

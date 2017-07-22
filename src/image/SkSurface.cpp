@@ -200,8 +200,7 @@ void SkSurface::flush() {
     asSB(this)->onFlush(0, nullptr);
 }
 
-GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
-                                                          GrBackendSemaphore signalSemaphores[]) {
+bool SkSurface::flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores) {
     return asSB(this)->onFlush(numSemaphores, signalSemaphores);
 }
 
