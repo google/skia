@@ -18,6 +18,7 @@
 #include "SkNullCanvas.h"
 #include "SkPathEffect.h"
 #include "SkPictureRecorder.h"
+#include "SkPoint3.h"
 #include "SkRSXform.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
