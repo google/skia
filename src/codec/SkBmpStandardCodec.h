@@ -23,7 +23,7 @@ public:
     /*
      * Creates an instance of the decoder
      *
-     * Called only by SkBmpCodec::NewFromStream
+     * Called only by SkBmpCodec::MakeFromStream
      * There should be no other callers despite this being public
      *
      * @param info contains properties of the encoded data
@@ -39,10 +39,10 @@ public:
      *                 the icp mask, if there is one)
      * @param inIco    indicates if the bmp is embedded in an ico file
      */
-    SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-            uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-            uint32_t offset, SkCodec::SkScanlineOrder rowOrder, bool isOpaque,
-            bool inIco);
+    SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info,
+                       std::unique_ptr<SkStream> stream, uint16_t bitsPerPixel, uint32_t numColors,
+                       uint32_t bytesPerColor, uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
+                       bool isOpaque, bool inIco);
 
 protected:
 

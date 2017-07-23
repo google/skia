@@ -61,7 +61,7 @@ struct Sniffer : public SkPixelSerializer {
         gSeen.add(digest);
 
         sk_sp<SkData> data(SkData::MakeWithoutCopy(ptr, len));
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
         if (!codec) {
             // FIXME: This code is currently unreachable because we create an empty generator when
             //        we fail to create a codec.

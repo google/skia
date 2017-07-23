@@ -53,7 +53,7 @@ static void test_path(skiatest::Reporter* r, const char* path,
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, nullptr != codec);
     if (!codec) {
         return;
