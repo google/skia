@@ -56,7 +56,7 @@ static void make(SkBitmap* bitmap, SkColorType colorType, SkAlphaType alphaType,
     }
 
     sk_sp<SkData> data = GetResourceAsData(resource);
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
     SkImageInfo dstInfo = codec->getInfo().makeColorType(colorType)
                                           .makeAlphaType(alphaType)
                                           .makeColorSpace(fix_for_colortype(colorSpace, colorType));

@@ -29,7 +29,8 @@ public:
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkAndroidCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
+    static std::unique_ptr<SkAndroidCodec> MakeFromStream(std::unique_ptr<SkStream>,
+                                                          SkPngChunkReader* = nullptr);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
@@ -38,10 +39,19 @@ public:
      *  The SkPngChunkReader handles unknown chunks in PNGs.
      *  See SkCodec.h for more details.
      */
-    static SkAndroidCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
+    static std::unique_ptr<SkAndroidCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
+
+#ifdef SK_SUPPORT_LEGACY_CODEC_NEW
+    static SkAndroidCodec* NewFromStream(SkStream* stream, SkPngChunkReader* reader) {
+        return MakeFromStream(std::unique_ptr<SkStream>(stream), reader).release();
+    }
+    static SkAndroidCodec* NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
+        return MakeFromData(std::move(data), reader).release();
+    }
     static SkAndroidCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
         return NewFromData(sk_ref_sp(data), reader);
     }
+#endif
 
     virtual ~SkAndroidCodec() {}
 

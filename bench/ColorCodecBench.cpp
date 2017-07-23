@@ -34,13 +34,10 @@ bool ColorCodecBench::isSuitableFor(Backend backend) {
 }
 
 void ColorCodecBench::decodeAndXform() {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
-    SkASSERT(codec);
-
 #ifdef SK_DEBUG
     SkCodec::Result result =
 #endif
-    codec->getPixels(fDstInfo, fDst.get(), fDstInfo.minRowBytes());
+    SkCodec::MakeFromData(fEncoded)->getPixels(fDstInfo, fDst.get(), fDstInfo.minRowBytes());
     SkASSERT(SkCodec::kSuccess == result);
 }
 
@@ -61,7 +58,7 @@ void ColorCodecBench::xformOnly() {
 }
 
 void ColorCodecBench::onDelayedSetup() {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fEncoded));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(fEncoded);
     fSrcInfo = codec->getInfo().makeColorType(kRGBA_8888_SkColorType);
     fDstInfo = fSrcInfo;
 

@@ -12,7 +12,7 @@
 #include "SkData.h"
 
 inline bool decode_memory(const void* mem, size_t size, SkBitmap* bm) {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(SkData::MakeWithoutCopy(mem, size)));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(SkData::MakeWithoutCopy(mem, size)));
     if (!codec) {
         return false;
     }
