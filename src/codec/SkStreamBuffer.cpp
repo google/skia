@@ -7,8 +7,8 @@
 
 #include "SkStreamBuffer.h"
 
-SkStreamBuffer::SkStreamBuffer(SkStream* stream)
-    : fStream(stream)
+SkStreamBuffer::SkStreamBuffer(std::unique_ptr<SkStream> stream)
+    : fStream(std::move(stream))
     , fPosition(0)
     , fBytesBuffered(0)
     , fHasLengthAndPosition(stream->hasLength() && stream->hasPosition())

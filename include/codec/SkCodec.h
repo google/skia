@@ -139,8 +139,8 @@ public:
      *  If NULL is returned, the stream is deleted immediately. Otherwise, the
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
-    static SkCodec* NewFromStream(SkStream*, Result* = nullptr,
-                                  SkPngChunkReader* = nullptr);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result* = nullptr,
+                                                   SkPngChunkReader* = nullptr);
 
     /**
      *  If this data represents an encoded image that we know how to decode,
@@ -158,10 +158,15 @@ public:
      *      If the PNG does not contain unknown chunks, the SkPngChunkReader
      *      will not be used or modified.
      */
-    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = NULL);
+    static std::unique_ptr<SkCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
+
+#ifdef SK_SUPPORT_LEGACY_CODEC_NEW
+    static SkCodec* NewFromStream(SkStream* str, Result* res, SkPngChunkReader* chunk);
+    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
     static SkCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
         return NewFromData(sk_ref_sp(data), reader);
     }
+#endif
 
     virtual ~SkCodec();
 
@@ -674,25 +679,21 @@ public:
 protected:
     using XformFormat = SkColorSpaceXform::ColorFormat;
 
-    /**
-     *  Takes ownership of SkStream*
-     */
     SkCodec(int width,
             int height,
             const SkEncodedInfo&,
             XformFormat srcFormat,
-            SkStream*,
+            std::unique_ptr<SkStream>,
             sk_sp<SkColorSpace>,
             Origin = kTopLeft_Origin);
 
     /**
-     *  Takes ownership of SkStream*
      *  Allows the subclass to set the recommended SkImageInfo
      */
     SkCodec(const SkEncodedInfo&,
             const SkImageInfo&,
             XformFormat srcFormat,
-            SkStream*,
+            std::unique_ptr<SkStream>,
             Origin = kTopLeft_Origin);
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
