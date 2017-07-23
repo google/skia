@@ -16,13 +16,8 @@ static void test_nulldev(SkCanvas* canvas) {
     // notice: no pixels mom! be sure we don't crash
     // https://code.google.com/p/chromium/issues/detail?id=352616
     SkCanvas c(bm);
-
-    SkBitmap src;
-    src.allocN32Pixels(10, 10);
-    src.eraseColor(SK_ColorRED);
-
     // ensure we don't crash
-    c.writePixels(src, 0, 0);
+    c.clear(0);
 }
 
 static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, SkScalar strokeWidth) {

@@ -48,8 +48,6 @@ protected:
         for (int loop = 0; loop < loops; ++loop) {
             // Unpremul -> Premul
             canvas->writePixels(fBmp1.info(), fBmp1.getPixels(), fBmp1.rowBytes(), 0, 0);
-            // Premul -> Unpremul
-            canvas->readPixels(fBmp2.info(), fBmp2.getPixels(), fBmp2.rowBytes(), 0, 0);
         }
     }
 

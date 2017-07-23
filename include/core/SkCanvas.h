@@ -210,6 +210,7 @@ public:
      */
     bool peekPixels(SkPixmap* pixmap);
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_READPIXELS
     /**
      *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
      *  converting them into the requested format (SkImageInfo). The base-layer pixels are read
@@ -233,6 +234,7 @@ public:
                     int srcX, int srcY);
     bool readPixels(const SkPixmap& pixmap, int srcX, int srcY);
     bool readPixels(const SkBitmap& bitmap, int srcX, int srcY);
+#endif
 
     /**
      *  This method affects the pixels in the base-layer, and operates in pixel coordinates,

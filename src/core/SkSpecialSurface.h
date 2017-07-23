@@ -54,6 +54,8 @@ public:
     */
     sk_sp<SkSpecialImage> makeImageSnapshot();
 
+    bool readPixels(const SkPixmap& pm, int srcx, int srcy);
+
 #if SK_SUPPORT_GPU
     /**
      *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot

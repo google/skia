@@ -171,7 +171,8 @@ bool SkSurface::peekPixels(SkPixmap* pmap) {
 }
 
 bool SkSurface::readPixels(const SkPixmap& pm, int srcX, int srcY) {
-    return this->getCanvas()->readPixels(pm, srcX, srcY);
+    return false;
+//    return this->getCanvas()->readPixels(pm, srcX, srcY);
 }
 
 bool SkSurface::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,

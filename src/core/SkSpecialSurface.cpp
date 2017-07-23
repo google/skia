@@ -58,6 +58,11 @@ sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
     return image;   // the caller gets the creation ref
 }
 
+bool SkSpecialSurface::readPixels(const SkPixmap& pm, int x, int y) {
+    return false;
+//    return as_SB(this)->onReadPixels(pm, x, y);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 #include "SkMallocPixelRef.h"
 

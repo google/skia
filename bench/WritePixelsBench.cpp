@@ -53,7 +53,7 @@ protected:
 
         SkBitmap bmp;
         bmp.allocN32Pixels(size.width(), size.height());
-        canvas->readPixels(bmp, 0, 0);
+        bmp.eraseColor(0);
 
         SkImageInfo info = SkImageInfo::Make(bmp.width(), bmp.height(), fColorType, fAlphaType);
 

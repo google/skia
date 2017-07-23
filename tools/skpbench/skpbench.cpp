@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
     if (!FLAGS_png.isEmpty()) {
         SkBitmap bmp;
         bmp.allocPixels(info);
-        if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
+        if (!surface->readPixels(bmp, 0, 0)) {
             exitf(ExitErr::kUnavailable, "failed to read canvas pixels for png");
         }
         const SkString &dirname = SkOSPath::Dirname(FLAGS_png[0]),

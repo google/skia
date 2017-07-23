@@ -91,7 +91,6 @@ bench_sources = [
   "$_bench/PicturePlaybackBench.cpp",
   "$_bench/PremulAndUnpremulAlphaOpsBench.cpp",
   "$_bench/QuickRejectBench.cpp",
-  "$_bench/ReadPixBench.cpp",
   "$_bench/RecordingBench.cpp",
   "$_bench/RectanizerBench.cpp",
   "$_bench/RectBench.cpp",

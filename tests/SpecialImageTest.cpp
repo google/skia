@@ -99,8 +99,9 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
 
     SkBitmap bm;
     bm.allocN32Pixels(kFullSize, kFullSize, false);
-
-    bool result = canvas->readPixels(bm.info(), bm.getPixels(), bm.rowBytes(), 0, 0);
+    SkPixmap pm;
+    bm.peekPixels(&pm);
+    bool result = surf->readPixels(pm, 0, 0);
     SkASSERT_RELEASE(result);
 
     // Only the center (red) portion should've been drawn into the canvas

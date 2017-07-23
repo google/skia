@@ -815,6 +815,7 @@ SkBaseDevice* SkCanvas::getTopDevice() const {
     return fMCRec->fTopLayer->fDevice.get();
 }
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_READPIXELS
 bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
     SkBaseDevice* device = this->getDevice();
     return device && pm.addr() && device->readPixels(pm, x, y);
@@ -828,6 +829,7 @@ bool SkCanvas::readPixels(const SkBitmap& bm, int x, int y) {
     SkPixmap pm;
     return bm.peekPixels(&pm) && this->readPixels(pm, x, y);
 }
+#endif
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
     SkPixmap pm;
