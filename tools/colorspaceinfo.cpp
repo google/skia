@@ -463,7 +463,7 @@ int main(int argc, char** argv) {
     if (FLAGS_icc) {
         colorSpace = SkColorSpace::MakeICC(data->bytes(), data->size());
     } else {
-        codec.reset(SkCodec::NewFromData(data));
+        codec = SkCodec::MakeFromData(data);
         colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
     }
 

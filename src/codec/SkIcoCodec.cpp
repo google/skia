@@ -26,18 +26,15 @@ bool SkIcoCodec::IsIco(const void* buffer, size_t bytesRead) {
             !memcmp(buffer, curSig, sizeof(curSig)));
 }
 
-SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
-    // Ensure that we do not leak the input stream
-    std::unique_ptr<SkStream> inputStream(stream);
-
+std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                    Result* result) {
     // Header size constants
     static const uint32_t kIcoDirectoryBytes = 6;
     static const uint32_t kIcoDirEntryBytes = 16;
 
     // Read the directory header
     std::unique_ptr<uint8_t[]> dirBuffer(new uint8_t[kIcoDirectoryBytes]);
-    if (inputStream.get()->read(dirBuffer.get(), kIcoDirectoryBytes) !=
-            kIcoDirectoryBytes) {
+    if (stream->read(dirBuffer.get(), kIcoDirectoryBytes) != kIcoDirectoryBytes) {
         SkCodecPrintf("Error: unable to read ico directory header.\n");
         *result = kIncompleteInput;
         return nullptr;
@@ -71,8 +68,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
     // Iterate over directory entries
     for (uint32_t i = 0; i < numImages; i++) {
         uint8_t entryBuffer[kIcoDirEntryBytes];
-        if (inputStream->read(entryBuffer, kIcoDirEntryBytes) !=
-                kIcoDirEntryBytes) {
+        if (stream->read(entryBuffer, kIcoDirEntryBytes) != kIcoDirEntryBytes) {
             SkCodecPrintf("Error: Dir entries truncated in ico.\n");
             *result = kIncompleteInput;
             return nullptr;
@@ -128,7 +124,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
 
         // If we cannot skip, assume we have reached the end of the stream and
         // stop trying to make codecs
-        if (inputStream.get()->skip(offset - bytesRead) != offset - bytesRead) {
+        if (stream->skip(offset - bytesRead) != offset - bytesRead) {
             SkCodecPrintf("Warning: could not skip to ico offset.\n");
             break;
         }
@@ -141,7 +137,7 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
             break;
         }
 
-        if (inputStream->read(buffer.get(), size) != size) {
+        if (stream->read(buffer.get(), size) != size) {
             SkCodecPrintf("Warning: could not create embedded stream.\n");
             *result = kIncompleteInput;
             break;
@@ -152,17 +148,17 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
         bytesRead += size;
 
         // Check if the embedded codec is bmp or png and create the codec
-        SkCodec* codec = nullptr;
+        std::unique_ptr<SkCodec> codec;
         Result dummyResult;
         if (SkPngCodec::IsPng((const char*) data->bytes(), data->size())) {
-            codec = SkPngCodec::NewFromStream(embeddedStream.release(), &dummyResult);
+            codec = SkPngCodec::MakeFromStream(std::move(embeddedStream), &dummyResult);
         } else {
-            codec = SkBmpCodec::NewFromIco(embeddedStream.release(), &dummyResult);
+            codec = SkBmpCodec::MakeFromIco(std::move(embeddedStream), &dummyResult);
         }
 
         // Save a valid codec
         if (nullptr != codec) {
-            codecs->push_back().reset(codec);
+            codecs->push_back().reset(codec.release());
         }
     }
 
@@ -192,7 +188,8 @@ SkCodec* SkIcoCodec::NewFromStream(SkStream* stream, Result* result) {
     *result = kSuccess;
     // The original stream is no longer needed, because the embedded codecs own their
     // own streams.
-    return new SkIcoCodec(width, height, info, codecs.release(), sk_ref_sp(colorSpace));
+    return std::unique_ptr<SkCodec>(new SkIcoCodec(width, height, info, codecs.release(),
+                                                   sk_ref_sp(colorSpace)));
 }
 
 /*

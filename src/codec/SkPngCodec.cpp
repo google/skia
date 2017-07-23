@@ -480,9 +480,10 @@ void SkPngCodec::applyXformRow(void* dst, const void* src) {
 
 class SkPngNormalDecoder : public SkPngCodec {
 public:
-    SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo, SkStream* stream,
-            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+    SkPngNormalDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
+                       std::unique_ptr<SkStream> stream, SkPngChunkReader* reader,
+                       png_structp png_ptr, png_infop info_ptr, int bitDepth)
+        : INHERITED(info, imageInfo, std::move(stream), reader, png_ptr, info_ptr, bitDepth)
         , fRowsWrittenToOutput(0)
         , fDst(nullptr)
         , fRowBytes(0)
@@ -598,9 +599,9 @@ private:
 class SkPngInterlacedDecoder : public SkPngCodec {
 public:
     SkPngInterlacedDecoder(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
-            SkStream* stream, SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr,
-            int bitDepth, int numberPasses)
-        : INHERITED(info, imageInfo, stream, reader, png_ptr, info_ptr, bitDepth)
+            std::unique_ptr<SkStream> stream, SkPngChunkReader* reader, png_structp png_ptr,
+            png_infop info_ptr, int bitDepth, int numberPasses)
+        : INHERITED(info, imageInfo, std::move(stream), reader, png_ptr, info_ptr, bitDepth)
         , fNumberPasses(numberPasses)
         , fFirstRow(0)
         , fLastRow(0)
@@ -922,11 +923,12 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
         }
 
         if (1 == numberPasses) {
-            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
+            *fOutCodec = new SkPngNormalDecoder(encodedInfo, imageInfo,
+                   std::unique_ptr<SkStream>(fStream), fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
         } else {
-            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo, fStream,
-                    fChunkReader, fPng_ptr, fInfo_ptr, bitDepth, numberPasses);
+            *fOutCodec = new SkPngInterlacedDecoder(encodedInfo, imageInfo,
+                    std::unique_ptr<SkStream>(fStream), fChunkReader, fPng_ptr, fInfo_ptr, bitDepth,
+                    numberPasses);
         }
         static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
@@ -937,9 +939,9 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
 }
 
 SkPngCodec::SkPngCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkStream* stream, SkPngChunkReader* chunkReader, void* png_ptr,
-                       void* info_ptr, int bitDepth)
-    : INHERITED(encodedInfo, imageInfo, png_select_xform_format(encodedInfo), stream)
+                       std::unique_ptr<SkStream> stream, SkPngChunkReader* chunkReader,
+                       void* png_ptr, void* info_ptr, int bitDepth)
+    : INHERITED(encodedInfo, imageInfo, png_select_xform_format(encodedInfo), std::move(stream))
     , fPngChunkReader(SkSafeRef(chunkReader))
     , fPng_ptr(png_ptr)
     , fInfo_ptr(info_ptr)
@@ -1145,15 +1147,14 @@ uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
     return INHERITED::onGetFillValue(dstInfo);
 }
 
-SkCodec* SkPngCodec::NewFromStream(SkStream* stream, Result* result, SkPngChunkReader* chunkReader) {
-    std::unique_ptr<SkStream> streamDeleter(stream);
-
+std::unique_ptr<SkCodec> SkPngCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                    Result* result, SkPngChunkReader* chunkReader) {
     SkCodec* outCodec = nullptr;
-    *result = read_header(stream, chunkReader, &outCodec, nullptr, nullptr);
+    *result = read_header(stream.get(), chunkReader, &outCodec, nullptr, nullptr);
     if (kSuccess == *result) {
         // Codec has taken ownership of the stream.
         SkASSERT(outCodec);
-        streamDeleter.release();
+        stream.release();
     }
-    return outCodec;
+    return std::unique_ptr<SkCodec>(outCodec);
 }

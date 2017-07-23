@@ -815,7 +815,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+            std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());
@@ -894,7 +894,7 @@ public:
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
-            std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+            std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromData(encoded));
             if (!codec) {
                 // Nothing to time.
                 SkDebugf("Cannot find codec for %s\n", path.c_str());

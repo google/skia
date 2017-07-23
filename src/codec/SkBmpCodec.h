@@ -28,17 +28,17 @@ public:
      * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*, Result*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
     /*
      * Creates a bmp decoder for a bmp embedded in ico
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromIco(SkStream*, Result*);
+    static std::unique_ptr<SkCodec> MakeFromIco(std::unique_ptr<SkStream>, Result*);
 
 protected:
 
-    SkBmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+    SkBmpCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
             uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
 
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
@@ -46,7 +46,6 @@ protected:
     /*
      * Read enough of the stream to initialize the SkBmpCodec.
      * On kSuccess, if codecOut is not nullptr, it will be set to a new SkBmpCodec.
-     * If an SkCodec is created, it will take ownership of the SkStream.
      */
     static Result ReadHeader(SkStream*, bool inIco, std::unique_ptr<SkCodec>* codecOut);
 
@@ -112,7 +111,7 @@ private:
      * Creates a bmp decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*, Result*, bool inIco);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*, bool inIco);
 
     /*
      * Decodes the next dstInfo.height() lines.

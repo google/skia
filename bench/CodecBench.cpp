@@ -24,11 +24,8 @@ CodecBench::CodecBench(SkString baseName, SkData* encoded, SkColorType colorType
     // Parse filename and the color type to give the benchmark a useful name
     fName.printf("Codec_%s_%s%s", baseName.c_str(), color_type_to_str(colorType),
             alpha_type_to_str(alphaType));
-#ifdef SK_DEBUG
     // Ensure that we can create an SkCodec from this data.
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fData));
-    SkASSERT(codec);
-#endif
+    SkASSERT(SkCodec::MakeFromData(fData));
 }
 
 const char* CodecBench::onGetName() {
@@ -40,7 +37,7 @@ bool CodecBench::isSuitableFor(Backend backend) {
 }
 
 void CodecBench::onDelayedSetup() {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(fData));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(fData);
 
     fInfo = codec->getInfo().makeColorType(fColorType)
                             .makeAlphaType(fAlphaType)
@@ -56,7 +53,7 @@ void CodecBench::onDraw(int n, SkCanvas* canvas) {
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
     }
     for (int i = 0; i < n; i++) {
-        codec.reset(SkCodec::NewFromData(fData));
+        codec = SkCodec::MakeFromData(fData);
 #ifdef SK_DEBUG
         const SkCodec::Result result =
 #endif

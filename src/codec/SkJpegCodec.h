@@ -31,7 +31,7 @@ public:
      * Assumes IsJpeg was called and returned true
      * Takes ownership of the stream
      */
-    static SkCodec* NewFromStream(SkStream*, Result*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
 protected:
 
@@ -63,7 +63,8 @@ private:
     /*
      * Allows SkRawCodec to communicate the color space from the exif data.
      */
-    static SkCodec* NewFromStream(SkStream*, Result*, sk_sp<SkColorSpace> defaultColorSpace);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
+                                                   sk_sp<SkColorSpace> defaultColorSpace);
 
     /*
      * Read enough of the stream to initialize the SkJpegCodec.
@@ -99,7 +100,7 @@ private:
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
+    SkJpegCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream> stream,
             JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin);
 
     /*
