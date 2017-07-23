@@ -8,7 +8,6 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkArcToPathEffect.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -418,9 +417,9 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
     sk_sp<SkPathEffect> pathEffect;
     if (canBeNull && (R(3) == 1)) { return pathEffect; }
 
-    switch (R(9)) {
+    switch (R(8)) {
         case 0:
-            pathEffect = SkArcToPathEffect::Make(make_scalar(true));
+            pathEffect = SkPath2DPathEffect::Make(make_matrix(), make_path());
             break;
         case 1:
             pathEffect = SkPathEffect::MakeCompose(make_path_effect(false),
@@ -449,9 +448,6 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
             pathEffect = SkLine2DPathEffect::Make(make_scalar(), make_matrix());
             break;
         case 7:
-            pathEffect = SkPath2DPathEffect::Make(make_matrix(), make_path());
-            break;
-        case 8:
         default:
             pathEffect = SkPathEffect::MakeSum(make_path_effect(false),
                                                make_path_effect(false));

@@ -8,7 +8,6 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkArcToPathEffect.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -414,12 +413,14 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
     fuzz->nextRange(&s, 0, 2);
     if (canBeNull && s == 0) { return pathEffect; }
 
-    fuzz->nextRange(&s, 0, 8);
+    fuzz->nextRange(&s, 0, 7);
 
     switch (s) {
         case 0: {
-            SkScalar a = make_number(true);
-            pathEffect = SkArcToPathEffect::Make(a);
+            SkPath path = make_path();
+            SkMatrix m;
+            init_matrix(&m);
+            pathEffect = SkPath2DPathEffect::Make(m, path);
             break;
         }
         case 1: {
@@ -463,14 +464,7 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
             pathEffect = SkLine2DPathEffect::Make(a, m);
             break;
         }
-        case 7: {
-            SkPath path = make_path();
-            SkMatrix m;
-            init_matrix(&m);
-            pathEffect = SkPath2DPathEffect::Make(m, path);
-            break;
-        }
-        case 8:
+        case 7:
         default: {
             sk_sp<SkPathEffect> a = make_path_effect(false);
             sk_sp<SkPathEffect> b = make_path_effect(false);

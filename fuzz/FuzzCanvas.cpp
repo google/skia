@@ -28,7 +28,6 @@
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkAlphaThresholdFilter.h"
-#include "SkArcToPathEffect.h"
 #include "SkArithmeticImageFilter.h"
 #include "SkBlurImageFilter.h"
 #include "SkBlurMaskFilter.h"
@@ -496,7 +495,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
         return nullptr;
     }
     uint8_t pathEffectType;
-    fuzz->nextRange(&pathEffectType, 0, 9);
+    fuzz->nextRange(&pathEffectType, 0, 8);
     switch (pathEffectType) {
         case 0: {
             return nullptr;
@@ -536,14 +535,9 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
         case 6: {
             SkScalar radius;
             fuzz->next(&radius);
-            return SkArcToPathEffect::Make(radius);
-        }
-        case 7: {
-            SkScalar radius;
-            fuzz->next(&radius);
             return SkCornerPathEffect::Make(radius);
         }
-        case 8: {
+        case 7: {
             SkScalar phase;
             fuzz->next(&phase);
             SkScalar intervals[20];
@@ -552,7 +546,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             fuzz->nextN(intervals, count);
             return SkDashPathEffect::Make(intervals, count, phase);
         }
-        case 9: {
+        case 8: {
             SkScalar segLength, dev;
             uint32_t seed;
             fuzz->next(&segLength, &dev, &seed);
