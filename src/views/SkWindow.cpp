@@ -35,6 +35,10 @@ sk_sp<SkSurface> SkWindow::makeSurface() {
     return SkSurface::MakeRasterDirect(bm.info(), bm.getPixels(), bm.rowBytes(), &fSurfaceProps);
 }
 
+void SkWindow::drawIntoSurface() {
+    this->draw(this->makeSurface()->getCanvas());
+}
+
 void SkWindow::setMatrix(const SkMatrix& matrix) {
     if (fMatrix != matrix) {
         fMatrix = matrix;
