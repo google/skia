@@ -36,7 +36,7 @@ protected:
         }
 
         // Create matching bitmap.
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(GetResourceAsStream(path)));
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(GetResourceAsStream(path).release()));
         SkBitmap bitmap;
         bitmap.allocPixels(codec->getInfo());
         codec->getPixels(codec->getInfo(), bitmap.getPixels(), bitmap.rowBytes());

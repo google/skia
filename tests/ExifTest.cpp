@@ -21,7 +21,7 @@ DEF_TEST(ExifOrientation, r) {
     SkCodec::Origin origin = codec->getOrigin();
     REPORTER_ASSERT(r, SkCodec::kTopRight_Origin == origin);
 
-    stream.reset(GetResourceAsStream("mandrill_512_q075.jpg"));
+    stream = GetResourceAsStream("mandrill_512_q075.jpg");
     codec.reset(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, nullptr != codec);
     origin = codec->getOrigin();

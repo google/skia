@@ -1001,7 +1001,7 @@ DEF_TEST(Codec_jpeg_rewind, r) {
 }
 
 static void check_color_xform(skiatest::Reporter* r, const char* path) {
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(GetResourceAsStream(path)));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(GetResourceAsStream(path).release()));
 
     SkAndroidCodec::AndroidOptions opts;
     opts.fSampleSize = 3;
@@ -1091,12 +1091,12 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     }
 
     path = "grayscale.jpg";
-    stream.reset(GetResourceAsStream(path));
+    stream = GetResourceAsStream(path);
     codec.reset(SkCodec::NewFromStream(stream.release()));
     check_round_trip(r, codec.get(), codec->getInfo());
 
     path = "yellow_rose.png";
-    stream.reset(GetResourceAsStream(path));
+    stream = GetResourceAsStream(path);
     codec.reset(SkCodec::NewFromStream(stream.release()));
 
     SkColorType colorTypesWithAlpha[] = {
@@ -1116,7 +1116,7 @@ DEF_TEST(Codec_PngRoundTrip, r) {
     }
 
     path = "index8.png";
-    stream.reset(GetResourceAsStream(path));
+    stream = GetResourceAsStream(path);
     codec.reset(SkCodec::NewFromStream(stream.release()));
 
     for (SkAlphaType alphaType : alphaTypes) {
@@ -1202,15 +1202,16 @@ static void decode_frame(skiatest::Reporter* r, SkCodec* codec, size_t frame) {
 // client never calls getFrameInfo and only decodes frame 0.
 DEF_TEST(Codec_skipFullParse, r) {
     auto path = "test640x479.gif";
-    SkStream* stream(GetResourceAsStream(path));
-    if (!stream) {
+    auto streamObj = GetResourceAsStream(path);
+    if (!streamObj) {
         return;
     }
+    SkStream* stream = streamObj.get();
 
     // Note that we cheat and hold on to the stream pointer, but SkCodec will
     // take ownership. We will not refer to the stream after the SkCodec
     // deletes it.
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(streamObj.release()));
     if (!codec) {
         ERRORF(r, "Failed to create codec for %s", path);
         return;
@@ -1235,12 +1236,12 @@ DEF_TEST(Codec_skipFullParse, r) {
 // Only rewinds up to a limit.
 class LimitedRewindingStream : public SkStream {
 public:
-    static SkStream* Make(const char path[], size_t limit) {
-        SkStream* stream = GetResourceAsStream(path);
+    static std::unique_ptr<SkStream> Make(const char path[], size_t limit) {
+        auto stream = GetResourceAsStream(path);
         if (!stream) {
             return nullptr;
         }
-        return new LimitedRewindingStream(stream, limit);
+        return std::unique_ptr<SkStream>(new LimitedRewindingStream(std::move(stream), limit));
     }
 
     size_t read(void* buffer, size_t size) override {
@@ -1267,8 +1268,8 @@ private:
     const size_t              fLimit;
     size_t                    fPosition;
 
-    LimitedRewindingStream(SkStream* stream, size_t limit)
-        : fStream(stream)
+    LimitedRewindingStream(std::unique_ptr<SkStream> stream, size_t limit)
+        : fStream(std::move(stream))
         , fLimit(limit)
         , fPosition(0)
     {
@@ -1289,13 +1290,13 @@ DEF_TEST(Codec_fallBack, r) {
             "randPixels.bmp",
             };
     for (auto file : files) {
-        SkStream* stream = LimitedRewindingStream::Make(file, 14);
+        auto stream = LimitedRewindingStream::Make(file, 14);
         if (!stream) {
             SkDebugf("Missing resources (%s). Set --resourcePath.\n", file);
             return;
         }
 
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
         if (!codec) {
             ERRORF(r, "Failed to create codec for %s,", file);
             continue;
@@ -1380,12 +1381,12 @@ DEF_TEST(Codec_rowsDecoded, r) {
 
 static void test_invalid_images(skiatest::Reporter* r, const char* path,
                                 SkCodec::Result expectedResult) {
-    auto* stream = GetResourceAsStream(path);
+    auto stream = GetResourceAsStream(path);
     if (!stream) {
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
 
     test_info(r, codec.get(), codec->getInfo().makeColorType(kN32_SkColorType), expectedResult,
@@ -1423,12 +1424,12 @@ DEF_TEST(Codec_InvalidHeader, r) {
 DEF_TEST(Codec_InvalidAnimated, r) {
     // ASAN will complain if there is an issue.
     auto path = "invalid_images/skbug6046.gif";
-    auto* stream = GetResourceAsStream(path);
+    auto stream = GetResourceAsStream(path);
     if (!stream) {
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
