@@ -208,13 +208,12 @@ DEF_SAMPLE( return new PathView; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "SkArcToPathEffect.h"
 #include "SkCornerPathEffect.h"
 #include "SkRandom.h"
 
 class ArcToView : public SampleView {
-    bool fDoFrame, fDoArcTo, fDoCorner, fDoConic;
-    SkPaint fPtsPaint, fArcToPaint, fSkeletonPaint, fCornerPaint;
+    bool fDoFrame, fDoCorner, fDoConic;
+    SkPaint fPtsPaint, fSkeletonPaint, fCornerPaint;
 public:
     enum {
         N = 4
@@ -222,7 +221,7 @@ public:
     SkPoint fPts[N];
 
     ArcToView()
-        : fDoFrame(false), fDoArcTo(false), fDoCorner(false), fDoConic(false)
+        : fDoFrame(false), fDoCorner(false), fDoConic(false)
     {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
@@ -235,12 +234,6 @@ public:
         fPtsPaint.setAntiAlias(true);
         fPtsPaint.setStrokeWidth(15);
         fPtsPaint.setStrokeCap(SkPaint::kRound_Cap);
-
-        fArcToPaint.setAntiAlias(true);
-        fArcToPaint.setStyle(SkPaint::kStroke_Style);
-        fArcToPaint.setStrokeWidth(9);
-        fArcToPaint.setColor(0x800000FF);
-        fArcToPaint.setPathEffect(SkArcToPathEffect::Make(rad));
 
         fCornerPaint.setAntiAlias(true);
         fCornerPaint.setStyle(SkPaint::kStroke_Style);
@@ -269,9 +262,8 @@ protected:
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
                 case '1': this->toggle(fDoFrame); return true;
-                case '2': this->toggle(fDoArcTo); return true;
-                case '3': this->toggle(fDoCorner); return true;
-                case '4': this->toggle(fDoConic); return true;
+                case '2': this->toggle(fDoCorner); return true;
+                case '3': this->toggle(fDoConic); return true;
                 default: break;
             }
         }
@@ -296,9 +288,6 @@ protected:
 
         if (fDoCorner) {
             canvas->drawPath(path, fCornerPaint);
-        }
-        if (fDoArcTo) {
-            canvas->drawPath(path, fArcToPaint);
         }
 
         canvas->drawPath(path, fSkeletonPaint);
