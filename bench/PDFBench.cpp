@@ -147,7 +147,7 @@ protected:
         return backend == kNonRendering_Backend;
     }
     void onDelayedSetup() override {
-        fAsset.reset(GetResourceAsStream("pdf_command_stream.txt"));
+        fAsset = GetResourceAsStream("pdf_command_stream.txt");
     }
     void onDraw(int loops, SkCanvas*) override {
         SkASSERT(fAsset);

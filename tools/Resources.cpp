@@ -44,14 +44,14 @@ sk_sp<SkImage> GetResourceAsImage(const char* resource) {
     return SkImage::MakeFromEncoded(resourceData);
 }
 
-SkStreamAsset* GetResourceAsStream(const char* resource) {
+std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
     SkString resourcePath = GetResourcePath(resource);
     std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
     if (!stream->isValid()) {
         SkDebugf("Resource %s not found.\n", resource);
         return nullptr;
     }
-    return stream.release();
+    return std::move(stream);
 }
 
 sk_sp<SkData> GetResourceAsData(const char* resource) {
