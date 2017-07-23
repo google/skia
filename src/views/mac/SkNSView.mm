@@ -13,7 +13,6 @@
 static_assert(SK_SUPPORT_GPU, "not_implemented_for_non_gpu_build");
 #include <OpenGL/gl.h>
 
-//#define FORCE_REDRAW
 // Can be dropped when we no longer support 10.6.
 #if defined(MAC_OS_X_VERSION_10_7) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
     #define RETINA_API_AVAILABLE 1
@@ -140,11 +139,7 @@ BOOL fRedrawRequestPending;
 - (void)drawSkia {
     fRedrawRequestPending = false;
     if (fWind) {
-        sk_sp<SkSurface> surface(fWind->makeSurface());
-        fWind->draw(surface->getCanvas());
-#ifdef FORCE_REDRAW
-        fWind->inval(NULL);
-#endif
+        fWind->drawIntoSurface();
     }
 }
 
