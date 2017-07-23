@@ -9,6 +9,7 @@
 #include "SkCodec.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
+#include "SkMakeUnique.h"
 #include "SkRWBuffer.h"
 #include "SkString.h"
 
@@ -24,7 +25,7 @@ static SkImageInfo standardize_info(SkCodec* codec) {
 }
 
 static bool create_truth(sk_sp<SkData> data, SkBitmap* dst) {
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(std::move(data)));
     if (!codec) {
         return false;
     }
@@ -64,7 +65,7 @@ static void test_partial(skiatest::Reporter* r, const char* name, size_t minByte
 
     // Note that we cheat and hold on to a pointer to stream, though it is owned by
     // partialCodec.
-    std::unique_ptr<SkCodec> partialCodec(SkCodec::NewFromStream(stream));
+    std::unique_ptr<SkCodec> partialCodec(SkCodec::MakeFromStream(std::unique_ptr<SkStream>(stream)));
     if (!partialCodec) {
         // Technically, this could be a small file where half the file is not
         // enough.
@@ -146,7 +147,7 @@ DEF_TEST(Codec_requiredFrame, r) {
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(file));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(file));
     if (!codec) {
         ERRORF(r, "Failed to create codec from %s", path);
         return;
@@ -166,7 +167,7 @@ DEF_TEST(Codec_requiredFrame, r) {
             return;
         }
         stream = new HaltingStream(file, i);
-        partialCodec.reset(SkCodec::NewFromStream(stream));
+        partialCodec = SkCodec::MakeFromStream(std::unique_ptr<SkStream>(stream));
     }
 
     std::vector<SkCodec::FrameInfo> partialInfo;
@@ -193,8 +194,7 @@ DEF_TEST(Codec_partialAnim, r) {
 
     // This stream will be owned by fullCodec, but we hang on to the pointer
     // to determine frame offsets.
-    SkStream* stream = new SkMemoryStream(file);
-    std::unique_ptr<SkCodec> fullCodec(SkCodec::NewFromStream(stream));
+    std::unique_ptr<SkCodec> fullCodec(SkCodec::MakeFromStream(skstd::make_unique<SkMemoryStream>(file)));
     const auto info = standardize_info(fullCodec.get());
 
     // frameByteCounts stores the number of bytes to decode a particular frame.
@@ -233,7 +233,8 @@ DEF_TEST(Codec_partialAnim, r) {
 
     // Now decode frames partially, then completely, and compare to the original.
     HaltingStream* haltingStream = new HaltingStream(file, frameByteCounts[0]);
-    std::unique_ptr<SkCodec> partialCodec(SkCodec::NewFromStream(haltingStream));
+    std::unique_ptr<SkCodec> partialCodec(SkCodec::MakeFromStream(
+                                                      std::unique_ptr<SkStream>(haltingStream)));
     if (!partialCodec) {
         ERRORF(r, "Failed to create a partial codec from %s with %i bytes out of %i",
                path, frameByteCounts[0], file->size());
@@ -287,8 +288,8 @@ static void test_interleaved(skiatest::Reporter* r, const char* name) {
         return;
     }
     const size_t halfSize = file->size() / 2;
-    std::unique_ptr<SkCodec> partialCodec(SkCodec::NewFromStream(
-            new HaltingStream(std::move(file), halfSize)));
+    std::unique_ptr<SkCodec> partialCodec(SkCodec::MakeFromStream(
+                                  skstd::make_unique<HaltingStream>(std::move(file), halfSize)));
     if (!partialCodec) {
         ERRORF(r, "Failed to create codec for %s", name);
         return;
@@ -351,7 +352,7 @@ static unsigned char gNoGlobalColorMap[] = {
 // Test that a gif file truncated before its local color map behaves as expected.
 DEF_TEST(Codec_GifPreMap, r) {
     sk_sp<SkData> data = SkData::MakeWithoutCopy(gNoGlobalColorMap, sizeof(gNoGlobalColorMap));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     if (!codec) {
         ERRORF(r, "failed to create codec");
         return;
@@ -365,7 +366,7 @@ DEF_TEST(Codec_GifPreMap, r) {
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
     // Truncate to 23 bytes, just before the color map. This should fail to decode.
-    codec.reset(SkCodec::NewFromData(SkData::MakeWithoutCopy(gNoGlobalColorMap, 23)));
+    codec = SkCodec::MakeFromData(SkData::MakeWithoutCopy(gNoGlobalColorMap, 23));
     REPORTER_ASSERT(r, codec);
     if (codec) {
         SkBitmap bm;
@@ -378,7 +379,7 @@ DEF_TEST(Codec_GifPreMap, r) {
     // cannot start an incremental decode until we have more data. If we did,
     // we would be using the wrong color table.
     HaltingStream* stream = new HaltingStream(data, 23);
-    codec.reset(SkCodec::NewFromStream(stream));
+    codec = SkCodec::MakeFromStream(std::unique_ptr<SkStream>(stream));
     REPORTER_ASSERT(r, codec);
     if (codec) {
         SkBitmap bm;
@@ -406,7 +407,7 @@ DEF_TEST(Codec_emptyIDAT, r) {
     // Truncate to the beginning of the IDAT, immediately after the IDAT tag.
     file = SkData::MakeSubset(file.get(), 0, 80);
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(file)));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(std::move(file)));
     if (!codec) {
         ERRORF(r, "Failed to create a codec for %s", name);
         return;
@@ -436,8 +437,8 @@ DEF_TEST(Codec_incomplete, r) {
 
         for (size_t len = 14; len <= file->size(); len += 5) {
             SkCodec::Result result;
-            auto* stream = new SkMemoryStream(file->data(), len);
-            std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream, &result));
+            std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
+                                   skstd::make_unique<SkMemoryStream>(file->data(), len), &result));
             if (codec) {
                 if (result != SkCodec::kSuccess) {
                     ERRORF(r, "Created an SkCodec for %s with %lu bytes, but "

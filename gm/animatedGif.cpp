@@ -123,7 +123,7 @@ private:
             return false;
         }
 
-        fCodec.reset(SkCodec::NewFromStream(stream.release()));
+        fCodec = SkCodec::MakeFromStream(std::move(stream));
         if (!fCodec) {
             SkDebugf("Could create codec from %s", FLAGS_animatedGif[0]);
             return false;

@@ -20,7 +20,7 @@ static void codec_yuv(skiatest::Reporter* reporter,
     if (!stream) {
         return;
     }
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(reporter, codec);
     if (!codec) {
         return;
