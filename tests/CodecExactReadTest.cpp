@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkCodec.h"
 #include "SkData.h"
+#include "SkMakeUnique.h"
 #include "SkStream.h"
 
 namespace {
@@ -67,7 +68,8 @@ DEF_TEST(Codec_end, r) {
 
         SkMemoryStream stream(std::move(multiData));
         for (int i = 0; i < kNumImages; ++i) {
-            std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(new UnowningStream(&stream)));
+            std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
+                                                   skstd::make_unique<UnowningStream>(&stream)));
             if (!codec) {
                 ERRORF(r, "Failed to create a codec from %s, iteration %i", path, i);
                 continue;

@@ -17,7 +17,7 @@ static inline bool decode_file(const char* filename, SkBitmap* bitmap,
                                SkColorType colorType = kN32_SkColorType,
                                bool requireUnpremul = false) {
     sk_sp<SkData> data(SkData::MakeFromFileName(filename));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(data);
     if (!codec) {
         return false;
     }

@@ -280,13 +280,13 @@ private:
 class SkGifImageReader final : public SkFrameHolder {
 public:
     // This takes ownership of stream.
-    SkGifImageReader(SkStream* stream)
+    SkGifImageReader(std::unique_ptr<SkStream> stream)
         : m_client(nullptr)
         , m_state(SkGIFType)
         , m_bytesToConsume(6) // Number of bytes for GIF type, either "GIF87a" or "GIF89a".
         , m_version(0)
         , m_loopCount(cLoopCountNotSeen)
-        , m_streamBuffer(stream)
+        , m_streamBuffer(std::move(stream))
         , m_parseCompleted(false)
         , m_firstFrameHasAlpha(false)
     {

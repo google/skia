@@ -15,11 +15,11 @@
  * Called only by NewFromStream
  */
 SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info,
-                                       SkStream* stream, uint16_t bitsPerPixel, uint32_t numColors,
-                                       uint32_t bytesPerColor, uint32_t offset,
+                                       std::unique_ptr<SkStream> stream, uint16_t bitsPerPixel,
+                                       uint32_t numColors, uint32_t bytesPerColor, uint32_t offset,
                                        SkCodec::SkScanlineOrder rowOrder,
                                        bool isOpaque, bool inIco)
-    : INHERITED(width, height, info, stream, bitsPerPixel, rowOrder)
+    : INHERITED(width, height, info, std::move(stream), bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(numColors)
     , fBytesPerColor(bytesPerColor)

@@ -35,6 +35,7 @@
 #include "SkColorPriv.h"
 #include "SkColorTable.h"
 #include "SkGifCodec.h"
+#include "SkMakeUnique.h"
 #include "SkRasterPipeline.h"
 #include "SkStream.h"
 #include "SkSwizzler.h"
@@ -68,8 +69,9 @@ static SkCodec::Result gif_error(const char* msg, SkCodec::Result result = SkCod
     return result;
 }
 
-SkCodec* SkGifCodec::NewFromStream(SkStream* stream, Result* result) {
-    std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(stream));
+std::unique_ptr<SkCodec> SkGifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                    Result* result) {
+    std::unique_ptr<SkGifImageReader> reader(new SkGifImageReader(std::move(stream)));
     *result = reader->parse(SkGifImageReader::SkGIFSizeQuery);
     if (*result != kSuccess) {
         return nullptr;
@@ -102,7 +104,7 @@ SkCodec* SkGifCodec::NewFromStream(SkStream* stream, Result* result) {
     const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
                                              kN32_SkColorType, alphaType,
                                              SkColorSpace::MakeSRGB());
-    return new SkGifCodec(encodedInfo, imageInfo, reader.release());
+    return std::unique_ptr<SkCodec>(new SkGifCodec(encodedInfo, imageInfo, reader.release()));
 }
 
 bool SkGifCodec::onRewind() {

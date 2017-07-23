@@ -252,8 +252,9 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
 
         const int width = decoderMgr->dinfo()->image_width;
         const int height = decoderMgr->dinfo()->image_height;
-        SkJpegCodec* codec = new SkJpegCodec(width, height, info, stream, decoderMgr.release(),
-                                             std::move(colorSpace), orientation);
+        SkJpegCodec* codec = new SkJpegCodec(width, height, info, std::unique_ptr<SkStream>(stream),
+                                             decoderMgr.release(), std::move(colorSpace),
+                                             orientation);
         *codecOut = codec;
     } else {
         SkASSERT(nullptr != decoderMgrOut);
@@ -262,27 +263,29 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
     return kSuccess;
 }
 
-SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, Result* result) {
-    return SkJpegCodec::NewFromStream(stream, result, SkColorSpace::MakeSRGB());
+std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                     Result* result) {
+    return SkJpegCodec::MakeFromStream(std::move(stream), result, SkColorSpace::MakeSRGB());
 }
 
-SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, Result* result,
+std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                     Result* result,
                                     sk_sp<SkColorSpace> defaultColorSpace) {
-    std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
-    *result = ReadHeader(stream, &codec, nullptr, std::move(defaultColorSpace));
+    *result = ReadHeader(stream.get(), &codec, nullptr, std::move(defaultColorSpace));
     if (kSuccess == *result) {
         // Codec has taken ownership of the stream, we do not need to delete it
         SkASSERT(codec);
-        streamDeleter.release();
-        return codec;
+        stream.release();
+        return std::unique_ptr<SkCodec>(codec);
     }
     return nullptr;
 }
 
-SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream,
-        JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, Origin origin)
-    : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat, stream,
+SkJpegCodec::SkJpegCodec(int width, int height, const SkEncodedInfo& info,
+                         std::unique_ptr<SkStream> stream, JpegDecoderMgr* decoderMgr,
+                         sk_sp<SkColorSpace> colorSpace, Origin origin)
+    : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat, std::move(stream),
                 std::move(colorSpace), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)

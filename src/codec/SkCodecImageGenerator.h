@@ -34,7 +34,7 @@ private:
     /*
      * Takes ownership of codec
      */
-    SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData>);
+    SkCodecImageGenerator(std::unique_ptr<SkCodec>, sk_sp<SkData>);
 
     std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;

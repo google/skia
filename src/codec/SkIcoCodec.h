@@ -25,7 +25,7 @@ public:
      * Creates an Ico decoder
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*, Result*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
 protected:
 

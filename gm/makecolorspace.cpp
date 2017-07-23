@@ -15,7 +15,7 @@
 sk_sp<SkImage> make_raster_image(const char* path, SkTransferFunctionBehavior behavior) {
     SkString resourcePath = GetResourcePath(path);
     sk_sp<SkData> resourceData = SkData::MakeFromFileName(resourcePath.c_str());
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(resourceData));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(resourceData);
 
     SkBitmap bitmap;
     bitmap.allocPixels(codec->getInfo());

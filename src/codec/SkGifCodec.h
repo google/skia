@@ -29,7 +29,7 @@ public:
      * Assumes IsGif was called and returned true
      * Reads enough of the stream to determine the image format
      */
-    static SkCodec* NewFromStream(SkStream*, Result*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
     // Callback for SkGifImageReader when a row is available.
     bool haveDecodedRow(int frameIndex, const unsigned char* rowBegin,

@@ -26,30 +26,30 @@
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);
-    SkCodec* (*NewFromStream)(SkStream*, SkCodec::Result*);
+    std::unique_ptr<SkCodec> (*MakeFromStream)(std::unique_ptr<SkStream>, SkCodec::Result*);
 };
 
 static const DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_JPEG_LIBRARY
-    { SkJpegCodec::IsJpeg, SkJpegCodec::NewFromStream },
+    { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
 #endif
 #ifdef SK_HAS_WEBP_LIBRARY
-    { SkWebpCodec::IsWebp, SkWebpCodec::NewFromStream },
+    { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
 #endif
-    { SkGifCodec::IsGif, SkGifCodec::NewFromStream },
+    { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
 #ifdef SK_HAS_PNG_LIBRARY
-    { SkIcoCodec::IsIco, SkIcoCodec::NewFromStream },
+    { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
 #endif
-    { SkBmpCodec::IsBmp, SkBmpCodec::NewFromStream },
-    { SkWbmpCodec::IsWbmp, SkWbmpCodec::NewFromStream }
+    { SkBmpCodec::IsBmp, SkBmpCodec::MakeFromStream },
+    { SkWbmpCodec::IsWbmp, SkWbmpCodec::MakeFromStream }
 };
 
 size_t SkCodec::MinBufferedBytesNeeded() {
     return WEBP_VP8_HEADER_SIZE;
 }
 
-SkCodec* SkCodec::NewFromStream(SkStream* stream,
-        Result* outResult, SkPngChunkReader* chunkReader) {
+std::unique_ptr<SkCodec> SkCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                 Result* outResult, SkPngChunkReader* chunkReader) {
     Result resultStorage;
     if (!outResult) {
         outResult = &resultStorage;
@@ -59,8 +59,6 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
         *outResult = kInvalidInput;
         return nullptr;
     }
-
-    std::unique_ptr<SkStream> streamDeleter(stream);
 
     // 14 is enough to read all of the supported types.
     const size_t bytesToRead = 14;
@@ -96,19 +94,19 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     // But this code follows the same pattern as the loop.
 #ifdef SK_HAS_PNG_LIBRARY
     if (SkPngCodec::IsPng(buffer, bytesRead)) {
-        return SkPngCodec::NewFromStream(streamDeleter.release(), outResult, chunkReader);
+        return SkPngCodec::MakeFromStream(std::move(stream), outResult, chunkReader);
     } else
 #endif
     {
         for (DecoderProc proc : gDecoderProcs) {
             if (proc.IsFormat(buffer, bytesRead)) {
-                return proc.NewFromStream(streamDeleter.release(), outResult);
+                return proc.MakeFromStream(std::move(stream), outResult);
             }
         }
 
 #ifdef SK_CODEC_DECODES_RAW
         // Try to treat the input as RAW if all the other checks failed.
-        return SkRawCodec::NewFromStream(streamDeleter.release(), outResult);
+        return SkRawCodec::MakeFromStream(std::move(stream), outResult);
 #endif
     }
 
@@ -121,20 +119,21 @@ SkCodec* SkCodec::NewFromStream(SkStream* stream,
     return nullptr;
 }
 
-SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
+std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
     if (!data) {
         return nullptr;
     }
-    return NewFromStream(new SkMemoryStream(data), nullptr, reader);
+    return MakeFromStream(std::unique_ptr<SkStream>(new SkMemoryStream(std::move(data))),
+                                                    nullptr, reader);
 }
 
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,
-        XformFormat srcFormat, SkStream* stream,
+        XformFormat srcFormat, std::unique_ptr<SkStream> stream,
         sk_sp<SkColorSpace> colorSpace, Origin origin)
     : fEncodedInfo(info)
     , fSrcInfo(info.makeImageInfo(width, height, std::move(colorSpace)))
     , fSrcXformFormat(srcFormat)
-    , fStream(stream)
+    , fStream(std::move(stream))
     , fNeedsRewind(false)
     , fOrigin(origin)
     , fDstInfo()
@@ -143,11 +142,11 @@ SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,
 {}
 
 SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
-        XformFormat srcFormat, SkStream* stream, Origin origin)
+        XformFormat srcFormat, std::unique_ptr<SkStream> stream, Origin origin)
     : fEncodedInfo(info)
     , fSrcInfo(imageInfo)
     , fSrcXformFormat(srcFormat)
-    , fStream(stream)
+    , fStream(std::move(stream))
     , fNeedsRewind(false)
     , fOrigin(origin)
     , fDstInfo()
@@ -619,3 +618,12 @@ std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
     }
     return result;
 }
+
+#ifdef SK_SUPPORT_LEGACY_CODEC_NEW
+SkCodec* SkCodec::NewFromStream(SkStream* str, Result* res, SkPngChunkReader* chunk) {
+    return MakeFromStream(std::unique_ptr<SkStream*>(str), res, chunk).release();
+}
+SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* chunk) {
+    return MakeFromData(std::move(data), chunk).release();
+}
+#endif

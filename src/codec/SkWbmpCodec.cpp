@@ -95,10 +95,11 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
     return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
 
-SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info, SkStream* stream)
+SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info,
+                         std::unique_ptr<SkStream> stream)
     // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
     : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(),
-                stream, SkColorSpace::MakeSRGB())
+                std::move(stream), SkColorSpace::MakeSRGB())
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
 {}
@@ -145,10 +146,10 @@ bool SkWbmpCodec::IsWbmp(const void* buffer, size_t bytesRead) {
     return read_header(&stream, nullptr);
 }
 
-SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream, Result* result) {
-    std::unique_ptr<SkStream> streamDeleter(stream);
+std::unique_ptr<SkCodec> SkWbmpCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                     Result* result) {
     SkISize size;
-    if (!read_header(stream, &size)) {
+    if (!read_header(stream.get(), &size)) {
         // This already succeeded in IsWbmp, so this stream was corrupted in/
         // after rewind.
         *result = kCouldNotRewind;
@@ -157,7 +158,8 @@ SkCodec* SkWbmpCodec::NewFromStream(SkStream* stream, Result* result) {
     *result = kSuccess;
     SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kGray_Color,
             SkEncodedInfo::kOpaque_Alpha, 1);
-    return new SkWbmpCodec(size.width(), size.height(), info, streamDeleter.release());
+    return std::unique_ptr<SkCodec>(new SkWbmpCodec(size.width(), size.height(), info,
+                                                    std::move(stream)));
 }
 
 int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {

@@ -531,7 +531,7 @@ static void push_codec_srcs(Path path) {
         info("Couldn't read %s.", path.c_str());
         return;
     }
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(encoded);
     if (nullptr == codec.get()) {
         info("Couldn't create codec for %s.", path.c_str());
         return;

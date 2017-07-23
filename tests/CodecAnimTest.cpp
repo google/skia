@@ -37,9 +37,7 @@ DEF_TEST(Codec_trunc, r) {
     if (!data) {
         return;
     }
-    data = SkData::MakeSubset(data.get(), 0, 23);
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
-    codec->getFrameInfo();
+    SkCodec::MakeFromData(SkData::MakeSubset(data.get(), 0, 23))->getFrameInfo();
 }
 
 // 565 does not support alpha, but there is no reason for it not to support an
@@ -50,7 +48,7 @@ DEF_TEST(Codec_565, r) {
     if (!data) {
         return;
     }
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(std::move(data)));
     auto info = codec->getInfo().makeColorType(kRGB_565_SkColorType);
     SkBitmap bm;
     bm.allocPixels(info);
@@ -175,7 +173,7 @@ DEF_TEST(Codec_frames, r) {
             continue;
         }
 
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
         if (!codec) {
             ERRORF(r, "Failed to create an SkCodec from '%s'", rec.fName);
             continue;
@@ -227,7 +225,7 @@ DEF_TEST(Codec_frames, r) {
 
         for (auto mode : { TestMode::kVector, TestMode::kIndividual }) {
             // Re-create the codec to reset state and test parsing.
-            codec.reset(SkCodec::NewFromData(data));
+            codec = SkCodec::MakeFromData(data);
 
             int frameCount;
             std::vector<SkCodec::FrameInfo> frameInfos;

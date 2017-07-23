@@ -11,6 +11,7 @@
 #include "SkCodecAnimationPriv.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
+#include "SkMakeUnique.h"
 #include "SkRasterPipeline.h"
 #include "SkSampler.h"
 #include "SkStreamPriv.h"
@@ -44,19 +45,18 @@ static SkAlphaType alpha_type(bool hasAlpha) {
 
 // Parse headers of RIFF container, and check for valid Webp (VP8) content.
 // Returns an SkWebpCodec on success
-SkCodec* SkWebpCodec::NewFromStream(SkStream* stream, Result* result) {
-    std::unique_ptr<SkStream> streamDeleter(stream);
-
+std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                     Result* result) {
     // Webp demux needs a contiguous data buffer.
     sk_sp<SkData> data = nullptr;
     if (stream->getMemoryBase()) {
         // It is safe to make without copy because we'll hold onto the stream.
         data = SkData::MakeWithoutCopy(stream->getMemoryBase(), stream->getLength());
     } else {
-        data = SkCopyStreamToData(stream);
+        data = SkCopyStreamToData(stream.get());
 
         // If we are forced to copy the stream to a data, we can go ahead and delete the stream.
-        streamDeleter.reset(nullptr);
+        stream.reset(nullptr);
     }
 
     // It's a little strange that the |demux| will outlive |webpData|, though it needs the
@@ -162,9 +162,8 @@ SkCodec* SkWebpCodec::NewFromStream(SkStream* stream, Result* result) {
 
     *result = kSuccess;
     SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    return new SkWebpCodec(width, height, info, std::move(colorSpace),
-                           streamDeleter.release(), demux.release(),
-                           std::move(data));
+    return std::unique_ptr<SkCodec>(new SkWebpCodec(width, height, info, std::move(colorSpace),
+                                           std::move(stream), demux.release(), std::move(data)));
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
@@ -628,9 +627,9 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 }
 
 SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
-                         sk_sp<SkColorSpace> colorSpace, SkStream* stream, WebPDemuxer* demux,
-                         sk_sp<SkData> data)
-    : INHERITED(width, height, info, SkColorSpaceXform::kBGRA_8888_ColorFormat, stream,
+                         sk_sp<SkColorSpace> colorSpace, std::unique_ptr<SkStream> stream,
+                         WebPDemuxer* demux, sk_sp<SkData> data)
+    : INHERITED(width, height, info, SkColorSpaceXform::kBGRA_8888_ColorFormat, std::move(stream),
                 std::move(colorSpace))
     , fDemux(demux)
     , fData(std::move(data))

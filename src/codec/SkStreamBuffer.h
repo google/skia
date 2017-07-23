@@ -24,9 +24,7 @@
  */
 class SkStreamBuffer : SkNoncopyable {
 public:
-    // Takes ownership of the SkStream.
-    SkStreamBuffer(SkStream*);
-
+    SkStreamBuffer(std::unique_ptr<SkStream>);
     ~SkStreamBuffer();
 
     /**

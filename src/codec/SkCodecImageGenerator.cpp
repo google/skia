@@ -9,12 +9,12 @@
 #include "SkMakeUnique.h"
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {
-    SkCodec* codec = SkCodec::NewFromData(data);
+    auto codec = SkCodec::MakeFromData(data);
     if (nullptr == codec) {
         return nullptr;
     }
 
-    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(codec, data));
+    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data));
 }
 
 static SkImageInfo adjust_info(const SkImageInfo& info) {
@@ -25,9 +25,9 @@ static SkImageInfo adjust_info(const SkImageInfo& info) {
     return newInfo;
 }
 
-SkCodecImageGenerator::SkCodecImageGenerator(SkCodec* codec, sk_sp<SkData> data)
+SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_sp<SkData> data)
     : INHERITED(adjust_info(codec->getInfo()))
-    , fCodec(codec)
+    , fCodec(std::move(codec))
     , fData(std::move(data))
 {}
 

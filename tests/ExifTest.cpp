@@ -16,13 +16,12 @@ DEF_TEST(ExifOrientation, r) {
         return;
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, nullptr != codec);
     SkCodec::Origin origin = codec->getOrigin();
     REPORTER_ASSERT(r, SkCodec::kTopRight_Origin == origin);
 
-    stream = GetResourceAsStream("mandrill_512_q075.jpg");
-    codec.reset(SkCodec::NewFromStream(stream.release()));
+    codec = SkCodec::MakeFromStream(GetResourceAsStream("mandrill_512_q075.jpg"));
     REPORTER_ASSERT(r, nullptr != codec);
     origin = codec->getOrigin();
     REPORTER_ASSERT(r, SkCodec::kTopLeft_Origin == origin);

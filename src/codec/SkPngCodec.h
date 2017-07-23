@@ -23,8 +23,8 @@ public:
     static bool IsPng(const char*, size_t);
 
     // Assume IsPng was called and returned true.
-    static SkCodec* NewFromStream(SkStream*, Result*,
-                                  SkPngChunkReader* = nullptr);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
+                                                   SkPngChunkReader* = nullptr);
 
     // FIXME (scroggo): Temporarily needed by AutoCleanPng.
     void setIdatLength(size_t len) { fIdatLength = len; }
@@ -45,8 +45,8 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, SkStream*, SkPngChunkReader*,
-            void* png_ptr, void* info_ptr, int bitDepth);
+    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, std::unique_ptr<SkStream>,
+               SkPngChunkReader*, void* png_ptr, void* info_ptr, int bitDepth);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;

@@ -419,7 +419,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
     if (nullptr == codec.get()) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
@@ -757,7 +757,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize CodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
     if (nullptr == codec) {
         return {0, 0};
     }
@@ -818,8 +818,8 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
-    if (nullptr == codec.get()) {
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromData(encoded));
+    if (nullptr == codec) {
         return SkStringPrintf("Couldn't create android codec for %s.", fPath.c_str());
     }
 
@@ -869,7 +869,7 @@ Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize AndroidCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromData(encoded));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromData(encoded));
     if (nullptr == codec) {
         return {0, 0};
     }
@@ -990,7 +990,7 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
 
 SkISize ImageGenSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
     if (nullptr == codec) {
         return {0, 0};
     }
@@ -1052,8 +1052,8 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
-    if (nullptr == codec.get()) {
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
+    if (nullptr == codec) {
         return SkStringPrintf("Couldn't create codec for %s.", fPath.c_str());
     }
 
@@ -1123,7 +1123,7 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
 SkISize ColorCodecSrc::size() const {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(encoded));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
     if (nullptr == codec) {
         return {0, 0};
     }

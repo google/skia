@@ -195,7 +195,7 @@ DEF_TEST(Gif, reporter) {
     // Likewise, incremental decoding should succeed here.
     {
         sk_sp<SkData> data = SkData::MakeWithoutCopy(gGIFDataNoColormap, 31);
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+        std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
         REPORTER_ASSERT(reporter, codec);
         if (codec) {
             auto info = codec->getInfo().makeColorType(kN32_SkColorType);
@@ -232,7 +232,7 @@ DEF_TEST(Gif_Sampled, r) {
         return;
     }
 
-    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    std::unique_ptr<SkAndroidCodec> codec(SkAndroidCodec::MakeFromStream(std::move(stream)));
     REPORTER_ASSERT(r, codec);
     if (!codec) {
         return;
@@ -258,7 +258,7 @@ DEF_TEST(Codec_GifTruncated, r) {
 
     // This is right before the header for the first image.
     data = SkData::MakeSubset(data.get(), 0, 446);
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     REPORTER_ASSERT(r, !codec);
 }
 
@@ -270,7 +270,7 @@ DEF_TEST(Codec_GifTruncated2, r) {
 
     // This is after the header, but before the color table.
     data = SkData::MakeSubset(data.get(), 0, 23);
-    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     if (!codec) {
         ERRORF(r, "Failed to create codec with partial data");
         return;

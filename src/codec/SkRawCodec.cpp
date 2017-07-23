@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkJpegCodec.h"
+#include "SkMakeUnique.h"
 #include "SkMutex.h"
 #include "SkRawCodec.h"
 #include "SkRefCnt.h"
@@ -196,7 +197,7 @@ public:
      * Note: for performance reason, this function is destructive to the SkRawStream. One should
      *       abandon current object after the function call.
      */
-   virtual SkMemoryStream* transferBuffer(size_t offset, size_t size) = 0;
+   virtual std::unique_ptr<SkMemoryStream> transferBuffer(size_t offset, size_t size) = 0;
 };
 
 class SkRawLimitedDynamicMemoryWStream : public SkDynamicMemoryWStream {
@@ -225,13 +226,12 @@ private:
 // Note: the maximum buffer size is 100MB (limited by SkRawLimitedDynamicMemoryWStream).
 class SkRawBufferedStream : public SkRawStream {
 public:
-    // Will take the ownership of the stream.
-    explicit SkRawBufferedStream(SkStream* stream)
-        : fStream(stream)
+    explicit SkRawBufferedStream(std::unique_ptr<SkStream> stream)
+        : fStream(std::move(stream))
         , fWholeStreamRead(false)
     {
         // Only use SkRawBufferedStream when the stream is not an asset stream.
-        SkASSERT(!is_asset_stream(*stream));
+        SkASSERT(!is_asset_stream(*fStream));
     }
 
     ~SkRawBufferedStream() override {}
@@ -256,7 +256,7 @@ public:
         return this->bufferMoreData(sum) && fStreamBuffer.read(data, offset, length);
     }
 
-    SkMemoryStream* transferBuffer(size_t offset, size_t size) override {
+    std::unique_ptr<SkMemoryStream> transferBuffer(size_t offset, size_t size) override {
         sk_sp<SkData> data(SkData::MakeUninitialized(size));
         if (offset > fStreamBuffer.bytesWritten()) {
             // If the offset is not buffered, read from fStream directly and skip the buffering.
@@ -288,7 +288,7 @@ public:
                 }
             }
         }
-        return new SkMemoryStream(data);
+        return skstd::make_unique<SkMemoryStream>(data);
     }
 
 private:
@@ -333,12 +333,11 @@ private:
 
 class SkRawAssetStream : public SkRawStream {
 public:
-    // Will take the ownership of the stream.
-    explicit SkRawAssetStream(SkStream* stream)
-        : fStream(stream)
+    explicit SkRawAssetStream(std::unique_ptr<SkStream> stream)
+        : fStream(std::move(stream))
     {
         // Only use SkRawAssetStream when the stream is an asset stream.
-        SkASSERT(is_asset_stream(*stream));
+        SkASSERT(is_asset_stream(*fStream));
     }
 
     ~SkRawAssetStream() override {}
@@ -361,7 +360,7 @@ public:
         return fStream->seek(offset) && (fStream->read(data, length) == length);
     }
 
-    SkMemoryStream* transferBuffer(size_t offset, size_t size) override {
+    std::unique_ptr<SkMemoryStream> transferBuffer(size_t offset, size_t size) override {
         if (fStream->getLength() < offset) {
             return nullptr;
         }
@@ -382,7 +381,7 @@ public:
             sk_sp<SkData> data(SkData::MakeWithCopy(
                 static_cast<const uint8_t*>(fStream->getMemoryBase()) + offset, bytesToRead));
             fStream.reset();
-            return new SkMemoryStream(data);
+            return skstd::make_unique<SkMemoryStream>(data);
         } else {
             sk_sp<SkData> data(SkData::MakeUninitialized(bytesToRead));
             if (!fStream->seek(offset)) {
@@ -392,7 +391,7 @@ public:
             if (bytesRead < bytesToRead) {
                 data = SkData::MakeSubset(data.get(), 0, bytesRead);
             }
-            return new SkMemoryStream(data);
+            return skstd::make_unique<SkMemoryStream>(data);
         }
     }
 private:
@@ -630,12 +629,13 @@ private:
  * SkJpegCodec. If PIEX returns kFail, then the file is invalid, return nullptr. In other cases,
  * fallback to create SkRawCodec for DNG images.
  */
-SkCodec* SkRawCodec::NewFromStream(SkStream* stream, Result* result) {
+std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
+                                                    Result* result) {
     std::unique_ptr<SkRawStream> rawStream;
     if (is_asset_stream(*stream)) {
-        rawStream.reset(new SkRawAssetStream(stream));
+        rawStream.reset(new SkRawAssetStream(std::move(stream)));
     } else {
-        rawStream.reset(new SkRawBufferedStream(stream));
+        rawStream.reset(new SkRawBufferedStream(std::move(stream)));
     }
 
     // Does not take the ownership of rawStream.
@@ -666,13 +666,14 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream, Result* result) {
             // transferBuffer() is destructive to the rawStream. Abandon the rawStream after this
             // function call.
             // FIXME: one may avoid the copy of memoryStream and use the buffered rawStream.
-            SkMemoryStream* memoryStream =
-                rawStream->transferBuffer(imageData.preview.offset, imageData.preview.length);
+            auto memoryStream = rawStream->transferBuffer(imageData.preview.offset,
+                                                          imageData.preview.length);
             if (!memoryStream) {
                 *result = kInvalidInput;
                 return nullptr;
             }
-            return SkJpegCodec::NewFromStream(memoryStream, result, std::move(colorSpace));
+            return SkJpegCodec::MakeFromStream(std::move(memoryStream), result,
+                                               std::move(colorSpace));
         }
     }
 
@@ -689,7 +690,7 @@ SkCodec* SkRawCodec::NewFromStream(SkStream* stream, Result* result) {
     }
 
     *result = kSuccess;
-    return new SkRawCodec(dngImage.release());
+    return std::unique_ptr<SkCodec>(new SkRawCodec(dngImage.release()));
 }
 
 SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
