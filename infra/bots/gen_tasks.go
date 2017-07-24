@@ -267,6 +267,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelIris540":  "8086:1926-21.20.16.4590",
 					"IntelIris6100": "8086:162b-20.19.15.4624",
 					"RadeonR9M470X": "1002:6646-22.19.165.512",
+					"QuadroP400":    "10de:1cb3-21.21.13.7619",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
