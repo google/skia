@@ -254,6 +254,8 @@
       "--writePath",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm",
       "--nocpu",
+      "--dont_write",
+      "pdf",
       "--randomProcessorTest",
       "--config",
       "vk",

@@ -157,6 +157,8 @@
       "os",
       "Ubuntu",
       "--nogpu",
+      "--dont_write",
+      "pdf",
       "--randomProcessorTest",
       "--config",
       "8888",

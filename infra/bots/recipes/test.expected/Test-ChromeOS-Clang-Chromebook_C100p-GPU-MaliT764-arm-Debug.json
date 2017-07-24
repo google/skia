@@ -865,6 +865,8 @@
       "--writePath",
       "/home/chronos/user/dm_out",
       "--nocpu",
+      "--dont_write",
+      "pdf",
       "--randomProcessorTest",
       "--config",
       "gles",
