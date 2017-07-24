@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstddef>
 #include "SkArenaAlloc.h"
+#include "SkTypes.h"
 
 static char* end_chain(char*) { return nullptr; }
 
@@ -39,8 +40,8 @@ SkArenaAlloc::~SkArenaAlloc() {
     if (fTotalSlop >= 0) {
         int32_t lastSlop = fEnd - fCursor;
         fTotalSlop += lastSlop;
-        SkDebugf("SkArenaAlloc initial: %p %u %u total alloc: %u total slop: %d last slop: %d\n",
-            fFirstBlock, fFirstSize, fExtraSize, fTotalAlloc, fTotalSlop, lastSlop);
+        SkDEBUGF(("SkArenaAlloc initial: %p %u %u total alloc: %u total slop: %d last slop: %d\n",
+            fFirstBlock, fFirstSize, fExtraSize, fTotalAlloc, fTotalSlop, lastSlop));
     }
     RunDtorsOnBlock(fDtorCursor);
 }
@@ -109,19 +110,29 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     // This must be conservative to add the right amount of extra memory to handle the alignment
     // padding.
     constexpr uint32_t alignof_max_align_t = 8;
-    uint32_t objSizeAndOverhead = size + headerSize + sizeof(Footer);
+    constexpr uint32_t overhead = headerSize + sizeof(Footer);
+    SkASSERT_RELEASE(size <= std::numeric_limits<uint32_t>::max() - overhead);
+    uint32_t objSizeAndOverhead = size + overhead;
     if (alignment > alignof_max_align_t) {
+        SkASSERT_RELEASE(objSizeAndOverhead <= std::numeric_limits<uint32_t>::max() - alignment+1);
         objSizeAndOverhead += alignment - 1;
     }
 
-    uint32_t allocationSize = std::max(objSizeAndOverhead, fExtraSize * fFib0);
-    fFib0 += fFib1;
-    std::swap(fFib0, fFib1);
+    uint32_t minAllocationSize;
+    if (fExtraSize <= std::numeric_limits<uint32_t>::max() / fFib0) {
+        minAllocationSize = fExtraSize * fFib0;
+        fFib0 += fFib1;
+        std::swap(fFib0, fFib1);
+    } else {
+        minAllocationSize = std::numeric_limits<uint32_t>::max();
+    }
+    uint32_t allocationSize = std::max(objSizeAndOverhead, minAllocationSize);
 
     // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
     // heuristic is from the JEMalloc behavior.
     {
         uint32_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
+        SkASSERT_RELEASE(allocationSize <= std::numeric_limits<uint32_t>::max() - mask);
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
