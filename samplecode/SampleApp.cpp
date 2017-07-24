@@ -332,8 +332,8 @@ public:
         return nullptr;
     }
 
-    void publishCanvas(SampleWindow::DeviceType dType, SkSurface* surface,
-                       SampleWindow* win) override {
+    void publishCanvas(SampleWindow::DeviceType dType,
+                       SkCanvas* renderingCanvas, SampleWindow* win) override {
 #if SK_SUPPORT_GPU
         if (!IsGpuDeviceType(dType) ||
             kRGBA_F16_SkColorType == win->info().colorType() ||
@@ -345,7 +345,7 @@ public:
             auto data = SkData::MakeUninitialized(size);
             SkASSERT(data);
 
-            if (!surface->readPixels(info, data->writable_data(), rowBytes, 0, 0)) {
+            if (!renderingCanvas->readPixels(info, data->writable_data(), rowBytes, 0, 0)) {
                 SkDEBUGFAIL("Failed to read canvas pixels");
                 return;
             }
@@ -1091,14 +1091,6 @@ static void drawText(SkCanvas* canvas, SkString str, SkScalar left, SkScalar top
 #include "SkDeferredCanvas.h"
 #include "SkDumpCanvas.h"
 
-void SampleWindow::drawIntoSurface() {
-    auto surf = this->makeSurface();
-
-    this->draw(surf->getCanvas());
-
-    fDevManager->publishCanvas(fDeviceType, surf.get(), this);
-}
-
 void SampleWindow::draw(SkCanvas* canvas) {
     std::unique_ptr<SkThreadedBMPDevice> tDev;
     std::unique_ptr<SkCanvas> tCanvas;
@@ -1172,6 +1164,9 @@ void SampleWindow::draw(SkCanvas* canvas) {
     }
 
     canvas->flush();
+
+    // do this last
+    fDevManager->publishCanvas(fDeviceType, canvas, this);
 }
 
 static float clipW = 200;
