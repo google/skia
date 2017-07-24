@@ -465,6 +465,8 @@ int main(int argc, char** argv) {
     } else {
         codec.reset(SkCodec::NewFromData(data));
         colorSpace = sk_ref_sp(codec->getInfo().colorSpace());
+        SkDebugf("SkCodec would naturally decode as colorType=%s\n",
+                 sk_tool_utils::colortype_name(codec->getInfo().colorType()));
     }
 
     if (!colorSpace) {
