@@ -86,6 +86,13 @@ GrTextureStripAtlas::GrTextureStripAtlas(GrTextureStripAtlas::Desc desc)
 
 GrTextureStripAtlas::~GrTextureStripAtlas() { delete[] fRows; }
 
+void GrTextureStripAtlas::lockRow(int row) {
+    // This should only be called on a row that is already locked.
+    SkASSERT(fRows[row].fLocks);
+    fRows[row].fLocks++;
+    ++fLockedRows;
+}
+
 int GrTextureStripAtlas::lockRow(const SkBitmap& bitmap) {
     VALIDATE;
     if (0 == fLockedRows) {
