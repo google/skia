@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c52a16c_70069fe0",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-24T14:47:12Z",
+      "side": 1,
+      "message": "Seems like this wants to be const\u0026?",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 36
+      },
+      "revId": "5ed6575824e5866d1f7455e57eaf39b6c79d1891",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce404dbd_b35c3293",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-24T14:47:12Z",
+      "side": 1,
+      "message": "Same deal, seems like passing const\u0026 makes more sense.",
+      "range": {
+        "startLine": 90,
+        "startChar": 28,
+        "endLine": 90,
+        "endChar": 40
+      },
+      "revId": "5ed6575824e5866d1f7455e57eaf39b6c79d1891",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
