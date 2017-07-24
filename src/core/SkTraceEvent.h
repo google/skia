@@ -17,6 +17,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation specific tracing API definitions.
 
+// Makes it easier to add traces with a simple TRACE_EVENT0("skia", TRACE_FUNC).
+#if defined(_MSC_VER)
+    #define TRACE_FUNC __FUNCSIG__
+#else
+    #define TRACE_FUNC __PRETTY_FUNCTION__
+#endif
+
 // By default, const char* argument values are assumed to have long-lived scope
 // and will not be copied. Use this macro to force a const char* to be copied.
 #define TRACE_STR_COPY(str) \
