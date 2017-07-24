@@ -118,7 +118,8 @@ public:
     sk_sp<SkSpecialImage> snapSpecial() override;
 
     void flush() override;
-    bool flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores);
+    GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
+                                                   GrBackendSemaphore signalSemaphores[]);
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
     bool onAccessPixels(SkPixmap*) override;
