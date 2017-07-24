@@ -263,12 +263,17 @@ public:
         SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
         {
             int numGlyphs = glyphPaint.getTypeface()->countGlyphs();
+
             SkRect min = {0, 0, 0, 0};
             glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+            SkAutoTMalloc<SkGlyphID> glyphs(numGlyphs);
             for (int i = 0; i < numGlyphs; ++i) {
-                SkGlyphID glyphId = i;
-                SkRect cur;
-                glyphPaint.measureText(&glyphId, sizeof(glyphId), &cur);
+                glyphs[i] = i;
+            }
+            SkAutoTMalloc<SkRect> bounds(numGlyphs);
+            glyphPaint.getTextWidths(glyphs, numGlyphs * sizeof(SkGlyphID), nullptr, bounds);
+            for (int i = 0; i < numGlyphs; ++i) {
+                SkRect& cur = bounds[i];
                 if (cur.fLeft   < min.fLeft  ) { min.fLeft   = cur.fLeft;   left   = i; }
                 if (cur.fTop    < min.fTop   ) { min.fTop    = cur.fTop ;   top    = i; }
                 if (min.fRight  < cur.fRight ) { min.fRight  = cur.fRight;  right  = i; }
@@ -313,9 +318,7 @@ protected:
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count() && j < 3; ++j) {
                 paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
-                // Fonts with lots of glyphs are interesting, but can take a long time to find
-                // the glyphs which make up the maximum extent.
-                if (paint.getTypeface() && paint.getTypeface()->countGlyphs() < 1000) {
+                if (paint.getTypeface()) {
                     SkRect fontBounds = paint.getFontBounds();
                     x -= fontBounds.fLeft;
                     show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
