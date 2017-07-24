@@ -132,9 +132,21 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         SkASSERT(masterContext && masterContext->fType == type);
     }
 
+    GrContextOptions grOptions = fGlobalOptions;
+    if (ContextOverrides::kDisableNVPR & overrides) {
+        grOptions.fSuppressPathRendering = true;
+    }
+    if (ContextOverrides::kUseInstanced & overrides) {
+        grOptions.fEnableInstancedRendering = true;
+    }
+    if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
+        grOptions.fRequireDecodeDisableForSRGB = false;
+    }
+    if (ContextOverrides::kAvoidStencilBuffers & overrides) {
+        grOptions.fAvoidStencilBuffers = true;
+    }
+
     std::unique_ptr<TestContext> testCtx;
-    GrBackendContext backendContext = 0;
-    sk_sp<const GrGLInterface> glInterface;
     GrBackend backend = ContextTypeBackend(type);
     switch (backend) {
         case kOpenGL_GrBackend: {
@@ -194,8 +206,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 return ContextInfo();
             }
             testCtx.reset(glCtx);
-            glInterface.reset(SkRef(glCtx->gl()));
-            backendContext = reinterpret_cast<GrBackendContext>(glInterface.get());
+
             break;
         }
 #ifdef SK_VULKAN
@@ -220,7 +231,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
                 }
             }
-            backendContext = testCtx->backendContext();
             break;
         }
 #endif
@@ -244,7 +254,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             if (!testCtx) {
                 return ContextInfo();
             }
-            backendContext = testCtx->backendContext();
             break;
         }
         default:
@@ -252,23 +261,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
     testCtx->makeCurrent();
     SkASSERT(testCtx && testCtx->backend() == backend);
-    GrContextOptions grOptions = fGlobalOptions;
-    if (ContextOverrides::kDisableNVPR & overrides) {
-        grOptions.fSuppressPathRendering = true;
-    }
-    if (ContextOverrides::kUseInstanced & overrides) {
-        grOptions.fEnableInstancedRendering = true;
-    }
-    if (ContextOverrides::kAllowSRGBWithoutDecodeControl & overrides) {
-        grOptions.fRequireDecodeDisableForSRGB = false;
-    }
-    if (ContextOverrides::kAvoidStencilBuffers & overrides) {
-        grOptions.fAvoidStencilBuffers = true;
-    }
     sk_sp<GrContext> grCtx = testCtx->makeGrContext(grOptions);
-    if (!grCtx.get() && kMetal_GrBackend != backend) {
-        grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
-    }
     if (!grCtx.get()) {
         return ContextInfo();
     }

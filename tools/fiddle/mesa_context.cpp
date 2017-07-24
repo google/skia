@@ -27,7 +27,5 @@ sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
     if (!mesa) {
         return nullptr;
     }
-    return sk_sp<GrContext>(GrContext::Create(
-                kOpenGL_GrBackend,
-                reinterpret_cast<intptr_t>(mesa.get())));
+    return GrContext::MakeGL(mesa.get());
 }

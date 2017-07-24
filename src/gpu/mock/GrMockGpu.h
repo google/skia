@@ -20,6 +20,7 @@ class GrPipeline;
 class GrMockGpu : public GrGpu {
 public:
     static GrGpu* Create(GrBackendContext, const GrContextOptions&, GrContext*);
+    static GrGpu* Create(const GrMockOptions*, const GrContextOptions&, GrContext*);
 
     ~GrMockGpu() override {}
 
