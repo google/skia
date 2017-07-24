@@ -7,6 +7,7 @@
 
 #include "ok.h"
 #include "SkSurface.h"
+#include "SkTraceEvent.h"
 
 struct SWDst : Dst {
     SkImageInfo      info;
@@ -29,6 +30,7 @@ struct SWDst : Dst {
     }
 
     Status draw(Src* src) override {
+        TRACE_EVENT0("ok", TRACE_FUNC);
         auto size = src->size();
         surface = SkSurface::MakeRaster(info.makeWH(size.width(), size.height()));
         return src->draw(surface->getCanvas());

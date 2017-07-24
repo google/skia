@@ -10,6 +10,7 @@
 #include "SkData.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "SkTraceEvent.h"
 #include <vector>
 
 struct GMStream : Stream {
@@ -40,6 +41,7 @@ struct GMStream : Stream {
         }
 
         Status draw(SkCanvas* canvas) override {
+            TRACE_EVENT0("ok", TRACE_FUNC);
             this->init();
             canvas->clear(0xffffffff);
             canvas->concat(gm->getInitialTransform());
@@ -94,6 +96,7 @@ struct SKPStream : Stream {
         }
 
         Status draw(SkCanvas* canvas) override {
+            TRACE_EVENT0("ok", TRACE_FUNC);
             this->init();
             canvas->clear(0xffffffff);
             pic->playback(canvas);

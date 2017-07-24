@@ -6,6 +6,7 @@
  */
 
 #include "ok.h"
+#include "SkTraceEvent.h"
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
@@ -32,6 +33,7 @@ struct TestStream : Stream {
         SkISize     size() override { return {0,0}; }
 
         Status draw(SkCanvas*) override {
+            TRACE_EVENT0("ok", TRACE_FUNC);
 
             struct : public skiatest::Reporter {
                 Status status = Status::OK;
