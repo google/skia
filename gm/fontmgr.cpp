@@ -313,7 +313,9 @@ protected:
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
             for (int j = 0; j < set->count() && j < 3; ++j) {
                 paint.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
-                if (paint.getTypeface()) {
+                // Fonts with lots of glyphs are interesting, but can take a long time to find
+                // the glyphs which make up the maximum extent.
+                if (paint.getTypeface() && paint.getTypeface()->countGlyphs() < 1000) {
                     SkRect fontBounds = paint.getFontBounds();
                     x -= fontBounds.fLeft;
                     show_bounds(canvas, paint, x, y, boundsColors[index & 1]);
