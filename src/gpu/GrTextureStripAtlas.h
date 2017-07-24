@@ -52,6 +52,11 @@ public:
      *      is responsible for calling unlockRow() with this row index when it's done with it.
      */
     int lockRow(const SkBitmap& data);
+    /**
+     * This is intended to be used when cloning a processor that already holds a lock. It is
+     * assumed that the row already has at least one lock.
+     */
+    void lockRow(int row);
     void unlockRow(int row);
 
     /**
