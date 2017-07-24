@@ -177,7 +177,7 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
         if (terminate) {
             sk_sp<GrFragmentProcessor> fp;
             while (true) {
-                fp = GrProcessorTestFactory<GrFragmentProcessor>::Make(d);
+                fp = GrFragmentProcessorTestFactory::Make(d);
                 SkASSERT(fp);
                 if (0 == fp->numChildProcessors()) {
                     break;
@@ -225,7 +225,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
 
         for (int s = 0; s < numProcs;) {
-            sk_sp<GrFragmentProcessor> fp(GrProcessorTestFactory<GrFragmentProcessor>::Make(d));
+            sk_sp<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::Make(d));
             SkASSERT(fp);
 
             // finally add the stage to the correct pipeline in the drawstate
@@ -316,7 +316,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         return false;
     }
 
-    int fpFactoryCnt = GrProcessorTestFactory<GrFragmentProcessor>::Count();
+    int fpFactoryCnt = GrFragmentProcessorTestFactory::Count();
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
@@ -324,8 +324,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 
             GrPaint paint;
             paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-            sk_sp<GrFragmentProcessor> fp(
-                GrProcessorTestFactory<GrFragmentProcessor>::MakeIdx(i, &ptd));
+            sk_sp<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::MakeIdx(i, &ptd));
             sk_sp<GrFragmentProcessor> blockFP(
                 BlockInputFragmentProcessor::Make(std::move(fp)));
             paint.addColorFragmentProcessor(std::move(blockFP));

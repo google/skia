@@ -14,7 +14,7 @@ sk_sp<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcessorTestData*
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
     sk_sp<GrFragmentProcessor> fp;
     do {
-        fp = GrProcessorTestFactory<GrFragmentProcessor>::Make(data);
+        fp = GrFragmentProcessorTestFactory::Make(data);
         SkASSERT(fp);
     } while (fp->numChildProcessors() != 0);
     return fp;

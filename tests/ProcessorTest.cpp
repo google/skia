@@ -288,7 +288,7 @@ DEFINE_bool(randomProcessorTest, false, "Use non-deterministic seed for random p
 #if GR_TEST_UTILS
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    using FPFactory = GrProcessorTestFactory<GrFragmentProcessor>;
+    using FPFactory = GrFragmentProcessorTestFactory;
 
     uint32_t seed = 0;
     if (FLAGS_randomProcessorTest) {
