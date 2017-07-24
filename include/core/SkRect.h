@@ -456,7 +456,7 @@ struct SK_API SkRect {
     static SkRect Make(const SkISize& size) {
         return MakeIWH(size.width(), size.height());
     }
-    
+
     static SkRect SK_WARN_UNUSED_RESULT Make(const SkIRect& irect) {
         SkRect r;
         r.set(SkIntToScalar(irect.fLeft),
@@ -512,11 +512,11 @@ struct SK_API SkRect {
     SkScalar    centerY() const { return SkScalarHalf(fTop + fBottom); }
 
     friend bool operator==(const SkRect& a, const SkRect& b) {
-        return SkScalarsEqual((SkScalar*)&a, (SkScalar*)&b, 4);
+        return SkScalarsEqual((const SkScalar*)&a, (const SkScalar*)&b, 4);
     }
 
     friend bool operator!=(const SkRect& a, const SkRect& b) {
-        return !SkScalarsEqual((SkScalar*)&a, (SkScalar*)&b, 4);
+        return !SkScalarsEqual((const SkScalar*)&a, (const SkScalar*)&b, 4);
     }
 
     /** return the 4 points that enclose the rectangle (top-left, top-right, bottom-right,
@@ -633,7 +633,7 @@ struct SK_API SkRect {
     SkRect makeOffset(SkScalar dx, SkScalar dy) const {
         return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
     }
-    
+
     /**
      *  Return a new Rect, built as an inset of this rect.
      */
@@ -883,14 +883,14 @@ public:
         this->round(&ir);
         return ir;
     }
-    
+
     //! Returns the result of calling roundOut(&dst)
     SkIRect roundOut() const {
         SkIRect ir;
         this->roundOut(&ir);
         return ir;
     }
-    
+
     /**
      *  Swap top/bottom or left/right if there are flipped (i.e. if width()
      *  or height() would have returned a negative value.) This should be called
