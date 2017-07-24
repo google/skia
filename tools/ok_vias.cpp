@@ -148,8 +148,10 @@ struct Time : Dst {
         std::chrono::duration<double, std::milli> elapsed = std::chrono::steady_clock::now()
                                                           - start;
 
-        auto msg = HumanizeMs(elapsed.count());
-        ok_log(msg.c_str());
+        if (status != Status::Skipped) {
+            auto msg = HumanizeMs(elapsed.count());
+            ok_log(msg.c_str());
+        }
         return status;
     }
 
@@ -171,8 +173,10 @@ struct Memory : Dst {
     Status draw(Src* src) override {
         Status status = target->draw(src);
 
-        auto msg = SkStringPrintf("%dMB", sk_tools::getMaxResidentSetSizeMB());
-        ok_log(msg.c_str());
+        if (status != Status::Skipped) {
+            auto msg = SkStringPrintf("%dMB", sk_tools::getMaxResidentSetSizeMB());
+            ok_log(msg.c_str());
+        }
 
         return status;
     }
