@@ -169,6 +169,7 @@ private:
     template <typename T>
     char* commonArrayAlloc(uint32_t count) {
         char* objStart;
+        SkASSERT_RELEASE(count <= std::numeric_limits<uint32_t>::max() / sizeof(T));
         uint32_t arraySize = SkTo<uint32_t>(count * sizeof(T));
         uint32_t alignment = SkTo<uint32_t>(alignof(T));
 
@@ -176,7 +177,9 @@ private:
             objStart = this->allocObject(arraySize, alignment);
             fCursor = objStart + arraySize;
         } else {
-            uint32_t totalSize = arraySize + sizeof(Footer) + sizeof(uint32_t);
+            constexpr uint32_t overhead = sizeof(Footer) + sizeof(uint32_t);
+            SkASSERT_RELEASE(arraySize <= std::numeric_limits<uint32_t>::max() - overhead);
+            uint32_t totalSize = arraySize + overhead;
             objStart = this->allocObjectWithFooter(totalSize, alignment);
 
             // Can never be UB because max value is alignof(T).
