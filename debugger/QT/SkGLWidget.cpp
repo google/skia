@@ -42,7 +42,7 @@ void SkGLWidget::initializeGL() {
     fGpuSurface = nullptr;
     fCanvas = nullptr;
 
-    fCurContext.reset(GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf.get()));
+    fCurContext = GrContext::MakeGL(fCurIntf.get());
 }
 
 void SkGLWidget::createRenderTarget() {

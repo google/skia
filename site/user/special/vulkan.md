@@ -21,7 +21,7 @@ To build the Vulkan backend, set `ndk_api = 24` in `args.gn` to target Android N
 Using the Vulkan Backend
 ------------------------
 
-To create a GrContext that is backed by Vulkan the client creates a Vulkan device and queue, initializes a GrVkBackendContext to describe the context, and then calls GrContext::Create:
+To create a GrContext that is backed by Vulkan the client creates a Vulkan device and queue, initializes a GrVkBackendContext to describe the context, and then calls GrContext::MakeVulkan:
 
 <!--?prettify lang=c++?-->
     sk_sp<GrVkBackendContext> vkContext = new GrVkBackendContext;
@@ -31,7 +31,7 @@ To create a GrContext that is backed by Vulkan the client creates a Vulkan devic
     vkBackendContext.fInterface.reset(GrVkCreateInterface(instance, vkPhysDevice, extensionFlags);
     ...
 
-    sk_sp<GrContext> context = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) vkBackendContext);
+    sk_sp<GrContext> context = GrContext::MakeVulkan(vkBackendContext);
 
 When using the Vulkan backend the GrBackendObject field in
 GrBackendRenderTargetDesc and GrBackendTextureDesc is interpeted as a pointer

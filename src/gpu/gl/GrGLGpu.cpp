@@ -184,8 +184,12 @@ bool GrGLGpu::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
 GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& options,
                        GrContext* context) {
-    sk_sp<const GrGLInterface> glInterface(
-        reinterpret_cast<const GrGLInterface*>(backendContext));
+    return Create(reinterpret_cast<const GrGLInterface*>(backendContext), options, context);
+}
+
+GrGpu* GrGLGpu::Create(const GrGLInterface* interface, const GrContextOptions& options,
+                       GrContext* context) {
+    sk_sp<const GrGLInterface> glInterface(interface);
     if (!glInterface) {
         glInterface.reset(GrGLDefaultInterface());
     } else {
@@ -203,6 +207,7 @@ GrGpu* GrGLGpu::Create(GrBackendContext backendContext, const GrContextOptions& 
     }
     return nullptr;
 }
+
 
 static bool gPrintStartupSpew;
 
