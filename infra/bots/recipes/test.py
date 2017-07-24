@@ -27,6 +27,10 @@ DEPS = [
 def dm_flags(api, bot):
   args = []
 
+  # We've been spending lots of time writing out and especially uploading
+  # .pdfs, but not doing anything further with them.  skia:6821
+  args.extend(['--dont_write', 'pdf'])
+
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test.
   args.append('--randomProcessorTest')

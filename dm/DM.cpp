@@ -93,6 +93,8 @@ DEFINE_pathrenderer_flag;
 
 DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
 
+DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
+
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::GLTestContext;
@@ -1124,11 +1126,13 @@ struct Task {
 
                 if (!FLAGS_writePath.isEmpty()) {
                     const char* ext = task.sink->fileExtension();
-                    if (data->getLength()) {
-                        WriteToDisk(task, md5, ext, data, data->getLength(), nullptr);
-                        SkASSERT(bitmap.drawsNothing());
-                    } else if (!bitmap.drawsNothing()) {
-                        WriteToDisk(task, md5, ext, nullptr, 0, &bitmap);
+                    if (!FLAGS_dont_write.contains(ext)) {
+                        if (data->getLength()) {
+                            WriteToDisk(task, md5, ext, data, data->getLength(), nullptr);
+                            SkASSERT(bitmap.drawsNothing());
+                        } else if (!bitmap.drawsNothing()) {
+                            WriteToDisk(task, md5, ext, nullptr, 0, &bitmap);
+                        }
                     }
                 }
             });
