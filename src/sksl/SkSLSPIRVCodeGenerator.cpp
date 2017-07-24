@@ -137,12 +137,16 @@ void SPIRVCodeGenerator::setupIntrinsics() {
                                                                 SpvOpUGreaterThanEqual,
                                                                 SpvOpFOrdGreaterThanEqual,
                                                                 SpvOpUndef);
+    fIntrinsicMap[String("EmitVertex")]       = ALL_SPIRV(EmitVertex);
+    fIntrinsicMap[String("EndPrimitive")]     = ALL_SPIRV(EndPrimitive);
 // interpolateAt* not yet supported...
 }
 
 void SPIRVCodeGenerator::writeWord(int32_t word, OutputStream& out) {
 #if SPIRV_DEBUG
-    out << "(" << word << ") ";
+    out.write8('(');
+    out.writeString(to_string(word));
+    out.write8(')');
 #else
     out.write((const char*) &word, sizeof(word));
 #endif
@@ -181,7 +185,7 @@ static bool is_out(const Variable& var) {
 }
 
 #if SPIRV_DEBUG
-static String opcode_text(SpvOp_ opCode) {
+static const char* opcode_text(SpvOp_ opCode) {
     switch (opCode) {
         case SpvOpNop:
             return String("Nop");
@@ -825,7 +829,8 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
             ASSERT(fCurrentBlock);
     }
 #if SPIRV_DEBUG
-    out << std::endl << opcode_text(opCode) << " ";
+    out.write8('\n');
+    out.writeText(opcode_text(opCode));
 #else
     this->writeWord((length << 16) | opCode, out);
 #endif
@@ -967,6 +972,9 @@ void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
         if (fCapabilities & bit) {
             this->writeInstruction(SpvOpCapability, (SpvId) i, out);
         }
+    }
+    if (fProgram.fKind == Program::kGeometry_Kind) {
+        this->writeInstruction(SpvOpCapability, SpvCapabilityGeometry, out);
     }
 }
 
@@ -1242,19 +1250,22 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
     auto intrinsic = fIntrinsicMap.find(c.fFunction.fName);
     ASSERT(intrinsic != fIntrinsicMap.end());
-    const Type& type = c.fArguments[0]->fType;
     int32_t intrinsicId;
-    if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicKind || is_float(fContext, type)) {
-        intrinsicId = std::get<1>(intrinsic->second);
-    } else if (is_signed(fContext, type)) {
-        intrinsicId = std::get<2>(intrinsic->second);
-    } else if (is_unsigned(fContext, type)) {
-        intrinsicId = std::get<3>(intrinsic->second);
-    } else if (is_bool(fContext, type)) {
-        intrinsicId = std::get<4>(intrinsic->second);
+    if (c.fArguments.size() > 0) {
+        const Type& type = c.fArguments[0]->fType;
+        if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicKind || is_float(fContext, type)) {
+            intrinsicId = std::get<1>(intrinsic->second);
+        } else if (is_signed(fContext, type)) {
+            intrinsicId = std::get<2>(intrinsic->second);
+        } else if (is_unsigned(fContext, type)) {
+            intrinsicId = std::get<3>(intrinsic->second);
+        } else if (is_bool(fContext, type)) {
+            intrinsicId = std::get<4>(intrinsic->second);
+        } else {
+            intrinsicId = std::get<1>(intrinsic->second);
+        }
     } else {
-        ABORT("invalid call %s, cannot operate on '%s'", c.description().c_str(),
-              type.description().c_str());
+        intrinsicId = std::get<1>(intrinsic->second);
     }
     switch (std::get<0>(intrinsic->second)) {
         case kGLSL_STD_450_IntrinsicKind: {
@@ -1279,9 +1290,13 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             for (size_t i = 0; i < c.fArguments.size(); i++) {
                 arguments.push_back(this->writeExpression(*c.fArguments[i], out));
             }
-            this->writeOpCode((SpvOp_) intrinsicId, 3 + (int32_t) arguments.size(), out);
-            this->writeWord(this->getType(c.fType), out);
-            this->writeWord(result, out);
+            if (c.fType != *fContext.fVoid_Type) {
+                this->writeOpCode((SpvOp_) intrinsicId, 3 + (int32_t) arguments.size(), out);
+                this->writeWord(this->getType(c.fType), out);
+                this->writeWord(result, out);
+            } else {
+                this->writeOpCode((SpvOp_) intrinsicId, 1 + (int32_t) arguments.size(), out);
+            }
             for (SpvId id : arguments) {
                 this->writeWord(id, out);
             }
@@ -2782,7 +2797,8 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationInputAttachmentIndex,
                                layout.fInputAttachmentIndex, fDecorationBuffer);
     }
-    if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN) {
+    if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
+        layout.fBuiltin != SK_IN_BUILTIN) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
                                fDecorationBuffer);
     }
@@ -3130,6 +3146,71 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
     }
 }
 
+void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out) {
+    ASSERT(fProgram.fKind == Program::kGeometry_Kind);
+    int invocations = 1;
+    for (size_t i = 0; i < fProgram.fElements.size(); i++) {
+        if (fProgram.fElements[i]->fKind == ProgramElement::kModifiers_Kind) {
+            const Modifiers& m = ((ModifiersDeclaration&) *fProgram.fElements[i]).fModifiers;
+            if (m.fFlags & Modifiers::kIn_Flag) {
+                if (m.fLayout.fInvocations != -1) {
+                    invocations = m.fLayout.fInvocations;
+                }
+                SpvId input;
+                switch (m.fLayout.fPrimitive) {
+                    case Layout::kPoints_Primitive:
+                        input = SpvExecutionModeInputPoints;
+                        break;
+                    case Layout::kLines_Primitive:
+                        input = SpvExecutionModeInputLines;
+                        break;
+                    case Layout::kLinesAdjacency_Primitive:
+                        input = SpvExecutionModeInputLinesAdjacency;
+                        break;
+                    case Layout::kTriangles_Primitive:
+                        input = SpvExecutionModeTriangles;
+                        break;
+                    case Layout::kTrianglesAdjacency_Primitive:
+                        input = SpvExecutionModeInputTrianglesAdjacency;
+                        break;
+                    default:
+                        input = 0;
+                        break;
+                }
+                if (input) {
+                    this->writeInstruction(SpvOpExecutionMode, entryPoint, input, out);
+                }
+            } else if (m.fFlags & Modifiers::kOut_Flag) {
+                SpvId output;
+                switch (m.fLayout.fPrimitive) {
+                    case Layout::kPoints_Primitive:
+                        output = SpvExecutionModeOutputPoints;
+                        break;
+                    case Layout::kLineStrip_Primitive:
+                        output = SpvExecutionModeOutputLineStrip;
+                        break;
+                    case Layout::kTriangleStrip_Primitive:
+                        output = SpvExecutionModeOutputTriangleStrip;
+                        break;
+                    default:
+                        output = 0;
+                        break;
+                }
+                if (output) {
+                    this->writeInstruction(SpvOpExecutionMode, entryPoint, output, out);
+                }
+                if (m.fLayout.fMaxVertices != -1) {
+                    this->writeInstruction(SpvOpExecutionMode, entryPoint,
+                                           SpvExecutionModeOutputVertices, m.fLayout.fMaxVertices,
+                                           out);
+                }
+            }
+        }
+    }
+    this->writeInstruction(SpvOpExecutionMode, entryPoint, SpvExecutionModeInvocations,
+                           invocations, out);
+}
+
 void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
     fGLSLExtendedInstructions = this->nextId();
     StringStream body;
@@ -3195,10 +3276,14 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         default:
             ABORT("cannot write this kind of program to SPIR-V\n");
     }
-    this->writeWord(fFunctionMap[main], out);
+    SpvId entryPoint = fFunctionMap[main];
+    this->writeWord(entryPoint, out);
     this->writeString(main->fName.c_str(), out);
     for (int var : interfaceVars) {
         this->writeWord(var, out);
+    }
+    if (program.fKind == Program::kGeometry_Kind) {
+        this->writeGeometryShaderExecutionMode(entryPoint, out);
     }
     if (program.fKind == Program::kFragment_Kind) {
         this->writeInstruction(SpvOpExecutionMode,

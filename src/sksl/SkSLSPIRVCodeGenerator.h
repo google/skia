@@ -277,6 +277,8 @@ private:
                           int32_t word5, int32_t word6, int32_t word7, int32_t word8,
                           OutputStream& out);
 
+    void writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out);
+
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
 
