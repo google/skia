@@ -1106,7 +1106,7 @@ static void start_keepalive() {
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
-    initializeEventTracingForTools(&FLAGS_threads);
+    initializeEventTracingForTools();
 
 #if defined(SK_BUILD_FOR_IOS)
     cd_Documents();

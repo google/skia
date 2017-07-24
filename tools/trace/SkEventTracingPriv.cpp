@@ -22,7 +22,7 @@ DEFINE_string(trace, "",
               "               trace events to specified file as JSON, for viewing\n"
               "               with chrome://tracing");
 
-void initializeEventTracingForTools(int32_t* threadsFlag) {
+void initializeEventTracingForTools() {
     if (FLAGS_trace.isEmpty()) {
         return;
     }
@@ -34,10 +34,6 @@ void initializeEventTracingForTools(int32_t* threadsFlag) {
     } else if (0 == strcmp(traceFlag, "debugf")) {
         eventTracer = new SkDebugfTracer();
     } else {
-        if (threadsFlag && *threadsFlag != 0) {
-            SkDebugf("JSON tracing is not yet thread-safe, disabling threading.\n");
-            *threadsFlag = 0;
-        }
         eventTracer = new SkChromeTracingTracer(traceFlag);
     }
 

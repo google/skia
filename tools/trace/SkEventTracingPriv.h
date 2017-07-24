@@ -12,12 +12,8 @@
 
 /**
  * Construct and install an SkEventTracer, based on the 'trace' command line argument.
- *
- * @param threadsFlag Pointer to the FLAGS_threads variable (or nullptr). This is used to disable
- *                    threading when tracing to JSON. (Remove this param when JSON tracer is thread
- *                    safe).
  */
-void initializeEventTracingForTools(int32_t* threadsFlag);
+void initializeEventTracingForTools();
 
 /**
  * Helper class used by internal implementations of SkEventTracer to manage categories.

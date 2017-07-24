@@ -11,6 +11,7 @@
 #include "SkEventTracer.h"
 #include "SkEventTracingPriv.h"
 #include "SkJSONCPP.h"
+#include "SkSpinlock.h"
 #include "SkString.h"
 
 /**
@@ -18,8 +19,8 @@
  */
 class SkChromeTracingTracer : public SkEventTracer {
 public:
-    SkChromeTracingTracer(const char* filename) : fRoot(Json::arrayValue), fFilename(filename) {}
-    ~SkChromeTracingTracer() override { this->flush(); }
+    SkChromeTracingTracer(const char* filename);
+    ~SkChromeTracingTracer() override;
 
     SkEventTracer::Handle addTraceEvent(char phase,
                                         const uint8_t* categoryEnabledFlag,
@@ -46,9 +47,43 @@ public:
 private:
     void flush();
 
-    Json::Value fRoot;
+    enum {
+        // Events are currently 80 bytes, assuming 64-bit pointers and reasonable packing.
+        // This is a first guess at a number that balances memory usage vs. time overhead of
+        // allocating blocks.
+        kEventsPerBlock = 10000,
+
+        // Our current tracing macros only support up to 2 arguments
+        kMaxArgs = 2,
+    };
+
+    struct TraceEvent {
+        // Fields are ordered to minimize size due to alignment
+        char fPhase;
+        uint8_t fNumArgs;
+        uint8_t fArgTypes[kMaxArgs];
+
+        const char* fName;
+        const char* fCategory;
+        uint64_t fClockBegin;
+        uint64_t fClockEnd;
+        SkThreadID fThreadID;
+
+        const char* fArgNames[kMaxArgs];
+        uint64_t fArgValues[kMaxArgs];
+    };
+
+    typedef std::unique_ptr<TraceEvent[]> BlockPtr;
+    BlockPtr createBlock();
+    TraceEvent* appendEvent(const TraceEvent&);
+    Json::Value traceEventToJson(const TraceEvent&);
+
     SkString fFilename;
+    SkSpinlock fMutex;
     SkEventTracingCategories fCategories;
+    BlockPtr fCurBlock;
+    int fEventsInCurBlock;
+    SkTArray<BlockPtr> fBlocks;
 };
 
 #endif
