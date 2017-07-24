@@ -1377,18 +1377,6 @@
         "Upload-Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android"
       ]
     },
-    "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android"
-      ]
-    },
-    "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android": {
-      "priority": 0.8,
-      "tasks": [
-        "Upload-Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android"
-      ]
-    },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android": {
       "priority": 0.8,
       "tasks": [
@@ -10774,74 +10762,6 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android": {
-      "dependencies": [
-        "Build-Debian9-Clang-mipsel-Debug-Android",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:NRD90M",
-        "device_type:ci20",
-        "os:Android",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
-    "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android": {
-      "dependencies": [
-        "Build-Debian9-Clang-mipsel-Release-Android",
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Housekeeper-PerCommit-IsolateSKP",
-        "Housekeeper-PerCommit-IsolateSVG",
-        "Housekeeper-PerCommit-IsolateSkImage"
-      ],
-      "dimensions": [
-        "device_os:NRD90M",
-        "device_type:ci20",
-        "os:Android",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 14400000000000,
-      "expiration_ns": 72000000000000,
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "test",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)"
-      ],
-      "io_timeout_ns": 2400000000000,
-      "isolate": "test_skia_bundled_unix.isolate",
-      "max_attempts": 1,
-      "priority": 0.8
-    },
     "Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-Android": {
       "dependencies": [
         "Build-Debian9-Clang-arm64-Debug-Android",
@@ -19244,60 +19164,6 @@
         "upload_dm_results",
         "repository=<(REPO)",
         "buildername=Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android": {
-      "dependencies": [
-        "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Debug-Android",
-        "swarm_out_dir=${ISOLATED_OUTDIR}",
-        "revision=<(REVISION)",
-        "patch_repo=<(PATCH_REPO)",
-        "patch_storage=<(PATCH_STORAGE)",
-        "patch_issue=<(ISSUE)",
-        "patch_set=<(PATCHSET)",
-        "gs_bucket=skia-infra-gm"
-      ],
-      "isolate": "upload_dm_results.isolate",
-      "priority": 0.8
-    },
-    "Upload-Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android": {
-      "dependencies": [
-        "Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android"
-      ],
-      "dimensions": [
-        "cpu:x86-64-avx2",
-        "gpu:none",
-        "os:Debian-9.0",
-        "pool:Skia"
-      ],
-      "extra_args": [
-        "--workdir",
-        "../../..",
-        "upload_dm_results",
-        "repository=<(REPO)",
-        "buildername=Test-Android-Clang-Ci20-CPU-IngenicJZ4780-mipsel-Release-Android",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
