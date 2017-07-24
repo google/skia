@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstddef>
 #include "SkArenaAlloc.h"
+#include "SkTypes.h"
 
 static char* end_chain(char*) { return nullptr; }
 
@@ -109,19 +110,31 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     // This must be conservative to add the right amount of extra memory to handle the alignment
     // padding.
     constexpr uint32_t alignof_max_align_t = 8;
-    uint32_t objSizeAndOverhead = size + headerSize + sizeof(Footer);
+    constexpr uint32_t maxSize = std::numeric_limits<uint32_t>::max();
+    constexpr uint32_t overhead = headerSize + sizeof(Footer);
+    SkASSERT_RELEASE(size <= maxSize - overhead);
+    uint32_t objSizeAndOverhead = size + overhead;
     if (alignment > alignof_max_align_t) {
-        objSizeAndOverhead += alignment - 1;
+        uint32_t alignmentOverhead = alignment - 1;
+        SkASSERT_RELEASE(objSizeAndOverhead <= maxSize - alignmentOverhead);
+        objSizeAndOverhead += alignmentOverhead;
     }
 
-    uint32_t allocationSize = std::max(objSizeAndOverhead, fExtraSize * fFib0);
-    fFib0 += fFib1;
-    std::swap(fFib0, fFib1);
+    uint32_t minAllocationSize;
+    if (fExtraSize <= maxSize / fFib0) {
+        minAllocationSize = fExtraSize * fFib0;
+        fFib0 += fFib1;
+        std::swap(fFib0, fFib1);
+    } else {
+        minAllocationSize = maxSize;
+    }
+    uint32_t allocationSize = std::max(objSizeAndOverhead, minAllocationSize);
 
     // Round up to a nice size. If > 32K align to 4K boundary else up to max_align_t. The > 32K
     // heuristic is from the JEMalloc behavior.
     {
         uint32_t mask = allocationSize > (1 << 15) ? (1 << 12) - 1 : 16 - 1;
+        SkASSERT_RELEASE(allocationSize <= maxSize - mask);
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
