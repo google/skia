@@ -457,10 +457,35 @@ private:
     }
 
     Bounds bounds(const DrawShadowRec& op) const {
-        // TODO: compute correct bounds for shadow
-        SkRect shadowBounds = op.path.getBounds();
-        shadowBounds.outset(100, 100);
-        return this->adjustAndMap(shadowBounds, nullptr);
+        SkScalar devToSrcScale = fCTM.isScaleTranslate() ?
+        SkScalarInvert(fCTM[SkMatrix::kMScaleX]) :
+        sk_float_rsqrt(fCTM[SkMatrix::kMScaleX] * fCTM[SkMatrix::kMScaleX] +
+                       fCTM[SkMatrix::kMSkewX] * fCTM[SkMatrix::kMSkewX]);
+        SkScalar occluderHeight = op.rec.fZPlaneParams.fZ;
+
+        // compute ambient bounds (in local space)
+        SkScalar srcSpaceAmbientBlur = 0.5f*occluderHeight*devToSrcScale;
+        SkRect ambientBounds = op.path.getBounds();
+        ambientBounds.outset(srcSpaceAmbientBlur, srcSpaceAmbientBlur);
+
+        // compute spot bounds (in local space)
+        float zRatio = SkTPin(occluderHeight / (op.rec.fLightPos.fZ - occluderHeight), 0.0f, 0.95f);
+
+        SkScalar srcSpaceSpotBlur = 2.0f * op.rec.fLightRadius * zRatio * devToSrcScale;
+        const SkScalar spotScale = op.rec.fLightPos.fZ / (op.rec.fLightPos.fZ - occluderHeight);
+        SkPoint spotOffset = SkPoint::Make(zRatio*(-op.rec.fLightPos.fX),
+                                           zRatio*(-op.rec.fLightPos.fY));
+
+        SkRect spotBounds = op.path.getBounds();
+        SkScalar scaleOutsetX = 0.5f*(spotBounds.width()*spotScale - spotBounds.width());
+        SkScalar scaleOutsetY = 0.5f*(spotBounds.height()*spotScale - spotBounds.height());
+        spotBounds.outset(scaleOutsetX + srcSpaceSpotBlur, scaleOutsetY + srcSpaceSpotBlur);
+        spotBounds.offset(spotOffset.fX, spotOffset.fY);
+
+        // merge bounds
+        spotBounds.join(ambientBounds);
+
+        return this->adjustAndMap(spotBounds, nullptr);
     }
 
     Bounds bounds(const DrawPicture& op) const {

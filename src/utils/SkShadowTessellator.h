@@ -36,6 +36,13 @@ sk_sp<SkVertices> MakeAmbient(const SkPath& path, const SkMatrix& ctm,
  */
 sk_sp<SkVertices> MakeSpot(const SkPath& path, const SkMatrix& ctm, const SkPoint3& zPlane,
                            const SkPoint3& lightPos, SkScalar lightRadius, bool transparent);
+
+
+/**
+ * Internal shared params for setting up ambient shadows.
+ */
+static constexpr auto kAmbientHeightFactor = 1.0f / 128.0f;
+static constexpr auto kAmbientGeomFactor = 64.0f;
 }
 
 #endif

@@ -345,16 +345,15 @@ private:
     void handleLine(const SkPoint& p) override;
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
 
-    static constexpr auto kHeightFactor = 1.0f / 128.0f;
-    static constexpr auto kGeomFactor = 64.0f;
     static constexpr auto kMaxEdgeLenSqr = 20 * 20;
     static constexpr auto kInsetFactor = -0.5f;
 
     SkScalar offset(SkScalar z) {
-        return z * kHeightFactor * kGeomFactor;
+        return z*SkShadowTessellator::kAmbientHeightFactor*SkShadowTessellator::kAmbientGeomFactor;
     }
     SkColor umbraColor(SkScalar z) {
-        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(z*kHeightFactor, 0.0f)));
+        z *= SkShadowTessellator::kAmbientHeightFactor;
+        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(z, 0.0f)));
         return SkColorSetARGB(umbraAlpha * 255.9999f, 0, 0, 0);
     }
 
@@ -373,8 +372,8 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         , fSplitFirstEdge(false)
         , fSplitPreviousEdge(false) {
     // Set base colors
-    SkScalar occluderHeight = heightFunc(0, 0);
-    SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
+    SkScalar occluderHeight = heightFunc(0, 0)*SkShadowTessellator::kAmbientHeightFactor;
+    SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight, 0.0f)));
     // umbraColor is the interior value, penumbraColor the exterior value.
     // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
     // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
