@@ -697,6 +697,7 @@ public:
 static void set_key_on_proxy(GrResourceProvider* resourceProvider,
                              GrTextureProxy* proxy, const GrUniqueKey& key) {
     if (key.isValid()) {
+        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         resourceProvider->assignUniqueKeyToProxy(key, proxy);
     }
 }
