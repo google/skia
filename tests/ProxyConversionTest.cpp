@@ -29,7 +29,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrResourceProvider* provider,
     sk_sp<GrRenderTarget> defaultFBO(provider->wrapBackendRenderTarget(backendRT, desc.fOrigin));
     SkASSERT(!defaultFBO->asTexture());
 
-    return GrSurfaceProxy::MakeWrapped(std::move(defaultFBO));
+    return GrSurfaceProxy::MakeWrapped(std::move(defaultFBO), desc.fOrigin);
 }
 
 static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrResourceProvider* provider,
@@ -40,7 +40,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_offscreen_rt(GrResourceProvider* provi
 
     sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
 static sk_sp<GrSurfaceProxy> make_wrapped_texture(GrResourceProvider* provider,
@@ -48,7 +48,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_texture(GrResourceProvider* provider,
                                                   SkBudgeted budgeted) {
     sk_sp<GrTexture> tex(provider->createTexture(desc, budgeted));
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
 // Test converting between RenderTargetProxies and TextureProxies for wrapped
