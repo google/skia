@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkEventTracingPriv.h"
 #include "SkImage.h"
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
@@ -186,3 +187,28 @@ struct Memory : Dst {
     }
 };
 static Register memory{"memory", "print process maximum memory usage", Memory::Create};
+
+static SkOnce init_tracing_once;
+struct Trace : Dst {
+    std::unique_ptr<Dst> target;
+    std::string trace_mode;
+
+    static std::unique_ptr<Dst> Create(Options options, std::unique_ptr<Dst> dst) {
+        Trace via;
+        via.target = std::move(dst);
+        via.trace_mode = options("mode", "trace.json");
+        return move_unique(via);
+    }
+
+    Status draw(Src* src) override {
+        init_tracing_once([&] { initializeEventTracingForTools(trace_mode.c_str()); });
+        return target->draw(src);
+    }
+
+    sk_sp<SkImage> image() override {
+        return target->image();
+    }
+};
+static Register trace {"trace",
+                       "enable tracing in mode=atrace, mode=debugf, or mode=trace.json",
+                       Trace::Create};

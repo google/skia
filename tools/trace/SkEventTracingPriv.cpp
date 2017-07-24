@@ -22,12 +22,14 @@ DEFINE_string(trace, "",
               "               trace events to specified file as JSON, for viewing\n"
               "               with chrome://tracing");
 
-void initializeEventTracingForTools() {
-    if (FLAGS_trace.isEmpty()) {
-        return;
+void initializeEventTracingForTools(const char* traceFlag) {
+    if (!traceFlag) {
+        if (FLAGS_trace.isEmpty()) {
+            return;
+        }
+        traceFlag = FLAGS_trace[0];
     }
 
-    const char* traceFlag = FLAGS_trace[0];
     SkEventTracer* eventTracer = nullptr;
     if (0 == strcmp(traceFlag, "atrace")) {
         eventTracer = new SkATrace();

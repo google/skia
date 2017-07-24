@@ -11,9 +11,10 @@
 #include "SkMutex.h"
 
 /**
- * Construct and install an SkEventTracer, based on the 'trace' command line argument.
+ * Construct and install an SkEventTracer, based on the mode,
+ * defaulting to the --trace command line argument.
  */
-void initializeEventTracingForTools();
+void initializeEventTracingForTools(const char* mode = nullptr);
 
 /**
  * Helper class used by internal implementations of SkEventTracer to manage categories.
