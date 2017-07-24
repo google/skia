@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bc0d35b_e1c650ae",
+        "filename": "src/core/SkArenaAlloc.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-24T21:14:06Z",
+      "side": 1,
+      "message": "might want to write\n\n  ... - (alignment - 1));\n\nto mirror the pattern of everything else?",
+      "range": {
+        "startLine": 117,
+        "startChar": 86,
+        "endLine": 117,
+        "endChar": 97
+      },
+      "revId": "420e83d33f6e3131491a004087492d80dee3b890",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
