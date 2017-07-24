@@ -293,53 +293,15 @@ void SkView::onFocusChange(bool gainFocusP) {
 SkView::Click::Click(SkView* target) {
     SkASSERT(target);
     fTargetID = target->getSinkID();
-    fType = nullptr;
-    fWeOwnTheType = false;
     fOwner = nullptr;
 }
 
-SkView::Click::~Click() {
-    this->resetType();
-}
-
-void SkView::Click::resetType() {
-    if (fWeOwnTheType) {
-        sk_free(fType);
-        fWeOwnTheType = false;
-    }
-    fType = nullptr;
-}
-
 bool SkView::Click::isType(const char type[]) const {
-    const char* t = fType;
-
-    if (type == t) {
-        return true;
-    }
-    if (type == nullptr) {
-        type = "";
-    }
-    if (t == nullptr) {
-        t = "";
-    }
-    return !strcmp(t, type);
+    return fType.equals(type ? type : "");
 }
 
 void SkView::Click::setType(const char type[]) {
-    this->resetType();
-    fType = (char*)type;
-}
-
-void SkView::Click::copyType(const char type[]) {
-    if (fType != type) {
-        this->resetType();
-        if (type) {
-            size_t len = strlen(type) + 1;
-            fType = (char*)sk_malloc_throw(len);
-            memcpy(fType, type, len);
-            fWeOwnTheType = true;
-        }
-    }
+    fType.set(type);
 }
 
 SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y, unsigned modi) {

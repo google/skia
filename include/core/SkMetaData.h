@@ -57,6 +57,28 @@ public:
     bool findBool(const char name[], bool* value = NULL) const;
     const void* findData(const char name[], size_t* byteCount = NULL) const;
 
+    int getS32(const char name[], int32_t defaultValue) const {
+        int32_t value;
+        return this->findS32(name, &value) ? value : defaultValue;
+    }
+
+    int getS32(const char name[]) const {
+        int32_t value;
+        if (this->findS32(name, &value)) {
+            return value;
+        }
+        sk_throw();
+        return 0;
+    }
+
+    void* getPtr(const char name[], PtrProc* proc = nullptr) const {
+        void* value;
+        if (!this->findPtr(name, &value, proc)) {
+            value = nullptr;
+        }
+        return value;
+    }
+
     bool hasS32(const char name[], int32_t value) const {
         int32_t v;
         return this->findS32(name, &v) && v == value;

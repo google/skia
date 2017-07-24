@@ -164,12 +164,6 @@ protected:
         draw_control_points(canvas, fPts);
     }
 
-    class PtClick : public Click {
-    public:
-        int fIndex;
-        PtClick(SkView* view, int index) : Click(view), fIndex(index) {}
-    };
-
     static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
@@ -177,32 +171,38 @@ protected:
     SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         // holding down shift
         if (1 == modi) {
-            return new PtClick(this, -1);
+            Click* click = new Click(this);
+            click->fMeta.setS32("index", -1);
+            return click;
         }
         // holding down ctrl
         if (2 == modi) {
-            return new PtClick(this, -2);
+            Click* click = new Click(this);
+            click->fMeta.setS32("index", -2);
+            return click;
         }
         SkPoint clickPoint = {x, y};
         fInvMatrix.mapPoints(&clickPoint, 1);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], clickPoint.fX, clickPoint.fY)) {
-                return new PtClick(this, (int)i);
+                Click* click = new Click(this);
+                click->fMeta.setS32("index", (int)i);
+                return click;
             }
         }
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
     bool onClick(Click* click) override {
-        PtClick* ptClick = (PtClick*)click;
-        if (ptClick->fIndex >= 0) {
-            fPts[ptClick->fIndex].set(click->fCurr.fX , click->fCurr.fY );
-        } else if (-1 == ptClick->fIndex) {
+        int index = click->fMeta.getS32("index");
+        if (index >= 0) {
+            fPts[index].set(click->fCurr.fX , click->fCurr.fY );
+        } else if (-1 == index) {
             SkScalar xDiff = click->fPrev.fX - click->fCurr.fX;
             SkScalar yDiff = click->fPrev.fY - click->fCurr.fY;
             fTexX += xDiff * fTexScale;
             fTexY += yDiff * fTexScale;
-        } else if (-2 == ptClick->fIndex) {
+        } else if (-2 == index) {
             SkScalar yDiff = click->fCurr.fY - click->fPrev.fY;
             fTexScale += yDiff / 10.0f;
             fTexScale = SkTMax(0.1f, SkTMin(20.f, fTexScale));

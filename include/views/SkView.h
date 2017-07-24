@@ -140,12 +140,11 @@ public:
     class Click {
     public:
         Click(SkView* target);
-        virtual ~Click();
+        virtual ~Click() {}
 
-        const char* getType() const { return fType; }
+        const char* getType() const { return fType.c_str(); }
         bool        isType(const char type[]) const;
         void        setType(const char type[]);     // does NOT make a copy of the string
-        void        copyType(const char type[]);    // makes a copy of the string
 
         enum State {
             kDown_State,
@@ -159,12 +158,10 @@ public:
         unsigned    fModifierKeys;
 
         SkMetaData  fMeta;
+
     private:
         SkEventSinkID   fTargetID;
-        char*           fType;
-        bool            fWeOwnTheType;
-
-        void resetType();
+        SkString        fType;
 
         friend class SkView;
     };

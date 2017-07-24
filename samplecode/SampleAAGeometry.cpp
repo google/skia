@@ -642,7 +642,7 @@ struct BiControl : public UniControl {
 };
 
 
-class MyClick : public SampleView::Click {
+class MyClick : public SkRefCnt {
 public:
     enum ClickType {
         kInvalidType = -1,
@@ -681,25 +681,22 @@ public:
     SkPath::Verb fVerb;
     SkScalar fWeight;
 
-    MyClick(SkView* target, ClickType type, ControlType control)
-        : Click(target)
-        , fType(type) 
+    MyClick(ClickType type, ControlType control)
+        : fType(type)
         , fControl(control)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
     }
 
-    MyClick(SkView* target, ClickType type, int index)
-        : Click(target)
-        , fType(type) 
+    MyClick(ClickType type, int index)
+        : fType(type)
         , fControl((ControlType) index)
         , fVerb((SkPath::Verb) -1)
         , fWeight(1) {
     }
 
-    MyClick(SkView* target, ClickType type, int index, SkPath::Verb verb, SkScalar weight)
-        : Click(target)
-        , fType(type) 
+    MyClick(ClickType type, int index, SkPath::Verb verb, SkScalar weight)
+        : fType(type)
         , fControl((ControlType) index)
         , fVerb(verb)
         , fWeight(weight) {
@@ -1615,29 +1612,36 @@ public:
         return -1;
     }
 
+    SkView::Click* make_click(MyClick* mc) {
+        Click* click = new Click(this);
+        click->fMeta.setRefCnt("myclick", mc);
+        mc->unref();
+        return click;
+    }
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         SkPoint pt = {x, y};
         int ptHit = hittest_pt(pt);
         if (ptHit >= 0) {
-            return new MyClick(this, MyClick::kPtType, ptHit);
+            return make_click(new MyClick(MyClick::kPtType, ptHit));
         }
         SkPath::Verb verb;
         SkScalar weight;
         int verbHit = hittest_verb(pt, &verb, &weight);
         if (verbHit >= 0) {
-            return new MyClick(this, MyClick::kVerbType, verbHit, verb, weight);
+            return make_click(new MyClick(MyClick::kVerbType, verbHit, verb, weight));
         }
         if (!fHideAll) {
             const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
             for (int index = 0; index < kControlCount; ++index) {
                 if (kControlList[index].fControl->contains(rectPt)) {
-                    return new MyClick(this, MyClick::kControlType,
-                            kControlList[index].fControlType);
+                    return make_click(new MyClick(MyClick::kControlType,
+                            kControlList[index].fControlType));
                 }
             }
             for (int index = 0; index < kButtonCount; ++index) {
                 if (kButtonList[index].fButton->contains(rectPt)) {
-                    return new MyClick(this, MyClick::kControlType, kButtonList[index].fButtonType);
+                    return make_click(new MyClick(MyClick::kControlType,
+                                                  kButtonList[index].fButtonType));
                 }
             }
         }
@@ -1647,7 +1651,7 @@ public:
         fActiveVerb = -1;
         fActivePt = -1;
         if (fHandlePathMove) {
-            return new MyClick(this, MyClick::kPathType, MyClick::kPathMove);
+            return make_click(new MyClick(MyClick::kPathType, MyClick::kPathMove));
         }
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
@@ -1659,7 +1663,7 @@ public:
     }
 
     bool onClick(Click* click) override {
-        MyClick* myClick = (MyClick*) click;
+        MyClick* myClick = (MyClick*)click->fMeta.getPtr("myclick");
         switch (myClick->fType) {
             case MyClick::kPtType: {
                 savePath(click->fState);
@@ -1843,8 +1847,10 @@ bool AAGeometryView::onQuery(SkEvent* evt) {
         for (int index = 0; index < kButtonCount; ++index) {
             Button* button = kButtonList[index].fButton;
             if (button->fVisible && uni == button->fLabel) {
-                MyClick click(this, MyClick::kControlType, kButtonList[index].fButtonType);
+                MyClick mc(MyClick::kControlType, kButtonList[index].fButtonType);
+                Click click(this);
                 click.fState = Click::kDown_State;
+                click.fMeta.setPtr("myclick", &mc);
                 (void) this->onClick(&click);
                 return true;
             }
@@ -1859,8 +1865,10 @@ bool AAGeometryView::onQuery(SkEvent* evt) {
             for (int index = 0; index < kButtonCount; ++index) {
                 Button* button = kButtonList[index].fButton;
                 if (button->fVisible && (uni & ~0x20) == (button->fLabel & ~0x20)) {
-                    MyClick click(this, MyClick::kControlType, kButtonList[index].fButtonType);
+                    MyClick mc(MyClick::kControlType, kButtonList[index].fButtonType);
+                    Click click(this);
                     click.fState = Click::kDown_State;
+                    click.fMeta.setPtr("myclick", &mc);
                     (void) this->onClick(&click);
                     return true;
                 }
