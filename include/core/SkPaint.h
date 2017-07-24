@@ -694,8 +694,6 @@ public:
         enum FontMetricsFlags {
             kUnderlineThicknessIsValid_Flag = 1 << 0,
             kUnderlinePositionIsValid_Flag = 1 << 1,
-            kStrikeoutThicknessIsValid_Flag = 1 << 2,
-            kStrikeoutPositionIsValid_Flag = 1 << 3,
         };
 
         uint32_t    fFlags;       //!< Bit field to identify which values are unknown
@@ -712,21 +710,18 @@ public:
         SkScalar    fCapHeight;  //!< The cap height (> 0), or 0 if cannot be determined.
         SkScalar    fUnderlineThickness; //!< underline thickness, or 0 if cannot be determined
 
-        /** Position of the top of the underline stroke relative to the baseline.
-         *  A positive value means draw below the baseline; negative values above.
+        /**  Underline Position - position of the top of the Underline stroke
+                relative to the baseline, this can have following values
+                - Negative - means underline should be drawn above baseline.
+                - Positive - means below baseline.
+                - Zero     - mean underline should be drawn on baseline.
          */
-        SkScalar    fUnderlinePosition;
+        SkScalar    fUnderlinePosition; //!< underline position, or 0 if cannot be determined
 
-        SkScalar    fStrikeoutThickness; //!< strikeout thickness, or 0 if cannot be determined
-
-        /** Position of the bottom of the strikeout stroke relative to the baseline.
-         *  A positive value means draw below the baseline; negative values above.
-         */
-        SkScalar    fStrikeoutPosition;
-
-        /** If the underline thickness is valid return true and set thickness.
-         *  Otherwise return false and ignore the thickness param.
-         */
+        /**  If the fontmetrics has a valid underline thickness, return true, and set the
+                thickness param to that value. If it doesn't return false and ignore the
+                thickness param.
+        */
         bool hasUnderlineThickness(SkScalar* thickness) const {
             if (SkToBool(fFlags & kUnderlineThicknessIsValid_Flag)) {
                 *thickness = fUnderlineThickness;
@@ -735,9 +730,10 @@ public:
             return false;
         }
 
-        /** If the underline position is valid return true and set position.
-         *  Otherwise return false and ignore the position param.
-         */
+        /**  If the fontmetrics has a valid underline position, return true, and set the
+                position param to that value. If it doesn't return false and ignore the
+                position param.
+        */
         bool hasUnderlinePosition(SkScalar* position) const {
             if (SkToBool(fFlags & kUnderlinePositionIsValid_Flag)) {
                 *position = fUnderlinePosition;
@@ -746,27 +742,6 @@ public:
             return false;
         }
 
-        /** If the strikeout thickness is valid return true and set thickness.
-         *  Otherwise return false and ignore the thickness param.
-         */
-        bool hasStrikeoutThickness(SkScalar* thickness) const {
-            if (SkToBool(fFlags & kStrikeoutThicknessIsValid_Flag)) {
-                *thickness = fStrikeoutThickness;
-                return true;
-            }
-            return false;
-        }
-
-        /** If the strikeout position is valid return true and set position.
-         *  Otherwise return false and ignore the position param.
-         */
-        bool hasStrikeoutPosition(SkScalar* position) const {
-            if (SkToBool(fFlags & kStrikeoutPositionIsValid_Flag)) {
-                *position = fStrikeoutPosition;
-                return true;
-            }
-            return false;
-        }
     };
 
     /** Return the recommend spacing between lines (which will be
