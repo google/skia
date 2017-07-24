@@ -2932,6 +2932,13 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
             fCurrentBlock = 0;
         }
         this->writeLayout(var->fModifiers.fLayout, id);
+        if (var->fModifiers.fFlags & Modifiers::kFlat_Flag) {
+            this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
+        }
+        if (var->fModifiers.fFlags & Modifiers::kNoPerspective_Flag) {
+            this->writeInstruction(SpvOpDecorate, id, SpvDecorationNoPerspective,
+                                   fDecorationBuffer);
+        }
     }
 }
 
