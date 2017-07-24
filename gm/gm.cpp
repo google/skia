@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkShader.h"
+#include "SkTraceEvent.h"
 using namespace skiagm;
 
 GM::GM() {
@@ -21,11 +22,13 @@ GM::GM() {
 GM::~GM() {}
 
 void GM::draw(SkCanvas* canvas) {
+    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
     this->drawContent(canvas);
 }
 
 void GM::drawContent(SkCanvas* canvas) {
+    TRACE_EVENT0("GM", TRACE_FUNC);
     if (!fHaveCalledOnceBeforeDraw) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();
@@ -34,6 +37,7 @@ void GM::drawContent(SkCanvas* canvas) {
 }
 
 void GM::drawBackground(SkCanvas* canvas) {
+    TRACE_EVENT0("GM", TRACE_FUNC);
     if (!fHaveCalledOnceBeforeDraw) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();

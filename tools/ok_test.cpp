@@ -32,7 +32,6 @@ struct TestStream : Stream {
         SkISize     size() override { return {0,0}; }
 
         Status draw(SkCanvas*) override {
-
             struct : public skiatest::Reporter {
                 Status status = Status::OK;
                 bool extended, verbose_;
@@ -54,7 +53,7 @@ struct TestStream : Stream {
             factory = &a_real_factory;
         #endif
 
-            test.proc(&reporter, factory);
+            test.run(&reporter, factory);
             return reporter.status;
         }
     };

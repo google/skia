@@ -7,10 +7,11 @@
 #ifndef skiatest_Test_DEFINED
 #define skiatest_Test_DEFINED
 
-#include "SkString.h"
 #include "../tools/Registry.h"
-#include "SkTypes.h"
 #include "SkClipOpPriv.h"
+#include "SkString.h"
+#include "SkTraceEvent.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -94,6 +95,11 @@ struct Test {
     const char* name;
     bool needsGpu;
     TestProc proc;
+
+    void run(skiatest::Reporter* r, sk_gpu_test::GrContextFactory* factory) const {
+        TRACE_EVENT1("test", TRACE_FUNC, "name", this->name/*these are static*/);
+        this->proc(r, factory);
+    }
 };
 
 typedef sk_tools::Registry<Test> TestRegistry;

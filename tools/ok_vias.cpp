@@ -10,6 +10,7 @@
 #include "SkOSFile.h"
 #include "SkPictureRecorder.h"
 #include "SkPngEncoder.h"
+#include "SkTraceEvent.h"
 #include "ProcStats.h"
 #include "Timer.h"
 #include "ok.h"
@@ -42,6 +43,7 @@ struct ViaPic : Dst {
     }
 
     Status draw(Src* src) override {
+        TRACE_EVENT0("ok", TRACE_FUNC);
         SkRTreeFactory factory;
         SkPictureRecorder rec;
         rec.beginRecording(SkRect::MakeSize(SkSize::Make(src->size())),
@@ -76,6 +78,7 @@ struct Png : Dst {
     }
 
     Status draw(Src* src) override {
+        TRACE_EVENT0("ok", TRACE_FUNC);
         for (auto status = target->draw(src); status != Status::OK; ) {
             return status;
         }
