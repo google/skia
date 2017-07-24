@@ -190,6 +190,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, params,
+                                                                 args.fDstConfig,
                                                                  args.fDstColorSpace,
                                                                  &texColorSpace, scaleAdjust));
     if (!proxy) {

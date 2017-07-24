@@ -19,6 +19,7 @@ public:
 
 protected:
     sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                  GrPixelConfig dstConfig,
                                                   SkColorSpace* dstColorSpace,
                                                   AllowedTexGenType onlyIfFast) override;
 

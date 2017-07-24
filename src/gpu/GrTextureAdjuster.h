@@ -33,6 +33,7 @@ public:
                                 FilterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+                                GrPixelConfig dstConfig,
                                 SkColorSpace* dstColorSpace) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while

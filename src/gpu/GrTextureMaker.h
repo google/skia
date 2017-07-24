@@ -26,6 +26,7 @@ public:
      *  Places the color space of the texture in (*texColorSpace).
      */
     sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerParams&,
+                                                   GrPixelConfig dstConfig,
                                                    SkColorSpace* dstColorSpace,
                                                    sk_sp<SkColorSpace>* texColorSpace,
                                                    SkScalar scaleAdjust[2]);
@@ -36,6 +37,7 @@ public:
                                 FilterConstraint filterConstraint,
                                 bool coordsLimitedToConstraintRect,
                                 const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+                                GrPixelConfig dstConfig,
                                 SkColorSpace* dstColorSpace) override;
 
 protected:
@@ -51,6 +53,7 @@ protected:
      *  by drawing into a render target).
      */
     virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
+                                                          GrPixelConfig dstConfig,
                                                           SkColorSpace* dstColorSpace,
                                                           AllowedTexGenType genType) = 0;
 
@@ -72,6 +75,7 @@ protected:
      */
     virtual sk_sp<GrTextureProxy> generateTextureProxyForParams(const CopyParams&,
                                                                 bool willBeMipped,
+                                                                GrPixelConfig dstConfig,
                                                                 SkColorSpace* dstColorSpace);
 
     GrContext* context() const { return fContext; }

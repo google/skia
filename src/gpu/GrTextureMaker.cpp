@@ -12,6 +12,7 @@
 #include "GrResourceProvider.h"
 
 sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerParams& params,
+                                                               GrPixelConfig dstConfig,
                                                                SkColorSpace* dstColorSpace,
                                                                sk_sp<SkColorSpace>* texColorSpace,
                                                                SkScalar scaleAdjust[2]) {
@@ -26,7 +27,8 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
         *texColorSpace = this->getColorSpace(dstColorSpace);
     }
 
-    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
+    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstConfig,
+                                                                 dstColorSpace,
                                                                  AllowedTexGenType::kCheap));
     if (original) {
         if (!fContext->getGpu()->isACopyNeededForTextureParams(original.get(), params, &copyParams,
@@ -36,7 +38,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
     } else {
         if (!fContext->getGpu()->isACopyNeededForTextureParams(this->width(), this->height(),
                                                                params, &copyParams, scaleAdjust)) {
-            return this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
+            return this->refOriginalTextureProxy(willBeMipped, dstConfig, dstColorSpace,
                                                  AllowedTexGenType::kAny);
         }
     }
@@ -54,7 +56,8 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
     if (original) {
         result = CopyOnGpu(fContext, std::move(original), nullptr, copyParams);
     } else {
-        result = this->generateTextureProxyForParams(copyParams, willBeMipped, dstColorSpace);
+        result = this->generateTextureProxyForParams(copyParams, willBeMipped, dstConfig,
+                                                     dstColorSpace);
     }
 
     if (!result) {
@@ -74,6 +77,7 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         FilterConstraint filterConstraint,
                                         bool coordsLimitedToConstraintRect,
                                         const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+                                        GrPixelConfig dstConfig,
                                         SkColorSpace* dstColorSpace) {
 
     const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
@@ -97,9 +101,8 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     }
     sk_sp<SkColorSpace> texColorSpace;
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(params, dstColorSpace,
-                                                               &texColorSpace,
-                                                               scaleAdjust));
+    sk_sp<GrTextureProxy> proxy(this->refTextureProxyForParams(params, dstConfig, dstColorSpace,
+                                                               &texColorSpace, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }
@@ -121,8 +124,10 @@ sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
 
 sk_sp<GrTextureProxy> GrTextureMaker::generateTextureProxyForParams(const CopyParams& copyParams,
                                                                     bool willBeMipped,
+                                                                    GrPixelConfig dstConfig,
                                                                     SkColorSpace* dstColorSpace) {
-    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
+    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstConfig,
+                                                                 dstColorSpace,
                                                                  AllowedTexGenType::kAny));
     if (!original) {
         return nullptr;

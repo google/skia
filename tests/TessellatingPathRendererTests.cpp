@@ -353,7 +353,8 @@ static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ct
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
     SkShaderBase::AsFPArgs args(
-        ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, nullptr);
+        ctx, &SkMatrix::I(), &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality,
+        kUnknown_GrPixelConfig, nullptr);
     return as_SB(shader)->asFragmentProcessor(args);
 }
 

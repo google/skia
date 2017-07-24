@@ -28,6 +28,7 @@ GrBitmapTextureMaker::GrBitmapTextureMaker(GrContext* context, const SkBitmap& b
 }
 
 sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+                                                                    GrPixelConfig dstConfig,
                                                                     SkColorSpace* dstColorSpace,
                                                                     AllowedTexGenType onlyIfFast) {
     if (AllowedTexGenType::kCheap == onlyIfFast) {

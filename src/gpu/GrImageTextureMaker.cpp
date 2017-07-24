@@ -26,10 +26,11 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* clie
 }
 
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
+                                                                   GrPixelConfig dstConfig,
                                                                    SkColorSpace* dstColorSpace,
                                                                    AllowedTexGenType onlyIfFast) {
     return fCacher->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
-                                     willBeMipped, dstColorSpace, onlyIfFast);
+                                     willBeMipped, dstConfig, dstColorSpace, onlyIfFast);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,

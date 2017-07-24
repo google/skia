@@ -62,6 +62,7 @@ public:
                                     FilterConstraint filterConstraint,
                                     bool coordsLimitedToConstraintRect,
                                     const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+                                    GrPixelConfig dstConfig,
                                     SkColorSpace* dstColorSpace) = 0;
 
     virtual ~GrTextureProducer() {}

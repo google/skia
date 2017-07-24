@@ -143,7 +143,8 @@ public:
      */
     sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
                                           const SkIPoint& origin,
-                                          SkTransferFunctionBehavior behavior);
+                                          SkTransferFunctionBehavior behavior,
+                                          GrPixelConfig dstConfig);
 #endif
 
     /**
@@ -185,7 +186,8 @@ protected:
 
     virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
-                                                    SkTransferFunctionBehavior);  // returns nullptr
+                                                    SkTransferFunctionBehavior,
+                                                    GrPixelConfig dstConfig);  // returns nullptr
 #endif
 
 private:

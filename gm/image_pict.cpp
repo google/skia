@@ -165,7 +165,7 @@ public:
 protected:
     sk_sp<GrTextureProxy> onGenerateTexture(GrContext* ctx, const SkImageInfo& info,
                                             const SkIPoint& origin,
-                                            SkTransferFunctionBehavior) override {
+                                            SkTransferFunctionBehavior, GrPixelConfig) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());
 
@@ -273,6 +273,7 @@ protected:
         sk_sp<SkColorSpace> texColorSpace;
         sk_sp<GrTextureProxy> proxy(
             as_IB(image)->asTextureProxyRef(canvas->getGrContext(), GrSamplerParams::ClampBilerp(),
+                                            kUnknown_GrPixelConfig,
                                             canvas->imageInfo().colorSpace(), &texColorSpace,
                                             nullptr));
         if (!proxy) {

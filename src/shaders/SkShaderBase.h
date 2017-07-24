@@ -154,17 +154,20 @@ public:
                  const SkMatrix* viewMatrix,
                  const SkMatrix* localMatrix,
                  SkFilterQuality filterQuality,
+                 GrPixelConfig dstConfig,
                  SkColorSpace* dstColorSpace)
             : fContext(context)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
             , fFilterQuality(filterQuality)
+            , fDstConfig(dstConfig)
             , fDstColorSpace(dstColorSpace) {}
 
         GrContext*                    fContext;
         const SkMatrix*               fViewMatrix;
         const SkMatrix*               fLocalMatrix;
         SkFilterQuality               fFilterQuality;
+        GrPixelConfig                 fDstConfig;
         SkColorSpace*                 fDstColorSpace;
     };
 

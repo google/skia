@@ -50,6 +50,7 @@ public:
     // by drawing into a render target).
     virtual sk_sp<GrTextureProxy> lockTextureProxy(GrContext*, const GrUniqueKey& key,
                                                    SkImage::CachingHint, bool willBeMipped,
+                                                   GrPixelConfig dstConfig,
                                                    SkColorSpace* dstColorSpace,
                                                    GrTextureMaker::AllowedTexGenType genType) = 0;
 

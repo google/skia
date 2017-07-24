@@ -111,6 +111,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) c
 
 sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      const GrSamplerParams& params,
+                                                     GrPixelConfig dstConfig,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
@@ -426,8 +427,9 @@ static sk_sp<SkImage> create_image_from_maker(GrContext* context, GrTextureMaker
                                               SkColorSpace* dstColorSpace) {
     sk_sp<SkColorSpace> texColorSpace;
     sk_sp<GrTextureProxy> proxy(maker->refTextureProxyForParams(GrSamplerParams::ClampNoFilter(),
-                                                                dstColorSpace,
-                                                                &texColorSpace, nullptr));
+                                                                kUnknown_GrPixelConfig,
+                                                                dstColorSpace, &texColorSpace,
+                                                                nullptr));
     if (!proxy) {
         return nullptr;
     }
@@ -475,8 +477,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     GrSamplerParams params(SkShader::kClamp_TileMode,
                            buildMips ? GrSamplerParams::kMipMap_FilterMode
                                      : GrSamplerParams::kBilerp_FilterMode);
-    sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(params, dstColorSpace,
-                                                               &texColorSpace, nullptr));
+    sk_sp<GrTextureProxy> proxy(maker.refTextureProxyForParams(params, kUnknown_GrPixelConfig,
+                                                               dstColorSpace, &texColorSpace,
+                                                               nullptr));
     if (!proxy) {
         return codecImage;
     }

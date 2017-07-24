@@ -228,8 +228,8 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext* ctx,
                                                     const GrSamplerParams& params,
                                                     SkScalar scaleAdjust[2]) {
     // Caller doesn't care about the texture's color space (they can always get it from the bitmap)
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, nullptr,
-                                                                      nullptr, scaleAdjust);
+    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(
+            params, kUnknown_GrPixelConfig, nullptr, nullptr, scaleAdjust);
 }
 
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvider,
@@ -420,7 +420,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
                 SkShaderBase::AsFPArgs(context, &viewM, nullptr, skPaint.getFilterQuality(),
-                                       rtc->getColorSpace()));
+                                       rtc->config(), rtc->getColorSpace()));
             if (!shaderFP) {
                 return false;
             }
@@ -602,7 +602,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
                 SkShaderBase::AsFPArgs(context, &viewM, nullptr, paint.getFilterQuality(),
-                                       rtc->getColorSpace()));
+                                       rtc->config(), rtc->getColorSpace()));
             if (!shaderFP) {
                 return false;
             }
