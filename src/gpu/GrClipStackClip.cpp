@@ -418,6 +418,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
         return nullptr;
     }
 
+    SkASSERT(result->origin() == kBottomLeft_GrSurfaceOrigin);
     resourceProvider->assignUniqueKeyToProxy(key, result.get());
     // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
@@ -489,6 +490,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
     sk_sp<GrTextureProxy> result(helper.toTextureProxy(context, SkBackingFit::kApprox));
 
+    SkASSERT(result->origin() == kTopLeft_GrSurfaceOrigin);
     context->resourceProvider()->assignUniqueKeyToProxy(key, result.get());
     // MDB TODO (caching): this has to play nice with the GrSurfaceProxy's caching
     add_invalidate_on_pop_message(*fStack, reducedClip.elementsGenID(), key);
