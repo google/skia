@@ -92,7 +92,9 @@ public:
 
         // called after drawing, should get the results onto the
         // screen.
-        virtual void publishCanvas(DeviceType, SkSurface*, SampleWindow*) = 0;
+        virtual void publishCanvas(DeviceType dType,
+                                   SkCanvas* canvas,
+                                   SampleWindow* win) = 0;
 
         // called when window changes size, guaranteed to be called
         // at least once before first draw (after init)
@@ -124,8 +126,6 @@ public:
         }
         return surface;
     }
-
-    void drawIntoSurface() override;
 
     void draw(SkCanvas*) override;
 

@@ -79,7 +79,6 @@ public:
     void    postConcat(const SkMatrix&);
 
     virtual sk_sp<SkSurface> makeSurface();
-    virtual void drawIntoSurface();
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSurface> makeGpuBackedSurface(const AttachmentInfo& attachmentInfo,
