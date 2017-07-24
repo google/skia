@@ -261,13 +261,19 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 // This test uses the random GrFragmentProcessor test factory, which relies on static initializers.
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-static GrColor texel_color(int i, int j) {
-    SkASSERT((unsigned)i < 256 && (unsigned)j < 256);
-    GrColor color = GrColorPackRGBA(j, (uint8_t)(i + j), (uint8_t)(2 * j - i), i);
+#include "SkCommandLineFlags.h"
+DEFINE_bool(randomProcessorTest, false, "Use non-deterministic seed for random processor tests?");
+
+#if GR_TEST_UTILS
+
+static GrColor input_texel_color(int i, int j) {
+    GrColor color = GrColorPackRGBA((uint8_t)j, (uint8_t)(i + j), (uint8_t)(2 * j - i), (uint8_t)i);
     return GrPremulColor(color);
 }
 
-static GrColor4f texel_color4f(int i, int j) { return GrColor4f::FromGrColor(texel_color(i, j)); }
+static GrColor4f input_texel_color4f(int i, int j) {
+    return GrColor4f::FromGrColor(input_texel_color(i, j));
+}
 
 void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy) {
@@ -282,10 +288,57 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
     rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 
-#include "SkCommandLineFlags.h"
-DEFINE_bool(randomProcessorTest, false, "Use non-deterministic seed for random processor tests?");
+/** Initializes the two test texture proxies that can are available to the FP test factories. */
+bool init_test_textures(GrContext* context, SkRandom* random, sk_sp<GrTextureProxy> proxies[2]) {
+    static const int kTestTextureSize = 256;
+    GrSurfaceDesc desc;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    desc.fWidth = kTestTextureSize;
+    desc.fHeight = kTestTextureSize;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-#if GR_TEST_UTILS
+    // Put premul data into the RGBA texture that the test FPs can optionally use.
+    std::unique_ptr<GrColor[]> rgbaData(new GrColor[kTestTextureSize * kTestTextureSize]);
+    for (int y = 0; y < kTestTextureSize; ++y) {
+        for (int x = 0; x < kTestTextureSize; ++x) {
+            rgbaData.get()[kTestTextureSize * y + x] =
+                    input_texel_color(random->nextULessThan(256), random->nextULessThan(256));
+        }
+    }
+    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+                                              rgbaData.get(), kTestTextureSize * sizeof(GrColor));
+
+    // Put random values into the alpha texture that the test FPs can optionally use.
+    desc.fConfig = kAlpha_8_GrPixelConfig;
+    std::unique_ptr<uint8_t[]> alphaData(new uint8_t[kTestTextureSize * kTestTextureSize]);
+    for (int y = 0; y < kTestTextureSize; ++y) {
+        for (int x = 0; x < kTestTextureSize; ++x) {
+            alphaData.get()[kTestTextureSize * y + x] = random->nextULessThan(256);
+        }
+    }
+    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+                                              alphaData.get(), kTestTextureSize);
+
+    return proxies[0] && proxies[1];
+}
+
+// Creates a texture of premul colors used as the output of the fragment processor that precedes
+// the fragment processor under test. Color values are those provided by input_texel_color().
+sk_sp<GrTextureProxy> make_input_texture(GrContext* context, int width, int height) {
+    std::unique_ptr<GrColor[]> data(new GrColor[width * height]);
+    for (int y = 0; y < width; ++y) {
+        for (int x = 0; x < height; ++x) {
+            data.get()[width * y + x] = input_texel_color(x, y);
+        }
+    }
+    GrSurfaceDesc desc;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
+                                        data.get(), width * sizeof(GrColor));
+}
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     using FPFactory = GrFragmentProcessorTestFactory;
@@ -299,59 +352,20 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     // hard-code that value here:
     SkRandom random(seed);
 
+    // Make the destination surface for the test.
     sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
             SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
-    GrSurfaceDesc desc;
-    desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-    desc.fWidth = 256;
-    desc.fHeight = 256;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     sk_sp<GrTextureProxy> proxies[2];
-
-    // Put premul data into the RGBA texture that the test FPs can optionally use.
-    std::unique_ptr<GrColor[]> rgbaData(new GrColor[256 * 256]);
-    for (int y = 0; y < 256; ++y) {
-        for (int x = 0; x < 256; ++x) {
-            rgbaData.get()[256 * y + x] =
-                    texel_color(random.nextULessThan(256), random.nextULessThan(256));
-        }
-    }
-    proxies[0] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
-                                              rgbaData.get(), 256 * sizeof(GrColor));
-
-    // Put random values into the alpha texture that the test FPs can optionally use.
-    desc.fConfig = kAlpha_8_GrPixelConfig;
-    std::unique_ptr<uint8_t[]> alphaData(new uint8_t[256 * 256]);
-    for (int y = 0; y < 256; ++y) {
-        for (int x = 0; x < 256; ++x) {
-            alphaData.get()[256 * y + x] = random.nextULessThan(256);
-        }
-    }
-    proxies[1] = GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc, SkBudgeted::kYes,
-                                              alphaData.get(), 256);
-
-    if (!proxies[0] || !proxies[1]) {
+    if (!init_test_textures(context, &random, proxies)) {
+        ERRORF(reporter, "Could not create test textures");
         return;
     }
-
     GrProcessorTestData testData(&random, context, rtc.get(), proxies);
 
-    // Use a different array of premul colors for the output of the fragment processor that preceeds
-    // the fragment processor under test.
-    for (int y = 0; y < 256; ++y) {
-        for (int x = 0; x < 256; ++x) {
-            rgbaData.get()[256 * y + x] = texel_color(x, y);
-        }
-    }
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    auto inputTexture = make_input_texture(context, 256, 256);
 
-    sk_sp<GrTextureProxy> dataProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                   desc, SkBudgeted::kYes,
-                                                                   rgbaData.get(),
-                                                                   256 * sizeof(GrColor));
-
+    std::unique_ptr<GrColor> readData(new GrColor[256 * 256]);
     // Because processors factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < FPFactory::Count(); ++i) {
         int timesToInvokeFactory = 5;
@@ -373,11 +387,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
             }
-            test_draw_op(rtc.get(), fp, dataProxy);
-            memset(rgbaData.get(), 0x0, sizeof(GrColor) * 256 * 256);
+            test_draw_op(rtc.get(), fp, inputTexture);
+            memset(readData.get(), 0x0, sizeof(GrColor) * 256 * 256);
             rtc->readPixels(
                     SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
-                    rgbaData.get(), 0, 0, 0);
+                    readData.get(), 0, 0, 0);
             bool passing = true;
             if (0) {  // Useful to see what FPs are being tested.
                 SkString children;
@@ -392,8 +406,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             }
             for (int y = 0; y < 256 && passing; ++y) {
                 for (int x = 0; x < 256 && passing; ++x) {
-                    GrColor input = texel_color(x, y);
-                    GrColor output = rgbaData.get()[y * 256 + x];
+                    GrColor input = input_texel_color(x, y);
+                    GrColor output = readData.get()[y * 256 + x];
                     if (fp->compatibleWithCoverageAsAlpha()) {
                         // A modulating processor is allowed to modulate either the input color or
                         // just the input alpha.
@@ -415,7 +429,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             passing = false;
                         }
                     }
-                    GrColor4f input4f = texel_color4f(x, y);
+                    GrColor4f input4f = input_texel_color4f(x, y);
                     GrColor4f output4f = GrColor4f::FromGrColor(output);
                     GrColor4f expected4f;
                     if (fp->hasConstantOutputForConstantInput(input4f, &expected4f)) {
@@ -455,6 +469,80 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     }
 }
 
+// Tests that fragment processors returned by GrFragmentProcessor::clone() are equivalent to their
+// progenitors.
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkRandom random;
+
+    static const int kRenderSize = 1024;
+    sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, kRenderSize, kRenderSize, kRGBA_8888_GrPixelConfig, nullptr);
+
+    sk_sp<GrTextureProxy> proxies[2];
+    if (!init_test_textures(context, &random, proxies)) {
+        ERRORF(reporter, "Could not create test textures");
+        return;
+    }
+    GrProcessorTestData testData(&random, context, rtc.get(), proxies);
+
+    auto inputTexture = make_input_texture(context, kRenderSize, kRenderSize);
+    std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);
+    std::unique_ptr<GrColor[]> readData2(new GrColor[kRenderSize * kRenderSize]);
+
+    // Because processors factories configure themselves in random ways, this is not exhaustive.
+    for (int i = 0; i < GrFragmentProcessorTestFactory::Count(); ++i) {
+        int timesToInvokeFactory = 5;
+        // Increase the number of attempts if the FP has child FPs since optimizations likely depend
+        // on child optimizations being present.
+        sk_sp<GrFragmentProcessor> fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+        for (int j = 0; j < fp->numChildProcessors(); ++j) {
+            // This value made a reasonable trade off between time and coverage when this test was
+            // written.
+            timesToInvokeFactory *= GrFragmentProcessorTestFactory::Count() / 2;
+        }
+        for (int j = 0; j < timesToInvokeFactory; ++j) {
+            fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+            auto clone = fp->clone();
+            // Currently clone() is allowed to fail.
+            if (!clone) {
+                continue;
+            }
+            if (!fp->instantiate(context->resourceProvider()) ||
+                !clone->instantiate(context->resourceProvider())) {
+                continue;
+            }
+            // Draw with original and read back the results.
+            test_draw_op(rtc.get(), fp, inputTexture);
+            memset(readData1.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
+            auto readInfo = SkImageInfo::Make(kRenderSize, kRenderSize, kRGBA_8888_SkColorType,
+                                              kPremul_SkAlphaType);
+            rtc->readPixels(readInfo, readData1.get(), 0, 0, 0);
+
+            // Draw with clone and read back the results.
+            test_draw_op(rtc.get(), clone, inputTexture);
+            memset(readData2.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
+            rtc->readPixels(readInfo, readData2.get(), 0, 0, 0);
+
+            // Check that the results are the same.
+            bool passing = true;
+            for (int y = 0; y < kRenderSize && passing; ++y) {
+                for (int x = 0; x < kRenderSize && passing; ++x) {
+                    int idx = y * kRenderSize + x;
+                    if (readData1[idx] != readData2[idx]) {
+                        ERRORF(reporter,
+                               "Processor %s made clone produced different output. "
+                               "Input color: 0x%08x, Original Output Color: 0x%08x, "
+                               "Clone Output Color: 0x%08x..",
+                               fp->name(), input_texel_color(x, y), readData1[idx], readData2[idx]);
+                        passing = false;
+                    }
+                }
+            }
+        }
+    }
+}
 #endif  // GR_TEST_UTILS
 #endif  // SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 #endif  // SK_SUPPORT_GPU
