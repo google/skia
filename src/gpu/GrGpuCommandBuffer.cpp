@@ -31,9 +31,9 @@ void GrGpuCommandBuffer::clear(GrRenderTarget* rt, const GrFixedClip& clip, GrCo
     this->onClear(rt, clip, color);
 }
 
-void GrGpuCommandBuffer::clearStencilClip(GrRenderTarget* rt, const GrFixedClip& clip,
-                                          bool insideStencilMask) {
-    this->onClearStencilClip(rt, clip, insideStencilMask);
+void GrGpuCommandBuffer::clearStencilClip(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                          const GrFixedClip& clip, bool insideStencilMask) {
+    this->onClearStencilClip(rt, origin, clip, insideStencilMask);
 }
 
 bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,

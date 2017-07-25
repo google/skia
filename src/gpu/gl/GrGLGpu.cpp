@@ -551,7 +551,6 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGL
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrSurfaceOrigin origin,
                                                GrWrapOwnership ownership) {
     GrGLTexture::IDDesc idDesc;
     if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
@@ -569,6 +568,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 0;
+
+#if 0
     // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
     // assuming the old behaviour, which is that backend textures are always
     // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
@@ -578,11 +579,12 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     } else {
         surfDesc.fOrigin = origin;
     }
+#endif
+
     return GrGLTexture::MakeWrapped(this, surfDesc, idDesc);
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
-                                                         GrSurfaceOrigin origin,
                                                          int sampleCnt,
                                                          GrWrapOwnership ownership) {
     GrGLTexture::IDDesc idDesc;
@@ -607,6 +609,8 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
+
+#if 0
     // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
     // assuming the old behaviour, which is that backend textures are always
     // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
@@ -616,6 +620,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     } else {
         surfDesc.fOrigin = origin;
     }
+#endif
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
@@ -627,8 +632,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     return std::move(texRT);
 }
 
-sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                         GrSurfaceOrigin origin) {
+sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT) {
     const GrGLFramebufferInfo* info = backendRT.getGLFramebufferInfo();
     if (!info) {
         return nullptr;
@@ -647,14 +651,11 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
     desc.fSampleCnt = this->caps()->getSampleCount(backendRT.sampleCnt(), backendRT.config());
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
-    desc.fOrigin = origin;
 
     return GrGLRenderTarget::MakeWrapped(this, desc, idDesc, backendRT.stencilBits());
 }
 
 sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  GrSurfaceOrigin origin,
                                                                   int sampleCnt) {
     const GrGLTextureInfo* info = tex.getGLTextureInfo();
     if (!info || !info->fID) {
@@ -678,6 +679,8 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     surfDesc.fHeight = tex.height();
     surfDesc.fConfig = tex.config();
     surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, tex.config());
+
+#if 0
     // FIXME:  this should be calling resolve_origin(), but Chrome code is currently
     // assuming the old behaviour, which is that backend textures are always
     // BottomLeft, even for non-RT's.  Once Chrome is fixed, change this to:
@@ -687,6 +690,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     } else {
         surfDesc.fOrigin = origin;
     }
+#endif
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, texInfo, &rtIDDesc)) {
@@ -697,16 +701,17 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
+bool GrGLGpu::onGetWritePixelsInfo(GrSurfaceProxy* dstProxy, int width, int height,
                                    GrPixelConfig srcConfig,
                                    DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
-    if (SkToBool(dstSurface->asRenderTarget())) {
+    if (SkToBool(dstProxy->asRenderTargetProxy())) {
         if (this->glCaps().useDrawInsteadOfAllRenderTargetWrites()) {
             ElevateDrawPreference(drawPreference, kRequireDraw_DrawPreference);
         }
     }
 
+    GrSurface* dstSurface = dstProxy->priv().peekSurface();
     GrGLTexture* texture = static_cast<GrGLTexture*>(dstSurface->asTexture());
 
     if (texture) {
@@ -773,7 +778,7 @@ bool GrGLGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     }
 
     if (!this->glCaps().unpackFlipYSupport() &&
-        kBottomLeft_GrSurfaceOrigin == dstSurface->origin()) {
+        kBottomLeft_GrSurfaceOrigin == dstProxy->origin()) {
         ElevateDrawPreference(drawPreference, kGpuPrefersDraw_DrawPreference);
     }
 
@@ -799,7 +804,7 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex, GrSurface* surfac
     return true;
 }
 
-bool GrGLGpu::onWritePixels(GrSurface* surface,
+bool GrGLGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             int left, int top, int width, int height,
                             GrPixelConfig config,
                             const GrMipLevel texels[],
@@ -814,7 +819,7 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
     GL_CALL(BindTexture(glTex->target(), glTex->textureID()));
 
     return this->uploadTexData(glTex->config(), glTex->width(), glTex->height(),
-                               glTex->origin(), glTex->target(), kWrite_UploadType,
+                               origin, glTex->target(), kWrite_UploadType,
                                left, top, width, height, config, texels, mipLevelCount);
 }
 
@@ -1742,12 +1747,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
                            GrSurfaceOrigin rtOrigin) {
     if (scissorState.enabled()) {
         GrGLIRect scissor;
-        scissor.setRelativeTo(rtViewport,
-                              scissorState.rect().fLeft,
-                              scissorState.rect().fTop,
-                              scissorState.rect().width(),
-                              scissorState.rect().height(),
-                              rtOrigin);
+        scissor.setRelativeTo(rtViewport, scissorState.rect(), rtOrigin);
         // if the scissor fully contains the viewport then we fall through and
         // disable the scissor test.
         if (!scissor.contains(rtViewport)) {
@@ -1768,14 +1768,14 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
 }
 
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
-                                    const GrGLRenderTarget* rt) {
+                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     SkASSERT(!windowState.enabled() || rt->renderFBOID()); // Window rects can't be used on-screen.
     SkASSERT(windowState.numWindows() <= this->caps()->maxWindowRectangles());
 
     if (!this->caps()->maxWindowRectangles() ||
-        fHWWindowRectsState.knownEqualTo(rt->origin(), rt->getViewport(), windowState)) {
+        fHWWindowRectsState.knownEqualTo(origin, rt->getViewport(), windowState)) {
         return;
     }
 
@@ -1787,13 +1787,13 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GrGLIRect glwindows[GrWindowRectangles::kMaxWindows];
     const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
-        glwindows[i].setRelativeTo(rt->getViewport(), skwindows[i], rt->origin());
+        glwindows[i].setRelativeTo(rt->getViewport(), skwindows[i], origin);
     }
 
     GrGLenum glmode = (Mode::kExclusive == windowState.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
     GL_CALL(WindowRectangles(glmode, numWindows, glwindows->asInts()));
 
-    fHWWindowRectsState.set(rt->origin(), rt->getViewport(), windowState);
+    fHWWindowRectsState.set(origin, rt->getViewport(), windowState);
 #endif
 }
 
@@ -1861,7 +1861,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     }
     this->flushStencil(stencil);
     this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
-    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT);
+    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, glRT->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());
 
     // This must come after textures are flushed because a texture may need
@@ -1977,7 +1977,7 @@ void GrGLGpu::disableScissor() {
     }
 }
 
-void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* target) {
+void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* target, GrSurfaceOrigin origin) {
     this->handleDirtyContext();
 
     // parent class should never let us get here with no RT
@@ -1985,8 +1985,8 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* targ
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
     this->flushRenderTarget(glRT, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
-    this->flushWindowRectangles(clip.windowRectsState(), glRT);
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
+    this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
 
     GrGLfloat r, g, b, a;
     static const GrGLfloat scale255 = 1.f / 255.f;
@@ -2027,12 +2027,12 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
 
 void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
                                bool insideStencilMask,
-                               GrRenderTarget* target) {
+                               GrRenderTarget* target, GrSurfaceOrigin origin) {
     SkASSERT(target);
     this->handleDirtyContext();
 
     if (this->glCaps().useDrawToClearStencilClip()) {
-        this->clearStencilClipAsDraw(clip, insideStencilMask, target);
+        this->clearStencilClipAsDraw(clip, insideStencilMask, target, origin);
         return;
     }
 
@@ -2061,8 +2061,8 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
-    this->flushWindowRectangles(clip.windowRectsState(), glRT);
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
+    this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
     GL_CALL(ClearStencil(value));
@@ -2288,7 +2288,7 @@ bool GrGLGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     return true;
 }
 
-bool GrGLGpu::onReadPixels(GrSurface* surface,
+bool GrGLGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                            int left, int top,
                            int width, int height,
                            GrPixelConfig config,
@@ -2317,8 +2317,8 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
         if (kAlpha_8_GrPixelConfig == config &&
             this->readPixelsSupported(surface, tempConfig)) {
             std::unique_ptr<uint32_t[]> temp(new uint32_t[width * height * 4]);
-            if (this->onReadPixels(surface, left, top, width, height, tempConfig, temp.get(),
-                                   width*4)) {
+            if (this->onReadPixels(surface, origin, left, top, width, height,
+                                   tempConfig, temp.get(), width*4)) {
                 uint8_t* dst = reinterpret_cast<uint8_t*>(buffer);
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
@@ -2337,7 +2337,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                                             &externalType)) {
         return false;
     }
-    bool flipY = kBottomLeft_GrSurfaceOrigin == surface->origin();
+    bool flipY = kBottomLeft_GrSurfaceOrigin == origin;
 
     GrGLIRect glvp;
     if (renderTarget) {
@@ -2349,7 +2349,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                 this->flushRenderTarget(renderTarget, &SkIRect::EmptyIRect());
                 break;
             case GrGLRenderTarget::kCanResolve_ResolveType:
-                this->onResolveRenderTarget(renderTarget);
+                this->onResolveRenderTarget(renderTarget, origin);
                 // we don't track the state of the READ FBO ID.
                 fStats.incRenderTargetBinds();
                 GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
@@ -2366,7 +2366,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
     // the read rect is viewport-relative
     GrGLIRect readRect;
-    readRect.setRelativeTo(glvp, left, top, width, height, surface->origin());
+    readRect.setRelativeTo(glvp, left, top, width, height, origin);
 
     size_t bytesPerPixel = GrBytesPerPixel(config);
     size_t tightRowBytes = bytesPerPixel * width;
@@ -2661,7 +2661,7 @@ void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrPrimitiveProcessor& primProc
     fStats.incNumDraws();
 }
 
-void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
+void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin origin) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {
         // Some extensions automatically resolves the texture when it is read.
@@ -2681,7 +2681,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                 // Apple's extension uses the scissor as the blit bounds.
                 GrScissorState scissorState;
                 scissorState.set(dirtyRect);
-                this->flushScissor(scissorState, vp, rt->origin());
+                this->flushScissor(scissorState, vp, origin);
                 this->disableWindowRectangles();
                 GL_CALL(ResolveMultisampleFramebuffer());
             } else {
@@ -2694,8 +2694,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                     t = target->height();
                 } else {
                     GrGLIRect rect;
-                    rect.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
-                                       dirtyRect.width(), dirtyRect.height(), target->origin());
+                    rect.setRelativeTo(vp, dirtyRect, origin);
                     l = rect.fLeft;
                     b = rect.fBottom;
                     r = rect.fLeft + rect.fWidth;
@@ -3259,8 +3258,8 @@ void GrGLGpu::setScratchTextureUnit() {
 }
 
 // Determines whether glBlitFramebuffer could be used between src and dst by onCopySurface.
-static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
-                                                         const GrSurface* src,
+static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                                         const GrSurface* src, GrSurfaceOrigin srcOrigin,
                                                          const SkIRect& srcRect,
                                                          const SkIPoint& dstPoint,
                                                          const GrGLGpu* gpu) {
@@ -3288,7 +3287,7 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     if (GrGLCaps::kNoScalingOrMirroring_BlitFramebufferFlag & blitFramebufferFlags) {
         // We would mirror to compensate for origin changes. Note that copySurface is
         // specified such that the src and dst rects are the same.
-        if (dst->origin() != src->origin()) {
+        if (dstOrigin != srcOrigin) {
             return false;
         }
     }
@@ -3322,7 +3321,7 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
             if (dstPoint.fX != srcRect.fLeft || dstPoint.fY != srcRect.fTop) {
                 return false;
             }
-            if (dst->origin() != src->origin()) {
+            if (dstOrigin != srcOrigin) {
                 return false;
             }
         }
@@ -3330,8 +3329,8 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
     return true;
 }
 
-static inline bool can_copy_texsubimage(const GrSurface* dst,
-                                        const GrSurface* src,
+static inline bool can_copy_texsubimage(const GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                        const GrSurface* src, GrSurfaceOrigin srcOrigin,
                                         const GrGLGpu* gpu) {
     // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
     // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
@@ -3366,7 +3365,7 @@ static inline bool can_copy_texsubimage(const GrSurface* dst,
     // is required.
     if (gpu->glCaps().canConfigBeFBOColorAttachment(src->config()) &&
         (!srcTex || srcTex->target() == GR_GL_TEXTURE_2D) && dstTex->target() == GR_GL_TEXTURE_2D &&
-        dst->origin() == src->origin()) {
+        dstOrigin == srcOrigin) {
         return true;
     } else {
         return false;
@@ -3422,10 +3421,9 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
     }
 }
 
-bool GrGLGpu::onCopySurface(GrSurface* dst,
-                            GrSurface* src,
-                            const SkIRect& srcRect,
-                            const SkIPoint& dstPoint) {
+bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                            GrSurface* src, GrSurfaceOrigin srcOrigin,
+                            const SkIRect& srcRect, const SkIPoint& dstPoint) {
     // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
     // swizzle.
     if (this->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
@@ -3435,22 +3433,22 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     bool preferCopy = SkToBool(dst->asRenderTarget());
     if (preferCopy && src->asTexture()) {
-        if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
+        if (this->copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint)) {
             return true;
         }
     }
 
-    if (can_copy_texsubimage(dst, src, this)) {
-        this->copySurfaceAsCopyTexSubImage(dst, src, srcRect, dstPoint);
+    if (can_copy_texsubimage(dst, dstOrigin, src, srcOrigin, this)) {
+        this->copySurfaceAsCopyTexSubImage(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
         return true;
     }
 
-    if (can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this)) {
-        return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
+    if (can_blit_framebuffer_for_copy_surface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint, this)) {
+        return this->copySurfaceAsBlitFramebuffer(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
     }
 
     if (!preferCopy && src->asTexture()) {
-        if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
+        if (this->copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint)) {
             return true;
         }
     }
@@ -3808,7 +3806,7 @@ bool GrGLGpu::createStencilClipClearProgram() {
 }
 
 void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencilMask,
-                                     GrRenderTarget* rt) {
+                                     GrRenderTarget* rt, GrSurfaceOrigin origin) {
     // TODO: This should swizzle the output to match dst's config, though it is a debugging
     // visualization.
 
@@ -3838,8 +3836,8 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
     this->flushBlend(blendInfo, GrSwizzle::RGBA());
     this->flushColorWrite(false);
     this->flushHWAAState(glRT, false, false);
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
-    this->flushWindowRectangles(clip.windowRectsState(), glRT);
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
+    this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
     GrStencilAttachment* sb = rt->renderTargetPriv().getStencilAttachment();
     // This should only be called internally when we know we have a stencil buffer.
     SkASSERT(sb);
@@ -3850,8 +3848,8 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
 }
 
 
-bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
-                                GrSurface* src,
+bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                GrSurface* src, GrSurfaceOrigin srcOrigin,
                                 const SkIRect& srcRect,
                                 const SkIPoint& dstPoint) {
     GrGLTexture* srcTex = static_cast<GrGLTexture*>(src->asTexture());
@@ -3894,7 +3892,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     GrGLfloat dx1 = 2.f * (dstPoint.fX + w) / dw - 1.f;
     GrGLfloat dy0 = 2.f * dstPoint.fY / dh - 1.f;
     GrGLfloat dy1 = 2.f * (dstPoint.fY + h) / dh - 1.f;
-    if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
+    if (kBottomLeft_GrSurfaceOrigin == dstOrigin) {
         dy0 = -dy0;
         dy1 = -dy1;
     }
@@ -3905,7 +3903,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h);
     int sw = src->width();
     int sh = src->height();
-    if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
         sy0 = sh - sy0;
         sy1 = sh - sy1;
     }
@@ -3939,11 +3937,11 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst,
     return true;
 }
 
-void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
-                                           GrSurface* src,
+void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                           GrSurface* src, GrSurfaceOrigin srcOrigin,
                                            const SkIRect& srcRect,
                                            const SkIPoint& dstPoint) {
-    SkASSERT(can_copy_texsubimage(dst, src, this));
+    SkASSERT(can_copy_texsubimage(dst, dstOrigin, src, srcOrigin, this));
     GrGLIRect srcVP;
     this->bindSurfaceFBOForPixelOps(src, GR_GL_FRAMEBUFFER, &srcVP, kSrc_TempFBOTarget);
     GrGLTexture* dstTex = static_cast<GrGLTexture *>(dst->asTexture());
@@ -3951,17 +3949,12 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
     // We modified the bound FBO
     fHWBoundRenderTargetUniqueID.makeInvalid();
     GrGLIRect srcGLRect;
-    srcGLRect.setRelativeTo(srcVP,
-                            srcRect.fLeft,
-                            srcRect.fTop,
-                            srcRect.width(),
-                            srcRect.height(),
-                            src->origin());
+    srcGLRect.setRelativeTo(srcVP, srcRect, srcOrigin);
 
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(dstTex->target(), dstTex->textureID()));
     GrGLint dstY;
-    if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
+    if (kBottomLeft_GrSurfaceOrigin == dstOrigin) {
         dstY = dst->height() - (dstPoint.fY + srcGLRect.fHeight);
     } else {
         dstY = dstPoint.fY;
@@ -3976,11 +3969,11 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
     this->didWriteToSurface(dst, &dstRect);
 }
 
-bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
-                                           GrSurface* src,
+bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                           GrSurface* src, GrSurfaceOrigin srcOrigin,
                                            const SkIRect& srcRect,
                                            const SkIPoint& dstPoint) {
-    SkASSERT(can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this));
+    SkASSERT(can_blit_framebuffer_for_copy_surface(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint, this));
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     if (dst == src) {
@@ -3997,18 +3990,8 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
     fHWBoundRenderTargetUniqueID.makeInvalid();
     GrGLIRect srcGLRect;
     GrGLIRect dstGLRect;
-    srcGLRect.setRelativeTo(srcVP,
-                            srcRect.fLeft,
-                            srcRect.fTop,
-                            srcRect.width(),
-                            srcRect.height(),
-                            src->origin());
-    dstGLRect.setRelativeTo(dstVP,
-                            dstRect.fLeft,
-                            dstRect.fTop,
-                            dstRect.width(),
-                            dstRect.height(),
-                            dst->origin());
+    srcGLRect.setRelativeTo(srcVP, srcRect, srcOrigin);
+    dstGLRect.setRelativeTo(dstVP, dstRect, dstOrigin);
 
     // BlitFrameBuffer respects the scissor, so disable it.
     this->disableScissor();
@@ -4017,7 +4000,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
     GrGLint srcY0;
     GrGLint srcY1;
     // Does the blit need to y-mirror or not?
-    if (src->origin() == dst->origin()) {
+    if (srcOrigin == dstOrigin) {
         srcY0 = srcGLRect.fBottom;
         srcY1 = srcGLRect.fBottom + srcGLRect.fHeight;
     } else {

@@ -70,14 +70,13 @@ public:
                              GrPixelConfig readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override;
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
+    bool onGetWritePixelsInfo(GrSurfaceProxy* dstProxy, int width, int height,
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override;
 
-    bool onCopySurface(GrSurface* dst,
-                       GrSurface* src,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                       GrSurface* src, GrSurfaceOrigin srcOrigin,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override;
@@ -117,7 +116,7 @@ public:
         return fCompiler;
     }
 
-    void onResolveRenderTarget(GrRenderTarget* target) override {
+    void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override {
         this->internalResolveRenderTarget(target, true);
     }
 
@@ -178,18 +177,13 @@ private:
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
-                                          GrSurfaceOrigin,
-                                          GrWrapOwnership) override;
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override;
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
-                                                    GrSurfaceOrigin,
                                                     int sampleCnt,
                                                     GrWrapOwnership) override;
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                    GrSurfaceOrigin) override;
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                             GrSurfaceOrigin,
                                                              int sampleCnt) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
@@ -197,13 +191,13 @@ private:
 
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
 
-    bool onReadPixels(GrSurface* surface,
+    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
                       GrPixelConfig,
                       void* buffer,
                       size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface* surface,
+    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
                        GrPixelConfig config, const GrMipLevel texels[], int mipLevelCount) override;
 

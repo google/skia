@@ -81,12 +81,12 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
         sampleCount = rt->numStencilSamples();
     }
     GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                     this->origin(), SkToBool(rt), sampleCount,
+                                     SkToBool(rt), sampleCount,
                                      this->texturePriv().hasMipMaps(), key);
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                      GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
+                                      bool isRenderTarget, int sampleCnt,
                                       bool isMipMapped, GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     uint32_t flags = isRenderTarget;

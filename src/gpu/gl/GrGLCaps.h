@@ -394,7 +394,7 @@ public:
         return fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines;
     }
 
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc2* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
 private:

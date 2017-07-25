@@ -220,7 +220,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     bool renderable = caps.isConfigRenderable(config, numSamples > 0);
 
                     GrSurfaceDesc desc;
-                    desc.fOrigin = origin;
                     desc.fWidth = kWidthHeight;
                     desc.fHeight = kWidthHeight;
                     desc.fConfig = config;
@@ -234,7 +233,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                         config, fboInfo);
 
                         sk_sp<GrRenderTarget> defaultFBO(
-                            provider->wrapBackendRenderTarget(backendRT, origin));
+                            provider->wrapBackendRenderTarget(backendRT));
 
                         sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(defaultFBO,
                                                                                  origin));

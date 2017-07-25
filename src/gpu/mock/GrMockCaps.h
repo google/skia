@@ -32,7 +32,7 @@ public:
         return fOptions.fConfigOptions[config].fRenderable[withMSAA];
     }
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
-    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc2* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override {
         return false;
     }

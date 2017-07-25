@@ -401,11 +401,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         return false;
     }
 
-    GrSurface* dstSurface = dst->asSurfaceProxy()->priv().peekSurface();
+    GrSurfaceProxy* dstProxy = dst->asSurfaceProxy();
+    GrSurface* dstSurface = dstProxy->priv().peekSurface();
 
     // The src is unpremul but the dst is premul -> premul the src before or as part of the write
     const bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
-    if (!valid_pixel_conversion(srcConfig, dstSurface->config(), premul)) {
+    if (!valid_pixel_conversion(srcConfig, dstProxy->config(), premul)) {
         return false;
     }
 
@@ -414,7 +415,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     bool useConfigConversionEffect =
                         premul &&
                         pm_upm_must_round_trip(srcConfig, srcColorSpace) &&
-                        pm_upm_must_round_trip(dstSurface->config(), dst->getColorSpace());
+                        pm_upm_must_round_trip(dstProxy->config(), dst->getColorSpace());
 
     // Are we going to try to premul as part of a draw? For the non-legacy case, we always allow
     // this. GrConfigConversionEffect fails on some GPUs, so only allow this if it works perfectly.
@@ -432,7 +433,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, width, height, srcConfig,
+    if (!fContext->fGpu->getWritePixelsInfo(dstProxy, width, height, srcConfig,
                                             &drawPreference, &tempDrawInfo)) {
         return false;
     }
@@ -740,7 +741,8 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex, origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex));
     if (!surface) {
         return nullptr;
     }
@@ -761,8 +763,10 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+
     sk_sp<GrSurface> surface(
-            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt));
+            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
     if (!surface) {
         return nullptr;
     }
@@ -783,8 +787,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT,
-                                                                                   origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT));
     if (!rt) {
         return nullptr;
     }
@@ -807,9 +811,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(
                                                                                         tex,
-                                                                                        origin,
                                                                                         sampleCnt));
     if (!surface) {
         return nullptr;
