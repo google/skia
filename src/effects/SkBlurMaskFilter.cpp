@@ -958,7 +958,7 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
     sk_sp<GrTextureProxy> blurProfile(resourceProvider->findProxyByUniqueKey(
                                                                   key, kTopLeft_GrSurfaceOrigin));
     if (!blurProfile) {
-        GrSurfaceDesc texDesc;
+        GrSurfaceDesc2 texDesc;
         texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         texDesc.fWidth = profileSize;
         texDesc.fHeight = 1;

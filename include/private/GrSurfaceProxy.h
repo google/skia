@@ -177,7 +177,7 @@ public:
     static sk_sp<GrTextureProxy> MakeWrapped(sk_sp<GrTexture>, GrSurfaceOrigin);
 
     static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
-                                              const GrSurfaceDesc&, SkBackingFit,
+                                              const GrSurfaceDesc2&, SkBackingFit,
                                               SkBudgeted, uint32_t flags = 0);
 
     /**
@@ -189,7 +189,7 @@ public:
      * @param mipLevelCount The amount of elements in the texels array
      */
     static sk_sp<GrTextureProxy> MakeDeferredMipMap(GrResourceProvider*,
-                                                    const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                                    const GrSurfaceDesc2& desc, SkBudgeted budgeted,
                                                     const GrMipLevel texels[], int mipLevelCount,
                                                     SkDestinationSurfaceColorMode mipColorMode =
                                                            SkDestinationSurfaceColorMode::kLegacy);
@@ -197,7 +197,7 @@ public:
     // TODO: need to refine ownership semantics of 'srcData' if we're in completely
     // deferred mode
     static sk_sp<GrTextureProxy> MakeDeferred(GrResourceProvider*,
-                                              const GrSurfaceDesc&, SkBudgeted,
+                                              const GrSurfaceDesc2&, SkBudgeted,
                                               const void* srcData, size_t rowBytes);
 
     static sk_sp<GrTextureProxy> MakeWrappedBackend(GrContext*, GrBackendTexture&, GrSurfaceOrigin);
@@ -337,7 +337,7 @@ public:
 
 protected:
     // Deferred version
-    GrSurfaceProxy(const GrSurfaceDesc& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
+    GrSurfaceProxy(const GrSurfaceDesc2& desc, SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
             : fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
             , fHeight(desc.fHeight)

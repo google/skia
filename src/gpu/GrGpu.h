@@ -118,24 +118,23 @@ public:
     /**
      * Implements GrResourceProvider::wrapBackendTexture
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrSurfaceOrigin, GrWrapOwnership);
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrWrapOwnership);
 
     /**
      * Implements GrResourceProvider::wrapRenderableBackendTexture
      */
-    sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
+    sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture&,
                                                   int sampleCnt, GrWrapOwnership);
 
     /**
      * Implements GrResourceProvider::wrapBackendRenderTarget
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
 
     /**
      * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
      */
     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                           GrSurfaceOrigin,
                                                            int sampleCnt);
 
     /**
@@ -220,7 +219,7 @@ public:
             that to the dst then this is the descriptor for the intermediate surface. The caller
             should upload the pixels such that the upper left pixel of the upload rect is at 0,0 in
             the intermediate surface.*/
-        GrSurfaceDesc   fTempSurfaceDesc;
+        GrSurfaceDesc2  fTempSurfaceDesc;
         /** Swizzle to apply during the draw. This is used to compensate for either feature or
             performance limitations in the underlying 3D API. */
         GrSwizzle       fSwizzle;
@@ -549,18 +548,13 @@ private:
                                              const GrMipLevel texels[],
                                              int mipLevelCount) = 0;
 
-    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
-                                                  GrSurfaceOrigin,
-                                                  GrWrapOwnership) = 0;
+    virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) = 0;
     virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
-                                                            GrSurfaceOrigin,
                                                             int sampleCnt,
                                                             GrWrapOwnership) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                            GrSurfaceOrigin) = 0;
+    virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                                     GrSurfaceOrigin,
-                                                                     int sampleCnt)=0;
+                                                                     int sampleCnt) = 0;
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 

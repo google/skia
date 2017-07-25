@@ -146,12 +146,13 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
             }
         }
 
+        SkASSERT(kDefault_GrSurfaceOrigin != fSurfaceOrigin);
         // We just gained access to the texture. If we're on the original context, we could use the
         // original texture, but we'd have no way of detecting that it's no longer in-use. So we
         // always make a wrapped copy, where the release proc informs us that the context is done
         // with it. This is unfortunate - we'll have two texture objects referencing the same GPU
         // object. However, no client can ever see the original texture, so this should be safe.
-        tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture, fSurfaceOrigin,
+        tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture,
                                                               kBorrow_GrWrapOwnership);
         if (!tex) {
             fRefHelper->fBorrowingContextID = SK_InvalidGenID;
