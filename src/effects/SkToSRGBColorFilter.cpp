@@ -21,11 +21,6 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
                                          SkColorSpace* /*dst color space*/,
                                          SkArenaAlloc* alloc,
                                          bool shaderIsOpaque) const {
-    if (fSrcColorSpace->isSRGB()) {
-        // That was easy.
-        return;
-    }
-
     // Step 1: Linearize by undoing the src transfer function.
     // Linear and sRGB will return true to isNumericalTransferFn(), so we check them first.
     SkColorSpaceTransferFn srcFn;
