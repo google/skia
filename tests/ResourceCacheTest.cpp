@@ -228,7 +228,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-            backendTex1, kTopLeft_GrSurfaceOrigin, kBorrow_GrWrapOwnership));
+            backendTex1, kBorrow_GrWrapOwnership));
 
     GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                                                 kW,
@@ -236,7 +236,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-            backendTex2, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership));
+            backendTex2, kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {

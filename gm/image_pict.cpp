@@ -179,7 +179,7 @@ protected:
         }
 
         // need to copy the subset into a new texture
-        GrSurfaceDesc desc;
+        GrSurfaceDesc2 desc;
         desc.fConfig = fProxy->config();
         desc.fWidth = info.width();
         desc.fHeight = info.height();

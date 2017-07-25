@@ -92,7 +92,8 @@ private:
 
     void onClear(GrRenderTarget*, const GrFixedClip&, GrColor color) override;
 
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
+    void onClearStencilClip(GrRenderTarget*, GrSurfaceOrigin origin,
+                            const GrFixedClip&, bool insideStencilMask) override;
 
     void addAdditionalCommandBuffer();
     void addAdditionalRenderPass();

@@ -94,7 +94,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
 }
 
 sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fPixels.width();
     desc.fHeight = fPixels.height();
