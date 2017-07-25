@@ -10,7 +10,7 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkDevice.h"
-#include "SkDrawShadowRec.h"
+#include "SkDrawShadowInfo.h"
 #include "SkPath.h"
 #include "SkPM4f.h"
 #include "SkRandom.h"
