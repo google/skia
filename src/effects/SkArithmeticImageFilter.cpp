@@ -223,6 +223,14 @@ public:
         return str;
     }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        auto child = this->childProcessor(0).clone();
+        if (!child) {
+            return nullptr;
+        }
+        return Make(fK1, fK2, fK3, fK4, fEnforcePMColor, std::move(child));
+    }
+
     float k1() const { return fK1; }
     float k2() const { return fK2; }
     float k3() const { return fK3; }
