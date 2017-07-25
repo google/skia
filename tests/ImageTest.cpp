@@ -906,6 +906,14 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
 
             otherTestContext->makeCurrent();
             canvas->flush();
+
+            // This readPixels call is needed for Vulkan to make sure the ReleaseProc is called.
+            // Even though we flushed above, this does not guarantee the command buffer will finish
+            // which is when we call the ReleaseProc. The readPixels forces a CPU sync so we know
+            // that the command buffer has finished and we've called the ReleaseProc.
+            SkBitmap bitmap;
+            bitmap.allocPixels(info);
+            canvas->readPixels(bitmap, 0, 0);
         }
 
         // Case #6: Verify that only one context can be using the image at a time
