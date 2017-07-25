@@ -1320,13 +1320,12 @@ void Viewer::updateUIState() {
     // Instanced rendering state
     Json::Value instState(Json::objectValue);
     instState[kName] = kInstancedRenderingStateName;
+    instState[kValue] = kOFF;
+    instState[kOptions] = Json::Value(Json::arrayValue);
     if (ctx) {
         if (fWindow->getRequestedDisplayParams().fGrContextOptions.fEnableInstancedRendering) {
             instState[kValue] = kON;
-        } else {
-            instState[kValue] = kOFF;
         }
-        instState[kOptions] = Json::Value(Json::arrayValue);
         instState[kOptions].append(kOFF);
         instState[kOptions].append(kON);
     }
