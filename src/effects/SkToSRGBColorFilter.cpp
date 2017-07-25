@@ -8,8 +8,10 @@
 #include "SkColorSpace_Base.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
+#include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkToSRGBColorFilter.h"
+#include "SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
     #include "effects/GrNonlinearColorSpaceXformEffect.h"
@@ -58,13 +60,16 @@ sk_sp<SkColorFilter> SkToSRGBColorFilter::Make(sk_sp<SkColorSpace> srcColorSpace
 SkToSRGBColorFilter::SkToSRGBColorFilter(sk_sp<SkColorSpace> srcColorSpace)
         : fSrcColorSpace(std::move(srcColorSpace)) {}
 
-sk_sp<SkFlattenable> SkToSRGBColorFilter::CreateProc(SkReadBuffer&) {
-    // TODO
+sk_sp<SkFlattenable> SkToSRGBColorFilter::CreateProc(SkReadBuffer& buffer) {
+    auto data = buffer.readByteArrayAsData();
+    if (data) {
+        return Make(SkColorSpace::Deserialize(data->data(), data->size()));
+    }
     return nullptr;
 }
 
-void SkToSRGBColorFilter::flatten(SkWriteBuffer&) const {
-    // TODO
+void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
+    buffer.writeDataAsByteArray(fSrcColorSpace->serialize().get());
 }
 
 #ifndef SK_IGNORE_TO_STRING
