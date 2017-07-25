@@ -127,6 +127,8 @@ public:
 
     const char* name() const override { return "PremultiplyInput"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+
 private:
     PremulInputFragmentProcessor()
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag |
@@ -166,6 +168,8 @@ public:
     }
 
     const char* name() const override { return "UnpremultiplyInput"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
     UnpremulInputFragmentProcessor()
@@ -237,6 +241,8 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(sk_sp<GrFragmentPr
         const char* name() const override { return "Swizzle"; }
         const GrSwizzle& swizzle() const { return fSwizzle; }
 
+        sk_sp<GrFragmentProcessor> clone() const override { return Make(fSwizzle); }
+
     private:
         SwizzleFragmentProcessor(const GrSwizzle& swizzle)
                 : INHERITED(kAll_OptimizationFlags)
@@ -297,6 +303,11 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
         }
 
         const char* name() const override { return "Premultiply"; }
+
+        sk_sp<GrFragmentProcessor> clone() const override {
+            auto child = this->childProcessor(0).clone();
+            return child ? Make(std::move(child)) : nullptr;
+        }
 
     private:
         PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor)
@@ -364,6 +375,12 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
 
         const char* name() const override { return "Replace Color"; }
 
+        sk_sp<GrFragmentProcessor> clone() const override {
+            auto child = this->childProcessor(0).clone();
+            return child ? Make(std::move(child), fColor) : nullptr;
+        }
+
+    private:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
@@ -396,7 +413,6 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
             return new GLFP;
         }
 
-    private:
         ReplaceInputFragmentProcessor(sk_sp<GrFragmentProcessor> child, GrColor4f color)
                 : INHERITED(OptFlags(child.get(), color)), fColor(color) {
             this->initClassID<ReplaceInputFragmentProcessor>();
@@ -447,6 +463,17 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
 
         const char* name() const override { return "Series"; }
 
+        sk_sp<GrFragmentProcessor> clone() const override {
+            SkSTArray<4, sk_sp<GrFragmentProcessor>> children(this->numChildProcessors());
+            for (int i = 0; i < this->numChildProcessors(); ++i) {
+                if (!children.push_back(this->childProcessor(i).clone())) {
+                    return nullptr;
+                }
+            }
+            return Make(children.begin(), this->numChildProcessors());
+        }
+
+    private:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
@@ -466,7 +493,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             };
             return new GLFP;
         }
-    private:
+
         SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt)
                 : INHERITED(OptFlags(children, cnt)) {
             SkASSERT(cnt > 1);
