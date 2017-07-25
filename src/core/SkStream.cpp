@@ -13,7 +13,6 @@
 #include "SkMakeUnique.h"
 #include "SkString.h"
 #include "SkOSFile.h"
-#include "SkTraceEvent.h"
 #include "SkTypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -663,7 +662,6 @@ public:
         , fSize(size) , fOffset(0), fCurrentOffset(0) { }
 
     size_t read(void* buffer, size_t rawCount) override {
-        TRACE_EVENT0("skia-dynamic-memory-stream", "SkBlockMemoryStream::read");
         size_t count = rawCount;
         if (fOffset + count > fSize) {
             count = fSize - fOffset;
