@@ -18,6 +18,7 @@ class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrContext;
 class GrRenderTarget;
+enum class GrSemaphoresSubmitted;
 
 /**
  *  SkSurface is responsible for managing the pixels that a canvas draws into. The pixels can be
@@ -329,16 +330,21 @@ public:
      * If it is not initialized, a new semaphore is created and the GrBackendSemaphore object
      * is initialized with that semaphore.
      *
+     * The client will own and be responsible for deleting the underlying semaphores that are stored
+     * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
+     * themselves can be deleted as soon as this function returns.
+     *
      * If the backend API is OpenGL only uninitialized GrBackendSemaphores are supported.
      * If the backend API is Vulkan either initialized or unitialized semaphores are supported.
      * If unitialized, the semaphores which are created will be valid for use only with the VkDevice
      * with which they were created.
      *
-     * If this call returns false, the GPU backend will not have created or added any semaphores to
-     * signal. Thus the array of semaphores will remain uninitialized. However, any pending surface
-     * IO will still be flush.
+     * If this call returns GrSemaphoresSubmited::kNo, the GPU backend will not have created or
+     * added any semaphores to signal on the GPU. Thus the client should not have the GPU wait on
+     * any of the semaphores. However, any pending surface IO will still be flushed.
      */
-    bool flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores);
+    GrSemaphoresSubmitted flushAndSignalSemaphores(int numSemaphores,
+                                                   GrBackendSemaphore signalSemaphores[]);
 
     /**
      * Inserts a list of GPU semaphores that the current backend 3D API must wait on before
