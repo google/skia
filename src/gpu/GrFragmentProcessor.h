@@ -92,7 +92,7 @@ public:
      * has a default implementation that fails. This is temporary until it can be implemented
      * for all fragemnt processor leaf classes.
      */
-    virtual sk_sp<GrFragmentProcessor> clone() { return nullptr; }
+    virtual sk_sp<GrFragmentProcessor> clone() const { return nullptr; }
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
@@ -116,6 +116,7 @@ public:
     int numChildProcessors() const { return fChildProcessors.count(); }
 
     const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
+    GrFragmentProcessor& childProcessor(int index) { return *fChildProcessors[index]; }
 
     bool instantiate(GrResourceProvider*) const;
 
