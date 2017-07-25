@@ -86,6 +86,14 @@ public:
 
     ~GrFragmentProcessor() override;
 
+    /**
+     * Makes a copy of this fragment processor that draws equivalently to the original.
+     * If the processor has child processors they are cloned as well. Currently this
+     * has a default implementation that fails. This is temporary until it can be implemented
+     * for all fragemnt processor leaf classes.
+     */
+    virtual sk_sp<GrFragmentProcessor> clone() { return nullptr; }
+
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
