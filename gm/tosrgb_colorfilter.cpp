@@ -10,7 +10,7 @@
 #include "SkPM4fPriv.h"
 #include "SkToSRGBColorFilter.h"
 
-DEF_SIMPLE_GM_BG(srgb_color_filter, canvas, 130, 130, SK_ColorBLACK) {
+DEF_SIMPLE_GM_BG(tosrgb_colorfilter, canvas, 130, 130, SK_ColorBLACK) {
     // Src bitmap with some colors that we're going to interpret as being in a few different spaces
     SkBitmap bmp;
     bmp.allocN32Pixels(3, 2);
