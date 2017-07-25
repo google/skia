@@ -222,7 +222,11 @@ bool SkSweepGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                   SkMatrix* matrix,
                                                   SkRasterPipeline* p,
                                                   SkRasterPipeline*) const {
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_MATRIX_MATH
     matrix->postTranslate(-fCenter.fX, -fCenter.fY);
+#else
+    matrix->postConcat(fPtsToUnit);
+#endif
     p->append(SkRasterPipeline::xy_to_unit_angle);
 
     return true;
