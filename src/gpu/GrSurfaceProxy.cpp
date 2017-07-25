@@ -20,12 +20,12 @@
 
 #include "SkMathPriv.h"
 
-GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
+GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin, SkBackingFit fit)
         : INHERITED(std::move(surface))
         , fConfig(fTarget->config())
         , fWidth(fTarget->width())
         , fHeight(fTarget->height())
-        , fOrigin(fTarget->origin())
+        , fOrigin(origin)
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().isBudgeted())
         , fFlags(0)
@@ -34,6 +34,7 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, SkBackingFit fit)
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
     SkASSERT(kDefault_GrSurfaceOrigin != fOrigin);
+    SkASSERT(fTarget->origin() == fOrigin);
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -145,34 +146,34 @@ GrTextureOpList* GrSurfaceProxy::getLastTextureOpList() {
     return fLastOpList ? fLastOpList->asTextureOpList() : nullptr;
 }
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf) {
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrSurface> surf, GrSurfaceOrigin origin) {
     if (!surf) {
         return nullptr;
     }
 
     if (surf->asTexture()) {
         if (surf->asRenderTarget()) {
-            return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(std::move(surf)));
+            return sk_sp<GrSurfaceProxy>(new GrTextureRenderTargetProxy(std::move(surf), origin));
         } else {
-            return sk_sp<GrSurfaceProxy>(new GrTextureProxy(std::move(surf)));
+            return sk_sp<GrSurfaceProxy>(new GrTextureProxy(std::move(surf), origin));
         }
     } else {
         SkASSERT(surf->asRenderTarget());
 
         // Not texturable
-        return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(surf)));
+        return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(surf), origin));
     }
 }
 
-sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex) {
+sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfaceOrigin origin) {
     if (!tex) {
         return nullptr;
     }
 
     if (tex->asRenderTarget()) {
-        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex)));
+        return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(std::move(tex), origin));
     } else {
-        return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex)));
+        return sk_sp<GrTextureProxy>(new GrTextureProxy(std::move(tex), origin));
     }
 }
 
@@ -270,14 +271,14 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
         return nullptr;
     }
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrBackendTexture& backendTex,
                                                          GrSurfaceOrigin origin) {
     sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex, origin));
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
 }
 
 #ifdef SK_DEBUG
