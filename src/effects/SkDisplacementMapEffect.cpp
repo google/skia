@@ -191,7 +191,13 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
 private:
+    static OptimizationFlags OptimizationFlags(GrPixelConfig colorConfig);
+
+    GrDisplacementMapEffect(const GrDisplacementMapEffect&);
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
@@ -444,6 +450,13 @@ void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     GrGLDisplacementMapEffect::GenKey(*this, caps, b);
 }
 
+GrFragmentProcessor::OptimizationFlags GrDisplacementMapEffect::OptimizationFlags(
+        GrPixelConfig colorConfig) {
+    return GrPixelConfigIsOpaque(colorConfig)
+                   ? GrFragmentProcessor::kPreservesOpaqueInput_OptimizationFlag
+                   : GrFragmentProcessor::kNone_OptimizationFlags;
+}
+
 GrDisplacementMapEffect::GrDisplacementMapEffect(
         SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
         SkDisplacementMapEffect::ChannelSelectorType yChannelSelector,
@@ -453,8 +466,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         sk_sp<GrTextureProxy> color,
         sk_sp<GrColorSpaceXform> colorSpaceXform,
         const SkISize& colorDimensions)
-        : INHERITED(GrPixelConfigIsOpaque(color->config()) ? kPreservesOpaqueInput_OptimizationFlag
-                                                           : kNone_OptimizationFlags)
+        : INHERITED(OptimizationFlags(color->config()))
         , fDisplacementTransform(offsetMatrix, displacement.get())
         , fDisplacementSampler(displacement)
         , fColorTransform(color.get())
@@ -472,7 +484,28 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
     this->addTextureSampler(&fColorSampler);
 }
 
-GrDisplacementMapEffect::~GrDisplacementMapEffect() {
+GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& that)
+        : INHERITED(OptimizationFlags(that.fColorSampler.proxy()->config()))
+        , fDisplacementTransform(that.fDisplacementTransform)
+        , fDisplacementSampler(that.fDisplacementSampler)
+        , fColorTransform(that.fColorTransform)
+        , fDomain(that.fDomain)
+        , fColorSampler(that.fColorSampler)
+        , fColorSpaceXform(that.fColorSpaceXform)
+        , fXChannelSelector(that.fXChannelSelector)
+        , fYChannelSelector(that.fYChannelSelector)
+        , fScale(that.fScale) {
+    this->initClassID<GrDisplacementMapEffect>();
+    this->addCoordTransform(&fDisplacementTransform);
+    this->addTextureSampler(&fDisplacementSampler);
+    this->addCoordTransform(&fColorTransform);
+    this->addTextureSampler(&fColorSampler);
+}
+
+GrDisplacementMapEffect::~GrDisplacementMapEffect() {}
+
+sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrDisplacementMapEffect(*this));
 }
 
 bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -512,6 +545,7 @@ sk_sp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestDa
                                          std::move(colorProxy), colorSpaceXform,
                                          colorDimensions);
 }
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ class GrTexture;
  * A class representing a linear transformation of local coordinates. GrFragnentProcessors
  * these transformations, and the GrGeometryProcessor implements the transformation.
  */
-class GrCoordTransform : SkNoncopyable {
+class GrCoordTransform {
 public:
     GrCoordTransform()
         : fProxy(nullptr)
@@ -26,6 +26,8 @@ public:
         , fReverseY(false) {
         SkDEBUGCODE(fInProcessor = false);
     }
+
+    GrCoordTransform(const GrCoordTransform&) = default;
 
     /**
      * Create a transformation that maps [0, 1] to a proxy's boundaries. The proxy origin also
@@ -129,7 +131,6 @@ private:
     const GrTextureProxy*   fProxy;
     bool                    fNormalize;
     bool                    fReverseY;
-    typedef SkNoncopyable INHERITED;
 
 #ifdef SK_DEBUG
 public:
