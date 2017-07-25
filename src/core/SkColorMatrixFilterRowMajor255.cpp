@@ -191,6 +191,9 @@ public:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(fMatrix); }
+
+private:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         // this class always generates the same code.
@@ -250,7 +253,7 @@ public:
 
         typedef GrGLSLFragmentProcessor INHERITED;
     };
-private:
+
     // We could implement the constant input->constant output optimization but haven't. Other
     // optimizations would be matrix-dependent.
     ColorMatrixEffect(const SkScalar matrix[20]) : INHERITED(kNone_OptimizationFlags) {
@@ -287,6 +290,7 @@ sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
     }
     return ColorMatrixEffect::Make(colorMatrix);
 }
+
 #endif
 
 sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(

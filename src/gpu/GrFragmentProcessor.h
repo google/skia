@@ -92,7 +92,7 @@ public:
      * has a default implementation that fails. This is temporary until it can be implemented
      * for all fragemnt processor leaf classes.
      */
-    virtual sk_sp<GrFragmentProcessor> clone() { return nullptr; }
+    virtual sk_sp<GrFragmentProcessor> clone() const { return nullptr; }
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
