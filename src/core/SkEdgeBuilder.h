@@ -10,6 +10,8 @@
 #include "SkArenaAlloc.h"
 #include "SkRect.h"
 #include "SkTDArray.h"
+#include "SkEdge.h"
+#include "SkAnalyticEdge.h"
 
 struct SkEdge;
 struct SkAnalyticEdge;
@@ -18,18 +20,27 @@ class SkPath;
 
 class SkEdgeBuilder {
 public:
+    enum EdgeType {
+        kEdge,
+        kAnalyticEdge,
+        kBezier
+    };
+
+    // static constexpr int kEdgeSizes[3] = {sizeof(SkEdge), sizeof(SkAnalyticEdge), sizeof(SkBezier)};
+
     SkEdgeBuilder();
 
     // returns the number of built edges. The array of those edge pointers
     // is returned from edgeList().
     int build(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight,
-              bool analyticAA = false);
+              EdgeType edgeType = kEdge);
 
     int build_edges(const SkPath& path, const SkIRect* shiftedClip,
-            int shiftEdgesUp, bool pathContainedInClip, bool analyticAA = false);
+            int shiftEdgesUp, bool pathContainedInClip, EdgeType edgeType = kEdge);
 
     SkEdge** edgeList() { return (SkEdge**)fEdgeList; }
     SkAnalyticEdge** analyticEdgeList() { return (SkAnalyticEdge**)fEdgeList; }
+    SkBezier** bezierList() { return (SkBezier**)fEdgeList; }
 
 private:
     enum Combine {
@@ -57,7 +68,7 @@ private:
     void**      fEdgeList;
 
     int         fShiftUp;
-    bool        fAnalyticAA;
+    EdgeType    fEdgeType;
 
 public:
     void addLine(const SkPoint pts[]);
@@ -66,6 +77,32 @@ public:
     void addClipper(SkEdgeClipper*);
 
     int buildPoly(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
+
+    inline void addPolyLine(SkPoint pts[], char* &edge, size_t edgeSize, char** &edgePtr,
+            int shiftUp) {
+        if (fEdgeType == kBezier) {
+            if (((SkLine*)edge)->set(pts)) {
+                *edgePtr++ = edge;
+                edge += edgeSize;
+            }
+            return;
+        }
+        bool analyticAA = fEdgeType == kAnalyticEdge;
+        bool setLineResult = analyticAA ?
+                ((SkAnalyticEdge*)edge)->setLine(pts[0], pts[1]) :
+                ((SkEdge*)edge)->setLine(pts[0], pts[1], shiftUp);
+        if (setLineResult) {
+            Combine combine = analyticAA ?
+                    checkVertical((SkAnalyticEdge*)edge, (SkAnalyticEdge**)edgePtr) :
+                    checkVertical((SkEdge*)edge, (SkEdge**)edgePtr);
+            if (kNo_Combine == combine) {
+                *edgePtr++ = edge;
+                edge += edgeSize;
+            } else if (kTotal_Combine == combine) {
+                --edgePtr;
+            }
+        }
+    }
 };
 
 #endif

@@ -34,6 +34,8 @@ DECLARE_string(writePath);
 DECLARE_bool(pre_log);
 DECLARE_bool(analyticAA);
 DECLARE_bool(forceAnalyticAA);
+DECLARE_bool(deltaAA);
+DECLARE_bool(forceDeltaAA);
 
 DECLARE_string(key);
 DECLARE_string(properties);

@@ -1421,7 +1421,9 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
     BuilderBlitter blitter(&builder);
 
     if (doAA) {
-        if (gSkUseAnalyticAA.load()) {
+        if (!path.isConvex() && gSkUseDeltaAA.load()) {
+            SkScan::DAAFillPath(path, snugClip, &blitter, true);
+        } else if (gSkUseAnalyticAA.load()) {
             SkScan::AAAFillPath(path, snugClip, &blitter, true);
         } else {
             SkScan::AntiFillPath(path, snugClip, &blitter, true);
