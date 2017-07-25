@@ -63,7 +63,9 @@ public:
             transferFnBody.appendf("float E = %s[4];", coeffsName);
             transferFnBody.appendf("float F = %s[5];", coeffsName);
             transferFnBody.appendf("float G = %s[6];", coeffsName);
-            transferFnBody.appendf("return (x < D) ? (C * x) + F : pow(A * x + B, G) + E;");
+            transferFnBody.append("float s = sign(x);");
+            transferFnBody.append("x = abs(x);");
+            transferFnBody.appendf("return s * ((x < D) ? (C * x) + F : pow(A * x + B, G) + E);");
             fragBuilder->emitFunction(kFloat_GrSLType, fnName, SK_ARRAY_COUNT(gTransferFnFuncArgs),
                                       gTransferFnFuncArgs, transferFnBody.c_str(), &tfFuncNames[i]);
         }
