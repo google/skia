@@ -676,7 +676,7 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface), origin));
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
     if (!proxy) {
         return nullptr;
     }
@@ -698,7 +698,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface), origin));
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
     if (!proxy) {
         return nullptr;
     }
@@ -720,7 +720,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(rt), origin));
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(rt)));
     if (!proxy) {
         return nullptr;
     }
@@ -746,7 +746,7 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface), origin));
+    sk_sp<GrSurfaceProxy> proxy(GrSurfaceProxy::MakeWrapped(std::move(surface)));
     if (!proxy) {
         return nullptr;
     }

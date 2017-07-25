@@ -55,7 +55,7 @@ public:
     /** Finds a texture by unique key. If the texture is found it is ref'ed and returned. */
     // MDB TODO (caching): If this were actually caching proxies (rather than shallowly 
     // wrapping GrSurface caching) we would not need the origin parameter.
-    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey& key, GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> findProxyByUniqueKey(const GrUniqueKey& key);
 
     /**
      * Finds a texture that approximately matches the descriptor. Will be at least as large in width

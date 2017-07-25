@@ -34,8 +34,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 }
 
 // Wrapped version
-GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
-    : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
+GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf)
+    : INHERITED(std::move(surf), SkBackingFit::kExact)
     , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
     , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }

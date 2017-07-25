@@ -45,7 +45,7 @@ protected:
     GrTextureProxy(const GrSurfaceDesc& srcDesc, SkBackingFit, SkBudgeted,
                    const void* srcData, size_t srcRowBytes, uint32_t flags);
     // Wrapped version
-    GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
+    GrTextureProxy(sk_sp<GrSurface>);
 
     SkDestinationSurfaceColorMode mipColorMode() const { return fMipColorMode;  }
 
