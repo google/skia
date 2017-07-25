@@ -131,7 +131,7 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDrawOp::WritePixelsFn& writePixels,
                                           GrTexture* texture) {
     // We should only be issuing uploads if we are in fact dirty
     SkASSERT(fDirty && fData && texture);
-    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "GrDrawOpAtlas::Plot::uploadToTexture");
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     size_t rowBytes = fBytesPerPixel * fWidth;
     const unsigned char* dataPtr = fData;
     dataPtr += rowBytes * fDirtyRect.fTop;
