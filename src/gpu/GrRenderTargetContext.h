@@ -303,7 +303,8 @@ public:
      * After this returns any pending surface IO will be issued to the backend 3D API and
      * if the surface has MSAA it will be resolved.
      */
-    bool prepareForExternalIO(int numSemaphores, GrBackendSemaphore* backendSemaphores);
+    GrSemaphoresSubmitted prepareForExternalIO(int numSemaphores,
+                                               GrBackendSemaphore backendSemaphores[]);
 
     /**
      *  The next time this GrRenderTargetContext is flushed, the gpu will wait on the passed in
