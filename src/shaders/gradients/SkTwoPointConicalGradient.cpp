@@ -182,8 +182,14 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
 
     // When the two circles are concentric, we can pretend we're radial (with a tiny *twist).
     if (SkScalarNearlyZero(dCenter)) {
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_MATRIX_MATH
         matrix->postTranslate(-fCenter1.fX, -fCenter1.fY);
         matrix->postScale(1 / fRadius2, 1 / fRadius2);
+#else
+        const SkMatrix tmp = SkMatrix::Concat(SkMatrix::MakeScale(1 / fRadius2, 1 / fRadius2),
+                                              SkMatrix::MakeTrans(-fCenter1.fX, -fCenter1.fY));
+        matrix->postConcat(tmp);
+#endif
         p->append(SkRasterPipeline::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
