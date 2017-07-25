@@ -51,6 +51,24 @@
       "revId": "f5a9baa933720ba89791c89d0fb2639ffa8dd6c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "715d8264_4a5d3fdd",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-25T14:28:29Z",
+      "side": 1,
+      "message": "Right, I think \"FP* clone() const\" would be a good signature.",
+      "parentUuid": "555d129f_e9cf55a1",
+      "revId": "f5a9baa933720ba89791c89d0fb2639ffa8dd6c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
