@@ -42,6 +42,7 @@
 #include "SkRRectsGaussianEdgeMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
+#include "SkToSRGBColorFilter.h"
 #include "SkXfermodeImageFilter.h"
 
 // Security note:
@@ -78,6 +79,7 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     // ColorFilter
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkColorMatrixFilterRowMajor255)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkToSRGBColorFilter)
     SkAlphaThresholdFilter::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkOverdrawColorFilter::InitializeFlattenables();
