@@ -104,7 +104,7 @@ public:
     /** Duplicates this stream. If this cannot be done, returns NULL.
      *  The returned stream will be positioned at the beginning of its data.
      */
-    virtual SkStreamRewindable* duplicate() const { return NULL; }
+    virtual std::unique_ptr<SkStreamRewindable> makeDuplicate() const { return nullptr; }
 
 //SkStreamSeekable
     /** Returns true if this stream can report it's current position. */
@@ -127,7 +127,7 @@ public:
     /** Duplicates this stream. If this cannot be done, returns NULL.
      *  The returned stream will be positioned the same as this stream.
      */
-    virtual SkStreamSeekable* fork() const { return NULL; }
+    virtual std::unique_ptr<SkStreamSeekable> makeFork() const { return nullptr; }
 
 //SkStreamAsset
     /** Returns true if this stream can report it's total length. */
@@ -138,33 +138,42 @@ public:
 //SkStreamMemory
     /** Returns the starting address for the data. If this cannot be done, returns NULL. */
     //TODO: replace with virtual const SkData* getData()
-    virtual const void* getMemoryBase() { return NULL; }
+    virtual const void* getMemoryBase() { return nullptr; }
+
+#ifdef SK_SUPPORT_LEGACY_STREAM_API
+    SkMemoryStream* duplicate() const {
+        return this->makeDuplicate()->release();
+    }
+    SkMemoryStream* fork() const {
+        return this->makeFork()->release();
+    }
+#endif
 };
 
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
 class SK_API SkStreamRewindable : public SkStream {
 public:
     bool rewind() override = 0;
-    SkStreamRewindable* duplicate() const override = 0;
+    std::unique_ptr<SkStreamRewindable> makeDuplicate() const override = 0;
 };
 
 /** SkStreamSeekable is a SkStreamRewindable for which position, seek, move, and fork are required. */
 class SK_API SkStreamSeekable : public SkStreamRewindable {
 public:
-    SkStreamSeekable* duplicate() const override = 0;
+    std::unique_ptr<SkStreamSeekable> makeDuplicate() const override = 0;
 
     bool hasPosition() const override { return true; }
     size_t getPosition() const override = 0;
     bool seek(size_t position) override = 0;
     bool move(long offset) override = 0;
-    SkStreamSeekable* fork() const override = 0;
+    std::unique_ptr<SkStreamSeekable> makeFork() const override = 0;
 };
 
 /** SkStreamAsset is a SkStreamSeekable for which getLength is required. */
 class SK_API SkStreamAsset : public SkStreamSeekable {
 public:
-    SkStreamAsset* duplicate() const override = 0;
-    SkStreamAsset* fork() const override = 0;
+    std::unique_ptr<SkStreamAsset> makeDuplicate() const override = 0;
+    std::unique_ptr<SkStreamAsset> makeFork() const override = 0;
 
     bool hasLength() const override { return true; }
     size_t getLength() const override = 0;
@@ -173,8 +182,8 @@ public:
 /** SkStreamMemory is a SkStreamAsset for which getMemoryBase is required. */
 class SK_API SkStreamMemory : public SkStreamAsset {
 public:
-    SkStreamMemory* duplicate() const override = 0;
-    SkStreamMemory* fork() const override = 0;
+    std::unique_ptr<SkStreamMemory> makeDuplicate() const override = 0;
+    std::unique_ptr<SkStreamMemory> makeFork() const override = 0;
 
     const void* getMemoryBase() override = 0;
 };
@@ -273,12 +282,12 @@ public:
     bool isAtEnd() const override;
 
     bool rewind() override;
-    SkStreamAsset* duplicate() const override;
+    std::unique_ptr<SkStreamAsset> makeDuplicate() const override;
 
     size_t getPosition() const override;
     bool seek(size_t position) override;
     bool move(long offset) override;
-    SkStreamAsset* fork() const override;
+    std::unique_ptr<SkStreamAsset> makeFork() const override;
 
     size_t getLength() const override;
 
@@ -332,12 +341,12 @@ public:
     size_t peek(void* buffer, size_t size) const override;
 
     bool rewind() override;
-    SkMemoryStream* duplicate() const override;
+    std::unique_ptr<SkMemoryStream> makeDuplicate() const override;
 
     size_t getPosition() const override;
     bool seek(size_t position) override;
     bool move(long offset) override;
-    SkMemoryStream* fork() const override;
+    std::unique_ptr<SkMemoryStream> makeFork() const override;
 
     size_t getLength() const override;
 
