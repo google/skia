@@ -33,6 +33,24 @@
       "revId": "f5a9baa933720ba89791c89d0fb2639ffa8dd6c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "555d129f_e9cf55a1",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-25T14:20:08Z",
+      "side": 1,
+      "message": "This made me think about what constness should mean going forward. The current situation is somewhat weird. It mostly doesn\u0027t matter if a fragment processor is const or not once a FP is constructed. The only thing we really disallow is passing it to helpers that build trees (e.g. PremulOutput and RunInSeries). That exception doesn\u0027t make a whole lot of sense since currently FPs are immutable outside of the their ref cnts and allow shared ownership.\n\nI\u0027m going to be moving our arrays of FPs to linked lists of FPs where the linkage is internal to the FP class. Once there is a single owner the conversion to pending execution can just be a single method call that drops resource refs and adds pending IOs in one shot. I\u0027m thinking that manipulation of the linked list and setting to pending execution will be the non-const operations on a FP. In that case it seems like the right thing is for a clone() to be a const method on FP but that its result should be a non-const FP (so that the cloned FP can be inserted into a list and converted to pending execution once it lands in an op). WDYT of that?",
+      "parentUuid": "0067ad76_8690a77b",
+      "revId": "f5a9baa933720ba89791c89d0fb2639ffa8dd6c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
