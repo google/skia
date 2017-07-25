@@ -55,6 +55,8 @@ public:
      */
     GrTextureDomain(GrTextureProxy*, const SkRect& domain, Mode, int index = -1);
 
+    GrTextureDomain(const GrTextureDomain&) = default;
+
     const SkRect& domain() const { return fDomain; }
     Mode mode() const { return fMode; }
 

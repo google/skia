@@ -212,12 +212,21 @@ private:
  * along with an associated GrSamplerParams. TextureSamplers don't perform any coord manipulation to
  * account for texture origin.
  */
-class GrResourceIOProcessor::TextureSampler : public SkNoncopyable {
+class GrResourceIOProcessor::TextureSampler {
 public:
     /**
      * Must be initialized before adding to a GrProcessor's texture access list.
      */
     TextureSampler();
+    /**
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
+     * always takes a new ref on the texture proxy as the new fragment processor will not yet be
+     * in pending execution state.
+     */
+    explicit TextureSampler(const TextureSampler& that)
+            : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
+            , fParams(that.fParams)
+            , fVisibility(that.fVisibility) {}
 
     TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerParams&);
     explicit TextureSampler(sk_sp<GrTextureProxy>,
@@ -264,8 +273,6 @@ private:
     GrSurfaceProxyRef               fProxyRef;
     GrSamplerParams                 fParams;
     GrShaderFlags                   fVisibility;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 /**
