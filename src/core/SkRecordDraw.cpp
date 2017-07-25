@@ -457,10 +457,40 @@ private:
     }
 
     Bounds bounds(const DrawShadowRec& op) const {
-        // TODO: compute correct bounds for shadow
-        SkRect shadowBounds = op.path.getBounds();
-        shadowBounds.outset(100, 100);
-        return this->adjustAndMap(shadowBounds, nullptr);
+        SkScalar devToSrcScale = fCTM.isScaleTranslate() ?
+            SkScalarInvert(fCTM[SkMatrix::kMScaleX]) :
+            sk_float_rsqrt(fCTM[SkMatrix::kMScaleX] * fCTM[SkMatrix::kMScaleX] +
+                           fCTM[SkMatrix::kMSkewX] * fCTM[SkMatrix::kMSkewX]);
+        SkScalar occluderZ = op.rec.fZPlaneParams.fZ;
+
+        // compute ambient bounds (in local space)
+        SkScalar devSpaceAmbientBlur = SkDrawShadowMetrics::AmbientShadowBlurRadius(occluderZ);
+        SkScalar srcSpaceAmbientBlur = devSpaceAmbientBlur*devToSrcScale;
+        SkRect ambientBounds = op.path.getBounds();
+        ambientBounds.outset(srcSpaceAmbientBlur, srcSpaceAmbientBlur);
+
+        // compute spot bounds (in local space)
+        SkScalar spotBlur;
+        SkScalar spotScale;
+        SkPoint spotOffset;
+        SkDrawShadowMetrics::GetSpotShadowParams(occluderZ, op.rec.fLightPos.fX,
+                                                 op.rec.fLightPos.fY, op.rec.fLightPos.fZ,
+                                                 op.rec.fLightRadius,
+                                                 &spotBlur, &spotScale, &spotOffset);
+
+        // convert spot blur to local space
+        spotBlur *= devToSrcScale;
+
+        SkRect spotBounds = op.path.getBounds();
+        SkScalar scaleOutsetX = 0.5f*(spotBounds.width()*spotScale - spotBounds.width());
+        SkScalar scaleOutsetY = 0.5f*(spotBounds.height()*spotScale - spotBounds.height());
+        spotBounds.outset(scaleOutsetX + spotBlur, scaleOutsetY + spotBlur);
+        spotBounds.offset(spotOffset.fX, spotOffset.fY);
+
+        // merge bounds
+        spotBounds.join(ambientBounds);
+
+        return this->adjustAndMap(spotBounds, nullptr);
     }
 
     Bounds bounds(const DrawPicture& op) const {
