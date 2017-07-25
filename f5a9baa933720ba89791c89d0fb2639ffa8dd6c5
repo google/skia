@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81afb106_073e5ea9",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-25T14:07:48Z",
+      "side": 1,
+      "message": "rm the this-\u003e ?",
+      "revId": "f5a9baa933720ba89791c89d0fb2639ffa8dd6c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0067ad76_8690a77b",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-25T14:07:48Z",
+      "side": 1,
+      "message": "Do we actually need this? Can cloning be a const operation?",
+      "revId": "f5a9baa933720ba89791c89d0fb2639ffa8dd6c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
