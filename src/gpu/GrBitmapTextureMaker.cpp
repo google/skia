@@ -37,8 +37,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     sk_sp<GrTextureProxy> proxy;
 
     if (fOriginalKey.isValid()) {
-        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(
-                                                          fOriginalKey, kTopLeft_GrSurfaceOrigin);
+        proxy = this->context()->resourceProvider()->findProxyByUniqueKey(fOriginalKey);
         if (proxy) {
             return proxy;
         }

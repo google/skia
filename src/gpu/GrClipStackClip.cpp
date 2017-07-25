@@ -394,8 +394,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTextureProxy> proxy(resourceProvider->findProxyByUniqueKey(
-                                                                key, kBottomLeft_GrSurfaceOrigin));
+    sk_sp<GrTextureProxy> proxy(resourceProvider->findProxyByUniqueKey(key));
     if (proxy) {
         return proxy;
     }
@@ -433,8 +432,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
     GrUniqueKey key;
     create_clip_mask_key(reducedClip.elementsGenID(), reducedClip.ibounds(), &key);
 
-    sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findProxyByUniqueKey(
-                                                                  key, kTopLeft_GrSurfaceOrigin));
+    sk_sp<GrTextureProxy> proxy(context->resourceProvider()->findProxyByUniqueKey(key));
     if (proxy) {
         return proxy;
     }

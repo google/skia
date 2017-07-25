@@ -87,7 +87,7 @@ static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
 
     sk_sp<GrTexture> tex(context->resourceProvider()->createTexture(desc, SkBudgeted::kNo));
 
-    return GrSurfaceProxy::MakeWrapped(std::move(tex), desc.fOrigin);
+    return GrSurfaceProxy::MakeWrapped(std::move(tex));
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {

@@ -174,8 +174,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resource
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile = resourceProvider->findProxyByUniqueKey(
-                                                                key, kTopLeft_GrSurfaceOrigin);
+    sk_sp<GrTextureProxy> blurProfile = resourceProvider->findProxyByUniqueKey(key);
     if (!blurProfile) {
         static constexpr int kProfileTextureWidth = 512;
         GrSurfaceDesc texDesc;
