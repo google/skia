@@ -56,7 +56,7 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
     sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(
                                                                backendTex, p.fOrigin,
                                                                kBorrow_GrWrapOwnership);
-    return GrSurfaceProxy::MakeWrapped(std::move(tex));
+    return GrSurfaceProxy::MakeWrapped(std::move(tex), p.fOrigin);
 }
 
 static void cleanup_backend(GrContext* context, GrBackendObject* backendTexHandle) {
