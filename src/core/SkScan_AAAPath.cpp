@@ -1575,7 +1575,8 @@ static SK_ALWAYS_INLINE void aaa_fill_path(const SkPath& path, const SkIRect& cl
     SkASSERT(blitter);
 
     SkEdgeBuilder builder;
-    int count = builder.build_edges(path, &clipRect, 0, pathContainedInClip, true);
+    int count = builder.build_edges(path, &clipRect, 0, pathContainedInClip,
+                                    SkEdgeBuilder::kAnalyticEdge);
     SkAnalyticEdge** list = builder.analyticEdgeList();
 
     SkIRect rect = clipRect;
