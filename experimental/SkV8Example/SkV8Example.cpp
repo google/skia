@@ -78,8 +78,7 @@ void SkV8ExampleWindow::windowSizeChanged() {
         }
 
         fCurIntf = GrGLCreateNativeInterface();
-        fCurContext = GrContext::Create(
-                kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
+        fCurContext = GrContext::MakeGL(fCurIntf).release();
         if (NULL == fCurIntf || NULL == fCurContext) {
             printf("Failed to initialize GL.");
             exit(1);

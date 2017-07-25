@@ -7,6 +7,7 @@
 
 #include "GLTestContext.h"
 
+#include "GrContext.h"
 #include "GpuTimer.h"
 #include "gl/GrGLUtil.h"
 
@@ -286,4 +287,9 @@ GrGLint GLTestContext::createTextureRectangle(int width, int height, GrGLenum in
                                      externalFormat, externalType, data));
     return id;
 }
+
+sk_sp<GrContext> GLTestContext::makeGrContext(const GrContextOptions& options) {
+    return GrContext::MakeGL(fGL.get(), options);
+}
+
 }  // namespace sk_gpu_test

@@ -31,8 +31,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 static void init_skia(int w, int h) {
-    sContext = GrContext::Create(kOpenGL_GrBackend, 0);
-    
+    sContext = GrContext::MakeGL(nullptr).release();
+
     GrBackendRenderTargetDesc desc;
     desc.fWidth = w;
     desc.fHeight = h;

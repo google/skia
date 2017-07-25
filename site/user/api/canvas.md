@@ -98,7 +98,7 @@ has been made current to the current thread when Skia calls are made.
         // context in a platform-specific way. Alternatively, you may create your own GrGLInterface and
         // initialize it however you like to attach to an alternate OpenGL implementation or intercept
         // Skia's OpenGL calls.
-        GrContext* context = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) interface);
+        sk_sp<GrContext> context = GrContext::MakeGL(interface);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
         sk_sp<SkSurface> gpuSurface(
                 SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));

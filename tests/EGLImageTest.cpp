@@ -21,8 +21,9 @@
 
 using sk_gpu_test::GLTestContext;
 
-static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1, GrContext* grctx1,
-                    const GrGLTextureInfo* grbackendtex1, GrEGLImage image1) {
+static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx1,
+                    sk_sp<GrContext> grctx1, const GrGLTextureInfo* grbackendtex1,
+                    GrEGLImage image1) {
     if (glctx1) {
         glctx1->makeCurrent();
         if (grctx1) {
@@ -31,7 +32,6 @@ static void cleanup(GLTestContext* glctx0, GrGLuint texID0, GLTestContext* glctx
                 GrBackendObject handle = reinterpret_cast<GrBackendObject>(grbackendtex1);
                 gpu1->deleteTestingOnlyBackendTexture(handle, false);
             }
-            grctx1->unref();
         }
         if (GR_EGL_NO_IMAGE != image1) {
             glctx1->destroyEGLImage(image1);
@@ -63,7 +63,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     if (!glCtx1) {
         return;
     }
-    GrContext* context1 = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)glCtx1->gl());
+    sk_sp<GrContext> context1 = GrContext::MakeGL(glCtx1->gl());
     const GrGLTextureInfo* backendTexture1 = nullptr;
     GrEGLImage image = GR_EGL_NO_IMAGE;
     GrGLTextureInfo externalTexture;

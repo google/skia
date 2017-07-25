@@ -26,13 +26,18 @@ int GrMockGpu::NextExternalTextureID() {
 
 GrGpu* GrMockGpu::Create(GrBackendContext backendContext, const GrContextOptions& contextOptions,
                          GrContext* context) {
-    static const GrMockOptions kDefaultOptions = GrMockOptions();
-    const GrMockOptions* options = reinterpret_cast<const GrMockOptions*>(backendContext);
-    if (!options) {
-        options = &kDefaultOptions;
-    }
-    return new GrMockGpu(context, *options, contextOptions);
+    return Create(reinterpret_cast<const GrMockOptions*>(backendContext), contextOptions, context);
 }
+
+GrGpu* GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOptions& contextOptions,
+                         GrContext* context) {
+    static const GrMockOptions kDefaultOptions = GrMockOptions();
+    if (!mockOptions) {
+        mockOptions = &kDefaultOptions;
+    }
+    return new GrMockGpu(context, *mockOptions, contextOptions);
+}
+
 
 GrGpuCommandBuffer* GrMockGpu::createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
                                                    const GrGpuCommandBuffer::LoadAndStoreInfo&) {

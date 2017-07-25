@@ -70,7 +70,7 @@ bool HelloWorldWindow::setUpBackend() {
     fInterface = GrGLCreateNativeInterface();
     SkASSERT(NULL != fInterface);
 
-    fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fInterface);
+    fContext = GrContext::MakeGL(fInterface).release();
     SkASSERT(NULL != fContext);
 
     this->setUpGpuBackedSurface();

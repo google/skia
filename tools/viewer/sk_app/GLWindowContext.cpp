@@ -31,11 +31,10 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
 
 void GLWindowContext::initializeContext() {
     this->onInitializeContext();
-    SkASSERT(nullptr == fContext);
+    SkASSERT(!fContext);
 
     fBackendContext.reset(GrGLCreateNativeInterface());
-    fContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)fBackendContext.get(),
-                                 fDisplayParams.fGrContextOptions);
+    fContext = GrContext::MakeGL(fBackendContext.get(), fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
@@ -58,8 +57,7 @@ void GLWindowContext::destroyContext() {
     if (fContext) {
         // in case we have outstanding refs to this guy (lua?)
         fContext->abandonContext();
-        fContext->unref();
-        fContext = nullptr;
+        fContext.reset();
     }
 
     fBackendContext.reset(nullptr);
@@ -83,7 +81,7 @@ sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
                                             fPixelConfig,
                                             fbInfo);
 
-            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext, backendRT,
+            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext.get(), backendRT,
                                                               kBottomLeft_GrSurfaceOrigin,
                                                               fDisplayParams.fColorSpace,
                                                               &fSurfaceProps);

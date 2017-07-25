@@ -358,7 +358,7 @@ int TestResource::fNumAlive = 0;
 class Mock {
 public:
     Mock(int maxCnt, size_t maxBytes) {
-        fContext.reset(GrContext::Create(kMock_GrBackend, (GrBackendContext) nullptr));
+        fContext = GrContext::MakeMock(nullptr);
         SkASSERT(fContext);
         fContext->setResourceCacheLimits(maxCnt, maxBytes);
         GrResourceCache* cache = fContext->getResourceCache();

@@ -133,8 +133,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     }
 
     std::unique_ptr<TestContext> testCtx;
-    GrBackendContext backendContext = 0;
-    sk_sp<const GrGLInterface> glInterface;
     GrBackend backend = ContextTypeBackend(type);
     switch (backend) {
         case kOpenGL_GrBackend: {
@@ -194,8 +192,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 return ContextInfo();
             }
             testCtx.reset(glCtx);
-            glInterface.reset(SkRef(glCtx->gl()));
-            backendContext = reinterpret_cast<GrBackendContext>(glInterface.get());
             break;
         }
 #ifdef SK_VULKAN
@@ -220,7 +216,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                     fSentinelGLContext.reset(CreatePlatformGLTestContext(kGLES_GrGLStandard));
                 }
             }
-            backendContext = testCtx->backendContext();
             break;
         }
 #endif
@@ -244,7 +239,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             if (!testCtx) {
                 return ContextInfo();
             }
-            backendContext = testCtx->backendContext();
             break;
         }
         default:
@@ -266,9 +260,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
         grOptions.fAvoidStencilBuffers = true;
     }
     sk_sp<GrContext> grCtx = testCtx->makeGrContext(grOptions);
-    if (!grCtx.get() && kMetal_GrBackend != backend) {
-        grCtx.reset(GrContext::Create(backend, backendContext, grOptions));
-    }
     if (!grCtx.get()) {
         return ContextInfo();
     }

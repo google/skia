@@ -69,7 +69,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        sk_sp<GrContext> context(GrContext::Create(kMock_GrBackend, (GrBackendContext) nullptr));
+        sk_sp<GrContext> context(GrContext::MakeMock(nullptr));
         if (nullptr == context) {
             return;
         }
@@ -115,7 +115,7 @@ protected:
     }
 
     void onDelayedSetup() override {
-        fContext.reset(GrContext::Create(kMock_GrBackend, (GrBackendContext) nullptr));
+        fContext = GrContext::MakeMock(nullptr);
         if (!fContext) {
             return;
         }

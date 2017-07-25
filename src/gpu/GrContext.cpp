@@ -29,8 +29,13 @@
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
 
+#include "gl/GrGLGpu.h"
+#include "mock/GrMockGpu.h"
 #ifdef SK_METAL
 #include "mtl/GrMtlTrampoline.h"
+#endif
+#ifdef SK_VULKAN
+#include "vk/GrVkGpu.h"
 #endif
 
 #define ASSERT_OWNED_PROXY(P) \
@@ -66,7 +71,71 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext,
     return context.release();
 }
 
+sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface) {
+    GrContextOptions defaultOptions;
+    return MakeGL(interface, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeGL(const GrGLInterface* interface,
+                                   const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrContext);
+    context->fGpu = GrGLGpu::Create(interface, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fBackend = kOpenGL_GrBackend;
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+
+sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions) {
+    GrContextOptions defaultOptions;
+    return MakeMock(mockOptions, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
+                                     const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrContext);
+    context->fGpu = GrMockGpu::Create(mockOptions, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fBackend = kMock_GrBackend;
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+
+#ifdef SK_VULKAN
+sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext* backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeVulkan(backendContext, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext* backendContext,
+                                       const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrContext);
+    context->fGpu = GrVkGpu::Create(backendContext, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fBackend = kVulkan_GrBackend;
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+#endif
+
 #ifdef SK_METAL
+sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
+    GrContextOptions defaultOptions;
+    return MakeMetal(device, queue, defaultOptions);
+}
+
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
     sk_sp<GrContext> context(new GrContext);
     context->fGpu = GrMtlTrampoline::CreateGpu(context.get(), options, device, queue);

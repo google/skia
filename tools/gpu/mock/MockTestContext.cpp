@@ -10,6 +10,8 @@
 
 #include "MockTestContext.h"
 
+#include "GrContext.h"
+
 namespace {
 
 class MockTestContext : public sk_gpu_test::TestContext {
@@ -24,6 +26,10 @@ public:
     void testAbandon() override {}
     void submit() override {}
     void finish() override {}
+
+    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
+        return GrContext::MakeMock(nullptr, options);
+    }
 
 protected:
     void teardown() override {}

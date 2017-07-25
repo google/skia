@@ -77,5 +77,5 @@ sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
     }
     eglTerminate(eglDpy);
 
-    return sk_sp<GrContext>(GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)interface));
+    return sk_sp<GrContext>(GrContext::MakeGL(interface));
 }

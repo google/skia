@@ -17,8 +17,8 @@
 /**
  * Rather than depend on platform-specific GL headers and libraries, we require
  * the client to provide a struct of GL function pointers. This struct can be
- * specified per-GrContext as a parameter to GrContext::Create. If NULL is
- * passed to Create then a "default" GL interface is created. If the default is
+ * specified per-GrContext as a parameter to GrContext::MakeGL. If NULL is
+ * passed to MakeGL then a "default" GL interface is created. If the default is
  * also NULL GrContext creation will fail.
  *
  * The default interface is returned by GrGLDefaultInterface. This function's

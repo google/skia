@@ -40,6 +40,8 @@ class GrVkGpu : public GrGpu {
 public:
     static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
                          GrContext* context);
+    static GrGpu* Create(const GrVkBackendContext*, const GrContextOptions& options,
+                         GrContext* context);
 
     ~GrVkGpu() override;
 
