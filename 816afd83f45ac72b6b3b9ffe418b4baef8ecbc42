@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6031825e_fc00d235",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-25T21:43:13Z",
+      "side": 0,
+      "message": "Do we care about drawPaint / onDrawPaint?  Perhaps this indicates we should move the trace to the real drawPaint(), so that it\u0027s traced on SkCanvas subclasses too?\n\n(Same deal for several foo / onFoo below.)",
+      "range": {
+        "startLine": 1936,
+        "startChar": 53,
+        "endLine": 1936,
+        "endChar": 74
+      },
+      "revId": "816afd83f45ac72b6b3b9ffe418b4baef8ecbc42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58c6bfc6_c67aff20",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2706,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-25T21:43:13Z",
+      "side": 0,
+      "message": "I\u0027m sort of skeptical about the value of tracing these functions if the next function they call is already traced.  They\u0027re all tiny wrappers that\u0027ll just add noise to the stack of traced calls, right?",
+      "range": {
+        "startLine": 2705,
+        "startChar": 2,
+        "endLine": 2706,
+        "endChar": 52
+      },
+      "revId": "816afd83f45ac72b6b3b9ffe418b4baef8ecbc42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
