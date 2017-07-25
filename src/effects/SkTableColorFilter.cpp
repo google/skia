@@ -332,7 +332,7 @@ public:
     const GrTextureStripAtlas* atlas() const { return fAtlas; }
     int atlasRow() const { return fRow; }
 
-    sk_sp<GrFragmentProcessor> clone() override;
+    sk_sp<GrFragmentProcessor> clone() const override;
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -478,7 +478,7 @@ ColorTableEffect::~ColorTableEffect() {
     }
 }
 
-sk_sp<GrFragmentProcessor> ColorTableEffect::clone() {
+sk_sp<GrFragmentProcessor> ColorTableEffect::clone() const {
     fAtlas->lockRow(fRow);
     return sk_sp<GrFragmentProcessor>(
             new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy()), fAtlas, fRow));

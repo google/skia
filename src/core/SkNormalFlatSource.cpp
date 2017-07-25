@@ -23,6 +23,11 @@ public:
         return sk_sp<GrFragmentProcessor>(new NormalFlatFP());
     }
 
+    const char* name() const override { return "NormalFlatFP"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+
+private:
     class GLSLNormalFlatFP : public GrGLSLFragmentProcessor {
     public:
         GLSLNormalFlatFP() {}
@@ -37,9 +42,6 @@ public:
         void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override {}
     };
 
-    const char* name() const override { return "NormalFlatFP"; }
-
-private:
     NormalFlatFP() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
         this->initClassID<NormalFlatFP>();
     }
