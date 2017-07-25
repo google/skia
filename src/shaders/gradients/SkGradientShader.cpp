@@ -374,16 +374,13 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
     if (!this->computeTotalInverse(ctm, localM, &matrix)) {
         return false;
     }
+    matrix.postConcat(fPtsToUnit);
 
-    SkRasterPipeline_<256> tPipeline;
     SkRasterPipeline_<256> postPipeline;
-    if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &tPipeline, &postPipeline)) {
-        return false;
-    }
 
     p->append(SkRasterPipeline::seed_shader);
     p->append_matrix(alloc, matrix);
-    p->extend(tPipeline);
+    this->appendGradientStages(alloc, p, &postPipeline);
 
     switch(fTileMode) {
         case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
