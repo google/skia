@@ -174,6 +174,8 @@ public:
 
     const SkHighContrastConfig& config() const { return fConfig; }
 
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(fConfig); }
+
 private:
     HighContrastFilterEffect(const SkHighContrastConfig& config)
         : INHERITED(kNone_OptimizationFlags)
