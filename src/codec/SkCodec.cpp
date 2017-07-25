@@ -621,7 +621,7 @@ std::vector<SkCodec::FrameInfo> SkCodec::getFrameInfo() {
 
 #ifdef SK_SUPPORT_LEGACY_CODEC_NEW
 SkCodec* SkCodec::NewFromStream(SkStream* str, Result* res, SkPngChunkReader* chunk) {
-    return MakeFromStream(std::unique_ptr<SkStream*>(str), res, chunk).release();
+    return MakeFromStream(std::unique_ptr<SkStream>(str), res, chunk).release();
 }
 SkCodec* SkCodec::NewFromData(sk_sp<SkData> data, SkPngChunkReader* chunk) {
     return MakeFromData(std::move(data), chunk).release();
