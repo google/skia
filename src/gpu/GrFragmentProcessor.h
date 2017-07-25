@@ -116,6 +116,7 @@ public:
     int numChildProcessors() const { return fChildProcessors.count(); }
 
     const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
+    GrFragmentProcessor& childProcessor(int index) { return *fChildProcessors[index]; }
 
     bool instantiate(GrResourceProvider*) const;
 
