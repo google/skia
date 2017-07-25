@@ -22,6 +22,30 @@
       "revId": "0865e5e78ddd03f7731585611588c21419103c8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1a58978_643004eb",
+        "filename": "experimental/GLFWTest/glfw_main.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-25T14:13:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad54354e_d39e3d71",
+      "range": {
+        "startLine": 34,
+        "startChar": 33,
+        "endLine": 34,
+        "endChar": 34
+      },
+      "revId": "0865e5e78ddd03f7731585611588c21419103c8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
