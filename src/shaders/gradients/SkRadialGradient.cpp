@@ -375,8 +375,12 @@ bool SkRadialGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                  SkMatrix* matrix,
                                  SkRasterPipeline* p,
                                  SkRasterPipeline*) const {
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_MATRIX_MATH
     matrix->postTranslate(-fCenter.fX, -fCenter.fY);
     matrix->postScale(1/fRadius, 1/fRadius);
+#else
+    matrix->postConcat(fPtsToUnit);
+#endif
 
     p->append(SkRasterPipeline::xy_to_radius);
     return true;
