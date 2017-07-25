@@ -366,7 +366,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
     auto inputTexture = make_input_texture(context, kRenderSize, kRenderSize);
 
-    std::unique_ptr<GrColor> readData(new GrColor[kRenderSize * kRenderSize]);
+    std::unique_ptr<GrColor[]> readData(new GrColor[kRenderSize * kRenderSize]);
     // Because processor factories configure themselves in random ways, this is not exhaustive.
     for (int i = 0; i < FPFactory::Count(); ++i) {
         int timesToInvokeFactory = 5;
