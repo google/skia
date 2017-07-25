@@ -246,7 +246,7 @@ sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrResourceProvider* resourceProvid
     sk_sp<GrTextureProxy> proxy;
 
     if (originalKey.isValid()) {
-        proxy = resourceProvider->findProxyByUniqueKey(originalKey);
+        proxy = resourceProvider->findProxyByUniqueKey(originalKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {
         // Pass nullptr for |dstColorSpace|.  This is lenient - we allow a wider range of

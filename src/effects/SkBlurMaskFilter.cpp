@@ -950,7 +950,8 @@ sk_sp<GrTextureProxy> GrRectBlurEffect::CreateBlurProfileTexture(
     builder[0] = profileSize;
     builder.finish();
 
-    sk_sp<GrTextureProxy> blurProfile(resourceProvider->findProxyByUniqueKey(key));
+    sk_sp<GrTextureProxy> blurProfile(resourceProvider->findProxyByUniqueKey(
+                                                                  key, kTopLeft_GrSurfaceOrigin));
     if (!blurProfile) {
         GrSurfaceDesc texDesc;
         texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
@@ -1118,7 +1119,8 @@ static sk_sp<GrTextureProxy> find_or_create_rrect_blur_mask(GrContext* context,
     }
     builder.finish();
 
-    sk_sp<GrTextureProxy> mask(context->resourceProvider()->findProxyByUniqueKey(key));
+    sk_sp<GrTextureProxy> mask(context->resourceProvider()->findProxyByUniqueKey(
+                                                                key, kBottomLeft_GrSurfaceOrigin));
     if (!mask) {
         // TODO: this could be approx but the texture coords will need to be updated
         sk_sp<GrRenderTargetContext> rtc(context->makeDeferredRenderTargetContextWithFallback(
