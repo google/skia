@@ -807,6 +807,11 @@ public:
                                                                std::move(blurProfile), precision));
     }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrRectBlurEffect(
+                fRect, fSigma, sk_ref_sp(fBlurProfileSampler.proxy()), fPrecision));
+    }
+
     const SkRect& getRect() const { return fRect; }
     float getSigma() const { return fSigma; }
     GrSLPrecision precision() const { return fPrecision; }
@@ -1080,6 +1085,8 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
     float getSigma() const { return fSigma; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
@@ -1212,6 +1219,11 @@ GrRRectBlurEffect::GrRRectBlurEffect(float sigma, const SkRRect& rrect,
         , fNinePatchSampler(std::move(ninePatchProxy)) {
     this->initClassID<GrRRectBlurEffect>();
     this->addTextureSampler(&fNinePatchSampler);
+}
+
+sk_sp<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(
+            new GrRRectBlurEffect(fSigma, fRRect, sk_ref_sp(fNinePatchSampler.proxy())));
 }
 
 bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
