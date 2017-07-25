@@ -52,11 +52,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
 }
 
 sk_sp<SkColorFilter> SkToSRGBColorFilter::Make(sk_sp<SkColorSpace> srcColorSpace) {
-    if (srcColorSpace->isSRGB()) {
-        return nullptr;
-    } else {
-        return sk_sp<SkColorFilter>(new SkToSRGBColorFilter(std::move(srcColorSpace)));
-    }
+    return sk_sp<SkColorFilter>(new SkToSRGBColorFilter(std::move(srcColorSpace)));
 }
 
 SkToSRGBColorFilter::SkToSRGBColorFilter(sk_sp<SkColorSpace> srcColorSpace)
