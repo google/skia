@@ -149,3 +149,52 @@ private:
 };
 
 DEF_GM(return new ImageScaleAlignedGM();)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "SkAutoPixmapStorage.h"
+#include "SkImage.h"
+#include "SkSurface.h"
+
+sk_sp<SkImage> make_img() {
+    auto surf = SkSurface::MakeRasterN32Premul(64, 64);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+    surf->getCanvas()->drawCircle(32, 32, 30, paint);
+    return surf->makeImageSnapshot();
+}
+
+static void draw_pixmap(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPixmap& pm) {
+    SkBitmap bm;
+    bm.installPixels(pm);
+    canvas->drawBitmap(bm, x, y, nullptr);
+}
+
+DEF_SIMPLE_GM(scale_pixels_unpremul, canvas, 1024, 1024) {
+    SkPixmap pm;
+    auto img = make_img();
+    img->peekPixels(&pm);
+
+    SkAutoPixmapStorage upm;
+    upm.alloc(pm.info().makeAlphaType(kUnpremul_SkAlphaType));
+    pm.readPixels(upm);
+
+ //   draw_pixmap(canvas, 10, 10, pm);
+    draw_pixmap(canvas, 80, 10, upm);
+
+    canvas->translate(0, 70);
+
+    const int newW = 100, newH = 100;
+    for (SkFilterQuality fq : { kNone_SkFilterQuality, kLow_SkFilterQuality, kMedium_SkFilterQuality, kHigh_SkFilterQuality }) {
+        SkAutoPixmapStorage tmp;
+        tmp.alloc(pm.info().makeWH(newW, newH));
+        pm.scalePixels(tmp, fq);
+        draw_pixmap(canvas, 10, 10, tmp);
+
+        tmp.alloc(upm.info().makeWH(newW, newH));
+        upm.scalePixels(tmp, fq);
+        draw_pixmap(canvas, 120, 10, tmp);
+
+        canvas->translate(0, 120);
+    }
+}

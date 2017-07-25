@@ -246,6 +246,19 @@ void SkRasterPipelineBlitter::append_load_d(SkRasterPipeline* p) const {
     }
 }
 
+void SkRasterPipelineBlitter::AppendStore(SkRasterPipeline* p, SkColorType ct, void* addr) {
+    switch (ct) {
+        case kGray_8_SkColorType:    p->append(SkRasterPipeline::luminance_to_alpha); // fallthru
+        case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::store_a8,   addr); break;
+        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  addr); break;
+        case kARGB_4444_SkColorType: p->append(SkRasterPipeline::store_4444, addr); break;
+        case kBGRA_8888_SkColorType: p->append(SkRasterPipeline::store_bgra, addr); break;
+        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::store_8888, addr); break;
+        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::store_f16,  addr); break;
+        default: break;
+    }
+}
+
 void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().gammaCloseToSRGB()) {
         p->append(SkRasterPipeline::to_srgb);
@@ -256,16 +269,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
         p->append(SkRasterPipeline::dither, &fDitherRate);
     }
 
-    switch (fDst.info().colorType()) {
-        case kGray_8_SkColorType:    p->append(SkRasterPipeline::luminance_to_alpha); // fallthru
-        case kAlpha_8_SkColorType:   p->append(SkRasterPipeline::store_a8,   &fDstPtr); break;
-        case kRGB_565_SkColorType:   p->append(SkRasterPipeline::store_565,  &fDstPtr); break;
-        case kARGB_4444_SkColorType: p->append(SkRasterPipeline::store_4444, &fDstPtr); break;
-        case kBGRA_8888_SkColorType: p->append(SkRasterPipeline::store_bgra, &fDstPtr); break;
-        case kRGBA_8888_SkColorType: p->append(SkRasterPipeline::store_8888, &fDstPtr); break;
-        case kRGBA_F16_SkColorType:  p->append(SkRasterPipeline::store_f16,  &fDstPtr); break;
-        default: break;
-    }
+    AppendStore(p, fDst.info().colorType(), &fDstPtr);
 }
 
 void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {

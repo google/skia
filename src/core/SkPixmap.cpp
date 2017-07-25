@@ -219,6 +219,13 @@ bool SkPixmap::erase(const SkColor4f& origColor, const SkIRect* subset) const {
     return true;
 }
 
+static void do_scale(const SkPixmap& dst, const SkPixmap& src, SkFilterQuality quality) {
+    SkArenaAlloc     alloc;
+    SkRasterPipeline p(&alloc);
+
+    auto sh = SkImageShader
+}
+
 bool SkPixmap::scalePixels(const SkPixmap& dst, SkFilterQuality quality) const {
     // Can't do anthing with empty src or dst
     if (this->width() <= 0 || this->height() <= 0 || dst.width() <= 0 || dst.height() <= 0) {
