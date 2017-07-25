@@ -236,7 +236,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         sk_sp<GrRenderTarget> defaultFBO(
                             provider->wrapBackendRenderTarget(backendRT, origin));
 
-                        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(defaultFBO));
+                        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(defaultFBO,
+                                                                                 origin));
                         check_surface(reporter, sProxy.get(), origin,
                                       kWidthHeight, kWidthHeight, config,
                                       defaultFBO->uniqueID(), SkBudgeted::kNo);
@@ -252,7 +253,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         tex = provider->createTexture(desc, budgeted);
                         sk_sp<GrRenderTarget> rt(sk_ref_sp(tex->asRenderTarget()));
 
-                        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(rt));
+                        sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(rt, origin));
                         check_surface(reporter, sProxy.get(), origin,
                                       kWidthHeight, kWidthHeight, config,
                                       rt->uniqueID(), budgeted);
@@ -267,7 +268,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         tex = provider->createTexture(desc, budgeted);
                     }
 
-                    sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(tex));
+                    sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(tex, origin));
                     check_surface(reporter, sProxy.get(), origin,
                                   kWidthHeight, kWidthHeight, config, tex->uniqueID(), budgeted);
                     check_texture(reporter, provider, sProxy->asTextureProxy(),
