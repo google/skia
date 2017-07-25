@@ -1289,6 +1289,7 @@ int main(int argc, char** argv) {
     setup_crash_handler();
 
     gSkUseAnalyticAA = FLAGS_analyticAA;
+    gSkUseDeltaAA = FLAGS_deltaAA;
 
     if (FLAGS_forceAnalyticAA) {
         gSkForceAnalyticAA = true;

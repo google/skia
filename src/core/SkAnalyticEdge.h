@@ -178,4 +178,61 @@ bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     return true;
 }
 
+struct SkBezier {
+    int fCount; // 2 line, 3 quad, 4 cubic
+    SkPoint fP0;
+    SkPoint fP1;
+
+    // See if left shift, covert to SkFDot6, and round has the same top and bottom y.
+    // If so, the edge will be empty.
+    static inline bool IsEmpty(SkScalar y0, SkScalar y1, int shift = 2) {
+        SkScalar scale = (1 << (shift + 6));
+        return SkFDot6Round(int(y0 * scale)) == SkFDot6Round(int(y1 * scale));
+    }
+};
+
+struct SkLine : public SkBezier {
+    bool set(const SkPoint pts[2]){
+        if (IsEmpty(pts[0].fY, pts[1].fY)) {
+            return false;
+        }
+        fCount = 2;
+        fP0 = pts[0];
+        fP1 = pts[1];
+        return true;
+    }
+};
+
+struct SkQuad : public SkBezier {
+    SkPoint fP2;
+
+    bool set(const SkPoint pts[3]){
+        if (IsEmpty(pts[0].fY, pts[2].fY)) {
+            return false;
+        }
+        fCount = 3;
+        fP0 = pts[0];
+        fP1 = pts[1];
+        fP2 = pts[2];
+        return true;
+    }
+};
+
+struct SkCubic : public SkBezier {
+    SkPoint fP2;
+    SkPoint fP3;
+
+    bool set(const SkPoint pts[4]){
+        if (IsEmpty(pts[0].fY, pts[3].fY)) {
+            return false;
+        }
+        fCount = 4;
+        fP0 = pts[0];
+        fP1 = pts[1];
+        fP2 = pts[2];
+        fP3 = pts[3];
+        return true;
+    }
+};
+
 #endif

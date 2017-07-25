@@ -1199,7 +1199,11 @@ int main(int argc, char** argv) {
     }
 
     gSkUseAnalyticAA = FLAGS_analyticAA;
+    gSkUseDeltaAA = FLAGS_deltaAA;
 
+    if (FLAGS_forceDeltaAA) {
+        gSkForceDeltaAA = true;
+    }
     if (FLAGS_forceAnalyticAA) {
         gSkForceAnalyticAA = true;
     }
