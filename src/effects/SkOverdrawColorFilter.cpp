@@ -76,6 +76,11 @@ public:
     static sk_sp<GrFragmentProcessor> Make(const SkPMColor* colors);
 
     const char* name() const override { return "Overdraw"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new OverdrawFragmentProcessor(fColors));
+    }
+
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}

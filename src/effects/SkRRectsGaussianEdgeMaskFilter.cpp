@@ -209,9 +209,22 @@ public:
         return sk_sp<GrFragmentProcessor>(new RRectsGaussianEdgeFP(first, second, radius));
     }
 
+    const char* name() const override { return "RRectsGaussianEdgeFP"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new RRectsGaussianEdgeFP(*this));
+    }
+
+    const SkRRect& first() const { return fFirst; }
+    Mode firstMode() const { return fFirstMode; }
+    const SkRRect& second() const { return fSecond; }
+    Mode secondMode() const { return fSecondMode; }
+    SkScalar radius() const { return fRadius; }
+
+private:
     class GLSLRRectsGaussianEdgeFP : public GrGLSLFragmentProcessor {
     public:
-        GLSLRRectsGaussianEdgeFP() { }
+        GLSLRRectsGaussianEdgeFP() {}
 
         // This method emits code so that, for each shape, the distance from the edge is returned
         // in 'outputName' clamped to 0..1 with positive distance being towards the center of the
@@ -447,15 +460,6 @@ public:
         GLSLRRectsGaussianEdgeFP::GenKey(*this, caps, b);
     }
 
-    const char* name() const override { return "RRectsGaussianEdgeFP"; }
-
-    const SkRRect& first() const { return fFirst; }
-    Mode firstMode() const { return fFirstMode; }
-    const SkRRect& second() const { return fSecond; }
-    Mode secondMode() const { return fSecondMode; }
-    SkScalar radius() const { return fRadius; }
-
-private:
     RRectsGaussianEdgeFP(const SkRRect& first, const SkRRect& second, SkScalar radius)
             : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fFirst(first)
@@ -465,6 +469,15 @@ private:
 
         fFirstMode = ComputeMode(fFirst);
         fSecondMode = ComputeMode(fSecond);
+    }
+    RRectsGaussianEdgeFP(const RRectsGaussianEdgeFP& that)
+            : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+            , fFirst(that.fFirst)
+            , fFirstMode(that.fFirstMode)
+            , fSecond(that.fSecond)
+            , fSecondMode(that.fSecondMode)
+            , fRadius(that.fRadius) {
+        this->initClassID<RRectsGaussianEdgeFP>();
     }
 
     static Mode ComputeMode(const SkRRect& rr) {

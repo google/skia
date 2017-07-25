@@ -51,6 +51,9 @@ public:
 
     const char* name() const override { return "Luminance-to-Alpha"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+
+private:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
         static void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder*) {}
@@ -75,7 +78,6 @@ public:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
 
-private:
     LumaColorFilterEffect() : INHERITED(kConstantOutputForConstantInput_OptimizationFlag) {
         this->initClassID<LumaColorFilterEffect>();
     }
