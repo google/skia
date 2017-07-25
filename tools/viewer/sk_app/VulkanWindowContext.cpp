@@ -67,8 +67,7 @@ void VulkanWindowContext::initializeContext() {
     GET_DEV_PROC(AcquireNextImageKHR);
     GET_DEV_PROC(QueuePresentKHR);
 
-    fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get(),
-                                 fDisplayParams.fGrContextOptions);
+    fContext = GrContext::MakeVulkan(fBackendContext.get(), fDisplayParams.fGrContextOptions);
 
     fSurface = fCreateVkSurfaceFn(instance);
     if (VK_NULL_HANDLE == fSurface) {
@@ -280,7 +279,7 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
 
         GrBackendTexture backendTex(fWidth, fHeight, info);
 
-        fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext, backendTex,
+        fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext.get(), backendTex,
                                                                        kTopLeft_GrSurfaceOrigin,
                                                                        fSampleCount,
                                                                        fDisplayParams.fColorSpace,
@@ -412,7 +411,7 @@ void VulkanWindowContext::destroyContext() {
         fSurface = VK_NULL_HANDLE;
     }
 
-    fContext->unref();
+    fContext.reset();
 
     fBackendContext.reset(nullptr);
 }

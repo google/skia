@@ -8,11 +8,11 @@
 #define WindowContext_DEFINED
 
 #include "DisplayParams.h"
+#include "GrContext.h"
 #include "GrTypes.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 
-class GrContext;
 class SkSurface;
 class GrRenderTarget;
 
@@ -46,7 +46,7 @@ public:
     }
 
     virtual GrBackendContext getBackendContext() = 0;
-    GrContext* getGrContext() const { return fContext; }
+    GrContext* getGrContext() const { return fContext.get(); }
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -56,7 +56,7 @@ public:
 protected:
     virtual bool isGpuContext() { return true;  }
 
-    GrContext*        fContext;
+    sk_sp<GrContext>        fContext;
 
     int               fWidth;
     int               fHeight;

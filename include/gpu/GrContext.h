@@ -22,12 +22,14 @@ class GrContextPriv;
 class GrContextThreadSafeProxy;
 class GrDrawingManager;
 struct GrDrawOpAtlasConfig;
-class GrRenderTargetContext;
 class GrFragmentProcessor;
+struct GrGLInterface;
 class GrGpu;
 class GrIndexBuffer;
+struct GrMockOptions;
 class GrOvalRenderer;
 class GrPath;
+class GrRenderTargetContext;
 class GrResourceEntry;
 class GrResourceCache;
 class GrResourceProvider;
@@ -37,6 +39,7 @@ class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
 class GrVertexBuffer;
+struct GrVkBackendContext;
 class GrSwizzle;
 class SkTraceMemoryDump;
 
@@ -51,6 +54,14 @@ public:
     static GrContext* Create(GrBackend, GrBackendContext, const GrContextOptions& options);
     static GrContext* Create(GrBackend, GrBackendContext);
 
+    static sk_sp<GrContext> MakeGL(const GrGLInterface*, const GrContextOptions&);
+    static sk_sp<GrContext> MakeGL(const GrGLInterface*);
+
+#ifdef SK_VULKAN
+    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext*, const GrContextOptions&);
+    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext*);
+#endif
+
 #ifdef SK_METAL
     /**
      * Makes a GrContext which uses Metal as the backend. The device parameter is an MTLDevice
@@ -59,7 +70,11 @@ public:
      * GrContext is destroyed.
      */
     static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
+    static sk_sp<GrContext> MakeMetal(void* device, void* queue);
 #endif
+
+    static sk_sp<GrContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
+    static sk_sp<GrContext> MakeMock(const GrMockOptions*);
 
     virtual ~GrContext();
 

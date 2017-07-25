@@ -276,8 +276,7 @@ public:
         }
 
         SkASSERT(nullptr == fCurContext);
-        fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf,
-                                        backendOptions.fGrContextOptions);
+        fCurContext = GrContext::MakeGL(fCurIntf, backendOptions.fGrContextOptions).release();
 
         if (nullptr == fCurContext || nullptr == fCurIntf) {
             // We need some context and interface to see results

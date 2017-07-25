@@ -9,6 +9,7 @@
 
 #ifdef SK_VULKAN
 
+#include "GrContext.h"
 #include "vk/GrVkInterface.h"
 #include "vk/GrVkUtil.h"
 #include <vulkan/vulkan.h>
@@ -130,6 +131,10 @@ public:
     void submit() override {}
 
     void finish() override {}
+
+    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override {
+        return GrContext::MakeVulkan(fVk.get(), options);
+    }
 
 protected:
     void teardown() override {

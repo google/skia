@@ -38,6 +38,8 @@ class GrGLGpu final : public GrGpu, private GrMesh::SendToGpuImpl {
 public:
     static GrGpu* Create(GrBackendContext backendContext, const GrContextOptions& options,
                          GrContext* context);
+    static GrGpu* Create(const GrGLInterface*, const GrContextOptions& options,
+                         GrContext* context);
     ~GrGLGpu() override;
 
     void disconnect(DisconnectType) override;

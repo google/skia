@@ -75,6 +75,8 @@ public:
         }
     }
 
+    sk_sp<GrContext> makeGrContext(const GrContextOptions& options) override;
+
 protected:
     GLTestContext();
 
