@@ -15,6 +15,7 @@ void SkRasterPipeline::reset() {
     fStages      = nullptr;
     fNumStages   = 0;
     fSlotsNeeded = 1;  // We always need one extra slot for just_return().
+    fClamped     = true;
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
@@ -46,6 +47,7 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fStages = &stages[src.fNumStages - 1];
     fNumStages   += src.fNumStages;
     fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
+    fClamped = fClamped && src.fClamped;
 }
 
 void SkRasterPipeline::dump() const {
@@ -160,5 +162,14 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
             matrix.get9(storage);
             this->append(SkRasterPipeline::matrix_perspective, storage);
         }
+    }
+}
+
+void SkRasterPipeline::clamp_if_unclamped(SkAlphaType alphaType) {
+    if (!fClamped) {
+        this->append(SkRasterPipeline::clamp_0);
+        this->append(alphaType == kPremul_SkAlphaType ? SkRasterPipeline::clamp_a
+                                                      : SkRasterPipeline::clamp_1);
+        fClamped = true;
     }
 }
