@@ -41,9 +41,17 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
         }
     }
 
+    SkDEBUGCODE(GrSurfaceOrigin origOrigin);
     GrUniqueKey copyKey;
     this->makeCopyKey(copyParams, &copyKey, dstColorSpace);
     if (copyKey.isValid()) {
+#ifdef SK_DEBUG
+        if (original) {
+            origOrigin = original->origin();
+        } else {
+            origOrigin = kTopLeft_GrSurfaceOrigin;
+        }
+#endif
         sk_sp<GrTextureProxy> result(fContext->resourceProvider()->findProxyByUniqueKey(copyKey));
         if (result) {
             return result;
@@ -62,6 +70,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
     }
 
     if (copyKey.isValid()) {
+        SkASSERT(result->origin() == origOrigin);
         fContext->resourceProvider()->assignUniqueKeyToProxy(copyKey, result.get());
         this->didCacheCopy(copyKey);
     }
