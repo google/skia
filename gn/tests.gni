@@ -238,6 +238,7 @@ tests_sources = [
   "$_tests/SwizzlerTest.cpp",
   "$_tests/TArrayTest.cpp",
   "$_tests/TDPQueueTest.cpp",
+  "$_tests/TableColorFilterTest.cpp",
   "$_tests/TemplatesTest.cpp",
   "$_tests/TessellatingPathRendererTests.cpp",
   "$_tests/Test.cpp",
