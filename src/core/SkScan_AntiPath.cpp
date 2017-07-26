@@ -634,30 +634,6 @@ void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
     }
 }
 
-static bool suitableForDAA(const SkPath& path) {
-    if (gSkForceAnalyticAA.load()) {
-        return true;
-    }
-    const SkRect& bounds = path.getBounds();
-    return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
-}
-
-static bool suitableForAAA(const SkPath& path) {
-    if (gSkForceAnalyticAA.load()) {
-        return true;
-    }
-    if (path.isRect(nullptr)) {
-        return true;
-    }
-    const SkRect& bounds = path.getBounds();
-    // When the path have so many points compared to the size of its bounds/resolution,
-    // it indicates that the path is not quite smooth in the current resolution:
-    // the expected number of turning points in every pixel row/column is significantly greater than
-    // zero. Hence Aanlytic AA is not likely to produce visible quality improvements, and Analytic
-    // AA might be slower than supersampling.
-    return path.countPoints() < SkTMax(bounds.width(), bounds.height()) / 2 - 10;
-}
-
 void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
                           SkBlitter* blitter) {
     if (clip.isEmpty()) {
@@ -667,9 +643,9 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
     using FillPathProc = void(*)(const SkPath&, const SkRegion&, SkBlitter*, bool);
     FillPathProc fillPathProc = &SkScan::AntiFillPath;
 
-    if (gSkUseDeltaAA.load() && suitableForDAA(path)) {
+    if (ShouldUseDAA(path)) {
         fillPathProc = &SkScan::DAAFillPath;
-    } else if (gSkUseAnalyticAA.load() && suitableForAAA(path)) {
+    } else if (ShouldUseAAA(path)) {
         // Do not use AAA if path is too complicated:
         // there won't be any speedup or significant visual improvement.
         fillPathProc = &SkScan::AAAFillPath;

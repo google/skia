@@ -8,6 +8,7 @@
 
 #include "SkScan.h"
 #include "SkBlitter.h"
+#include "SkPath.h"
 #include "SkRasterClip.h"
 
 #ifdef SK_NO_ANALYTIC_AA
@@ -21,6 +22,36 @@ std::atomic<bool> gSkForceAnalyticAA{false};
 std::atomic<bool> gSkUseDeltaAA{false};
 
 std::atomic<bool> gSkForceDeltaAA{false};
+
+bool SkScan::ShouldUseDAA(const SkPath& path) {
+    if (gSkForceDeltaAA) {
+        return true;
+    }
+    if (!gSkUseDeltaAA) {
+        return false;
+    }
+    const SkRect& bounds = path.getBounds();
+    return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
+}
+
+bool SkScan::ShouldUseAAA(const SkPath& path) {
+    if (gSkForceAnalyticAA) {
+        return true;
+    }
+    if (!gSkUseAnalyticAA) {
+        return false;
+    }
+    if (path.isRect(nullptr)) {
+        return true;
+    }
+    const SkRect& bounds = path.getBounds();
+    // When the path have so many points compared to the size of its bounds/resolution,
+    // it indicates that the path is not quite smooth in the current resolution:
+    // the expected number of turning points in every pixel row/column is significantly greater than
+    // zero. Hence Aanlytic AA is not likely to produce visible quality improvements, and Analytic
+    // AA might be slower than supersampling.
+    return path.countPoints() < SkTMax(bounds.width(), bounds.height()) / 2 - 10;
+}
 
 static inline void blitrect(SkBlitter* blitter, const SkIRect& r) {
     blitter->blitRect(r.fLeft, r.fTop, r.width(), r.height());
