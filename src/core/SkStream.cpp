@@ -274,6 +274,18 @@ SkMemoryStream::SkMemoryStream(sk_sp<SkData> data) : fData(std::move(data)) {
     fOffset = 0;
 }
 
+std::unique_ptr<SkMemoryStream> SkMemoryStream::MakeCopy(const void* data, size_t length) {
+    return skstd::make_unique<SkMemoryStream>(data, length, true);
+}
+
+std::unique_ptr<SkMemoryStream> SkMemoryStream::MakeDirect(const void* data, size_t length) {
+    return skstd::make_unique<SkMemoryStream>(data, length, false);
+}
+
+std::unique_ptr<SkMemoryStream> SkMemoryStream::Make(sk_sp<SkData> data) {
+    return skstd::make_unique<SkMemoryStream>(std::move(data));
+}
+
 void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
     fData = SkData::MakeFromMalloc(src, size);
     fOffset = 0;
