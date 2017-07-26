@@ -16,6 +16,24 @@
       "revId": "0067725ccf3942008fd5cd2fdd89883e3f5611e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca54401_3e2fc8a3",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-26T16:54:09Z",
+      "side": 1,
+      "message": "It\u0027d have to be friended as the copy constructor is private.",
+      "parentUuid": "f5f47f88_6a5001e7",
+      "revId": "0067725ccf3942008fd5cd2fdd89883e3f5611e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
