@@ -8,7 +8,8 @@
 #ifndef Gr1DKernelEffect_DEFINED
 #define Gr1DKernelEffect_DEFINED
 
-#include "GrSingleTextureEffect.h"
+#include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "SkMatrix.h"
 
 /**
@@ -20,8 +21,7 @@
  * two times the radius.
  */
 
-class Gr1DKernelEffect : public GrSingleTextureEffect {
-
+class Gr1DKernelEffect : public GrFragmentProcessor {
 public:
     enum Direction {
         kX_Direction,
@@ -44,18 +44,24 @@ public:
     }
 
 protected:
-    Gr1DKernelEffect(OptimizationFlags optFlags,
-                     sk_sp<GrTextureProxy> proxy, Direction direction, int radius)
-        : INHERITED(optFlags, std::move(proxy), nullptr, SkMatrix::I())
-        , fDirection(direction)
-        , fRadius(radius) {
+    Gr1DKernelEffect(OptimizationFlags optFlags, sk_sp<GrTextureProxy> proxy, Direction direction,
+                     int radius)
+            : INHERITED(optFlags)
+            , fCoordTransform(proxy.get())
+            , fTextureSampler(std::move(proxy))
+            , fDirection(direction)
+            , fRadius(radius) {
+        this->addCoordTransform(&fCoordTransform);
+        this->addTextureSampler(&fTextureSampler);
     }
 
 private:
-    Direction       fDirection;
-    int             fRadius;
+    GrCoordTransform fCoordTransform;
+    TextureSampler   fTextureSampler;
+    Direction        fDirection;
+    int              fRadius;
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 #endif

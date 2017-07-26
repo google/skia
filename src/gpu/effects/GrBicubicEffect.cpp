@@ -135,26 +135,31 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkMatrix &matrix,
+                                 const SkMatrix& matrix,
                                  const SkShader::TileMode tileModes[2])
-        : INHERITED{ModulationFlags(proxy->config()),
-                    GR_PROXY_MOVE(proxy),
-                    std::move(colorSpaceXform),
-                    matrix,
-                    GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode)}
-        , fDomain(GrTextureDomain::IgnoredDomain()) {
+        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config())}
+        , fCoordTransform(matrix, proxy.get())
+        , fDomain(GrTextureDomain::IgnoredDomain())
+        , fTextureSampler(std::move(proxy),
+                          GrSamplerParams(tileModes, GrSamplerParams::kNone_FilterMode))
+        , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->initClassID<GrBicubicEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const SkMatrix &matrix,
+                                 const SkMatrix& matrix,
                                  const SkRect& domain)
-        : INHERITED(ModulationFlags(proxy->config()), proxy,
-                    std::move(colorSpaceXform), matrix,
-                    GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode))
-        , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode) {
+        : INHERITED(ModulateByConfigOptimizationFlags(proxy->config()))
+        , fCoordTransform(matrix, proxy.get())
+        , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode)
+        , fTextureSampler(std::move(proxy))
+        , fColorSpaceXform(std::move(colorSpaceXform)) {
     this->initClassID<GrBicubicEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 GrBicubicEffect::~GrBicubicEffect() {

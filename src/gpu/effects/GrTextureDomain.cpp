@@ -230,12 +230,16 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
                                              const SkRect& domain,
                                              GrTextureDomain::Mode mode,
                                              GrSamplerParams::FilterMode filterMode)
-    : GrSingleTextureEffect(OptFlags(proxy->config(), mode), proxy,
-                            std::move(colorSpaceXform), matrix, filterMode)
-    , fTextureDomain(proxy.get(), domain, mode) {
+        : INHERITED(OptFlags(proxy->config(), mode))
+        , fCoordTransform(matrix, proxy.get())
+        , fTextureDomain(proxy.get(), domain, mode)
+        , fTextureSampler(std::move(proxy), filterMode)
+        , fColorSpaceXform(std::move(colorSpaceXform)) {
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
              filterMode == GrSamplerParams::kNone_FilterMode);
     this->initClassID<GrTextureDomainEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

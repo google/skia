@@ -8,13 +8,12 @@
 #ifndef GrBicubicTextureEffect_DEFINED
 #define GrBicubicTextureEffect_DEFINED
 
-#include "GrSingleTextureEffect.h"
 #include "GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 
 class GrInvariantOutput;
 
-class GrBicubicEffect : public GrSingleTextureEffect {
+class GrBicubicEffect : public GrFragmentProcessor {
 public:
     enum {
         kFilterTexelPad = 2, // Given a src rect in texels to be filtered, this number of
@@ -25,6 +24,8 @@ public:
     const char* name() const override { return "Bicubic"; }
 
     const GrTextureDomain& domain() const { return fDomain; }
+
+    const GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
@@ -72,11 +73,14 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
+    GrCoordTransform fCoordTransform;
     GrTextureDomain fDomain;
+    TextureSampler fTextureSampler;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 #endif

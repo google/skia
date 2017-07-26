@@ -25,7 +25,6 @@
 #include "GrTextureProxy.h"
 
 #include "SkGr.h"
-#include "effects/GrSingleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -593,7 +592,7 @@ private:
 
 #if SK_SUPPORT_GPU
 
-class GrLightingEffect : public GrSingleTextureEffect {
+class GrLightingEffect : public GrFragmentProcessor {
 public:
     ~GrLightingEffect() override;
 
@@ -611,13 +610,15 @@ protected:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
 private:
+    GrCoordTransform fCoordTransform;
+    GrTextureDomain fDomain;
+    TextureSampler fTextureSampler;
     const SkImageFilterLight* fLight;
     SkScalar fSurfaceScale;
     SkMatrix fFilterMatrix;
     BoundaryMode fBoundaryMode;
-    GrTextureDomain fDomain;
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 class GrDiffuseLightingEffect : public GrLightingEffect {
@@ -1685,12 +1686,17 @@ GrLightingEffect::GrLightingEffect(sk_sp<GrTextureProxy> proxy,
                                    BoundaryMode boundaryMode,
                                    const SkIRect* srcBounds)
         // Perhaps this could advertise the opaque or coverage-as-alpha optimizations?
-        : INHERITED(kNone_OptimizationFlags, proxy, nullptr, SkMatrix::I())
+        : INHERITED(kNone_OptimizationFlags)
+        , fCoordTransform(proxy.get())
+        , fDomain(create_domain(proxy.get(), srcBounds, GrTextureDomain::kDecal_Mode))
+        , fTextureSampler(std::move(proxy))
         , fLight(light)
         , fSurfaceScale(surfaceScale)
         , fFilterMatrix(matrix)
-        , fBoundaryMode(boundaryMode)
-        , fDomain(create_domain(proxy.get(), srcBounds, GrTextureDomain::kDecal_Mode)) {
+        , fBoundaryMode(boundaryMode) {
+    this->initClassID<GrLightingEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
     fLight->ref();
 }
 

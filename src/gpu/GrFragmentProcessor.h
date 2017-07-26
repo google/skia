@@ -249,6 +249,21 @@ protected:
     };
     GR_DECL_BITFIELD_OPS_FRIENDS(OptimizationFlags)
 
+    /**
+     * Can be used as a helper to decide which fragment processor OptimizationFlags should be set.
+     * This assumes that the subclass output color will be a modulation of the input color with a
+     * value read from a texture of the passed config and that the texture contains premultiplied
+     * color or alpha values that are in range.
+     */
+    static OptimizationFlags ModulateByConfigOptimizationFlags(GrPixelConfig config) {
+        if (GrPixelConfigIsOpaque(config)) {
+            return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                   kPreservesOpaqueInput_OptimizationFlag;
+        } else {
+            return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
+        }
+    }
+
     GrFragmentProcessor(OptimizationFlags optimizationFlags) : fFlags(optimizationFlags) {
         SkASSERT((fFlags & ~kAll_OptimizationFlags) == 0);
     }

@@ -351,8 +351,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrShadowGeoProc.h",
   "$_src/gpu/effects/GrSimpleTextureEffect.cpp",
   "$_src/gpu/effects/GrSimpleTextureEffect.h",
-  "$_src/gpu/effects/GrSingleTextureEffect.cpp",
-  "$_src/gpu/effects/GrSingleTextureEffect.h",
   "$_src/gpu/effects/GrSRGBEffect.cpp",
   "$_src/gpu/effects/GrSRGBEffect.h",
   "$_src/gpu/effects/GrTextureDomain.cpp",

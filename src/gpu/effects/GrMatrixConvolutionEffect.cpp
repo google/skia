@@ -158,15 +158,19 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy
                                                      const SkIPoint& kernelOffset,
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha)
-    // To advertise either the modulation or opaqueness optimizations we'd have to examine the
-    // parameters.
-    : INHERITED(kNone_OptimizationFlags, proxy, nullptr, SkMatrix::I())
-    , fKernelSize(kernelSize)
-    , fGain(SkScalarToFloat(gain))
-    , fBias(SkScalarToFloat(bias) / 255.0f)
-    , fConvolveAlpha(convolveAlpha)
-    , fDomain(proxy.get(), GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode) {
+        // To advertise either the modulation or opaqueness optimizations we'd have to examine the
+        // parameters.
+        : INHERITED(kNone_OptimizationFlags)
+        , fCoordTransform(proxy.get())
+        , fDomain(proxy.get(), GrTextureDomain::MakeTexelDomainForMode(bounds, tileMode), tileMode)
+        , fTextureSampler(std::move(proxy))
+        , fKernelSize(kernelSize)
+        , fGain(SkScalarToFloat(gain))
+        , fBias(SkScalarToFloat(bias) / 255.0f)
+        , fConvolveAlpha(convolveAlpha) {
     this->initClassID<GrMatrixConvolutionEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
     for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
         fKernel[i] = SkScalarToFloat(kernel[i]);
     }
