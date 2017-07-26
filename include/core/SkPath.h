@@ -12,6 +12,7 @@
 #include "../private/SkPathRef.h"
 
 class SkAutoPathBoundsUpdate;
+class SkData;
 class SkRRect;
 class SkWStream;
 
@@ -1090,6 +1091,12 @@ public:
      *  If buffer is NULL, it still returns the number of bytes.
      */
     size_t writeToMemory(void* buffer) const;
+
+    /**
+     *  Write the path to a buffer. Can recreate the path by calling readFromMemory().
+     */
+    sk_sp<SkData> serialize() const;
+
     /**
      * Initializes the path from the buffer
      *
