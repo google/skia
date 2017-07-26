@@ -16,6 +16,24 @@
       "revId": "9ac801c12c48b67b48e5a8ef2876a093b7de73fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b70040f8_cef92d15",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-07-26T17:56:48Z",
+      "side": 0,
+      "message": "Another casualty of topical documentation. I\u0027ll add a bug to myself.",
+      "parentUuid": "2e2767d4_497c7753",
+      "revId": "9ac801c12c48b67b48e5a8ef2876a093b7de73fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
