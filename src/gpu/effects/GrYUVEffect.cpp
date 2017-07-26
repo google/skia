@@ -92,6 +92,10 @@ public:
 
     const char* name() const override { return "YUV to RGB"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(*this));
+    }
+
     SkYUVColorSpace getColorSpace() const { return fColorSpace; }
 
     bool isNV12() const {
@@ -175,6 +179,27 @@ private:
         }
     }
 
+    YUVtoRGBEffect(const YUVtoRGBEffect& that)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fYTransform(that.fYTransform)
+            , fYSampler(that.fYSampler)
+            , fUTransform(that.fUTransform)
+            , fUSampler(that.fUSampler)
+            , fVTransform(that.fVTransform)
+            , fVSampler(that.fVSampler)
+            , fColorSpace(that.fColorSpace)
+            , fNV12(that.fNV12) {
+        this->initClassID<YUVtoRGBEffect>();
+        this->addCoordTransform(&fYTransform);
+        this->addTextureSampler(&fYSampler);
+        this->addCoordTransform(&fUTransform);
+        this->addTextureSampler(&fUSampler);
+        if (!fNV12) {
+            this->addCoordTransform(&fVTransform);
+            this->addTextureSampler(&fVSampler);
+        }
+    }
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GLSLProcessor;
     }
@@ -223,6 +248,17 @@ public:
     }
 
     const char* name() const override { return "RGBToYUV"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        // Currently we make the child clone here and pass it to the constructor. This is because
+        // clone() may fail for processor classes that haven't yet implemented it. Once all
+        // processors have an implementation the child can be cloned in the copy constructor.
+        auto child = this->childProcessor(0).clone();
+        if (!child) {
+            return nullptr;
+        }
+        return sk_sp<GrFragmentProcessor>(new RGBToYUVEffect(*this, std::move(child)));
+    }
 
     SkYUVColorSpace getColorSpace() const { return fColorSpace; }
 
@@ -332,6 +368,14 @@ private:
             , fOutputChannels(output) {
         this->initClassID<RGBToYUVEffect>();
         this->registerChildProcessor(std::move(rgbFP));
+    }
+
+    RGBToYUVEffect(const RGBToYUVEffect& that, sk_sp<GrFragmentProcessor> childClone)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fColorSpace(that.fColorSpace)
+            , fOutputChannels(that.fOutputChannels) {
+        this->initClassID<RGBToYUVEffect>();
+        this->registerChildProcessor(std::move(childClone));
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
