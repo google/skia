@@ -46,8 +46,8 @@ sk_sp<SkImage> GetResourceAsImage(const char* resource) {
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource) {
     SkString resourcePath = GetResourcePath(resource);
-    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
-    if (!stream->isValid()) {
+    auto stream = SkFILEStream::Make(resourcePath.c_str());
+    if (!stream) {
         SkDebugf("Resource %s not found.\n", resource);
         return nullptr;
     }

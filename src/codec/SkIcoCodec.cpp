@@ -144,7 +144,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
 
         sk_sp<SkData> data(SkData::MakeFromMalloc(buffer.release(), size));
-        std::unique_ptr<SkMemoryStream> embeddedStream(new SkMemoryStream(data));
+        auto embeddedStream = SkMemoryStream::Make(data);
         bytesRead += size;
 
         // Check if the embedded codec is bmp or png and create the codec

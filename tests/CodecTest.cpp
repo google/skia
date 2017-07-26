@@ -1389,8 +1389,8 @@ DEF_TEST(Codec_InvalidImages, r) {
 
 static void test_invalid_header(skiatest::Reporter* r, const char* path) {
     SkString resourcePath = GetResourcePath(path);
-    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
-    if (!stream->isValid()) {
+    auto stream = SkFILEStream::Make(resourcePath.c_str());
+    if (!stream) {
         return;
     }
 

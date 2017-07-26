@@ -288,7 +288,7 @@ public:
                 }
             }
         }
-        return skstd::make_unique<SkMemoryStream>(data);
+        return SkMemoryStream::Make(data);
     }
 
 private:
@@ -381,7 +381,7 @@ public:
             sk_sp<SkData> data(SkData::MakeWithCopy(
                 static_cast<const uint8_t*>(fStream->getMemoryBase()) + offset, bytesToRead));
             fStream.reset();
-            return skstd::make_unique<SkMemoryStream>(data);
+            return SkMemoryStream::Make(data);
         } else {
             sk_sp<SkData> data(SkData::MakeUninitialized(bytesToRead));
             if (!fStream->seek(offset)) {
@@ -391,7 +391,7 @@ public:
             if (bytesRead < bytesToRead) {
                 data = SkData::MakeSubset(data.get(), 0, bytesRead);
             }
-            return skstd::make_unique<SkMemoryStream>(data);
+            return SkMemoryStream::Make(data);
         }
     }
 private:

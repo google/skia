@@ -263,6 +263,11 @@ public:
 
     ~SkFILEStream() override;
 
+    static std::unique_ptr<SkFILEStream> Make(const char path[]) {
+        SkFILEStream* stream = new SkFILEStream(path);
+        return stream->isValid() ? std::unique_ptr<SkFILEStream>(stream) : nullptr;
+    }
+
     /** Returns true if the current path could be opened. */
     bool isValid() const { return fFILE != nullptr; }
 
@@ -307,6 +312,15 @@ public:
 
     /** Creates the stream to read from the specified data */
     SkMemoryStream(sk_sp<SkData>);
+
+    /** Returns a stream with a copy of the input data. */
+    static std::unique_ptr<SkMemoryStream> MakeCopy(const void* data, size_t length);
+
+    /** Returns a stream with a bare pointer reference to the input data. */
+    static std::unique_ptr<SkMemoryStream> MakeDirect(const void* data, size_t length);
+
+    /** Returns a stream with a shared reference to the input data. */
+    static std::unique_ptr<SkMemoryStream> Make(sk_sp<SkData> data);
 
     /** Resets the stream to the specified data and length,
         just like the constructor.

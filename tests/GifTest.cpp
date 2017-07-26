@@ -225,10 +225,9 @@ DEF_TEST(Gif, reporter) {
 // Regression test for decoding a gif image with sampleSize of 4, which was
 // previously crashing.
 DEF_TEST(Gif_Sampled, r) {
-    std::unique_ptr<SkFILEStream> stream(
-            new SkFILEStream(GetResourcePath("test640x479.gif").c_str()));
-    REPORTER_ASSERT(r, stream->isValid());
-    if (!stream->isValid()) {
+    auto stream = SkFILEStream::Make(GetResourcePath("test640x479.gif").c_str());
+    REPORTER_ASSERT(r, stream);
+    if (!stream) {
         return;
     }
 
