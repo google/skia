@@ -258,6 +258,17 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         return nullptr;
     }
 
+    // If the buffer can't plausibly contain this many objects, abort.
+    // Force all math into 64bit to avoid overflow (all our counts are 32bits)
+    uint64_t requiredBufferSize = sizeof(SkRect);
+    requiredBufferSize += verbCount * sizeof(uint8_t);
+    requiredBufferSize += pointCount * sizeof(SkPoint);
+    requiredBufferSize += conicCount * sizeof(SkScalar);
+
+    if (buffer->available() < requiredBufferSize) {
+        return nullptr;
+    }
+
     ref->resetToSize(verbCount, pointCount, conicCount);
     SkASSERT(verbCount == ref->countVerbs());
     SkASSERT(pointCount == ref->countPoints());
