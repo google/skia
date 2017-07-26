@@ -22,6 +22,30 @@
       "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c95a3574_b15a20be",
+        "filename": "src/core/SkCoverageDelta.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-07-26T15:31:20Z",
+      "side": 1,
+      "message": "Right, I wanted use ifdef. However, it seems more important to me that the normal definition appears first, not the Google3 specific definition. The normal definition has comments associated with them, and the Google3 ones have comments just to explain the stack size limit. Is there a way to achieve both (1) using ifdef (2) let the normal definition appear first in my code for better readability?",
+      "parentUuid": "c169d3a6_4fe7350e",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 15
+      },
+      "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
