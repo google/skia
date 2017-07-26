@@ -39,8 +39,8 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrXfermodeFragmentProcessor.h"
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
-    GrSurfaceDesc desc;
+GrSurfaceDesc2 GrImageInfoToSurfaceDesc(const SkImageInfo& info, const GrCaps& caps) {
+    GrSurfaceDesc2 desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = info.width();
@@ -78,7 +78,7 @@ sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider* resourceP
 }
 
 static const SkPixmap* compute_desc(const GrCaps& caps, const SkPixmap& pixmap,
-                                    GrSurfaceDesc* desc,
+                                    GrSurfaceDesc2* desc,
                                     SkBitmap* tmpBitmap, SkPixmap* tmpPixmap) {
     const SkPixmap* pmap = &pixmap;
 
@@ -133,7 +133,7 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceP
 
     SkBitmap tmpBitmap;
     SkPixmap tmpPixmap;
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
 
     if (const SkPixmap* pmap = compute_desc(*resourceProvider->caps(), pixmap, &desc,
                                             &tmpBitmap, &tmpPixmap)) {
@@ -170,7 +170,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
+    GrSurfaceDesc2 desc = GrImageInfoToSurfaceDesc(bitmap.info(), *ctx->caps());
 
     SkPixmap pixmap;
     if (!bitmap.peekPixels(&pixmap)) {

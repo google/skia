@@ -494,7 +494,7 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
 #else
 // TODO: this is unfortunate and must be removed. We want the atlas to be created later.
 sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;

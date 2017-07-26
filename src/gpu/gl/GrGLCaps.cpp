@@ -2170,7 +2170,7 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
 #endif
 }
 
-bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc2* desc,
                                   bool* rectsMustMatch, bool* disallowSubrect) const {
     // By default, we don't require rects to match.
     *rectsMustMatch = false;

@@ -51,7 +51,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     this->init(contextOptions, vkInterface, physDev, featureFlags, extensionFlags);
 }
 
-bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc2* desc,
                                   bool* rectsMustMatch, bool* disallowSubrect) const {
     // Vk doesn't use rectsMustMatch or disallowSubrect. Always return false.
     *rectsMustMatch = false;

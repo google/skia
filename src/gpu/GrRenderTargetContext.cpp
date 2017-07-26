@@ -1806,8 +1806,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
-                                            const SkRect& opBounds,
-                                            GrXferProcessor::DstProxy* dstProxy) {
+                                          const SkRect& opBounds,
+                                          GrXferProcessor::DstProxy* dstProxy) {
     if (this->caps()->textureBarrierSupport()) {
         if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
@@ -1835,7 +1835,7 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
 
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     bool rectsMustMatch = false;
     bool disallowSubrect = false;
     if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &rectsMustMatch, &disallowSubrect)) {
