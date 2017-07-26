@@ -201,10 +201,8 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             float gaussianSigma,
                                                             GrTextureDomain::Mode mode,
                                                             int bounds[2])
-        : INHERITED{ModulationFlags(proxy->config()),
-                    GR_PROXY_MOVE(proxy),
-                    direction,
-                    radius}
+        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config()), GR_PROXY_MOVE(proxy),
+                    direction, radius}
         , fMode(mode) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);

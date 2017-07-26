@@ -17,16 +17,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
+#include "../private/GrGLSL.h"
 #include "GrContext.h"
+#include "GrCoordTransform.h"
 #include "GrTexture.h"
 #include "effects/GrProxyMove.h"
-#include "effects/GrSingleTextureEffect.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#include "../private/GrGLSL.h"
 #endif
 
 sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScalar inset,
@@ -48,7 +48,7 @@ sk_sp<SkImageFilter> SkMagnifierImageFilter::Make(const SkRect& srcRect, SkScala
 }
 
 #if SK_SUPPORT_GPU
-class GrMagnifierEffect : public GrSingleTextureEffect {
+class GrMagnifierEffect : public GrFragmentProcessor {
 public:
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
@@ -68,6 +68,14 @@ public:
     ~GrMagnifierEffect() override {}
 
     const char* name() const override { return "Magnifier"; }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        str.appendf("Texture: %d", fTextureSampler.proxy()->uniqueID().asUInt());
+        return str;
+    }
+
+    const GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
     const SkIRect& bounds() const { return fBounds; }    // Bounds of source image.
     const SkRect& srcRect() const { return fSrcRect; }
@@ -89,10 +97,11 @@ private:
                       float yInvZoom,
                       float xInvInset,
                       float yInvInset)
-            : INHERITED{ModulationFlags(proxy->config()),
-                        GR_PROXY_MOVE(proxy),
-                        std::move(colorSpaceXform),
-                        SkMatrix::I()} // TODO: no GrSamplerParams::kBilerp_FilterMode?
+            : INHERITED{ModulateByConfigOptimizationFlags(proxy->config())}
+            // TODO: no GrSamplerParams::kBilerp_FilterMode?
+            , fCoordTransform(proxy.get())
+            , fTextureSampler(std::move(proxy))
+            , fColorSpaceXform(std::move(colorSpaceXform))
             , fBounds(bounds)
             , fSrcRect(srcRect)
             , fXInvZoom(xInvZoom)
@@ -100,6 +109,8 @@ private:
             , fXInvInset(xInvInset)
             , fYInvInset(yInvInset) {
         this->initClassID<GrMagnifierEffect>();
+        this->addCoordTransform(&fCoordTransform);
+        this->addTextureSampler(&fTextureSampler);
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -110,6 +121,9 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
+    GrCoordTransform fCoordTransform;
+    TextureSampler fTextureSampler;
+    sk_sp<GrColorSpaceXform> fColorSpaceXform;
     SkIRect fBounds;
     SkRect  fSrcRect;
     float fXInvZoom;
@@ -117,7 +131,7 @@ private:
     float fXInvInset;
     float fYInvInset;
 
-    typedef GrSingleTextureEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 // For brevity
