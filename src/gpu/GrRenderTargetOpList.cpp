@@ -68,7 +68,7 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i].fOp) {
             GrOpFlushState::DrawOpArgs opArgs = {
-                fTarget.get()->priv().peekRenderTarget(),
+                fTarget.get()->asRenderTargetProxy(),
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstProxy
             };
@@ -138,7 +138,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         }
 
         GrOpFlushState::DrawOpArgs opArgs {
-            fTarget.get()->priv().peekRenderTarget(),
+            fTarget.get()->asRenderTargetProxy(),
             fRecordedOps[i].fAppliedClip,
             fRecordedOps[i].fDstProxy
         };

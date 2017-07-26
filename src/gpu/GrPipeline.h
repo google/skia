@@ -15,7 +15,7 @@
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrRect.h"
-#include "GrRenderTarget.h"
+#include "GrRenderTargetProxy.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
@@ -79,7 +79,7 @@ public:
         const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
-        GrRenderTarget* fRenderTarget = nullptr;
+        GrRenderTargetProxy* fProxy = nullptr;
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
@@ -105,7 +105,7 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using ScissorState::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrRenderTarget*, ScissorState, SkBlendMode);
+    GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
 
     GrPipeline(const InitArgs& args) { this->init(args); }
 
@@ -116,7 +116,7 @@ public:
     void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
-    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
+    bool isInitialized() const { return SkToBool(fProxy.get()); }
 
     /// @}
 
@@ -212,7 +212,8 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
+    GrRenderTargetProxy* proxy() const { return fProxy.get(); }
+    GrRenderTarget* renderTarget() const { return fProxy.get()->priv().peekRenderTarget(); }
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
@@ -270,14 +271,14 @@ private:
         kIsBad_Flag = 0x40,
     };
 
-    using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
+    using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
     using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
     using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
     using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
     DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
-    RenderTarget fRenderTarget;
+    RenderTargetProxy fProxy;
     GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;

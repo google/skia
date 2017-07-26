@@ -12,6 +12,7 @@
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
 #include "GrContextFactory.h"
+#include "GrRenderTarget.h"
 #include "GrTest.h"
 #include "GrTexture.h"
 

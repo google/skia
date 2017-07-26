@@ -9,6 +9,7 @@
 #define GrMockGpu_DEFINED
 
 #include "GrGpu.h"
+#include "GrRenderTarget.h"
 #include "GrSemaphore.h"
 #include "GrTexture.h"
 #include "SkTHash.h"

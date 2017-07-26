@@ -14,6 +14,7 @@
 
 class GrFixedClip;
 class GrPath;
+class GrRenderTargetPriv;
 struct GrUserStencilSettings;
 
 /** Class that adds methods to GrRenderTargetContext that are only intended for use internal to
