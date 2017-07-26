@@ -258,11 +258,6 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
         return nullptr;
     }
 
-    // If the buffer can't plausibly contain this many objects, abort.
-    size_t requiredBufferSize = verbCount * sizeof(uint8_t) + pointCount * sizeof(SkPoint) +
-                                conicCount * sizeof(SkScalar) + sizeof(SkRect);
-    if (buffer->available() < requiredBufferSize) return nullptr;
-
     ref->resetToSize(verbCount, pointCount, conicCount);
     SkASSERT(verbCount == ref->countVerbs());
     SkASSERT(pointCount == ref->countPoints());
