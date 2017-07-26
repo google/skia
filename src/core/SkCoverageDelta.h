@@ -44,7 +44,11 @@ using SkCoverageDeltaAllocator = SkSTArenaAlloc<256>;
 class SkCoverageDeltaList {
 public:
     // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially
+#ifndef GOOGLE3
     static constexpr int INIT_ROW_SIZE = 32;
+#else
+    static constexpr int INIT_ROW_SIZE = 8; // google3 has 16k stack limit
+#endif
     static constexpr int RESERVED_HEIGHT = 128; // reserve this many rows on stack memory
 
     SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom, bool forceRLE);
