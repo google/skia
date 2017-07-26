@@ -136,6 +136,22 @@ public:
     #endif
         }
 
+    #if SK_SUPPORT_GPU
+        PaintingData(const PaintingData& that)
+                : fSeed(that.fSeed)
+                , fTileSize(that.fTileSize)
+                , fBaseFrequency(that.fBaseFrequency)
+                , fStitchDataInit(that.fStitchDataInit)
+                , fPermutationsBitmap(that.fPermutationsBitmap)
+                , fNoiseBitmap(that.fNoiseBitmap)
+                , fImprovedPermutationsBitmap(that.fImprovedPermutationsBitmap)
+                , fGradientBitmap(that.fGradientBitmap) {
+            memcpy(fLatticeSelector, that.fLatticeSelector, sizeof(fLatticeSelector));
+            memcpy(fNoise, that.fNoise, sizeof(fNoise));
+            memcpy(fGradient, that.fGradient, sizeof(fGradient));
+        }
+    #endif
+
         int         fSeed;
         uint8_t     fLatticeSelector[kBlockSize];
         uint16_t    fNoise[4][kBlockSize][2];
@@ -691,6 +707,10 @@ public:
 
     const char* name() const override { return "PerlinNoise"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrPerlinNoise2Effect(*this));
+    }
+
     const SkPerlinNoiseShaderImpl::StitchData& stitchData() const { return fPaintingData->fStitchDataInit; }
 
     SkPerlinNoiseShaderImpl::Type type() const { return fType; }
@@ -734,6 +754,21 @@ private:
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fNoiseSampler);
         fCoordTransform.reset(matrix);
+        this->addCoordTransform(&fCoordTransform);
+    }
+
+    GrPerlinNoise2Effect(const GrPerlinNoise2Effect& that)
+            : INHERITED(kNone_OptimizationFlags)
+            , fType(that.fType)
+            , fCoordTransform(that.fCoordTransform)
+            , fNumOctaves(that.fNumOctaves)
+            , fStitchTiles(that.fStitchTiles)
+            , fPermutationsSampler(that.fPermutationsSampler)
+            , fNoiseSampler(that.fNoiseSampler)
+            , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
+        this->initClassID<GrPerlinNoise2Effect>();
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fNoiseSampler);
         this->addCoordTransform(&fCoordTransform);
     }
 
@@ -1106,6 +1141,10 @@ public:
 
     const char* name() const override { return "ImprovedPerlinNoise"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrImprovedPerlinNoiseEffect(*this));
+    }
+
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
     SkScalar z() const { return fZ; }
     int octaves() const { return fOctaves; }
@@ -1141,6 +1180,20 @@ private:
         this->addTextureSampler(&fPermutationsSampler);
         this->addTextureSampler(&fGradientSampler);
         fCoordTransform.reset(matrix);
+        this->addCoordTransform(&fCoordTransform);
+    }
+
+    GrImprovedPerlinNoiseEffect(const GrImprovedPerlinNoiseEffect& that)
+            : INHERITED(kNone_OptimizationFlags)
+            , fCoordTransform(that.fCoordTransform)
+            , fOctaves(that.fOctaves)
+            , fZ(that.fZ)
+            , fPermutationsSampler(that.fPermutationsSampler)
+            , fGradientSampler(that.fGradientSampler)
+            , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
+        this->initClassID<GrImprovedPerlinNoiseEffect>();
+        this->addTextureSampler(&fPermutationsSampler);
+        this->addTextureSampler(&fGradientSampler);
         this->addCoordTransform(&fCoordTransform);
     }
 
