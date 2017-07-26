@@ -22,6 +22,10 @@ DEFINE_string(trace, "",
               "               trace events to specified file as JSON, for viewing\n"
               "               with chrome://tracing");
 
+DEFINE_string(traceMatch, "",
+              "Filter which categories are traced.\n"
+              "Uses same format as --match\n");
+
 void initializeEventTracingForTools(const char* traceFlag) {
     if (!traceFlag) {
         if (FLAGS_trace.isEmpty()) {
@@ -65,8 +69,9 @@ uint8_t* SkEventTracingCategories::getCategoryGroupEnabled(const char* name) {
         return reinterpret_cast<uint8_t*>(&fCategories[0]);
     }
 
-    fCategories[fNumCategories].fEnabled =
-            SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
+    fCategories[fNumCategories].fEnabled = SkCommandLineFlags::ShouldSkip(FLAGS_traceMatch, name)
+            ? 0 : SkEventTracer::kEnabledForRecording_CategoryGroupEnabledFlags;
+
     fCategories[fNumCategories].fName = name;
     return reinterpret_cast<uint8_t*>(&fCategories[fNumCategories++]);
 }
