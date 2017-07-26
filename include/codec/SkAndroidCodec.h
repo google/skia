@@ -41,18 +41,6 @@ public:
      */
     static std::unique_ptr<SkAndroidCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
 
-#ifdef SK_SUPPORT_LEGACY_CODEC_NEW
-    static SkAndroidCodec* NewFromStream(SkStream* stream, SkPngChunkReader* reader) {
-        return MakeFromStream(std::unique_ptr<SkStream>(stream), reader).release();
-    }
-    static SkAndroidCodec* NewFromData(sk_sp<SkData> data, SkPngChunkReader* reader) {
-        return MakeFromData(std::move(data), reader).release();
-    }
-    static SkAndroidCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
-        return NewFromData(sk_ref_sp(data), reader);
-    }
-#endif
-
     virtual ~SkAndroidCodec() {}
 
 
