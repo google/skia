@@ -106,14 +106,14 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
 
     // Trace event for shader preceding driver compilation
     bool traceShader;
-    TRACE_EVENT_CATEGORY_GROUP_ENABLED(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), &traceShader);
+    TRACE_EVENT_CATEGORY_GROUP_ENABLED("skia.gpu", &traceShader);
     if (traceShader) {
         SkString shaderDebugString;
         print_shaders_line_by_line(skslStrings, lengths, count, glsl, [&](const char* ln) {
             shaderDebugString.append(ln);
             shaderDebugString.append("\n");
         });
-        TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), "skia_gpu::GLShader",
+        TRACE_EVENT_INSTANT1("skia.gpu", "skia_gpu::GLShader",
                              TRACE_EVENT_SCOPE_THREAD, "shader",
                              TRACE_STR_COPY(shaderDebugString.c_str()));
     }

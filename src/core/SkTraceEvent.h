@@ -78,6 +78,10 @@
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API
 
+// We prepend this string to all category names, so that ALL Skia trace events are
+// disabled by default when tracing in Chrome.
+#define TRACE_CATEGORY_PREFIX "disabled-by-default-"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Implementation detail: trace event macros create temporary variables
@@ -97,20 +101,18 @@
 #define INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES( \
     category_group, atomic, category_group_enabled) \
     category_group_enabled = \
-        reinterpret_cast<const uint8_t*>(TRACE_EVENT_API_ATOMIC_LOAD( \
-            atomic)); \
+        reinterpret_cast<const uint8_t*>(TRACE_EVENT_API_ATOMIC_LOAD(atomic)); \
     if (!category_group_enabled) { \
-      category_group_enabled = \
-          TRACE_EVENT_API_GET_CATEGORY_GROUP_ENABLED(category_group); \
+      category_group_enabled = TRACE_EVENT_API_GET_CATEGORY_GROUP_ENABLED(category_group); \
       TRACE_EVENT_API_ATOMIC_STORE(atomic, \
-          reinterpret_cast<TRACE_EVENT_API_ATOMIC_WORD>( \
-              category_group_enabled)); \
+          reinterpret_cast<TRACE_EVENT_API_ATOMIC_WORD>(category_group_enabled)); \
     }
 
 #define INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group) \
     static TRACE_EVENT_API_ATOMIC_WORD INTERNAL_TRACE_EVENT_UID(atomic) = 0; \
     const uint8_t* INTERNAL_TRACE_EVENT_UID(category_group_enabled); \
-    INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES(category_group, \
+    INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES( \
+        TRACE_CATEGORY_PREFIX category_group, \
         INTERNAL_TRACE_EVENT_UID(atomic), \
         INTERNAL_TRACE_EVENT_UID(category_group_enabled));
 
