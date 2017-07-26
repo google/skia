@@ -212,7 +212,7 @@ private:
 
     void init();
     void cleanUp();
-    sk_sp<SkPDFObject> makeFormXObjectFromDevice();
+    sk_sp<SkPDFObject> makeFormXObjectFromDevice(bool alpha = false);
 
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
