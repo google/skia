@@ -1,0 +1,509 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd64bbc1_a162090d",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "s/effected/affected/ (pretty sure this is what you meant, given the context)",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3cd6769_d5d8aeaf",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "s/effect/effects/ ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e7b65e2_e65600a0",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Insert \u0027the\u0027 after \u0027regardless of\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c597b29_fe3155d6",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "remove \u0027are\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82f31383_47cd4e07",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "remove \u0027are\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e9ec390_dccce85b",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "nit: Describing the operation of this function this way is slightly confusing (compared to the previous description). It\u0027s not obvious if this overrides all previously set flags, or sets the flags to be the union of the passed-in flags and the ones that were already set.",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e6f632f_1c4d1afe",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "s/effects/affects/",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43a2861a_16c78a26",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Remove \u0027or clears\u0027, given that this isn\u0027t a flag?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2407ac8_ca6235f6",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Not sure here, just remove \u0027kStrokeAndFill_Style to\u0027 entirely?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b7ce6ae_546b7dcc",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Capitalize \u0027arcs\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3e200e9_efa98098",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Should this be \u0027filled path\u0027? Same comment on next line.",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a91c1958_828de33c",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "insert \u0027join\u0027 (or something else to better describe the miter) after \u0027outside of the\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8da15307_f8275cdf",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Remove documentation of parameters not present on this version.",
+      "range": {
+        "startLine": 735,
+        "startChar": 0,
+        "endLine": 735,
+        "endChar": 62
+      },
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81e865d3_b1080dd1",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "This does increase shader\u0027s SkRefCnt by one, right?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74ebe670_98902375",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b75aade_604ebfc6",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7abd843c_f676c62d",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69e9b958_2c0700f7",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf478001_81cbad69",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Remove \u0027refRasterizer()\u0027 ? (Just because this breaks the pattern of documentation in other owned objects).",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b25775e_dfaf376d",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 898,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd9f7310_1a8f30a5",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55b5c726_4ebae3bb",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Increases refCnt?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4371f3d_81dfe4c9",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 974,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Not sure here, should this read \u0027horizontal center of the glyph...\u0027 instead?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d27596b5_e80f1742",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1092,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "missing \u0027kGlyphID_TextEncoding\u0027",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84ec83df_85a1614b",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Fix to refer to both underline and strikeout? Possibly:\n\n\u0027FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid; the underline and strikeout metrics may be valid and zero. Fonts with embedded bitmaps may not have valid underline and strikeout metrics.\u0027",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad0a57f9_3c32d976",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Similar: \u0027fFlags is set when underline and strikeout metrics are valid.\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd790dde_89b87a3c",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Remove reference to bounds on this version",
+      "range": {
+        "startLine": 1379,
+        "startChar": 0,
+        "endLine": 1379,
+        "endChar": 66
+      },
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2f97716_c050da11",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "Remove",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "687be1d5_e54c8ada",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 1,
+      "message": "remove \u0027return\u0027 ?",
+      "revId": "78a07a8b63bd2f562d82c61e0bba363af3e0a0dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

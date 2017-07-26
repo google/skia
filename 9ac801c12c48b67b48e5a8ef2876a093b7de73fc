@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e2767d4_497c7753",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-26T15:32:23Z",
+      "side": 0,
+      "message": "I feel like this line provided valuable context before. It\u0027s no longer obvious why I would call this - and knowing the use-case makes the high level behavior of the function(s) much clearer.",
+      "revId": "9ac801c12c48b67b48e5a8ef2876a093b7de73fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
