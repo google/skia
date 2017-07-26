@@ -70,6 +70,10 @@ GrConfigConversionEffect::GrConfigConversionEffect(PMConversion pmConversion)
     this->initClassID<GrConfigConversionEffect>();
 }
 
+sk_sp<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(fPMConversion));
+}
+
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrConfigConversionEffect& other = s.cast<GrConfigConversionEffect>();
     return other.fPMConversion == fPMConversion;

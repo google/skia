@@ -38,6 +38,8 @@ public:
         return str;
     }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
     GrColor4f color() const { return fColor; }
 
     InputMode inputMode() const { return fMode; }

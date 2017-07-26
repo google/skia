@@ -61,6 +61,8 @@ public:
 
     const char* name() const override { return "ConvexPoly"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
     int getEdgeCount() const { return fEdgeCount; }
@@ -69,6 +71,7 @@ public:
 
 private:
     GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, const SkScalar edges[]);
+    GrConvexPolyEffect(const GrConvexPolyEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
