@@ -344,6 +344,20 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
     this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
 }
 
+GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentProcessor(
+        const GrDeviceSpaceTextureDecalFragmentProcessor& that)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        , fTextureSampler(that.fTextureSampler)
+        , fTextureDomain(that.fTextureDomain)
+        , fDeviceSpaceOffset(that.fDeviceSpaceOffset) {
+    this->initClassID<GrDeviceSpaceTextureDecalFragmentProcessor>();
+    this->addTextureSampler(&fTextureSampler);
+}
+
+sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(*this));
+}
+
 GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLSLInstance() const  {
     class GLSLProcessor : public GrGLSLFragmentProcessor {
     public:
@@ -402,7 +416,7 @@ bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProce
     const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
             fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
     return dstdfp.fTextureSampler.proxy()->underlyingUniqueID() ==
-                                                fTextureSampler.proxy()->underlyingUniqueID() &&
+                   fTextureSampler.proxy()->underlyingUniqueID() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
 }
@@ -427,4 +441,5 @@ sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreat
     pt.fY = d->fRandom->nextULessThan(2048);
     return GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(proxy), subset, pt);
 }
+
 #endif

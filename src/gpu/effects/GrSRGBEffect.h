@@ -34,6 +34,8 @@ public:
     Mode mode() const { return fMode; }
     Alpha alpha() const { return fAlpha; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
 private:
     GrSRGBEffect(Mode mode, Alpha);
 
