@@ -119,6 +119,23 @@ public:
         return sk_sp<GrFragmentProcessor>(new LightingFP(std::move(normalFP), std::move(lights)));
     }
 
+    const char* name() const override { return "LightingFP"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        // Currently we make the child clone here and pass it to the "copy" constructor. This is
+        // because clone() may fail for processor classes that haven't yet implemented it. Once all
+        // processors have an implementation the child can be cloned in a true copy constructor.
+        auto normalFPClone = this->childProcessor(0).clone();
+        if (!normalFPClone) {
+            return nullptr;
+        }
+        return sk_sp<GrFragmentProcessor>(new LightingFP(*this, std::move(normalFPClone)));
+    }
+
+    const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }
+    const SkColor3f& ambientColor() const { return fAmbientColor; }
+
+private:
     class GLSLLightingFP : public GrGLSLFragmentProcessor {
     public:
         GLSLLightingFP() {
@@ -229,12 +246,6 @@ public:
         GLSLLightingFP::GenKey(*this, caps, b);
     }
 
-    const char* name() const override { return "LightingFP"; }
-
-    const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }
-    const SkColor3f& ambientColor() const { return fAmbientColor; }
-
-private:
     LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights)
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
         // fuse all ambient lights into a single one
@@ -249,6 +260,14 @@ private:
         }
 
         this->registerChildProcessor(std::move(normalFP));
+        this->initClassID<LightingFP>();
+    }
+
+    LightingFP(const LightingFP& that, sk_sp<GrFragmentProcessor> normalFPClone)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fDirectionalLights(that.fDirectionalLights)
+            , fAmbientColor(that.fAmbientColor) {
+        this->registerChildProcessor(std::move(normalFPClone));
         this->initClassID<LightingFP>();
     }
 
