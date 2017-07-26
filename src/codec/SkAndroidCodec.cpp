@@ -103,7 +103,7 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromData(sk_sp<SkData> data,
         return nullptr;
     }
 
-    return MakeFromStream(skstd::make_unique<SkMemoryStream>(std::move(data)), chunkReader);
+    return MakeFromStream(SkMemoryStream::Make(std::move(data)), chunkReader);
 }
 
 SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorType) {

@@ -15,6 +15,14 @@
 #include "SkOSFile.h"
 #include "SkTypes.h"
 
+#ifdef SK_SUPPORT_LEGACY_STREAM_API
+#define DUP_NAME    duplicate
+#define FORK_NAME   fork
+#else
+#define DUP_NAME    onDuplicate
+#define FORK_NAME   onFork
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -216,7 +224,7 @@ bool SkFILEStream::rewind() {
     return true;
 }
 
-SkStreamAsset* SkFILEStream::duplicate() const {
+SkStreamAsset* SkFILEStream::DUP_NAME() const {
     // TODO: fOriginalOffset instead of 0.
     return new SkFILEStream(fFILE, fSize, 0, fOriginalOffset);
 }
@@ -234,7 +242,7 @@ bool SkFILEStream::move(long offset) {
     return this->seek(fOffset + offset);
 }
 
-SkStreamAsset* SkFILEStream::fork() const {
+SkStreamAsset* SkFILEStream::FORK_NAME() const {
     return new SkFILEStream(fFILE, fSize, fOffset, fOriginalOffset);
 }
 
@@ -272,6 +280,18 @@ SkMemoryStream::SkMemoryStream(sk_sp<SkData> data) : fData(std::move(data)) {
         fData = SkData::MakeEmpty();
     }
     fOffset = 0;
+}
+
+std::unique_ptr<SkMemoryStream> SkMemoryStream::MakeCopy(const void* data, size_t length) {
+    return skstd::make_unique<SkMemoryStream>(data, length, true);
+}
+
+std::unique_ptr<SkMemoryStream> SkMemoryStream::MakeDirect(const void* data, size_t length) {
+    return skstd::make_unique<SkMemoryStream>(data, length, false);
+}
+
+std::unique_ptr<SkMemoryStream> SkMemoryStream::Make(sk_sp<SkData> data) {
+    return skstd::make_unique<SkMemoryStream>(std::move(data));
 }
 
 void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
@@ -330,7 +350,14 @@ bool SkMemoryStream::rewind() {
     return true;
 }
 
-SkMemoryStream* SkMemoryStream::duplicate() const { return new SkMemoryStream(fData); }
+#ifdef SK_SUPPORT_LEGACY_STREAM_API
+SkMemoryStream* SkMemoryStream::duplicate() const
+#else
+SkMemoryStream* SkMemoryStream::onDuplicate() const
+#endif
+{
+    return new SkMemoryStream(fData);
+}
 
 size_t SkMemoryStream::getPosition() const {
     return fOffset;
@@ -347,7 +374,7 @@ bool SkMemoryStream::move(long offset) {
     return this->seek(fOffset + offset);
 }
 
-SkMemoryStream* SkMemoryStream::fork() const {
+SkMemoryStream* SkMemoryStream::FORK_NAME() const {
     std::unique_ptr<SkMemoryStream> that(this->duplicate());
     that->seek(fOffset);
     return that.release();
@@ -719,7 +746,7 @@ public:
         return true;
     }
 
-    SkBlockMemoryStream* duplicate() const override {
+    SkBlockMemoryStream* DUP_NAME() const override {
         return new SkBlockMemoryStream(fBlockMemory, fSize);
     }
 
@@ -748,12 +775,12 @@ public:
         return seek(fOffset + offset);
     }
 
-    SkBlockMemoryStream* fork() const override {
-        std::unique_ptr<SkBlockMemoryStream> that(this->duplicate());
+    SkBlockMemoryStream* FORK_NAME() const override {
+        SkBlockMemoryStream* that = this->DUP_NAME();
         that->fCurrent = this->fCurrent;
         that->fOffset = this->fOffset;
         that->fCurrentOffset = this->fCurrentOffset;
-        return that.release();
+        return that;
     }
 
     size_t getLength() const override {
