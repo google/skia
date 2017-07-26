@@ -92,6 +92,10 @@ public:
 
     const char* name() const override { return "YUV to RGB"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new YUVtoRGBEffect(*this));
+    }
+
     SkYUVColorSpace getColorSpace() const { return fColorSpace; }
 
     bool isNV12() const {
@@ -175,6 +179,27 @@ private:
         }
     }
 
+    YUVtoRGBEffect(const YUVtoRGBEffect& that)
+            : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+            , fYTransform(that.fYTransform)
+            , fYSampler(that.fYSampler)
+            , fUTransform(that.fUTransform)
+            , fUSampler(that.fUSampler)
+            , fVTransform(that.fVTransform)
+            , fVSampler(that.fVSampler)
+            , fColorSpace(that.fColorSpace)
+            , fNV12(that.fNV12) {
+        this->initClassID<YUVtoRGBEffect>();
+        this->addCoordTransform(&fYTransform);
+        this->addTextureSampler(&fYSampler);
+        this->addCoordTransform(&fUTransform);
+        this->addTextureSampler(&fUSampler);
+        if (!fNV12) {
+            this->addCoordTransform(&fVTransform);
+            this->addTextureSampler(&fVSampler);
+        }
+    }
+
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         return new GLSLProcessor;
     }
@@ -223,6 +248,14 @@ public:
     }
 
     const char* name() const override { return "RGBToYUV"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        auto child = this->childProcessor(0).clone();
+        if (!child) {
+            return nullptr;
+        }
+        return Make(std::move(child), fColorSpace, fOutputChannels);
+    }
 
     SkYUVColorSpace getColorSpace() const { return fColorSpace; }
 
