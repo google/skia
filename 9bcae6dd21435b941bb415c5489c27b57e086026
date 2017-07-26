@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ae8c697f_e5902bd3",
+        "filename": "src/core/SkRecordDraw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-26T14:00:42Z",
+      "side": 1,
+      "message": "let\u0027s move this into a utility method somewhere. We may even want to call it from more than one place (e.g. canvas culling...)",
+      "range": {
+        "startLine": 460,
+        "startChar": 17,
+        "endLine": 460,
+        "endChar": 30
+      },
+      "revId": "9bcae6dd21435b941bb415c5489c27b57e086026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
