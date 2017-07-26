@@ -69,14 +69,13 @@ static thread_local const char* tls_currently_running = "";
 
     static void defer_logging() {
         log_fd = fileno(tmpfile());
-    }
-
-    static void print_deferred_logs() {
-        lseek(log_fd, 0, SEEK_SET);
-        char buf[1024];
-        while (size_t bytes = read(log_fd, buf, sizeof(buf))) {
-            write(2/*stderr*/, buf, bytes);
-        }
+        atexit([] {
+            lseek(log_fd, 0, SEEK_SET);
+            char buf[1024];
+            while (size_t bytes = read(log_fd, buf, sizeof(buf))) {
+                write(2, buf, bytes);
+            }
+        });
     }
 
     void ok_log(const char* msg) {
@@ -92,7 +91,6 @@ static thread_local const char* tls_currently_running = "";
 #else
     static void setup_crash_handler() {}
     static void defer_logging() {}
-    static void print_deferred_logs() {}
 
     void ok_log(const char* msg) {
         fprintf(stderr, "%s\n", msg);
@@ -155,7 +153,7 @@ struct ThreadEngine : Engine {
     struct ForkEngine : Engine {
         bool spawn(std::function<Status(void)> fn) override {
             switch (fork()) {
-                case  0: exit((int)fn());
+                case  0: _exit((int)fn());
                 case -1: return false;
                 default: return true;
             }
@@ -334,7 +332,6 @@ int main(int argc, char** argv) {
         update_stats(s);
     }
     printf("\n");
-    print_deferred_logs();
     return (failed || crashed) ? 1 : 0;
 }
 
