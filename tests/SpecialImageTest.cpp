@@ -232,7 +232,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 
     {
         // gpu
-        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
+        const GrSurfaceDesc2 desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
         sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                  desc, SkBudgeted::kNo,
@@ -265,7 +265,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkBitmap bm = create_bm();
 
-    const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
+    const GrSurfaceDesc2 desc = GrImageInfoToSurfaceDesc(bm.info(), *context->caps());
 
     sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                              desc, SkBudgeted::kNo,
@@ -300,7 +300,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_DeferredGpu, reporter, ctxInfo) 
     GrContext* context = ctxInfo.grContext();
     SkBitmap bm = create_bm();
 
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags  = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fConfig = kSkia8888_GrPixelConfig;

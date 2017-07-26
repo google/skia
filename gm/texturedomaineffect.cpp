@@ -85,7 +85,7 @@ protected:
             return;
         }
 
-        GrSurfaceDesc desc;
+        GrSurfaceDesc2 desc;
         desc.fOrigin = kTopLeft_GrSurfaceOrigin;
         desc.fWidth = fBmp.width();
         desc.fHeight = fBmp.height();

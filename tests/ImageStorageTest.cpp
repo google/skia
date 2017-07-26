@@ -100,7 +100,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
     }
 
     // Currently image accesses always have "top left" semantics.
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = kS;
     desc.fHeight = kS;

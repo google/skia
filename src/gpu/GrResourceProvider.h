@@ -63,17 +63,17 @@ public:
      * then result will be a render target. Format and sample count will always match the request.
      * The contents of the texture are undefined.
      */
-    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, uint32_t flags);
+    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc&, GrSurfaceOrigin, uint32_t flags);
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrSurfaceOrigin, SkBudgeted, uint32_t flags = 0);
 
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, GrSurfaceOrigin, SkBudgeted,
                                    const GrMipLevel texels[], int mipLevelCount,
                                    SkDestinationSurfaceColorMode mipColorMode);
 
-    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
+    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc2&, SkBudgeted, const GrMipLevel&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
@@ -87,7 +87,6 @@ public:
      * @return GrTexture object or NULL on failure.
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
-                                        GrSurfaceOrigin origin,
                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
@@ -96,7 +95,6 @@ public:
      * to the texture.
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
-                                                  GrSurfaceOrigin origin,
                                                   int sampleCnt,
                                                   GrWrapOwnership = kBorrow_GrWrapOwnership);
 
@@ -109,7 +107,7 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
 
     static const uint32_t kMinScratchTextureSize;
 
@@ -212,7 +210,6 @@ public:
       * @return GrRenderTarget object or NULL on failure.
       */
      sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                            GrSurfaceOrigin origin,
                                                             int sampleCnt);
 
     /**
@@ -257,13 +254,13 @@ private:
     GrTexture* findAndRefTextureByUniqueKey(const GrUniqueKey& key);
     void assignUniqueKeyToTexture(const GrUniqueKey& key, GrTexture* texture);
 
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
+    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&, GrSurfaceOrigin origin, uint32_t scratchTextureFlags);
 
     /*
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, GrSurfaceOrigin, SkBudgeted, uint32_t flags);
 
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }

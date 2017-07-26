@@ -11,9 +11,11 @@
 #include "GrOpFlushState.h"
 
 void GrStencilPathOp::onExecute(GrOpFlushState* state) {
-    SkASSERT(state->drawOpArgs().fRenderTarget);
+    SkASSERT(state->drawOpArgs().fRenderTarget1);
 
-    GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().fRenderTarget,
+    GrPathRendering::StencilPathArgs args(fUseHWAA,
+                                          state->drawOpArgs().fRenderTarget1,
+                                          state->drawOpArgs().fOrigin,
                                           &fViewMatrix, &fScissor, &fStencil);
     state->gpu()->pathRendering()->stencilPath(args, fPath.get());
 }

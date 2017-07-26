@@ -79,7 +79,8 @@ public:
         const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
-        GrRenderTarget* fRenderTarget = nullptr;
+        GrRenderTarget* fRenderTarget1 = nullptr;
+        GrSurfaceOrigin fOrigin = kBottomLeft_GrSurfaceOrigin;
         const GrCaps* fCaps = nullptr;
         GrResourceProvider* fResourceProvider = nullptr;
         GrXferProcessor::DstProxy fDstProxy;
@@ -105,7 +106,7 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using ScissorState::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrRenderTarget*, ScissorState, SkBlendMode);
+    GrPipeline(GrRenderTarget*, GrSurfaceOrigin, ScissorState, SkBlendMode);
 
     GrPipeline(const InitArgs& args) { this->init(args); }
 
@@ -116,7 +117,7 @@ public:
     void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
-    bool isInitialized() const { return SkToBool(fRenderTarget.get()); }
+    bool isInitialized() const { return SkToBool(fRenderTarget1.get()); }
 
     /// @}
 
@@ -212,7 +213,8 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
+    GrRenderTarget* getRenderTarget1() const { return fRenderTarget1.get(); }
+    GrSurfaceOrigin origin() const { return fOrigin; }
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
@@ -277,7 +279,8 @@ private:
 
     DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
-    RenderTarget fRenderTarget;
+    RenderTarget fRenderTarget1;
+    GrSurfaceOrigin fOrigin;
     GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;

@@ -18,11 +18,13 @@
 #include "ops/GrOp.h"
 
 void GrPipeline::init(const InitArgs& args) {
-    SkASSERT(args.fRenderTarget);
+    SkASSERT(args.fRenderTarget1);
+    SkASSERT(kDefault_GrSurfaceOrigin != args.fOrigin);
     SkASSERT(args.fProcessors);
     SkASSERT(args.fProcessors->isFinalized());
 
-    fRenderTarget.reset(args.fRenderTarget);
+    fRenderTarget1.reset(args.fRenderTarget1);
+    fOrigin = args.fOrigin;
 
     fFlags = args.fFlags;
     if (args.fAppliedClip) {
@@ -99,14 +101,16 @@ void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     if (fDstTextureProxy.get() &&
-        fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget.get()->asTexture()) {
+        fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget1.get()->asTexture()) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrRenderTarget* rt, ScissorState scissorState, SkBlendMode blendmode)
-    : fRenderTarget(rt)
+GrPipeline::GrPipeline(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                       ScissorState scissorState, SkBlendMode blendmode)
+    : fRenderTarget1(rt)
+    , fOrigin(origin)
     , fScissorState()
     , fWindowRectsState()
     , fUserStencilSettings(&GrUserStencilSettings::kUnused)
@@ -124,7 +128,8 @@ GrPipeline::GrPipeline(GrRenderTarget* rt, ScissorState scissorState, SkBlendMod
 bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
     SkASSERT(&a != &b);
 
-    if (a.getRenderTarget() != b.getRenderTarget() ||
+    if (a.getRenderTarget1() != b.getRenderTarget1() ||
+        a.origin() != b.origin() ||
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||

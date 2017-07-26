@@ -125,8 +125,8 @@ private:
     bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state) override {
-        GrRenderTarget* rt = state->drawOpArgs().fRenderTarget;
-        GrPipeline pipeline(rt, fScissorState, SkBlendMode::kSrc);
+        GrRenderTarget* rt = state->drawOpArgs().fRenderTarget1;
+        GrPipeline pipeline(rt, state->drawOpArgs().fOrigin, fScissorState, SkBlendMode::kSrc);
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);

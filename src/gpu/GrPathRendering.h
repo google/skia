@@ -133,19 +133,22 @@ public:
     struct StencilPathArgs {
         StencilPathArgs(bool useHWAA,
                         GrRenderTarget* renderTarget,
+                        GrSurfaceOrigin origin,
                         const SkMatrix* viewMatrix,
                         const GrScissorState* scissor,
                         const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
-            , fRenderTarget(renderTarget)
+            , fRenderTarget1(renderTarget)
+            , fOrigin(origin)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
             , fStencil(stencil) {
         }
-        bool fUseHWAA;
-        GrRenderTarget* fRenderTarget;
-        const SkMatrix* fViewMatrix;
-        const GrScissorState* fScissor;
+        bool                     fUseHWAA;
+        GrRenderTarget*          fRenderTarget1;
+        GrSurfaceOrigin          fOrigin;
+        const SkMatrix*          fViewMatrix;
+        const GrScissorState*    fScissor;
         const GrStencilSettings* fStencil;
     };
 

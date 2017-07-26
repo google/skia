@@ -69,6 +69,7 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
         if (fRecordedOps[i].fOp) {
             GrOpFlushState::DrawOpArgs opArgs = {
                 fTarget.get()->priv().peekRenderTarget(),
+                fTarget.get()->origin(),
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstProxy
             };
@@ -137,8 +138,10 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             flushState->setCommandBuffer(commandBuffer.get());
         }
 
+        // TODO: just pass the Proxy?
         GrOpFlushState::DrawOpArgs opArgs {
             fTarget.get()->priv().peekRenderTarget(),
+            fTarget.get()->origin(),
             fRecordedOps[i].fAppliedClip,
             fRecordedOps[i].fDstProxy
         };

@@ -259,7 +259,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     sk_sp<GrTextureProxy> proxies[2];
 
     // setup dummy textures
-    GrSurfaceDesc dummyDesc;
+    GrSurfaceDesc2 dummyDesc;
     dummyDesc.fFlags = kRenderTarget_GrSurfaceFlag;
     dummyDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;

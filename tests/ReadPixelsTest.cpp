@@ -14,7 +14,7 @@
 #include "SkSurface.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
@@ -389,7 +389,7 @@ DEF_TEST(ReadPixels, reporter) {
     // SW readback fails a premul check when reading back to an unaligned rowbytes.
     test_readpixels(reporter, surface, kLastAligned_BitmapInit);
 }
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
     if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
         ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_GL_ES2_ContextType ||
@@ -407,7 +407,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
 }
 #endif
 
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
 static void test_readpixels_texture(skiatest::Reporter* reporter,
                                     sk_sp<GrSurfaceContext> sContext) {
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
