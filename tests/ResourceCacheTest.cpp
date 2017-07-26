@@ -106,12 +106,12 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     }
     GrResourceProvider* resourceProvider = context->resourceProvider();
     // Test that two budgeted RTs with the same desc share a stencil buffer.
-    sk_sp<GrTexture> smallRT0(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT0(resourceProvider->createTexture(smallDesc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes));
     if (smallRT0 && smallRT0->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT0->asRenderTarget());
     }
 
-    sk_sp<GrTexture> smallRT1(resourceProvider->createTexture(smallDesc, SkBudgeted::kYes));
+    sk_sp<GrTexture> smallRT1(resourceProvider->createTexture(smallDesc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes));
     if (smallRT1 && smallRT1->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget());
     }
@@ -123,7 +123,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                     resourceProvider->attachStencilAttachment(smallRT1->asRenderTarget()));
 
     // An unbudgeted RT with the same desc should also share.
-    sk_sp<GrTexture> smallRT2(resourceProvider->createTexture(smallDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> smallRT2(resourceProvider->createTexture(smallDesc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo));
     if (smallRT2 && smallRT2->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget());
     }
@@ -140,7 +140,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
     bigDesc.fSampleCnt = 0;
-    sk_sp<GrTexture> bigRT(resourceProvider->createTexture(bigDesc, SkBudgeted::kNo));
+    sk_sp<GrTexture> bigRT(resourceProvider->createTexture(bigDesc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo));
     if (bigRT && bigRT->asRenderTarget()) {
         resourceProvider->attachStencilAttachment(bigRT->asRenderTarget());
     }
@@ -156,6 +156,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         GrSurfaceDesc smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = supportedSampleCount;
         sk_sp<GrTexture> smallMSAART0(resourceProvider->createTexture(smallMSAADesc,
+                                                                      kBottomLeft_GrSurfaceOrigin,
                                                                       SkBudgeted::kNo));
         if (smallMSAART0 && smallMSAART0->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget());
@@ -173,6 +174,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                         resourceProvider->attachStencilAttachment(smallMSAART0->asRenderTarget()));
         // A second MSAA RT should share with the first MSAA RT.
         sk_sp<GrTexture> smallMSAART1(resourceProvider->createTexture(smallMSAADesc,
+                                                                      kBottomLeft_GrSurfaceOrigin,
                                                                       SkBudgeted::kNo));
         if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
             resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
@@ -189,9 +191,9 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         if (supportedSampleCount != smallMSAADesc.fSampleCnt &&
             smallMSAART0 && smallMSAART0->asRenderTarget()) {
             smallMSAADesc.fSampleCnt = supportedSampleCount;
-            smallMSAART1 = resourceProvider->createTexture(smallMSAADesc, SkBudgeted::kNo);
+            smallMSAART1 = resourceProvider->createTexture(smallMSAADesc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
             sk_sp<GrTexture> smallMSAART1(
-                resourceProvider->createTexture(smallMSAADesc, SkBudgeted::kNo));
+                resourceProvider->createTexture(smallMSAADesc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo));
             if (smallMSAART1 && smallMSAART1->asRenderTarget()) {
                 resourceProvider->attachStencilAttachment(smallMSAART1->asRenderTarget());
             }
@@ -228,7 +230,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-            backendTex1, kTopLeft_GrSurfaceOrigin, kBorrow_GrWrapOwnership));
+            backendTex1, kBorrow_GrWrapOwnership));
 
     GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                                                 kW,
@@ -236,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-            backendTex2, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership));
+            backendTex2, kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
@@ -1641,7 +1643,7 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = sampleCnt;
 
-    return provider->createTexture(desc, SkBudgeted::kYes);
+    return provider->createTexture(desc, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes);
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
@@ -1671,7 +1673,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = flags;
     desc.fOrigin = (flags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
                                                          : kTopLeft_GrSurfaceOrigin;

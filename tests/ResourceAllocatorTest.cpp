@@ -32,7 +32,7 @@ struct ProxyParams {
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrResourceProvider* resourceProvider,
                                            const ProxyParams& p) {
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fOrigin = p.fOrigin;
     desc.fWidth  = p.fSize;
@@ -53,9 +53,9 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                                                p.fConfig,
                                                                *backendTexHandle);
 
-    sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(
-                                                               backendTex, p.fOrigin,
-                                                               kBorrow_GrWrapOwnership);
+    SkASSERT(kDefault_GrSurfaceOrigin != p.fOrigin);
+    sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(backendTex,
+                                                                           kBorrow_GrWrapOwnership);
     return GrSurfaceProxy::MakeWrapped(std::move(tex), p.fOrigin);
 }
 
@@ -79,6 +79,7 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     REPORTER_ASSERT(reporter, p2->priv().peekSurface());
     bool doTheBackingStoresMatch = p1->underlyingUniqueID() == p2->underlyingUniqueID();
     REPORTER_ASSERT(reporter, expectedResult == doTheBackingStoresMatch);
+    SkASSERT(expectedResult == doTheBackingStoresMatch);
 }
 
 // Test various cases when two proxies do not have overlapping intervals.
@@ -97,6 +98,7 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     REPORTER_ASSERT(reporter, p2->priv().peekSurface());
     bool doTheBackingStoresMatch = p1->underlyingUniqueID() == p2->underlyingUniqueID();
     REPORTER_ASSERT(reporter, expectedResult == doTheBackingStoresMatch);
+    SkASSERT(expectedResult == doTheBackingStoresMatch);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
@@ -171,7 +173,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         { { 64, kNotRT, kRGBA, kA, 0, kTL }, { 64,    kRT, kRGBA, kA, 0, kTL }, kDontShare },
         // Two non-overlapping intervals w/ different origins should not share
         // TODO: rm this test case
-        { { 64,    kRT, kRGBA, kA, 0, kTL }, { 64,    kRT, kRGBA, kA, 0, kBL }, kDontShare },
+//        { { 64,    kRT, kRGBA, kA, 0, kTL }, { 64,    kRT, kRGBA, kA, 0, kBL }, kDontShare },
     };
 
     for (auto test : gNonOverlappingTests) {

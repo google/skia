@@ -26,7 +26,7 @@ public:
 
     sk_sp<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>, sk_sp<SkColorSpace>);
 
-    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc&,
+    sk_sp<GrSurfaceContext> makeDeferredSurfaceContext(const GrSurfaceDesc2&,
                                                        SkBackingFit,
                                                        SkBudgeted);
 

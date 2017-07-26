@@ -172,7 +172,7 @@ public:
      * that the src and dest rects are identical. disallowSubrect will be set to true if copy rect
      * must equal src's bounds.
      */
-    virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
+    virtual bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc2* desc,
                                     bool* rectsMustMatch, bool* disallowSubrect) const = 0;
 
 protected:
