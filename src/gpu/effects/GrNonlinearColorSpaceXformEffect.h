@@ -31,6 +31,8 @@ public:
 
     const char* name() const override { return "NonlinearColorSpaceXform"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
     static const int kNumTransferFnCoeffs = 7;
 
     /**
@@ -54,6 +56,7 @@ private:
                                      const SkColorSpaceTransferFn& srcTransferFn,
                                      const SkColorSpaceTransferFn& dstTransferFn,
                                      const SkMatrix44& gamutXform);
+    GrNonlinearColorSpaceXformEffect(const GrNonlinearColorSpaceXformEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
