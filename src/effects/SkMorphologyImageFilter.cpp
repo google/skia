@@ -326,7 +326,8 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
                                        Direction direction,
                                        int radius,
                                        MorphologyType type)
-        : INHERITED{ModulationFlags(proxy->config()), GR_PROXY_MOVE(proxy), direction, radius}
+        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config()), GR_PROXY_MOVE(proxy),
+                    direction, radius}
         , fType(type)
         , fUseRange(false) {
     this->initClassID<GrMorphologyEffect>();
@@ -337,7 +338,8 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
                                        int radius,
                                        MorphologyType type,
                                        const float range[2])
-        : INHERITED{ModulationFlags(proxy->config()), GR_PROXY_MOVE(proxy), direction, radius}
+        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config()), GR_PROXY_MOVE(proxy),
+                    direction, radius}
         , fType(type)
         , fUseRange(true) {
     this->initClassID<GrMorphologyEffect>();
