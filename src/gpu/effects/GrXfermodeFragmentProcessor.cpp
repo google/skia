@@ -50,9 +50,7 @@ public:
         return str;
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        b->add32((int)fMode);
-    }
+    sk_sp<GrFragmentProcessor> clone() const override;
 
     SkBlendMode getMode() const { return fMode; }
 
@@ -140,6 +138,10 @@ private:
         return flags;
     }
 
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        b->add32((int)fMode);
+    }
+
     bool onIsEqual(const GrFragmentProcessor& other) const override {
         const ComposeTwoFragmentProcessor& cs = other.cast<ComposeTwoFragmentProcessor>();
         return fMode == cs.fMode;
@@ -193,6 +195,16 @@ sk_sp<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
         new ComposeTwoFragmentProcessor(std::move(fpA), std::move(fpB), mode));
 }
 #endif
+
+sk_sp<GrFragmentProcessor> ComposeTwoFragmentProcessor::clone() const {
+    auto src = this->childProcessor(0).clone();
+    auto dst = this->childProcessor(1).clone();
+    if (!src || !dst) {
+        return nullptr;
+    }
+    return sk_sp<GrFragmentProcessor>(
+            new ComposeTwoFragmentProcessor(std::move(src), std::move(dst), fMode));
+}
 
 GrGLSLFragmentProcessor* ComposeTwoFragmentProcessor::onCreateGLSLInstance() const{
     return new GLComposeTwoFragmentProcessor;
@@ -281,10 +293,7 @@ public:
         return str;
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GR_STATIC_ASSERT(((int)SkBlendMode::kLastMode & SK_MaxU16) == (int)SkBlendMode::kLastMode);
-        b->add32((int)fMode | (fChild << 16));
-    }
+    sk_sp<GrFragmentProcessor> clone() const override;
 
     SkBlendMode mode() const { return fMode; }
 
@@ -386,6 +395,11 @@ private:
         return flags;
     }
 
+    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        GR_STATIC_ASSERT(((int)SkBlendMode::kLastMode & SK_MaxU16) == (int)SkBlendMode::kLastMode);
+        b->add32((int)fMode | (fChild << 16));
+    }
+
     bool onIsEqual(const GrFragmentProcessor& that) const override {
         return fMode == that.cast<ComposeOneFragmentProcessor>().fMode;
     }
@@ -481,6 +495,15 @@ sk_sp<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
 
 GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() const {
     return new GLComposeOneFragmentProcessor;
+}
+
+sk_sp<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const {
+    auto child = this->childProcessor(0).clone();
+    if (!child) {
+        return nullptr;
+    }
+    return sk_sp<GrFragmentProcessor>(
+            new ComposeOneFragmentProcessor(std::move(child), fMode, fChild));
 }
 
 //////////////////////////////////////////////////////////////////////////////
