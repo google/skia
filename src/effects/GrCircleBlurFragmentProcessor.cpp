@@ -178,7 +178,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resource
                                                                 key, kTopLeft_GrSurfaceOrigin);
     if (!blurProfile) {
         static constexpr int kProfileTextureWidth = 512;
-        GrSurfaceDesc texDesc;
+        GrSurfaceDesc2 texDesc;
         texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         texDesc.fWidth = kProfileTextureWidth;
         texDesc.fHeight = 1;

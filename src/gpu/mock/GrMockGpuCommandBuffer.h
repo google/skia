@@ -29,7 +29,9 @@ private:
         ++fNumDraws;
     }
     void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) override {}
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override {}
+    void onClearStencilClip(GrRenderTarget*, GrSurfaceOrigin,
+                            const GrFixedClip&, bool insideStencilMask) override {
+    }
     GrRenderTarget* renderTarget() override { return nullptr; }
 
     GrMockGpu* fGpu;
