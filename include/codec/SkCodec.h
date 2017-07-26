@@ -160,14 +160,6 @@ public:
      */
     static std::unique_ptr<SkCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
 
-#ifdef SK_SUPPORT_LEGACY_CODEC_NEW
-    static SkCodec* NewFromStream(SkStream* str, Result* res, SkPngChunkReader* chunk);
-    static SkCodec* NewFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
-    static SkCodec* NewFromData(SkData* data, SkPngChunkReader* reader) {
-        return NewFromData(sk_ref_sp(data), reader);
-    }
-#endif
-
     virtual ~SkCodec();
 
     /**
