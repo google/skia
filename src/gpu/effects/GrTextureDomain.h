@@ -211,6 +211,8 @@ public:
         return str;
     }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
 private:
     TextureSampler fTextureSampler;
     GrTextureDomain fTextureDomain;
@@ -218,6 +220,7 @@ private:
 
     GrDeviceSpaceTextureDecalFragmentProcessor(sk_sp<GrTextureProxy>,
                                                const SkIRect&, const SkIPoint&);
+    GrDeviceSpaceTextureDecalFragmentProcessor(const GrDeviceSpaceTextureDecalFragmentProcessor&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
