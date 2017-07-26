@@ -245,7 +245,7 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
         return;
     }
 
-    GrPipeline pipeline(state->drawOpArgs().fRenderTarget, GrPipeline::ScissorState::kDisabled,
+    GrPipeline pipeline(state->drawOpArgs().fProxy, GrPipeline::ScissorState::kDisabled,
                         SkBlendMode::kSrcOver);
 
     GrCCPRCoverageProcessor ccprProc(fView->fMode, pointsBuffer.get());

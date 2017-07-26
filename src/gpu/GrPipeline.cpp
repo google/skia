@@ -18,11 +18,11 @@
 #include "ops/GrOp.h"
 
 void GrPipeline::init(const InitArgs& args) {
-    SkASSERT(args.fRenderTarget);
+    SkASSERT(args.fProxy);
     SkASSERT(args.fProcessors);
     SkASSERT(args.fProcessors->isFinalized());
 
-    fRenderTarget.reset(args.fRenderTarget);
+    fProxy.reset(args.fProxy);
 
     fFlags = args.fFlags;
     if (args.fAppliedClip) {
@@ -99,21 +99,21 @@ void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     if (fDstTextureProxy.get() &&
-        fDstTextureProxy.get()->priv().peekTexture() == fRenderTarget.get()->asTexture()) {
+        fDstTextureProxy.get()->priv().peekTexture() == fProxy.get()->priv().peekTexture()) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrRenderTarget* rt, ScissorState scissorState, SkBlendMode blendmode)
-    : fRenderTarget(rt)
-    , fScissorState()
-    , fWindowRectsState()
-    , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-    , fFlags()
-    , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
-    , fFragmentProcessors()
-    , fNumColorProcessors(0) {
+GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, SkBlendMode blendmode)
+        : fProxy(proxy)
+        , fScissorState()
+        , fWindowRectsState()
+        , fUserStencilSettings(&GrUserStencilSettings::kUnused)
+        , fFlags()
+        , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
+        , fFragmentProcessors()
+        , fNumColorProcessors(0) {
     if (ScissorState::kEnabled == scissorState) {
         fScissorState.set({0, 0, 0, 0}); // caller will use the DynamicState struct.
     }
@@ -124,7 +124,7 @@ GrPipeline::GrPipeline(GrRenderTarget* rt, ScissorState scissorState, SkBlendMod
 bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
     SkASSERT(&a != &b);
 
-    if (a.getRenderTarget() != b.getRenderTarget() ||
+    if (a.proxy() != b.proxy() ||
         a.fFragmentProcessors.count() != b.fFragmentProcessors.count() ||
         a.fNumColorProcessors != b.fNumColorProcessors ||
         a.fScissorState != b.fScissorState ||

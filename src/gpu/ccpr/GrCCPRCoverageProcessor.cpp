@@ -7,6 +7,7 @@
 
 #include "GrCCPRCoverageProcessor.h"
 
+#include "GrRenderTargetProxy.h"
 #include "ccpr/GrCCPRTriangleProcessor.h"
 #include "ccpr/GrCCPRQuadraticProcessor.h"
 #include "ccpr/GrCCPRCubicProcessor.h"
@@ -346,10 +347,10 @@ int PrimitiveProcessor::defineSoftSampleLocations(GrGLSLFragmentBuilder* f,
 
 #include "GrRenderTarget.h"
 
-void GrCCPRCoverageProcessor::Validate(GrRenderTarget* atlasTexture) {
-    SkASSERT(kAtlasOrigin == atlasTexture->origin());
-    SkASSERT(GrPixelConfigIsAlphaOnly(atlasTexture->config()));
-    SkASSERT(GrPixelConfigIsFloatingPoint(atlasTexture->config()));
+void GrCCPRCoverageProcessor::Validate(GrRenderTargetProxy* atlasProxy) {
+    SkASSERT(kAtlasOrigin == atlasProxy->origin());
+    SkASSERT(GrPixelConfigIsAlphaOnly(atlasProxy->config()));
+    SkASSERT(GrPixelConfigIsFloatingPoint(atlasProxy->config()));
 }
 
 #endif

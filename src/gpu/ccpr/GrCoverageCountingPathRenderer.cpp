@@ -298,7 +298,7 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     args.fCaps = &flushState->caps();
     args.fProcessors = &fProcessors;
     args.fFlags = fSRGBFlags;
-    args.fRenderTarget = flushState->drawOpArgs().fRenderTarget;
+    args.fProxy = flushState->drawOpArgs().fProxy;
     args.fDstProxy = flushState->drawOpArgs().fDstProxy;
     pipeline.init(args);
 

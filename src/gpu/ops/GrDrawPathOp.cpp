@@ -46,7 +46,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     }
     args.fUserStencil = &kCoverPass;
     args.fAppliedClip = state.drawOpArgs().fAppliedClip;
-    args.fRenderTarget = state.drawOpArgs().fRenderTarget;
+    args.fProxy = state.drawOpArgs().fProxy;
     args.fCaps = &state.caps();
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;
@@ -61,7 +61,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().fAppliedClip;
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
-                   flushState.drawOpArgs().fRenderTarget->renderTargetPriv().numStencilBits());
+                   flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits());
 }
 
 //////////////////////////////////////////////////////////////////////////////
