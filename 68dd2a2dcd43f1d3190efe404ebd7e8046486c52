@@ -46,6 +46,30 @@
       "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a96654d2_62ac5a9a",
+        "filename": "src/core/SkCoverageDelta.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-07-26T15:32:32Z",
+      "side": 1,
+      "message": "Nevermind. I\u0027ll create a new CL that will just put my normal comments before ifdef, and use ifdef GOOGLE3.",
+      "parentUuid": "c95a3574_b15a20be",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 15
+      },
+      "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
