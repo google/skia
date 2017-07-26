@@ -4775,3 +4775,60 @@ DEF_TEST(skbug_6450, r) {
     orr.setRectRadii(ro, rdo);
     SkMakeNullCanvas()->drawDRRect(orr, irr, SkPaint());
 }
+
+DEF_TEST(PathRefSerialization, reporter) {
+    SkPath path;
+    const size_t numMoves = 5;
+    const size_t numConics = 7;
+    const size_t numPoints = numMoves + 2 * numConics;
+    const size_t numVerbs = numMoves + numConics;
+    for (size_t i = 0; i < numMoves; ++i) path.moveTo(1, 2);
+    for (size_t i = 0; i < numConics; ++i) path.conicTo(1, 2, 3, 4, 5);
+    REPORTER_ASSERT(reporter, path.countPoints() == numPoints);
+    REPORTER_ASSERT(reporter, path.countVerbs() == numVerbs);
+
+    // Verify that path serializes/deserializes properly.
+    SkWriter32 writer;
+    writer.writePath(path);
+    size_t bytesWritten = writer.bytesWritten();
+    SkAutoMalloc storage(bytesWritten);
+    writer.flatten(storage.get());
+    {
+        SkPath readBack;
+        REPORTER_ASSERT(reporter, readBack != path);
+        size_t bytesRead = readBack.readFromMemory(storage.get(), bytesWritten);
+        REPORTER_ASSERT(reporter, bytesRead == bytesWritten);
+        REPORTER_ASSERT(reporter, readBack == path);
+    }
+
+    // uint32_t[] offset into serialized path.
+    const size_t verbCountOffset = 4;
+    const size_t pointCountOffset = 5;
+    const size_t conicCountOffset = 6;
+
+    // Verify that this test is changing the right values.
+    int* writtenValues = static_cast<int*>(storage.get());
+    REPORTER_ASSERT(reporter, writtenValues[verbCountOffset] == numVerbs);
+    REPORTER_ASSERT(reporter, writtenValues[pointCountOffset] == numPoints);
+    REPORTER_ASSERT(reporter, writtenValues[conicCountOffset] == numConics);
+
+    // Too many verbs, points, or conics fails to deserialize silently.
+    const int tooManyObjects = INT_MAX;
+    size_t offsets[] = {verbCountOffset, pointCountOffset, conicCountOffset};
+    for (size_t i = 0; i < 3; ++i) {
+        SkAutoMalloc storage_copy(bytesWritten);
+        memcpy(storage_copy.get(), storage.get(), bytesWritten);
+        static_cast<int*>(storage_copy.get())[offsets[i]] = tooManyObjects;
+        SkPath readBack;
+        size_t bytesRead = readBack.readFromMemory(storage_copy.get(), bytesWritten);
+        REPORTER_ASSERT(reporter, !bytesRead);
+    }
+
+    // One less byte (rounded down to alignment) than was written will also
+    // fail to be deserialized.
+    {
+        SkPath readBack;
+        size_t bytesRead = readBack.readFromMemory(storage.get(), bytesWritten - 4);
+        REPORTER_ASSERT(reporter, !bytesRead);
+    }
+}
