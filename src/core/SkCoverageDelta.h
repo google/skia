@@ -121,7 +121,11 @@ public:
 
     static constexpr int SIMD_WIDTH     = 8;
     static constexpr int SUITABLE_WIDTH = 32;
+#ifndef GOOGLE3
     static constexpr int MAX_MASK_SIZE  = 2048;
+#else
+    static constexpr int MAX_MASK_SIZE  = 1024;
+#endif
 
     // Expand PADDING on both sides, and make it a multiple of SIMD_WIDTH
     static int  ExpandWidth(int width);
