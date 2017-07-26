@@ -43,13 +43,14 @@ using SkCoverageDeltaAllocator = SkSTArenaAlloc<256>;
 // Once sorted, getDelta(y, i) should return the i-th leftmost delta on row y.
 class SkCoverageDeltaList {
 public:
-    // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially
 #ifndef GOOGLE3
+    // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially
     static constexpr int INIT_ROW_SIZE = 32;
+    static constexpr int RESERVED_HEIGHT = 128; // reserve this many rows on stack memory
 #else
     static constexpr int INIT_ROW_SIZE = 8; // google3 has 16k stack limit
+    static constexpr int RESERVED_HEIGHT = 120; // reserve this many rows on stack memory
 #endif
-    static constexpr int RESERVED_HEIGHT = 128; // reserve this many rows on stack memory
 
     SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom, bool forceRLE);
 
