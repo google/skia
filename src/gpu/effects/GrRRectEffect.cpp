@@ -52,6 +52,8 @@ public:
 
     const char* name() const override { return "CircularRRect"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
     const SkRRect& getRRect() const { return fRRect; }
 
     uint32_t getCircularCornerFlags() const { return fCircularCornerFlags; }
@@ -93,6 +95,11 @@ CircularRRectEffect::CircularRRectEffect(GrPrimitiveEdgeType edgeType, uint32_t 
         , fEdgeType(edgeType)
         , fCircularCornerFlags(circularCornerFlags) {
     this->initClassID<CircularRRectEffect>();
+}
+
+sk_sp<GrFragmentProcessor> CircularRRectEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(
+            new CircularRRectEffect(fEdgeType, fCircularCornerFlags, fRRect));
 }
 
 bool CircularRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -390,6 +397,8 @@ public:
 
     const char* name() const override { return "EllipticalRRect"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
     const SkRRect& getRRect() const { return fRRect; }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
@@ -424,6 +433,10 @@ EllipticalRRectEffect::EllipticalRRectEffect(GrPrimitiveEdgeType edgeType, const
         , fRRect(rrect)
         , fEdgeType(edgeType) {
     this->initClassID<EllipticalRRectEffect>();
+}
+
+sk_sp<GrFragmentProcessor> EllipticalRRectEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new EllipticalRRectEffect(fEdgeType, fRRect));
 }
 
 bool EllipticalRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {

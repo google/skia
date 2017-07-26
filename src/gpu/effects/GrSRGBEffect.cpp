@@ -85,6 +85,8 @@ GrSRGBEffect::GrSRGBEffect(Mode mode, Alpha alpha)
     this->initClassID<GrSRGBEffect>();
 }
 
+sk_sp<GrFragmentProcessor> GrSRGBEffect::clone() const { return Make(fMode, fAlpha); }
+
 bool GrSRGBEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrSRGBEffect& other = s.cast<GrSRGBEffect>();
     return other.fMode == fMode;

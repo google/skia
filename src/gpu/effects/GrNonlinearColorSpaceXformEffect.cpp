@@ -164,6 +164,20 @@ GrNonlinearColorSpaceXformEffect::GrNonlinearColorSpaceXformEffect(
     fDstTransferFnCoeffs[6] = dstTransferFn.fG;
 }
 
+GrNonlinearColorSpaceXformEffect::GrNonlinearColorSpaceXformEffect(
+        const GrNonlinearColorSpaceXformEffect& that)
+        : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
+        , fGamutXform(that.fGamutXform)
+        , fOps(that.fOps) {
+    this->initClassID<GrNonlinearColorSpaceXformEffect>();
+    memcpy(fSrcTransferFnCoeffs, that.fSrcTransferFnCoeffs, sizeof(fSrcTransferFnCoeffs));
+    memcpy(fDstTransferFnCoeffs, that.fDstTransferFnCoeffs, sizeof(fDstTransferFnCoeffs));
+}
+
+sk_sp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrNonlinearColorSpaceXformEffect(*this));
+}
+
 bool GrNonlinearColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrNonlinearColorSpaceXformEffect& other = s.cast<GrNonlinearColorSpaceXformEffect>();
     if (other.fOps != fOps) {
