@@ -7096,7 +7096,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-375.66",
-        "os:Debian-9.0",
+        "os:Debian-9.1",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7143,7 +7143,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-375.66",
-        "os:Debian-9.0",
+        "os:Debian-9.1",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13332,7 +13332,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-375.66",
-        "os:Debian-9.0",
+        "os:Debian-9.1",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -13379,7 +13379,7 @@
       ],
       "dimensions": [
         "gpu:10de:1401-375.66",
-        "os:Debian-9.0",
+        "os:Debian-9.1",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
