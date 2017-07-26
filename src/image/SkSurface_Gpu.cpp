@@ -9,6 +9,7 @@
 
 #include "GrBackendSurface.h"
 #include "GrContextPriv.h"
+#include "GrRenderTarget.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrTexture.h"
 
