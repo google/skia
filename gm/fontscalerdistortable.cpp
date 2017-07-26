@@ -53,7 +53,11 @@ protected:
                 SkFontArguments::VariationPosition position =
                         { coordinates, SK_ARRAY_COUNT(coordinates) };
                 paint.setTypeface(sk_sp<SkTypeface>(fontMgr->createFromStream(
+#ifdef SK_SUPPORT_LEGACY_STREAM_API
                         distortable->duplicate(),
+#else
+                        distortable->duplicate().release(),
+#endif
                         SkFontArguments().setVariationDesignPosition(position))));
 
                 SkAutoCanvasRestore acr(canvas, true);
