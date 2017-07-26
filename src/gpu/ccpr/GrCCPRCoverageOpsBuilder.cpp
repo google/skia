@@ -498,10 +498,11 @@ GrCCPRCoverageOpsBuilder::CoverageOp::CoverageOp(const SkISize& drawBounds,
 void CoverageOp::onExecute(GrOpFlushState* flushState) {
     using Mode = GrCCPRCoverageProcessor::Mode;
 
-    SkDEBUGCODE(GrCCPRCoverageProcessor::Validate(flushState->drawOpArgs().fRenderTarget));
+    SkDEBUGCODE(GrCCPRCoverageProcessor::Validate(flushState->drawOpArgs().fRenderTarget1,
+                                                  flushState->drawOpArgs().fOrigin));
 
-    GrPipeline pipeline(flushState->drawOpArgs().fRenderTarget, GrPipeline::ScissorState::kEnabled,
-                        SkBlendMode::kPlus);
+    GrPipeline pipeline(flushState->drawOpArgs().fRenderTarget1, flushState->drawOpArgs().fOrigin, 
+                        GrPipeline::ScissorState::kEnabled, SkBlendMode::kPlus);
 
     fMeshesScratchBuffer.reserve(1 + fScissorBatches.count());
     fDynamicStatesScratchBuffer.reserve(1 + fScissorBatches.count());

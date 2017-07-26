@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrResourceProvider.h"

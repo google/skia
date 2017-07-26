@@ -104,7 +104,7 @@ public:
     void enableDebugVisualizations() { fDebugVisualizations = true; }
     bool debugVisualizations() const { return fDebugVisualizations; }
 
-    static void Validate(GrRenderTarget* atlasTexture);
+    static void Validate(GrRenderTarget* atlasTexture, GrSurfaceOrigin atlasOrigin);
 #endif
 
     class PrimitiveProcessor;

@@ -238,12 +238,13 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     if (fDisableSRGBOutputConversion) {
         args.fFlags |= GrPipeline::kDisableOutputConversionToSRGB_Flag;
     }
-    args.fRenderTarget = state->drawOpArgs().fRenderTarget;
+    args.fRenderTarget1 = state->drawOpArgs().fRenderTarget1;
+    args.fOrigin = state->drawOpArgs().fOrigin;
     args.fDstProxy = state->drawOpArgs().fDstProxy;
     pipeline.init(args);
 
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
-        state->gpu()->xferBarrier(pipeline.getRenderTarget(), barrierType);
+        state->gpu()->xferBarrier(pipeline.getRenderTarget1(), barrierType);
     }
     fInstancedRendering->draw(pipeline, fInfo, this);
 }

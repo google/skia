@@ -69,7 +69,7 @@ void test_write_pixels(skiatest::Reporter* reporter,
 void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
                             GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
                             bool onlyTestRTConfig, const char* testName) {
-    GrSurfaceDesc copyDstDesc;
+    GrSurfaceDesc2 copyDstDesc;
     copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
     copyDstDesc.fWidth = proxy->width();
     copyDstDesc.fHeight = proxy->height();
@@ -101,7 +101,7 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrResourceProvider* reso
         }
     }
 
-    GrSurfaceDesc copySrcDesc;
+    GrSurfaceDesc2 copySrcDesc;
     copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
     copySrcDesc.fWidth = dstContext->width();
     copySrcDesc.fHeight = dstContext->height();

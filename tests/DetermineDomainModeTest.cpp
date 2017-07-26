@@ -136,7 +136,8 @@ static sk_sp<GrTextureProxy> create_proxy(GrResourceProvider* resourceProvider,
     int size = isPowerOfTwo ? 128 : 100;
     SkBackingFit fit = isExact ? SkBackingFit::kExact : SkBackingFit::kApprox;
 
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = size;
     desc.fHeight = size;

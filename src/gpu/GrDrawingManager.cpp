@@ -220,7 +220,7 @@ void GrDrawingManager::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     GrSurface* surface = proxy->priv().peekSurface();
 
     if (fContext->getGpu() && surface->asRenderTarget()) {
-        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget());
+        fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget(), proxy->origin());
     }
 }
 

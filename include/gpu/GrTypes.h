@@ -586,11 +586,8 @@ struct GrMipLevel {
     size_t fRowBytes;
 };
 
-/**
- * Describes a surface to be created.
- */
-struct GrSurfaceDesc {
-    GrSurfaceDesc()
+struct GrSurfaceDesc2 {
+    GrSurfaceDesc2()
     : fFlags(kNone_GrSurfaceFlags)
     , fOrigin(kDefault_GrSurfaceOrigin)
     , fWidth(0)
@@ -602,6 +599,49 @@ struct GrSurfaceDesc {
 
     GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
     GrSurfaceOrigin        fOrigin; //!< origin of the texture
+    int                    fWidth;  //!< Width of the texture
+    int                    fHeight; //!< Height of the texture
+
+    /**
+     * Format of source data of the texture. Not guaranteed to be the same as
+     * internal format used by 3D API.
+     */
+    GrPixelConfig          fConfig;
+
+    /**
+     * The number of samples per pixel or 0 to disable full scene AA. This only
+     * applies if the kRenderTarget_GrSurfaceFlag is set. The actual number
+     * of samples may not exactly match the request. The request will be rounded
+     * up to the next supported sample count, or down if it is larger than the
+     * max supported count.
+     */
+    int                    fSampleCnt;
+    bool                   fIsMipMapped; //!< Indicates if the texture has mipmaps
+};
+
+/**
+ * Describes a surface to be created.
+ */
+struct GrSurfaceDesc {
+    GrSurfaceDesc()
+        : fFlags(kNone_GrSurfaceFlags)
+        , fWidth(0)
+        , fHeight(0)
+        , fConfig(kUnknown_GrPixelConfig)
+        , fSampleCnt(0)
+        , fIsMipMapped(false) {
+    }
+
+    GrSurfaceDesc(const GrSurfaceDesc2& other)
+        : fFlags(other.fFlags)
+        , fWidth(other.fWidth)
+        , fHeight(other.fHeight)
+        , fConfig(other.fConfig)
+        , fSampleCnt(other.fSampleCnt)
+        , fIsMipMapped(other.fIsMipMapped) {
+    }
+
+    GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
 

@@ -126,7 +126,8 @@ GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
     GrPipeline::InitArgs args;
     args.fFlags = this->pipelineFlags();
     args.fProcessors = &this->processors();
-    args.fRenderTarget = target->renderTarget();
+    args.fRenderTarget1 = target->renderTarget1();
+    args.fOrigin = target->origin();
     args.fAppliedClip = target->clip();
     args.fDstProxy = target->dstProxy();
     args.fCaps = &target->caps();

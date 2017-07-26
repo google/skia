@@ -8,7 +8,7 @@
 #include "SkTypes.h"
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
+#if 0 //SK_SUPPORT_GPU
 #include <random>
 #include "GrClip.h"
 #include "GrContext.h"
@@ -145,7 +145,7 @@ void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    GrTextureDesc desc;
+    GrSurfaceDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = 10;
     desc.fHeight = 10;

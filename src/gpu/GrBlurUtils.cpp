@@ -78,7 +78,7 @@ static bool sw_draw_with_mask_filter(GrContext* context,
 
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and GrPaint settings
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = dstM.fBounds.width();
     desc.fHeight = dstM.fBounds.height();
