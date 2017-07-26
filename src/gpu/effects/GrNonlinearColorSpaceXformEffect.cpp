@@ -88,9 +88,8 @@ public:
 
         // 3: Apply gamut matrix
         if (gamutXformName) {
-            // Color is unpremultiplied at this point, so clamp to [0, 1]
             fragBuilder->codeAppendf(
-                "color.rgb = clamp((%s * vec4(color.rgb, 1.0)).rgb, 0.0, 1.0);", gamutXformName);
+                "color.rgb = (%s * vec4(color.rgb, 1.0)).rgb;", gamutXformName);
         }
 
         // 4: Apply dst transfer fn
