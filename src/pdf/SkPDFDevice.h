@@ -212,7 +212,8 @@ private:
 
     void init();
     void cleanUp();
-    sk_sp<SkPDFObject> makeFormXObjectFromDevice();
+    // Set alpha to true if making a transparency group form x-objects.
+    sk_sp<SkPDFObject> makeFormXObjectFromDevice(bool alpha = false);
 
     void drawFormXObjectWithMask(int xObjectIndex,
                                  sk_sp<SkPDFObject> mask,
