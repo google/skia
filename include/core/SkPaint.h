@@ -38,695 +38,1178 @@ class SkTextBlob;
 class SkTypeface;
 
 /** \class SkPaint
+    SkPaint controls options applied when drawing and measuring. SkPaint collects all
+    options outside of the SkCanvas clip and SkCanvas matrix.
 
-    The SkPaint class holds the style and color information about how to draw
-    geometries, text and bitmaps.
+    Various options apply to text, strokes and fills, and images.
+
+    Some options may not be implemented on all platforms; in these cases, setting
+    the option has no effect. Some options are conveniences that duplicate SkCanvas
+    functionality; for instance, text size is identical to matrix scale.
+
+    SkPaint options are rarely exclusive; each option modifies a stage of the drawing
+    pipeline and multiple pipeline stages may be effected by a single SkPaint.
+
+    SkPaint collects effect and filters that describe single-pass and multiple-pass
+    algorithms that alter the drawing geometry, color, and transparency. For instance,
+    SkPaint does not directly implement dashing or blur, but contains the objects that do so.
+
+    The objects contained by SkPaint are opaque, and cannot be edited outside of the SkPaint
+    to affect it. The implementation is free to defer computations associated with the
+    SkPaint, or ignore them altogether. For instance, some GPU implementations draw all
+    SkPath geometries with anti-aliasing, regardless of SkPaint::kAntiAlias_Flag setting.
+
+    SkPaint describes a single color, a single font, a single image quality, and so on.
+    Multiple colors are drawn either by using multiple paints or with objects like
+    SkShader attached to SkPaint.
 */
 class SK_API SkPaint {
 public:
+
+    /** Constructs SkPaint with default values.
+
+        @return  default initialized SkPaint
+    */
     SkPaint();
+
+    /** Makes a shallow copy of SkPaint. SkTypeface, SkPathEffect, SkShader,
+        SkMaskFilter, SkColorFilter, SkRasterizer, SkDrawLooper, and SkImageFilter are shared
+        between the original paint and the copy. These objects' SkRefCnt are increased.
+
+        The referenced objects SkPathEffect, SkShader, SkMaskFilter, SkColorFilter, SkRasterizer,
+        SkDrawLooper, and SkImageFilter cannot be modified after they are created.
+        This prevents objects with SkRefCnt from being modified once SkPaint refers to them.
+
+        @param paint  original to copy
+        @return       shallow copy of paint
+    */
     SkPaint(const SkPaint& paint);
+
+    /** Implements a move constructor to avoid incrementing the reference counts
+        of objects referenced by the paint.
+
+        After the call, paint is undefined, and can be safely destructed.
+
+        @param paint  original to move
+        @return       content of paint
+    */
     SkPaint(SkPaint&& paint);
+
+    /** Decreases SkPaint SkRefCnt of owned objects: SkTypeface, SkPathEffect, SkShader,
+        SkMaskFilter, SkColorFilter, SkRasterizer, SkDrawLooper, and SkImageFilter. If the
+        objects' reference count goes to zero, they are deleted.
+    */
     ~SkPaint();
 
+    /** Makes a shallow copy of SkPaint. SkTypeface, SkPathEffect, SkShader,
+        SkMaskFilter, SkColorFilter, SkRasterizer, SkDrawLooper, and SkImageFilter are shared
+        between the original paint and the copy. The objects' SkRefCnt are in the
+        prior destination are decreased by one, and the referenced objects are deleted if the
+        resulting count is zero. The objects' SkRefCnt in the parameter paint are increased
+        by one. paint is unmodified.
+
+        @param paint  original to copy
+        @return       content of paint
+    */
     SkPaint& operator=(const SkPaint& paint);
+
+    /** Moves the paint to avoid incrementing the reference counts
+        of objects referenced by the paint parameter. The objects' SkRefCnt are in the
+        prior destination are decreased by one, and the referenced objects are deleted if the
+        resulting count is zero.
+
+        After the call, paint is undefined, and can be safely destructed.
+
+        @param paint  original to move
+        @return       content of paint
+    */
     SkPaint& operator=(SkPaint&& paint);
 
-    /** operator== may give false negatives: two paints that draw equivalently
-        may return false.  It will never give false positives: two paints that
-        are not equivalent always return false.
+    /** Compares a and b, and returns true if a and b are equivalent. May return false
+        if SkTypeface, SkPathEffect, SkShader, SkMaskFilter, SkColorFilter, SkRasterizer,
+        SkDrawLooper, or SkImageFilter have identical contents but different pointers.
+
+        @param a  SkPaint to compare
+        @param b  SkPaint to compare
+        @return   true if SkPaint pair are equivalent
     */
-    // cc_unittests requires SK_API to make operator== visible
     SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
+
+    /** Compares a and b, and returns true if a and b are not equivalent. May return true
+        if SkTypeface, SkPathEffect, SkShader, SkMaskFilter, SkColorFilter, SkRasterizer,
+        SkDrawLooper, or SkImageFilter have identical contents but different pointers.
+
+        @param a  SkPaint to compare
+        @param b  SkPaint to compare
+        @return   true if SkPaint pair are not equivalent
+    */
     friend bool operator!=(const SkPaint& a, const SkPaint& b) {
         return !(a == b);
     }
 
-    /** getHash() is a shallow hash, with the same limitations as operator==.
-     *  If operator== returns true for two paints, getHash() returns the same value for each.
-     */
+    /** Returns a hash generated from SkPaint values and pointers.
+        Identical hashes guarantee that the paints are
+        equivalent, but differing hashes do not guarantee that the paints have differing
+        contents.
+
+        If operator==(const SkPaint& a, const SkPaint& b) returns true for two paints,
+        their hashes are also equal.
+
+        The hash returned is platform and implementation specific.
+
+        @return  a shallow hash
+    */
     uint32_t getHash() const;
 
+    /** Serializes SkPaint into a buffer. A companion unflatten() call
+        can reconstitute the paint at a later time.
+
+        @param buffer  SkWriteBuffer receiving the flattened SkPaint data
+    */
     void flatten(SkWriteBuffer& buffer) const;
+
+    /** Populates SkPaint, typically from a serialized stream, created by calling
+        flatten() at an earlier time.
+
+        SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
+        by the client.
+
+        @param buffer  serialized data to unflatten
+    */
     void unflatten(SkReadBuffer& buffer);
 
-    /** Restores the paint to its initial settings.
+    /** Sets all paint's contents to their initial values. This is equivalent to replacing
+        the paint with the result of SkPaint().
     */
     void reset();
 
-    /** Specifies the level of hinting to be performed. These names are taken
-        from the Gnome/Cairo names for the same. They are translated into
-        Freetype concepts the same as in cairo-ft-font.c:
-           kNo_Hinting     -> FT_LOAD_NO_HINTING
-           kSlight_Hinting -> FT_LOAD_TARGET_LIGHT
-           kNormal_Hinting -> <default, no option>
-           kFull_Hinting   -> <same as kNormalHinting, unless we are rendering
-                              subpixel glyphs, in which case TARGET_LCD or
-                              TARGET_LCD_V is used>
+    /** \enum SkPaint::Hinting
+        Hinting adjusts the glyph outlines so that the shape provides a uniform
+        look at a given point size on font engines that support it. Hinting may have a
+        muted effect or no effect at all depending on the platform.
+
+        The four levels roughly control corresponding features on platforms that use FreeType
+        as the font engine.
     */
     enum Hinting {
-        kNo_Hinting            = 0,
-        kSlight_Hinting        = 1,
-        kNormal_Hinting        = 2,     //!< this is the default
-        kFull_Hinting          = 3
+        /** Leaves glyph outlines unchanged from their native representation.
+            With FreeType, this is equivalent to the FT_LOAD_NO_HINTING
+            bit-field constant supplied to FT_Load_Glyph, which indicates that the vector
+            outline being loaded should not be fitted to the pixel grid but simply scaled
+            to 26.6 fractional pixels.
+        */
+        kNo_Hinting     = 0,
+
+        /** Modifies glyph outlines minimally to improve constrast.
+            With FreeType, this is equivalent in spirit to the
+            FT_LOAD_TARGET_LIGHT value supplied to FT_Load_Glyph. It chooses a
+            lighter hinting algorithm for non-monochrome modes.
+            Generated glyphs may be fuzzy but better resemble their original shape.
+        */
+        kSlight_Hinting = 1,
+
+        /** Modifies glyph outlines to improve constrast. This is the default.
+            With FreeType, this supplies FT_LOAD_TARGET_NORMAL to FT_Load_Glyph,
+            choosing the default hinting algorithm, which is optimized for standard
+            gray-level rendering.
+        */
+        kNormal_Hinting = 2,
+
+        /** Modifies glyph outlines for maxiumum constrast. With FreeType, this selects
+            FT_LOAD_TARGET_LCD or FT_LOAD_TARGET_LCD_V if kLCDRenderText_Flag is set.
+            FT_LOAD_TARGET_LCD is a variant of FT_LOAD_TARGET_NORMAL optimized for
+            horizontally decimated LCD displays; FT_LOAD_TARGET_LCD_V is a
+            variant of FT_LOAD_TARGET_NORMAL optimized for vertically decimated LCD displays.
+        */
+        kFull_Hinting   = 3,
     };
 
+    /** Returns level of glyph outline adjustment.
+
+        @return  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+    */
     Hinting getHinting() const {
         return static_cast<Hinting>(fBitfields.fHinting);
     }
 
+    /** Sets level of glyph outline adjustment.
+        Does not check for valid values of hintingLevel.
+
+        @param hintingLevel  one of: kNo_Hinting, kSlight_Hinting, kNormal_Hinting, kFull_Hinting
+    */
     void setHinting(Hinting hintingLevel);
 
-    /** Specifies the bit values that are stored in the paint's flags.
+    /** \enum SkPaint::Flags
+        The bit values stored in Flags.
+        The default value for Flags, normally zero, can be changed at compile time
+        with a custom definition of SkPaintDefaults_Flags.
+        All flags can be read and written explicitly; Flags allows manipulating
+        multiple settings at once.
     */
     enum Flags {
-        kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
-        kDither_Flag          = 0x04,   //!< mask to enable dithering. see setDither()
-        kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
-        kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
-        kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
-        kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
-        kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
-        kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
-        kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
-        kVerticalText_Flag    = 0x1000,
-        kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
-        // when adding extra flags, note that the fFlags member is specified
-        // with a bit-width and you'll have to expand it.
+        kAntiAlias_Flag          = 0x01,   //!< mask for setting Anti-alias
+        kDither_Flag             = 0x04,   //!< mask for setting Dither
+        kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
+        kLinearText_Flag         = 0x40,   //!< mask for setting linear text
+        kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
+        kDevKernText_Flag        = 0x100,  //!< mask for setting full hinting spacing
+        kLCDRenderText_Flag      = 0x200,  //!< mask for setting lcd text
+        kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
+        kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
+        kVerticalText_Flag       = 0x1000, //!< mask for setting vertical text
 
-        kAllFlags = 0xFFFF,
+        /** Hack for GDI -- do not use if you can help it */
+        kGenA8FromLCD_Flag       = 0x2000,
+
+        /** mask of all Flags, including private flags and flags reserved for future use */
+        kAllFlags                = 0xFFFF,
     };
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     enum ReserveFlags {
-        // These are not used by paint, but the bits are reserved for private use by the
-        // android framework.
-        kUnderlineText_ReserveFlag   = 0x08,   //!< mask to enable underline text
-        kStrikeThruText_ReserveFlag  = 0x10,   //!< mask to enable strike-thru text
+        kUnderlineText_ReserveFlag  = 0x08, //!< mask for underline text
+        kStrikeThruText_ReserveFlag = 0x10, //!< mask for strike-thru text
     };
-#endif
+    #endif
 
-    /** Return the paint's flags. Use the Flag enum to test flag values.
-        @return the paint's flags (see enums ending in _Flag for bit masks)
+    /** Returns paint settings described by SkPaint::Flags. Each setting uses one
+        bit, and can be tested with SkPaint::Flags members.
+
+        @return  zero, one, or more bits described by SkPaint::Flags
     */
     uint32_t getFlags() const { return fBitfields.fFlags; }
 
-    /** Set the paint's flags. Use the Flag enum to specific flag values.
-        @param flags    The new flag bits for the paint (see Flags enum)
+    /** Sets SkPaint::Flags to the union of the SkPaint::Flags members.
+
+        @param flags  union of SkPaint::Flags for SkPaint
     */
     void setFlags(uint32_t flags);
 
-    /** Helper for getFlags(), returning true if kAntiAlias_Flag bit is set
-        @return true if the antialias bit is set in the paint's flags.
-        */
+    /** If true, pixels on the active edges of SkPath may be drawn with partial transparency.
+
+        Equivalent to getFlags masked with kAntiAlias_Flag.
+
+        @return  kAntiAlias_Flag state
+    */
     bool isAntiAlias() const {
         return SkToBool(this->getFlags() & kAntiAlias_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kAntiAlias_Flag bit
-        @param aa   true to enable antialiasing, false to disable it
-        */
+    /** Requests, but does not require, that SkPath edge pixels draw opaque or with
+        partial transparency.
+
+        Sets kAntiAlias_Flag if aa is true.
+        Clears kAntiAlias_Flag if aa is false.
+
+        @param aa  setting for kAntiAlias_Flag
+    */
     void setAntiAlias(bool aa);
 
-    /** Helper for getFlags(), returning true if kDither_Flag bit is set
-        @return true if the dithering bit is set in the paint's flags.
-        */
+    /** If true, color error may be distributed to smooth color transition.
+
+        Equivalent to getFlags masked with kDither_Flag.
+
+        @return  kDither_Flag state
+    */
     bool isDither() const {
         return SkToBool(this->getFlags() & kDither_Flag);
     }
 
-    /**
-     *  Helper for setFlags(), setting or clearing the kDither_Flag bit
-     *  @param dither   true to enable dithering, false to disable it
-     *
-     *  Note: gradients ignore this setting and always dither.
-     */
+    /** Requests, but does not require, to distribute color error.
+
+        Sets kDither_Flag if dither is true.
+        Clears kDither_Flag if dither is false.
+
+        @param dither  setting for kDither_Flag
+    */
     void setDither(bool dither);
 
-    /** Helper for getFlags(), returning true if kLinearText_Flag bit is set
-        @return true if the lineartext bit is set in the paint's flags
+    /** If true, text is converted to SkPath before drawing and measuring.
+
+        Equivalent to getFlags masked with kLinearText_Flag.
+
+        @return  kLinearText_Flag state
     */
     bool isLinearText() const {
         return SkToBool(this->getFlags() & kLinearText_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kLinearText_Flag bit
-        @param linearText true to set the linearText bit in the paint's flags,
-                          false to clear it.
+    /** If true, text is converted to SkPath before drawing and measuring.
+        By default, kLinearText_Flag is clear.
+
+        Sets kLinearText_Flag if linearText is true.
+        Clears kLinearText_Flag if linearText is false.
+
+        @param linearText  setting for kLinearText_Flag
     */
     void setLinearText(bool linearText);
 
-    /** Helper for getFlags(), returning true if kSubpixelText_Flag bit is set
-        @return true if the lineartext bit is set in the paint's flags
+    /** If true, glyphs at different sub-pixel positions may differ on pixel edge coverage.
+
+        Equivalent to getFlags masked with kSubpixelText_Flag.
+
+        @return  kSubpixelText_Flag state
     */
     bool isSubpixelText() const {
         return SkToBool(this->getFlags() & kSubpixelText_Flag);
     }
 
-    /**
-     *  Helper for setFlags(), setting or clearing the kSubpixelText_Flag.
-     *  @param subpixelText true to set the subpixelText bit in the paint's
-     *                      flags, false to clear it.
-     */
+    /** Requests, but does not require, that glyphs respect sub-pixel positioning.
+
+        Sets kSubpixelText_Flag if subpixelText is true.
+        Clears kSubpixelText_Flag if subpixelText is false.
+
+        @param subpixelText  setting for kSubpixelText_Flag
+    */
     void setSubpixelText(bool subpixelText);
 
+    /** If true, glyphs may use LCD striping to improve glyph edges.
+
+        Returns true if SkPaint::Flags kLCDRenderText_Flag is set.
+
+        @return  kLCDRenderText_Flag state
+    */
     bool isLCDRenderText() const {
         return SkToBool(this->getFlags() & kLCDRenderText_Flag);
     }
 
-    /**
-     *  Helper for setFlags(), setting or clearing the kLCDRenderText_Flag.
-     *  Note: antialiasing must also be on for lcd rendering
-     *  @param lcdText true to set the LCDRenderText bit in the paint's flags,
-     *                 false to clear it.
-     */
+    /** Requests, but does not require, that glyphs use LCD striping for glyph edges.
+
+        Sets kLCDRenderText_Flag if lcdText is true.
+        Clears kLCDRenderText_Flag if lcdText is false.
+
+        @param lcdText  setting for kLCDRenderText_Flag
+    */
     void setLCDRenderText(bool lcdText);
 
+    /** If true, font engine may return glyphs from font bitmaps instead of from outlines.
+
+        Equivalent to getFlags masked with kEmbeddedBitmapText_Flag.
+
+        @return  kEmbeddedBitmapText_Flag state
+    */
     bool isEmbeddedBitmapText() const {
         return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kEmbeddedBitmapText_Flag bit
-        @param useEmbeddedBitmapText true to set the kEmbeddedBitmapText bit in the paint's flags,
-                                     false to clear it.
+    /** Requests, but does not require, to use bitmaps in fonts instead of outlines.
+
+        Sets kEmbeddedBitmapText_Flag if useEmbeddedBitmapText is true.
+        Clears kEmbeddedBitmapText_Flag if useEmbeddedBitmapText is false.
+
+        @param useEmbeddedBitmapText  setting for kEmbeddedBitmapText_Flag
     */
     void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
 
+    /** If true, and if SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting, and if
+        platform uses FreeType as the font manager, instruct the font manager to always hint
+        Glyphs.
+
+        Equivalent to getFlags masked with kAutoHinting_Flag.
+
+        @return  kAutoHinting_Flag state
+    */
     bool isAutohinted() const {
         return SkToBool(this->getFlags() & kAutoHinting_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kAutoHinting_Flag bit
-        @param useAutohinter true to set the kEmbeddedBitmapText bit in the
-                                  paint's flags,
-                             false to clear it.
+    /** If SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
+        instruct the font manager to always hint Glyphs.
+        auto-hinting has no effect if SkPaint::Hinting is set to kNo_Hinting or
+        kSlight_Hinting.
+
+        setAutohinted only effects platforms that use FreeType as the font manager.
+
+        Sets kAutoHinting_Flag if useAutohinter is true.
+        Clears kAutoHinting_Flag if useAutohinter is false.
+
+        @param useAutohinter  setting for kAutoHinting_Flag
     */
     void setAutohinted(bool useAutohinter);
 
+    /** If true, glyphs are drawn top to bottom instead of left to right.
+
+        Equivalent to getFlags masked with kVerticalText_Flag.
+
+        @return  kVerticalText_Flag state
+    */
     bool isVerticalText() const {
         return SkToBool(this->getFlags() & kVerticalText_Flag);
     }
 
-    /**
-     *  Helper for setting or clearing the kVerticalText_Flag bit in
-     *  setFlags(...).
-     *
-     *  If this bit is set, then advances are treated as Y values rather than
-     *  X values, and drawText will places its glyphs vertically rather than
-     *  horizontally.
-     */
+    /** If true, text advance positions the next glyph below the previous glyph instead of to the
+        right of previous glyph.
+
+        Sets kVerticalText_Flag if vertical is true.
+        Clears kVerticalText_Flag if vertical is false.
+
+        @param verticalText  setting for kVerticalText_Flag
+    */
     void setVerticalText(bool verticalText);
 
-    /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
-        @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
+    /** If true, approximate bold by increasing the stroke width when creating glyph bitmaps
+        from outlines.
+
+        Equivalent to getFlags masked with kFakeBoldText_Flag.
+
+        @return  kFakeBoldText_Flag state
     */
     bool isFakeBoldText() const {
         return SkToBool(this->getFlags() & kFakeBoldText_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kFakeBoldText_Flag bit
-        @param fakeBoldText true to set the kFakeBoldText_Flag bit in the paint's
-                            flags, false to clear it.
+    /** Use increased stroke width when creating glyph bitmaps to approximate bolding.
+
+        Sets kFakeBoldText_Flag if fakeBoldText is true.
+        Clears kFakeBoldText_Flag if fakeBoldText is false.
+
+        @param fakeBoldText  setting for kFakeBoldText_Flag
     */
     void setFakeBoldText(bool fakeBoldText);
 
-    /** Helper for getFlags(), returns true if kDevKernText_Flag bit is set
-        @return true if the kernText bit is set in the paint's flags.
+    /** Returns if character spacing may be adjusted by the hinting difference.
+
+        Equivalent to getFlags masked with kDevKernText_Flag.
+
+        @return  kDevKernText_Flag state
     */
     bool isDevKernText() const {
         return SkToBool(this->getFlags() & kDevKernText_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kKernText_Flag bit
-        @param kernText true to set the kKernText_Flag bit in the paint's
-                            flags, false to clear it.
+    /** Requests, but does not require, to use hinting to adjust glyph spacing.
+
+        Sets kDevKernText_Flag if devKernText is true.
+        Clears kDevKernText_Flag if devKernText is false.
+
+        @param devKernText  setting for devKernText
     */
     void setDevKernText(bool devKernText);
 
-    /**
-     *  Return the filter level. This affects the quality (and performance) of
-     *  drawing scaled images.
-     */
+    /** Returns SkFilterQuality, the image filtering level. A lower setting
+        draws faster; a higher setting looks better when the image is scaled.
+
+        @return  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
+                 kMedium_SkFilterQuality, kHigh_SkFilterQuality
+    */
     SkFilterQuality getFilterQuality() const {
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
 
-    /**
-     *  Set the filter quality. This affects the quality (and performance) of
-     *  drawing scaled images.
-     */
+    /** Sets or clears SkFilterQuality, the image filtering level. A lower setting
+        draws faster; a higher setting looks better when the image is scaled.
+        setFilterQuality does not check to see if quality is valid.
+
+        @param quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
+                        kMedium_SkFilterQuality, kHigh_SkFilterQuality
+    */
     void setFilterQuality(SkFilterQuality quality);
 
-    /** Styles apply to rect, oval, path, and text.
-        Bitmaps are always drawn in "fill", and lines are always drawn in
-        "stroke".
+    /** \enum SkPaint::Style
+        Set Style to kStrokeAndFill_Style to fill, stroke, or both fill and stroke geometry.
+        The stroke and fill
+        share all paint attributes; for instance, they are drawn with the same color.
 
-        Note: strokeandfill implicitly draws the result with
-        SkPath::kWinding_FillType, so if the original path is even-odd, the
-        results may not appear the same as if it was drawn twice, filled and
-        then stroked.
+        Use kStrokeAndFill_Style to avoid hitting the same pixels twice with a stroke draw and
+        a fill draw.
     */
     enum Style {
-        kFill_Style,            //!< fill the geometry
-        kStroke_Style,          //!< stroke the geometry
-        kStrokeAndFill_Style,   //!< fill and stroke the geometry
-    };
-    enum {
-        kStyleCount = kStrokeAndFill_Style + 1
+        /** Set to fill geometry.
+            Applies to SkRect, SkRegion, SkRRect, circles, ovals, SkPath, and Text.
+            SkBitmap, SkImage, patches, SkRegion, sprites, and vertices are painted as if
+            kFill_Style is set, and ignore the set Style.
+            The FillType specifies additional rules to fill the area outside the path edge,
+            and to create an unfilled hole inside the shape.
+            Style is set to kFill_Style by default.
+        */
+        kFill_Style,
+
+        /** Set to stroke geometry.
+            Applies to SkRect, SkRegion, SkRRect, arcs, circles, ovals,
+            SkPath, and Text.
+            arcs, lines, SkPoint, and SkPoint arrays are always drawn as if kStroke_Style is set,
+            and ignore the set Style.
+            The stroke construction is unaffected by the FillType.
+        */
+        kStroke_Style,
+
+        /** Set to stroke and fill geometry.
+            Applies to SkRect, SkRegion, SkRRect, circles, ovals, SkPath, and Text.
+            SkPath is treated as if it is set to SkPath::kWinding_FillType,
+            and the set FillType is ignored.
+        */
+        kStrokeAndFill_Style,
     };
 
-    /** Return the paint's style, used for controlling how primitives'
-        geometries are interpreted (except for drawBitmap, which always assumes
-        kFill_Style).
-        @return the paint's Style
+    enum {
+        /** The number of different Style values defined.
+            May be used to verify that Style is a legal value.
+        */
+        kStyleCount = kStrokeAndFill_Style + 1,
+    };
+
+    /** Whether the geometry is filled, stroked, or filled and stroked.
+
+        @return  one of:kFill_Style, kStroke_Style, kStrokeAndFill_Style
     */
     Style getStyle() const { return (Style)fBitfields.fStyle; }
 
-    /** Set the paint's style, used for controlling how primitives'
-        geometries are interpreted (except for drawBitmap, which always assumes
-        Fill).
-        @param style    The new style to set in the paint
+    /** Sets whether the geometry is filled, stroked, or filled and stroked.
+        Has no effect if style is not a legal SkPaint::Style value.
+
+        @param style  one of: kFill_Style, kStroke_Style, kStrokeAndFill_Style
     */
     void setStyle(Style style);
 
-    /** Return the paint's color. Note that the color is a 32bit value
-        containing alpha as well as r,g,b. This 32bit value is not
-        premultiplied, meaning that its alpha can be any value, regardless of
-        the values of r,g,b.
-        @return the paint's color (and alpha).
+    /** Retrieves alpha and RGB, unpremultiplied, packed into 32 bits.
+        Use helpers SkColorGetA(), SkColorGetR(), SkColorGetG(), and SkColorGetB() to extract
+        a color component.
+
+        @return  Unpremultiplied ARGB
     */
     SkColor getColor() const { return fColor; }
 
-    /** Set the paint's color. Note that the color is a 32bit value containing
-        alpha as well as r,g,b. This 32bit value is not premultiplied, meaning
-        that its alpha can be any value, regardless of the values of r,g,b.
-        @param color    The new color (including alpha) to set in the paint.
+    /** Sets alpha and RGB used when stroking and filling. The color is a 32-bit value,
+        unpremutiplied, packing 8-bit components for alpha, red, blue, and green.
+
+        @param color  Unpremultiplied ARGB
     */
     void setColor(SkColor color);
 
-    /** Helper to getColor() that just returns the color's alpha value.
-        @return the alpha component of the paint's color.
-        */
+    /** Retrieves alpha from the Color used when stroking and filling.
+
+        @return  alpha ranging from zero, fully transparent, to 255, fully opaque
+    */
     uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
 
-    /** Helper to setColor(), that only assigns the color's alpha value,
-        leaving its r,g,b values unchanged.
-        @param a    set the alpha component (0..255) of the paint's color.
+    /** Replaces alpha, leaving RGB
+        unchanged. An out of range value triggers an assert in the debug
+        build. a is a value from zero to 255.
+        a set to zero makes Color fully transparent; a set to 255 makes Color
+        fully opaque.
+
+        @param a  alpha component of Color
     */
     void setAlpha(U8CPU a);
 
-    /** Helper to setColor(), that takes a,r,g,b and constructs the color value
-        using SkColorSetARGB()
-        @param a    The new alpha component (0..255) of the paint's color.
-        @param r    The new red component (0..255) of the paint's color.
-        @param g    The new green component (0..255) of the paint's color.
-        @param b    The new blue component (0..255) of the paint's color.
+    /** Sets Color used when drawing solid fills. The color components range from 0 to 255.
+        The color is unpremultiplied;
+        alpha sets the transparency independent of RGB.
+
+        @param a  amount of alpha, from fully transparent (0) to fully opaque (255)
+        @param r  amount of red, from no red (0) to full red (255)
+        @param g  amount of green, from no green (0) to full green (255)
+        @param b  amount of blue, from no blue (0) to full blue (255)
     */
     void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
-    /** Return the width for stroking.
-        <p />
-        A value of 0 strokes in hairline mode.
-        Hairlines always draw 1-pixel wide, regardless of the matrix.
-        @return the paint's stroke width, used whenever the paint's style is
-                Stroke or StrokeAndFill.
+    /** Returns the thickness of the pen used by SkPaint to
+        outline the shape.
+
+        @return  zero for Hairline, greater than zero for pen thickness
     */
     SkScalar getStrokeWidth() const { return fWidth; }
 
-    /** Set the width for stroking.
-        Pass 0 to stroke in hairline mode.
-        Hairlines always draw 1-pixel wide, regardless of the matrix.
-        @param width set the paint's stroke width, used whenever the paint's
-                     style is Stroke or StrokeAndFill.
+    /** Sets the thickness of the pen used by the paint to
+        outline the shape.
+        Has no effect if width is less than zero.
+
+        @param width  zero thickness for Hairline; greater than zero for pen thickness
     */
     void setStrokeWidth(SkScalar width);
 
-    /** Return the paint's stroke miter value. This is used to control the
-        behavior of miter joins when the joins angle is sharp.
-        @return the paint's miter limit, used whenever the paint's style is
-                Stroke or StrokeAndFill.
+    /** The limit at which a sharp corner is drawn beveled.
+
+        @return  zero and greater miter limit
     */
     SkScalar getStrokeMiter() const { return fMiterLimit; }
 
-    /** Set the paint's stroke miter value. This is used to control the
-        behavior of miter joins when the joins angle is sharp. This value must
-        be >= 0.
-        @param miter    set the miter limit on the paint, used whenever the
-                        paint's style is Stroke or StrokeAndFill.
+    /** The limit at which a sharp corner is drawn beveled.
+        Valid values are zero and greater.
+        Has no effect if miter is less than zero.
+
+        @param miter  zero and greater miter limit
     */
     void setStrokeMiter(SkScalar miter);
 
-    /** Cap enum specifies the settings for the paint's strokecap. This is the
-        treatment that is applied to the beginning and end of each non-closed
-        contour (e.g. lines).
-
-        If the cap is round or square, the caps are drawn when the contour has
-        a zero length. Zero length contours can be created by following moveTo
-        with a lineTo at the same point, or a moveTo followed by a close.
-
-        A dash with an on interval of zero also creates a zero length contour.
-
-        The zero length contour draws the square cap without rotation, since
-        the no direction can be inferred.
+    /** \enum SkPaint::Cap
+        Cap draws at the beginning and end of an open path contour.
     */
     enum Cap {
-        kButt_Cap,      //!< begin/end contours with no extension
-        kRound_Cap,     //!< begin/end contours with a semi-circle extension
-        kSquare_Cap,    //!< begin/end contours with a half square extension
+        kButt_Cap,                  //!< Does not extend the stroke past the beginning or the end.
 
-        kLast_Cap = kSquare_Cap,
-        kDefault_Cap = kButt_Cap
+        /** Adds a circle with a diameter equal to stroke width at the beginning
+            and end.
+        */
+        kRound_Cap,
+
+        /** Adds a square with sides equal to stroke width at the beginning
+            and end. The square sides are parallel to the initial and final direction
+            of the stroke.
+        */
+        kSquare_Cap,
+        kLast_Cap    = kSquare_Cap, //!< Equivalent to the largest value for Cap.
+
+        /** Equivalent to kButt_Cap.
+            Cap is set to kButt_Cap by default.
+        */
+        kDefault_Cap = kButt_Cap,
     };
+
     static constexpr int kCapCount = kLast_Cap + 1;
 
-    /** Join enum specifies the settings for the paint's strokejoin. This is
-        the treatment that is applied to corners in paths and rectangles.
+    /** \enum SkPaint::Join
+        Join specifies how corners are drawn when a shape is stroked. The paint's Join setting
+        affects the four corners of a stroked rectangle, and the connected segments in a
+        stroked path.
+
+        Choose miter join to draw sharp corners. Choose round join to draw a circle with a
+        radius equal to the stroke width on top of the corner. Choose bevel join to minimally
+        connect the thick strokes.
+
+        The fill path constructed to describe the stroked path respects the join setting but may
+        not contain the actual join. For instance, a fill path constructed with round joins does
+        not necessarily include circles at each connected segment.
     */
     enum Join {
-        kMiter_Join,    //!< connect path segments with a sharp join
-        kRound_Join,    //!< connect path segments with a round join
-        kBevel_Join,    //!< connect path segments with a flat bevel join
+        /** Extends the outside of the to the extent allowed by miter limit.
+            If the extension exceeds miter limit, kBevel_Join is used instead.
+        */
+        kMiter_Join,
 
-        kLast_Join = kBevel_Join,
-        kDefault_Join = kMiter_Join
+        /** Adds a circle with a diameter of stroke width at the sharp corner. */
+        kRound_Join,
+        kBevel_Join,                 //!< Connects the outside edges of the sharp corner.
+        kLast_Join    = kBevel_Join, //!< Equivalent to the largest value for Join.
+
+        /** Equivalent to kMiter_Join.
+            Join is set to kMiter_Join by default.
+        */
+        kDefault_Join = kMiter_Join,
     };
+
     static constexpr int kJoinCount = kLast_Join + 1;
 
-    /** Return the paint's stroke cap type, controlling how the start and end
-        of stroked lines and paths are treated.
-        @return the line cap style for the paint, used whenever the paint's
-                style is Stroke or StrokeAndFill.
+    /** The geometry drawn at the beginning and end of strokes.
+
+        @return  one of: kButt_Cap, kRound_Cap, kSquare_Cap
     */
     Cap getStrokeCap() const { return (Cap)fBitfields.fCapType; }
 
-    /** Set the paint's stroke cap type.
-        @param cap  set the paint's line cap style, used whenever the paint's
-                    style is Stroke or StrokeAndFill.
+    /** The geometry drawn at the beginning and end of strokes.
+
+        @param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
+                    has no effect if cap is not valid
     */
     void setStrokeCap(Cap cap);
 
-    /** Return the paint's stroke join type.
-        @return the paint's line join style, used whenever the paint's style is
-                Stroke or StrokeAndFill.
+    /** The geometry drawn at the corners of strokes.
+
+        @return  one of: kMiter_Join, kRound_Join, kBevel_Join
     */
     Join getStrokeJoin() const { return (Join)fBitfields.fJoinType; }
 
-    /** Set the paint's stroke join type.
-        @param join set the paint's line join style, used whenever the paint's
-                    style is Stroke or StrokeAndFill.
+    /** The geometry drawn at the corners of strokes.
+
+        @param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
+                     otherwise, setStrokeJoin has no effect
     */
     void setStrokeJoin(Join join);
 
-    /**
-     *  Applies any/all effects (patheffect, stroking) to src, returning the
-     *  result in dst. The result is that drawing src with this paint will be
-     *  the same as drawing dst with a default paint (at least from the
-     *  geometric perspective).
-     *
-     *  @param src  input path
-     *  @param dst  output path (may be the same as src)
-     *  @param cullRect If not null, the dst path may be culled to this rect.
-     *  @param resScale If > 1, increase precision, else if (0 < res < 1) reduce precision
-     *              in favor of speed/size.
-     *  @return     true if the path should be filled, or false if it should be
-     *              drawn with a hairline (width == 0)
-     */
+    /** The filled equivalent of the stroked path.
+
+        @param src       SkPath read to create a filled version
+        @param dst       resulting SkPath; may be the same as src, but may not be nullptr
+        @param cullRect  optional limit passed to SkPathEffect
+        @param resScale  if > 1, increase precision, else if (0 < res < 1) reduce precision
+                         to favor speed and size
+        @return          true if the path represents style fill, or false if it represents Hairline
+    */
     bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                      SkScalar resScale = 1) const;
 
+    /** The filled equivalent of the stroked path.
+
+        @param src       SkPath read to create a filled version
+        @param dst       resulting SkPath; may be the same as src, but may not be nullptr
+        @param cullRect  optional limit passed to SkPathEffect
+        @param resScale  if > 1, increase precision, else if (0 < res < 1) reduce precision
+                         to favor speed and size
+        @return          true if the path represents style fill, or false if it represents Hairline
+    */
     bool getFillPath(const SkPath& src, SkPath* dst) const {
         return this->getFillPath(src, dst, NULL, 1);
     }
 
-    /** Get the paint's shader object.
-        <p />
-      The shader's reference count is not affected.
-        @return the paint's shader (or NULL)
+    /** Optional colors used when filling a path, such as a gradient.
+
+        Does not alter SkShader SkRefCnt.
+
+        @return  SkShader if previously set, nullptr otherwise
     */
     SkShader* getShader() const { return fShader.get(); }
+
+    /** Optional colors used when filling a path, such as a gradient.
+
+        Increases SkShader SkRefCnt by one.
+
+        @return  SkShader if previously set, nullptr otherwise
+    */
     sk_sp<SkShader> refShader() const;
 
-    /** Set or clear the shader object.
-     *  Shaders specify the source color(s) for what is being drawn. If a paint
-     *  has no shader, then the paint's color is used. If the paint has a
-     *  shader, then the shader's color(s) are use instead, but they are
-     *  modulated by the paint's alpha. This makes it easy to create a shader
-     *  once (e.g. bitmap tiling or gradient) and then change its transparency
-     *  w/o having to modify the original shader... only the paint's alpha needs
-     *  to be modified.
-     *
-     *  There is an exception to this only-respect-paint's-alpha rule: If the shader only generates
-     *  alpha (e.g. SkShader::CreateBitmapShader(bitmap, ...) where bitmap's colortype is kAlpha_8)
-     *  then the shader will use the paint's entire color to "colorize" its output (modulating the
-     *  bitmap's alpha with the paint's color+alpha).
-     *
-     *  Pass NULL to clear any previous shader.
-     *  As a convenience, the parameter passed is also returned.
-     *  If a previous shader exists, its reference count is decremented.
-     *  If shader is not NULL, its reference count is incremented.
-     *  @param shader   May be NULL. The shader to be installed in the paint
-     */
+    /** Optional colors used when filling a path, such as a gradient.
+
+        Sets SkShader to shader, decrementing SkRefCnt of the previous SkShader.
+        Does not alter shader SkRefCnt.
+
+        @param shader  how geometry is filled with color; if nullptr, Color is used instead
+    */
     void setShader(sk_sp<SkShader> shader);
 
-    /** Get the paint's colorfilter. If there is a colorfilter, its reference
-        count is not changed.
-        @return the paint's colorfilter (or NULL)
+    /** Returns SkColorFilter if set, or nullptr.
+        Does not alter SkColorFilter SkRefCnt.
+
+        @return  SkColorFilter if previously set, nullptr otherwise
     */
     SkColorFilter* getColorFilter() const { return fColorFilter.get(); }
+
+    /** Returns SkColorFilter if set, or nullptr.
+        Increases SkColorFilter SkRefCnt by one.
+
+        @return  SkColorFilter if set, or nullptr
+    */
     sk_sp<SkColorFilter> refColorFilter() const;
 
-    /** Set or clear the paint's colorfilter.
-        <p />
-        If the paint already has a filter, its reference count is decremented.
-        If filter is not NULL, its reference count is incremented.
-        @param filter   May be NULL. The filter to be installed in the paint
+    /** Sets SkColorFilter to filter, decrementing SkRefCnt of the previous SkColorFilter.
+        Pass nullptr to clear SkColorFilter.
+        Does not alter filter SkRefCnt.
+
+        @param colorFilter  SkColorFilter to apply to subsequent draw
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
+    /** Returns SkBlendMode.
+        By default, getBlendMode returns SkBlendMode::kSrcOver.
+
+        @return  mode used to combine source color with destination color
+    */
     SkBlendMode getBlendMode() const { return (SkBlendMode)fBlendMode; }
+
+    /** Returns true if SkBlendMode is SkBlendMode::kSrcOver, the default.
+
+        @return  true if SkBlendMode is SkBlendMode::kSrcOver
+    */
     bool isSrcOver() const { return (SkBlendMode)fBlendMode == SkBlendMode::kSrcOver; }
+
+    /** Sets SkBlendMode to mode.
+        Does not check for valid input.
+
+        @param mode  SkBlendMode used to combine source color and destination
+    */
     void setBlendMode(SkBlendMode mode) { fBlendMode = (unsigned)mode; }
 
-    /** Get the paint's patheffect object.
-        <p />
-      The patheffect reference count is not affected.
-        @return the paint's patheffect (or NULL)
+    /** Returns SkPathEffect if set, or nullptr.
+        Does not alter SkPathEffect SkRefCnt.
+
+        @return  SkPathEffect if previously set, nullptr otherwise
     */
     SkPathEffect* getPathEffect() const { return fPathEffect.get(); }
+
+    /** Returns SkPathEffect if set, or nullptr.
+        Increases SkPathEffect SkRefCnt by one.
+
+        @return  SkPathEffect if previously set, nullptr otherwise
+    */
     sk_sp<SkPathEffect> refPathEffect() const;
 
-    /** Set or clear the patheffect object.
-        <p />
-        Pass NULL to clear any previous patheffect.
-        As a convenience, the parameter passed is also returned.
-        If a previous patheffect exists, its reference count is decremented.
-        If patheffect is not NULL, its reference count is incremented.
-        @param effect   May be NULL. The new patheffect to be installed in the
-                        paint
-        @return         effect
+    /** Sets SkPathEffect to pathEffect,
+        decrementing SkRefCnt of the previous SkPathEffect.
+        Pass nullptr to leave the path geometry unaltered.
+        Does not alter pathEffect SkRefCnt.
+
+        @param pathEffect  replace SkPath with a modification when drawn
     */
     void setPathEffect(sk_sp<SkPathEffect> pathEffect);
 
-    /** Get the paint's maskfilter object.
-        <p />
-      The maskfilter reference count is not affected.
-        @return the paint's maskfilter (or NULL)
+    /** Returns SkMaskFilter if set, or nullptr.
+        Does not alter SkMaskFilter SkRefCnt.
+
+        @return  SkMaskFilter if previously set, nullptr otherwise
     */
     SkMaskFilter* getMaskFilter() const { return fMaskFilter.get(); }
+
+    /** Returns SkMaskFilter if set, or nullptr.
+        Increases SkMaskFilter SkRefCnt by one.
+
+        @return  SkMaskFilter if previously set, nullptr otherwise
+    */
     sk_sp<SkMaskFilter> refMaskFilter() const;
 
-    /** Set or clear the maskfilter object.
-        <p />
-        Pass NULL to clear any previous maskfilter.
-        As a convenience, the parameter passed is also returned.
-        If a previous maskfilter exists, its reference count is decremented.
-        If maskfilter is not NULL, its reference count is incremented.
-        @param maskfilter   May be NULL. The new maskfilter to be installed in
-                            the paint
-        @return             maskfilter
+    /** Sets SkMaskFilter to maskFilter,
+        decrementing SkRefCnt of the previous SkMaskFilter.
+        Pass nullptr to clear SkMaskFilter and leave SkMaskFilter effect on mask alpha unaltered.
+        Does not affect SkRasterizer.
+        Does not alter maskFilter SkRefCnt.
+
+        @param maskFilter  modifies clipping mask generated from drawn geometry
     */
     void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
-    // These attributes are for text/fonts
+    /** Returns SkTypeface if set, or nullptr.
+        Does not alter SkTypeface SkRefCnt.
 
-    /** Get the paint's typeface object.
-        <p />
-        The typeface object identifies which font to use when drawing or
-        measuring text. The typeface reference count is not affected.
-        @return the paint's typeface (or NULL)
+        @return  SkTypeface if previously set, nullptr otherwise
     */
     SkTypeface* getTypeface() const { return fTypeface.get(); }
+
+    /** Increases SkTypeface SkRefCnt by one.
+
+        @return  SkTypeface if previously set, nullptr otherwise
+    */
     sk_sp<SkTypeface> refTypeface() const;
 
-    /** Set or clear the typeface object.
-        <p />
-        Pass NULL to clear any previous typeface.
-        As a convenience, the parameter passed is also returned.
-        If a previous typeface exists, its reference count is decremented.
-        If typeface is not NULL, its reference count is incremented.
-        @param typeface May be NULL. The new typeface to be installed in the
-                        paint
-        @return         typeface
+    /** Sets SkTypeface to typeface,
+        decrementing SkRefCnt of the previous SkTypeface.
+        Pass nullptr to clear SkTypeface and use the default typeface.
+        Does not alter typeface SkRefCnt.
+
+        @param typeface  font and style used to draw text
     */
     void setTypeface(sk_sp<SkTypeface> typeface);
 
-    /** Get the paint's rasterizer (or NULL).
-        <p />
-        The raster controls how paths/text are turned into alpha masks.
-        @return the paint's rasterizer (or NULL)
+    /** Returns SkRasterizer if set, or nullptr.
+        Does not alter SkRasterizer SkRefCnt.
+
+        @return  SkRasterizer if previously set, nullptr otherwise
     */
     SkRasterizer* getRasterizer() const { return fRasterizer.get(); }
+
+    /** refRasterizer() returns SkRasterizer if set, or nullptr.
+        refRasterizer increases SkRasterizer SkRefCnt by one.
+
+        @return  SkRasterizer if previously set, nullptr otherwise
+    */
     sk_sp<SkRasterizer> refRasterizer() const;
 
-    /** Set or clear the rasterizer object.
-        <p />
-        Pass NULL to clear any previous rasterizer.
-        As a convenience, the parameter passed is also returned.
-        If a previous rasterizer exists in the paint, its reference count is
-        decremented. If rasterizer is not NULL, its reference count is
-        incremented.
-        @param rasterizer May be NULL. The new rasterizer to be installed in
-                          the paint.
-        @return           rasterizer
+    /** Sets SkRasterizer to rasterizer,
+        decrementing SkRefCnt of the previous SkRasterizer.
+        Pass nullptr to clear SkRasterizer and leave SkRasterizer effect on mask alpha unaltered.
+        Does not affect SkMaskFilter.
+        Does not alter rasterizer SkRefCnt.
+
+        @param rasterizer  how geometry is converted to mask alpha
     */
     void setRasterizer(sk_sp<SkRasterizer> rasterizer);
 
+    /** Returns SkImageFilter if set, or nullptr.
+        Does not alter SkImageFilter SkRefCnt.
+
+        @return  SkImageFilter if previously set, nullptr otherwise
+    */
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
+
+    /** Returns SkImageFilter if set, or nullptr.
+        Increases SkImageFilter SkRefCnt by one.
+
+        @return  SkImageFilter if previously set, nullptr otherwise
+    */
     sk_sp<SkImageFilter> refImageFilter() const;
+
+    /** Sets SkImageFilter to imageFilter,
+        decrementing SkRefCnt of the previous SkImageFilter.
+        Pass nullptr to clear SkImageFilter, and remove SkImageFilter effect
+        on drawing.
+        Does not affect SkRasterizer or SkMaskFilter.
+        Does not alter imageFilter SkRefCnt.
+
+        @param imageFilter  how SkImage is sampled when transformed
+    */
     void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
-    /**
-     *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
-     *  reference count.
-     */
+    /** Returns SkDrawLooper if set, or nullptr.
+        Does not alter SkDrawLooper SkRefCnt.
+
+        @return  SkDrawLooper if previously set, nullptr otherwise
+    */
     SkDrawLooper* getDrawLooper() const { return fDrawLooper.get(); }
+
+    /** Returns SkDrawLooper if set, or nullptr.
+        Increases SkDrawLooper SkRefCnt by one.
+
+        @return  SkDrawLooper if previously set, nullptr otherwise
+    */
     sk_sp<SkDrawLooper> refDrawLooper() const;
 
+    /** (to be deprecated)
+
+        @return  SkDrawLooper if previously set, nullptr otherwise
+    */
     SkDrawLooper* getLooper() const { return fDrawLooper.get(); }
-    /**
-     *  Set or clear the looper object.
-     *  <p />
-     *  Pass NULL to clear any previous looper.
-     *  If a previous looper exists in the paint, its reference count is
-     *  decremented. If looper is not NULL, its reference count is
-     *  incremented.
-     *  @param looper May be NULL. The new looper to be installed in the paint.
-     */
+
+    /** Sets SkDrawLooper to drawLooper,
+        decrementing SkRefCnt of the previous drawLooper.
+        Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on drawing unaltered.
+        setDrawLooper does not alter drawLooper SkRefCnt.
+
+        @param drawLooper  Iterates through drawing one or more time, altering SkPaint
+    */
     void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
 
+    /** (to be deprecated)
+
+        @param drawLooper  sets SkDrawLooper to drawLooper
+    */
     void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
+    /** \enum SkPaint::Align
+        Align adjusts the text relative to the text position.
+        Align affects glyphs drawn with: SkCanvas::drawText, SkCanvas::drawPosText,
+        SkCanvas::drawPosTextH, SkCanvas::drawTextOnPath,
+        SkCanvas::drawTextOnPathHV, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
+        and SkCanvas::drawString;
+        as well as calls that place text glyphs like getTextWidths and getTextPath.
+
+        The text position is set by the font for both horizontal and vertical text.
+        Typically, for horizontal text, the position is to the left side of the glyph on the
+        base line;and for vertical text, the position is the horizontal center at the glyph
+        at the caps height.
+
+        Align adjusts the glyph position to center it or move it to abut the position
+        using the metrics returned by the font.
+
+        Align defaults to kLeft_Align.
+    */
     enum Align {
+        /** Leaves the glyph at the position computed by the font offset by the text position. */
         kLeft_Align,
+
+        /** Moves the glyph half its width if Flags has kVerticalText_Flag clear, and
+            half its height if Flags has kVerticalText_Flag set.
+        */
         kCenter_Align,
+
+        /** Moves the glyph by its width if Flags has kVerticalText_Flag clear,
+            and by its height if Flags has kVerticalText_Flag set.
+        */
         kRight_Align,
     };
+
     enum {
-        kAlignCount = 3
+        kAlignCount = 3, //!< The number of different Align values defined.
     };
 
-    /** Return the paint's Align value for drawing text.
-        @return the paint's Align value for drawing text.
+    /** Returns SkPaint::Align.
+        Returns kLeft_Align if SkPaint::Align has not been set.
+
+        @return  text placement relative to position
     */
     Align   getTextAlign() const { return (Align)fBitfields.fTextAlign; }
 
-    /** Set the paint's text alignment.
-        @param align set the paint's Align value for drawing text.
+    /** Sets SkPaint::Align to align.
+        Has no effect if align is an invalid value.
+
+        @param align  text placement relative to position
     */
     void    setTextAlign(Align align);
 
-    /** Return the paint's text size.
-        @return the paint's text size.
+    /** Returns text size in points.
+
+        @return  typographic height of text
     */
     SkScalar getTextSize() const { return fTextSize; }
 
-    /** Set the paint's text size. This value must be > 0
-        @param textSize set the paint's text size.
+    /** Sets text size in points.
+        Has no effect if textSize is not greater than or equal to zero.
+
+        @param textSize  typographic height of text
     */
     void setTextSize(SkScalar textSize);
 
-    /** Return the paint's horizontal scale factor for text. The default value
-        is 1.0.
-        @return the paint's scale factor in X for drawing/measuring text
+    /** Returns text scale x.
+        Default value is 1.
+
+        @return  text horizontal scale
     */
     SkScalar getTextScaleX() const { return fTextScaleX; }
 
-    /** Set the paint's horizontal scale factor for text. The default value
-        is 1.0. Values > 1.0 will stretch the text wider. Values < 1.0 will
-        stretch the text narrower.
-        @param scaleX   set the paint's scale factor in X for drawing/measuring
-                        text.
+    /** Sets text scale x.
+        Default value is 1.
+
+        @param scaleX  text horizontal scale
     */
     void setTextScaleX(SkScalar scaleX);
 
-    /** Return the paint's horizontal skew factor for text. The default value
-        is 0.
-        @return the paint's skew factor in X for drawing text.
+    /** Returns text skew x.
+        Default value is zero.
+
+        @return  additional shear in x-axis relative to y-axis
     */
     SkScalar getTextSkewX() const { return fTextSkewX; }
 
-    /** Set the paint's horizontal skew factor for text. The default value
-        is 0. For approximating oblique text, use values around -0.25.
-        @param skewX set the paint's skew factor in X for drawing text.
+    /** Sets text skew x.
+        Default value is zero.
+
+        @param skewX  additional shear in x-axis relative to y-axis
     */
     void setTextSkewX(SkScalar skewX);
 
-    /** Describes how to interpret the text parameters that are passed to paint
-        methods like measureText() and getTextWidths().
+    /** \enum SkPaint::TextEncoding
+        TextEncoding determines whether text specifies character codes and their encoded size,
+        or glyph indices. Character codes use the encoding specified by the Unicode standard .
+        Character codes encoded size are specified by UTF-8, UTF-16, or UTF-32.
+        All character encoding are able to represent all of Unicode, differing only
+        in the total storage required. UTF-8 (RFC 3629) is made up of 8-bit bytes,
+        and is a superset of ASCII. UTF-16 (RFC 2781) is made up of 16-bit words,
+        and is a superset of Unicode ranges 0x0000 to 0xD7FF and 0xE000 to 0xFFFF. UTF-32 is
+        made up of 32-bit words, and is a superset of Unicode.
+
+        font manager uses font data to convert character code points into glyph indices.
+        A glyph index is a 16-bit word.
+
+        TextEncoding is set to kUTF8_TextEncoding by default.
     */
     enum TextEncoding {
-        kUTF8_TextEncoding,     //!< the text parameters are UTF8
-        kUTF16_TextEncoding,    //!< the text parameters are UTF16
-        kUTF32_TextEncoding,    //!< the text parameters are UTF32
-        kGlyphID_TextEncoding   //!< the text parameters are glyph indices
+        kUTF8_TextEncoding,    //!< Uses bytes to represent UTF-8 or ASCII.
+        kUTF16_TextEncoding,   //!< Uses two byte words to represent most of Unicode.
+        kUTF32_TextEncoding,   //!< Uses four byte words to represent all of Unicode.
+        kGlyphID_TextEncoding, //!< Uses two byte words to represent glyph indices.
     };
 
+    /** Returns SkPaint::TextEncoding.
+        SkPaint::TextEncoding determines how character code points are mapped to font glyph indices.
+
+        @return  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
+                 kGlyphID_TextEncoding
+    */
     TextEncoding getTextEncoding() const {
       return (TextEncoding)fBitfields.fTextEncoding;
     }
 
+    /** Sets SkPaint::TextEncoding to encoding.
+        SkPaint::TextEncoding determines how character code points are mapped to font glyph indices.
+        Invalid values for encoding are ignored.
+
+        @param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
+    */
     void setTextEncoding(TextEncoding encoding);
 
+    /** \struct SkPaint::FontMetrics
+        FontMetrics is filled out by getFontMetrics. FontMetrics contents reflect the values
+        computed by font manager using SkTypeface. Values are set to zero if they are
+        not availble.
+
+        fUnderlineThickness and fUnderlinePosition have a bit set in fFlags if their values
+        are valid, since their value may be zero.
+
+        fStrikeoutThickness and fStrikeoutPosition have a bit set in fFlags if their values
+        are valid, since their value may be zero.
+    */
     struct FontMetrics {
-        /** Flags which indicate the confidence level of various metrics.
-            A set flag indicates that the metric may be trusted.
+
+        /** \enum SkPaint::FontMetrics::FontMetricsFlags
+            FontMetricsFlags are set in fFlags when underline metrics are valid;
+            the underline metric may be valid and zero.
+            Fonts with embedded bitmaps may not have valid underline metrics.
         */
         enum FontMetricsFlags {
-            kUnderlineThicknessIsValid_Flag = 1 << 0,
-            kUnderlinePositionIsValid_Flag = 1 << 1,
-            kStrikeoutThicknessIsValid_Flag = 1 << 2,
-            kStrikeoutPositionIsValid_Flag = 1 << 3,
+            kUnderlineThicknessIsValid_Flag = 1 << 0, //!< Set if fUnderlineThickness is valid.
+            kUnderlinePositionIsValid_Flag  = 1 << 1, //!< Set if fUnderlinePosition is valid.
+            kStrikeoutThicknessIsValid_Flag = 1 << 2, //!< Set if fStrikeoutThickness is valid.
+            kStrikeoutPositionIsValid_Flag  = 1 << 3, //!< Set if fStrikeoutPosition is valid.
         };
 
-        uint32_t    fFlags;       //!< Bit field to identify which values are unknown
-        SkScalar    fTop;       //!< The greatest distance above the baseline for any glyph (will be <= 0)
-        SkScalar    fAscent;    //!< The recommended distance above the baseline (will be <= 0)
-        SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
-        SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
-        SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
-        SkScalar    fAvgCharWidth;  //!< the average character width (>= 0)
-        SkScalar    fMaxCharWidth;  //!< the max character width (>= 0)
-        SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
-        SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
-        SkScalar    fXHeight;   //!< The height of an 'x' in px, or 0 if no 'x' in face
-        SkScalar    fCapHeight;  //!< The cap height (> 0), or 0 if cannot be determined.
-        SkScalar    fUnderlineThickness; //!< underline thickness, or 0 if cannot be determined
+        uint32_t fFlags;              //!< fFlags is set when underline metrics are valid.
 
-        /** Position of the top of the underline stroke relative to the baseline.
-         *  A positive value means draw below the baseline; negative values above.
-         */
-        SkScalar    fUnderlinePosition;
+        /** Largest height for any glyph.
+            A measure from the baseline, and is less than or equal to zero.
+        */
+        SkScalar fTop;
 
-        SkScalar    fStrikeoutThickness; //!< strikeout thickness, or 0 if cannot be determined
+        /** Recommended distance above the baseline to reserve for a line of text.
+            A measure from the baseline, and is less than or equal to zero.
+        */
+        SkScalar fAscent;
 
-        /** Position of the bottom of the strikeout stroke relative to the baseline.
-         *  A positive value means draw below the baseline; negative values above.
-         */
-        SkScalar    fStrikeoutPosition;
+        /** Recommended distance below the baseline to reserve for a line of text.
+            A measure from the baseline, and is greater than or equal to zero.
+        */
+        SkScalar fDescent;
 
-        /** If the underline thickness is valid return true and set thickness.
-         *  Otherwise return false and ignore the thickness param.
-         */
+        /** Greatest extent below the baseline for any glyph.
+            A measure from the baseline, and is greater than or equal to zero.
+        */
+        SkScalar fBottom;
+
+        /** Recommended distance to add between lines of text.
+            Greater than or equal to zero.
+        */
+        SkScalar fLeading;
+
+        /** Average character width, if it is available.
+            Zero if no average width is stored in the font.
+        */
+        SkScalar fAvgCharWidth;
+        SkScalar fMaxCharWidth;       //!< Maximum character width.
+
+        /** Minimum bounding box x value for all glyphs.
+            Typically less than zero.
+        */
+        SkScalar fXMin;
+
+        /** Maximum bounding box x value for all glyphs.
+            Typically greater than zero.
+        */
+        SkScalar fXMax;
+
+        /** Height of a lower-case 'x'.
+            May be zero if no lower-case height is stored in the font.
+        */
+        SkScalar fXHeight;
+
+        /** Height of an upper-case letter.
+            May be zero if no upper-case height is stored in the font.
+        */
+        SkScalar fCapHeight;
+
+        /** Underline thickness. If the metric
+            is valid, the kUnderlineThicknessIsValid_Flag is set in fFlags.
+            If kUnderlineThicknessIsValid_Flag is clear, fUnderlineThickness is zero.
+        */
+        SkScalar fUnderlineThickness;
+
+        /** Underline position relative to the baseline.
+            It may be negative, to draw the underline above the baseline, zero
+            to draw the underline on the baseline, or positive to draw the underline
+            below the baseline.
+
+            If the metric is valid, the kUnderlinePositionIsValid_Flag is set in fFlags.
+            If kUnderlinePositionIsValid_Flag is clear, fUnderlinePosition is zero.
+        */
+        SkScalar fUnderlinePosition;
+
+        /** Strikeout thickness. If the metric
+            is valid, the kStrikeoutThicknessIsValid_Flag is set in fFlags.
+            If kStrikeoutThicknessIsValid_Flag is clear, fStrikeoutThickness is zero.
+        */
+        SkScalar fStrikeoutThickness;
+
+        /** Strikeout position relative to the baseline.
+            It may be negative, to draw the strikeout above the baseline, zero
+            to draw the strikeout on the baseline, or positive to draw the strikeout
+            below the baseline.
+
+            If the metric is valid, the kStrikeoutPositionIsValid_Flag is set in fFlags.
+            If kStrikeoutPositionIsValid_Flag is clear, fStrikeoutPosition is zero.
+        */
+        SkScalar fStrikeoutPosition;
+
+        /** If SkPaint::FontMetrics has a valid underline thickness, return true, and set
+            thickness to that value. If it doesn't, return false, and ignore
+            thickness.
+
+            @param thickness  storage for underline width
+            @return           true if font specifies underline width
+        */
         bool hasUnderlineThickness(SkScalar* thickness) const {
             if (SkToBool(fFlags & kUnderlineThicknessIsValid_Flag)) {
                 *thickness = fUnderlineThickness;
@@ -735,9 +1218,13 @@ public:
             return false;
         }
 
-        /** If the underline position is valid return true and set position.
-         *  Otherwise return false and ignore the position param.
-         */
+        /** If SkPaint::FontMetrics has a valid underline position, return true, and set
+            position to that value. If it doesn't, return false, and ignore
+            position.
+
+            @param position  storage for underline position
+            @return          true if font specifies underline position
+        */
         bool hasUnderlinePosition(SkScalar* position) const {
             if (SkToBool(fFlags & kUnderlinePositionIsValid_Flag)) {
                 *position = fUnderlinePosition;
@@ -746,9 +1233,13 @@ public:
             return false;
         }
 
-        /** If the strikeout thickness is valid return true and set thickness.
-         *  Otherwise return false and ignore the thickness param.
-         */
+        /** If SkPaint::FontMetrics has a valid strikeout thickness, return true, and set
+            thickness to that value. If it doesn't, return false, and ignore
+            thickness.
+
+            @param thickness  storage for strikeout width
+            @return           true if font specifies strikeout width
+        */
         bool hasStrikeoutThickness(SkScalar* thickness) const {
             if (SkToBool(fFlags & kStrikeoutThicknessIsValid_Flag)) {
                 *thickness = fStrikeoutThickness;
@@ -757,9 +1248,13 @@ public:
             return false;
         }
 
-        /** If the strikeout position is valid return true and set position.
-         *  Otherwise return false and ignore the position param.
-         */
+        /** If SkPaint::FontMetrics has a valid strikeout position, return true, and set
+            position to that value. If it doesn't, return false, and ignore
+            position.
+
+            @param position  storage for strikeout position
+            @return          true if font specifies strikeout position
+        */
         bool hasStrikeoutPosition(SkScalar* position) const {
             if (SkToBool(fFlags & kStrikeoutPositionIsValid_Flag)) {
                 *position = fStrikeoutPosition;
@@ -767,250 +1262,349 @@ public:
             }
             return false;
         }
+
     };
 
-    /** Return the recommend spacing between lines (which will be
-        fDescent - fAscent + fLeading).
-        If metrics is not null, return in it the font metrics for the
-        typeface/pointsize/etc. currently set in the paint.
-        @param metrics      If not null, returns the font metrics for the
-                            current typeface/pointsize/etc setting in this
-                            paint.
-        @param scale        If not 0, return width as if the canvas were scaled
-                            by this value
-        @param return the recommended spacing between lines
+    /** Returns SkPaint::FontMetrics associated with SkTypeface.
+        The return value is the recommended spacing between lines: the sum of metrics
+        descent, ascent, and leading.
+        If metrics is not nullptr, SkPaint::FontMetrics is copied to metrics.
+        Results are scaled by text size but does not take into account
+        dimensions required by text scale x, text skew x, fake bold,
+        style stroke, and SkPathEffect.
+        Results can be additionally scaled by scale; a scale of zero
+        is ignored.
+
+        @param metrics  storage for SkPaint::FontMetrics from SkTypeface; may be nullptr
+        @param scale    additional multiplier for returned values
+        @return         recommended spacing between lines
     */
     SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const;
 
-    /** Return the recommend line spacing. This will be
-        fDescent - fAscent + fLeading
+    /** Returns the recommended spacing between lines: the sum of metrics
+        descent, ascent, and leading.
+        Result is scaled by text size but does not take into account
+        dimensions required by stroking and SkPathEffect.
+        getFontSpacing returns the same result as getFontMetrics.
+
+        @return  recommended spacing between lines
     */
     SkScalar getFontSpacing() const { return this->getFontMetrics(NULL, 0); }
 
-    /** Convert the specified text into glyph IDs, returning the number of
-        glyphs ID written. If glyphs is NULL, it is ignore and only the count
-        is returned.
+    /** Converts text into glyph indices.
+        Returns the number of glyph indices represented by text.
+        SkPaint::TextEncoding specifies how text represents characters or glyphs.
+        glyphs may be nullptr, to compute the glyph count.
+
+        Does not check text for valid character encoding or valid
+        glyph indices.
+
+        If byteLength equals zero, textToGlyphs returns zero.
+        If byteLength includes a partial character, the partial character is ignored.
+
+        If SkPaint::TextEncoding is kUTF8_TextEncoding and
+        text contains an invalid UTF-8 sequence, zero is returned.
+
+        @param text        character stroage encoded with SkPaint::TextEncoding
+        @param byteLength  length of character storage in bytes
+        @param glyphs      storage for glyph indices; may be nullptr
+        @return            number of glyphs represented by text of length byteLength
     */
     int textToGlyphs(const void* text, size_t byteLength,
                      SkGlyphID glyphs[]) const;
 
-    /** Return true if all of the specified text has a corresponding non-zero
-        glyph ID. If any of the code-points in the text are not supported in
-        the typeface (i.e. the glyph ID would be zero), then return false.
+    /** Returns true if all text corresponds to a non-zero glyph index.
+        Returns false if any characters in text are not supported in
+        SkTypeface.
 
-        If the text encoding for the paint is kGlyph_TextEncoding, then this
-        returns true if all of the specified glyph IDs are non-zero.
-     */
+        If SkPaint::TextEncoding is kGlyphID_TextEncoding, containsText
+        returns true if all glyph indices in text are non-zero; containsText
+        does not check to see if text contains valid glyph indices for SkTypeface.
+
+        Returns true if bytelength is zero.
+
+        @param text        array of characters or glyphs
+        @param byteLength  number of bytes in text array
+        @return            true if all text corresponds to a non-zero glyph index
+    */
     bool containsText(const void* text, size_t byteLength) const;
 
-    /** Convert the glyph array into Unichars. Unconvertable glyphs are mapped
-        to zero. Note: this does not look at the text-encoding setting in the
-        paint, only at the typeface.
+    /** Converts glyphs into text if possible.
+        Glyph values without direct Unicode equivalents are mapped to zero.
+        Uses the SkTypeface, but is unaffected
+        by SkPaint::TextEncoding; the text values returned are equivalent to kUTF32_TextEncoding.
+
+        Only supported on platforms that use FreeType as the font engine.
+
+        @param glyphs  array of indices into font
+        @param count   length of glyph array
+        @param text    storage for character codes, one per glyph
     */
     void glyphsToUnichars(const SkGlyphID glyphs[], int count, SkUnichar text[]) const;
 
-    /** Return the number of drawable units in the specified text buffer.
-        This looks at the current TextEncoding field of the paint. If you also
-        want to have the text converted into glyph IDs, call textToGlyphs
-        instead.
+    /** Returns the number of glyphs in text.
+        Uses SkPaint::TextEncoding to count the glyphs.
+        Returns the same result as textToGlyphs.
+
+        @param text        character stroage encoded with SkPaint::TextEncoding
+        @param byteLength  length of character storage in bytes
+        @return            number of glyphs represented by text of length byteLength
     */
     int countText(const void* text, size_t byteLength) const {
         return this->textToGlyphs(text, byteLength, NULL);
     }
 
-    /** Return the width of the text. This will return the vertical measure
-     *  if isVerticalText() is true, in which case the returned value should
-     *  be treated has a height instead of a width.
-     *
-     *  @param text         The text to be measured
-     *  @param length       Number of bytes of text to measure
-     *  @param bounds       If not NULL, returns the bounds of the text,
-     *                      relative to (0, 0).
-     *  @return             The advance width of the text
-     */
+    /** Returns the advance width of text if kVerticalText_Flag is clear,
+        and the height of text if kVerticalText_Flag is set.
+        The advance is the normal distance to move before drawing additional text.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        and text size, text scale x, text skew x, stroke width, and
+        SkPathEffect to scale the metrics and bounds.
+        Returns the bounding box of text if bounds is not nullptr.
+        The bounding box is computed as if the text was drawn at the origin.
+
+        @param text    character codes or glyph indices to be measured
+        @param length  number of bytes of text to measure
+        @param bounds  returns bounding box relative to (0, 0) if not nullptr
+        @return        advance width or height
+    */
     SkScalar measureText(const void* text, size_t length, SkRect* bounds) const;
 
-    /** Return the width of the text. This will return the vertical measure
-     *  if isVerticalText() is true, in which case the returned value should
-     *  be treated has a height instead of a width.
-     *
-     *  @param text     Address of the text
-     *  @param length   Number of bytes of text to measure
-     *  @return         The advance width of the text
-     */
+    /** Returns the advance width of text if kVerticalText_Flag is clear,
+        and the height of text if kVerticalText_Flag is set.
+        The advance is the normal distance to move before drawing additional text.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        and text size, text scale x, text skew x, stroke width, and
+        SkPathEffect to scale the metrics and bounds.
+        Returns the bounding box of text if bounds is not nullptr.
+        The bounding box is computed as if the text was drawn at the origin.
+
+        @param text    character codes or glyph indices to be measured
+        @param length  number of bytes of text to measure
+        @param bounds  returns bounding box relative to (0, 0) if not nullptr
+        @return        advance width or height
+    */
     SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, NULL);
     }
 
-    /** Return the number of bytes of text that were measured. If
-     *  isVerticalText() is true, then the vertical advances are used for
-     *  the measurement.
-     *
-     *  @param text     The text to be measured
-     *  @param length   Number of bytes of text to measure
-     *  @param maxWidth Maximum width. Only the subset of text whose accumulated
-     *                  widths are <= maxWidth are measured.
-     *  @param measuredWidth Optional. If non-null, this returns the actual
-     *                  width of the measured text.
-     *  @return         The number of bytes of text that were measured. Will be
-     *                  <= length.
-     */
+    /** Returns the bytes of text that fit within maxWidth.
+        If kVerticalText_Flag is clear, the text fragment fits if its advance width is less than or
+        equal to maxWidth.
+        If kVerticalText_Flag is set, the text fragment fits if its advance height is less than or
+        equal to maxWidth.
+        Measures only while the advance is less than or equal to maxWidth.
+        Returns the advance or the text fragment in measuredWidth if it not nullptr.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        and text size to scale the metrics.
+        Does not scale the advance or bounds by fake bold or SkPathEffect.
+
+        @param text           character codes or glyph indices to be measured
+        @param length         number of bytes of text to measure
+        @param maxWidth       advance limit; text is measured while advance is less than maxWidth
+        @param measuredWidth  returns the width of the text less than or equal to maxWidth
+        @return               bytes of text that fit, always less than or equal to length
+    */
     size_t  breakText(const void* text, size_t length, SkScalar maxWidth,
                       SkScalar* measuredWidth = NULL) const;
 
-    /** Return the advances for the text. These will be vertical advances if
-     *  isVerticalText() returns true.
-     *
-     *  @param text         the text
-     *  @param byteLength   number of bytes to of text
-     *  @param widths       If not null, returns the array of advances for
-     *                      the glyphs. If not NULL, must be at least a large
-     *                      as the number of unichars in the specified text.
-     *  @param bounds       If not null, returns the bounds for each of
-     *                      character, relative to (0, 0)
-     *  @return the number of unichars in the specified text.
-     */
+    /** Retrieves the advance and bounds for each glyph in text, and returns
+        the glyph count in text.
+        Both widths and bounds may be nullptr.
+        If widths is not nullptr, widths must be an array of glyph count entries.
+        if bounds is not nullptr, bounds must be an array of glyph count entries.
+        If kVerticalText_Flag is clear, widths returns the horizontal advance.
+        If kVerticalText_Flag is set, widths returns the vertical advance.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
+        and text size to scale the widths and bounds.
+        Does not scale the advance by fake bold or SkPathEffect.
+        Does return include fake bold and SkPathEffect in the bounds.
+
+        @param text        character codes or glyph indices to be measured
+        @param byteLength  number of bytes of text to measure
+        @param widths      returns text advances for each glyph; may be nullptr
+        @param bounds      returns bounds for each glyph relative to (0, 0); may be nullptr
+        @return            glyph count in text
+    */
     int getTextWidths(const void* text, size_t byteLength, SkScalar widths[],
                       SkRect bounds[] = NULL) const;
 
-    /** Return the path (outline) for the specified text.
-     *  Note: just like SkCanvas::drawText, this will respect the Align setting
-     *        in the paint.
-     *
-     *  @param text         the text
-     *  @param length       number of bytes of text
-     *  @param x            The x-coordinate of the origin of the text.
-     *  @param y            The y-coordinate of the origin of the text.
-     *  @param path         The outline of the text.
-     */
+    /** Returns the geometry as SkPath equivalent to the drawn text.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
+        All of the glyph paths are stored in path.
+        getTextPath uses x, y, and SkPaint::Align to position path.
+
+        @param text    character codes or glyph indices
+        @param length  number of bytes of text
+        @param x       x-coordinate of the origin of the text
+        @param y       y-coordinate of the origin of the text
+        @param path    geometry of the glyphs
+    */
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
-    /** Return the path (outline) for the specified text.
-     *  Note: just like SkCanvas::drawText, this will respect the Align setting
-     *        in the paint.
-     *
-     *  @param text         the text
-     *  @param length       number of bytes of text
-     *  @param pos          array of positions, used to position each character
-     *  @param path         The outline of the text.
-     */
+    /** Returns the geometry as SkPath equivalent to the drawn text.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
+        All of the glyph paths are stored in path.
+        Uses pos array and SkPaint::Align to position path.
+        pos contains a position for each glyph.
+
+        @param text    character codes or glyph indices
+        @param length  number of bytes of text
+        @param pos     positions of each glyph
+        @param path    geometry of the glyphs
+    */
     void getPosTextPath(const void* text, size_t length,
                         const SkPoint pos[], SkPath* path) const;
 
-    /** Return the number of intervals that intersect the intercept along the axis of the advance.
-     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
-     *  the string. The caller may pass nullptr for intervals to determine the size of the interval
-     *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
-     *  intervals are cached by glyph to improve performance for multiple calls.
-     *  This permits constructing an underline that skips the descenders. 
-     *
-     *  @param text         the text
-     *  @param length       number of bytes of text
-     *  @param x            The x-coordinate of the origin of the text.
-     *  @param y            The y-coordinate of the origin of the text.
-     *  @param bounds       The lower and upper line parallel to the advance.
-     *  @param array        If not null, the found intersections.
-     *
-     *  @return             The number of intersections, which may be zero.
-     */
+    /** Returns the number of intervals that intersect bounds.
+        bounds describes a pair of lines parallel to the text advance.
+        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
+        the string.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
+        Uses x, y, and SkPaint::Align to position intervals.
+
+        Pass nullptr for intervals to determine the size of the interval array.
+
+        intervals are cached to improve performance for multiple calls.
+
+        @param text       character codes or glyph indices
+        @param length     number of bytes of text
+        @param x          x-coordinate of the origin of the text
+        @param y          y-coordinate of the origin of the text
+        @param bounds     lower and upper line parallel to the advance
+        @param intervals  returned intersections; may be nullptr
+        @return           number of intersections; may be zero
+    */
     int getTextIntercepts(const void* text, size_t length, SkScalar x, SkScalar y,
                           const SkScalar bounds[2], SkScalar* intervals) const;
 
-    /** Return the number of intervals that intersect the intercept along the axis of the advance.
-     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
-     *  string. The caller may pass nullptr for intervals to determine the size of the interval
-     *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
-     *  intervals are cached by glyph to improve performance for multiple calls.
-     *  This permits constructing an underline that skips the descenders. 
-     *
-     *  @param text         the text
-     *  @param length       number of bytes of text
-     *  @param pos          array of positions, used to position each character
-     *  @param bounds       The lower and upper line parallel to the advance.
-     *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
-     *
-     *  @return             The number of intersections, which may be zero.
-     */
+    /** Returns the number of intervals that intersect bounds.
+        bounds describes a pair of lines parallel to the text advance.
+        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
+        the string.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
+        Uses pos array and SkPaint::Align to position intervals.
+
+        Pass nullptr for intervals to determine the size of the interval array.
+
+        intervals are cached to improve performance for multiple calls.
+
+        @param text       character codes or glyph indices
+        @param length     number of bytes of text
+        @param pos        positions of each glyph
+        @param bounds     lower and upper line parallel to the advance
+        @param intervals  returned intersections; may be nullptr
+        @return           The number of intersections; may be zero
+    */
     int getPosTextIntercepts(const void* text, size_t length, const SkPoint pos[],
                              const SkScalar bounds[2], SkScalar* intervals) const;
 
-    /** Return the number of intervals that intersect the intercept along the axis of the advance.
-     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
-     *  string. The caller may pass nullptr for intervals to determine the size of the interval
-     *  array, or may conservatively pre-allocate an array with length * 2 entries. The computed
-     *  intervals are cached by glyph to improve performance for multiple calls.
-     *  This permits constructing an underline that skips the descenders.
-     *
-     *  @param text         The text.
-     *  @param length       Number of bytes of text.
-     *  @param xpos         Array of x-positions, used to position each character.
-     *  @param constY       The shared Y coordinate for all of the positions.
-     *  @param bounds       The lower and upper line parallel to the advance.
-     *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
-     *
-     *  @return             The number of intersections, which may be zero.
-     */
+    /** Returns the number of intervals that intersect bounds.
+        bounds describes a pair of lines parallel to the text advance.
+        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
+        the string.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
+        Uses xpos array, constY, and SkPaint::Align to position intervals.
+
+        Pass nullptr for intervals to determine the size of the interval array.
+
+        intervals are cached to improve performance for multiple calls.
+
+        @param text       character codes or glyph indices
+        @param length     number of bytes of text
+        @param xpos       positions of each glyph in x
+        @param constY     position of each glyph in y
+        @param bounds     lower and upper line parallel to the advance
+        @param intervals  returned intersections; may be nullptr
+        @return           number of intersections; may be zero
+    */
     int getPosTextHIntercepts(const void* text, size_t length, const SkScalar xpos[],
                               SkScalar constY, const SkScalar bounds[2], SkScalar* intervals) const;
 
-    /** Return the number of intervals that intersect the intercept along the axis of the advance.
-     *  The return count is zero or a multiple of two, and is at most the number of glyphs * 2 in
-     *  text blob. The caller may pass nullptr for intervals to determine the size of the interval
-     *  array. The computed intervals are cached by glyph to improve performance for multiple calls.
-     *  This permits constructing an underline that skips the descenders.
-     *
-     *  @param blob         The text blob.
-     *  @param bounds       The lower and upper line parallel to the advance.
-     *  @param array        If not null, the glyph bounds contained by the advance parallel lines.
-     *
-     *  @return             The number of intersections, which may be zero.
-     */
+    /** Returns the number of intervals that intersect bounds.
+        bounds describes a pair of lines parallel to the text advance.
+        The return count is zero or a multiple of two, and is at most twice the number of glyphs in
+        the string.
+        Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
+        and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
+        Uses pos array and SkPaint::Align to position intervals.
+
+        Pass nullptr for intervals to determine the size of the interval array.
+
+        intervals are cached to improve performance for multiple calls.
+
+        @param blob       glyphs, positions, and text paint attributes
+        @param bounds     lower and upper line parallel to the advance
+        @param intervals  returned intersections; may be nullptr
+        @return           number of intersections; may be zero
+    */
     int getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds[2],
                               SkScalar* intervals) const;
 
-    /**
-     *  Return a rectangle that represents the union of the bounds of all
-     *  of the glyphs, but each one positioned at (0,0). This may be conservatively large, and
-     *  will not take into account any hinting, but will respect any text-scale-x or text-skew-x
-     *  on this paint.
-     */
+    /** Returns the union of bounds of all glyphs.
+        Returned dimensions are computed by font manager from font data,
+        ignoring SkPaint::Hinting. getFontBounds includes text size, text scale x,
+        and text skew x, but not fake bold or SkPathEffect.
+
+        If text size is large, text scale x is one, and text skew x is zero,
+        getFontBounds returns the same bounds as SkPaint::FontMetrics { FontMetrics::fXMin,
+        FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
+
+        @return  union of bounds of all glyphs
+    */
     SkRect getFontBounds() const;
 
-    // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
-    // mean that we need not draw at all (e.g. SrcOver + 0-alpha)
+    /** Returns true if SkPaint prevents all drawing.
+        If nothingToDraw returns false, the SkPaint may or may not allow drawing.
+
+        Returns true if SkBlendMode and alpha are enabled,
+        and computed alpha is zero.
+
+        @return  true if SkPaint prevents all drawing
+    */
     bool nothingToDraw() const;
 
-    ///////////////////////////////////////////////////////////////////////////
-    // would prefer to make these private...
+    /** (to be made private)
+        Returns true if SkPaint does not include elements requiring extensive computation
+        to compute SkBaseDevice bounds of drawn geometry. For instance, SkPaint with SkPathEffect
+        always returns false.
 
-    /** Returns true if the current paint settings allow for fast computation of
-     bounds (i.e. there is nothing complex like a patheffect that would make
-     the bounds computation expensive.
-     */
+        @return  true if SkPaint allows for fast computation of bounds
+    */
     bool canComputeFastBounds() const;
 
-    /** Only call this if canComputeFastBounds() returned true. This takes a
-     raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
-     effects in the paint (e.g. stroking). If needed, it uses the storage
-     rect parameter. It returns the adjusted bounds that can then be used
-     for quickReject tests.
+    /** (to be made private)
+        Only call this if canComputeFastBounds returned true. This takes a
+        raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
+        effects in the paint (e.g. stroking). If needed, it uses the storage
+        rect parameter. It returns the adjusted bounds that can then be used
+        for SkCanvas::quickReject tests.
 
-     The returned rect will either be orig or storage, thus the caller
-     should not rely on storage being set to the result, but should always
-     use the retured value. It is legal for orig and storage to be the same
-     rect.
+        The returned rect will either be orig or storage, thus the caller
+        should not rely on storage being set to the result, but should always
+        use the retured value. It is legal for orig and storage to be the same
+        rect.
 
-     e.g.
-     if (paint.canComputeFastBounds()) {
-     SkRect r, storage;
-     path.computeBounds(&r, SkPath::kFast_BoundsType);
-     const SkRect& fastR = paint.computeFastBounds(r, &storage);
-     if (canvas->quickReject(fastR, ...)) {
-     // don't draw the path
-     }
-     }
-     */
+        e.g.
+        if (paint.canComputeFastBounds()) {
+        SkRect r, storage;
+        path.computeBounds(&r, SkPath::kFast_BoundsType);
+        const SkRect& fastR = paint.computeFastBounds(r, &storage);
+        if (canvas->quickReject(fastR, ...)) {
+        // don't draw the path
+        }
+        }
+
+        @param orig     geometry modified by SkPaint when drawn
+        @param storage  computed bounds of geometry; may not be nullptr
+        @return         fast computed bounds
+    */
     const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
         // Things like stroking, etc... will do math on the bounds rect, assuming that it's sorted.
         SkASSERT(orig.isSorted());
@@ -1029,18 +1623,34 @@ public:
         return this->doComputeFastBounds(orig, storage, style);
     }
 
+    /** (to be made private)
+
+        @param orig     geometry modified by SkPaint when drawn
+        @param storage  computed bounds of geometry
+        @return         fast computed bounds
+    */
     const SkRect& computeFastStrokeBounds(const SkRect& orig,
                                           SkRect* storage) const {
         return this->doComputeFastBounds(orig, storage, kStroke_Style);
     }
 
-    // Take the style explicitly, so the caller can force us to be stroked
-    // without having to make a copy of the paint just to change that field.
+    /** (to be made private)
+        Take the style explicitly, so the caller can force us to be stroked
+        without having to make a copy of the paint just to change that field.
+
+        @param orig     geometry modified by SkPaint when drawn
+        @param storage  computed bounds of geometry
+        @param style    overrides SkPaint::Style
+        @return         fast computed bounds
+    */
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style style) const;
 
+    /**
+        Converts SkPaint to machine parsable form in developer mode.
 
-
+        @param str  storage for string containing parsable SkPaint
+    */
     SK_TO_STRING_NONVIRT()
 
 private:
