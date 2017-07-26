@@ -869,7 +869,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
 void SkPDFDevice::addSMaskGraphicState(sk_sp<SkPDFDevice> maskDevice,
                                        SkDynamicMemoryWStream* contentStream) {
     sk_sp<SkPDFDict> sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
-            maskDevice->makeFormXObjectFromDevice(), false,
+            maskDevice->makeFormXObjectFromDevice(true), false,
             SkPDFGraphicState::kLuminosity_SMaskMode, this->getCanon());
     SkPDFUtils::ApplyGraphicState(this->addGraphicStateResource(sMaskGS.get()), contentStream);
 }
@@ -1885,7 +1885,7 @@ void SkPDFDevice::appendDestinations(SkPDFDict* dict, SkPDFObject* page) const {
     }
 }
 
-sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
+sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
     SkMatrix inverseTransform = SkMatrix::I();
     if (!fInitialTransform.isIdentity()) {
         if (!fInitialTransform.invert(&inverseTransform)) {
@@ -1893,9 +1893,10 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice() {
             inverseTransform.reset();
         }
     }
+    const char* colorSpace = alpha ? "DeviceGray" : nullptr;
     sk_sp<SkPDFObject> xobject =
         SkPDFMakeFormXObject(this->content(), this->copyMediaBox(),
-                             this->makeResourceDict(), inverseTransform, nullptr);
+                             this->makeResourceDict(), inverseTransform, colorSpace);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging
     // it back in later.
