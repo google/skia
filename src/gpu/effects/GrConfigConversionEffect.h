@@ -33,6 +33,8 @@ public:
 
     const char* name() const override { return "Config Conversion"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
     PMConversion  pmConversion() const { return fPMConversion; }
 
     // This function determines whether it is possible to choose PM->UPM and UPM->PM conversions

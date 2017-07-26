@@ -62,6 +62,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+sk_sp<GrFragmentProcessor> GrConstColorProcessor::clone() const {
+    return Make(fColor, fMode);
+}
+
 GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
     switch (fMode) {
         case kIgnore_InputMode:
@@ -117,4 +121,5 @@ sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData
     InputMode mode = static_cast<InputMode>(d->fRandom->nextULessThan(kInputModeCnt));
     return GrConstColorProcessor::Make(color, mode);
 }
+
 #endif
