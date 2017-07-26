@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0fa3eb9_89a13626",
+        "filename": "src/pdf/SkPDFDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-26T14:03:08Z",
+      "side": 1,
+      "message": "would it be clearer if this took an enum?",
+      "range": {
+        "startLine": 215,
+        "startChar": 23,
+        "endLine": 215,
+        "endChar": 48
+      },
+      "revId": "27cefbf6757f5c4f737090b5b29a49ad525f4079",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
