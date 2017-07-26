@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include <functional>
+#include <future>
 #include <map>
 #include <memory>
 #include <string>
@@ -23,6 +24,12 @@ static std::unique_ptr<T> move_unique(T& v) {
 void ok_log(const char*);
 
 enum class Status { OK, Failed, Crashed, Skipped, None };
+
+struct Engine {
+    virtual ~Engine() {}
+    virtual bool                crashproof()                       = 0;
+    virtual std::future<Status> spawn(std::function<Status(void)>) = 0;
+};
 
 struct Src {
     virtual ~Src() {}
@@ -52,6 +59,7 @@ public:
 
 // Create globals to register your new type of Stream or Dst.
 struct Register {
+    Register(const char* name, const char* help, std::unique_ptr<Engine> (*factory)(Options));
     Register(const char* name, const char* help, std::unique_ptr<Stream> (*factory)(Options));
     Register(const char* name, const char* help, std::unique_ptr<Dst>    (*factory)(Options));
     Register(const char* name, const char* help,
