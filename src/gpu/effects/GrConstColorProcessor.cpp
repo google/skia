@@ -62,6 +62,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+sk_sp<GrFragmentProcessor> GrConstColorProcessor::clone() const { return Make(fColor, fMode); }
+
 GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
     switch (fMode) {
         case kIgnore_InputMode:

@@ -27,9 +27,11 @@ public:
 
     const char* name() const override { return "AARect"; }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    sk_sp<GrFragmentProcessor> clone() const override { return Make(fEdgeType, fRect); }
 
 private:
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+
     AARectEffect(GrPrimitiveEdgeType edgeType, const SkRect& rect)
             : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , fRect(rect)
@@ -336,6 +338,18 @@ GrConvexPolyEffect::GrConvexPolyEffect(GrPrimitiveEdgeType edgeType, int n, cons
     for (int i = 0; i < n; ++i) {
         fEdges[3 * i + 2] += SK_ScalarHalf;
     }
+}
+
+GrConvexPolyEffect::GrConvexPolyEffect(const GrConvexPolyEffect& that)
+        : INHERITED(kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+        , fEdgeType(that.fEdgeType)
+        , fEdgeCount(that.fEdgeCount) {
+    this->initClassID<GrConvexPolyEffect>();
+    memcpy(fEdges, that.fEdges, 3 * that.fEdgeCount * sizeof(SkScalar));
+}
+
+sk_sp<GrFragmentProcessor> GrConvexPolyEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrConvexPolyEffect(*this));
 }
 
 bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
