@@ -243,29 +243,42 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     unsigned rrectOrOvalStartIdx = (packed >> kRRectOrOvalStartIdx_SerializationShift) & 0x7;
 
     int32_t verbCount, pointCount, conicCount;
-    ptrdiff_t maxPtrDiff = std::numeric_limits<ptrdiff_t>::max();
     if (!buffer->readU32(&(ref->fGenerationID)) ||
-        !buffer->readS32(&verbCount) ||
-        verbCount < 0 ||
-        static_cast<uint32_t>(verbCount) > maxPtrDiff/sizeof(uint8_t) ||
-        !buffer->readS32(&pointCount) ||
-        pointCount < 0 ||
-        static_cast<uint32_t>(pointCount) > maxPtrDiff/sizeof(SkPoint) ||
-        sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount >
-            static_cast<size_t>(maxPtrDiff) ||
-        !buffer->readS32(&conicCount) ||
-        conicCount < 0) {
+        !buffer->readS32(&verbCount)            || (verbCount  < 0) ||
+        !buffer->readS32(&pointCount)           || (pointCount < 0) ||
+        !buffer->readS32(&conicCount)           || (conicCount < 0))
+    {
         return nullptr;
     }
 
+    uint64_t pointSize64 = sk_64_mul(pointCount, sizeof(SkPoint));
+    uint64_t conicSize64 = sk_64_mul(conicCount, sizeof(SkScalar));
+    if (!SkTFitsIn<size_t>(pointSize64) || !SkTFitsIn<size_t>(conicSize64)) {
+        return nullptr;
+    }
+
+    size_t verbSize = verbCount * sizeof(uint8_t);
+    size_t pointSize = SkToSizeT(pointSize64);
+    size_t conicSize = SkToSizeT(conicSize64);
+
+    {
+        uint64_t requiredBufferSize = sizeof(SkRect);
+        requiredBufferSize += verbSize;
+        requiredBufferSize += pointSize;
+        requiredBufferSize += conicSize;
+        if (buffer->available() < requiredBufferSize) {
+            return nullptr;
+        }
+    }
+
     ref->resetToSize(verbCount, pointCount, conicCount);
-    SkASSERT(verbCount == ref->countVerbs());
+    SkASSERT(verbCount  == ref->countVerbs());
     SkASSERT(pointCount == ref->countPoints());
     SkASSERT(conicCount == ref->fConicWeights.count());
 
-    if (!buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t)) ||
-        !buffer->read(ref->fPoints, pointCount * sizeof(SkPoint)) ||
-        !buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar)) ||
+    if (!buffer->read(ref->verbsMemWritable(), verbSize) ||
+        !buffer->read(ref->fPoints, pointSize) ||
+        !buffer->read(ref->fConicWeights.begin(), conicSize) ||
         !buffer->read(&ref->fBounds, sizeof(SkRect))) {
         return nullptr;
     }

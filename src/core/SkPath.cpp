@@ -8,6 +8,7 @@
 #include <cmath>
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
+#include "SkData.h"
 #include "SkGeometry.h"
 #include "SkMath.h"
 #include "SkPathPriv.h"
@@ -2059,6 +2060,13 @@ size_t SkPath::writeToMemory(void* storage) const {
 
     buffer.padToAlign4();
     return buffer.pos();
+}
+
+sk_sp<SkData> SkPath::serialize() const {
+    size_t size = this->writeToMemory(nullptr);
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    this->writeToMemory(data->writable_data());
+    return data;
 }
 
 size_t SkPath::readFromMemory(const void* storage, size_t length) {
