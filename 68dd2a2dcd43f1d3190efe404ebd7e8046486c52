@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c169d3a6_4fe7350e",
+        "filename": "src/core/SkCoverageDelta.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-07-26T15:12:39Z",
+      "side": 1,
+      "message": "In general I think its harder to parse ifndef than ifdef",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 15
+      },
+      "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
