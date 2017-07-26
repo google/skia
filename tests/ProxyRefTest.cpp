@@ -9,7 +9,6 @@
 
 #include "Test.h"
 
-#if SK_SUPPORT_GPU
 #include "GrContextPriv.h"
 #include "GrGpuResourceRef.h"
 #include "GrRenderTargetProxy.h"
@@ -45,6 +44,8 @@ int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
 
     return fPendingWrites;
 }
+
+#if 0 //SK_SUPPORT_GPU
 
 static const int kWidthHeight = 128;
 

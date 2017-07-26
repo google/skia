@@ -592,6 +592,37 @@ struct GrMipLevel {
 struct GrSurfaceDesc {
     GrSurfaceDesc()
     : fFlags(kNone_GrSurfaceFlags)
+    , fWidth(0)
+    , fHeight(0)
+    , fConfig(kUnknown_GrPixelConfig)
+    , fSampleCnt(0)
+    , fIsMipMapped(false) {
+    }
+
+    GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags
+    int                    fWidth;  //!< Width of the texture
+    int                    fHeight; //!< Height of the texture
+
+    /**
+     * Format of source data of the texture. Not guaranteed to be the same as
+     * internal format used by 3D API.
+     */
+    GrPixelConfig          fConfig;
+
+    /**
+     * The number of samples per pixel or 0 to disable full scene AA. This only
+     * applies if the kRenderTarget_GrSurfaceFlag is set. The actual number
+     * of samples may not exactly match the request. The request will be rounded
+     * up to the next supported sample count, or down if it is larger than the
+     * max supported count.
+     */
+    int                    fSampleCnt;
+    bool                   fIsMipMapped; //!< Indicates if the texture has mipmaps
+};
+
+struct GrSurfaceDesc2 {
+    GrSurfaceDesc2()
+    : fFlags(kNone_GrSurfaceFlags)
     , fOrigin(kDefault_GrSurfaceOrigin)
     , fWidth(0)
     , fHeight(0)
@@ -621,7 +652,6 @@ struct GrSurfaceDesc {
     int                    fSampleCnt;
     bool                   fIsMipMapped; //!< Indicates if the texture has mipmaps
 };
-
 // Legacy alias
 typedef GrSurfaceDesc GrTextureDesc;
 

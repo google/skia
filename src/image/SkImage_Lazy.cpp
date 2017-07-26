@@ -781,7 +781,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert
     if (!ctx->contextPriv().disableGpuYUVConversion()) {
-        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
+        const GrSurfaceDesc2 desc = GrImageInfoToSurfaceDesc(cacheInfo, *ctx->caps());
         ScopedGenerator generator(fSharedGenerator);
         Generator_GrYUVProvider provider(generator);
 
@@ -792,8 +792,11 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                 fSharedGenerator->fGenerator->getInfo().colorSpace();
         const SkColorSpace* thisColorSpace = fInfo.colorSpace();
 
+        GrSurfaceDesc desc2;
+        // TODO copy
+
         sk_sp<GrTextureProxy> proxy =
-                provider.refAsTextureProxy(ctx, desc, true, generatorColorSpace, thisColorSpace);
+                provider.refAsTextureProxy(ctx, desc2, true, generatorColorSpace, thisColorSpace);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);

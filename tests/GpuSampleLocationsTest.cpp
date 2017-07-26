@@ -10,7 +10,7 @@
 #include "Test.h"
 #include <vector>
 
-#if SK_SUPPORT_GPU
+#if 0//SK_SUPPORT_GPU
 
 #include "GrAppliedClip.h"
 #include "GrRenderTargetContext.h"
@@ -132,7 +132,7 @@ void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInter
         for (int i = 0; i < numTestPatterns; ++i) {
             testInterface->overrideSamplePattern(kTestPatterns[i]);
             for (GrRenderTargetContext* rtc : {bottomUps[i].get(), topDowns[i].get()}) {
-                GrPipeline dummyPipeline(rtc->accessRenderTarget(),
+                GrPipeline dummyPipeline(rtc->accessRenderTarget(), rtc->origin()
                                          GrPipeline::ScissorState::kDisabled,
                                          SkBlendMode::kSrcOver);
                 GrRenderTarget* rt = rtc->accessRenderTarget();

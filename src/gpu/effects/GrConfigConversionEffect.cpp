@@ -132,7 +132,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
         return false;
     }
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = kSize;
     desc.fHeight = kSize;

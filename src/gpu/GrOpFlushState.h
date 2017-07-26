@@ -97,7 +97,8 @@ public:
 
     /** Additional data required on a per-op basis when executing GrDrawOps. */
     struct DrawOpArgs {
-        GrRenderTarget*           fRenderTarget;
+        GrRenderTarget*           fRenderTarget1;
+        GrSurfaceOrigin           fOrigin;
         const GrAppliedClip*      fAppliedClip;
         GrXferProcessor::DstProxy fDstProxy;
     };
@@ -232,7 +233,8 @@ public:
         this->state()->putBackVertexSpace(vertices * vertexStride);
     }
 
-    GrRenderTarget* renderTarget() const { return this->state()->drawOpArgs().fRenderTarget; }
+    GrRenderTarget* renderTarget1() const { return this->state()->drawOpArgs().fRenderTarget1; }
+    GrSurfaceOrigin origin() const { return this->state()->drawOpArgs().fOrigin; }
 
     const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
 
@@ -253,7 +255,8 @@ public:
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fFlags = pipelineFlags;
         pipelineArgs.fProcessors = processorSet;
-        pipelineArgs.fRenderTarget = this->renderTarget();
+        pipelineArgs.fRenderTarget1 = this->renderTarget1();
+        pipelineArgs.fOrigin = this->origin();
         pipelineArgs.fAppliedClip = this->clip();
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();

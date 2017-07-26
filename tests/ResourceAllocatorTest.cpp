@@ -32,7 +32,7 @@ struct ProxyParams {
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrResourceProvider* resourceProvider,
                                            const ProxyParams& p) {
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = p.fIsRT ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fOrigin = p.fOrigin;
     desc.fWidth  = p.fSize;
@@ -53,9 +53,9 @@ static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams&
                                                                p.fConfig,
                                                                *backendTexHandle);
 
-    sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(
-                                                               backendTex, p.fOrigin,
-                                                               kBorrow_GrWrapOwnership);
+    SkASSERT(kDefault_GrSurfaceOrigin != p.fOrigin);
+    sk_sp<GrSurface> tex = context->resourceProvider()->wrapBackendTexture(backendTex,
+                                                                           kBorrow_GrWrapOwnership);
     return GrSurfaceProxy::MakeWrapped(std::move(tex), p.fOrigin);
 }
 

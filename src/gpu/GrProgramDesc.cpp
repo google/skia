@@ -218,7 +218,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTarget* rt = pipeline.getRenderTarget1();
 
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         SkASSERT(pipeline.isHWAntialiasState());

@@ -18,7 +18,7 @@
 // Deferred version
 // TODO: we can probably munge the 'desc' in both the wrapped and deferred
 // cases to make the sampleConfig/numSamples stuff more rational.
-GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
+GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc2& desc,
                                          SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
         : INHERITED(desc, fit, budgeted, flags)
         , fSampleCnt(desc.fSampleCnt)

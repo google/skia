@@ -217,8 +217,8 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* rt) {
     }
 }
 
-void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, const GrFixedClip& clip,
-                                              bool insideStencilMask) {
+void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                              const GrFixedClip& clip, bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());
 
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);

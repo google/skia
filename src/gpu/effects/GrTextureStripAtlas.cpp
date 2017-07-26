@@ -210,7 +210,7 @@ void GrTextureStripAtlas::lockTexture() {
     sk_sp<GrTextureProxy> proxy = fDesc.fContext->resourceProvider()->findProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
-        GrSurfaceDesc texDesc;
+        GrSurfaceDesc2 texDesc;
         texDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
         texDesc.fWidth  = fDesc.fWidth;
         texDesc.fHeight = fDesc.fHeight;

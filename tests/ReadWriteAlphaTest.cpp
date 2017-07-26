@@ -8,7 +8,7 @@
 #include "Test.h"
 
 // This test is specific to the GPU backend.
-#if SK_SUPPORT_GPU
+#if 0//SK_SUPPORT_GPU
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
