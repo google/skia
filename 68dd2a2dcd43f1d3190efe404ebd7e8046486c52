@@ -70,6 +70,30 @@
       "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64d8ba9d_9edf24d7",
+        "filename": "src/core/SkCoverageDelta.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-26T16:12:27Z",
+      "side": 1,
+      "message": "Perhaps just #if !defined(GOOGLE3).  That\u0027s harder to misread.",
+      "parentUuid": "a96654d2_62ac5a9a",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 15
+      },
+      "revId": "68dd2a2dcd43f1d3190efe404ebd7e8046486c52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
