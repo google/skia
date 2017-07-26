@@ -12,7 +12,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkDebugfTracer.h"
 #include "SkEventTracer.h"
-#include "SkTraceEventCommon.h"
+#include "SkTraceEvent.h"
 
 DEFINE_string(trace, "",
               "Log trace events in one of several modes:\n"
@@ -46,8 +46,8 @@ uint8_t* SkEventTracingCategories::getCategoryGroupEnabled(const char* name) {
     static_assert(0 == offsetof(CategoryState, fEnabled), "CategoryState");
 
     // We ignore the "disabled-by-default-" prefix in our internal tools (though we could honor it)
-    if (SkStrStartsWith(name, TRACE_DISABLED_BY_DEFAULT_PREFIX)) {
-        name += strlen(TRACE_DISABLED_BY_DEFAULT_PREFIX);
+    if (SkStrStartsWith(name, TRACE_CATEGORY_PREFIX)) {
+        name += strlen(TRACE_CATEGORY_PREFIX);
     }
 
     // Chrome's implementation of this API does a two-phase lookup (once without a lock, then again

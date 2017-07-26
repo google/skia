@@ -30,7 +30,7 @@ static const size_t MIN_INDEX_BUFFER_SIZE = 1 << 12;
 
 #define UNMAP_BUFFER(block)                                                               \
 do {                                                                                      \
-    TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),                           \
+    TRACE_EVENT_INSTANT1("skia.gpu",                                                      \
                          "GrBufferAllocPool Unmapping Buffer",                            \
                          TRACE_EVENT_SCOPE_THREAD,                                        \
                          "percent_unwritten",                                             \

@@ -3459,7 +3459,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst,
 }
 
 bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
-    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), TRACE_FUNC);
+    TRACE_EVENT0("skia", TRACE_FUNC);
 
     int progIdx = TextureToCopyProgramIdx(srcTex);
     const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
@@ -3738,7 +3738,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 }
 
 bool GrGLGpu::createStencilClipClearProgram() {
-    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), TRACE_FUNC);
+    TRACE_EVENT0("skia", TRACE_FUNC);
 
     if (!fStencilClipClearArrayBuffer) {
         static const GrGLfloat vdata[] = {-1, -1, 1, -1, -1, 1, 1, 1};
