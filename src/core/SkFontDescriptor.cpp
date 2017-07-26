@@ -108,7 +108,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
         sk_sp<SkData> data(SkData::MakeUninitialized(length));
         if (stream->read(data->writable_data(), length) == length) {
             result->fFontData = skstd::make_unique<SkFontData>(
-                skstd::make_unique<SkMemoryStream>(data), index, axis, axisCount);
+                                   SkMemoryStream::Make(std::move(data)), index, axis, axisCount);
         } else {
             SkDEBUGFAIL("Could not read font data");
             return false;

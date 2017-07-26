@@ -123,8 +123,7 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<SkData> data, SkPngChunkRea
     if (!data) {
         return nullptr;
     }
-    return MakeFromStream(std::unique_ptr<SkStream>(new SkMemoryStream(std::move(data))),
-                                                    nullptr, reader);
+    return MakeFromStream(SkMemoryStream::Make(std::move(data)), nullptr, reader);
 }
 
 SkCodec::SkCodec(int width, int height, const SkEncodedInfo& info,
