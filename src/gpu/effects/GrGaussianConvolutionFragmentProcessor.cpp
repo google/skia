@@ -195,16 +195,14 @@ static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-                                                            sk_sp<GrTextureProxy> proxy,
-                                                            Direction direction,
-                                                            int radius,
-                                                            float gaussianSigma,
-                                                            GrTextureDomain::Mode mode,
-                                                            int bounds[2])
-        : INHERITED{ModulationFlags(proxy->config()),
-                    GR_PROXY_MOVE(proxy),
-                    direction,
-                    radius}
+        sk_sp<GrTextureProxy> proxy,
+        Direction direction,
+        int radius,
+        float gaussianSigma,
+        GrTextureDomain::Mode mode,
+        int bounds[2])
+        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config()), GR_PROXY_MOVE(proxy),
+                    direction, radius}
         , fMode(mode) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
