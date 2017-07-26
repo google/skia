@@ -72,6 +72,9 @@ public:
     // Needed by do_fill_path in SkScanPriv.h
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
+    static bool ShouldUseDAA(const SkPath&);
+    static bool ShouldUseAAA(const SkPath&);
+
 private:
     friend class SkAAClip;
     friend class SkRegion;
