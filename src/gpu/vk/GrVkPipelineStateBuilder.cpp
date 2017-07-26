@@ -80,7 +80,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
     }
     if (inputs.fFlipY) {
         desc->setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(
-                                                     this->pipeline().getRenderTarget()->origin()));
+                                                     this->pipeline().proxy()->origin()));
         desc->finalize();
     }
     return result;
@@ -140,7 +140,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
     settings.fCaps = this->caps()->shaderCaps();
-    settings.fFlipY = this->pipeline().getRenderTarget()->origin() != kTopLeft_GrSurfaceOrigin;
+    settings.fFlipY = this->pipeline().proxy()->origin() != kTopLeft_GrSurfaceOrigin;
     SkAssertResult(this->createVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                                               fVS,
                                               &vertShaderModule,

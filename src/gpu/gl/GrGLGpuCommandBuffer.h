@@ -55,7 +55,7 @@ private:
                 const GrPipeline::DynamicState dynamicStates[],
                 int meshCount,
                 const SkRect& bounds) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
         if (!fRenderTarget) {
             fRenderTarget = target;
         }

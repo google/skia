@@ -8,6 +8,7 @@
 #define GrMockTexture_DEFINED
 
 #include "GrMockGpu.h"
+#include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "mock/GrMockTypes.h"

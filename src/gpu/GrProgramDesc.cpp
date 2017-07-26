@@ -218,17 +218,19 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     // make sure any padding in the header is zeroed.
     memset(header, 0, kHeaderSize);
 
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTargetProxy* proxy = pipeline.proxy();
 
     if (requiredFeatures & GrProcessor::kSampleLocations_RequiredFeature) {
         SkASSERT(pipeline.isHWAntialiasState());
+
+        GrRenderTarget* rt = pipeline.renderTarget();
         header->fSamplePatternKey =
             rt->renderTargetPriv().getMultisampleSpecs(pipeline).fUniqueID;
     } else {
         header->fSamplePatternKey = 0;
     }
 
-    header->fOutputSwizzle = shaderCaps.configOutputSwizzle(rt->config()).asKey();
+    header->fOutputSwizzle = shaderCaps.configOutputSwizzle(proxy->config()).asKey();
 
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
     header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();

@@ -83,7 +83,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
 #endif
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
-        GrRenderTarget* rt = pipeline.getRenderTarget();
+        GrRenderTarget* rt = pipeline.renderTarget();
         // TODO: attach stencil and create settings during render target flush.
         SkASSERT(rt->renderTargetPriv().getStencilAttachment());
         stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(),
@@ -102,7 +102,7 @@ sk_sp<GrVkPipelineState> GrVkResourceProvider::PipelineStateCache::refPipelineSt
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (!entry) {
         // Didn't find an origin-independent version, check with the specific origin
-        GrSurfaceOrigin origin = pipeline.getRenderTarget()->origin();
+        GrSurfaceOrigin origin = pipeline.proxy()->origin();
         desc.setSurfaceOriginKey(GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(origin));
         desc.finalize();
         entry = fMap.find(desc);

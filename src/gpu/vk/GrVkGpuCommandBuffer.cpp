@@ -493,7 +493,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 
     pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
 
-    GrRenderTarget* rt = pipeline.getRenderTarget();
+    GrRenderTarget* rt = pipeline.renderTarget();
 
     if (!pipeline.getScissorState().enabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), rt,
@@ -549,7 +549,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                                   const GrPipeline::DynamicState dynamicStates[],
                                   int meshCount,
                                   const SkRect& bounds) {
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.getRenderTarget());
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.renderTarget());
     if (!fRenderTarget) {
         this->init(target);
     }

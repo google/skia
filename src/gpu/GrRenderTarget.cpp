@@ -91,7 +91,7 @@ int GrRenderTargetPriv::numStencilBits() const {
 
 const GrGpu::MultisampleSpecs&
 GrRenderTargetPriv::getMultisampleSpecs(const GrPipeline& pipeline) const {
-    SkASSERT(fRenderTarget == pipeline.getRenderTarget()); // TODO: remove RT from pipeline.
+    SkASSERT(fRenderTarget == pipeline.renderTarget()); // TODO: remove RT from pipeline.
     GrGpu* gpu = fRenderTarget->getGpu();
     if (auto id = fRenderTarget->fMultisampleSpecsID) {
         SkASSERT(gpu->queryMultisampleSpecs(pipeline).fUniqueID == id);

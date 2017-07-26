@@ -236,7 +236,7 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
 
-    this->setRenderTargetState(pipeline.getRenderTarget());
+    this->setRenderTargetState(pipeline.proxy());
 
     SkSTArray<8, const GrResourceIOProcessor::TextureSampler*> textureBindings;
     SkSTArray<8, const GrResourceIOProcessor::BufferAccess*> bufferAccesses;
@@ -461,7 +461,9 @@ void GrVkPipelineState::writeTexelBuffers(
     }
 }
 
-void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt) {
+void GrVkPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
+    GrRenderTarget* rt = proxy->priv().peekRenderTarget();
+
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
@@ -472,10 +474,10 @@ void GrVkPipelineState::setRenderTargetState(const GrRenderTarget* rt) {
     SkISize size;
     size.set(rt->width(), rt->height());
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
-    if (fRenderTargetState.fRenderTargetOrigin != rt->origin() ||
+    if (fRenderTargetState.fRenderTargetOrigin != proxy->origin() ||
         fRenderTargetState.fRenderTargetSize != size) {
         fRenderTargetState.fRenderTargetSize = size;
-        fRenderTargetState.fRenderTargetOrigin = rt->origin();
+        fRenderTargetState.fRenderTargetOrigin = proxy->origin();
 
         float rtAdjustmentVec[4];
         fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
@@ -576,7 +578,7 @@ bool GrVkPipelineState::Desc::Build(Desc* desc,
     }
 
     GrProcessorKeyBuilder b(&desc->key());
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.getRenderTarget();
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)pipeline.renderTarget();
     vkRT->simpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);

@@ -1845,13 +1845,13 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
     if (blendInfo.fWriteColor) {
         // Swizzle the blend to match what the shader will output.
         const GrSwizzle& swizzle = this->caps()->shaderCaps()->configOutputSwizzle(
-            pipeline.getRenderTarget()->config());
+            pipeline.proxy()->config());
         this->flushBlend(blendInfo, swizzle);
     }
 
     program->setData(primProc, pipeline);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
@@ -2546,12 +2546,12 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
 
     for (int i = 0; i < meshCount; ++i) {
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
-            this->xferBarrier(pipeline.getRenderTarget(), barrierType);
+            this->xferBarrier(pipeline.renderTarget(), barrierType);
         }
 
         if (dynamicStates) {
             if (pipeline.getScissorState().enabled()) {
-                GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.getRenderTarget());
+                GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
                 this->flushScissor(dynamicStates[i].fScissorRect,
                                    glRT->getViewport(), glRT->origin());
             }

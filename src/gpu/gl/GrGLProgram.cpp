@@ -70,7 +70,7 @@ void GrGLProgram::abandon() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline) {
-    this->setRenderTargetState(primProc, pipeline.getRenderTarget());
+    this->setRenderTargetState(primProc, pipeline.renderTarget());
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
     // of GLProgram determine how to set coord transforms

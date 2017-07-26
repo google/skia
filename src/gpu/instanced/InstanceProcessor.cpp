@@ -1681,7 +1681,7 @@ GLSLInstanceProcessor::Backend* GLSLInstanceProcessor::Backend::Create(const GrP
             return new BackendCoverage(opInfo, inputs);
         case GrAAType::kMSAA:
         case GrAAType::kMixedSamples: {
-            const GrRenderTargetPriv& rtp = pipeline.getRenderTarget()->renderTargetPriv();
+            const GrRenderTargetPriv& rtp = pipeline.renderTarget()->renderTargetPriv();
             const GrGpu::MultisampleSpecs& specs = rtp.getMultisampleSpecs(pipeline);
             return new BackendMultisample(opInfo, inputs, specs.fEffectiveSampleCnt);
         }
