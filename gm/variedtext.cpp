@@ -54,11 +54,9 @@ protected:
 
         static_assert(4 == SK_ARRAY_COUNT(fTypefaces), "typeface_cnt");
         fTypefaces[0] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle());
-        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif",
-                            SkFontStyle::FromOldStyle(SkTypeface::kBold));
+        fTypefaces[1] = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
         fTypefaces[2] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
-        fTypefaces[3] = sk_tool_utils::create_portable_typeface("serif",
-                            SkFontStyle::FromOldStyle(SkTypeface::kBold));
+        fTypefaces[3] = sk_tool_utils::create_portable_typeface("serif", SkFontStyle::Bold());
 
         SkRandom random;
         for (int i = 0; i < kCnt; ++i) {

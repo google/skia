@@ -187,8 +187,7 @@ protected:
 
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(240));
-        paint.setTypeface(SkTypeface::MakeFromName("sans-serif",
-                                                   SkFontStyle::FromOldStyle(SkTypeface::kBold)));
+        paint.setTypeface(SkTypeface::MakeFromName("sans-serif", SkFontStyle::Bold()));
 
         SkString str("9");
 

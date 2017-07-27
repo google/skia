@@ -71,14 +71,14 @@ portable typeface on the paint, call:
 
 ~~~~
 sk_tool_utils::set_portable_typeface(SkPaint* , const char* name = nullptr,
-SkTypeface::Style style = SkTypeface::kNormal );
+SkFontStyle style = SkFontStyle());
 ~~~~
 
 To create a portable typeface, use:
 
 ~~~~
 SkTypeface* typeface = sk_tool_utils::create_portable_typeface(const char* name,
-SkTypeface::Style style);
+SkFontStyle style);
 ~~~~
 
 Eventually, both 'set_portable_typeface()' and 'create_portable_typeface()' will be

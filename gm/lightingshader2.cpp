@@ -140,8 +140,7 @@ protected:
 
         constexpr SkScalar LABEL_SIZE = 10.0f;
         SkPaint labelPaint;
-        labelPaint.setTypeface(sk_tool_utils::create_portable_typeface("sans-serif",
-                                                                       SkFontStyle()));
+        labelPaint.setTypeface(sk_tool_utils::create_portable_typeface("sans-serif",SkFontStyle()));
         labelPaint.setAntiAlias(true);
         labelPaint.setTextSize(LABEL_SIZE);
 

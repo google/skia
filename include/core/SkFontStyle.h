@@ -45,7 +45,12 @@ public:
     };
 
     SkFontStyle();
-    SkFontStyle(int weight, int width, Slant);
+
+    constexpr SkFontStyle(int weight, int width, Slant slant) : fUnion {{
+        static_cast<uint16_t>(SkTPin<int>(weight, kInvisible_Weight, kExtraBlack_Weight)),
+        static_cast<uint8_t >(SkTPin<int>(width, kUltraCondensed_Width, kUltraExpanded_Width)),
+        static_cast<uint8_t >(SkTPin<int>(slant, kUpright_Slant, kOblique_Slant))
+    }} { }
 
     static SkFontStyle FromOldStyle(unsigned oldStyle);
 
@@ -56,6 +61,19 @@ public:
     int weight() const { return fUnion.fR.fWeight; }
     int width() const { return fUnion.fR.fWidth; }
     Slant slant() const { return (Slant)fUnion.fR.fSlant; }
+
+    static constexpr SkFontStyle Normal() {
+        return SkFontStyle(kNormal_Weight, kNormal_Width, kUpright_Slant);
+    }
+    static constexpr SkFontStyle Bold() {
+        return SkFontStyle(kBold_Weight,   kNormal_Width, kUpright_Slant);
+    }
+    static constexpr SkFontStyle Italic() {
+        return SkFontStyle(kNormal_Weight, kNormal_Width, kItalic_Slant );
+    }
+    static constexpr SkFontStyle BoldItalic() {
+        return SkFontStyle(kBold_Weight,   kNormal_Width, kItalic_Slant );
+    }
 
 private:
     union {

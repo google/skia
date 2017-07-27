@@ -9,6 +9,7 @@
 #include "sk_tool_utils.h"
 #include "Resources.h"
 #include "SkCanvas.h"
+#include "SkFontStyle.h"
 #include "SkString.h"
 #include "SkSurfaceProps.h"
 #include "SkTypeface.h"
@@ -74,20 +75,20 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
 
 constexpr struct {
     const char* fName;
-    SkTypeface::Style   fStyle;
+    SkFontStyle fStyle;
 } gFaceStyles[] = {
-    { "sans-serif", SkTypeface::kNormal },
-    { "sans-serif", SkTypeface::kBold },
-    { "sans-serif", SkTypeface::kItalic },
-    { "sans-serif", SkTypeface::kBoldItalic },
-    { "serif", SkTypeface::kNormal },
-    { "serif", SkTypeface::kBold },
-    { "serif", SkTypeface::kItalic },
-    { "serif", SkTypeface::kBoldItalic },
-    { "monospace", SkTypeface::kNormal },
-    { "monospace", SkTypeface::kBold },
-    { "monospace", SkTypeface::kItalic },
-    { "monospace", SkTypeface::kBoldItalic },
+    { "sans-serif", SkFontStyle::Normal() },
+    { "sans-serif", SkFontStyle::Bold() },
+    { "sans-serif", SkFontStyle::Italic() },
+    { "sans-serif", SkFontStyle::BoldItalic() },
+    { "serif", SkFontStyle::Normal() },
+    { "serif", SkFontStyle::Bold() },
+    { "serif", SkFontStyle::Italic() },
+    { "serif", SkFontStyle::BoldItalic() },
+    { "monospace", SkFontStyle::Normal() },
+    { "monospace", SkFontStyle::Bold() },
+    { "monospace", SkFontStyle::Italic() },
+    { "monospace", SkFontStyle::BoldItalic() },
 };
 
 constexpr int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
@@ -106,8 +107,7 @@ protected:
     void onOnceBeforeDraw() override {
         for (int i = 0; i < gFaceStylesCount; i++) {
             fFaces[i] = SkTypeface::MakeFromName(
-                    sk_tool_utils::platform_font_name(
-                        gFaceStyles[i].fName), SkFontStyle::FromOldStyle(gFaceStyles[i].fStyle));
+                    sk_tool_utils::platform_font_name(gFaceStyles[i].fName), gFaceStyles[i].fStyle);
         }
     }
 

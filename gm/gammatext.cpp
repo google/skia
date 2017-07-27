@@ -105,8 +105,7 @@ static sk_sp<SkShader> make_gradient(SkColor c) {
 }
 
 static void set_face(SkPaint* paint) {
-    paint->setTypeface(SkTypeface::MakeFromName("serif",
-                           SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
+    paint->setTypeface(SkTypeface::MakeFromName("serif", SkFontStyle::Italic()));
 }
 
 static void draw_pair(SkCanvas* canvas, SkPaint* paint, const sk_sp<SkShader>& shader) {
