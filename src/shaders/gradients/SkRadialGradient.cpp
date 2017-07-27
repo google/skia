@@ -234,12 +234,19 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~GrRadialGradient() override {}
-
     const char* name() const override { return "Radial Gradient"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(*this));
+    }
+
 private:
-    GrRadialGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
+    explicit GrRadialGradient(const CreateArgs& args)
+            : INHERITED(args, args.fShader->colorsAreOpaque()) {
+        this->initClassID<GrRadialGradient>();
+    }
+
+    explicit GrRadialGradient(const GrRadialGradient& that) : INHERITED(that) {
         this->initClassID<GrRadialGradient>();
     }
 
@@ -258,7 +265,6 @@ private:
 class GrRadialGradient::GLSLRadialProcessor : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLRadialProcessor(const GrProcessor&) {}
-    ~GLSLRadialProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 
