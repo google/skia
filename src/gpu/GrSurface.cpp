@@ -15,7 +15,7 @@
 #include "SkGr.h"
 #include "SkMathPriv.h"
 
-size_t GrSurface::WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2) {
+size_t GrSurface::WorstCaseSize(const GrSurfaceDesc3& desc, bool useNextPow2) {
     size_t size;
 
     int width = useNextPow2 ? GrNextPow2(desc.fWidth) : desc.fWidth;

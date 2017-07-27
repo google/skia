@@ -15,7 +15,7 @@
 
 class GrMockTexture : public GrTexture {
 public:
-    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, bool hasMipLevels,
+    GrMockTexture(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc3& desc, bool hasMipLevels,
                   const GrMockTextureInfo& info)
             : GrMockTexture(gpu, desc, hasMipLevels, info) {
         this->registerWithCache(budgeted);
@@ -36,7 +36,7 @@ public:
 
 protected:
     // constructor for subclasses
-    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, bool hasMipLevels,
+    GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc3& desc, bool hasMipLevels,
                   const GrMockTextureInfo& info)
             : GrSurface(gpu, desc)
             , INHERITED(gpu, desc, kITexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
@@ -55,7 +55,7 @@ private:
 
 class GrMockTextureRenderTarget : public GrMockTexture, public GrRenderTarget {
 public:
-    GrMockTextureRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+    GrMockTextureRenderTarget(GrMockGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc3& desc,
                               bool hasMipLevels, const GrMockTextureInfo& texInfo)
             : GrSurface(gpu, desc)
             , GrMockTexture(gpu, desc, hasMipLevels, texInfo)
@@ -90,7 +90,7 @@ private:
 
     void computeScratchKey(GrScratchKey* key) const override {
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                         this->origin(), true, this->numStencilSamples(),
+                                         true, this->numStencilSamples(),
                                          this->texturePriv().hasMipMaps(), key);
     }
 };

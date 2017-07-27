@@ -25,20 +25,21 @@ public:
 
     ~GrMtlGpu() override {}
 
-    bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
+    bool onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+                             int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
                              ReadPixelTempDrawInfo*) override { return false; }
 
-    bool onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
+    bool onGetWritePixelsInfo(GrSurfaceProxy* dstProxy, int width, int height,
                               GrPixelConfig srcConfig, DrawPreference*,
                               WritePixelTempDrawInfo*) override { return false; }
 
-    bool onCopySurface(GrSurface* dst,
-                       GrSurface* src,
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                       GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override { return false; }
 
-    void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+    void onQueryMultisampleSpecs(GrRenderTarget*, GrSurfaceOrigin, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {}
 
     GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
@@ -67,31 +68,26 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc3& desc, SkBudgeted budgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override {
         return nullptr;
     }
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
-                                          GrSurfaceOrigin,
-                                          GrWrapOwnership) override {
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override {
         return nullptr;
     }
 
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
-                                                    GrSurfaceOrigin,
                                                     int sampleCnt,
                                                     GrWrapOwnership) override {
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
-                                                    GrSurfaceOrigin) override {
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override {
         return nullptr;
     }
 
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                             GrSurfaceOrigin,
                                                              int sampleCnt) override {
         return nullptr;
     }
@@ -102,7 +98,7 @@ private:
 
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override { return nullptr; }
 
-    bool onReadPixels(GrSurface* surface,
+    bool onReadPixels(GrSurface* surface, GrSurfaceOrigin,
                       int left, int top, int width, int height,
                       GrPixelConfig,
                       void* buffer,
@@ -110,7 +106,7 @@ private:
         return false;
     }
 
-    bool onWritePixels(GrSurface* surface,
+    bool onWritePixels(GrSurface* surface, GrSurfaceOrigin,
                        int left, int top, int width, int height,
                        GrPixelConfig config,
                        const GrMipLevel texels[], int mipLevelCount) override {
@@ -124,7 +120,7 @@ private:
         return false;
     }
 
-    void onResolveRenderTarget(GrRenderTarget* target) override { return; }
+    void onResolveRenderTarget(GrRenderTarget* target, GrSurfaceOrigin) override { return; }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

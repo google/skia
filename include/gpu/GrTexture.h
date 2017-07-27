@@ -50,7 +50,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
+    GrTexture(GrGpu*, const GrSurfaceDesc3&, GrSLType samplerType,
               GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
 
 private:

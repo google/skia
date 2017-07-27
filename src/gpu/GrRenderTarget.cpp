@@ -17,7 +17,7 @@
 #include "GrStencilAttachment.h"
 #include "GrStencilSettings.h"
 
-GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc,
+GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc3& desc,
                                GrRenderTargetFlags flags,
                                GrStencilAttachment* stencil)
         : INHERITED(gpu, desc)

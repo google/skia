@@ -20,7 +20,7 @@
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 // Constructor for wrapped render targets.
 GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
-                                   const GrSurfaceDesc& desc,
+                                   const GrSurfaceDesc3& desc,
                                    const IDDesc& idDesc,
                                    GrGLStencilAttachment* stencil)
     : GrSurface(gpu, desc)
@@ -29,7 +29,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
     this->registerWithCacheWrapped();
 }
 
-GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu, const GrSurfaceDesc3& desc,
                                    const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, ComputeFlags(gpu->glCaps(), idDesc)) {
@@ -49,7 +49,7 @@ inline GrRenderTargetFlags GrGLRenderTarget::ComputeFlags(const GrGLCaps& glCaps
     return flags;
 }
 
-void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
+void GrGLRenderTarget::init(const GrSurfaceDesc3& desc, const IDDesc& idDesc) {
     fRTFBOID                = idDesc.fRTFBOID;
     fTexFBOID               = idDesc.fTexFBOID;
     fMSColorRenderbufferID  = idDesc.fMSColorRenderbufferID;
@@ -64,7 +64,7 @@ void GrGLRenderTarget::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
 }
 
 sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
-                                                      const GrSurfaceDesc& desc,
+                                                      const GrSurfaceDesc3& desc,
                                                       const IDDesc& idDesc,
                                                       int stencilBits) {
     GrGLStencilAttachment* sb = nullptr;

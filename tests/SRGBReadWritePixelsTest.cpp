@@ -166,7 +166,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
                                                   SkColorSpace::MakeSRGB());
     const SkImageInfo iiRGBA = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kW;

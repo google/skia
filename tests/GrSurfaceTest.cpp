@@ -7,7 +7,7 @@
 
 #include "SkTypes.h"
 
-#if SK_SUPPORT_GPU
+#if 0 // SK_SUPPORT_GPU
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -30,7 +30,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     desc.fWidth = 256;
     desc.fHeight = 256;
     desc.fSampleCnt = 0;
-    sk_sp<GrSurface> texRT1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrSurface> texRT1 = context->resourceProvider()->createTexture(desc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asTexture());
@@ -42,7 +42,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
-    sk_sp<GrTexture> tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+    sk_sp<GrTexture> tex1 = context->resourceProvider()->createTexture(desc, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
@@ -56,7 +56,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                                                                backendTexHandle);
 
     sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapRenderableBackendTexture(
-            backendTex, kTopLeft_GrSurfaceOrigin, 0, kBorrow_GrWrapOwnership);
+            backendTex, 0, kBorrow_GrWrapOwnership);
 
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
@@ -112,11 +112,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     for (GrPixelConfig config : configs) {
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
             desc.fFlags = kNone_GrSurfaceFlags;
-            desc.fOrigin = origin;
+            //desc.fOrigin = origin;
             desc.fSampleCnt = 0;
             desc.fConfig = config;
 
-            sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig));
 
             size_t rowBytes = desc.fWidth * GrBytesPerPixel(desc.fConfig);
@@ -134,11 +134,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                              !GrPixelConfigIsSint(desc.fConfig)));
 
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
-            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            tex = resourceProvider->createTexture(desc, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, false));
 
             desc.fSampleCnt = 4;
-            tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+            tex = resourceProvider->createTexture(desc, origin, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, true));
         }
     }

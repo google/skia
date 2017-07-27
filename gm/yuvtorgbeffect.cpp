@@ -84,7 +84,7 @@ protected:
         sk_sp<GrTextureProxy> proxy[3];
 
         {
-            GrSurfaceDesc desc;
+            GrSurfaceDesc2 desc;
             desc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
             for (int i = 0; i < 3; ++i) {
@@ -212,7 +212,7 @@ protected:
         sk_sp<GrTextureProxy> proxy[3];
 
         {
-            GrSurfaceDesc desc;
+            GrSurfaceDesc2 desc;
             desc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
             for (int i = 0; i < 3; ++i) {

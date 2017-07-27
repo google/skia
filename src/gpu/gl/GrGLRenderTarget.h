@@ -32,7 +32,7 @@ public:
     };
 
     static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*,
-                                               const GrSurfaceDesc&,
+                                               const GrSurfaceDesc3&,
                                                const IDDesc&,
                                                int stencilBits);
 
@@ -68,9 +68,9 @@ public:
 
 protected:
     // Constructor for subclasses.
-    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&);
+    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc3&, const IDDesc&);
 
-    void init(const GrSurfaceDesc&, const IDDesc&);
+    void init(const GrSurfaceDesc3&, const IDDesc&);
 
     void onAbandon() override;
     void onRelease() override;
@@ -79,7 +79,7 @@ protected:
 
 private:
     // Constructor for instances wrapping backend objects.
-    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc&, const IDDesc&, GrGLStencilAttachment*);
+    GrGLRenderTarget(GrGLGpu*, const GrSurfaceDesc3&, const IDDesc&, GrGLStencilAttachment*);
 
     static GrRenderTargetFlags ComputeFlags(const GrGLCaps&, const IDDesc&);
 

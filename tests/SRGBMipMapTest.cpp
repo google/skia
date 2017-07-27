@@ -122,7 +122,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
                                                  kPremul_SkAlphaType);
 
     // Create our test texture
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fConfig = kSRGBA_8888_GrPixelConfig;

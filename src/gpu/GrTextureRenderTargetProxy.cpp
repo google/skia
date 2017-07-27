@@ -11,7 +11,7 @@
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
 // GrRenderTargetProxy) so its constructor must be explicitly called.
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
-                                                       const GrSurfaceDesc& desc,
+                                                       const GrSurfaceDesc2& desc,
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        uint32_t flags)
