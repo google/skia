@@ -256,7 +256,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
     SkString bVar;
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     if (kVec3f_GrSLType == args.fTransformedCoords[0].getType()) {
-        fragBuilder->codeAppendf("\tvec3 interpolants = vec3(%s.xy / %s.z, %s.x / %s.z);\n",
+        fragBuilder->codeAppendf("\tfloat3 interpolants = float3(%s.xy / %s.z, %s.x / %s.z);\n",
                                  args.fTransformedCoords[0].c_str(),
                                  args.fTransformedCoords[0].c_str(),
                                  args.fTransformedCoords[1].c_str(),
@@ -270,7 +270,7 @@ void Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor::emitCode(EmitArgs& args)
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fragBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t%s = float4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     // c = (x^2)+(y^2) - params[1]
     fragBuilder->codeAppendf("\tfloat %s = dot(%s, %s) - %s;\n",
@@ -534,7 +534,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::emitCode
     p0.appendf("%s.x", uniformHandler->getUniformVariable(fParamUni).getName().c_str());
     p1.appendf("%s.y", uniformHandler->getUniformVariable(fParamUni).getName().c_str());
 
-    // if we have a vec3 from being in perspective, convert it to a vec2 first
+    // if we have a float3 from being in perspective, convert it to a float2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
@@ -543,7 +543,7 @@ void FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor::emitCode
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fragBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t%s = float4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     fragBuilder->codeAppendf("\tfloat xs = %s.x * %s.x;\n", coords2D, coords2D);
     fragBuilder->codeAppendf("\tfloat ys = %s.y * %s.y;\n", coords2D, coords2D);
@@ -741,7 +741,7 @@ void FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor::emitCode(E
     // transformed coordinates
     GrShaderVar focal = uniformHandler->getUniformVariable(fFocalUni);
 
-    // if we have a vec3 from being in perspective, convert it to a vec2 first
+    // if we have a float3 from being in perspective, convert it to a float2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
@@ -1003,7 +1003,7 @@ void CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor::emitCode
     // params.z = C
     GrShaderVar params = uniformHandler->getUniformVariable(fParamUni);
 
-    // if we have a vec3 from being in perspective, convert it to a vec2 first
+    // if we have a float3 from being in perspective, convert it to a float2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
@@ -1250,14 +1250,14 @@ void CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor::emitCo
     // params.z = C
     GrShaderVar params = uniformHandler->getUniformVariable(fParamUni);
 
-    // if we have a vec3 from being in perspective, convert it to a vec2 first
+    // if we have a float3 from being in perspective, convert it to a float2 first
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2DString = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
     const char* coords2D = coords2DString.c_str();
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)
-    fragBuilder->codeAppendf("\t%s = vec4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
+    fragBuilder->codeAppendf("\t%s = float4(0.0,0.0,0.0,0.0);\n", args.fOutputColor);
 
     // p = coords2D
     // e = center end

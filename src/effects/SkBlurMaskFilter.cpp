@@ -867,7 +867,7 @@ void OutputRectBlurProfileLookup(GrGLSLFPFragmentBuilder* fragBuilder,
     fragBuilder->codeAppendf("float coord = ((abs(%s - 0.5 * %s) - 0.5 * %s)) / %s;",
                            loc, blurred_width, sharp_width, profileSize);
     fragBuilder->codeAppendf("%s = ", output);
-    fragBuilder->appendTextureLookup(sampler, "vec2(coord,0.5)");
+    fragBuilder->appendTextureLookup(sampler, "float2(coord,0.5)");
     fragBuilder->codeAppend(".a;");
     fragBuilder->codeAppendf("}");
 }
@@ -907,23 +907,23 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     if (args.fInputColor) {
-        fragBuilder->codeAppendf("vec4 src=%s;", args.fInputColor);
+        fragBuilder->codeAppendf("float4 src=%s;", args.fInputColor);
     } else {
-        fragBuilder->codeAppendf("vec4 src=vec4(1);");
+        fragBuilder->codeAppendf("float4 src=float4(1);");
     }
 
-    fragBuilder->codeAppendf("%s vec2 translatedPos = sk_FragCoord.xy - %s.xy;",
+    fragBuilder->codeAppendf("%s float2 translatedPos = sk_FragCoord.xy - %s.xy;",
                              precisionString.c_str(), rectName);
     fragBuilder->codeAppendf("%s float width = %s.z - %s.x;", precisionString.c_str(), rectName,
                              rectName);
     fragBuilder->codeAppendf("%s float height = %s.w - %s.y;", precisionString.c_str(), rectName,
                              rectName);
 
-    fragBuilder->codeAppendf("%s vec2 smallDims = vec2(width - %s, height - %s);",
+    fragBuilder->codeAppendf("%s float2 smallDims = float2(width - %s, height - %s);",
                              precisionString.c_str(), profileSizeName, profileSizeName);
     fragBuilder->codeAppendf("%s float center = 2.0 * floor(%s/2.0 + .25) - 1.0;",
                              precisionString.c_str(), profileSizeName);
-    fragBuilder->codeAppendf("%s vec2 wh = smallDims - vec2(center,center);",
+    fragBuilder->codeAppendf("%s float2 wh = smallDims - float2(center,center);",
                              precisionString.c_str());
 
     OutputRectBlurProfileLookup(fragBuilder, args.fTexSamplers[0], "horiz_lookup", profileSizeName,
@@ -1296,10 +1296,10 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
 
     // warp the fragment position to the appropriate part of the 9patch blur texture
 
-    fragBuilder->codeAppendf("vec2 rectCenter = (%s.xy + %s.zw)/2.0;", rectName, rectName);
-    fragBuilder->codeAppendf("vec2 translatedFragPos = sk_FragCoord.xy - %s.xy;", rectName);
+    fragBuilder->codeAppendf("float2 rectCenter = (%s.xy + %s.zw)/2.0;", rectName, rectName);
+    fragBuilder->codeAppendf("float2 translatedFragPos = sk_FragCoord.xy - %s.xy;", rectName);
     fragBuilder->codeAppendf("float threshold = %s + 2.0*%s;", cornerRadiusName, blurRadiusName);
-    fragBuilder->codeAppendf("vec2 middle = %s.zw - %s.xy - 2.0*threshold;", rectName, rectName);
+    fragBuilder->codeAppendf("float2 middle = %s.zw - %s.xy - 2.0*threshold;", rectName, rectName);
 
     fragBuilder->codeAppendf(
            "if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {");
@@ -1315,8 +1315,8 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("translatedFragPos.y -= middle.y - 1.0;");
     fragBuilder->codeAppendf("}");
 
-    fragBuilder->codeAppendf("vec2 proxyDims = vec2(2.0*threshold+1.0);");
-    fragBuilder->codeAppendf("vec2 texCoord = translatedFragPos / proxyDims;");
+    fragBuilder->codeAppendf("float2 proxyDims = float2(2.0*threshold+1.0);");
+    fragBuilder->codeAppendf("float2 texCoord = translatedFragPos / proxyDims;");
 
     fragBuilder->codeAppendf("%s = ", args.fOutputColor);
     fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fTexSamplers[0], "texCoord");

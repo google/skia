@@ -220,7 +220,7 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     const char* inputColor = nullptr;
     if (args.fInputColor) {
         inputColor = "inputColor";
-        fragBuilder->codeAppendf("vec4 inputColor = vec4(%s.rgb, 1.0);", args.fInputColor);
+        fragBuilder->codeAppendf("float4 inputColor = float4(%s.rgb, 1.0);", args.fInputColor);
     }
 
     // declare outputColor and emit the code for each of the two children
@@ -454,7 +454,7 @@ public:
         const char* inputColor = args.fInputColor;
         // We don't try to optimize for this case at all
         if (!inputColor) {
-            fragBuilder->codeAppendf("const vec4 ones = vec4(1);");
+            fragBuilder->codeAppendf("const float4 ones = float4(1);");
             inputColor = "ones";
         }
 
