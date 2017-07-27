@@ -107,13 +107,13 @@ public:
      * @param mipLevelCount the number of levels in 'texels'
      * @return    The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted,
                                    const GrMipLevel texels[], int mipLevelCount);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted);
 
     /**
      * Implements GrResourceProvider::wrapBackendTexture
@@ -544,8 +544,7 @@ private:
     // overridden by backend-specific derived class to create objects.
     // Texture size and sample size will have already been validated in base class before
     // onCreateTexture is called.
-    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
-                                             SkBudgeted budgeted,
+    virtual sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted,
                                              const GrMipLevel texels[],
                                              int mipLevelCount) = 0;
 

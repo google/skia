@@ -145,10 +145,11 @@ void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    GrTextureDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
+    GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = 10;
     desc.fHeight = 10;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
         sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
