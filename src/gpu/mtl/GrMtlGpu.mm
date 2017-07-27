@@ -24,6 +24,10 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
         : INHERITED(context)
         , fDevice(device)
         , fQueue(queue) {
+            
+    fMtlCaps.reset(new GrMtlCaps(options, fDevice));
+    fCaps = fMtlCaps;
+            
     MTLTextureDescriptor* txDesc = [[MTLTextureDescriptor alloc] init];
     txDesc.textureType = MTLTextureType3D;
     txDesc.height = 64;
