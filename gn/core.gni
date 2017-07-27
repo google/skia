@@ -262,6 +262,7 @@ skia_core_sources = [
   "$_src/core/SkRTree.h",
   "$_src/core/SkRTree.cpp",
   "$_src/core/SkRWBuffer.cpp",
+  "$_src/core/SkSafeMath.cpp",
   "$_src/core/SkScalar.cpp",
   "$_src/core/SkScalerContext.cpp",
   "$_src/core/SkScalerContext.h",
