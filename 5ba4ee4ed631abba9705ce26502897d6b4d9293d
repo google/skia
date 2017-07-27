@@ -22,6 +22,30 @@
       "revId": "5ba4ee4ed631abba9705ce26502897d6b4d9293d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9edd0561_1fcc8a4b",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-27T20:28:14Z",
+      "side": 1,
+      "message": "Not in general.  IIRC the CSS spec suggests thinking of an infinite spiral, with a visible \"slice\" in [0,360].  So angular ranges outside [0,360] are valid, and the result is then run through the tiling logic.\n\nThis is just a special case where we know for sure we can use cheaper clamp.",
+      "parentUuid": "37106c27_3beedd12",
+      "range": {
+        "startLine": 1267,
+        "startChar": 8,
+        "endLine": 1267,
+        "endChar": 42
+      },
+      "revId": "5ba4ee4ed631abba9705ce26502897d6b4d9293d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
