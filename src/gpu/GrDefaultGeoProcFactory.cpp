@@ -86,7 +86,7 @@ public:
                 varyingHandler->addVarying("color", &varying);
 
                 // There are several optional steps to process the color. Start with the attribute:
-                vertBuilder->codeAppendf("vec4 color = %s;", gp.inColor()->fName);
+                vertBuilder->codeAppendf("float4 color = %s;", gp.inColor()->fName);
 
                 // Linearize
                 if (gp.linearizeColor()) {
@@ -101,7 +101,7 @@ public:
                                               "return (x <= 0.04045) ? (x / 12.92) "
                                               ": pow((x + 0.055) / 1.055, 2.4);",
                                               &srgbFuncName);
-                    vertBuilder->codeAppendf("color = vec4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
+                    vertBuilder->codeAppendf("color = float4(%s(%s.r), %s(%s.g), %s(%s.b), %s.a);",
                                              srgbFuncName.c_str(), gp.inColor()->fName,
                                              srgbFuncName.c_str(), gp.inColor()->fName,
                                              srgbFuncName.c_str(), gp.inColor()->fName,
@@ -110,7 +110,7 @@ public:
 
                 // For SkColor, do a red/blue swap and premul
                 if (gp.fFlags & kColorAttributeIsSkColor_GPFlag) {
-                    vertBuilder->codeAppend("color = vec4(color.a * color.bgr, color.a);");
+                    vertBuilder->codeAppend("color = float4(color.a * color.bgr, color.a);");
                 }
 
                 // Do color-correction to destination gamut
@@ -163,9 +163,9 @@ public:
             if (gp.hasVertexCoverage()) {
                 fragBuilder->codeAppendf("float alpha = 1.0;");
                 varyingHandler->addPassThroughAttribute(gp.inCoverage(), "alpha");
-                fragBuilder->codeAppendf("%s = vec4(alpha);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("%s = float4(alpha);", args.fOutputCoverage);
             } else if (gp.coverage() == 0xff) {
-                fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+                fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
             } else {
                 const char* fragCoverage;
                 fCoverageUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
@@ -173,7 +173,7 @@ public:
                                                               kDefault_GrSLPrecision,
                                                               "Coverage",
                                                               &fragCoverage);
-                fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, fragCoverage);
+                fragBuilder->codeAppendf("%s = float4(%s);", args.fOutputCoverage, fragCoverage);
             }
         }
 
