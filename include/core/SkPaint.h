@@ -48,9 +48,9 @@ class SkTypeface;
     functionality; for instance, text size is identical to matrix scale.
 
     SkPaint options are rarely exclusive; each option modifies a stage of the drawing
-    pipeline and multiple pipeline stages may be effected by a single SkPaint.
+    pipeline and multiple pipeline stages may be affected by a single SkPaint.
 
-    SkPaint collects effect and filters that describe single-pass and multiple-pass
+    SkPaint collects effects and filters that describe single-pass and multiple-pass
     algorithms that alter the drawing geometry, color, and transparency. For instance,
     SkPaint does not directly implement dashing or blur, but contains the objects that do so.
 
@@ -279,7 +279,8 @@ public:
     */
     uint32_t getFlags() const { return fBitfields.fFlags; }
 
-    /** Sets SkPaint::Flags to the union of the SkPaint::Flags members.
+    /** Replaces SkPaint::Flags with flags, the union of the SkPaint::Flags members.
+        All SkPaint::Flags members may be cleared, or one or more may be set.
 
         @param flags  union of SkPaint::Flags for SkPaint
     */
@@ -418,7 +419,7 @@ public:
         auto-hinting has no effect if SkPaint::Hinting is set to kNo_Hinting or
         kSlight_Hinting.
 
-        setAutohinted only effects platforms that use FreeType as the font manager.
+        setAutohinted only affects platforms that use FreeType as the font manager.
 
         Sets kAutoHinting_Flag if useAutohinter is true.
         Clears kAutoHinting_Flag if useAutohinter is false.
@@ -496,7 +497,7 @@ public:
         return (SkFilterQuality)fBitfields.fFilterQuality;
     }
 
-    /** Sets or clears SkFilterQuality, the image filtering level. A lower setting
+    /** Sets SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
         setFilterQuality does not check to see if quality is valid.
 
@@ -506,7 +507,7 @@ public:
     void setFilterQuality(SkFilterQuality quality);
 
     /** \enum SkPaint::Style
-        Set Style to kStrokeAndFill_Style to fill, stroke, or both fill and stroke geometry.
+        Set Style to fill, stroke, or both fill and stroke geometry.
         The stroke and fill
         share all paint attributes; for instance, they are drawn with the same color.
 
@@ -672,7 +673,7 @@ public:
         not necessarily include circles at each connected segment.
     */
     enum Join {
-        /** Extends the outside of the to the extent allowed by miter limit.
+        /** Extends the outside corner to the extent allowed by miter limit.
             If the extension exceeds miter limit, kBevel_Join is used instead.
         */
         kMiter_Join,
@@ -730,12 +731,12 @@ public:
 
     /** The filled equivalent of the stroked path.
 
-        @param src       SkPath read to create a filled version
-        @param dst       resulting SkPath; may be the same as src, but may not be nullptr
-        @param cullRect  optional limit passed to SkPathEffect
-        @param resScale  if > 1, increase precision, else if (0 < res < 1) reduce precision
-                         to favor speed and size
-        @return          true if the path represents style fill, or false if it represents Hairline
+        Replaces dst with the src path modified by SkPathEffect and style stroke.
+        SkPathEffect, if any, is not culled. stroke width is created with default precision.
+
+        @param src  SkPath read to create a filled version
+        @param dst  resulting SkPath dst may be the same as src, but may not be nullptr
+        @return     true if the path represents style fill, or false if it represents Hairline
     */
     bool getFillPath(const SkPath& src, SkPath* dst) const {
         return this->getFillPath(src, dst, NULL, 1);
@@ -884,8 +885,8 @@ public:
     */
     SkRasterizer* getRasterizer() const { return fRasterizer.get(); }
 
-    /** refRasterizer() returns SkRasterizer if set, or nullptr.
-        refRasterizer increases SkRasterizer SkRefCnt by one.
+    /** Returns SkRasterizer if set, or nullptr.
+        Increases SkRasterizer SkRefCnt by one.
 
         @return  SkRasterizer if previously set, nullptr otherwise
     */
@@ -940,7 +941,8 @@ public:
     */
     sk_sp<SkDrawLooper> refDrawLooper() const;
 
-    /** (to be deprecated)
+    /** Deprecated.
+        (see bug.skia.org/6259)
 
         @return  SkDrawLooper if previously set, nullptr otherwise
     */
@@ -955,7 +957,8 @@ public:
     */
     void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
 
-    /** (to be deprecated)
+    /** Deprecated.
+        (see bug.skia.org/6259)
 
         @param drawLooper  sets SkDrawLooper to drawLooper
     */
@@ -971,7 +974,7 @@ public:
 
         The text position is set by the font for both horizontal and vertical text.
         Typically, for horizontal text, the position is to the left side of the glyph on the
-        base line;and for vertical text, the position is the horizontal center at the glyph
+        base line; and for vertical text, the position is the horizontal center of the glyph
         at the caps height.
 
         Align adjusts the glyph position to center it or move it to abut the position
@@ -1107,9 +1110,9 @@ public:
     struct FontMetrics {
 
         /** \enum SkPaint::FontMetrics::FontMetricsFlags
-            FontMetricsFlags are set in fFlags when underline metrics are valid;
-            the underline metric may be valid and zero.
-            Fonts with embedded bitmaps may not have valid underline metrics.
+            FontMetricsFlags are set in fFlags when underline and strikeout metrics are valid;
+            the underline or strikeout metric may be valid and zero.
+            Fonts with embedded bitmaps may not have valid underline or strikeout metrics.
         */
         enum FontMetricsFlags {
             kUnderlineThicknessIsValid_Flag = 1 << 0, //!< Set if fUnderlineThickness is valid.
@@ -1374,14 +1377,11 @@ public:
         and the height of text if kVerticalText_Flag is set.
         The advance is the normal distance to move before drawing additional text.
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
-        and text size, text scale x, text skew x, stroke width, and
-        SkPathEffect to scale the metrics and bounds.
-        Returns the bounding box of text if bounds is not nullptr.
-        The bounding box is computed as if the text was drawn at the origin.
+        and text size to scale the metrics.
+        Does not scale the advance or bounds by fake bold or SkPathEffect.
 
         @param text    character codes or glyph indices to be measured
         @param length  number of bytes of text to measure
-        @param bounds  returns bounding box relative to (0, 0) if not nullptr
         @return        advance width or height
     */
     SkScalar measureText(const void* text, size_t length) const {
@@ -1418,7 +1418,7 @@ public:
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the font metrics,
         and text size to scale the widths and bounds.
         Does not scale the advance by fake bold or SkPathEffect.
-        Does return include fake bold and SkPathEffect in the bounds.
+        Does include fake bold and SkPathEffect in the bounds.
 
         @param text        character codes or glyph indices to be measured
         @param byteLength  number of bytes of text to measure
@@ -1590,7 +1590,6 @@ public:
         should not rely on storage being set to the result, but should always
         use the retured value. It is legal for orig and storage to be the same
         rect.
-
         e.g.
         if (paint.canComputeFastBounds()) {
         SkRect r, storage;
@@ -1646,7 +1645,7 @@ public:
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
                                       Style style) const;
 
-    /**
+    /** macro expands to: void toString(SkString* str) const;
         Converts SkPaint to machine parsable form in developer mode.
 
         @param str  storage for string containing parsable SkPaint
