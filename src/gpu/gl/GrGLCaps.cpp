@@ -51,7 +51,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMipMapLevelAndLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fDoManualMipmapping = false;
-    fSRGBDecodeDisableSupport = false;
     fSRGBDecodeDisableAffectsMipmaps = false;
     fClearToBoundaryValuesIsBroken = false;
     fClearTextureSupport = false;
