@@ -81,9 +81,10 @@ public:
     /**
      * Clear the passed in render target. Ignores the draw state and clip.
      */
-    void clear(GrRenderTarget*, const GrFixedClip&, GrColor);
+    void clear(GrRenderTarget*, GrSurfaceOrigin, const GrFixedClip&, GrColor);
 
-    void clearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask);
+    void clearStencilClip(GrRenderTarget*, GrSurfaceOrigin,
+                          const GrFixedClip&, bool insideStencilMask);
 
     /**
      * Discards the contents render target. nullptr indicates that the current render target should
@@ -107,9 +108,9 @@ private:
                         const SkRect& bounds) = 0;
 
     // overridden by backend-specific derived class to perform the clear.
-    virtual void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) = 0;
+    virtual void onClear(GrRenderTarget*, GrSurfaceOrigin, const GrFixedClip&, GrColor) = 0;
 
-    virtual void onClearStencilClip(GrRenderTarget*, const GrFixedClip&,
+    virtual void onClearStencilClip(GrRenderTarget*, GrSurfaceOrigin, const GrFixedClip&,
                                     bool insideStencilMask) = 0;
 
 };

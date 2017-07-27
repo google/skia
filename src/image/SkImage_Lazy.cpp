@@ -792,8 +792,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                 fSharedGenerator->fGenerator->getInfo().colorSpace();
         const SkColorSpace* thisColorSpace = fInfo.colorSpace();
 
+        GrSurfaceDesc desc2(desc);
+
         sk_sp<GrTextureProxy> proxy =
-                provider.refAsTextureProxy(ctx, desc, true, generatorColorSpace, thisColorSpace);
+                provider.refAsTextureProxy(ctx, desc2, true, generatorColorSpace, thisColorSpace);
         if (proxy) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);

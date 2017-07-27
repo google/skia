@@ -92,11 +92,11 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
 
     // create texture
     GrSurfaceDesc desc;
-    desc.fConfig = config;
     desc.fFlags = renderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
     desc.fOrigin = origin;
     desc.fWidth = kTextureWidth;
     desc.fHeight = kTextureHeight;
+    desc.fConfig = config;
     desc.fSampleCnt = 0;
     sk_sp<GrTexture> tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
 
@@ -109,7 +109,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     REPORTER_ASSERT(reporter, result);
 
     memset(dstBuffer.get(), 0xCDCD, size);
-    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
+    result = context->getGpu()->readPixels(tex.get(), origin, 0, 0, kTextureWidth, kTextureHeight, config,
                                            dstBuffer.get(), rowBytes);
     if (result) {
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,
@@ -141,7 +141,7 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrPix
     REPORTER_ASSERT(reporter, result);
 
     memset(dstBuffer.get(), 0xCDCD, size);
-    result = context->getGpu()->readPixels(tex.get(), 0, 0, kTextureWidth, kTextureHeight, config,
+    result = context->getGpu()->readPixels(tex.get(), origin, 0, 0, kTextureWidth, kTextureHeight, config,
                                            dstBuffer.get(), rowBytes);
     if (result) {
         REPORTER_ASSERT(reporter, does_full_buffer_contain_correct_values(srcBuffer,

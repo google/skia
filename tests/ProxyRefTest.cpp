@@ -68,6 +68,7 @@ static void check_refs(skiatest::Reporter* reporter,
 static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
     desc.fConfig = kRGBA_8888_GrPixelConfig;

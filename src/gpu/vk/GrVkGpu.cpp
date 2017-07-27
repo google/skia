@@ -332,7 +332,7 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
+bool GrVkGpu::onGetWritePixelsInfo(GrSurfaceProxy* dstProxy, int width, int height,
                                    GrPixelConfig srcConfig, DrawPreference* drawPreference,
                                    WritePixelTempDrawInfo* tempDrawInfo) {
     GrRenderTarget* renderTarget = dstSurface->asRenderTarget();
@@ -375,7 +375,7 @@ bool GrVkGpu::onGetWritePixelsInfo(GrSurface* dstSurface, int width, int height,
     return true;
 }
 
-bool GrVkGpu::onWritePixels(GrSurface* surface,
+bool GrVkGpu::onWritePixels(GrSurface* surface, GrSurfaceOrigin origin,
                             int left, int top, int width, int height,
                             GrPixelConfig config,
                             const GrMipLevel texels[], int mipLevelCount) {
@@ -873,7 +873,6 @@ static bool check_backend_texture(const GrBackendTexture& backendTex) {
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
-                                               GrSurfaceOrigin origin,
                                                GrWrapOwnership ownership) {
     if (!check_backend_texture(backendTex)) {
         return nullptr;
@@ -881,19 +880,16 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = kNone_GrSurfaceFlags;
+    surfDesc.fOrigin = kTopLeft_GrSurfaceOrigin; // Not actually used in the following
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = 0;
-    // In GL, Chrome assumes all textures are BottomLeft
-    // In VK, we don't have this restriction
-    surfDesc.fOrigin = resolve_origin(origin);
 
     return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, backendTex.getVkImageInfo());
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
-                                                         GrSurfaceOrigin origin,
                                                          int sampleCnt,
                                                          GrWrapOwnership ownership) {
     if (!check_backend_texture(backendTex)) {
@@ -902,20 +898,17 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 
     GrSurfaceDesc surfDesc;
     surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    surfDesc.fOrigin = kBottomLeft_GrSurfaceOrigin; // Not actually used in the following
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, backendTex.config());
-    // In GL, Chrome assumes all textures are BottomLeft
-    // In VK, we don't have this restriction
-    surfDesc.fOrigin = resolve_origin(origin);
 
     return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, surfDesc, ownership,
                                                                    backendTex.getVkImageInfo());
 }
 
-sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
-                                                         GrSurfaceOrigin origin){
+sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT){
     // Currently the Vulkan backend does not support wrapping of msaa render targets directly. In
     // general this is not an issue since swapchain images in vulkan are never multisampled. Thus if
     // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
@@ -933,14 +926,12 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     }
 
     GrSurfaceDesc desc;
-    desc.fConfig = backendRT.config();
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kBottomRight_GrSurfaceOrigin; // Not actually used in the following
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
+    desc.fConfig = backendRT.config();
     desc.fSampleCnt = 0;
-
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
-    desc.fOrigin = origin;
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     if (tgt && backendRT.stencilBits()) {
@@ -952,7 +943,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  GrSurfaceOrigin origin,
                                                                   int sampleCnt) {
 
     const GrVkImageInfo* info = tex.getVkImageInfo();
@@ -965,12 +955,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fConfig = tex.config();
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin; // Not actually used in the following
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
+    desc.fConfig = tex.config();
     desc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, tex.config());
-
-    desc.fOrigin = resolve_origin(origin);
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     return tgt;
@@ -1711,8 +1700,8 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst,
     this->resolveImage(dst, srcRT, srcRect, dstPoint);
 }
 
-bool GrVkGpu::onCopySurface(GrSurface* dst,
-                            GrSurface* src,
+bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                            GrSurface* src, GrSurfaceOrigin srcOrigin,
                             const SkIRect& srcRect,
                             const SkIPoint& dstPoint) {
     if (can_copy_as_resolve(dst, src, this)) {
@@ -1765,14 +1754,15 @@ bool GrVkGpu::onCopySurface(GrSurface* dst,
     return false;
 }
 
-void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
+void GrVkGpu::onQueryMultisampleSpecs(GrRenderTarget* rt, GrSurfaceOrigin, const GrStencilSettings&,
                                       int* effectiveSampleCnt, SamplePattern*) {
     // TODO: stub.
     SkASSERT(!this->caps()->sampleLocationsSupport());
     *effectiveSampleCnt = rt->numStencilSamples();
 }
 
-bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, size_t rowBytes,
+bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, GrSurfaceOrigin srcOrigin,
+                                  int width, int height, size_t rowBytes,
                                   GrPixelConfig readConfig, DrawPreference* drawPreference,
                                   ReadPixelTempDrawInfo* tempDrawInfo) {
     // These settings we will always want if a temp draw is performed.
@@ -1805,7 +1795,7 @@ bool GrVkGpu::onGetReadPixelsInfo(GrSurface* srcSurface, int width, int height, 
     return true;
 }
 
-bool GrVkGpu::onReadPixels(GrSurface* surface,
+bool GrVkGpu::onReadPixels(GrSurface* surface, GrSurfaceOrigin origin,
                            int left, int top, int width, int height,
                            GrPixelConfig config,
                            void* buffer,

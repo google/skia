@@ -1806,8 +1806,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 }
 
 bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const GrClip& clip,
-                                            const SkRect& opBounds,
-                                            GrXferProcessor::DstProxy* dstProxy) {
+                                          const SkRect& opBounds,
+                                          GrXferProcessor::DstProxy* dstProxy) {
     if (this->caps()->textureBarrierSupport()) {
         if (GrTextureProxy* texProxy = rtProxy->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
@@ -1839,8 +1839,8 @@ bool GrRenderTargetContext::setupDstProxy(GrRenderTargetProxy* rtProxy, const Gr
     bool rectsMustMatch = false;
     bool disallowSubrect = false;
     if (!this->caps()->initDescForDstCopy(rtProxy, &desc, &rectsMustMatch, &disallowSubrect)) {
-        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
         desc.fConfig = rtProxy->config();
     }
 
