@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eba9d1ab_5318fba8",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-07-27T18:30:08Z",
+      "side": 1,
+      "message": "nit: we repeat this test a few times, maybe use a synthetic flag?\n\n#if defined(__i386__) || defined(_M_IX86)\n  #define USE_STAGE_PARAMS\n#endif\n\n...",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "a789ab084ac132d125b0932c511f79ce34d03cfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
