@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37106c27_3beedd12",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-27T20:23:28Z",
+      "side": 1,
+      "message": "so \u003c0 or \u003e360 are just treated the same as \u003d0 and \u003d360?",
+      "range": {
+        "startLine": 1267,
+        "startChar": 8,
+        "endLine": 1267,
+        "endChar": 42
+      },
+      "revId": "5ba4ee4ed631abba9705ce26502897d6b4d9293d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
