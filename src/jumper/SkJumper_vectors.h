@@ -75,7 +75,7 @@
         ptr[3] = a;
     }
 
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(__arm__)
     #include <arm_neon.h>
 
     // Since we know we're using Clang, we can use its vector extensions.
@@ -92,15 +92,35 @@
     SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
     SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
     SI F   abs_  (F v)                           { return vabsq_f32(v);            }
-    SI F   floor_(F v)                           { return vrndmq_f32(v);           }
     SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
-    SI F    sqrt_(F v)                           { return vsqrtq_f32(v); }
-    SI U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
     SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
 
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
+
+    #if defined(__aarch64__)
+        SI F  floor_(F v) { return vrndmq_f32(v); }
+        SI F   sqrt_(F v) { return vsqrtq_f32(v); }
+        SI U32 round(F v, F scale) { return vcvtnq_u32_f32(v*scale); }
+    #else
+        SI F floor_(F v) {
+            F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
+            return roundtrip - if_then_else(roundtrip > v, 1, 0);
+        }
+
+        SI F sqrt_(F v) {
+            auto e = vrsqrteq_f32(v);  // Estimate and two refinement steps for e = rsqrt(v).
+            e *= vrsqrtsq_f32(v,e*e);
+            e *= vrsqrtsq_f32(v,e*e);
+            return v*e;                // sqrt(v) == v*rsqrt(v).
+        }
+
+        SI U32 round(F v, F scale) {
+            return vcvtq_u32_f32(mad(v,scale,0.5f));
+        }
+    #endif
+
 
     template <typename T>
     SI V<T> gather(const T* p, U32 ix) {
@@ -166,114 +186,6 @@
             vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
         }
     }
-
-#elif defined(__arm__)
-    #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
-        #error On ARMv7, compile with -march=armv7-a -mfpu=neon-vfp4, without -mthumb.
-    #endif
-    #include <arm_neon.h>
-
-    // We can pass {s0-s15} as arguments under AAPCS-VFP.  We'll slice that as 8 d-registers.
-    template <typename T> using V = T __attribute__((ext_vector_type(2)));
-    using F   = V<float   >;
-    using I32 = V< int32_t>;
-    using U64 = V<uint64_t>;
-    using U32 = V<uint32_t>;
-    using U16 = V<uint16_t>;
-    using U8  = V<uint8_t >;
-
-    SI F   mad(F f, F m, F a)                  { return vfma_f32(a,f,m);        }
-    SI F   min(F a, F b)                       { return vmin_f32(a,b);          }
-    SI F   max(F a, F b)                       { return vmax_f32(a,b);          }
-    SI F   abs_ (F v)                          { return vabs_f32(v);            }
-    SI F   rcp  (F v) { auto e = vrecpe_f32 (v); return vrecps_f32 (v,e  ) * e; }
-    SI F   rsqrt(F v) { auto e = vrsqrte_f32(v); return vrsqrts_f32(v,e*e) * e; }
-    SI U32 round(F v, F scale)                 { return vcvt_u32_f32(mad(v,scale,0.5f)); }
-    SI U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
-    SI U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
-
-    SI F sqrt_(F v) {
-        auto e = vrsqrte_f32(v);  // Estimate and two refinement steps for e = rsqrt(v).
-        e *= vrsqrts_f32(v,e*e);
-        e *= vrsqrts_f32(v,e*e);
-        return v*e;               // sqrt(v) == v*rsqrt(v).
-    }
-
-    SI F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
-
-    SI F floor_(F v) {
-        F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1, 0);
-    }
-
-    template <typename T>
-    SI V<T> gather(const T* p, U32 ix) {
-        return {p[ix[0]], p[ix[1]]};
-    }
-
-    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        uint16x4x3_t rgb;
-        rgb = vld3_lane_u16(ptr + 0, rgb, 0);
-        if (__builtin_expect(tail, 0)) {
-            vset_lane_u16(0, rgb.val[0], 1);
-            vset_lane_u16(0, rgb.val[1], 1);
-            vset_lane_u16(0, rgb.val[2], 1);
-        } else {
-            rgb = vld3_lane_u16(ptr + 3, rgb, 1);
-        }
-        *r = unaligned_load<U16>(rgb.val+0);
-        *g = unaligned_load<U16>(rgb.val+1);
-        *b = unaligned_load<U16>(rgb.val+2);
-    }
-    SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
-        uint16x4x4_t rgba;
-        rgba = vld4_lane_u16(ptr + 0, rgba, 0);
-        if (__builtin_expect(tail, 0)) {
-            vset_lane_u16(0, rgba.val[0], 1);
-            vset_lane_u16(0, rgba.val[1], 1);
-            vset_lane_u16(0, rgba.val[2], 1);
-            vset_lane_u16(0, rgba.val[3], 1);
-        } else {
-            rgba = vld4_lane_u16(ptr + 4, rgba, 1);
-        }
-        *r = unaligned_load<U16>(rgba.val+0);
-        *g = unaligned_load<U16>(rgba.val+1);
-        *b = unaligned_load<U16>(rgba.val+2);
-        *a = unaligned_load<U16>(rgba.val+3);
-    }
-    SI void store4(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
-        uint16x4x4_t rgba = {{
-            widen_cast<uint16x4_t>(r),
-            widen_cast<uint16x4_t>(g),
-            widen_cast<uint16x4_t>(b),
-            widen_cast<uint16x4_t>(a),
-        }};
-        vst4_lane_u16(ptr + 0, rgba, 0);
-        if (__builtin_expect(tail == 0, true)) {
-            vst4_lane_u16(ptr + 4, rgba, 1);
-        }
-    }
-
-    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
-        float32x2x4_t rgba;
-        if (__builtin_expect(tail, 0)) {
-            rgba = vld4_dup_f32(ptr);
-        } else {
-            rgba = vld4_f32(ptr);
-        }
-        *r = rgba.val[0];
-        *g = rgba.val[1];
-        *b = rgba.val[2];
-        *a = rgba.val[3];
-    }
-    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
-        if (__builtin_expect(tail, 0)) {
-            vst4_lane_f32(ptr, (float32x2x4_t{{r,g,b,a}}), 0);
-        } else {
-            vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
-        }
-    }
-
 
 #elif defined(__AVX__)
     #include <immintrin.h>
@@ -713,12 +625,8 @@ SI F approx_powf(F x, F y) {
 }
 
 SI F from_half(U16 h) {
-#if defined(JUMPER) && defined(__aarch64__)
+#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
     return vcvt_f32_f16(h);
-
-#elif defined(JUMPER) && defined(__arm__)
-    auto v = widen_cast<uint16x4_t>(h);
-    return vget_low_f32(vcvt_f32_f16(v));
 
 #elif defined(JUMPER) && defined(__AVX2__)
     return _mm256_cvtph_ps(h);
@@ -737,13 +645,8 @@ SI F from_half(U16 h) {
 }
 
 SI U16 to_half(F f) {
-#if defined(JUMPER) && defined(__aarch64__)
+#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
     return vcvt_f16_f32(f);
-
-#elif defined(JUMPER) && defined(__arm__)
-    auto v = widen_cast<float32x4_t>(f);
-    uint16x4_t h = vcvt_f16_f32(v);
-    return unaligned_load<U16>(&h);
 
 #elif defined(JUMPER) && defined(__AVX2__)
     return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
