@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "47c6cff9_4d05955a",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-27T20:46:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efc81772_7be6761c",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 20
+      },
+      "revId": "ee0eb3772d285089061aa6871df903d876b85fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f80e14c8_22f12806",
         "filename": "src/gpu/mtl/GrMtlCaps.mm",
         "patchSetId": 2
