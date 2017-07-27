@@ -16,6 +16,24 @@
       "revId": "07a24a1039f2010ab1e2eb1cb53791075e80e6c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbc835ff_39eecfe1",
+        "filename": "src/effects/SkMorphologyImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-27T16:00:13Z",
+      "side": 1,
+      "message": "Done. For some reason clang-format often wraps after template type names.",
+      "parentUuid": "53b57e2f_7f151bea",
+      "revId": "07a24a1039f2010ab1e2eb1cb53791075e80e6c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
