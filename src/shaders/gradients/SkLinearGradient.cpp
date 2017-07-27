@@ -345,12 +345,19 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~GrLinearGradient() override {}
-
     const char* name() const override { return "Linear Gradient"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrLinearGradient(*this));
+    }
+
 private:
-    GrLinearGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
+    explicit GrLinearGradient(const CreateArgs& args)
+            : INHERITED(args, args.fShader->colorsAreOpaque()) {
+        this->initClassID<GrLinearGradient>();
+    }
+
+    explicit GrLinearGradient(const GrLinearGradient& that) : INHERITED(that) {
         this->initClassID<GrLinearGradient>();
     }
 
@@ -369,8 +376,6 @@ private:
 class GrLinearGradient::GLSLLinearProcessor : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLLinearProcessor(const GrProcessor&) {}
-
-    ~GLSLLinearProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 
