@@ -22,6 +22,30 @@
       "revId": "a789ab084ac132d125b0932c511f79ce34d03cfc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb669035_2f3cc0b3",
+        "filename": "src/jumper/SkJumper_stages.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-07-27T18:31:42Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s a fair point.  There are a good number of similar checks.  I\u0027ll see if there are good names to give each of these conditions in a follow up.",
+      "parentUuid": "eba9d1ab_5318fba8",
+      "range": {
+        "startLine": 46,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "a789ab084ac132d125b0932c511f79ce34d03cfc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
