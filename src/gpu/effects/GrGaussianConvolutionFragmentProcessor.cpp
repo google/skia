@@ -17,7 +17,8 @@
 #include "glsl/GrGLSLUniformHandler.h"
 
 // For brevity
-typedef GrGLSLProgramDataManager::UniformHandle UniformHandle;
+using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
+using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
 class GrGLConvolutionEffect : public GrGLSLFragmentProcessor {
 public:
@@ -48,7 +49,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                                 kDefault_GrSLPrecision, "Bounds");
     }
 
-    int width = Gr1DKernelEffect::WidthFromRadius(ce.radius());
+    int width = ce.width();
 
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
@@ -82,7 +83,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
             // float, and then mul weight*texture_sample by the float. However, the Adreno 430 seems
             // to have a bug that caused corruption.
             const char* bounds = uniformHandler->getUniformCStr(fBoundsUni);
-            const char* component = ce.direction() == Gr1DKernelEffect::kY_Direction ? "y" : "x";
+            const char* component = ce.direction() == Direction::kY ? "y" : "x";
 
             switch (ce.mode()) {
                 case GrTextureDomain::kClamp_Mode: {
@@ -127,10 +128,10 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     float imageIncrement[2] = {0};
     float ySign = proxy->origin() != kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     switch (conv.direction()) {
-        case Gr1DKernelEffect::kX_Direction:
+        case Direction::kX:
             imageIncrement[0] = 1.0f / texture.width();
             break;
-        case Gr1DKernelEffect::kY_Direction:
+        case Direction::kY:
             imageIncrement[1] = ySign / texture.height();
             break;
         default:
@@ -145,7 +146,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
             bounds[0] += SK_ScalarHalf;
             bounds[1] -= SK_ScalarHalf;
         }
-        if (Gr1DKernelEffect::kX_Direction == conv.direction()) {
+        if (Direction::kX == conv.direction()) {
             SkScalar inv = SkScalarInvert(SkIntToScalar(texture.width()));
             pdman.set2f(fBoundsUni, inv * bounds[0], inv * bounds[1]);
         } else {
@@ -157,7 +158,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
             }
         }
     }
-    int width = Gr1DKernelEffect::WidthFromRadius(conv.radius());
+    int width = conv.width();
 
     int arrayCount = (width + 3) / 4;
     SkASSERT(4 * arrayCount >= width);
@@ -170,7 +171,7 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
             processor.cast<GrGaussianConvolutionFragmentProcessor>();
     uint32_t key = conv.radius();
     key <<= 3;
-    key |= GrGaussianConvolutionFragmentProcessor::kY_Direction == conv.direction() ? 0x4 : 0x0;
+    key |= Direction::kY == conv.direction() ? 0x4 : 0x0;
     key |= static_cast<uint32_t>(conv.mode());
     b->add32(key);
 }
@@ -201,10 +202,15 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
                                                             float gaussianSigma,
                                                             GrTextureDomain::Mode mode,
                                                             int bounds[2])
-        : INHERITED{ModulateByConfigOptimizationFlags(proxy->config()), GR_PROXY_MOVE(proxy),
-                    direction, radius}
+        : INHERITED(ModulateByConfigOptimizationFlags(proxy->config()))
+        , fCoordTransform(proxy.get())
+        , fTextureSampler(std::move(proxy))
+        , fRadius(radius)
+        , fDirection(direction)
         , fMode(mode) {
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
     SkASSERT(radius <= kMaxKernelRadius);
 
     fill_in_1D_guassian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
@@ -248,11 +254,11 @@ sk_sp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
 
     Direction dir;
     if (d->fRandom->nextBool()) {
-        dir = kX_Direction;
+        dir = Direction::kX;
         bounds[0] = d->fRandom->nextRangeU(0, proxy->width()-1);
         bounds[1] = d->fRandom->nextRangeU(bounds[0], proxy->width()-1);
     } else {
-        dir = kY_Direction;
+        dir = Direction::kY;
         bounds[0] = d->fRandom->nextRangeU(0, proxy->height()-1);
         bounds[1] = d->fRandom->nextRangeU(bounds[0], proxy->height()-1);
     }

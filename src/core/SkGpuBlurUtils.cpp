@@ -20,6 +20,8 @@
 
 #define MAX_BLUR_SIGMA 4.0f
 
+using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
+
 static void scale_irect_roundout(SkIRect* rect, float xScale, float yScale) {
     rect->fLeft   = SkScalarFloorToInt(rect->fLeft  * xScale);
     rect->fTop    = SkScalarFloorToInt(rect->fTop   * yScale);
@@ -71,7 +73,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                  const SkIRect& dstRect,
                                  const SkIPoint& srcOffset,
                                  sk_sp<GrTextureProxy> proxy,
-                                 Gr1DKernelEffect::Direction direction,
+                                 Direction direction,
                                  int radius,
                                  float sigma,
                                  GrTextureDomain::Mode mode,
@@ -120,7 +122,7 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
                               const GrClip& clip,
                               const SkIRect& srcRect,
                               sk_sp<GrTextureProxy> proxy,
-                              Gr1DKernelEffect::Direction direction,
+                              Direction direction,
                               int radius,
                               float sigma,
                               const SkIRect& srcBounds,
@@ -137,7 +139,7 @@ static void convolve_gaussian(GrRenderTargetContext* renderTargetContext,
     SkIRect midRect = srcBounds, leftRect, rightRect;
     midRect.offset(srcOffset);
     SkIRect topRect, bottomRect;
-    if (direction == Gr1DKernelEffect::kX_Direction) {
+    if (Direction::kX == direction) {
         bounds[0] = srcBounds.left();
         bounds[1] = srcBounds.right();
         topRect = SkIRect::MakeLTRB(0, 0, dstRect.right(), midRect.top());
@@ -327,9 +329,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
-        convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect,
-                          std::move(srcProxy), Gr1DKernelEffect::kX_Direction, radiusX, sigmaX,
-                          localSrcBounds, srcOffset, mode);
+        convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect, std::move(srcProxy),
+                          Direction::kX, radiusX, sigmaX, localSrcBounds, srcOffset, mode);
 
         srcProxy = dstRenderTargetContext->asTextureProxyRef();
         if (!srcProxy) {
@@ -363,9 +364,8 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             return nullptr;
         }
 
-        convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect,
-                          std::move(srcProxy), Gr1DKernelEffect::kY_Direction, radiusY, sigmaY,
-                          localSrcBounds, srcOffset, mode);
+        convolve_gaussian(dstRenderTargetContext.get(), clip, srcRect, std::move(srcProxy),
+                          Direction::kY, radiusY, sigmaY, localSrcBounds, srcOffset, mode);
 
         srcProxy = dstRenderTargetContext->asTextureProxyRef();
         if (!srcProxy) {
