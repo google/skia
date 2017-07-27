@@ -1742,12 +1742,7 @@ void GrGLGpu::flushScissor(const GrScissorState& scissorState,
                            GrSurfaceOrigin rtOrigin) {
     if (scissorState.enabled()) {
         GrGLIRect scissor;
-        scissor.setRelativeTo(rtViewport,
-                              scissorState.rect().fLeft,
-                              scissorState.rect().fTop,
-                              scissorState.rect().width(),
-                              scissorState.rect().height(),
-                              rtOrigin);
+        scissor.setRelativeTo(rtViewport, scissorState.rect(), rtOrigin);
         // if the scissor fully contains the viewport then we fall through and
         // disable the scissor test.
         if (!scissor.contains(rtViewport)) {
@@ -1860,7 +1855,7 @@ bool GrGLGpu::flushGLState(const GrPipeline& pipeline, const GrPrimitiveProcesso
                       glRT->renderTargetPriv().numStencilBits());
     }
     this->flushStencil(stencil);
-    this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), glRT->origin());
+    this->flushScissor(pipeline.getScissorState(), glRT->getViewport(), pipeline.proxy()->origin());
     this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT);
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());
 
@@ -2123,11 +2118,12 @@ bool GrGLGpu::readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConf
 bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConfig) {
     sk_sp<GrTexture> temp;
     auto bindRenderTarget = [this, rtConfig, &temp]() -> bool {
-        GrTextureDesc desc;
+        GrSurfaceDesc desc;
         desc.fConfig = rtConfig;
         desc.fWidth = desc.fHeight = 16;
         if (this->glCaps().isConfigRenderable(rtConfig, false)) {
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
+            desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
             temp = this->createTexture(desc, SkBudgeted::kNo);
             if (!temp) {
                 return false;
@@ -2136,6 +2132,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
             this->flushRenderTarget(glrt, &SkIRect::EmptyIRect());
             return true;
         } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
+            desc.fOrigin = kTopLeft_GrSurfaceOrigin;
             temp = this->createTexture(desc, SkBudgeted::kNo);
             if (!temp) {
                 return false;
@@ -2553,7 +2550,7 @@ void GrGLGpu::draw(const GrPipeline& pipeline,
             if (pipeline.getScissorState().enabled()) {
                 GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
                 this->flushScissor(dynamicStates[i].fScissorRect,
-                                   glRT->getViewport(), glRT->origin());
+                                   glRT->getViewport(), pipeline.proxy()->origin());
             }
         }
         if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
@@ -2694,8 +2691,7 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target) {
                     t = target->height();
                 } else {
                     GrGLIRect rect;
-                    rect.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop,
-                                       dirtyRect.width(), dirtyRect.height(), target->origin());
+                    rect.setRelativeTo(vp, dirtyRect, target->origin());
                     l = rect.fLeft;
                     b = rect.fBottom;
                     r = rect.fLeft + rect.fWidth;
@@ -3951,12 +3947,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst,
     // We modified the bound FBO
     fHWBoundRenderTargetUniqueID.makeInvalid();
     GrGLIRect srcGLRect;
-    srcGLRect.setRelativeTo(srcVP,
-                            srcRect.fLeft,
-                            srcRect.fTop,
-                            srcRect.width(),
-                            srcRect.height(),
-                            src->origin());
+    srcGLRect.setRelativeTo(srcVP, srcRect, src->origin());
 
     this->setScratchTextureUnit();
     GL_CALL(BindTexture(dstTex->target(), dstTex->textureID()));
@@ -3997,18 +3988,8 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst,
     fHWBoundRenderTargetUniqueID.makeInvalid();
     GrGLIRect srcGLRect;
     GrGLIRect dstGLRect;
-    srcGLRect.setRelativeTo(srcVP,
-                            srcRect.fLeft,
-                            srcRect.fTop,
-                            srcRect.width(),
-                            srcRect.height(),
-                            src->origin());
-    dstGLRect.setRelativeTo(dstVP,
-                            dstRect.fLeft,
-                            dstRect.fTop,
-                            dstRect.width(),
-                            dstRect.height(),
-                            dst->origin());
+    srcGLRect.setRelativeTo(srcVP, srcRect, src->origin());
+    dstGLRect.setRelativeTo(dstVP, dstRect, dst->origin());
 
     // BlitFrameBuffer respects the scissor, so disable it.
     this->disableScissor();

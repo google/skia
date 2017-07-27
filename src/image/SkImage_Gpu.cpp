@@ -230,10 +230,10 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
 
 sk_sp<SkImage> SkImage_Gpu::onMakeSubset(const SkIRect& subset) const {
     GrSurfaceDesc desc;
-    desc.fConfig = fProxy->config();
+    desc.fOrigin = fProxy->origin();
     desc.fWidth = subset.width();
     desc.fHeight = subset.height();
-    desc.fOrigin = fProxy->origin();
+    desc.fConfig = fProxy->config();
 
     sk_sp<GrSurfaceContext> sContext(fContext->contextPriv().makeDeferredSurfaceContext(
                                                                         desc,
@@ -491,8 +491,8 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
 
     sk_sp<GrSemaphore> sema = context->getGpu()->prepareTextureForCrossContextUsage(texture.get());
 
-    auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), std::move(sema),
-                                                    codecImage->alphaType(),
+    auto gen = GrBackendTextureImageGenerator::Make(std::move(texture),
+                                                    std::move(sema), codecImage->alphaType(),
                                                     std::move(texColorSpace));
     return SkImage::MakeFromGenerator(std::move(gen));
 }
