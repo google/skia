@@ -27,6 +27,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     **************************************************************************/
     fMipMapSupport = true;   // always available in Vulkan
     fSRGBSupport = true;   // always available in Vulkan
+    fSRGBDecodeDisableSupport = true;  // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fDiscardRenderTargetSupport = true;
     fReuseScratchTextures = true; //TODO: figure this out
