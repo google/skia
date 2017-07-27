@@ -546,12 +546,27 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkPaint& paint) {
     sk_sp<SkTypeface> tface(paint.getTypeface() ? paint.refTypeface() : SkTypeface::MakeDefault());
 
     SkASSERT(tface);
-    SkTypeface::Style style = tface->style();
-    if (style & SkTypeface::kItalic) {
+    SkFontStyle style = tface->fontStyle();
+    if (style.slant() == SkFontStyle::kItalic_Slant) {
         this->addAttribute("font-style", "italic");
+    } else if (style.slant() == SkFontStyle::kOblique_Slant) {
+        this->addAttribute("font-style", "oblique");
     }
-    if (style & SkTypeface::kBold) {
-        this->addAttribute("font-weight", "bold");
+    int weightIndex = (SkTPin(style.weight(), 100, 900) - 50) / 100;
+    if (weightIndex != 3) {
+        static constexpr const char* weights[] = {
+            "100", "200", "300", "normal", "400", "500", "600", "bold", "800", "900"
+        };
+        this->addAttribute("font-weight", weights[weightIndex]);
+    }
+    int stretchIndex = style.width() - 1;
+    if (stretchIndex != 4) {
+        static constexpr const char* stretches[] = {
+            "ultra-condensed", "extra-condensed", "condensed", "semi-condensed",
+            "normal",
+            "semi-expanded", "expanded", "extra-expanded", "ultra-expanded"
+        };
+        this->addAttribute("font-stretch", stretches[stretchIndex]);
     }
 
     sk_sp<SkTypeface::LocalizedStrings> familyNameIter(tface->createFamilyNameIterator());

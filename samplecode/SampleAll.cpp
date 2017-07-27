@@ -487,8 +487,7 @@ protected:
 
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(48));
-        paint.setTypeface(SkTypeface::MakeFromName("sans-serif",
-                                                   SkFontStyle::FromOldStyle(SkTypeface::kBold)));
+        paint.setTypeface(SkTypeface::MakeFromName("sans-serif", SkFontStyle::Bold()));
 
         SkString str("GOOGLE");
 

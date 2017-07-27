@@ -106,6 +106,4 @@ private:
     friend class SkTestScalerContext;
 };
 
-SkTypeface* CreateTestTypeface(const char* name, SkTypeface::Style style);
-
 #endif
