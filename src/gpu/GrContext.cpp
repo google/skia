@@ -401,11 +401,12 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
         return false;
     }
 
-    GrSurface* dstSurface = dst->asSurfaceProxy()->priv().peekSurface();
+    GrSurfaceProxy* dstProxy = dst->asSurfaceProxy();
+    GrSurface* dstSurface = dstProxy->priv().peekSurface();
 
     // The src is unpremul but the dst is premul -> premul the src before or as part of the write
     const bool premul = SkToBool(kUnpremul_PixelOpsFlag & pixelOpsFlags);
-    if (!valid_pixel_conversion(srcConfig, dstSurface->config(), premul)) {
+    if (!valid_pixel_conversion(srcConfig, dstProxy->config(), premul)) {
         return false;
     }
 
@@ -414,7 +415,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     bool useConfigConversionEffect =
                         premul &&
                         pm_upm_must_round_trip(srcConfig, srcColorSpace) &&
-                        pm_upm_must_round_trip(dstSurface->config(), dst->getColorSpace());
+                        pm_upm_must_round_trip(dstProxy->config(), dst->getColorSpace());
 
     // Are we going to try to premul as part of a draw? For the non-legacy case, we always allow
     // this. GrConfigConversionEffect fails on some GPUs, so only allow this if it works perfectly.
@@ -432,8 +433,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, width, height, srcConfig,
-                                            &drawPreference, &tempDrawInfo)) {
+    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
+                                            srcConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
 
@@ -485,7 +486,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             return false;
         }
         GrTexture* texture = tempProxy->priv().peekTexture();
-        if (!fContext->fGpu->writePixels(texture, 0, 0, width, height, tempDrawInfo.fWriteConfig,
+        if (!fContext->fGpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height, tempDrawInfo.fWriteConfig,
                                          buffer, rowBytes)) {
             return false;
         }
@@ -508,7 +509,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             this->flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
         }
     } else {
-        return fContext->fGpu->writePixels(dstSurface, left, top, width, height, srcConfig,
+        return fContext->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width, height, srcConfig,
                                            buffer, rowBytes);
     }
     return true;
@@ -531,11 +532,12 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         return false;
     }
 
-    GrSurface* srcSurface = src->asSurfaceProxy()->priv().peekSurface();
+    GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
+    GrSurface* srcSurface = srcProxy->priv().peekSurface();
 
     // The src is premul but the dst is unpremul -> unpremul the src after or as part of the read
     bool unpremul = SkToBool(kUnpremul_PixelOpsFlag & flags);
-    if (!valid_pixel_conversion(srcSurface->config(), dstConfig, unpremul)) {
+    if (!valid_pixel_conversion(srcProxy->config(), dstConfig, unpremul)) {
         return false;
     }
 
@@ -543,7 +545,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     // without any color spaces attached, and the caller wants us to unpremul.
     bool useConfigConversionEffect =
                     unpremul &&
-                    pm_upm_must_round_trip(srcSurface->config(), src->getColorSpace()) &&
+                    pm_upm_must_round_trip(srcProxy->config(), src->getColorSpace()) &&
                     pm_upm_must_round_trip(dstConfig, dstColorSpace);
 
     // Are we going to try to unpremul as part of a draw? For the non-legacy case, we always allow
@@ -562,8 +564,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, width, height, rowBytes, dstConfig,
-                                           &drawPreference, &tempDrawInfo)) {
+    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
+                                           dstConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
 
@@ -639,7 +641,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         this->flushSurfaceWrites(proxyToRead.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
-    if (!fContext->fGpu->readPixels(surfaceToRead, left, top, width, height, configToRead,
+    if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
+                                    left, top, width, height, configToRead,
                                     buffer, rowBytes)) {
         return false;
     }
@@ -740,7 +743,8 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex, origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex));
     if (!surface) {
         return nullptr;
     }
@@ -761,8 +765,10 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+
     sk_sp<GrSurface> surface(
-            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt));
+            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
     if (!surface) {
         return nullptr;
     }
@@ -783,8 +789,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT,
-                                                                                   origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT));
     if (!rt) {
         return nullptr;
     }
@@ -807,9 +813,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(
                                                                                         tex,
-                                                                                        origin,
                                                                                         sampleCnt));
     if (!surface) {
         return nullptr;
