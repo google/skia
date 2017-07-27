@@ -22,6 +22,30 @@
       "revId": "4f8ab035654888990be0aa4d603a48ba774d8856",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f3d5cf5_983484d0",
+        "filename": "src/shaders/gradients/SkRadialGradient.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-27T19:46:10Z",
+      "side": 1,
+      "message": "oops, done",
+      "parentUuid": "6d37c10c_0e9fbfc3",
+      "range": {
+        "startLine": 228,
+        "startChar": 2,
+        "endLine": 229,
+        "endChar": 5
+      },
+      "revId": "4f8ab035654888990be0aa4d603a48ba774d8856",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
