@@ -132,20 +132,20 @@ public:
     /** None of these params are optional, pointers used just to avoid making copies. */
     struct StencilPathArgs {
         StencilPathArgs(bool useHWAA,
-                        GrRenderTarget* renderTarget,
+                        GrRenderTargetProxy* proxy,
                         const SkMatrix* viewMatrix,
                         const GrScissorState* scissor,
                         const GrStencilSettings* stencil)
             : fUseHWAA(useHWAA)
-            , fRenderTarget(renderTarget)
+            , fProxy(proxy)
             , fViewMatrix(viewMatrix)
             , fScissor(scissor)
             , fStencil(stencil) {
         }
-        bool fUseHWAA;
-        GrRenderTarget* fRenderTarget;
-        const SkMatrix* fViewMatrix;
-        const GrScissorState* fScissor;
+        bool                     fUseHWAA;
+        GrRenderTargetProxy*     fProxy;
+        const SkMatrix*          fViewMatrix;
+        const GrScissorState*    fScissor;
         const GrStencilSettings* fStencil;
     };
 
