@@ -72,6 +72,7 @@ TEST_BUILDERS = [
   'Build-Win-MSVC-x86_64-Debug-NoGPU',
   'Build-Win-MSVC-x86_64-Release-Exceptions',
   'Build-Win-MSVC-x86_64-Release-Vulkan',
+  'Housekeeper-PerCommit-CheckGeneratedFiles',
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-Android',
   'Perf-ChromeOS-Clang-Chromebook_513C24_K01-GPU-MaliT860-arm-Release',
   'Perf-Chromecast-GCC-Chorizo-CPU-Cortex_A7-arm-Release',
