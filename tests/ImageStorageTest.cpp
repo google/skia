@@ -61,7 +61,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                         fb->codeAppend("if (ivals.g < 0) { ivals.g += 256; }");
                         fb->codeAppend("if (ivals.b < 0) { ivals.b += 256; }");
                         fb->codeAppend("if (ivals.a < 0) { ivals.a += 256; }");
-                        fb->codeAppendf("%s = vec4(ivals)/255;", args.fOutputColor);
+                        fb->codeAppendf("%s = float4(ivals)/255;", args.fOutputColor);
                     } else {
                         fb->codeAppendf("%s = %s;", args.fOutputColor, imageLoadStr.c_str());
                     }

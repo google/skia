@@ -70,9 +70,9 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     SkString coords2D = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-    fragBuilder->codeAppend("vec4 sum = vec4(0, 0, 0, 0);");
-    fragBuilder->codeAppendf("vec2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
-    fragBuilder->codeAppend("vec4 c;");
+    fragBuilder->codeAppend("float4 sum = float4(0, 0, 0, 0);");
+    fragBuilder->codeAppendf("float2 coord = %s - %s * %s;", coords2D.c_str(), kernelOffset, imgInc);
+    fragBuilder->codeAppend("float4 c;");
 
     const char* kVecSuffix[4] = { ".x", ".y", ".z", ".w" };
     for (int y = 0; y < kHeight; y++) {
@@ -83,7 +83,7 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
             fragBuilder->codeAppendf("float k = %s[%d]%s;", kernel, offset / 4,
                                      kVecSuffix[offset & 0x3]);
             SkString coord;
-            coord.printf("coord + vec2(%d, %d) * %s", x, y, imgInc);
+            coord.printf("coord + float2(%d, %d) * %s", x, y, imgInc);
             fDomain.sampleTexture(fragBuilder,
                                   uniformHandler,
                                   args.fShaderCaps,
