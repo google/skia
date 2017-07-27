@@ -8,7 +8,8 @@
 #ifndef GrGaussianConvolutionFragmentProcessor_DEFINED
 #define GrGaussianConvolutionFragmentProcessor_DEFINED
 
-#include "Gr1DKernelEffect.h"
+#include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "GrTextureDomain.h"
 
 /**
@@ -16,8 +17,10 @@
  * Each texel is multiplied by it's weight and summed to determine the filtered color. The output
  * color is set to a modulation of the filtered and input colors.
  */
-class GrGaussianConvolutionFragmentProcessor : public Gr1DKernelEffect {
+class GrGaussianConvolutionFragmentProcessor : public GrFragmentProcessor {
 public:
+    enum class Direction { kX, kY };
+
     /// Convolve with a Gaussian kernel
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            Direction dir,
@@ -35,6 +38,9 @@ public:
 
     const int* bounds() const { return fBounds; }
     bool useBounds() const { return fMode != GrTextureDomain::kIgnore_Mode; }
+    int radius() const { return fRadius; }
+    int width() const { return 2 * fRadius + 1; }
+    Direction direction() const { return fDirection; }
 
     GrTextureDomain::Mode mode() const { return fMode; }
 
@@ -63,13 +69,17 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
+    GrCoordTransform fCoordTransform;
+    TextureSampler fTextureSampler;
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
     float fKernel[kMaxKernelWidth];
     int   fBounds[2];
+    int fRadius;
+    Direction fDirection;
     GrTextureDomain::Mode fMode;
 
-    typedef Gr1DKernelEffect INHERITED;
+    typedef GrFragmentProcessor INHERITED;
 };
 
 #endif
