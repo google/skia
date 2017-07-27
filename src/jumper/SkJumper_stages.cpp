@@ -43,10 +43,11 @@ using K = const SkJumper_constants;
 //    tail != 0 ~~> work on only the first tail pixels
 // tail is always < kStride.
 
-#if defined(__i386__) || defined(_M_IX86)
+#if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
     // On 32-bit x86 we've only got 8 xmm registers, so we keep the 4 hottest (r,g,b,a)
     // in registers and the d-registers on the stack (giving us 4 temporary registers).
     // General-purpose registers are also tight, so we put most of those on the stack too.
+    // On ARMv7, we do the same so that we can make the r,g,b,a vectors wider.
     struct Params {
         size_t x, y, tail;
         K* k;
@@ -75,7 +76,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
     auto start = (Stage*)load_and_inc(program);
     const size_t x0 = x;
     for (; y < ylimit; y++) {
-    #if defined(__i386__) || defined(_M_IX86)
+    #if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
         Params params = { x0,y,0,k, v,v,v,v };
         while (params.x + kStride <= xlimit) {
             start(&params,program, v,v,v,v);
@@ -98,7 +99,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
     }
 }
 
-#if defined(__i386__) || defined(_M_IX86)
+#if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
     #define STAGE(name)                                                                   \
         SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
                          F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
@@ -130,7 +131,7 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
 
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
-#if defined(__i386__) || defined(_M_IX86)
+#if defined(__i386__) || defined(_M_IX86) || defined(__arm__)
     extern "C" void WRAP(just_return)(Params*, void**, F,F,F,F) {}
 #else
     extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
