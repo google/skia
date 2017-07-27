@@ -624,8 +624,7 @@ static void texteffect_slide(SkCanvas* canvas) {
     SkScalar x = 20;
     SkScalar y = 80;
     SkPaint paint;
-    paint.setTypeface(SkTypeface::MakeFromName("Georgia",
-                                               SkFontStyle::FromOldStyle(SkTypeface::kItalic)));
+    paint.setTypeface(SkTypeface::MakeFromName("Georgia", SkFontStyle::Italic()));
     paint.setTextSize(75);
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLUE);
