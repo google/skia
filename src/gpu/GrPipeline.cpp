@@ -19,6 +19,7 @@
 
 void GrPipeline::init(const InitArgs& args) {
     SkASSERT(args.fProxy);
+    SkASSERT(kDefault_GrSurfaceOrigin != args.fProxy->origin());
     SkASSERT(args.fProcessors);
     SkASSERT(args.fProcessors->isFinalized());
 

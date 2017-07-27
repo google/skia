@@ -496,10 +496,10 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
 sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 32;
     desc.fHeight = 16;
+    desc.fConfig = kSkia8888_GrPixelConfig;
     sk_sp<GrSurfaceProxy> atlasDest = GrSurfaceProxy::MakeDeferred(
                                                             context->resourceProvider(),
                                                             desc, SkBackingFit::kExact,

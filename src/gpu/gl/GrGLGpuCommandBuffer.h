@@ -30,7 +30,7 @@ public:
 
     void end() override {}
 
-    void discard(GrRenderTarget* rt) override {
+    void discard(GrRenderTarget* rt, GrSurfaceOrigin) override {
         GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
         if (!fRenderTarget) {
             fRenderTarget = target;
@@ -39,7 +39,7 @@ public:
     }
 
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
-                      GrRenderTarget*) override {
+                      GrRenderTarget*, GrSurfaceOrigin) override {
         state->doUpload(upload);
     }
 
@@ -63,23 +63,24 @@ private:
         fGpu->draw(pipeline, primProc, mesh, dynamicStates, meshCount);
     }
 
-    void onClear(GrRenderTarget* rt, const GrFixedClip& clip, GrColor color) override {
+    void onClear(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                 const GrFixedClip& clip, GrColor color) override {
         GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
         if (!fRenderTarget) {
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->clear(clip, color, fRenderTarget);
+        fGpu->clear(clip, color, fRenderTarget, origin);
     }
 
-    void onClearStencilClip(GrRenderTarget* rt, const GrFixedClip& clip,
+    void onClearStencilClip(GrRenderTarget* rt, GrSurfaceOrigin origin, const GrFixedClip& clip,
                             bool insideStencilMask) override {
         GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(rt);
         if (!fRenderTarget) {
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
+        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, origin);
     }
 
     GrGLGpu*                    fGpu;

@@ -591,13 +591,13 @@ struct GrMipLevel {
  */
 struct GrSurfaceDesc {
     GrSurfaceDesc()
-    : fFlags(kNone_GrSurfaceFlags)
-    , fOrigin(kDefault_GrSurfaceOrigin)
-    , fWidth(0)
-    , fHeight(0)
-    , fConfig(kUnknown_GrPixelConfig)
-    , fSampleCnt(0)
-    , fIsMipMapped(false) {
+        : fFlags(kNone_GrSurfaceFlags)
+        , fOrigin(kDefault_GrSurfaceOrigin)
+        , fWidth(0)
+        , fHeight(0)
+        , fConfig(kUnknown_GrPixelConfig)
+        , fSampleCnt(0)
+        , fIsMipMapped(false) {
     }
 
     GrSurfaceFlags         fFlags;  //!< bitfield of TextureFlags

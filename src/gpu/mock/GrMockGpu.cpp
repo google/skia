@@ -56,7 +56,8 @@ GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
     fCaps.reset(new GrMockCaps(contextOptions, options));
 }
 
-sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
+                                            SkBudgeted budgeted,
                                             const GrMipLevel texels[], int mipLevelCount) {
     bool hasMipLevels = mipLevelCount > 1;
     GrMockTextureInfo info;

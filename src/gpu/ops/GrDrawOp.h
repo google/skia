@@ -47,7 +47,7 @@ private:
 class GrDrawOp : public GrOp {
 public:
     /** Method that performs an upload on behalf of a DeferredUploadFn. */
-    using WritePixelsFn = std::function<bool(GrSurface* texture,
+    using WritePixelsFn = std::function<bool(GrTextureProxy*,
                                              int left, int top, int width, int height,
                                              GrPixelConfig config, const void* buffer,
                                              size_t rowBytes)>;
