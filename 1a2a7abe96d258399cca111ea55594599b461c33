@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99596957_7eaaef57",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2017-07-27T20:33:11Z",
+      "side": 0,
+      "message": "this deletion is a mistake; will fix before submitting",
+      "range": {
+        "startLine": 1596,
+        "startChar": 26,
+        "endLine": 1596,
+        "endChar": 0
+      },
+      "revId": "1a2a7abe96d258399cca111ea55594599b461c33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
