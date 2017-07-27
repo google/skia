@@ -73,10 +73,9 @@ void DeleteThreadFcLocked(void* v) { delete static_cast<bool*>(v); }
         static_cast<bool*>(SkTLS::Get(CreateThreadFcLocked, DeleteThreadFcLocked))
 #endif
 
-struct FCLocker {
+class FCLocker {
     // Assume FcGetVersion() has always been thread safe.
-
-    FCLocker() {
+    static void lock() {
         if (FcGetVersion() < 21091) {
             gFCMutex.acquire();
         } else {
@@ -85,8 +84,7 @@ struct FCLocker {
             SkDEBUGCODE(*threadLocked = true);
         }
     }
-
-    ~FCLocker() {
+    static void unlock() {
         AssertHeld();
         if (FcGetVersion() < 21091) {
             gFCMutex.release();
@@ -94,6 +92,20 @@ struct FCLocker {
             SkDEBUGCODE(*THREAD_FC_LOCKED = false);
         }
     }
+
+public:
+    FCLocker() { lock(); }
+    ~FCLocker() { unlock(); }
+
+    /** If acquire and release were free, FCLocker would be used around each call into FontConfig.
+     *  Instead a much more granular approach is taken, but this means there are times when the
+     *  mutex is held when it should not be. A Suspend will drop the lock until it is destroyed.
+     *  While a Suspend exists, FontConfig should not be used without re-taking the lock.
+     */
+    struct Suspend {
+        Suspend() { unlock(); }
+        ~Suspend() { lock(); }
+    };
 
     static void AssertHeld() { SkDEBUGCODE(
         if (FcGetVersion() < 21091) {
@@ -652,6 +664,8 @@ class SkFontMgr_fontconfig : public SkFontMgr {
             FcPatternReference(pattern);
             face = SkTypeface_fontconfig::Create(pattern);
             if (face) {
+                // Cannot hold the lock when calling add; an evicted typeface may need to lock.
+                FCLocker::Suspend suspend;
                 fTFCache.add(face);
             }
         }
