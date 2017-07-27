@@ -18,7 +18,11 @@
 
 std::atomic<bool> gSkForceAnalyticAA{false};
 
-std::atomic<bool> gSkUseDeltaAA{false};
+#ifdef SK_SUPPORT_LEGACY_DELTA_AA
+    std::atomic<bool> gSkUseDeltaAA{false};
+#else
+    std::atomic<bool> gSkUseDeltaAA{true};
+#endif
 
 std::atomic<bool> gSkForceDeltaAA{false};
 
