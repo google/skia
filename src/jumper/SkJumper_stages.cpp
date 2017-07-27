@@ -42,9 +42,22 @@ using K = const SkJumper_constants;
 //    tail == 0 ~~> work on a full kStride pixels
 //    tail != 0 ~~> work on only the first tail pixels
 // tail is always < kStride.
-//
-// We keep program the second argument, so that it's passed in rsi for load_and_inc().
-using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
+
+#if defined(__i386__) || defined(_M_IX86)
+    // On 32-bit x86 we've only got 8 xmm registers, so we keep the 4 hottest (r,g,b,a)
+    // in registers and the d-registers on the stack (giving us 4 temporary registers).
+    // General-purpose registers are also tight, so we put most of those on the stack too.
+    struct Params {
+        size_t x, y, tail;
+        K* k;
+        F dr,dg,db,da;
+    };
+    using Stage = void(Params*, void** program, F r, F g, F b, F a);
+
+#else
+    // We keep program the second argument, so that it's passed in rsi for load_and_inc().
+    using Stage = void(K* k, void** program, size_t x, size_t y, size_t tail, F,F,F,F, F,F,F,F);
+#endif
 
 #if defined(JUMPER) && defined(__AVX__)
     // We really want to make sure all paths go through this function's (implicit) vzeroupper.
@@ -60,8 +73,19 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
     F v{};
 #endif
     auto start = (Stage*)load_and_inc(program);
-    size_t x0 = x;
+    const size_t x0 = x;
     for (; y < ylimit; y++) {
+    #if defined(__i386__) || defined(_M_IX86)
+        Params params = { x0,y,0,k, v,v,v,v };
+        while (params.x + kStride <= xlimit) {
+            start(&params,program, v,v,v,v);
+            params.x += kStride;
+        }
+        if (size_t tail = xlimit - params.x) {
+            params.tail = tail;
+            start(&params,program, v,v,v,v);
+        }
+    #else
         x = x0;
         while (x + kStride <= xlimit) {
             start(k,program,x,y,0,    v,v,v,v, v,v,v,v);
@@ -70,26 +94,47 @@ extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t y
         if (size_t tail = xlimit - x) {
             start(k,program,x,y,tail, v,v,v,v, v,v,v,v);
         }
+    #endif
     }
 }
 
-#define STAGE(name)                                                                   \
-    SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
-                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
-    extern "C" void WRAP(name)(K* k, void** program, size_t x, size_t y, size_t tail, \
-                               F r, F g, F b, F a, F dr, F dg, F db, F da) {          \
-        LazyCtx ctx(program);                                                         \
-        name##_k(k,ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                               \
-        auto next = (Stage*)load_and_inc(program);                                    \
-        next(k,program,x,y,tail, r,g,b,a, dr,dg,db,da);                               \
-    }                                                                                 \
-    SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
-                     F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#if defined(__i386__) || defined(_M_IX86)
+    #define STAGE(name)                                                                   \
+        SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
+        extern "C" void WRAP(name)(Params* params, void** program,                        \
+                                   F r, F g, F b, F a) {                                  \
+            LazyCtx ctx(program);                                                         \
+            name##_k(params->k,ctx,params->x,params->y,params->tail, r,g,b,a,             \
+                     params->dr, params->dg, params->db, params->da);                     \
+            auto next = (Stage*)load_and_inc(program);                                    \
+            next(params,program, r,g,b,a);                                                \
+        }                                                                                 \
+        SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#else
+    #define STAGE(name)                                                                   \
+        SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);             \
+        extern "C" void WRAP(name)(K* k, void** program, size_t x, size_t y, size_t tail, \
+                                   F r, F g, F b, F a, F dr, F dg, F db, F da) {          \
+            LazyCtx ctx(program);                                                         \
+            name##_k(k,ctx,x,y,tail, r,g,b,a, dr,dg,db,da);                               \
+            auto next = (Stage*)load_and_inc(program);                                    \
+            next(k,program,x,y,tail, r,g,b,a, dr,dg,db,da);                               \
+        }                                                                                 \
+        SI void name##_k(K* k, LazyCtx ctx, size_t x, size_t y, size_t tail,              \
+                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+#endif
 
 
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
-extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
+#if defined(__i386__) || defined(_M_IX86)
+    extern "C" void WRAP(just_return)(Params*, void**, F,F,F,F) {}
+#else
+    extern "C" void WRAP(just_return)(K*, void**, size_t,size_t,size_t, F,F,F,F, F,F,F,F) {}
+#endif
 
 
 // We could start defining normal Stages now.  But first, some helper functions.
