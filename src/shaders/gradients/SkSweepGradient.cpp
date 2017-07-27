@@ -67,12 +67,19 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~GrSweepGradient() override {}
-
     const char* name() const override { return "Sweep Gradient"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(*this));
+    }
+
 private:
-    GrSweepGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
+    explicit GrSweepGradient(const CreateArgs& args)
+            : INHERITED(args, args.fShader->colorsAreOpaque()) {
+        this->initClassID<GrSweepGradient>();
+    }
+
+    explicit GrSweepGradient(const GrSweepGradient& that) : INHERITED(that) {
         this->initClassID<GrSweepGradient>();
     }
 
@@ -91,7 +98,6 @@ private:
 class GrSweepGradient::GLSLSweepProcessor : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLSweepProcessor(const GrProcessor&) {}
-    ~GLSLSweepProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 

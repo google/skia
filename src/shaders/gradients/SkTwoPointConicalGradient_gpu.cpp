@@ -66,8 +66,6 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~Edge2PtConicalEffect() override {}
-
     const char* name() const override {
         return "Two-Point Conical Gradient Edge Touching";
     }
@@ -76,6 +74,10 @@ public:
     SkScalar center() const { return fCenterX1; }
     SkScalar diffRadius() const { return fDiffRadius; }
     SkScalar radius() const { return fRadius0; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new Edge2PtConicalEffect(*this));
+    }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -90,7 +92,7 @@ private:
                 this->fDiffRadius == s.fDiffRadius);
     }
 
-    Edge2PtConicalEffect(const CreateArgs& args)
+    explicit Edge2PtConicalEffect(const CreateArgs& args)
             : INHERITED(args, false /* opaque: draws transparent black outside of the cone. */) {
         const SkTwoPointConicalGradient& shader =
             *static_cast<const SkTwoPointConicalGradient*>(args.fShader);
@@ -121,6 +123,16 @@ private:
         this->addCoordTransform(&fBTransform);
     }
 
+    explicit Edge2PtConicalEffect(const Edge2PtConicalEffect& that)
+            : INHERITED(that)
+            , fBTransform(that.fBTransform)
+            , fCenterX1(that.fCenterX1)
+            , fRadius0(that.fRadius0)
+            , fDiffRadius(that.fDiffRadius) {
+        this->initClassID<Edge2PtConicalEffect>();
+        this->addCoordTransform(&fBTransform);
+    }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     // @{
@@ -140,7 +152,6 @@ private:
 class Edge2PtConicalEffect::GLSLEdge2PtConicalProcessor : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLEdge2PtConicalProcessor(const GrProcessor&);
-    ~GLSLEdge2PtConicalProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -376,10 +387,12 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~FocalOutside2PtConicalEffect() override {}
-
     const char* name() const override {
         return "Two-Point Conical Gradient Focal Outside";
+    }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new FocalOutside2PtConicalEffect(*this));
     }
 
     bool isFlipped() const { return fIsFlipped; }
@@ -409,6 +422,11 @@ private:
         this->initClassID<FocalOutside2PtConicalEffect>();
     }
 
+    explicit FocalOutside2PtConicalEffect(const FocalOutside2PtConicalEffect& that)
+            : INHERITED(that), fFocalX(that.fFocalX), fIsFlipped(that.fIsFlipped) {
+        this->initClassID<FocalOutside2PtConicalEffect>();
+    }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     SkScalar         fFocalX;
@@ -421,7 +439,6 @@ class FocalOutside2PtConicalEffect::GLSLFocalOutside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLFocalOutside2PtConicalProcessor(const GrProcessor&);
-    ~GLSLFocalOutside2PtConicalProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -590,10 +607,12 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~FocalInside2PtConicalEffect() override {}
-
     const char* name() const override {
         return "Two-Point Conical Gradient Focal Inside";
+    }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new FocalInside2PtConicalEffect(*this));
     }
 
     SkScalar focal() const { return fFocalX; }
@@ -616,6 +635,11 @@ private:
         this->initClassID<FocalInside2PtConicalEffect>();
     }
 
+    explicit FocalInside2PtConicalEffect(const FocalInside2PtConicalEffect& that)
+            : INHERITED(that), fFocalX(that.fFocalX) {
+        this->initClassID<FocalInside2PtConicalEffect>();
+    }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     SkScalar         fFocalX;
@@ -627,7 +651,6 @@ class FocalInside2PtConicalEffect::GLSLFocalInside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLFocalInside2PtConicalProcessor(const GrProcessor&);
-    ~GLSLFocalInside2PtConicalProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -829,9 +852,11 @@ public:
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
-    ~CircleInside2PtConicalEffect() override {}
-
     const char* name() const override { return "Two-Point Conical Gradient Inside"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new CircleInside2PtConicalEffect(*this));
+    }
 
     SkScalar centerX() const { return fInfo.fCenterEnd.fX; }
     SkScalar centerY() const { return fInfo.fCenterEnd.fY; }
@@ -859,6 +884,11 @@ private:
         this->initClassID<CircleInside2PtConicalEffect>();
     }
 
+    explicit CircleInside2PtConicalEffect(const CircleInside2PtConicalEffect& that)
+            : INHERITED(that), fInfo(that.fInfo) {
+        this->initClassID<CircleInside2PtConicalEffect>();
+    }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     const CircleConicalInfo fInfo;
@@ -866,11 +896,10 @@ private:
     typedef GrGradientEffect INHERITED;
 };
 
-class CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor 
+class CircleInside2PtConicalEffect::GLSLCircleInside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLCircleInside2PtConicalProcessor(const GrProcessor&);
-    ~GLSLCircleInside2PtConicalProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 
@@ -1044,9 +1073,11 @@ public:
             new CircleOutside2PtConicalEffect(args, info));
     }
 
-    ~CircleOutside2PtConicalEffect() override {}
-
     const char* name() const override { return "Two-Point Conical Gradient Outside"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new CircleOutside2PtConicalEffect(*this));
+    }
 
     SkScalar centerX() const { return fInfo.fCenterEnd.fX; }
     SkScalar centerY() const { return fInfo.fCenterEnd.fY; }
@@ -1087,6 +1118,14 @@ private:
         fIsFlipped = shader.isFlippedGrad();
     }
 
+    explicit CircleOutside2PtConicalEffect(const CircleOutside2PtConicalEffect& that)
+            : INHERITED(that)
+            , fInfo(that.fInfo)
+            , fTLimit(that.fTLimit)
+            , fIsFlipped(that.fIsFlipped) {
+        this->initClassID<CircleOutside2PtConicalEffect>();
+    }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     const CircleConicalInfo fInfo;
@@ -1100,7 +1139,6 @@ class CircleOutside2PtConicalEffect::GLSLCircleOutside2PtConicalProcessor
     : public GrGradientEffect::GLSLProcessor {
 public:
     GLSLCircleOutside2PtConicalProcessor(const GrProcessor&);
-    ~GLSLCircleOutside2PtConicalProcessor() override {}
 
     virtual void emitCode(EmitArgs&) override;
 

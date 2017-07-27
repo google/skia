@@ -1292,13 +1292,11 @@ static inline bool close_to_one_half(const SkFixed& val) {
 
 static inline int color_type_to_color_count(GrGradientEffect::ColorType colorType) {
     switch (colorType) {
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         case GrGradientEffect::kSingleHardStop_ColorType:
             return 4;
         case GrGradientEffect::kHardStopLeftEdged_ColorType:
         case GrGradientEffect::kHardStopRightEdged_ColorType:
             return 3;
-#endif
         case GrGradientEffect::kTwo_ColorType:
             return 2;
         case GrGradientEffect::kThree_ColorType:
@@ -1313,7 +1311,6 @@ static inline int color_type_to_color_count(GrGradientEffect::ColorType colorTyp
 
 GrGradientEffect::ColorType GrGradientEffect::determineColorType(
         const SkGradientShaderBase& shader) {
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
     if (shader.fOrigPos) {
         if (4 == shader.fColorCount) {
             if (SkScalarNearlyEqual(shader.fOrigPos[0], 0.0f) &&
@@ -1336,7 +1333,6 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorType(
             }
         }
     }
-#endif
 
     if (SkShader::kClamp_TileMode == shader.getTileMode()) {
         if (2 == shader.fColorCount) {
@@ -1461,13 +1457,11 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
     const GrGradientEffect& e = processor.cast<GrGradientEffect>();
 
     switch (e.getColorType()) {
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         case GrGradientEffect::kSingleHardStop_ColorType:
             pdman.set1f(fHardStopT, e.fPositions[1]);
             // fall through
         case GrGradientEffect::kHardStopLeftEdged_ColorType:
         case GrGradientEffect::kHardStopRightEdged_ColorType:
-#endif
         case GrGradientEffect::kTwo_ColorType:
         case GrGradientEffect::kThree_ColorType: {
             if (e.fColors4f.count() > 0) {
@@ -1518,9 +1512,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
         key |= kTwoColorKey;
     } else if (GrGradientEffect::kThree_ColorType == e.getColorType()) {
         key |= kThreeColorKey;
-    }
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
-    else if (GrGradientEffect::kSingleHardStop_ColorType == e.getColorType()) {
+    } else if (GrGradientEffect::kSingleHardStop_ColorType == e.getColorType()) {
         key |= kHardStopCenteredKey;
     } else if (GrGradientEffect::kHardStopLeftEdged_ColorType == e.getColorType()) {
         key |= kHardStopZeroZeroOneKey;
@@ -1535,7 +1527,6 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
     } else {
         key |= kMirrorTileMode;
     }
-#endif
 
     key |= GrColorSpaceXform::XformKey(e.fColorSpaceXform.get()) << kReservedBits;
 
@@ -1551,7 +1542,6 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                                                 const char* inputColor,
                                                 const TextureSamplers& texSamplers) {
     switch (ge.getColorType()) {
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         case kSingleHardStop_ColorType: {
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
@@ -1672,7 +1662,6 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
 
             break;
         }
-#endif
 
         case kTwo_ColorType: {
             const char* t      = gradientTValue;
@@ -1772,26 +1761,20 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
             fColors = SkTDArray<SkColor>(shader.fOrigColors, shader.fColorCount);
         }
 
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         if (shader.fOrigPos) {
             fPositions = SkTDArray<SkScalar>(shader.fOrigPos, shader.fColorCount);
         }
-#endif
     }
 
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
     fTileMode = args.fTileMode;
-#endif
 
     switch (fColorType) {
         // The two and three color specializations do not currently support tiling.
         case kTwo_ColorType:
         case kThree_ColorType:
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         case kHardStopLeftEdged_ColorType:
         case kHardStopRightEdged_ColorType:
         case kSingleHardStop_ColorType:
-#endif
             fRow = -1;
 
             if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getGradFlags()) {
@@ -1875,6 +1858,30 @@ GrGradientEffect::GrGradientEffect(const CreateArgs& args, bool isOpaque)
     }
 
     this->addCoordTransform(&fCoordTransform);
+}
+
+GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
+        : INHERITED(OptFlags(that.fIsOpaque))
+        , fColors(that.fColors)
+        , fColors4f(that.fColors4f)
+        , fColorSpaceXform(that.fColorSpaceXform)
+        , fPositions(that.fPositions)
+        , fTileMode(that.fTileMode)
+        , fCoordTransform(that.fCoordTransform)
+        , fTextureSampler(that.fTextureSampler)
+        , fYCoord(that.fYCoord)
+        , fAtlas(that.fAtlas)
+        , fRow(that.fRow)
+        , fIsOpaque(that.fIsOpaque)
+        , fColorType(that.fColorType)
+        , fPremulType(that.fPremulType) {
+    this->addCoordTransform(&fCoordTransform);
+    if (kTexture_ColorType == fColorType) {
+        this->addTextureSampler(&fTextureSampler);
+    }
+    if (this->useAtlas()) {
+        fAtlas->lockRow(fRow);
+    }
 }
 
 GrGradientEffect::~GrGradientEffect() {

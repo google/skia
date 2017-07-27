@@ -24,10 +24,6 @@
 #include "SkUtils.h"
 #include "SkWriteBuffer.h"
 
-#if SK_SUPPORT_GPU
-    #define GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS 1
-#endif
-
 static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
     if (count > 0) {
@@ -374,12 +370,9 @@ public:
         kTwo_ColorType,
         kThree_ColorType, // Symmetric three color
         kTexture_ColorType,
-
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
         kSingleHardStop_ColorType,     // 0, t, t, 1
         kHardStopLeftEdged_ColorType,  // 0, 0, 1
         kHardStopRightEdged_ColorType, // 0, 1, 1
-#endif
     };
 
     ColorType getColorType() const { return fColorType; }
@@ -414,6 +407,7 @@ public:
 
 protected:
     GrGradientEffect(const CreateArgs&, bool isOpaque);
+    explicit GrGradientEffect(const GrGradientEffect&);  // facilitates clone() implementations
 
     #if GR_TEST_UTILS
     /** Helper struct that stores (and populates) parameters to construct a random gradient.
@@ -519,7 +513,7 @@ private:
         // hard stop cases (neither means using texture atlas)
         kTwoColorKey            =  2,
         kThreeColorKey          =  4,
-#if GR_GL_USE_ACCURATE_HARD_STOP_GRADIENTS
+
         kHardStopCenteredKey    =  6,
         kHardStopZeroZeroOneKey =  8,
         kHardStopZeroOneOneKey  = 10,
@@ -531,7 +525,6 @@ private:
 
         // Lower six bits for premul, 2/3 color type, and tile mode
         kReservedBits           = 6,
-#endif
     };
 
     SkScalar fCachedYCoord;
