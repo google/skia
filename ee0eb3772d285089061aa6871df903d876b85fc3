@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "afbdb41f_b547667b",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-27T19:46:01Z",
+      "side": 1,
+      "message": "Annoying yes. Apple decided it was a much better model to have their enums only visible on specific platforms (even though they are all technically in the header)",
+      "parentUuid": "1e379d5d_f6ce8a44",
+      "range": {
+        "startLine": 28,
+        "startChar": 16,
+        "endLine": 28,
+        "endChar": 66
+      },
+      "revId": "ee0eb3772d285089061aa6871df903d876b85fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "80792ded_38e254d4",
         "filename": "src/gpu/mtl/GrMtlCaps.mm",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-07-27T19:36:39Z",
       "side": 1,
       "message": "Are devices that support newer feature sets guaranteed to support older feature sets? Just want to make sure we select something reasonable in a forward compatibility scenario.",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 20
+      },
+      "revId": "ee0eb3772d285089061aa6871df903d876b85fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7aa2f213_91b48109",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-27T19:46:01Z",
+      "side": 1,
+      "message": "I didn\u0027t see anywhere the guarantees that newer devices support older feature sets. Also no where that within the same device type and family, that version n+1 is a superset of version n features.\n\nI kind of feel like we\u0027re stuck in a world where we will just need to manually be updating this when new devices and OS come out. Though it is very possible that new devices do support old feature sets in which case we won\u0027t fail immediately.",
+      "parentUuid": "80792ded_38e254d4",
       "range": {
         "startLine": 98,
         "startChar": 4,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "90553c33_2f49b5e0",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-27T19:46:01Z",
+      "side": 1,
+      "message": "Ah yeah I had talked to Brian Osman yesterday and forgot to remove this comment.",
+      "parentUuid": "f80e14c8_22f12806",
+      "range": {
+        "startLine": 143,
+        "startChar": 33,
+        "endLine": 143,
+        "endChar": 58
+      },
+      "revId": "ee0eb3772d285089061aa6871df903d876b85fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3dceefd_22697291",
         "filename": "src/gpu/mtl/GrMtlCaps.mm",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2017-07-27T19:36:39Z",
       "side": 1,
       "message": "?",
+      "range": {
+        "startLine": 198,
+        "startChar": 23,
+        "endLine": 198,
+        "endChar": 29
+      },
+      "revId": "ee0eb3772d285089061aa6871df903d876b85fc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60613b6c_213db519",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-07-27T19:46:01Z",
+      "side": 1,
+      "message": "how\u0027d that sneak in there....",
+      "parentUuid": "d3dceefd_22697291",
       "range": {
         "startLine": 198,
         "startChar": 23,
