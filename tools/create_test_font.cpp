@@ -9,6 +9,7 @@
 // and ./tools/test_font_<generic name>.inc which are read by ./tools/sk_tool_utils_font.cpp
 
 #include "Resources.h"
+#include "SkFontStyle.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -28,16 +29,17 @@ struct NamedFontStyle {
     const char* fName;
     SkFontStyle fStyle;
 };
-NamedFontStyle normal     = {"Normal",     SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant)};
-NamedFontStyle bold       = {"Bold",       SkFontStyle(SkFontStyle::kBold_Weight,   SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant)};
-NamedFontStyle italic     = {"Italic",     SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kItalic_Slant )};
-NamedFontStyle bolditalic = {"BoldItalic", SkFontStyle(SkFontStyle::kBold_Weight,   SkFontStyle::kNormal_Width, SkFontStyle::kItalic_Slant )};
+constexpr NamedFontStyle normal     = {"Normal",     SkFontStyle::Normal()    };
+constexpr NamedFontStyle bold       = {"Bold",       SkFontStyle::Bold()      };
+constexpr NamedFontStyle italic     = {"Italic",     SkFontStyle::Italic()    };
+constexpr NamedFontStyle bolditalic = {"BoldItalic", SkFontStyle::BoldItalic()};
 
 struct FontDesc {
-    const char* fGenericName;
-    NamedFontStyle fNamedStyle;
-    const char* fFontName;
-    const char* fFile;
+    char const * const fGenericName;
+    NamedFontStyle const fNamedStyle;
+    char const * const fFontName;
+    char const * const fFile;
+    // fFontIndex is mutable and will be set later.
     int fFontIndex;
 } gFonts[] = {
     {"monospace",  normal,     "Liberation Mono",  "LiberationMono-Regular.ttf",     -1},

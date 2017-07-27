@@ -41,7 +41,7 @@ protected:
 
         // Setup our random scaler context
         sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface(
-                                   "sans-serif", SkFontStyle::FromOldStyle(SkTypeface::kBold)));
+                                   "sans-serif", SkFontStyle::Bold()));
         if (nullptr == orig) {
             orig = SkTypeface::MakeDefault();
         }
