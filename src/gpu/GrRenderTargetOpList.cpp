@@ -137,6 +137,7 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             flushState->setCommandBuffer(commandBuffer.get());
         }
 
+        // TODO: just pass the Proxy?
         GrOpFlushState::DrawOpArgs opArgs {
             fTarget.get()->asRenderTargetProxy(),
             fRecordedOps[i].fAppliedClip,

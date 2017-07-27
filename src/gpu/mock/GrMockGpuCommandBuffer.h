@@ -16,8 +16,9 @@ public:
     GrMockGpuCommandBuffer(GrMockGpu* gpu) : fGpu(gpu) {}
 
     GrGpu* gpu() override { return fGpu; }
-    void inlineUpload(GrOpFlushState*, GrDrawOp::DeferredUploadFn&, GrRenderTarget*) override {}
-    void discard(GrRenderTarget*) override {}
+    void inlineUpload(GrOpFlushState*, GrDrawOp::DeferredUploadFn&,
+                      GrRenderTarget*, GrSurfaceOrigin) override {}
+    void discard(GrRenderTarget*, GrSurfaceOrigin) override {}
     void end() override {}
 
     int numDraws() const { return fNumDraws; }
@@ -28,8 +29,10 @@ private:
                 const GrPipeline::DynamicState[], int meshCount, const SkRect& bounds) override {
         ++fNumDraws;
     }
-    void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) override {}
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override {}
+    void onClear(GrRenderTarget*, GrSurfaceOrigin, const GrFixedClip&, GrColor) override {}
+    void onClearStencilClip(GrRenderTarget*, GrSurfaceOrigin,
+                            const GrFixedClip&, bool insideStencilMask) override {
+    }
     GrRenderTarget* renderTarget() override { return nullptr; }
 
     GrMockGpu* fGpu;

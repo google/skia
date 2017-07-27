@@ -19,6 +19,7 @@ class GrVkUniformBuffer;
 class GrVkVertexBuffer;
 struct SkIPoint;
 struct SkIRect;
+enum GrSurfaceOrigin;
 
 class GrVkCopyManager {
 public:
@@ -27,10 +28,9 @@ public:
     ~GrVkCopyManager();
 
     bool copySurfaceAsDraw(GrVkGpu* gpu,
-                           GrSurface* dst,
-                           GrSurface* src,
-                           const SkIRect& srcRect,
-                           const SkIPoint& dstPoint);
+                           GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                           GrSurface* src, GrSurfaceOrigin srcOrigin,
+                           const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     void destroyResources(GrVkGpu* gpu);
     void abandonResources();
