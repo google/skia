@@ -170,10 +170,18 @@ public:
     */
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor colors[], const SkScalar pos[], int count,
+                                     SkShader::TileMode mode,
+                                     SkScalar startAngle, SkScalar endAngle,
                                      uint32_t flags, const SkMatrix* localMatrix);
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
+                                     const SkColor colors[], const SkScalar pos[], int count,
+                                     uint32_t flags, const SkMatrix* localMatrix) {
+        return MakeSweep(cx, cy, colors, pos, count, SkShader::kClamp_TileMode, 0, 360, flags,
+                         localMatrix);
+    }
+    static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor colors[], const SkScalar pos[], int count) {
-        return MakeSweep(cx, cy, colors, pos, count, 0, NULL);
+        return MakeSweep(cx, cy, colors, pos, count, 0, nullptr);
     }
 
     /** Returns a shader that generates a sweep gradient given a center.
@@ -191,11 +199,20 @@ public:
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                      const SkScalar pos[], int count,
+                                     SkShader::TileMode mode,
+                                     SkScalar startAngle, SkScalar endAngle,
                                      uint32_t flags, const SkMatrix* localMatrix);
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
+                                     const SkScalar pos[], int count,
+                                     uint32_t flags, const SkMatrix* localMatrix) {
+        return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count,
+                         SkShader::kClamp_TileMode, 0, 360, flags, localMatrix);
+    }
+    static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
+                                     const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                      const SkScalar pos[], int count) {
-        return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, NULL);
+        return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, nullptr);
     }
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
