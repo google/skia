@@ -138,7 +138,7 @@ void test_sampleLocations(skiatest::Reporter* reporter, TestSampleLocationsInter
                 GrRenderTarget* rt = rtc->accessRenderTarget();
                 assert_equal(reporter, kTestPatterns[i],
                              rt->renderTargetPriv().getMultisampleSpecs(dummyPipeline),
-                             kBottomLeft_GrSurfaceOrigin == rt->origin());
+                             kBottomLeft_GrSurfaceOrigin == rtc->asSurfaceProxy()->origin());
             }
         }
     }

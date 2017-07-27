@@ -70,9 +70,9 @@ void test_copy_from_surface(skiatest::Reporter* reporter, GrContext* context,
                             GrSurfaceProxy* proxy, uint32_t expectedPixelValues[],
                             bool onlyTestRTConfig, const char* testName) {
     GrSurfaceDesc copyDstDesc;
-    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
     copyDstDesc.fWidth = proxy->width();
     copyDstDesc.fHeight = proxy->height();
+    copyDstDesc.fConfig = kRGBA_8888_GrPixelConfig;
 
     for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
         if (kNone_GrSurfaceFlags == flags && onlyTestRTConfig) {
@@ -102,9 +102,9 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrResourceProvider* reso
     }
 
     GrSurfaceDesc copySrcDesc;
-    copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
     copySrcDesc.fWidth = dstContext->width();
     copySrcDesc.fHeight = dstContext->height();
+    copySrcDesc.fConfig = kRGBA_8888_GrPixelConfig;
 
     for (auto flags : { kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag }) {
         copySrcDesc.fFlags = flags;

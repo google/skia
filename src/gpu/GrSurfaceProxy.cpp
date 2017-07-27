@@ -48,16 +48,16 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
     GrSurfaceDesc desc;
-    desc.fConfig = fConfig;
-    desc.fWidth = fWidth;
-    desc.fHeight = fHeight;
-    desc.fOrigin = fOrigin;
-    desc.fSampleCnt = sampleCnt;
-    desc.fIsMipMapped = isMipMapped;
     desc.fFlags = flags;
     if (fNeedsClear) {
         desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
     }
+    desc.fOrigin = fOrigin;
+    desc.fWidth = fWidth;
+    desc.fHeight = fHeight;
+    desc.fConfig = fConfig;
+    desc.fSampleCnt = sampleCnt;
+    desc.fIsMipMapped = isMipMapped;
 
     sk_sp<GrSurface> surface;
     if (SkBackingFit::kApprox == fFit) {
@@ -300,10 +300,10 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
     }
 
     GrSurfaceDesc dstDesc;
-    dstDesc.fConfig = src->config();
+    dstDesc.fOrigin = src->origin();
     dstDesc.fWidth = srcRect.width();
     dstDesc.fHeight = srcRect.height();
-    dstDesc.fOrigin = src->origin();
+    dstDesc.fConfig = src->config();
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(
                                                                             dstDesc,

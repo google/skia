@@ -21,6 +21,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
                                                    void* data) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = config;

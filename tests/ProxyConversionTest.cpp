@@ -26,6 +26,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrResourceProvider* provider,
     GrBackendRenderTarget backendRT(desc.fWidth, desc.fHeight, desc.fSampleCnt, 8,
                                     desc.fConfig, fboInfo);
 
+    SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
     sk_sp<GrRenderTarget> defaultFBO(provider->wrapBackendRenderTarget(backendRT, desc.fOrigin));
     SkASSERT(!defaultFBO->asTexture());
 
@@ -122,6 +123,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 64;
     desc.fHeight = 64;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -156,6 +158,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
 
     {
         desc.fFlags = kNone_GrSurfaceFlags; // force no-RT
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
 
         sk_sp<GrTextureProxy> proxy(GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
                                                                  SkBackingFit::kApprox,

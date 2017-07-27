@@ -48,10 +48,10 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
     for (int origin = 0; origin < 2; ++origin) {
         GrSurfaceDesc desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
+        desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;
         desc.fConfig = config;
-        desc.fOrigin = 0 == origin ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
         sk_sp<GrTextureProxy> fpProxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
                                                                      desc, SkBudgeted::kNo,
                                                                      controlPixelData.begin(), 0);

@@ -231,7 +231,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
         dstTextureSamplerHandle =
                 this->emitSampler(dstTexture->texturePriv().samplerType(), dstTexture->config(),
                                   "DstTextureSampler", kFragment_GrShaderFlag);
-        dstTextureOrigin = dstTexture->origin();
+        dstTextureOrigin = fPipeline.dstTextureProxy()->origin();
         SkASSERT(kTextureExternalSampler_GrSLType != dstTexture->texturePriv().samplerType());
     }
 

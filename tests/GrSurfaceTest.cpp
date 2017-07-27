@@ -25,10 +25,11 @@
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
+    desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fWidth = 256;
     desc.fHeight = 256;
+    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fSampleCnt = 0;
     sk_sp<GrSurface> texRT1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
 
@@ -42,6 +43,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     desc.fFlags = kNone_GrSurfaceFlags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     sk_sp<GrTexture> tex1 = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
@@ -113,8 +115,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
             desc.fFlags = kNone_GrSurfaceFlags;
             desc.fOrigin = origin;
-            desc.fSampleCnt = 0;
             desc.fConfig = config;
+            desc.fSampleCnt = 0;
 
             sk_sp<GrSurface> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
             REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig));

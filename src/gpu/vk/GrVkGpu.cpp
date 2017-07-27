@@ -933,14 +933,13 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     }
 
     GrSurfaceDesc desc;
-    desc.fConfig = backendRT.config();
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fWidth = backendRT.width();
-    desc.fHeight = backendRT.height();
-    desc.fSampleCnt = 0;
-
     SkASSERT(kDefault_GrSurfaceOrigin != origin);
     desc.fOrigin = origin;
+    desc.fWidth = backendRT.width();
+    desc.fHeight = backendRT.height();
+    desc.fConfig = backendRT.config();
+    desc.fSampleCnt = 0;
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     if (tgt && backendRT.stencilBits()) {
@@ -965,12 +964,11 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
 
     GrSurfaceDesc desc;
     desc.fFlags = kRenderTarget_GrSurfaceFlag;
-    desc.fConfig = tex.config();
+    desc.fOrigin = resolve_origin(origin);
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
+    desc.fConfig = tex.config();
     desc.fSampleCnt = this->caps()->getSampleCount(sampleCnt, tex.config());
-
-    desc.fOrigin = resolve_origin(origin);
 
     sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, info);
     return tgt;
