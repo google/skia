@@ -58,7 +58,7 @@ private:
  */
 class GrOnFlushResourceProvider {
 public:
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc& desc,
+    sk_sp<GrRenderTargetContext> makeRenderTargetContext(const GrSurfaceDesc2& desc,
                                                          sk_sp<SkColorSpace> colorSpace,
                                                          const SkSurfaceProps* props);
 

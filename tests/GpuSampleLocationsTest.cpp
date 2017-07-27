@@ -10,7 +10,7 @@
 #include "Test.h"
 #include <vector>
 
-#if SK_SUPPORT_GPU
+#if 0//SK_SUPPORT_GPU
 
 #include "GrAppliedClip.h"
 #include "GrRenderTargetContext.h"

@@ -85,7 +85,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
     for (int i = 0; i < 2; ++i) {
         fill_in_pixels(gTextureData.get());
 
-        GrSurfaceDesc desc;
+        GrSurfaceDesc2 desc;
         desc.fOrigin    = i ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
         desc.fWidth     = 2 * S;
         desc.fHeight    = 2 * S;

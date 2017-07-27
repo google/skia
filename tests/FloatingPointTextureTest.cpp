@@ -46,7 +46,7 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context,
     }
 
     for (int origin = 0; origin < 2; ++origin) {
-        GrSurfaceDesc desc;
+        GrSurfaceDesc2 desc;
         desc.fFlags = kRenderTarget_GrSurfaceFlag;
         desc.fWidth = DEV_W;
         desc.fHeight = DEV_H;

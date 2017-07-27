@@ -11,10 +11,10 @@
 #include "GrSurfaceProxy.h"
 
 sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
-                                                        const GrSurfaceDesc& desc,
+                                                        const GrSurfaceDesc2& desc,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
-    GrSurfaceDesc tmpDesc = desc;
+    GrSurfaceDesc2 tmpDesc = desc;
     tmpDesc.fFlags |= kRenderTarget_GrSurfaceFlag;
 
     // Because this is being allocated at the start of a flush we must ensure the proxy

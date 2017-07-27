@@ -94,11 +94,12 @@ static bool is_rendering_and_not_angle_es3(sk_gpu_test::GrContextFactory::Contex
 DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
                          ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrSurfaceDesc smallDesc;
+    GrSurfaceDesc3 smallDesc;
     smallDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    smallDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     smallDesc.fWidth = 4;
     smallDesc.fHeight = 4;
+    smallDesc.fConfig = kRGBA_8888_GrPixelConfig;
     smallDesc.fSampleCnt = 0;
 
     if (context->caps()->avoidStencilBuffers()) {
@@ -134,11 +135,12 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
                     resourceProvider->attachStencilAttachment(smallRT2->asRenderTarget()));
 
     // An RT with a much larger size should not share.
-    GrSurfaceDesc bigDesc;
+    GrSurfaceDesc3 bigDesc;
     bigDesc.fFlags = kRenderTarget_GrSurfaceFlag;
-    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
+    bigDesc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     bigDesc.fWidth = 400;
     bigDesc.fHeight = 200;
+    bigDesc.fConfig = kRGBA_8888_GrPixelConfig;
     bigDesc.fSampleCnt = 0;
     sk_sp<GrTexture> bigRT(resourceProvider->createTexture(bigDesc, SkBudgeted::kNo));
     if (bigRT && bigRT->asRenderTarget()) {
@@ -153,7 +155,7 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
     int supportedSampleCount = context->caps()->getSampleCount(4, smallDesc.fConfig);
     if (supportedSampleCount > 0) {
         // An RT with a different sample count should not share.
-        GrSurfaceDesc smallMSAADesc = smallDesc;
+        GrSurfaceDesc3 smallMSAADesc = smallDesc;
         smallMSAADesc.fSampleCnt = supportedSampleCount;
         sk_sp<GrTexture> smallMSAART0(resourceProvider->createTexture(smallMSAADesc,
                                                                       SkBudgeted::kNo));
@@ -228,7 +230,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-            backendTex1, kTopLeft_GrSurfaceOrigin, kBorrow_GrWrapOwnership));
+            backendTex1, kBorrow_GrWrapOwnership));
 
     GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
                                                                 kW,
@@ -236,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
                                                                 kRGBA_8888_GrPixelConfig,
                                                                 texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-            backendTex2, kTopLeft_GrSurfaceOrigin, kAdopt_GrWrapOwnership));
+            backendTex2, kAdopt_GrWrapOwnership));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
@@ -1634,8 +1636,9 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
                                             GrSurfaceFlags flags,
                                             int width, int height,
                                             int sampleCnt) {
-    GrSurfaceDesc desc;
+    GrSurfaceDesc3 desc;
     desc.fFlags = flags;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -1671,7 +1674,7 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrResourceProvider* provider,
         texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
     }
 
-    GrSurfaceDesc desc;
+    GrSurfaceDesc2 desc;
     desc.fFlags = flags;
     desc.fOrigin = (flags & kRenderTarget_GrSurfaceFlag) ? kBottomLeft_GrSurfaceOrigin
                                                          : kTopLeft_GrSurfaceOrigin;

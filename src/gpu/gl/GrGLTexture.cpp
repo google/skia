@@ -48,7 +48,7 @@ static inline GrSamplerParams::FilterMode highest_filter_mode(const GrGLTexture:
 }
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc3& desc,
                          const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
@@ -57,7 +57,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
     this->registerWithCache(budgeted);
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc3& desc,
                          const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
@@ -68,7 +68,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
     this->registerWithCache(budgeted);
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const IDDesc& idDesc)
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc3& desc, const IDDesc& idDesc)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
                 highest_filter_mode(idDesc, desc.fConfig), false) {
@@ -76,7 +76,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc, const
     this->registerWithCacheWrapped();
 }
 
-GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
+GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc3& desc, const IDDesc& idDesc,
                          bool wasMipMapDataProvided)
     : GrSurface(gpu, desc)
     , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
@@ -85,7 +85,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
     this->init(desc, idDesc);
 }
 
-void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
+void GrGLTexture::init(const GrSurfaceDesc3& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fID);
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
@@ -123,7 +123,7 @@ void GrGLTexture::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                                       texture_id.c_str());
 }
 
-sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+sk_sp<GrGLTexture> GrGLTexture::MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc3& desc,
                                             const IDDesc& idDesc) {
     return sk_sp<GrGLTexture>(new GrGLTexture(gpu, kWrapped, desc, idDesc));
 }

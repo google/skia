@@ -26,7 +26,7 @@ public:
     // constructor must be explicitly called.
     GrGLTextureRenderTarget(GrGLGpu* gpu,
                             SkBudgeted budgeted,
-                            const GrSurfaceDesc& desc,
+                            const GrSurfaceDesc3& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
                             bool wasMipMapDataProvided);
@@ -35,7 +35,7 @@ public:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const override;
 
-    static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc& desc,
+    static sk_sp<GrGLTextureRenderTarget> MakeWrapped(GrGLGpu* gpu, const GrSurfaceDesc3& desc,
                                                       const GrGLTexture::IDDesc& texIDDesc,
                                                       const GrGLRenderTarget::IDDesc& rtIDDesc);
 protected:
@@ -52,7 +52,7 @@ protected:
 private:
     // Constructor for instances wrapping backend objects.
     GrGLTextureRenderTarget(GrGLGpu* gpu,
-                            const GrSurfaceDesc& desc,
+                            const GrSurfaceDesc3& desc,
                             const GrGLTexture::IDDesc& texIDDesc,
                             const GrGLRenderTarget::IDDesc& rtIDDesc,
                             bool wasMipMapDataProvided);

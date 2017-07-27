@@ -28,8 +28,10 @@ private:
                 const GrPipeline::DynamicState[], int meshCount, const SkRect& bounds) override {
         ++fNumDraws;
     }
-    void onClear(GrRenderTarget*, const GrFixedClip&, GrColor) override {}
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override {}
+    void onClear(GrRenderTarget*, GrSurfaceOrigin, const GrFixedClip&, GrColor) override {}
+    void onClearStencilClip(GrRenderTarget*, GrSurfaceOrigin,
+                            const GrFixedClip&, bool insideStencilMask) override {
+    }
     GrRenderTarget* renderTarget() override { return nullptr; }
 
     GrMockGpu* fGpu;

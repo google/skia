@@ -55,9 +55,9 @@ public:
     }
     SkDestinationSurfaceColorMode mipColorMode() const { return fTexture->fMipColorMode; }
 
-    static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
+    static void ComputeScratchKey(const GrSurfaceDesc3&, GrScratchKey*);
     static void ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                  GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
+                                  bool isRenderTarget, int sampleCnt,
                                   bool isMipMapped, GrScratchKey* key);
 
 

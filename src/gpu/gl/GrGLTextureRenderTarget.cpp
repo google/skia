@@ -14,7 +14,7 @@
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
                                                  SkBudgeted budgeted,
-                                                 const GrSurfaceDesc& desc,
+                                                 const GrSurfaceDesc3& desc,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                  bool wasMipMapDataProvided)
@@ -25,7 +25,7 @@ GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
 }
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
-                                                 const GrSurfaceDesc& desc,
+                                                 const GrSurfaceDesc3& desc,
                                                  const GrGLTexture::IDDesc& texIDDesc,
                                                  const GrGLRenderTarget::IDDesc& rtIDDesc,
                                                  bool wasMipMapDataProvided)
@@ -71,7 +71,7 @@ bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(
-    GrGLGpu* gpu, const GrSurfaceDesc& desc,
+    GrGLGpu* gpu, const GrSurfaceDesc3& desc,
     const GrGLTexture::IDDesc& texIDDesc, const GrGLRenderTarget::IDDesc& rtIDDesc)
 {
     return sk_sp<GrGLTextureRenderTarget>(

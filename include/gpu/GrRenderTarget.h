@@ -110,7 +110,7 @@ public:
     const GrRenderTargetPriv renderTargetPriv() const;
 
 protected:
-    GrRenderTarget(GrGpu*, const GrSurfaceDesc&,
+    GrRenderTarget(GrGpu*, const GrSurfaceDesc3&,
                    GrRenderTargetFlags = GrRenderTargetFlags::kNone,
                    GrStencilAttachment* = nullptr);
 

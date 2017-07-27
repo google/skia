@@ -34,7 +34,6 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface, GrSurfaceOrigin origin,
         , fGpuMemorySize(kInvalidGpuMemorySize)
         , fLastOpList(nullptr) {
     SkASSERT(kDefault_GrSurfaceOrigin != fOrigin);
-    SkASSERT(fTarget->origin() == fOrigin);
 }
 
 GrSurfaceProxy::~GrSurfaceProxy() {
@@ -47,17 +46,19 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
                                                 GrResourceProvider* resourceProvider, int sampleCnt,
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
-    GrSurfaceDesc desc;
-    desc.fConfig = fConfig;
-    desc.fWidth = fWidth;
-    desc.fHeight = fHeight;
-    desc.fOrigin = fOrigin;
-    desc.fSampleCnt = sampleCnt;
-    desc.fIsMipMapped = isMipMapped;
+    SkASSERT(kDefault_GrSurfaceOrigin != fOrigin);
+
+    GrSurfaceDesc3 desc;
     desc.fFlags = flags;
     if (fNeedsClear) {
         desc.fFlags |= kPerformInitialClear_GrSurfaceFlag;
     }
+    desc.fOrigin = fOrigin;
+    desc.fWidth = fWidth;
+    desc.fHeight = fHeight;
+    desc.fConfig = fConfig;
+    desc.fSampleCnt = sampleCnt;
+    desc.fIsMipMapped = isMipMapped;
 
     sk_sp<GrSurface> surface;
     if (SkBackingFit::kApprox == fFit) {
@@ -122,8 +123,7 @@ void GrSurfaceProxy::computeScratchKey(GrScratchKey* key) const {
         height = SkTMax(GrResourceProvider::kMinScratchTextureSize, GrNextPow2(height));
     }
 
-    GrTexturePriv::ComputeScratchKey(this->config(), width, height,
-                                     this->origin(), SkToBool(rtp), sampleCount,
+    GrTexturePriv::ComputeScratchKey(this->config(), width, height, SkToBool(rtp), sampleCount,
                                      hasMipMaps, key);
 }
 
@@ -178,11 +178,12 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrapped(sk_sp<GrTexture> tex, GrSurfac
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
-                                                   const GrSurfaceDesc& desc,
+                                                   const GrSurfaceDesc2& desc,
                                                    SkBackingFit fit,
                                                    SkBudgeted budgeted,
                                                    uint32_t flags) {
     SkASSERT(0 == flags || GrResourceProvider::kNoPendingIO_Flag == flags);
+    SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
 
     const GrCaps* caps = resourceProvider->caps();
 
@@ -213,7 +214,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
         return nullptr;
     }
 
-    GrSurfaceDesc copyDesc = desc;
+    GrSurfaceDesc2 copyDesc = desc;
     copyDesc.fSampleCnt = caps->getSampleCount(desc.fSampleCnt, desc.fConfig);
 
     if (willBeRT) {
@@ -227,7 +228,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceProvider,
-                                                   const GrSurfaceDesc& desc,
+                                                   const GrSurfaceDesc2& desc,
                                                    SkBudgeted budgeted,
                                                    const void* srcData,
                                                    size_t rowBytes) {
@@ -242,7 +243,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferred(GrResourceProvider* resourceP
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
                                                     GrResourceProvider* resourceProvider,
-                                                    const GrSurfaceDesc& desc,
+                                                    const GrSurfaceDesc2& desc,
                                                     SkBudgeted budgeted,
                                                     const GrMipLevel texels[],
                                                     int mipLevelCount,
@@ -265,7 +266,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
         }
     }
 
-    sk_sp<GrTexture> tex(resourceProvider->createTexture(desc, budgeted,
+    GrSurfaceDesc3 desc3(desc);
+
+    sk_sp<GrTexture> tex(resourceProvider->createTexture(desc3, budgeted,
                                                          texels, mipLevelCount, mipColorMode));
     if (!tex) {
         return nullptr;
@@ -277,7 +280,8 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::MakeDeferredMipMap(
 sk_sp<GrTextureProxy> GrSurfaceProxy::MakeWrappedBackend(GrContext* context,
                                                          GrBackendTexture& backendTex,
                                                          GrSurfaceOrigin origin) {
-    sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex, origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrTexture> tex(context->resourceProvider()->wrapBackendTexture(backendTex));
     return GrSurfaceProxy::MakeWrapped(std::move(tex), origin);
 }
 
@@ -299,7 +303,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context,
         return nullptr;
     }
 
-    GrSurfaceDesc dstDesc;
+    GrSurfaceDesc2 dstDesc;
     dstDesc.fConfig = src->config();
     dstDesc.fWidth = srcRect.width();
     dstDesc.fHeight = srcRect.height();
@@ -325,7 +329,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrContext* context, GrSurfaceProxy* s
     return Copy(context, src, SkIRect::MakeWH(src->width(), src->height()), budgeted);
 }
 
-sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc& dstDesc,
+sk_sp<GrSurfaceContext> GrSurfaceProxy::TestCopy(GrContext* context, const GrSurfaceDesc2& dstDesc,
                                                  GrSurfaceProxy* srcProxy) {
 
     sk_sp<GrSurfaceContext> dstContext(context->contextPriv().makeDeferredSurfaceContext(

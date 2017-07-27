@@ -96,7 +96,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
         return nullptr;
     }
 
-    GrSurfaceDesc yuvDesc;
+    GrSurfaceDesc2 yuvDesc;
     yuvDesc.fOrigin = kTopLeft_GrSurfaceOrigin;
     yuvDesc.fConfig = kAlpha_8_GrPixelConfig;
     sk_sp<GrSurfaceContext> yuvTextureContexts[3];

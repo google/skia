@@ -35,11 +35,6 @@ public:
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
 
-    GrSurfaceOrigin origin() const {
-        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
-        return fOrigin;
-    }
-
     /**
      * Retrieves the pixel config specified when the surface was created.
      * For render targets this can be kUnknown_GrPixelConfig
@@ -64,7 +59,7 @@ public:
     inline GrSurfacePriv surfacePriv();
     inline const GrSurfacePriv surfacePriv() const;
 
-    static size_t WorstCaseSize(const GrSurfaceDesc& desc, bool useNextPow2 = false);
+    static size_t WorstCaseSize(const GrSurfaceDesc3& desc, bool useNextPow2 = false);
     static size_t ComputeSize(GrPixelConfig config, int width, int height, int colorSamplesPerPixel,
                               bool hasMIPMaps, bool useNextPow2 = false);
 
@@ -77,12 +72,11 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, const GrSurfaceDesc& desc)
+    GrSurface(GrGpu* gpu, const GrSurfaceDesc3& desc)
             : INHERITED(gpu)
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight)
-            , fOrigin(desc.fOrigin) {}
+            , fHeight(desc.fHeight) {}
     ~GrSurface() override {}
 
 
@@ -93,7 +87,6 @@ private:
     GrPixelConfig        fConfig;
     int                  fWidth;
     int                  fHeight;
-    GrSurfaceOrigin      fOrigin;
 
     typedef GrGpuResource INHERITED;
 };
