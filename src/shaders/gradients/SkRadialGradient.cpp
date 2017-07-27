@@ -238,8 +238,15 @@ public:
 
     const char* name() const override { return "Radial Gradient"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(*this));
+    }
+
 private:
     GrRadialGradient(const CreateArgs& args) : INHERITED(args, args.fShader->colorsAreOpaque()) {
+        this->initClassID<GrRadialGradient>();
+    }
+    GrRadialGradient(const GrRadialGradient& that) : INHERITED(that) {
         this->initClassID<GrRadialGradient>();
     }
 
