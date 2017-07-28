@@ -15,6 +15,7 @@
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
+#include "SkTraceEvent.h"
 
 using gr_instanced::InstancedRendering;
 
@@ -260,6 +261,11 @@ GrOp* GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
 
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
+
+    TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID("skia.gpu.op", op->name(), op.get(),
+                                        TRACE_STR_COPY(op->dumpInfo().c_str()));
+
+    TRACE_EVENT1("skia.gpu", "recordOp", "#op", op.get());
 
     // Check if there is an op we can combine with by linearly searching back until we either
     // 1) check every op

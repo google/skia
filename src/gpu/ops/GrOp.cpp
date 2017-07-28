@@ -9,6 +9,7 @@
 
 #include "GrMemoryPool.h"
 #include "SkSpinlock.h"
+#include "SkTraceEvent.h"
 
 // TODO I noticed a small benefit to using a larger exclusive pool for ops. Its very small, but
 // seems to be mostly consistent.  There is a lot in flux right now, but we should really revisit
@@ -57,6 +58,9 @@ GrOp::GrOp(uint32_t classID)
     , fUniqueID(kIllegalOpID) {
     SkASSERT(classID == SkToU32(fClassID));
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
+    TRACE_EVENT_OBJECT_CREATED_WITH_ID("skia.gpu.op", "GrOp", this);
 }
 
-GrOp::~GrOp() {}
+GrOp::~GrOp() {
+    TRACE_EVENT_OBJECT_DELETED_WITH_ID("skia.gpu.op", "GrOp", this);
+}
