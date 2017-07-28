@@ -70,7 +70,7 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
         while (currUploadIdx < fInlineUploads.count() &&
                fInlineUploads[currUploadIdx].fUploadBeforeToken == drawToken) {
             state->commandBuffer()->inlineUpload(state, fInlineUploads[currUploadIdx++].fUpload,
-                                                 state->drawOpArgs().renderTarget());
+                                                 state->drawOpArgs().fProxy);
         }
         const QueuedDraw& draw = fQueuedDraws[currDrawIdx];
         SkASSERT(draw.fPipeline->proxy() == state->drawOpArgs().fProxy);
