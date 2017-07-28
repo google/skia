@@ -68,6 +68,10 @@ public:
 
     const char* name() const override { return "Magnifier"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrMagnifierEffect(*this));
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("Texture: %d", fTextureSampler.proxy()->uniqueID().asUInt());
@@ -107,6 +111,22 @@ private:
             , fYInvZoom(yInvZoom)
             , fXInvInset(xInvInset)
             , fYInvInset(yInvInset) {
+        this->initClassID<GrMagnifierEffect>();
+        this->addCoordTransform(&fCoordTransform);
+        this->addTextureSampler(&fTextureSampler);
+    }
+
+    explicit GrMagnifierEffect(const GrMagnifierEffect& that)
+            : INHERITED(that.optimizationFlags())
+            , fCoordTransform(that.fCoordTransform)
+            , fTextureSampler(that.fTextureSampler)
+            , fColorSpaceXform(that.fColorSpaceXform)
+            , fBounds(that.fBounds)
+            , fSrcRect(that.fSrcRect)
+            , fXInvZoom(that.fXInvZoom)
+            , fYInvZoom(that.fYInvZoom)
+            , fXInvInset(that.fXInvInset)
+            , fYInvInset(that.fYInvInset) {
         this->initClassID<GrMagnifierEffect>();
         this->addCoordTransform(&fCoordTransform);
         this->addTextureSampler(&fTextureSampler);

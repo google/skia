@@ -178,6 +178,26 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy
     fKernelOffset[1] = static_cast<float>(kernelOffset.y());
 }
 
+GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect& that)
+        : INHERITED(kNone_OptimizationFlags)
+        , fCoordTransform(that.fCoordTransform)
+        , fDomain(that.fDomain)
+        , fTextureSampler(that.fTextureSampler)
+        , fKernelSize(that.fKernelSize)
+        , fGain(that.fGain)
+        , fBias(that.fBias)
+        , fConvolveAlpha(that.fConvolveAlpha) {
+    this->initClassID<GrMatrixConvolutionEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
+    memcpy(fKernel, that.fKernel, sizeof(float) * fKernelSize.width() * fKernelSize.height());
+    memcpy(fKernelOffset, that.fKernelOffset, sizeof(fKernelOffset));
+}
+
+sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrMatrixConvolutionEffect(*this));
+}
+
 void GrMatrixConvolutionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                       GrProcessorKeyBuilder* b) const {
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
@@ -226,7 +246,6 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
         kernel[i] *= scale;
     }
 }
-
 
 // Static function to create a 2D convolution
 sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(

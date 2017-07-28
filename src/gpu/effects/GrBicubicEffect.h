@@ -19,9 +19,12 @@ public:
         kFilterTexelPad = 2, // Given a src rect in texels to be filtered, this number of
                              // surrounding texels are needed by the kernel in x and y.
     };
-    ~GrBicubicEffect() override;
 
     const char* name() const override { return "Bicubic"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(*this));
+    }
 
     const GrTextureDomain& domain() const { return fDomain; }
 
@@ -66,6 +69,7 @@ private:
                     const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);
     GrBicubicEffect(sk_sp<GrTextureProxy>, sk_sp<GrColorSpaceXform>,
                     const SkMatrix &matrix, const SkRect& domain);
+    explicit GrBicubicEffect(const GrBicubicEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

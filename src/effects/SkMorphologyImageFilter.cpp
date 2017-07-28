@@ -179,6 +179,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
     GrMorphologyEffect(sk_sp<GrTextureProxy>, Direction, int radius, Type, const float range[2]);
+    explicit GrMorphologyEffect(const GrMorphologyEffect&);
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
@@ -336,6 +337,23 @@ GrMorphologyEffect::GrMorphologyEffect(sk_sp<GrTextureProxy> proxy,
     if (fUseRange) {
         fRange[0] = range[0];
         fRange[1] = range[1];
+    }
+}
+
+GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
+        : INHERITED(that.optimizationFlags())
+        , fCoordTransform(that.fCoordTransform)
+        , fTextureSampler(that.fTextureSampler)
+        , fDirection(that.fDirection)
+        , fRadius(that.fRadius)
+        , fType(that.fType)
+        , fUseRange(that.fUseRange) {
+    this->initClassID<GrMorphologyEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
+    if (that.fUseRange) {
+        fRange[0] = that.fRange[0];
+        fRange[1] = that.fRange[1];
     }
 }
 

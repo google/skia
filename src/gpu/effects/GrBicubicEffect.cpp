@@ -160,7 +160,15 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
     this->addTextureSampler(&fTextureSampler);
 }
 
-GrBicubicEffect::~GrBicubicEffect() {
+GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
+        : INHERITED(that.optimizationFlags())
+        , fCoordTransform(that.fCoordTransform)
+        , fDomain(that.fDomain)
+        , fTextureSampler(that.fTextureSampler)
+        , fColorSpaceXform(that.fColorSpaceXform) {
+    this->initClassID<GrBicubicEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
 }
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

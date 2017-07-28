@@ -162,6 +162,10 @@ public:
 
     const char* name() const override { return "TextureDomain"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrTextureDomainEffect(*this));
+    }
+
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
@@ -183,6 +187,8 @@ private:
                           const SkRect& domain,
                           GrTextureDomain::Mode,
                           GrSamplerParams::FilterMode);
+
+    explicit GrTextureDomainEffect(const GrTextureDomainEffect&);
 
     static OptimizationFlags OptFlags(GrPixelConfig config, GrTextureDomain::Mode mode);
 

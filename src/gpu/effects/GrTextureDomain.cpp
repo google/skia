@@ -242,6 +242,17 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
     this->addTextureSampler(&fTextureSampler);
 }
 
+GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
+        : INHERITED(that.optimizationFlags())
+        , fCoordTransform(that.fCoordTransform)
+        , fTextureDomain(that.fTextureDomain)
+        , fTextureSampler(that.fTextureSampler)
+        , fColorSpaceXform(that.fColorSpaceXform) {
+    this->initClassID<GrTextureDomainEffect>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
+}
+
 void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32(GrTextureDomain::GLDomain::DomainKey(fTextureDomain));

@@ -52,6 +52,8 @@ public:
 
     const char* name() const override { return "MatrixConvolution"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override;
+
 private:
     GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy,
                               const SkIRect& bounds,
@@ -62,6 +64,8 @@ private:
                               const SkIPoint& kernelOffset,
                               GrTextureDomain::Mode tileMode,
                               bool convolveAlpha);
+
+    GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

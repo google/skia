@@ -217,7 +217,20 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
     memcpy(fBounds, bounds, sizeof(fBounds));
 }
 
-GrGaussianConvolutionFragmentProcessor::~GrGaussianConvolutionFragmentProcessor() {}
+GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
+        const GrGaussianConvolutionFragmentProcessor& that)
+        : INHERITED(that.optimizationFlags())
+        , fCoordTransform(that.fCoordTransform)
+        , fTextureSampler(that.fTextureSampler)
+        , fRadius(that.fRadius)
+        , fDirection(that.fDirection)
+        , fMode(that.fMode) {
+    this->initClassID<GrGaussianConvolutionFragmentProcessor>();
+    this->addCoordTransform(&fCoordTransform);
+    this->addTextureSampler(&fTextureSampler);
+    memcpy(fKernel, that.fKernel, that.width() * sizeof(float));
+    memcpy(fBounds, that.fBounds, sizeof(fBounds));
+}
 
 void GrGaussianConvolutionFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                                    GrProcessorKeyBuilder* b) const {
