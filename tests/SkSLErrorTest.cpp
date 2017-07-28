@@ -37,7 +37,7 @@ static void test_success(skiatest::Reporter* r, const char* src) {
 
 DEF_TEST(SkSLUndefinedSymbol, r) {
     test_failure(r,
-                 "void main() { x = vec2(1); }",
+                 "void main() { x = float2(1); }",
                  "error: 1: unknown identifier 'x'\n1 error\n");
 }
 
@@ -80,14 +80,14 @@ DEF_TEST(SkSLIfTypeMismatch, r) {
 
 DEF_TEST(SkSLDoTypeMismatch, r) {
     test_failure(r,
-                 "void main() { do { } while (vec2(1)); }", 
-                 "error: 1: expected 'bool', but found 'vec2'\n1 error\n");
+                 "void main() { do { } while (float2(1)); }",
+                 "error: 1: expected 'bool', but found 'float2'\n1 error\n");
 }
 
 DEF_TEST(SkSLWhileTypeMismatch, r) {
     test_failure(r,
-                 "void main() { while (vec3(1)) { } }", 
-                 "error: 1: expected 'bool', but found 'vec3'\n1 error\n");
+                 "void main() { while (float3(1)) { } }",
+                 "error: 1: expected 'bool', but found 'float3'\n1 error\n");
 }
 
 DEF_TEST(SkSLForTypeMismatch, r) {
@@ -98,14 +98,14 @@ DEF_TEST(SkSLForTypeMismatch, r) {
 
 DEF_TEST(SkSLConstructorTypeMismatch, r) {
     test_failure(r,
-                 "void main() { vec2 x = vec2(1.0, false); }", 
+                 "void main() { float2 x = float2(1.0, false); }", 
                  "error: 1: expected 'float', but found 'bool'\n1 error\n");
     test_failure(r,
-                 "void main() { vec2 x = vec2(bvec2(false)); }",
-                 "error: 1: 'bvec2' is not a valid parameter to 'vec2' constructor\n1 error\n");
+                 "void main() { float2 x = float2(bool2(false)); }",
+                 "error: 1: 'bool2' is not a valid parameter to 'float2' constructor\n1 error\n");
     test_failure(r,
-                 "void main() { bvec2 x = bvec2(vec2(1)); }",
-                 "error: 1: 'vec2' is not a valid parameter to 'bvec2' constructor\n1 error\n");
+                 "void main() { bool2 x = bool2(float2(1)); }",
+                 "error: 1: 'float2' is not a valid parameter to 'bool2' constructor\n1 error\n");
     test_failure(r,
                  "void main() { bool x = bool(1.0); }",
                  "error: 1: cannot construct 'bool'\n1 error\n");
@@ -116,21 +116,21 @@ DEF_TEST(SkSLConstructorTypeMismatch, r) {
                  "struct foo { int x; } foo; void main() { float x = float(foo); }",
                  "error: 1: invalid argument to 'float' constructor (expected a number or bool, but found 'foo')\n1 error\n");
     test_failure(r,
-                 "struct foo { int x; } foo; void main() { vec2 x = vec2(foo); }",
-                 "error: 1: 'foo' is not a valid parameter to 'vec2' constructor\n1 error\n");
+                 "struct foo { int x; } foo; void main() { float2 x = float2(foo); }",
+                 "error: 1: 'foo' is not a valid parameter to 'float2' constructor\n1 error\n");
     test_failure(r,
-                 "void main() { mat2 x = mat2(true); }",
+                 "void main() { float2x2 x = float2x2(true); }",
                  "error: 1: expected 'float', but found 'bool'\n1 error\n");
 }
 
 DEF_TEST(SkSLConstructorArgumentCount, r) {
     test_failure(r,
-                 "void main() { vec3 x = vec3(1.0, 2.0); }",
-                 "error: 1: invalid arguments to 'vec3' constructor (expected 3 scalars, but "
+                 "void main() { float3 x = float3(1.0, 2.0); }",
+                 "error: 1: invalid arguments to 'float3' constructor (expected 3 scalars, but "
                  "found 2)\n1 error\n");
     test_failure(r,
-                 "void main() { vec3 x = vec3(1.0, 2.0, 3.0, 4.0); }",
-                 "error: 1: invalid arguments to 'vec3' constructor (expected 3 scalars, but found "
+                 "void main() { float3 x = float3(1.0, 2.0, 3.0, 4.0); }",
+                 "error: 1: invalid arguments to 'float3' constructor (expected 3 scalars, but found "
                  "4)\n1 error\n");
 }
 
@@ -142,25 +142,25 @@ DEF_TEST(SkSLSwizzleScalar, r) {
 
 DEF_TEST(SkSLSwizzleMatrix, r) {
     test_failure(r,
-                 "void main() { mat2 x = mat2(1); float y = x.y; }",
-                 "error: 1: cannot swizzle value of type 'mat2'\n1 error\n");
+                 "void main() { float2x2 x = float2x2(1); float y = x.y; }",
+                 "error: 1: cannot swizzle value of type 'float2x2'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleOutOfBounds, r) {
     test_failure(r,
-                 "void main() { vec3 test = vec2(1).xyz; }",
+                 "void main() { float3 test = float2(1).xyz; }",
                  "error: 1: invalid swizzle component 'z'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleTooManyComponents, r) {
     test_failure(r,
-                 "void main() { vec4 test = vec2(1).xxxxx; }",
+                 "void main() { float4 test = float2(1).xxxxx; }",
                  "error: 1: too many components in swizzle mask 'xxxxx'\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleDuplicateOutput, r) {
     test_failure(r,
-                 "void main() { vec4 test = vec4(1); test.xyyz = vec4(1); }",
+                 "void main() { float4 test = float4(1); test.xyyz = float4(1); }",
                  "error: 1: cannot write to the same swizzle field more than once\n1 error\n");
 }
 
@@ -172,10 +172,10 @@ DEF_TEST(SkSLAssignmentTypeMismatch, r) {
                  "void main() { int x; x = 1.0; }",
                  "error: 1: type mismatch: '=' cannot operate on 'int', 'float'\n1 error\n");
     test_success(r,
-                 "void main() { vec3 x = vec3(0); x *= 1.0; }");
+                 "void main() { float3 x = float3(0); x *= 1.0; }");
     test_failure(r,
-                 "void main() { ivec3 x = ivec3(0); x *= 1.0; }",
-                 "error: 1: type mismatch: '*=' cannot operate on 'ivec3', 'float'\n1 error\n");
+                 "void main() { int3 x = int3(0); x *= 1.0; }",
+                 "error: 1: type mismatch: '*=' cannot operate on 'int3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLReturnFromVoid, r) {
@@ -255,17 +255,17 @@ DEF_TEST(SkSLCallNonFunction, r) {
 
 DEF_TEST(SkSLInvalidUnary, r) {
     test_failure(r,
-                 "void main() { mat4 x = mat4(1); ++x; }",
-                 "error: 1: '++' cannot operate on 'mat4'\n1 error\n");
+                 "void main() { float4x4 x = float4x4(1); ++x; }",
+                 "error: 1: '++' cannot operate on 'float4x4'\n1 error\n");
     test_failure(r,
-                 "void main() { vec3 x = vec3(1); --x; }",
-                 "error: 1: '--' cannot operate on 'vec3'\n1 error\n");
+                 "void main() { float3 x = float3(1); --x; }",
+                 "error: 1: '--' cannot operate on 'float3'\n1 error\n");
     test_failure(r,
-                 "void main() { mat4 x = mat4(1); x++; }",
-                 "error: 1: '++' cannot operate on 'mat4'\n1 error\n");
+                 "void main() { float4x4 x = float4x4(1); x++; }",
+                 "error: 1: '++' cannot operate on 'float4x4'\n1 error\n");
     test_failure(r,
-                 "void main() { vec3 x = vec3(1); x--; }",
-                 "error: 1: '--' cannot operate on 'vec3'\n1 error\n");
+                 "void main() { float3 x = float3(1); x--; }",
+                 "error: 1: '--' cannot operate on 'float3'\n1 error\n");
     test_failure(r,
                  "void main() { int x = !12; }",
                  "error: 1: '!' cannot operate on 'int'\n1 error\n");
@@ -276,7 +276,7 @@ DEF_TEST(SkSLInvalidUnary, r) {
                  "struct foo { } bar; void main() { foo x = -bar; }",
                  "error: 1: '-' cannot operate on 'foo'\n1 error\n");
     test_success(r,
-                 "void main() { vec2 x = vec2(1, 1); x = +x; x = -x; }");
+                 "void main() { float2 x = float2(1, 1); x = +x; x = -x; }");
 }
 
 DEF_TEST(SkSLInvalidAssignment, r) {
@@ -296,7 +296,7 @@ DEF_TEST(SkSLBadIndex, r) {
                  "void main() { int x = 2[0]; }",
                  "error: 1: expected array, but found 'int'\n1 error\n");
     test_failure(r,
-                 "void main() { vec2 x = vec2(0); int y = x[0][0]; }",
+                 "void main() { float2 x = float2(0); int y = x[0][0]; }",
                  "error: 1: expected array, but found 'float'\n1 error\n");
 }
 
@@ -305,8 +305,8 @@ DEF_TEST(SkSLTernaryMismatch, r) {
                  "void main() { int x = 5 > 2 ? true : 1.0; }",
                  "error: 1: ternary operator result mismatch: 'bool', 'float'\n1 error\n");
     test_failure(r,
-                 "void main() { int x = 5 > 2 ? vec3(1) : 1.0; }",
-                 "error: 1: ternary operator result mismatch: 'vec3', 'float'\n1 error\n");
+                 "void main() { int x = 5 > 2 ? float3(1) : 1.0; }",
+                 "error: 1: ternary operator result mismatch: 'float3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
@@ -333,7 +333,7 @@ DEF_TEST(SkSLUseWithoutInitialize, r) {
                  "error: 1: 'x' has not been assigned\n1 error\n");
     test_failure(r,
                  "void main() { int x; switch (3) { case 0: x = 0; case 1: x = 1; }"
-                               "sk_FragColor = vec4(x); }",
+                               "sk_FragColor = float4(x); }",
                  "error: 1: 'x' has not been assigned\n1 error\n");
 }
 
@@ -424,11 +424,11 @@ DEF_TEST(SkSLUnsupportedGLSLIdentifiers, r) {
 
 DEF_TEST(SkSLWrongSwitchTypes, r) {
     test_failure(r,
-                 "void main() { switch (vec2(1)) { case 1: break; } }",
-                 "error: 1: expected 'int', but found 'vec2'\n1 error\n");
+                 "void main() { switch (float2(1)) { case 1: break; } }",
+                 "error: 1: expected 'int', but found 'float2'\n1 error\n");
     test_failure(r,
-                 "void main() { switch (1) { case vec2(1): break; } }",
-                 "error: 1: expected 'int', but found 'vec2'\n1 error\n");
+                 "void main() { switch (1) { case float2(1): break; } }",
+                 "error: 1: expected 'int', but found 'float2'\n1 error\n");
 }
 
 DEF_TEST(SkSLNonConstantCase, r) {
@@ -453,10 +453,10 @@ DEF_TEST(SkSLFieldAfterRuntimeArray, r) {
 DEF_TEST(SkSLStaticIf, r) {
     test_success(r,
                  "void main() { float x = 5; float y = 10;"
-                 "@if (x < y) { sk_FragColor = vec4(1); } }");
+                 "@if (x < y) { sk_FragColor = float4(1); } }");
     test_failure(r,
                  "void main() { float x = sqrt(25); float y = 10;"
-                 "@if (x < y) { sk_FragColor = vec4(1); } }",
+                 "@if (x < y) { sk_FragColor = float4(1); } }",
                  "error: 1: static if has non-static test\n1 error\n");
 }
 
@@ -465,16 +465,16 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = vec4(1); break;"
-                 "default: sk_FragColor = vec4(0);"
+                 "case 1: sk_FragColor = float4(1); break;"
+                 "default: sk_FragColor = float4(0);"
                  "}"
                  "}");
     test_failure(r,
                  "void main() {"
                  "int x = int(sqrt(1));"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = vec4(1); break;"
-                 "default: sk_FragColor = vec4(0);"
+                 "case 1: sk_FragColor = float4(1); break;"
+                 "default: sk_FragColor = float4(0);"
                  "}"
                  "}",
                  "error: 1: static switch has non-static test\n1 error\n");
@@ -482,8 +482,8 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = vec4(1); if (sqrt(0) < sqrt(1)) break;"
-                 "default: sk_FragColor = vec4(0);"
+                 "case 1: sk_FragColor = float4(1); if (sqrt(0) < sqrt(1)) break;"
+                 "default: sk_FragColor = float4(0);"
                  "}"
                  "}",
                  "error: 1: static switch contains non-static conditional break\n1 error\n");

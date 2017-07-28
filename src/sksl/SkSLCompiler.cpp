@@ -65,37 +65,34 @@ Compiler::Compiler(Flags flags)
                                                    fContext.f ## t ## _Type.get())
     ADD_TYPE(Void);
     ADD_TYPE(Float);
-    ADD_TYPE(Vec2);
-    ADD_TYPE(Vec3);
-    ADD_TYPE(Vec4);
+    ADD_TYPE(Float2);
+    ADD_TYPE(Float3);
+    ADD_TYPE(Float4);
     ADD_TYPE(Double);
-    ADD_TYPE(DVec2);
-    ADD_TYPE(DVec3);
-    ADD_TYPE(DVec4);
+    ADD_TYPE(Double2);
+    ADD_TYPE(Double3);
+    ADD_TYPE(Double4);
     ADD_TYPE(Int);
-    ADD_TYPE(IVec2);
-    ADD_TYPE(IVec3);
-    ADD_TYPE(IVec4);
+    ADD_TYPE(Int2);
+    ADD_TYPE(Int3);
+    ADD_TYPE(Int4);
     ADD_TYPE(UInt);
-    ADD_TYPE(UVec2);
-    ADD_TYPE(UVec3);
-    ADD_TYPE(UVec4);
+    ADD_TYPE(UInt2);
+    ADD_TYPE(UInt3);
+    ADD_TYPE(UInt4);
     ADD_TYPE(Bool);
-    ADD_TYPE(BVec2);
-    ADD_TYPE(BVec3);
-    ADD_TYPE(BVec4);
-    ADD_TYPE(Mat2x2);
-    types->addWithoutOwnership(String("mat2x2"), fContext.fMat2x2_Type.get());
-    ADD_TYPE(Mat2x3);
-    ADD_TYPE(Mat2x4);
-    ADD_TYPE(Mat3x2);
-    ADD_TYPE(Mat3x3);
-    types->addWithoutOwnership(String("mat3x3"), fContext.fMat3x3_Type.get());
-    ADD_TYPE(Mat3x4);
-    ADD_TYPE(Mat4x2);
-    ADD_TYPE(Mat4x3);
-    ADD_TYPE(Mat4x4);
-    types->addWithoutOwnership(String("mat4x4"), fContext.fMat4x4_Type.get());
+    ADD_TYPE(Bool2);
+    ADD_TYPE(Bool3);
+    ADD_TYPE(Bool4);
+    ADD_TYPE(Float2x2);
+    ADD_TYPE(Float2x3);
+    ADD_TYPE(Float2x4);
+    ADD_TYPE(Float3x2);
+    ADD_TYPE(Float3x3);
+    ADD_TYPE(Float3x4);
+    ADD_TYPE(Float4x2);
+    ADD_TYPE(Float4x3);
+    ADD_TYPE(Float4x4);
     ADD_TYPE(GenType);
     ADD_TYPE(GenDType);
     ADD_TYPE(GenIType);
@@ -649,48 +646,48 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(*bin->fLeft, 1)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
                             bin->fRight->fType.kind() == Type::kScalar_Kind) {
-                            // vec4(1) * x -> vec4(x)
+                            // float4(1) * x -> float4(x)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // 1 * x -> x
-                            // 1 * vec4(x) -> vec4(x)
-                            // vec4(1) * vec4(x) -> vec4(x)
+                            // 1 * float4(x) -> float4(x)
+                            // float4(1) * float4(x) -> float4(x)
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
                     else if (is_constant(*bin->fLeft, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
-                            // 0 * vec4(x) -> vec4(0)
+                            // 0 * float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // 0 * x -> 0
-                            // vec4(0) * x -> vec4(0)
-                            // vec4(0) * vec4(x) -> vec4(0)
+                            // float4(0) * x -> float4(0)
+                            // float4(0) * float4(x) -> float4(0)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
                     else if (is_constant(*bin->fRight, 1)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
-                            // x * vec4(1) -> vec4(x)
+                            // x * float4(1) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // x * 1 -> x
-                            // vec4(x) * 1 -> vec4(x)
-                            // vec4(x) * vec4(1) -> vec4(x)
+                            // float4(x) * 1 -> float4(x)
+                            // float4(x) * float4(1) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
                     else if (is_constant(*bin->fRight, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
                             bin->fRight->fType.kind() == Type::kScalar_Kind) {
-                            // vec4(x) * 0 -> vec4(0)
+                            // float4(x) * 0 -> float4(0)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // x * 0 -> 0
-                            // x * vec4(0) -> vec4(0)
-                            // vec4(x) * vec4(0) -> vec4(0)
+                            // x * float4(0) -> float4(0)
+                            // float4(x) * float4(0) -> float4(0)
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
@@ -699,23 +696,23 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(*bin->fLeft, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
                             bin->fRight->fType.kind() == Type::kScalar_Kind) {
-                            // vec4(0) + x -> vec4(x)
+                            // float4(0) + x -> float4(x)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // 0 + x -> x
-                            // 0 + vec4(x) -> vec4(x)
-                            // vec4(0) + vec4(x) -> vec4(x)
+                            // 0 + float4(x) -> float4(x)
+                            // float4(0) + float4(x) -> float4(x)
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     } else if (is_constant(*bin->fRight, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
-                            // x + vec4(0) -> vec4(x)
+                            // x + float4(0) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // x + 0 -> x
-                            // vec4(x) + 0 -> vec4(x)
-                            // vec4(x) + vec4(0) -> vec4(x)
+                            // float4(x) + 0 -> float4(x)
+                            // float4(x) + float4(0) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
@@ -724,12 +721,12 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(*bin->fRight, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
-                            // x - vec4(0) -> vec4(x)
+                            // x - float4(0) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // x - 0 -> x
-                            // vec4(x) - 0 -> vec4(x)
-                            // vec4(x) - vec4(0) -> vec4(x)
+                            // float4(x) - 0 -> float4(x)
+                            // float4(x) - float4(0) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
@@ -738,23 +735,23 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     if (is_constant(*bin->fRight, 1)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
-                            // x / vec4(1) -> vec4(x)
+                            // x / float4(1) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // x / 1 -> x
-                            // vec4(x) / 1 -> vec4(x)
-                            // vec4(x) / vec4(1) -> vec4(x)
+                            // float4(x) / 1 -> float4(x)
+                            // float4(x) / float4(1) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     } else if (is_constant(*bin->fLeft, 0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
-                            // 0 / vec4(x) -> vec4(0)
+                            // 0 / float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // 0 / x -> 0
-                            // vec4(0) / x -> vec4(0)
-                            // vec4(0) / vec4(x) -> vec4(0)
+                            // float4(0) / x -> float4(0)
+                            // float4(0) / float4(x) -> float4(0)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
