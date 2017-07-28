@@ -433,7 +433,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     GrGpu::DrawPreference drawPreference = premulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                        : GrGpu::kNoDraw_DrawPreference;
     GrGpu::WritePixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, width, height,
+    if (!fContext->fGpu->getWritePixelsInfo(dstSurface, dstProxy->origin(), width, height,
                                             srcConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
@@ -486,8 +486,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             return false;
         }
         GrTexture* texture = tempProxy->priv().peekTexture();
-        if (!fContext->fGpu->writePixels(texture, 0, 0, width, height, tempDrawInfo.fWriteConfig,
-                                         buffer, rowBytes)) {
+        if (!fContext->fGpu->writePixels(texture, tempProxy->origin(), 0, 0, width, height,
+                                         tempDrawInfo.fWriteConfig, buffer, rowBytes)) {
             return false;
         }
         SkMatrix matrix;
@@ -509,8 +509,8 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
             this->flushSurfaceWrites(renderTargetContext->asRenderTargetProxy());
         }
     } else {
-        return fContext->fGpu->writePixels(dstSurface, left, top, width, height, srcConfig,
-                                           buffer, rowBytes);
+        return fContext->fGpu->writePixels(dstSurface, dstProxy->origin(), left, top, width,
+                                           height, srcConfig, buffer, rowBytes);
     }
     return true;
 }
@@ -564,7 +564,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
     GrGpu::DrawPreference drawPreference = unpremulOnGpu ? GrGpu::kCallerPrefersDraw_DrawPreference
                                                          : GrGpu::kNoDraw_DrawPreference;
     GrGpu::ReadPixelTempDrawInfo tempDrawInfo;
-    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, width, height, rowBytes,
+    if (!fContext->fGpu->getReadPixelsInfo(srcSurface, srcProxy->origin(), width, height, rowBytes,
                                            dstConfig, &drawPreference, &tempDrawInfo)) {
         return false;
     }
@@ -641,7 +641,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         this->flushSurfaceWrites(proxyToRead.get());
         configToRead = tempDrawInfo.fReadConfig;
     }
-    if (!fContext->fGpu->readPixels(surfaceToRead,
+    if (!fContext->fGpu->readPixels(surfaceToRead, proxyToRead->origin(),
                                     left, top, width, height, configToRead, buffer, rowBytes)) {
         return false;
     }
@@ -742,7 +742,8 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex, origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex));
     if (!surface) {
         return nullptr;
     }
@@ -763,8 +764,10 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+
     sk_sp<GrSurface> surface(
-            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, origin, sampleCnt));
+            fContext->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
     if (!surface) {
         return nullptr;
     }
@@ -785,8 +788,8 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT,
-                                                                                   origin));
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
+    sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT));
     if (!rt) {
         return nullptr;
     }
@@ -809,9 +812,9 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
+    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(
                                                                                         tex,
-                                                                                        origin,
                                                                                         sampleCnt));
     if (!surface) {
         return nullptr;

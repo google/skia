@@ -40,24 +40,6 @@ size_t GrTexture::onGpuMemorySize() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
-namespace {
-
-// FIXME:  This should be refactored with the code in gl/GrGLGpu.cpp.
-GrSurfaceOrigin resolve_origin(const GrSurfaceDesc& desc) {
-    // By default, GrRenderTargets are GL's normal orientation so that they
-    // can be drawn to by the outside world without the client having
-    // to render upside down.
-    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrSurfaceFlag);
-    if (kDefault_GrSurfaceOrigin == desc.fOrigin) {
-        return renderTarget ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
-    } else {
-        return desc.fOrigin;
-    }
-}
-}
-
-//////////////////////////////////////////////////////////////////////////////
 GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
                      GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided)
     : INHERITED(gpu, desc)
@@ -81,12 +63,12 @@ void GrTexture::computeScratchKey(GrScratchKey* key) const {
         sampleCount = rt->numStencilSamples();
     }
     GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                     this->origin(), SkToBool(rt), sampleCount,
+                                     SkToBool(rt), sampleCount,
                                      this->texturePriv().hasMipMaps(), key);
 }
 
 void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                      GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
+                                      bool isRenderTarget, int sampleCnt,
                                       bool isMipMapped, GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     uint32_t flags = isRenderTarget;
@@ -98,17 +80,18 @@ void GrTexturePriv::ComputeScratchKey(GrPixelConfig config, int width, int heigh
     SkASSERT(static_cast<int>(config) < (1 << 5));
     SkASSERT(sampleCnt < (1 << 8));
     SkASSERT(flags < (1 << 10));
-    SkASSERT(static_cast<int>(origin) < (1 << 8));
 
     GrScratchKey::Builder builder(key, kType, 3);
     builder[0] = width;
     builder[1] = height;
-    builder[2] = config | (isMipMapped << 5) | (sampleCnt << 6) | (flags << 14) | (origin << 24);
+    builder[2] = config | (isMipMapped << 5) | (sampleCnt << 6) | (flags << 14);
 }
 
 void GrTexturePriv::ComputeScratchKey(const GrSurfaceDesc& desc, GrScratchKey* key) {
-    GrSurfaceOrigin origin = resolve_origin(desc);
-    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight, origin,
+    SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
+
+    // Note: the fOrigin field is not used in the scratch key
+    return ComputeScratchKey(desc.fConfig, desc.fWidth, desc.fHeight,
                              SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag), desc.fSampleCnt,
                              desc.fIsMipMapped, key);
 }
