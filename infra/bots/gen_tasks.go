@@ -588,6 +588,29 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 	return name
 }
 
+// checkGeneratedFiles verifies that no generated SKSL files have been edited
+// by hand.
+func checkGeneratedFiles(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "check_generated_files",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  relpath("compile_skia.isolate"),
+		Priority: 0.8,
+	})
+	return name
+}
+
 // housekeeper generates a Housekeeper task. Returns the name of the last task
 // in the generated chain of tasks, which the Job should add as a dependency.
 func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string {
@@ -868,6 +891,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if parts["role"] != "Build" &&
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
+		name != "Housekeeper-PerCommit-CheckGeneratedFiles" &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "UpdateMetaConfig") &&
 		!strings.Contains(name, "-CT_") &&
@@ -875,9 +899,12 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		compile(b, compileTaskName, compileTaskParts)
 	}
 
-	// Housekeeper.
+	// Housekeepers.
 	if name == "Housekeeper-PerCommit" {
 		deps = append(deps, housekeeper(b, name, compileTaskName))
+	}
+	if name == "Housekeeper-PerCommit-CheckGeneratedFiles" {
+		deps = append(deps, checkGeneratedFiles(b, name))
 	}
 
 	// Common assets needed by the remaining bots.
