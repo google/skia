@@ -102,6 +102,22 @@
   },
   {
     "cmd": [
+      "which",
+      "clang-format"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CC": "/usr/bin/clang",
+      "CHROME_HEADLESS": "1",
+      "CXX": "/usr/bin/clang++",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x64-Release-iOS"
+    },
+    "name": "which clang-format"
+  },
+  {
+    "cmd": [
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Mac-Clang-x64-Release-iOS/Release",
