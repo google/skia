@@ -7,7 +7,7 @@
 
 in uniform sampler2D image;
 in uniform colorSpaceXform colorXform;
-in mat4 matrix;
+in float4x4 matrix;
 
 @constructorParams {
     GrSamplerParams samplerParams

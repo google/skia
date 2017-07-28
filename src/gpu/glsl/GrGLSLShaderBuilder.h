@@ -47,8 +47,8 @@ public:
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a vec4. modulation and the swizzle specified by SamplerHandle must both be
-        vec4 or float. If modulation is "" or nullptr it this function acts as though
+        always a float4. modulation and the swizzle specified by SamplerHandle must both be
+        float4 or float. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
                                         SamplerHandle,

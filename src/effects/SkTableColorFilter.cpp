@@ -404,14 +404,14 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
     if (nullptr == args.fInputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
-        fragBuilder->codeAppendf("\t\tvec4 coord = vec4(%f, %f, %f, %f);\n",
+        fragBuilder->codeAppendf("\t\tfloat4 coord = float4(%f, %f, %f, %f);\n",
                                  kMaxValue, kMaxValue, kMaxValue, kMaxValue);
 
     } else {
         fragBuilder->codeAppendf("\t\tfloat nonZeroAlpha = max(%s.a, .0001);\n", args.fInputColor);
-        fragBuilder->codeAppendf("\t\tvec4 coord = vec4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
+        fragBuilder->codeAppendf("\t\tfloat4 coord = float4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
                                  args.fInputColor);
-        fragBuilder->codeAppendf("\t\tcoord = coord * %f + vec4(%f, %f, %f, %f);\n",
+        fragBuilder->codeAppendf("\t\tcoord = coord * %f + float4(%f, %f, %f, %f);\n",
                                  kColorScaleFactor,
                                  kColorOffsetFactor, kColorOffsetFactor,
                                  kColorOffsetFactor, kColorOffsetFactor);
@@ -420,22 +420,22 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
     SkString coord;
 
     fragBuilder->codeAppendf("\t\t%s.a = ", args.fOutputColor);
-    coord.printf("vec2(coord.a, %s.a)", yoffsets);
+    coord.printf("float2(coord.a, %s.a)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
     fragBuilder->codeAppendf("\t\t%s.r = ", args.fOutputColor);
-    coord.printf("vec2(coord.r, %s.r)", yoffsets);
+    coord.printf("float2(coord.r, %s.r)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
     fragBuilder->codeAppendf("\t\t%s.g = ", args.fOutputColor);
-    coord.printf("vec2(coord.g, %s.g)", yoffsets);
+    coord.printf("float2(coord.g, %s.g)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
     fragBuilder->codeAppendf("\t\t%s.b = ", args.fOutputColor);
-    coord.printf("vec2(coord.b, %s.b)", yoffsets);
+    coord.printf("float2(coord.b, %s.b)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
