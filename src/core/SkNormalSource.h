@@ -28,7 +28,7 @@ public:
     /** Returns a fragment processor that takes no input and outputs a normal (already rotated)
         as its output color. To be used as a child fragment processor.
     */
-    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(const SkShaderBase::AsFPArgs&) const = 0;
+    virtual gr_fp<GrFragmentProcessor> asFragmentProcessor(const SkShaderBase::AsFPArgs&) const = 0;
 #endif
 
     class Provider {

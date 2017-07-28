@@ -350,7 +350,7 @@ public:
     };
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    gr_fp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -693,13 +693,13 @@ private:
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(SkPerlinNoiseShaderImpl::Type type,
+    static gr_fp<GrFragmentProcessor> Make(SkPerlinNoiseShaderImpl::Type type,
                                            int numOctaves, bool stitchTiles,
                                            std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                            sk_sp<GrTextureProxy> permutationsProxy,
                                            sk_sp<GrTextureProxy> noiseProxy,
                                            const SkMatrix& matrix) {
-        return sk_sp<GrFragmentProcessor>(
+        return gr_fp<GrFragmentProcessor>(
             new GrPerlinNoise2Effect(type, numOctaves, stitchTiles,
                                      std::move(paintingData),
                                      std::move(permutationsProxy), std::move(noiseProxy), matrix));
@@ -707,8 +707,8 @@ public:
 
     const char* name() const override { return "PerlinNoise"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrPerlinNoise2Effect(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrPerlinNoise2Effect(*this));
     }
 
     const SkPerlinNoiseShaderImpl::StitchData& stitchData() const { return fPaintingData->fStitchDataInit; }
@@ -789,7 +789,7 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {
     int      numOctaves = d->fRandom->nextRangeU(2, 10);
     bool     stitchTiles = d->fRandom->nextBool();
     SkScalar seed = SkIntToScalar(d->fRandom->nextU());
@@ -1128,12 +1128,12 @@ private:
 
 class GrImprovedPerlinNoiseEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(int octaves, SkScalar z,
+    static gr_fp<GrFragmentProcessor> Make(int octaves, SkScalar z,
                                            std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData,
                                            sk_sp<GrTextureProxy> permutationsProxy,
                                            sk_sp<GrTextureProxy> gradientProxy,
                                            const SkMatrix& matrix) {
-        return sk_sp<GrFragmentProcessor>(
+        return gr_fp<GrFragmentProcessor>(
             new GrImprovedPerlinNoiseEffect(octaves, z, std::move(paintingData),
                                             std::move(permutationsProxy),
                                             std::move(gradientProxy), matrix));
@@ -1141,8 +1141,8 @@ public:
 
     const char* name() const override { return "ImprovedPerlinNoise"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrImprovedPerlinNoiseEffect(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrImprovedPerlinNoiseEffect(*this));
     }
 
     const SkVector& baseFrequency() const { return fPaintingData->fBaseFrequency; }
@@ -1213,7 +1213,7 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrImprovedPerlinNoiseEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrImprovedPerlinNoiseEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar baseFrequencyX = d->fRandom->nextRangeScalar(0.01f,
                                                           0.99f);
     SkScalar baseFrequencyY = d->fRandom->nextRangeScalar(0.01f,
@@ -1387,7 +1387,7 @@ void GrGLImprovedPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
 }
 
 /////////////////////////////////////////////////////////////////////
-sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
+gr_fp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
     SkASSERT(args.fContext);
 
     SkMatrix localMatrix = this->getLocalMatrix();
@@ -1434,7 +1434,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const As
             // TODO: Either treat the output of this shader as sRGB or allow client to specify a
             // color space of the noise. Either way, this case (and the GLSL) need to convert to
             // the destination.
-            sk_sp<GrFragmentProcessor> inner(
+            gr_fp<GrFragmentProcessor> inner(
                 GrConstColorProcessor::Make(GrColor4f::FromGrColor(0x80404040),
                                             GrConstColorProcessor::kModulateRGBA_InputMode));
             return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
@@ -1451,7 +1451,7 @@ sk_sp<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcessor(const As
                                                                paintingData->getNoiseBitmap());
 
     if (permutationsProxy && noiseProxy) {
-        sk_sp<GrFragmentProcessor> inner(
+        gr_fp<GrFragmentProcessor> inner(
             GrPerlinNoise2Effect::Make(fType,
                                        fNumOctaves,
                                        fStitchTiles,

@@ -90,7 +90,7 @@ bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleEffect);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestData* testData) {
+gr_fp<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestData* testData) {
     SkPoint center;
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);

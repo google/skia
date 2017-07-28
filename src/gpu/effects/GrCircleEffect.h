@@ -20,8 +20,8 @@ public:
     int edgeType() const { return fEdgeType; }
     SkPoint center() const { return fCenter; }
     float radius() const { return fRadius; }
-    static sk_sp<GrFragmentProcessor> Make(int edgeType, SkPoint center, float radius) {
-        return sk_sp<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
+    static gr_fp<GrFragmentProcessor> Make(int edgeType, SkPoint center, float radius) {
+        return gr_fp<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
     }
     const char* name() const override { return "CircleEffect"; }
 

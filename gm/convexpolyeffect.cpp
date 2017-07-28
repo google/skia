@@ -189,7 +189,7 @@ protected:
                 path->transform(m, &p);
 
                 GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                sk_sp<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, p));
+                gr_fp<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, p));
                 if (!fp) {
                     continue;
                 }
@@ -229,7 +229,7 @@ protected:
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
                 GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                sk_sp<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, rect));
+                gr_fp<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, rect));
                 if (!fp) {
                     continue;
                 }

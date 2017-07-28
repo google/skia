@@ -73,12 +73,12 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 
 class OverdrawFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(const SkPMColor* colors);
+    static gr_fp<GrFragmentProcessor> Make(const SkPMColor* colors);
 
     const char* name() const override { return "Overdraw"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new OverdrawFragmentProcessor(fColors));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new OverdrawFragmentProcessor(fColors));
     }
 
 private:
@@ -108,12 +108,12 @@ private:
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
-sk_sp<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(GrContext*,
+gr_fp<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(GrContext*,
                                                                       SkColorSpace*) const {
     return OverdrawFragmentProcessor::Make(fColors);
 }
 
-sk_sp<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colors) {
+gr_fp<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colors) {
     GrColor4f grColors[SkOverdrawColorFilter::kNumColors];
     for (int i = 0; i < SkOverdrawColorFilter::kNumColors; i++) {
         grColors[i] = GrColor4f::FromGrColor(GrColorPackRGBA(SkGetPackedR32(colors[i]),
@@ -122,7 +122,7 @@ sk_sp<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colo
                                                              SkGetPackedA32(colors[i])));
     }
 
-    return sk_sp<OverdrawFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
+    return gr_fp<GrFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
 }
 
 // This could implement the constant input -> constant output optimization, but we don't really

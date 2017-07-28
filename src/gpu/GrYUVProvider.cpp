@@ -134,7 +134,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     }
 
     GrPaint paint;
-    sk_sp<GrFragmentProcessor> yuvToRgbProcessor(
+    gr_fp<GrFragmentProcessor> yuvToRgbProcessor(
         GrYUVEffect::MakeYUVToRGB(yuvTextureContexts[0]->asTextureProxyRef(),
                                   yuvTextureContexts[1]->asTextureProxyRef(),
                                   yuvTextureContexts[2]->asTextureProxyRef(),
@@ -158,7 +158,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
 
     // If the caller expects the pixels in a different color space than the one from the image,
     // apply a color conversion to do this.
-    sk_sp<GrFragmentProcessor> colorConversionProcessor =
+    gr_fp<GrFragmentProcessor> colorConversionProcessor =
             GrNonlinearColorSpaceXformEffect::Make(srcColorSpace, dstColorSpace);
     if (colorConversionProcessor) {
         paint.addColorFragmentProcessor(colorConversionProcessor);

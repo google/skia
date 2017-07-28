@@ -56,20 +56,20 @@ sk_sp<SkShader> SkColorFilterShader::onMakeColorSpace(SkColorSpaceXformer* xform
 #if SK_SUPPORT_GPU
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(const AsFPArgs& args) const {
+gr_fp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(const AsFPArgs& args) const {
 
-    sk_sp<GrFragmentProcessor> fp1(as_SB(fShader)->asFragmentProcessor(args));
+    gr_fp<GrFragmentProcessor> fp1(as_SB(fShader)->asFragmentProcessor(args));
     if (!fp1) {
         return nullptr;
     }
 
-    sk_sp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(args.fContext,
+    gr_fp<GrFragmentProcessor> fp2(fFilter->asFragmentProcessor(args.fContext,
                                                                 args.fDstColorSpace));
     if (!fp2) {
         return fp1;
     }
 
-    sk_sp<GrFragmentProcessor> fpSeries[] = { std::move(fp1), std::move(fp2) };
+    gr_fp<GrFragmentProcessor> fpSeries[] = { std::move(fp1), std::move(fp2) };
     return GrFragmentProcessor::RunInSeries(fpSeries, 2);
 }
 #endif
