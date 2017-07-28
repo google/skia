@@ -705,4 +705,12 @@ enum GrGLBackendState {
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
 
+// Enum used as return value when flush with semaphores so the client knows whether the
+// semaphores were submitted to GPU or not.
+enum class GrSemaphoresSubmitted : int {
+    kNo,
+    kYes,
+};
+
+
 #endif
