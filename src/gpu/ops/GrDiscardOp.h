@@ -42,7 +42,7 @@ private:
     void onExecute(GrOpFlushState* state) override {
         SkASSERT(state->drawOpArgs().renderTarget());
 
-        state->commandBuffer()->discard(state->drawOpArgs().renderTarget());
+        state->commandBuffer()->discard(state->drawOpArgs().fProxy);
     }
 
     typedef GrOp INHERITED;

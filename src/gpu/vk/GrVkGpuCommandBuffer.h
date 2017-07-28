@@ -31,14 +31,14 @@ public:
 
     void end() override;
 
-    void discard(GrRenderTarget*) override;
+    void discard(GrRenderTargetProxy*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
-                      GrRenderTarget*) override;
+                      GrRenderTargetProxy*) override;
 
 private:
     // Performs lazy initialization on the first operation seen by the command buffer.
-    void init(GrVkRenderTarget* rt);
+    void init(GrVkRenderTarget*, GrSurfaceOrigin);
 
     GrGpu* gpu() override;
     GrRenderTarget* renderTarget() override;
@@ -90,9 +90,10 @@ private:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance) final;
 
-    void onClear(GrRenderTarget*, const GrFixedClip&, GrColor color) override;
+    void onClear(GrRenderTargetProxy*, const GrFixedClip&, GrColor color) override;
 
-    void onClearStencilClip(GrRenderTarget*, const GrFixedClip&, bool insideStencilMask) override;
+    void onClearStencilClip(GrRenderTargetProxy*, const GrFixedClip&,
+                            bool insideStencilMask) override;
 
     void addAdditionalCommandBuffer();
     void addAdditionalRenderPass();
@@ -124,6 +125,7 @@ private:
 
     GrVkGpu*                    fGpu;
     GrVkRenderTarget*           fRenderTarget;
+    GrSurfaceOrigin             fOrigin;
     VkAttachmentLoadOp          fVkColorLoadOp;
     VkAttachmentStoreOp         fVkColorStoreOp;
     VkAttachmentLoadOp          fVkStencilLoadOp;
