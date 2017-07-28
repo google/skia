@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02dea92a_71abb5ae",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-28T11:18:11Z",
+      "side": 1,
+      "message": "Could just copy kernelSize.width() * kernelSize.height()",
+      "revId": "c40760753b67bc5998909f4bce5f70815417a7fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
