@@ -53,8 +53,8 @@ in uniform float outerThreshold;
 }
 
 void main() {
-    vec4 color = texture(image, sk_TransformedCoords2D[0], colorXform);
-    vec4 mask_color = texture(mask, sk_TransformedCoords2D[1]);
+    float4 color = texture(image, sk_TransformedCoords2D[0], colorXform);
+    float4 mask_color = texture(mask, sk_TransformedCoords2D[1]);
     if (mask_color.a < 0.5) {
         if (color.a > outerThreshold) {
             float scale = outerThreshold / color.a;

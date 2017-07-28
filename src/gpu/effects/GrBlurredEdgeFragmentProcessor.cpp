@@ -28,8 +28,9 @@ public:
                 "float factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
                 "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
                 "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
-                "vec4(factor);\n",
-                args.fInputColor ? args.fInputColor : "vec4(1)", _outer.mode(), args.fOutputColor);
+                "float4(factor);\n",
+                args.fInputColor ? args.fInputColor : "float4(1)", _outer.mode(),
+                args.fOutputColor);
     }
 
 private:

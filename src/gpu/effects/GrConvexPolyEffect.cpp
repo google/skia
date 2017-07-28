@@ -199,7 +199,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppend("\t\tfloat alpha = 1.0;\n");
     fragBuilder->codeAppend("\t\tfloat edge;\n");
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
-        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], vec3(sk_FragCoord.x, sk_FragCoord.y, "
+        fragBuilder->codeAppendf("\t\tedge = dot(%s[%d], float3(sk_FragCoord.x, sk_FragCoord.y, "
                                                              "1));\n",
                                  edgeArrayName, i);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {

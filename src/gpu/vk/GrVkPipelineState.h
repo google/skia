@@ -132,8 +132,8 @@ private:
         }
 
         /**
-        * Gets a vec4 that adjusts the position from Skia device coords to Vulkans normalized device
-        * coords. Assuming the transformed position, pos, is a homogeneous vec3, the vec, v, is
+        * Gets a float4 that adjusts the position from Skia device coords to Vulkans normalized device
+        * coords. Assuming the transformed position, pos, is a homogeneous float3, the vec, v, is
         * applied as such:
         * pos.x = dot(v.xy, pos.xz)
         * pos.y = dot(v.zw, pos.yz)

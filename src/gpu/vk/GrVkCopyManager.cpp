@@ -44,17 +44,17 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "#extension GL_ARB_shading_language_420pack : enable\n"
 
         "layout(set = 0, binding = 0) uniform vertexUniformBuffer {"
-            "mediump vec4 uPosXform;"
-            "mediump vec4 uTexCoordXform;"
+            "mediump float4 uPosXform;"
+            "mediump float4 uTexCoordXform;"
         "};"
-        "layout(location = 0) in highp vec2 inPosition;"
-        "layout(location = 1) out mediump vec2 vTexCoord;"
+        "layout(location = 0) in highp float2 inPosition;"
+        "layout(location = 1) out mediump float2 vTexCoord;"
 
         "// Copy Program VS\n"
         "void main() {"
             "vTexCoord = inPosition * uTexCoordXform.xy + uTexCoordXform.zw;"
             "gl_Position.xy = inPosition * uPosXform.xy + uPosXform.zw;"
-            "gl_Position.zw = vec2(0, 1);"
+            "gl_Position.zw = float2(0, 1);"
         "}"
     );
 
@@ -66,8 +66,8 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
         "precision mediump float;"
 
         "layout(set = 1, binding = 0) uniform mediump sampler2D uTextureSampler;"
-        "layout(location = 1) in mediump vec2 vTexCoord;"
-        "layout(location = 0, index = 0) out mediump vec4 fsColorOut;"
+        "layout(location = 1) in mediump float2 vTexCoord;"
+        "layout(location = 0, index = 0) out mediump float4 fsColorOut;"
 
         "// Copy Program FS\n"
         "void main() {"
@@ -135,7 +135,7 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
     SkASSERT(fVertexBuffer.get());
     fVertexBuffer->updateData(vdata, sizeof(vdata));
 
-    // We use 2 vec4's for uniforms
+    // We use 2 float4's for uniforms
     fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, 8 * sizeof(float)));
     SkASSERT(fUniformBuffer.get());
 
