@@ -18,7 +18,7 @@ namespace SkSL {
  * An interface block, as in:
  *
  * out gl_PerVertex {
- *   layout(builtin=0) vec4 gl_Position;
+ *   layout(builtin=0) float4 gl_Position;
  *   layout(builtin=1) float gl_PointSize;
  * };
  *

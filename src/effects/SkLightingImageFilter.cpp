@@ -1863,7 +1863,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               "pointToNormal",
                               SK_ARRAY_COUNT(gPointToNormalArgs),
                               gPointToNormalArgs,
-                              "\treturn normalize(vec3(-x * scale, -y * scale, 1));\n",
+                              "\treturn normalize(float3(-x * scale, -y * scale, 1));\n",
                               &pointToNormalName);
 
     static const GrShaderVar gInteriorNormalArgs[] =  {
@@ -1881,7 +1881,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
                               normalBody.c_str(),
                               &normalName);
 
-    fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
     fragBuilder->codeAppend("\t\tfloat m[9];\n");
 
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
@@ -1891,10 +1891,10 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
     for (int dy = 1; dy >= -1; dy--) {
         for (int dx = -1; dx <= 1; dx++) {
             SkString texCoords;
-            texCoords.appendf("coord + vec2(%d, %d) * %s", dx, dy, imgInc);
+            texCoords.appendf("coord + float2(%d, %d) * %s", dx, dy, imgInc);
             SkString temp;
             temp.appendf("temp%d", index);
-            fragBuilder->codeAppendf("vec4 %s;", temp.c_str());
+            fragBuilder->codeAppendf("float4 %s;", temp.c_str());
             fDomain.sampleTexture(fragBuilder,
                                   args.fUniformHandler,
                                   args.fShaderCaps,
@@ -1906,7 +1906,7 @@ void GrGLLightingEffect::emitCode(EmitArgs& args) {
             index++;
         }
     }
-    fragBuilder->codeAppend("\t\tvec3 surfaceToLight = ");
+    fragBuilder->codeAppend("\t\tfloat3 surfaceToLight = ");
     SkString arg;
     arg.appendf("%s * m[4]", surfScale);
     fLight->emitSurfaceToLight(uniformHandler, fragBuilder, arg.c_str());
@@ -1963,7 +1963,7 @@ void GrGLDiffuseLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHandl
     };
     SkString lightBody;
     lightBody.appendf("\tfloat colorScale = %s * dot(normal, surfaceToLight);\n", kd);
-    lightBody.appendf("\treturn vec4(lightColor * clamp(colorScale, 0.0, 1.0), 1.0);\n");
+    lightBody.appendf("\treturn float4(lightColor * clamp(colorScale, 0.0, 1.0), 1.0);\n");
     fragBuilder->emitFunction(kVec4f_GrSLType,
                               "light",
                               SK_ARRAY_COUNT(gLightArgs),
@@ -2064,11 +2064,11 @@ void GrGLSpecularLightingEffect::emitLightFunc(GrGLSLUniformHandler* uniformHand
         GrShaderVar("lightColor", kVec3f_GrSLType)
     };
     SkString lightBody;
-    lightBody.appendf("\tvec3 halfDir = vec3(normalize(surfaceToLight + vec3(0, 0, 1)));\n");
+    lightBody.appendf("\tfloat3 halfDir = float3(normalize(surfaceToLight + float3(0, 0, 1)));\n");
     lightBody.appendf("\thighp float colorScale = %s * pow(dot(normal, halfDir), %s);\n",
                       ks, shininess);
-    lightBody.appendf("\tvec3 color = lightColor * clamp(colorScale, 0.0, 1.0);\n");
-    lightBody.appendf("\treturn vec4(color, max(max(color.r, color.g), color.b));\n");
+    lightBody.appendf("\tfloat3 color = lightColor * clamp(colorScale, 0.0, 1.0);\n");
+    lightBody.appendf("\treturn float4(color, max(max(color.r, color.g), color.b));\n");
     fragBuilder->emitFunction(kVec4f_GrSLType,
                               "light",
                               SK_ARRAY_COUNT(gLightArgs),
@@ -2141,7 +2141,7 @@ void GrGLPointLight::emitSurfaceToLight(GrGLSLUniformHandler* uniformHandler,
     fLocationUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
                                               kVec3f_GrSLType, kDefault_GrSLPrecision,
                                               "LightLocation", &loc);
-    fragBuilder->codeAppendf("normalize(%s - vec3(sk_FragCoord.xy, %s))",
+    fragBuilder->codeAppendf("normalize(%s - float3(sk_FragCoord.xy, %s))",
                              loc, z);
 }
 
@@ -2168,7 +2168,7 @@ void GrGLSpotLight::emitSurfaceToLight(GrGLSLUniformHandler* uniformHandler,
                                               kVec3f_GrSLType, kDefault_GrSLPrecision,
                                               "LightLocation", &location);
 
-    fragBuilder->codeAppendf("normalize(%s - vec3(sk_FragCoord.xy, %s))",
+    fragBuilder->codeAppendf("normalize(%s - float3(sk_FragCoord.xy, %s))",
                              location, z);
 }
 
@@ -2204,7 +2204,7 @@ void GrGLSpotLight::emitLightColor(GrGLSLUniformHandler* uniformHandler,
     SkString lightColorBody;
     lightColorBody.appendf("\tfloat cosAngle = -dot(surfaceToLight, %s);\n", s);
     lightColorBody.appendf("\tif (cosAngle < %s) {\n", cosOuter);
-    lightColorBody.appendf("\t\treturn vec3(0);\n");
+    lightColorBody.appendf("\t\treturn float3(0);\n");
     lightColorBody.appendf("\t}\n");
     lightColorBody.appendf("\tfloat scale = pow(cosAngle, %s);\n", exponent);
     lightColorBody.appendf("\tif (cosAngle < %s) {\n", cosInner);

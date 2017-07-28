@@ -62,7 +62,7 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
 DEF_TEST(SkSLFPHelloWorld, r) {
     test(r,
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -130,7 +130,7 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;\n"
              "        const GrTest& _outer = args.fFp.cast<GrTest>();\n"
              "        (void) _outer;\n"
-             "        fragBuilder->codeAppendf(\"%s = vec4(1.0);\\n\", args.fOutputColor);\n"
+             "        fragBuilder->codeAppendf(\"%s = float4(1.0);\\n\", args.fOutputColor);\n"
              "    }\n"
              "private:\n"
              "    void onSetData(const GrGLSLProgramDataManager& pdman, "
@@ -154,9 +154,9 @@ DEF_TEST(SkSLFPHelloWorld, r) {
 
 DEF_TEST(SkSLFPInput, r) {
     test(r,
-         "in vec2 point;"
+         "in float2 point;"
          "void main() {"
-         "sk_OutColor = vec4(point, point);"
+         "sk_OutColor = float4(point, point);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -167,7 +167,7 @@ DEF_TEST(SkSLFPInput, r) {
              ", fPoint(point)"
          },
          {
-             "fragBuilder->codeAppendf(\"%s = vec4(vec2(%f, %f), vec2(%f, %f));\\n\", "
+             "fragBuilder->codeAppendf(\"%s = float4(float2(%f, %f), float2(%f, %f));\\n\", "
                                       "args.fOutputColor, _outer.point().fX, _outer.point().fY, "
                                       "_outer.point().fX, _outer.point().fY);",
              "if (fPoint != that.fPoint) return false;"
@@ -176,7 +176,7 @@ DEF_TEST(SkSLFPInput, r) {
 
 DEF_TEST(SkSLFPUniform, r) {
     test(r,
-         "uniform vec4 color;"
+         "uniform float4 color;"
          "void main() {"
          "sk_OutColor = color;"
          "}",
@@ -192,7 +192,7 @@ DEF_TEST(SkSLFPUniform, r) {
 
 DEF_TEST(SkSLFPInUniform, r) {
     test(r,
-         "in uniform vec4 color;"
+         "in uniform float4 color;"
          "void main() {"
          "sk_OutColor = color;"
          "}",
@@ -212,7 +212,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@header { header section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -222,7 +222,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@class { class section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -234,7 +234,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@cpp { cpp section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {},
@@ -243,7 +243,7 @@ DEF_TEST(SkSLFPSections, r) {
          "@constructorParams { int x, float y, std::vector<float> z }"
          "in float w;"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -256,7 +256,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@constructor { constructor section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -266,7 +266,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@initializers { initializers section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -277,7 +277,7 @@ DEF_TEST(SkSLFPSections, r) {
          "float x = 10;"
          "@emitCode { fragBuilder->codeAppendf(\"float y = %d\\n\", x * 2); }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {},
@@ -288,7 +288,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@fields { fields section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -299,7 +299,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@make { make section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -312,7 +312,7 @@ DEF_TEST(SkSLFPSections, r) {
          "in float provided;"
          "@setData(varName) { varName.set1f(calculated, provided * 2); }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {},
@@ -326,7 +326,7 @@ DEF_TEST(SkSLFPSections, r) {
     test(r,
          "@test(testDataName) { testDataName section }"
          "void main() {"
-         "sk_OutColor = vec4(1);"
+         "sk_OutColor = float4(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {},
@@ -343,7 +343,7 @@ DEF_TEST(SkSLFPColorSpaceXform, r) {
          "in uniform sampler2D image;"
          "in uniform colorSpaceXform colorXform;"
          "void main() {"
-         "sk_OutColor = sk_InColor * texture(image, vec2(0, 0), colorXform);"
+         "sk_OutColor = sk_InColor * texture(image, float2(0, 0), colorXform);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
@@ -353,12 +353,12 @@ DEF_TEST(SkSLFPColorSpaceXform, r) {
              "sk_sp<GrColorSpaceXform> fColorXform;"
          },
          {
-             "fragBuilder->codeAppendf(\"vec4 _tmpVar1;%s = %s * %stexture(%s, "
-             "vec2(0.0, 0.0)).%s%s;\\n\", args.fOutputColor, args.fInputColor ? args.fInputColor : "
-             "\"vec4(1)\", fColorSpaceHelper.isValid() ? \"(_tmpVar1 = \" : \"\", "
+             "fragBuilder->codeAppendf(\"float4 _tmpVar1;%s = %s * %stexture(%s, "
+             "float2(0.0, 0.0)).%s%s;\\n\", args.fOutputColor, args.fInputColor ? args.fInputColor : "
+             "\"float4(1)\", fColorSpaceHelper.isValid() ? \"(_tmpVar1 = \" : \"\", "
              "fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(), "
              "fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(), "
-             "fColorSpaceHelper.isValid() ? SkStringPrintf(\", vec4(clamp((%s * vec4(_tmpVar1.rgb, "
+             "fColorSpaceHelper.isValid() ? SkStringPrintf(\", float4(clamp((%s * float4(_tmpVar1.rgb, "
              "1.0)).rgb, 0.0, _tmpVar1.a), _tmpVar1.a))\", args.fUniformHandler->getUniformCStr("
              "fColorSpaceHelper.gamutXformUniform())).c_str() : \"\");"
          });
@@ -367,14 +367,14 @@ DEF_TEST(SkSLFPColorSpaceXform, r) {
 DEF_TEST(SkSLFPTransformedCoords, r) {
     test(r,
          "void main() {"
-         "sk_OutColor = vec4(sk_TransformedCoords2D[0], sk_TransformedCoords2D[0]);"
+         "sk_OutColor = float4(sk_TransformedCoords2D[0], sk_TransformedCoords2D[0]);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {},
          {
             "SkSL::String sk_TransformedCoords2D_0 = "
                                          "fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);",
-            "fragBuilder->codeAppendf(\"%s = vec4(%s, %s);\\n\", args.fOutputColor, "
+            "fragBuilder->codeAppendf(\"%s = float4(%s, %s);\\n\", args.fOutputColor, "
                               "sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str());"
          });
 
