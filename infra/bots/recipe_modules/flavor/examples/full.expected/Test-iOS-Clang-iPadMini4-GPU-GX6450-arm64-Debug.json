@@ -17,6 +17,20 @@
   },
   {
     "cmd": [
+      "which",
+      "clang-format"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "BUILDTYPE": "Debug",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "which clang-format"
+  },
+  {
+    "cmd": [
       "[START_DIR]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Debug",

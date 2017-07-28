@@ -12,6 +12,7 @@ import sys
 skslc = sys.argv[1]
 clangFormat = sys.argv[2]
 processors = sys.argv[3:]
+print('clang-format: %s' % clangFormat)
 for p in processors:
     path, _ = os.path.splitext(p)
     print("Recompiling " + p + "...")
