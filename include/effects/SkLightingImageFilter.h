@@ -48,6 +48,7 @@ protected:
                           const CropRect* cropRect);
     void flatten(SkWriteBuffer&) const override;
     const SkImageFilterLight* light() const { return fLight.get(); }
+    inline sk_sp<const SkImageFilterLight> refLight() const;
     SkScalar surfaceScale() const { return fSurfaceScale; }
     bool affectsTransparentBlack() const override { return true; }
 
