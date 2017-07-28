@@ -6,8 +6,9 @@
  */
 #include "Benchmark.h"
 #include "SkCanvas.h"
+#include "SkDrawShadowInfo.h"
 #include "SkPaint.h"
-#include "SkDrawShadowRec.h"
+#include "SkPath.h"
 #include "SkShadowUtils.h"
 
 class ShadowBench : public Benchmark {

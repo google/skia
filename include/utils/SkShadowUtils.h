@@ -12,7 +12,6 @@
 #include "SkPoint3.h"
 #include "SkScalar.h"
 #include "../private/SkShadowFlags.h"
-#include <functional>
 
 class SkCanvas;
 class SkPath;
@@ -106,6 +105,7 @@ public:
         *colorScale = adjustedLuminance*(SK_Scalar1 - a);
         *tonalAlpha = *colorScale + a;
     }
+
 };
 
 #endif

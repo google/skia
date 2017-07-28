@@ -21,7 +21,7 @@
 #include "GrResourceProvider.h"
 #include "GrStencilAttachment.h"
 #include "GrTracing.h"
-#include "SkDrawShadowRec.h"
+#include "SkDrawShadowInfo.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
 #include "SkShadowUtils.h"
@@ -1012,12 +1012,9 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
     bool tonalColor = SkToBool(rec.fFlags & SkShadowFlags::kTonalColor_ShadowFlag);
 
     if (rec.fAmbientAlpha > 0) {
-        static constexpr float kHeightFactor = 1.0f / 128.0f;
-        static constexpr float kGeomFactor = 64.0f;
-
-        SkScalar devSpaceInsetWidth = occluderHeight * kHeightFactor * kGeomFactor;
-        const float umbraAlpha = (1.0f + SkTMax(occluderHeight * kHeightFactor, 0.0f));
-        const SkScalar devSpaceAmbientBlur = devSpaceInsetWidth * umbraAlpha;
+        SkScalar devSpaceInsetWidth = SkDrawShadowMetrics::AmbientBlurRadius(occluderHeight);
+        const SkScalar umbraRecipAlpha = SkDrawShadowMetrics::AmbientRecipAlpha(occluderHeight);
+        const SkScalar devSpaceAmbientBlur = devSpaceInsetWidth * umbraRecipAlpha;
 
         // Outset the shadow rrect to the border of the penumbra
         SkScalar ambientPathOutset = devSpaceInsetWidth * devToSrcScale;
@@ -1044,8 +1041,8 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             devSpaceInsetWidth = ambientRRect.width();
         }
         // the fraction of the blur we want to apply is devSpaceInsetWidth/devSpaceAmbientBlur,
-        // which is just 1/umbraAlpha.
-        SkScalar blurClamp = SkScalarInvert(umbraAlpha);
+        // which is just 1/umbraRecipAlpha.
+        SkScalar blurClamp = SkScalarInvert(umbraRecipAlpha);
 
         std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(ambientColor, viewMatrix,
                                                              ambientRRect,
@@ -1057,15 +1054,15 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
     }
 
     if (rec.fSpotAlpha > 0) {
-        float zRatio = SkTPin(occluderHeight / (devLightPos.fZ - occluderHeight), 0.0f, 0.95f);
-
-        SkScalar devSpaceSpotBlur = 2.0f * rec.fLightRadius * zRatio;
-        // handle scale of radius and pad due to CTM
+        SkScalar devSpaceSpotBlur;
+        SkScalar spotScale;
+        SkVector spotOffset;
+        SkDrawShadowMetrics::GetSpotParams(occluderHeight, devLightPos.fX, devLightPos.fY,
+                                           devLightPos.fZ, rec.fLightRadius,
+                                           &devSpaceSpotBlur, &spotScale, &spotOffset);
+        // handle scale of radius due to CTM
         const SkScalar srcSpaceSpotBlur = devSpaceSpotBlur * devToSrcScale;
 
-        // Compute the scale and translation for the spot shadow.
-        const SkScalar spotScale = devLightPos.fZ / (devLightPos.fZ - occluderHeight);
-        SkPoint spotOffset = SkPoint::Make(zRatio*(-devLightPos.fX), zRatio*(-devLightPos.fY));
         // Adjust translate for the effect of the scale.
         spotOffset.fX += spotScale*viewMatrix[SkMatrix::kMTransX];
         spotOffset.fY += spotScale*viewMatrix[SkMatrix::kMTransY];
@@ -1087,7 +1084,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         SkScalar spotRadius = spotShadowRRect.getSimpleRadii().fX;
 
         // Compute the insetWidth
-        SkScalar blurOutset = 0.5f*srcSpaceSpotBlur;
+        SkScalar blurOutset = srcSpaceSpotBlur;
         SkScalar insetWidth = blurOutset;
         if (transparent) {
             // If transparent, just do a fill
@@ -1159,7 +1156,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
 
         std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
                                                              spotShadowRRect,
-                                                             devSpaceSpotBlur,
+                                                             2.0f * devSpaceSpotBlur,
                                                              insetWidth);
         SkASSERT(op);
         this->addDrawOp(clip, std::move(op));
