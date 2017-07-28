@@ -146,7 +146,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str());
-            fragBuilder->codeAppendf("%s = vec2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
+            fragBuilder->codeAppendf("%s = float2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
             fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
                                      gFM.c_str(), gF.c_str(), gF.c_str());
             fragBuilder->codeAppendf("%s = %s.x*%s.x - %s.y*%s.z;",
@@ -175,7 +175,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str(),
                                      v.fsIn(), dklmdy.c_str());
-            fragBuilder->codeAppendf("%s = vec2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
+            fragBuilder->codeAppendf("%s = float2(%s, %s);", gF.c_str(), dfdx.c_str(), dfdy.c_str());
             fragBuilder->codeAppendf("%s = sqrt(dot(%s, %s));",
                                      gFM.c_str(), gF.c_str(), gF.c_str());
             fragBuilder->codeAppendf("%s = %s.x * %s.x - %s.y * %s.z;",
@@ -207,10 +207,10 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kHigh_GrSLPrecision,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = vec4(%s * %s);",
+        fragBuilder->codeAppendf("%s = float4(%s * %s);",
                                  args.fOutputCoverage, coverageScale, edgeAlpha.c_str());
     } else {
-        fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
+        fragBuilder->codeAppendf("%s = float4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
     }
 }
 
@@ -367,9 +367,9 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     switch (fEdgeType) {
         case kHairlineAA_GrProcessorEdgeType: {
-            fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("vec2 gF = vec2(2.0 * %s.x * duvdx.x - duvdx.y,"
+            fragBuilder->codeAppendf("float2 duvdx = dFdx(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float2 gF = float2(2.0 * %s.x * duvdx.x - duvdx.y,"
                                      "               2.0 * %s.x * duvdy.x - duvdy.y);",
                                      v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
@@ -381,9 +381,9 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         case kFillAA_GrProcessorEdgeType: {
-            fragBuilder->codeAppendf("vec2 duvdx = dFdx(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("vec2 duvdy = dFdy(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("vec2 gF = vec2(2.0 * %s.x * duvdx.x - duvdx.y,"
+            fragBuilder->codeAppendf("float2 duvdx = dFdx(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float2 gF = float2(2.0 * %s.x * duvdx.x - duvdx.y,"
                                      "               2.0 * %s.x * duvdy.x - duvdy.y);",
                                      v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("edgeAlpha = (%s.x * %s.x - %s.y);",
@@ -411,9 +411,9 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                            kDefault_GrSLPrecision,
                                                            "Coverage",
                                                            &coverageScale);
-        fragBuilder->codeAppendf("%s = vec4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
+        fragBuilder->codeAppendf("%s = float4(%s * edgeAlpha);", args.fOutputCoverage, coverageScale);
     } else {
-        fragBuilder->codeAppendf("%s = vec4(edgeAlpha);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = float4(edgeAlpha);", args.fOutputCoverage);
     }
 }
 
@@ -565,7 +565,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                                                 kHigh_GrSLPrecision, "KLM", &devkLMMatrixName);
     GrGLSLVertToFrag v(kVec3f_GrSLType);
     varyingHandler->addVarying("CubicCoeffs", &v, kHigh_GrSLPrecision);
-    vertBuilder->codeAppendf("%s = %s * vec3(%s, 1);",
+    vertBuilder->codeAppendf("%s = %s * float3(%s, 1);",
                              v.vsOut(), devkLMMatrixName, gpArgs->fPositionVar.c_str());
 
 
@@ -574,12 +574,12 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         varyingHandler->addVarying("GradCoeffs", &gradCoeffs, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("highp float k = %s[0], l = %s[1], m = %s[2];",
                                  v.vsOut(), v.vsOut(), v.vsOut());
-        vertBuilder->codeAppendf("highp vec2 gk = vec2(%s[0][0], %s[1][0]), "
-                                            "gl = vec2(%s[0][1], %s[1][1]), "
-                                            "gm = vec2(%s[0][2], %s[1][2]);",
+        vertBuilder->codeAppendf("highp float2 gk = float2(%s[0][0], %s[1][0]), "
+                                            "gl = float2(%s[0][1], %s[1][1]), "
+                                            "gm = float2(%s[0][2], %s[1][2]);",
                                  devkLMMatrixName, devkLMMatrixName, devkLMMatrixName,
                                  devkLMMatrixName, devkLMMatrixName, devkLMMatrixName);
-        vertBuilder->codeAppendf("%s = vec4(3 * k * gk, -m * gl - l * gm);",
+        vertBuilder->codeAppendf("%s = float4(3 * k * gk, -m * gl - l * gm);",
                                  gradCoeffs.vsOut());
     }
 
@@ -646,7 +646,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
 
-    fragBuilder->codeAppendf("%s = vec4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
+    fragBuilder->codeAppendf("%s = float4(%s);", args.fOutputCoverage, edgeAlpha.c_str());
 }
 
 void GrGLCubicEffect::GenKey(const GrGeometryProcessor& gp,

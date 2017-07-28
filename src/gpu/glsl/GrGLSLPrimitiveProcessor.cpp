@@ -49,7 +49,7 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLPPFragmentBuilder* fragBu
                                                &stagedLocalVarName);
     fragBuilder->codeAppendf("%s = %s;", outputName, stagedLocalVarName);
     if (fragBuilder->getProgramBuilder()->shaderCaps()->mustObfuscateUniformColor()) {
-        fragBuilder->codeAppendf("%s = max(%s, vec4(0, 0, 0, 0));", outputName, outputName);
+        fragBuilder->codeAppendf("%s = max(%s, float4(0, 0, 0, 0));", outputName, outputName);
     }
 }
 

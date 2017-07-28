@@ -58,21 +58,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                     const TestFP& tfp = args.fFp.cast<TestFP>();
                     GrGLSLFPFragmentBuilder* fb = args.fFragBuilder;
                     SkString imageLoadStr;
-                    fb->codeAppend("highp vec2 coord = sk_FragCoord.xy;");
+                    fb->codeAppend("highp float2 coord = sk_FragCoord.xy;");
                     fb->appendImageStorageLoad(&imageLoadStr, args.fImageStorages[0],
-                                               "ivec2(coord)");
+                                               "int2(coord)");
                     if (GrPixelConfigIsSint(tfp.fImageStorageAccess.peekTexture()->config())) {
                         // Map the signed bytes so that when then get read back as unorm values they
                         // will have their original bit pattern.
-                        fb->codeAppendf("highp ivec4 ivals = %s;", imageLoadStr.c_str());
+                        fb->codeAppendf("highp int4 ivals = %s;", imageLoadStr.c_str());
                         // NV gives a linker error for this:
                         // fb->codeAppend("ivals +=
-                        //                "mix(ivec4(0), ivec4(256), lessThan(ivals, ivec4(0)));");
+                        //                "mix(int4(0), int4(256), lessThan(ivals, int4(0)));");
                         fb->codeAppend("if (ivals.r < 0) { ivals.r += 256; }");
                         fb->codeAppend("if (ivals.g < 0) { ivals.g += 256; }");
                         fb->codeAppend("if (ivals.b < 0) { ivals.b += 256; }");
                         fb->codeAppend("if (ivals.a < 0) { ivals.a += 256; }");
-                        fb->codeAppendf("%s = vec4(ivals)/255;", args.fOutputColor);
+                        fb->codeAppendf("%s = float4(ivals)/255;", args.fOutputColor);
                     } else {
                         fb->codeAppendf("%s = %s;", args.fOutputColor, imageLoadStr.c_str());
                     }

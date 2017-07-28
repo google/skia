@@ -172,14 +172,14 @@ private:
                                                           kVec3f_GrSLType, kDefault_GrSLPrecision,
                                                           "AmbientColor", &ambientColorUniName);
 
-            fragBuilder->codeAppendf("vec4 diffuseColor = %s;", args.fInputColor);
+            fragBuilder->codeAppendf("float4 diffuseColor = %s;", args.fInputColor);
 
             SkString dstNormalName("dstNormal");
             this->emitChild(0, &dstNormalName, args);
 
-            fragBuilder->codeAppendf("vec3 normal = %s.xyz;", dstNormalName.c_str());
+            fragBuilder->codeAppendf("float3 normal = %s.xyz;", dstNormalName.c_str());
 
-            fragBuilder->codeAppend( "vec3 result = vec3(0.0);");
+            fragBuilder->codeAppend( "float3 result = float3(0.0);");
 
             // diffuse light
             if (lightingFP.fDirectionalLights.count() != 0) {
@@ -197,7 +197,7 @@ private:
             fragBuilder->codeAppendf("result += %s * diffuseColor.rgb;", ambientColorUniName);
 
             // Clamping to alpha (equivalent to an unpremul'd clamp to 1.0)
-            fragBuilder->codeAppendf("%s = vec4(clamp(result.rgb, 0.0, diffuseColor.a), "
+            fragBuilder->codeAppendf("%s = float4(clamp(result.rgb, 0.0, diffuseColor.a), "
                                                "diffuseColor.a);", args.fOutputColor);
         }
 

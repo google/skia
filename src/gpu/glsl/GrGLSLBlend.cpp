@@ -120,14 +120,14 @@ static void soft_light_component_pos_dst_alpha(GrGLSLFragmentBuilder* fsBuilder,
 // Adds a function that takes two colors and an alpha as input. It produces a color with the
 // hue and saturation of the first color, the luminosity of the second color, and the input
 // alpha. It has this signature:
-//      vec3 set_luminance(vec3 hueSatColor, float alpha, vec3 lumColor).
+//      float3 set_luminance(float3 hueSatColor, float alpha, float3 lumColor).
 static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumFunction) {
     // Emit a helper that gets the luminance of a color.
     SkString getFunction;
     GrShaderVar getLumArgs[] = {
         GrShaderVar("color", kVec3f_GrSLType),
     };
-    SkString getLumBody("return dot(vec3(0.3, 0.59, 0.11), color);");
+    SkString getLumBody("return dot(float3(0.3, 0.59, 0.11), color);");
     fsBuilder->emitFunction(kFloat_GrSLType,
                             "luminance",
                             SK_ARRAY_COUNT(getLumArgs), getLumArgs,
@@ -142,17 +142,17 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
     };
     SkString setLumBody;
     setLumBody.printf("float diff = %s(lumColor - hueSat);", getFunction.c_str());
-    setLumBody.append("vec3 outColor = hueSat + diff;");
+    setLumBody.append("float3 outColor = hueSat + diff;");
     setLumBody.appendf("float outLum = %s(outColor);", getFunction.c_str());
     setLumBody.append("float minComp = min(min(outColor.r, outColor.g), outColor.b);"
                       "float maxComp = max(max(outColor.r, outColor.g), outColor.b);"
                       "if (minComp < 0.0 && outLum != minComp) {"
-                      "outColor = outLum + ((outColor - vec3(outLum, outLum, outLum)) * outLum) /"
+                      "outColor = outLum + ((outColor - float3(outLum, outLum, outLum)) * outLum) /"
                       "(outLum - minComp);"
                       "}"
                       "if (maxComp > alpha && maxComp != outLum) {"
                       "outColor = outLum +"
-                      "((outColor - vec3(outLum, outLum, outLum)) * (alpha - outLum)) /"
+                      "((outColor - float3(outLum, outLum, outLum)) * (alpha - outLum)) /"
                       "(maxComp - outLum);"
                       "}"
                       "return outColor;");
@@ -165,7 +165,7 @@ static void add_lum_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setLumF
 
 // Adds a function that creates a color with the hue and luminosity of one input color and
 // the saturation of another color. It will have this signature:
-//      float set_saturation(vec3 hueLumColor, vec3 satColor)
+//      float set_saturation(float3 hueLumColor, float3 satColor)
 static void add_sat_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setSatFunction) {
     // Emit a helper that gets the saturation of a color
     SkString getFunction;
@@ -181,7 +181,7 @@ static void add_sat_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setSatF
 
     // Emit a helper that sets the saturation given sorted input channels. This used
     // to use inout params for min, mid, and max components but that seems to cause
-    // problems on PowerVR drivers. So instead it returns a vec3 where r, g ,b are the
+    // problems on PowerVR drivers. So instead it returns a float3 where r, g ,b are the
     // adjusted min, mid, and max inputs, respectively.
     SkString helperFunction;
     GrShaderVar helperArgs[] = {
@@ -191,13 +191,13 @@ static void add_sat_function(GrGLSLFragmentBuilder* fsBuilder, SkString* setSatF
         GrShaderVar("sat", kFloat_GrSLType),
     };
     static const char kHelperBody[] = "if (minComp < maxComp) {"
-        "vec3 result;"
+        "float3 result;"
         "result.r = 0.0;"
         "result.g = sat * (midComp - minComp) / (maxComp - minComp);"
         "result.b = sat;"
         "return result;"
         "} else {"
-        "return vec3(0, 0, 0);"
+        "return float3(0, 0, 0);"
         "}";
     fsBuilder->emitFunction(kVec3f_GrSLType,
                             "set_saturation_helper",
@@ -311,7 +311,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             SkString setSat, setLum;
             add_sat_function(fsBuilder, &setSat);
             add_lum_function(fsBuilder, &setLum);
-            fsBuilder->codeAppendf("vec4 dstSrcAlpha = %s * %s.a;",
+            fsBuilder->codeAppendf("float4 dstSrcAlpha = %s * %s.a;",
                                    dstColor, srcColor);
             fsBuilder->codeAppendf("%s.rgb = %s(%s(%s.rgb * %s.a, dstSrcAlpha.rgb),"
                                    "dstSrcAlpha.a, dstSrcAlpha.rgb);",
@@ -326,7 +326,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             SkString setSat, setLum;
             add_sat_function(fsBuilder, &setSat);
             add_lum_function(fsBuilder, &setLum);
-            fsBuilder->codeAppendf("vec4 dstSrcAlpha = %s * %s.a;",
+            fsBuilder->codeAppendf("float4 dstSrcAlpha = %s * %s.a;",
                                    dstColor, srcColor);
             fsBuilder->codeAppendf("%s.rgb = %s(%s(dstSrcAlpha.rgb, %s.rgb * %s.a),"
                                    "dstSrcAlpha.a, dstSrcAlpha.rgb);",
@@ -340,7 +340,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             //  SetLum(S * Da, Sa* Da, D * Sa) + (1 - Sa) * D + (1 - Da) * S
             SkString setLum;
             add_lum_function(fsBuilder, &setLum);
-            fsBuilder->codeAppendf("vec4 srcDstAlpha = %s * %s.a;",
+            fsBuilder->codeAppendf("float4 srcDstAlpha = %s * %s.a;",
                                    srcColor, dstColor);
             fsBuilder->codeAppendf("%s.rgb = %s(srcDstAlpha.rgb, srcDstAlpha.a, %s.rgb * %s.a);",
                                    outputColor, setLum.c_str(), dstColor, srcColor);
@@ -352,7 +352,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             //  SetLum(D * Sa, Sa* Da, S * Da) + (1 - Sa) * D + (1 - Da) * S
             SkString setLum;
             add_lum_function(fsBuilder, &setLum);
-            fsBuilder->codeAppendf("vec4 srcDstAlpha = %s * %s.a;",
+            fsBuilder->codeAppendf("float4 srcDstAlpha = %s * %s.a;",
                                    srcColor, dstColor);
             fsBuilder->codeAppendf("%s.rgb = %s(%s.rgb * %s.a, srcDstAlpha.a, srcDstAlpha.rgb);",
                                    outputColor, setLum.c_str(), dstColor, srcColor);
@@ -387,13 +387,13 @@ static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkBlendMode
                 fsBuilder->codeAppendf(" * %s", srcColorName);
                 break;
             case SkBlendModeCoeff::kISC:
-                fsBuilder->codeAppendf(" * (vec4(1.0) - %s)", srcColorName);
+                fsBuilder->codeAppendf(" * (float4(1.0) - %s)", srcColorName);
                 break;
             case SkBlendModeCoeff::kDC:
                 fsBuilder->codeAppendf(" * %s", dstColorName);
                 break;
             case SkBlendModeCoeff::kIDC:
-                fsBuilder->codeAppendf(" * (vec4(1.0) - %s)", dstColorName);
+                fsBuilder->codeAppendf(" * (float4(1.0) - %s)", dstColorName);
                 break;
             case SkBlendModeCoeff::kSA:
                 fsBuilder->codeAppendf(" * %s.a", srcColorName);
@@ -434,7 +434,7 @@ void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcCo
                                                 false);
         // append dst blend
         if(!append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor, didAppend)) {
-            fsBuilder->codeAppend("vec4(0, 0, 0, 0)");
+            fsBuilder->codeAppend("float4(0, 0, 0, 0)");
         }
         if (clamp) {
             fsBuilder->codeAppend(", 0, 1);");
@@ -486,7 +486,7 @@ void GrGLSLBlend::AppendRegionOp(GrGLSLFragmentBuilder* fsBuilder, const char* s
                                             false);
     // append dst blend
     if(!append_porterduff_term(fsBuilder, dstCoeff, dstColor, srcColor, dstColor, didAppend)) {
-        fsBuilder->codeAppend("vec4(0, 0, 0, 0)");
+        fsBuilder->codeAppend("float4(0, 0, 0, 0)");
     }
     fsBuilder->codeAppend(";");
 }

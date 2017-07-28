@@ -44,20 +44,20 @@ public:
         }
 
         if (nullptr == args.fInputColor) {
-            args.fInputColor = "vec4(1)";
+            args.fInputColor = "float4(1)";
         }
 
-        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+        fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
             fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
-            fragBuilder->codeAppendf("color = vec4(color.rgb / nonZeroAlpha, color.a);");
+            fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, color.a);");
         }
-        fragBuilder->codeAppendf("color = vec4(%s(color.r), %s(color.g), %s(color.b), color.a);",
+        fragBuilder->codeAppendf("color = float4(%s(color.r), %s(color.g), %s(color.b), color.a);",
                                     srgbFuncName.c_str(),
                                     srgbFuncName.c_str(),
                                     srgbFuncName.c_str());
         if (srgbe.alpha() == GrSRGBEffect::Alpha::kPremul) {
-            fragBuilder->codeAppendf("color = vec4(color.rgb, 1) * color.a;");
+            fragBuilder->codeAppendf("color = float4(color.rgb, 1) * color.a;");
         }
         fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
     }

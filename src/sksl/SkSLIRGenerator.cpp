@@ -923,7 +923,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
         ASSERT(ctor);
         return this->call(Position(), std::move(ctor), std::move(args));
     }
-    if (type == *fContext.fColorSpaceXform_Type && expr->fType == *fContext.fMat4x4_Type) {
+    if (type == *fContext.fColorSpaceXform_Type && expr->fType == *fContext.fFloat4x4_Type) {
         return expr;
     }
     std::vector<std::unique_ptr<Expression>> args;
@@ -1290,10 +1290,10 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
 }
 
 // scales the texture coordinates by the texture size for sampling rectangle textures.
-// For vec2 coordinates, implements the transformation:
+// For float2coordinates, implements the transformation:
 //     texture(sampler, coord) -> texture(sampler, textureSize(sampler) * coord)
-// For vec3 coordinates, implements the transformation:
-//     texture(sampler, coord) -> texture(sampler, vec3(textureSize(sampler), 1.0) * coord))
+// For float3coordinates, implements the transformation:
+//     texture(sampler, coord) -> texture(sampler, float3textureSize(sampler), 1.0) * coord))
 void IRGenerator::fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments) {
     ASSERT(arguments.size() == 2);
     ASSERT(arguments[0]->fType == *fContext.fSampler2DRect_Type);
@@ -1304,17 +1304,17 @@ void IRGenerator::fixRectSampling(std::vector<std::unique_ptr<Expression>>& argu
     const FunctionDeclaration& textureSize = (FunctionDeclaration&) *textureSizeSymbol;
     std::vector<std::unique_ptr<Expression>> sizeArguments;
     sizeArguments.emplace_back(new VariableReference(Position(), sampler));
-    std::unique_ptr<Expression> vec2Size = call(Position(), textureSize, std::move(sizeArguments));
+    std::unique_ptr<Expression> float2ize = call(Position(), textureSize, std::move(sizeArguments));
     const Type& type = arguments[1]->fType;
     std::unique_ptr<Expression> scale;
-    if (type == *fContext.fVec2_Type) {
-        scale = std::move(vec2Size);
+    if (type == *fContext.fFloat2_Type) {
+        scale = std::move(float2ize);
     } else {
-        ASSERT(type == *fContext.fVec3_Type);
-        std::vector<std::unique_ptr<Expression>> vec3Arguments;
-        vec3Arguments.push_back(std::move(vec2Size));
-        vec3Arguments.emplace_back(new FloatLiteral(fContext, Position(), 1.0));
-        scale.reset(new Constructor(Position(), *fContext.fVec3_Type, std::move(vec3Arguments)));
+        ASSERT(type == *fContext.fFloat3_Type);
+        std::vector<std::unique_ptr<Expression>> float3rguments;
+        float3rguments.push_back(std::move(float2ize));
+        float3rguments.emplace_back(new FloatLiteral(fContext, Position(), 1.0));
+        scale.reset(new Constructor(Position(), *fContext.fFloat3_Type, std::move(float3rguments)));
     }
     arguments[1].reset(new BinaryExpression(Position(), std::move(scale), Token::STAR,
                                             std::move(arguments[1]), type));

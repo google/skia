@@ -24,5 +24,5 @@ void main() {
             factor = smoothstep(1.0, 0.0, factor);
             break;
     }
-    sk_OutColor = vec4(factor);
+    sk_OutColor = float4(factor);
 }

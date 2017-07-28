@@ -226,11 +226,11 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     const char* func;
     switch (me.type()) {
         case GrMorphologyEffect::Type::kErode:
-            fragBuilder->codeAppendf("\t\t%s = vec4(1, 1, 1, 1);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("\t\t%s = float4(1, 1, 1, 1);\n", args.fOutputColor);
             func = "min";
             break;
         case GrMorphologyEffect::Type::kDilate:
-            fragBuilder->codeAppendf("\t\t%s = vec4(0, 0, 0, 0);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("\t\t%s = float4(0, 0, 0, 0);\n", args.fOutputColor);
             func = "max";
             break;
         default:
@@ -254,8 +254,8 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
 
     int width = me.width();
 
-    // vec2 coord = coord2D;
-    fragBuilder->codeAppendf("\t\tvec2 coord = %s;\n", coords2D.c_str());
+    // float2 coord = coord2D;
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
     // coord.x -= radius * pixelSize;
     fragBuilder->codeAppendf("\t\tcoord.%s -= %d.0 * %s; \n", dir, me.radius(), pixelSizeInc);
     if (me.useRange()) {

@@ -75,7 +75,54 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         fIndentation--;
         this->write("}");
     } else {
-        this->write(type.name());
+        switch (type.kind()) {
+            case Type::kVector_Kind: {
+                Type component = type.componentType();
+                if (component == *fContext.fFloat_Type) {
+                    this->write("vec");
+                }
+                else if (component == *fContext.fDouble_Type) {
+                    this->write("dvec");
+                }
+                else if (component == *fContext.fInt_Type) {
+                    this->write("ivec");
+                }
+                else if (component == *fContext.fUInt_Type) {
+                    this->write("uvec");
+                }
+                else if (component == *fContext.fBool_Type) {
+                    this->write("bvec");
+                }
+                this->write(to_string(type.columns()));
+                break;
+            }
+            case Type::kMatrix_Kind: {
+                Type component = type.componentType();
+                if (component == *fContext.fFloat_Type) {
+                    this->write("mat");
+                }
+                else if (component == *fContext.fDouble_Type) {
+                    this->write("dmat");
+                }
+                this->write(to_string(type.columns()));
+                if (type.columns() != type.rows()) {
+                    this->write("x");
+                    this->write(to_string(type.rows()));
+                }
+                break;
+            }
+            case Type::kArray_Kind: {
+                this->writeType(type.componentType());
+                this->write("[");
+                if (type.columns() != -1) {
+                    this->write(to_string(type.columns()));
+                }
+                this->write("]");
+                break;
+            }
+            default:
+                this->write(type.name());
+        }
     }
 }
 
@@ -196,25 +243,25 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (c.fArguments[1]->fType == *fContext.fFloat_Type) {
                     proj = false;
                 } else {
-                    ASSERT(c.fArguments[1]->fType == *fContext.fVec2_Type);
+                    ASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
                     proj = true;
                 }
                 break;
             case SpvDim2D:
                 dim = "2D";
-                if (c.fArguments[1]->fType == *fContext.fVec2_Type) {
+                if (c.fArguments[1]->fType == *fContext.fFloat2_Type) {
                     proj = false;
                 } else {
-                    ASSERT(c.fArguments[1]->fType == *fContext.fVec3_Type);
+                    ASSERT(c.fArguments[1]->fType == *fContext.fFloat3_Type);
                     proj = true;
                 }
                 break;
             case SpvDim3D:
                 dim = "3D";
-                if (c.fArguments[1]->fType == *fContext.fVec3_Type) {
+                if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
                     proj = false;
                 } else {
-                    ASSERT(c.fArguments[1]->fType == *fContext.fVec4_Type);
+                    ASSERT(c.fArguments[1]->fType == *fContext.fFloat4_Type);
                     proj = true;
                 }
                 break;
@@ -259,7 +306,8 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 }
 
 void GLSLCodeGenerator::writeConstructor(const Constructor& c) {
-    this->write(c.fType.name() + "(");
+    this->writeType(c.fType);
+    this->write("(");
     const char* separator = "";
     for (const auto& arg : c.fArguments) {
         this->write(separator);
@@ -292,7 +340,7 @@ void GLSLCodeGenerator::writeFragCoord() {
             // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
             // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
             // depending on the surrounding code, accessing .xy with a uniform involved can
-            // do the same thing. Copying gl_FragCoord.xy into a temp vec2 beforehand
+            // do the same thing. Copying gl_FragCoord.xy into a temp float2beforehand
             // (and only accessing .xy) seems to "fix" things.
             const char* precision = fProgram.fSettings.fCaps->usesPrecisionModifiers() ? "highp "
                                                                                        : "";

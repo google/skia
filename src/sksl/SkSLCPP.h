@@ -18,8 +18,8 @@
 #define floatPrecisionVaries floatPrecisionVaries()
 
 // functions to make GLSL constructors work from C++ code
-inline SkPoint vec2(float xy) { return SkPoint::Make(xy, xy); }
+inline SkPoint float2(float xy) { return SkPoint::Make(xy, xy); }
 
-inline SkPoint vec2(float x, float y) { return SkPoint::Make(x, y); }
+inline SkPoint float2(float x, float y) { return SkPoint::Make(x, y); }
 
 #endif

@@ -240,7 +240,7 @@ private:
 
             // Positive distance is towards the center of the circle.
             // Map all the cases to the lower right quadrant.
-            fragBuilder->codeAppendf("vec2 delta = abs(sk_FragCoord.xy - %s.%s);",
+            fragBuilder->codeAppendf("float2 delta = abs(sk_FragCoord.xy - %s.%s);",
                                      posName, indices);
 
             switch (mode) {
@@ -254,7 +254,7 @@ private:
                     break;
                 case kRect_Mode:
                     fragBuilder->codeAppendf(
-                        "vec2 rectDist = vec2(1.0 - clamp((%s.%c - delta.x)/%s, 0.0, 1.0),"
+                        "float2 rectDist = float2(1.0 - clamp((%s.%c - delta.x)/%s, 0.0, 1.0),"
                                              "1.0 - clamp((%s.%c - delta.y)/%s, 0.0, 1.0));",
                         sizesName, indices[0], radName,
                         sizesName, indices[1], radName);
@@ -293,20 +293,20 @@ private:
                     // size of the RRect. In that case we don't want to go all the way to black.
                     fragBuilder->codeAppendf("float maxValue = insetDist/%s;", radName);
 
-                    fragBuilder->codeAppendf("vec2 coneBottom = vec2(%s.%c - insetDist,"
+                    fragBuilder->codeAppendf("float2 coneBottom = float2(%s.%c - insetDist,"
                                                                     "%s.%c - insetDist);",
                                              sizesName, indices[0], sizesName, indices[1]);
 
-                    fragBuilder->codeAppendf("vec2 cornerTop = vec2(%s.%c - %s.%c, %s.%c) -"
+                    fragBuilder->codeAppendf("float2 cornerTop = float2(%s.%c - %s.%c, %s.%c) -"
                                                                         "coneBottom;",
                                              sizesName, indices[0], radiiName, indices[0],
                                              sizesName, indices[1]);
-                    fragBuilder->codeAppendf("vec2 cornerRight = vec2(%s.%c, %s.%c - %s.%c) -"
+                    fragBuilder->codeAppendf("float2 cornerRight = float2(%s.%c, %s.%c - %s.%c) -"
                                                                         "coneBottom;",
                                              sizesName, indices[0],
                                              sizesName, indices[1], radiiName, indices[1]);
 
-                    fragBuilder->codeAppend("vec2 ptInConeSpace = delta - coneBottom;");
+                    fragBuilder->codeAppend("float2 ptInConeSpace = delta - coneBottom;");
                     fragBuilder->codeAppend("float distToPtInConeSpace = length(ptInConeSpace);");
 
                     fragBuilder->codeAppend("float cross1 =  ptInConeSpace.x * cornerTop.y -"
@@ -317,11 +317,11 @@ private:
                     fragBuilder->codeAppend("float inCone = step(0.0, cross1) *"
                                                            "step(0.0, cross2);");
 
-                    fragBuilder->codeAppendf("vec2 cornerCenterInConeSpace = vec2(insetDist -"
+                    fragBuilder->codeAppendf("float2 cornerCenterInConeSpace = float2(insetDist -"
                                                                                  "%s.%c);",
                                              radiiName, indices[0]);
 
-                    fragBuilder->codeAppend("vec2 connectingVec = ptInConeSpace -"
+                    fragBuilder->codeAppend("float2 connectingVec = ptInConeSpace -"
                                                                         "cornerCenterInConeSpace;");
                     fragBuilder->codeAppend("ptInConeSpace = normalize(ptInConeSpace);");
 
@@ -389,7 +389,7 @@ private:
                                radUniName, "secondDist", "zw");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppend("vec2 distVec = vec2(1.0 - firstDist, 1.0 - secondDist);");
+            fragBuilder->codeAppend("float2 distVec = float2(1.0 - firstDist, 1.0 - secondDist);");
 
             // Finally use the distance to apply the Gaussian edge
             fragBuilder->codeAppend("float factor = clamp(length(distVec), 0.0, 1.0);");

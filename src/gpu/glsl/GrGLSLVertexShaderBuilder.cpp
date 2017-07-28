@@ -20,23 +20,23 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
     if (this->getProgramBuilder()->desc()->header().fSnapVerticesToPixelCenters) {
         if (kVec3f_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();
-            this->codeAppendf("{vec2 _posTmp = vec2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
+            this->codeAppendf("{float2 _posTmp = float2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
         } else {
             SkASSERT(kVec2f_GrSLType == posVar.getType());
-            this->codeAppendf("{vec2 _posTmp = %s;", posVar.c_str());
+            this->codeAppendf("{float2 _posTmp = %s;", posVar.c_str());
         }
-        this->codeAppendf("_posTmp = floor(_posTmp) + vec2(0.5, 0.5);"
-                          "gl_Position = vec4(_posTmp.x * %s.x + %s.y,"
-                                             "_posTmp.y * %s.z + %s.w, 0, 1);}",
+        this->codeAppendf("_posTmp = floor(_posTmp) + float2(0.5, 0.5);"
+                          "gl_Position = float4(_posTmp.x * %s.x + %s.y,"
+                                               "_posTmp.y * %s.z + %s.w, 0, 1);}",
                           rtAdjustName, rtAdjustName, rtAdjustName, rtAdjustName);
     } else if (kVec3f_GrSLType == posVar.getType()) {
-        this->codeAppendf("gl_Position = vec4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
+        this->codeAppendf("gl_Position = float4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
                           posVar.c_str(), rtAdjustName,
                           posVar.c_str(), rtAdjustName,
                           posVar.c_str());
     } else {
         SkASSERT(kVec2f_GrSLType == posVar.getType());
-        this->codeAppendf("gl_Position = vec4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
+        this->codeAppendf("gl_Position = float4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
                           posVar.c_str(), rtAdjustName, rtAdjustName,
                           posVar.c_str(), rtAdjustName, rtAdjustName);
     }

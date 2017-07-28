@@ -21,7 +21,7 @@ namespace SkSL {
 class Context;
 
 /**
- * Represents a type, such as int or vec4.
+ * Represents a type, such as int or float4.
  */
 class Type : public Symbol {
 public:
@@ -176,7 +176,7 @@ public:
     }
 
     /**
-     * For matrices and vectors, returns the number of columns (e.g. both mat3 and vec3 return 3).
+     * For matrices and vectors, returns the number of columns (e.g. both mat3 and float3return 3).
      * For scalars, returns 1. For arrays, returns either the size of the array (if known) or -1.
      * For all other types, causes an assertion failure.
      */

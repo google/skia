@@ -440,7 +440,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
     SkASSERT(inColor);
     switch (outputType) {
         case BlendFormula::kNone_OutputType:
-            fragBuilder->codeAppendf("%s = vec4(0.0);", output);
+            fragBuilder->codeAppendf("%s = float4(0.0);", output);
             break;
         case BlendFormula::kCoverage_OutputType:
             // We can have a coverage formula while not reading coverage if there are mixed samples.
@@ -456,7 +456,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
             fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kISCModulate_OutputType:
-            fragBuilder->codeAppendf("%s = (vec4(1.0) - %s) * %s;", output, inColor, inCoverage);
+            fragBuilder->codeAppendf("%s = (float4(1.0) - %s) * %s;", output, inColor, inCoverage);
             break;
         default:
             SkFAIL("Unsupported output type.");

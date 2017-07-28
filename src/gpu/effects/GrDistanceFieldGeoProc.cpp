@@ -89,12 +89,12 @@ public:
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
         varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = vec2(%d, %d) * %s;", st.vsOut(),
+        vertBuilder->codeAppendf("%s = float2(%d, %d) * %s;", st.vsOut(),
                                  atlas->width(), atlas->height(),
                                  dfTexEffect.inTextureCoords()->fName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highp vec2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("highp float2 uv = %s;\n", uv.fsIn());
 
         fragBuilder->codeAppend("\tfloat texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0],
@@ -141,19 +141,19 @@ public:
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance), dFdy(distance));");
+            fragBuilder->codeAppend("float2 dist_grad = float2(dFdx(distance), dFdy(distance));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
             fragBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
             fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+            fragBuilder->codeAppend("dist_grad = float2(0.7071, 0.7071);");
             fragBuilder->codeAppend("} else {");
             fragBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppendf("vec2 Jdx = dFdx(%s);", st.fsIn());
-            fragBuilder->codeAppendf("vec2 Jdy = dFdy(%s);", st.fsIn());
-            fragBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fragBuilder->codeAppendf("float2 Jdx = dFdx(%s);", st.fsIn());
+            fragBuilder->codeAppendf("float2 Jdy = dFdy(%s);", st.fsIn());
+            fragBuilder->codeAppend("float2 grad = float2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
             fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
@@ -172,7 +172,7 @@ public:
             fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
         }
 
-        fragBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = float4(val);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
@@ -352,7 +352,7 @@ public:
                                                      "TextureSize", &textureSizeUniName);
 
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highp vec2 uv = %s;", v.fsIn());
+        fragBuilder->codeAppendf("highp float2 uv = %s;", v.fsIn());
 
         fragBuilder->codeAppend("float texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0],
@@ -362,7 +362,7 @@ public:
         fragBuilder->codeAppend("float distance = "
             SK_DistanceFieldMultiplier "*(texColor - " SK_DistanceFieldThreshold ");");
 
-        fragBuilder->codeAppendf("highp vec2 st = uv*%s;", textureSizeUniName);
+        fragBuilder->codeAppendf("highp float2 st = uv*%s;", textureSizeUniName);
         fragBuilder->codeAppend("float afwidth;");
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                                kUniformScale_DistanceFieldEffectMask;
@@ -398,19 +398,19 @@ public:
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance), dFdy(distance));");
+            fragBuilder->codeAppend("float2 dist_grad = float2(dFdx(distance), dFdy(distance));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
             fragBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
             fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+            fragBuilder->codeAppend("dist_grad = float2(0.7071, 0.7071);");
             fragBuilder->codeAppend("} else {");
             fragBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
             fragBuilder->codeAppend("}");
 
-            fragBuilder->codeAppend("vec2 Jdx = dFdx(st);");
-            fragBuilder->codeAppend("vec2 Jdy = dFdy(st);");
-            fragBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fragBuilder->codeAppend("float2 Jdx = dFdx(st);");
+            fragBuilder->codeAppend("float2 Jdy = dFdy(st);");
+            fragBuilder->codeAppend("float2 grad = float2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
             fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
@@ -426,7 +426,7 @@ public:
             fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
         }
 
-        fragBuilder->codeAppendf("%s = vec4(val);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = float4(val);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
@@ -601,7 +601,7 @@ public:
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
         varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = vec2(%d, %d) * %s;", st.vsOut(),
+        vertBuilder->codeAppendf("%s = float2(%d, %d) * %s;", st.vsOut(),
                                  atlas->width(), atlas->height(),
                                  dfTexEffect.inTextureCoords()->fName);
 
@@ -609,7 +609,7 @@ public:
 
         // create LCD offset adjusted by inverse of transform
         // Use highp to work around aliasing issues
-        fragBuilder->codeAppendf("highp vec2 uv = %s;\n", uv.fsIn());
+        fragBuilder->codeAppendf("highp float2 uv = %s;\n", uv.fsIn());
 
         SkScalar lcdDelta = 1.0f / (3.0f * atlas->width());
         if (dfTexEffect.getFlags() & kBGR_DistanceFieldEffectFlag) {
@@ -624,36 +624,36 @@ public:
             // We use the y gradient because there is a bug in the Mali 400 in the x direction.
             fragBuilder->codeAppendf("float st_grad_len = abs(dFdy(%s.y));", st.fsIn());
 #endif
-            fragBuilder->codeAppend("vec2 offset = vec2(st_grad_len*delta, 0.0);");
+            fragBuilder->codeAppend("float2 offset = float2(st_grad_len*delta, 0.0);");
         } else if (isSimilarity) {
             // For a similarity matrix with rotation, the gradient will not be aligned
             // with the texel coordinate axes, so we need to calculate it.
 #ifdef SK_VULKAN
-            fragBuilder->codeAppendf("vec2 st_grad = dFdx(%s);", st.fsIn());
-            fragBuilder->codeAppend("vec2 offset = delta*st_grad;");
+            fragBuilder->codeAppendf("float2 st_grad = dFdx(%s);", st.fsIn());
+            fragBuilder->codeAppend("float2 offset = delta*st_grad;");
 #else
             // We use dFdy because of a Mali 400 bug, and rotate -90 degrees to
             // get the gradient in the x direction.
-            fragBuilder->codeAppendf("vec2 st_grad = dFdy(%s);", st.fsIn());
-            fragBuilder->codeAppend("vec2 offset = delta*vec2(st_grad.y, -st_grad.x);");
+            fragBuilder->codeAppendf("float2 st_grad = dFdy(%s);", st.fsIn());
+            fragBuilder->codeAppend("float2 offset = delta*float2(st_grad.y, -st_grad.x);");
 #endif
             fragBuilder->codeAppend("float st_grad_len = length(st_grad);");
         } else {
-            fragBuilder->codeAppendf("vec2 st = %s;\n", st.fsIn());
+            fragBuilder->codeAppendf("float2 st = %s;\n", st.fsIn());
 
-            fragBuilder->codeAppend("vec2 Jdx = dFdx(st);");
-            fragBuilder->codeAppend("vec2 Jdy = dFdy(st);");
-            fragBuilder->codeAppend("vec2 offset = delta*Jdx;");
+            fragBuilder->codeAppend("float2 Jdx = dFdx(st);");
+            fragBuilder->codeAppend("float2 Jdy = dFdy(st);");
+            fragBuilder->codeAppend("float2 offset = delta*Jdx;");
         }
 
         // green is distance to uv center
-        fragBuilder->codeAppend("\tvec4 texColor = ");
+        fragBuilder->codeAppend("\tfloat4 texColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kVec2f_GrSLType);
         fragBuilder->codeAppend(";\n");
-        fragBuilder->codeAppend("\tvec3 distance;\n");
+        fragBuilder->codeAppend("\tfloat3 distance;\n");
         fragBuilder->codeAppend("\tdistance.y = texColor.r;\n");
         // red is distance to left offset
-        fragBuilder->codeAppend("\tvec2 uv_adjusted = uv - offset;\n");
+        fragBuilder->codeAppend("\tfloat2 uv_adjusted = uv - offset;\n");
         fragBuilder->codeAppend("\ttexColor = ");
         fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv_adjusted", kVec2f_GrSLType);
         fragBuilder->codeAppend(";\n");
@@ -666,7 +666,7 @@ public:
         fragBuilder->codeAppend("\tdistance.z = texColor.r;\n");
 
         fragBuilder->codeAppend("\tdistance = "
-           "vec3(" SK_DistanceFieldMultiplier ")*(distance - vec3(" SK_DistanceFieldThreshold"));");
+           "float3(" SK_DistanceFieldMultiplier ")*(distance - float3(" SK_DistanceFieldThreshold"));");
 
         // adjust width based on gamma
         const char* distanceAdjustUniName = nullptr;
@@ -692,16 +692,16 @@ public:
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("vec2 dist_grad = vec2(dFdx(distance.r), dFdy(distance.r));");
+            fragBuilder->codeAppend("float2 dist_grad = float2(dFdx(distance.r), dFdy(distance.r));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
             fragBuilder->codeAppend("float dg_len2 = dot(dist_grad, dist_grad);");
             fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = vec2(0.7071, 0.7071);");
+            fragBuilder->codeAppend("dist_grad = float2(0.7071, 0.7071);");
             fragBuilder->codeAppend("} else {");
             fragBuilder->codeAppend("dist_grad = dist_grad*inversesqrt(dg_len2);");
             fragBuilder->codeAppend("}");
-            fragBuilder->codeAppend("vec2 grad = vec2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
+            fragBuilder->codeAppend("float2 grad = float2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
             fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
 
             // this gives us a smooth step across approximately one fragment
@@ -713,11 +713,11 @@ public:
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
             fragBuilder->codeAppendf("%s = "
-                "vec4(clamp((distance + vec3(afwidth)) / vec3(2.0 * afwidth), 0.0, 1.0), 1.0);",
+                "float4(clamp((distance + float3(afwidth)) / float3(2.0 * afwidth), 0.0, 1.0), 1.0);",
                 args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf(
-                "%s = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);",
+                "%s = float4(smoothstep(float3(-afwidth), float3(afwidth), distance), 1.0);",
                 args.fOutputCoverage);
         }
     }

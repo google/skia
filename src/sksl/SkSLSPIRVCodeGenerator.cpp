@@ -1333,7 +1333,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             std::vector<std::unique_ptr<Expression>> args;
             args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
             args.emplace_back(new FloatLiteral(fContext, Position(), 0.0));
-            Constructor ctor(Position(), *fContext.fVec2_Type, std::move(args));
+            Constructor ctor(Position(), *fContext.fFloat2_Type, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (1 == c.fArguments.size()) {
                 this->writeInstruction(SpvOpImageRead,
@@ -1376,24 +1376,24 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SpvOp_ op = SpvOpImageSampleImplicitLod;
             switch (c.fArguments[0]->fType.dimensions()) {
                 case SpvDim1D:
-                    if (c.fArguments[1]->fType == *fContext.fVec2_Type) {
+                    if (c.fArguments[1]->fType == *fContext.fFloat2_Type) {
                         op = SpvOpImageSampleProjImplicitLod;
                     } else {
                         ASSERT(c.fArguments[1]->fType == *fContext.fFloat_Type);
                     }
                     break;
                 case SpvDim2D:
-                    if (c.fArguments[1]->fType == *fContext.fVec3_Type) {
+                    if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
                         op = SpvOpImageSampleProjImplicitLod;
                     } else {
-                        ASSERT(c.fArguments[1]->fType == *fContext.fVec2_Type);
+                        ASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
                     }
                     break;
                 case SpvDim3D:
-                    if (c.fArguments[1]->fType == *fContext.fVec4_Type) {
+                    if (c.fArguments[1]->fType == *fContext.fFloat4_Type) {
                         op = SpvOpImageSampleProjImplicitLod;
                     } else {
-                        ASSERT(c.fArguments[1]->fType == *fContext.fVec3_Type);
+                        ASSERT(c.fArguments[1]->fType == *fContext.fFloat3_Type);
                     }
                     break;
                 case SpvDimCube:   // fall through
@@ -1935,8 +1935,8 @@ public:
         // a virtual vector out of the concatenation of the left and right vectors, and then
         // select components from this virtual vector to make the result vector. For
         // instance, given:
-        // vec3 L = ...;
-        // vec3 R = ...;
+        // float3L = ...;
+        // float3R = ...;
         // L.xz = R.xy;
         // we end up with the virtual vector (L.x, L.y, L.z, R.x, R.y, R.z). Then we want
         // our result vector to look like (R.x, L.y, R.y), so we need to select indices
@@ -2083,7 +2083,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             fRTHeightFieldIndex = 0;
         }
         ASSERT(fRTHeightFieldIndex != (SpvId) -1);
-        // write vec4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, 0.0, 1.0)
+        // write float4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, 0.0, 1.0)
         SpvId xId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), xId,
                                result, 0, out);
@@ -2110,7 +2110,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         SpvId oneId = writeFloatLiteral(one);
         SpvId flipped = this->nextId();
         this->writeOpCode(SpvOpCompositeConstruct, 7, out);
-        this->writeWord(this->getType(*fContext.fVec4_Type), out);
+        this->writeWord(this->getType(*fContext.fFloat4_Type), out);
         this->writeWord(flipped, out);
         this->writeWord(xId, out);
         this->writeWord(flippedYId, out);
@@ -2266,7 +2266,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
     }
     // component type we are operating on: float, int, uint
     const Type* operandType;
-    // IR allows mismatched types in expressions (e.g. vec2 * float), but they need special handling
+    // IR allows mismatched types in expressions (e.g. float2* float), but they need special handling
     // in SPIR-V
     if (b.fLeft->fType != b.fRight->fType) {
         if (b.fLeft->fType.kind() == Type::kVector_Kind &&

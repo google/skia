@@ -46,30 +46,30 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 2: return *context.fVec2_Type;
-                    case 3: return *context.fVec3_Type;
-                    case 4: return *context.fVec4_Type;
+                    case 2: return *context.fFloat2_Type;
+                    case 3: return *context.fFloat3_Type;
+                    case 4: return *context.fFloat4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             case 2:
                 switch (columns) {
-                    case 2: return *context.fMat2x2_Type;
-                    case 3: return *context.fMat3x2_Type;
-                    case 4: return *context.fMat4x2_Type;
+                    case 2: return *context.fFloat2x2_Type;
+                    case 3: return *context.fFloat3x2_Type;
+                    case 4: return *context.fFloat4x2_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 3:
                 switch (columns) {
-                    case 2: return *context.fMat2x3_Type;
-                    case 3: return *context.fMat3x3_Type;
-                    case 4: return *context.fMat4x3_Type;
+                    case 2: return *context.fFloat2x3_Type;
+                    case 3: return *context.fFloat3x3_Type;
+                    case 4: return *context.fFloat4x3_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 4:
                 switch (columns) {
-                    case 2: return *context.fMat2x4_Type;
-                    case 3: return *context.fMat3x4_Type;
-                    case 4: return *context.fMat4x4_Type;
+                    case 2: return *context.fFloat2x4_Type;
+                    case 3: return *context.fFloat3x4_Type;
+                    case 4: return *context.fFloat4x4_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -78,30 +78,30 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 2: return *context.fDVec2_Type;
-                    case 3: return *context.fDVec3_Type;
-                    case 4: return *context.fDVec4_Type;
+                    case 2: return *context.fDouble2_Type;
+                    case 3: return *context.fDouble3_Type;
+                    case 4: return *context.fDouble4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             case 2:
                 switch (columns) {
-                    case 2: return *context.fDMat2x2_Type;
-                    case 3: return *context.fDMat3x2_Type;
-                    case 4: return *context.fDMat4x2_Type;
+                    case 2: return *context.fDouble2x2_Type;
+                    case 3: return *context.fDouble3x2_Type;
+                    case 4: return *context.fDouble4x2_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 3:
                 switch (columns) {
-                    case 2: return *context.fDMat2x3_Type;
-                    case 3: return *context.fDMat3x3_Type;
-                    case 4: return *context.fDMat4x3_Type;
+                    case 2: return *context.fDouble2x3_Type;
+                    case 3: return *context.fDouble3x3_Type;
+                    case 4: return *context.fDouble4x3_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             case 4:
                 switch (columns) {
-                    case 2: return *context.fDMat2x4_Type;
-                    case 3: return *context.fDMat3x4_Type;
-                    case 4: return *context.fDMat4x4_Type;
+                    case 2: return *context.fDouble2x4_Type;
+                    case 3: return *context.fDouble3x4_Type;
+                    case 4: return *context.fDouble4x4_Type;
                     default: ABORT("unsupported matrix column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -110,9 +110,9 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 2: return *context.fIVec2_Type;
-                    case 3: return *context.fIVec3_Type;
-                    case 4: return *context.fIVec4_Type;
+                    case 2: return *context.fInt2_Type;
+                    case 3: return *context.fInt3_Type;
+                    case 4: return *context.fInt4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -121,9 +121,9 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 2: return *context.fUVec2_Type;
-                    case 3: return *context.fUVec3_Type;
-                    case 4: return *context.fUVec4_Type;
+                    case 2: return *context.fUInt2_Type;
+                    case 3: return *context.fUInt3_Type;
+                    case 4: return *context.fUInt4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
@@ -132,9 +132,9 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
         switch (rows) {
             case 1:
                 switch (columns) {
-                    case 2: return *context.fBVec2_Type;
-                    case 3: return *context.fBVec3_Type;
-                    case 4: return *context.fBVec4_Type;
+                    case 2: return *context.fBool2_Type;
+                    case 3: return *context.fBool3_Type;
+                    case 4: return *context.fBool4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);

@@ -44,18 +44,18 @@ public:
         SkSL::String sk_TransformedCoords2D_1 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
         fragBuilder->codeAppendf(
-                "vec4 _tmpVar1;vec4 color = %stexture(%s, %s).%s%s;\nvec4 mask_color = texture(%s, "
-                "%s).%s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n        float scale "
-                "= %s / color.w;\n        color.xyz *= scale;\n        color.w = %s;\n    }\n} "
-                "else if (color.w < %s) {\n    float scale = %s / max(0.001, color.w);\n    "
-                "color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
+                "float4 _tmpVar1;float4 color = %stexture(%s, %s).%s%s;\nfloat4 mask_color = "
+                "texture(%s, %s).%s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n        "
+                "float scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = %s;\n "
+                "   }\n} else if (color.w < %s) {\n    float scale = %s / max(0.001, color.w);\n   "
+                " color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
                 fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 fColorSpaceHelper.isValid()
-                        ? SkStringPrintf(", vec4(clamp((%s * vec4(_tmpVar1.rgb, 1.0)).rgb, 0.0, "
-                                         "_tmpVar1.a), _tmpVar1.a))",
+                        ? SkStringPrintf(", float4(clamp((%s * float4(_tmpVar1.rgb, 1.0)).rgb, "
+                                         "0.0, _tmpVar1.a), _tmpVar1.a))",
                                          args.fUniformHandler->getUniformCStr(
                                                  fColorSpaceHelper.gamutXformUniform()))
                                   .c_str()

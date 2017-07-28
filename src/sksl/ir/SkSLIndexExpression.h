@@ -21,17 +21,17 @@ static const Type& index_type(const Context& context, const Type& type) {
     if (type.kind() == Type::kMatrix_Kind) {
         if (type.componentType() == *context.fFloat_Type) {
             switch (type.rows()) {
-                case 2: return *context.fVec2_Type;
-                case 3: return *context.fVec3_Type;
-                case 4: return *context.fVec4_Type;
+                case 2: return *context.fFloat2_Type;
+                case 3: return *context.fFloat3_Type;
+                case 4: return *context.fFloat4_Type;
                 default: ASSERT(false);
             }
         } else {
             ASSERT(type.componentType() == *context.fDouble_Type);
             switch (type.rows()) {
-                case 2: return *context.fDVec2_Type;
-                case 3: return *context.fDVec3_Type;
-                case 4: return *context.fDVec4_Type;
+                case 2: return *context.fDouble2_Type;
+                case 3: return *context.fDouble3_Type;
+                case 4: return *context.fDouble4_Type;
                 default: ASSERT(false);
             }
         }

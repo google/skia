@@ -33,6 +33,8 @@ private:
 
     void writePrecisionModifier() override;
 
+    void writeType(const Type& type) override;
+
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
 
     void writeIndexExpression(const IndexExpression& i) override;

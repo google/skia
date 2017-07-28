@@ -215,13 +215,13 @@ protected:
     int emitEdgeGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* leftPt,
                          const char* rightPt, const char* distanceEquation = nullptr) const;
 
-    // Defines an equation ("dot(vec3(pt, 1), distance_equation)") that is -1 on the outside border
-    // of a conservative raster edge and 0 on the inside (see emitEdgeGeometry).
+    // Defines an equation ("dot(float3(pt, 1), distance_equation)") that is -1 on the outside
+    // border of a conservative raster edge and 0 on the inside (see emitEdgeGeometry).
     void emitEdgeDistanceEquation(GrGLSLGeometryBuilder*, const char* leftPt, const char* rightPt,
                                   const char* outputDistanceEquation) const;
 
-    // Defines a global vec2 array that contains MSAA sample locations as offsets from pixel center.
-    // Subclasses can use this for software multisampling.
+    // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
+    // center. Subclasses can use this for software multisampling.
     //
     // Returns the number of samples.
     int defineSoftSampleLocations(GrGLSLFragmentBuilder*, const char* samplesName) const;

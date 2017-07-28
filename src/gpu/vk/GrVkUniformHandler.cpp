@@ -61,7 +61,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
 
 /** Returns the size in bytes taken up in vulkanbuffers for floating point GrSLTypes.
     For non floating point type returns 0. Currently this reflects the std140 alignment
-    so a mat22 takes up 8 floats. */
+    so a float2x2 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     switch(type) {
         case kInt_GrSLType:

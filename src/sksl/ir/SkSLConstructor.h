@@ -16,7 +16,7 @@
 namespace SkSL {
 
 /**
- * Represents the construction of a compound type, such as "vec2(x, y)".
+ * Represents the construction of a compound type, such as "float2x, y)".
  *
  * Vector constructors will always consist of either exactly 1 scalar, or a collection of vectors
  * and scalars totalling exactly the right number of scalar components.

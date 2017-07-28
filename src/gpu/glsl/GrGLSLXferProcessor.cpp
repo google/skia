@@ -52,7 +52,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
             // The discard here also helps for batching text draws together which need to read from
             // a dst copy for blends. Though this only helps the case where the outer bounding boxes
             // of each letter overlap and not two actually parts of the text.
-            fragBuilder->codeAppendf("if (all(lessThanEqual(%s.rgb, vec3(0)))) {"
+            fragBuilder->codeAppendf("if (all(lessThanEqual(%s.rgb, float3(0)))) {"
                                      "    discard;"
                                      "}", args.fInputCoverage);
         }
@@ -72,14 +72,14 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                                                   &dstCoordScaleName);
 
         fragBuilder->codeAppend("// Read color from copy of the destination.\n");
-        fragBuilder->codeAppendf("vec2 _dstTexCoord = (sk_FragCoord.xy - %s) * %s;",
+        fragBuilder->codeAppendf("float2 _dstTexCoord = (sk_FragCoord.xy - %s) * %s;",
                                  dstTopLeftName, dstCoordScaleName);
 
         if (flipY) {
             fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
         }
 
-        fragBuilder->codeAppendf("vec4 %s = ", dstColor);
+        fragBuilder->codeAppendf("float4 %s = ", dstColor);
         fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord",
                                          kVec2f_GrSLType);
         fragBuilder->codeAppend(";");
@@ -91,7 +91,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (!needsLocalOutColor) {
         outColor = args.fOutputPrimary;
     } else {
-        fragBuilder->codeAppendf("vec4 %s;", outColor);
+        fragBuilder->codeAppendf("float4 %s;", outColor);
     }
 
     this->emitBlendCodeForDstRead(fragBuilder,
@@ -139,7 +139,7 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
             fragBuilder->codeAppendf("%s *= %s;", outColor, srcCoverage);
             fragBuilder->codeAppendf("%s = %s;", outColorSecondary, srcCoverage);
         } else {
-            fragBuilder->codeAppendf("%s = vec4(1.0);", outColorSecondary);
+            fragBuilder->codeAppendf("%s = float4(1.0);", outColorSecondary);
         }
     } else if (srcCoverage) {
         if (proc.isLCD()) {
@@ -150,7 +150,7 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
             fragBuilder->codeAppendf("float lerpGreen = mix(%s.a, %s.a, %s.b);",
                                      dstColor, outColor, srcCoverage);
         }
-        fragBuilder->codeAppendf("%s = %s * %s + (vec4(1.0) - %s) * %s;",
+        fragBuilder->codeAppendf("%s = %s * %s + (float4(1.0) - %s) * %s;",
                                  outColor, srcCoverage, outColor, srcCoverage, dstColor);
         if (proc.isLCD()) {
             fragBuilder->codeAppendf("%s.a = max(max(lerpRed, lerpBlue), lerpGreen);", outColor);

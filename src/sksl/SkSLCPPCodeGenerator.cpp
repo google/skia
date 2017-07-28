@@ -54,6 +54,13 @@ void CPPCodeGenerator::writeHeader() {
 void CPPCodeGenerator::writePrecisionModifier() {
 }
 
+void CPPCodeGenerator::writeType(const Type& type) {
+    if (type.kind() == Type::kStruct_Kind) {
+        INHERITED::writeType(type);
+    } else {
+        this->write(type.name());
+    }
+}
 void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                              Precedence parentPrecedence) {
     if (b.fOperator == Token::PERCENT) {
@@ -114,14 +121,14 @@ static const char* default_value(const Type& type) {
     const char* name = type.name().c_str();
     if (!strcmp(name, "float")) {
         return "0.0";
-    } else if (!strcmp(name, "vec2")) {
-        return "vec2(0.0)";
-    } else if (!strcmp(name, "vec3")) {
-        return "vec3(0.0)";
-    } else if (!strcmp(name, "vec4")) {
-        return "vec4(0.0)";
-    } else if (!strcmp(name, "mat4") || !strcmp(name, "colorSpaceXform")) {
-        return "mat4(1.0)";
+    } else if (!strcmp(name, "float2")) {
+        return "float2(0.0)";
+    } else if (!strcmp(name, "float3")) {
+        return "float30.0)";
+    } else if (!strcmp(name, "float4")) {
+        return "float4(0.0)";
+    } else if (!strcmp(name, "floatt4x4") || !strcmp(name, "colorSpaceXform")) {
+        return "float4x4(1.0)";
     }
     ABORT("unsupported default_value type\n");
 }
@@ -143,8 +150,8 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const String& cppCode
     } else if (type == *fContext.fBool_Type) {
         this->write("%s");
         fFormatArgs.push_back("(" + cppCode + " ? \"true\" : \"false\")");
-    } else if (type == *fContext.fVec2_Type) {
-        this->write("vec2(%f, %f)");
+    } else if (type == *fContext.fFloat2_Type) {
+        this->write("float2(%f, %f)");
         fFormatArgs.push_back(cppCode + ".fX");
         fFormatArgs.push_back(cppCode + ".fY");
     } else {
@@ -178,7 +185,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs.push_back(String("args.fInputColor ? args.fInputColor : \"vec4(1)\""));
+            fFormatArgs.push_back(String("args.fInputColor ? args.fInputColor : \"float4(1)\""));
             break;
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
@@ -242,7 +249,7 @@ void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "COLORSPACE") {
         String tmpVar = "_tmpVar" + to_string(++fVarCount);
-        fFunctionHeader += "vec4 " + tmpVar + ";";
+        fFunctionHeader += "float4 " + tmpVar + ";";
         ASSERT(c.fArguments.size() == 2);
         this->write("%s");
         fFormatArgs.push_back("fColorSpaceHelper.isValid() ? \"(" + tmpVar + " = \" : \"\"");
@@ -250,8 +257,9 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         ASSERT(c.fArguments[1]->fKind == Expression::kVariableReference_Kind);
         String xform("args.fUniformHandler->getUniformCStr(fColorSpaceHelper.gamutXformUniform())");
         this->write("%s");
-        fFormatArgs.push_back("fColorSpaceHelper.isValid() ? SkStringPrintf(\", vec4(clamp((%s * vec4(" + tmpVar + ".rgb, 1.0)).rgb, 0.0, " + tmpVar +
-                              ".a), " + tmpVar + ".a))\", " + xform + ").c_str() : \"\"");
+        fFormatArgs.push_back("fColorSpaceHelper.isValid() ? SkStringPrintf(\", "
+                              "float4(clamp((%s * float4(" + tmpVar + ".rgb, 1.0)).rgb, 0.0, " +
+                              tmpVar + ".a), " + tmpVar + ".a))\", " + xform + ").c_str() : \"\"");
         return;
     }
     INHERITED::writeFunctionCall(c);
@@ -336,11 +344,11 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     const char* type;
     if (var.fType == *fContext.fFloat_Type) {
         type = "kFloat_GrSLType";
-    } else if (var.fType == *fContext.fVec2_Type) {
+    } else if (var.fType == *fContext.fFloat2_Type) {
         type = "kVec2f_GrSLType";
-    } else if (var.fType == *fContext.fVec4_Type) {
+    } else if (var.fType == *fContext.fFloat4_Type) {
         type = "kVec4f_GrSLType";
-    } else if (var.fType == *fContext.fMat4x4_Type ||
+    } else if (var.fType == *fContext.fFloat4x4_Type ||
                var.fType == *fContext.fColorSpaceXform_Type) {
         type = "kMat44f_GrSLType";
     } else {
@@ -440,11 +448,11 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 this->writef("        {\n");
             }
             const char* name = u->fName.c_str();
-            if (u->fType == *fContext.fVec4_Type) {
+            if (u->fType == *fContext.fFloat4_Type) {
                 this->writef("        const SkRect %sValue = _outer.%s();\n"
                              "        %s.set4fv(%sVar, 1, (float*) &%sValue);\n",
                              name, name, pdman, HCodeGenerator::FieldName(name).c_str(), name);
-            } else if (u->fType == *fContext.fMat4x4_Type) {
+            } else if (u->fType == *fContext.fFloat4x4_Type) {
                 this->writef("        float %sValue[16];\n"
                              "        _outer.%s().asColMajorf(%sValue);\n"
                              "        %s.setMatrix4f(%sVar, %sValue);\n",
@@ -528,14 +536,14 @@ void CPPCodeGenerator::writeGetKey() {
         }
         switch (param->fModifiers.fLayout.fKey) {
             case Layout::kKey_Key:
-                if (param->fType == *fContext.fMat4x4_Type) {
-                    ABORT("no automatic key handling for mat4\n");
-                } else if (param->fType == *fContext.fVec2_Type) {
+                if (param->fType == *fContext.fFloat4x4_Type) {
+                    ABORT("no automatic key handling for float4x4\n");
+                } else if (param->fType == *fContext.fFloat2_Type) {
                     this->writef("    b->add32(%s.fX);\n",
                                  HCodeGenerator::FieldName(name).c_str());
                     this->writef("    b->add32(%s.fY);\n",
                                  HCodeGenerator::FieldName(name).c_str());
-                } else if (param->fType == *fContext.fVec4_Type) {
+                } else if (param->fType == *fContext.fFloat4_Type) {
                     this->writef("    b->add32(%s.x());\n",
                                  HCodeGenerator::FieldName(name).c_str());
                     this->writef("    b->add32(%s.y());\n",

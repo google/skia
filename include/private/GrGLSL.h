@@ -92,23 +92,23 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
         case kFloat_GrSLType:
             return "float";
         case kVec2f_GrSLType:
-            return "vec2";
+            return "float2";
         case kVec3f_GrSLType:
-            return "vec3";
+            return "float3";
         case kVec4f_GrSLType:
-            return "vec4";
+            return "float4";
         case kVec2i_GrSLType:
-            return "ivec2";
+            return "int2";
         case kVec3i_GrSLType:
-            return "ivec3";
+            return "int3";
         case kVec4i_GrSLType:
-            return "ivec4";
+            return "int4";
         case kMat22f_GrSLType:
-            return "mat2";
+            return "float2x2";
         case kMat33f_GrSLType:
-            return "mat3";
+            return "float3x3";
         case kMat44f_GrSLType:
-            return "mat4";
+            return "float4x4";
         case kTexture2DSampler_GrSLType:
             return "sampler2D";
         case kITexture2DSampler_GrSLType:

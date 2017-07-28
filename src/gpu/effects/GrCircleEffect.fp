@@ -6,14 +6,14 @@
  */
 
 layout(key) in int edgeType;
-in vec2 center;
+in float2 center;
 in float radius;
 
-vec2 prevCenter;
+float2 prevCenter;
 float prevRadius = -1;
 // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
 // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
-uniform vec4 circle;
+uniform float4 circle;
 
 @optimizationFlags { kCompatibleWithCoverageAsAlpha_OptimizationFlag }
 

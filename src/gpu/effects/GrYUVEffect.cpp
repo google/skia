@@ -112,7 +112,7 @@ public:
             fMatrixUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                           kMat44f_GrSLType, kDefault_GrSLPrecision,
                                                           "ColorSpaceMatrix", &colorSpaceMatrix);
-            fragBuilder->codeAppendf("%s = vec4(", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = float4(", args.fOutputColor);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0],
                                              args.fTransformedCoords[0].c_str(),
                                              args.fTransformedCoords[0].getType());
@@ -279,7 +279,7 @@ public:
                         kFragment_GrShaderFlag,
                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                         "RGBToYUV", 3, &uniName);
-                    fragBuilder->codeAppendf("%s = vec4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
+                    fragBuilder->codeAppendf("%s = float4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
                                                        "dot(rgbColor.rgb, %s[1].rgb) + %s[1].a,"
                                                        "dot(rgbColor.rgb, %s[2].rgb) + %s[2].a,"
                                                        "rgbColor.a);",
@@ -291,7 +291,7 @@ public:
                         kFragment_GrShaderFlag,
                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                         "RGBToUV", 2, &uniName);
-                    fragBuilder->codeAppendf("%s = vec4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
+                    fragBuilder->codeAppendf("%s = float4(dot(rgbColor.rgb, %s[0].rgb) + %s[0].a,"
                                                        "dot(rgbColor.rgb, %s[1].rgb) + %s[1].a,"
                                                        "0.0,"
                                                        "rgbColor.a);",
@@ -304,7 +304,7 @@ public:
                         kFragment_GrShaderFlag,
                         kVec4f_GrSLType, kDefault_GrSLPrecision,
                         "RGBToYUorV", &uniName);
-                    fragBuilder->codeAppendf("%s = vec4(dot(rgbColor.rgb, %s.rgb) + %s.a);\n",
+                    fragBuilder->codeAppendf("%s = float4(dot(rgbColor.rgb, %s.rgb) + %s.a);\n",
                                              args.fOutputColor, uniName, uniName);
                     break;
             }

@@ -254,12 +254,12 @@ private:
 
                 // We don't try to optimize for this case at all
                 if (!args.fInputColor) {
-                    fragBuilder->codeAppend("const vec4 src = vec4(1);");
+                    fragBuilder->codeAppend("const float4 src = float4(1);");
                 } else {
-                    fragBuilder->codeAppendf("vec4 src = %s;", args.fInputColor);
+                    fragBuilder->codeAppendf("float4 src = %s;", args.fInputColor);
                 }
 
-                fragBuilder->codeAppendf("vec4 dst = %s;", dstColor.c_str());
+                fragBuilder->codeAppendf("float4 dst = %s;", dstColor.c_str());
                 fragBuilder->codeAppendf("%s = %s.x * src * dst + %s.y * src + %s.z * dst + %s.w;",
                                          args.fOutputColor, kUni, kUni, kUni, kUni);
                 fragBuilder->codeAppendf("%s = clamp(%s, 0.0, 1.0);\n", args.fOutputColor,

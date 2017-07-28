@@ -26,7 +26,7 @@ public:
 
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
-        fragBuilder->codeAppend("vec4 shadowParams;");
+        fragBuilder->codeAppend("float4 shadowParams;");
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
 
         // setup pass through color
@@ -48,7 +48,7 @@ public:
 
         fragBuilder->codeAppend("float factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = vec4(factor);",
+        fragBuilder->codeAppendf("%s = float4(factor);",
                                  args.fOutputCoverage);
     }
 

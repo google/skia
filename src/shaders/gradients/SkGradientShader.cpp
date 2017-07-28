@@ -1563,7 +1563,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             }
 
             // Calculate color
-            fragBuilder->codeAppend ("vec4 start, end;");
+            fragBuilder->codeAppend ("float4 start, end;");
             fragBuilder->codeAppend ("float relative_t;");
             fragBuilder->codeAppendf("if (clamp_t < %s) {", stopT);
             fragBuilder->codeAppendf("    start = %s[0];", colors);
@@ -1574,7 +1574,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             fragBuilder->codeAppendf("    end   = %s[3];", colors);
             fragBuilder->codeAppendf("    relative_t = (clamp_t - %s) / (1 - %s);", stopT, stopT);
             fragBuilder->codeAppend ("}");
-            fragBuilder->codeAppend ("vec4 colorTemp = mix(start, end, relative_t);");
+            fragBuilder->codeAppend ("float4 colorTemp = mix(start, end, relative_t);");
 
             if (GrGradientEffect::kAfterInterp_PremulType == ge.getPremulType()) {
                 fragBuilder->codeAppend("colorTemp.rgb *= colorTemp.a;");
@@ -1606,7 +1606,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                 fragBuilder->codeAppendf("}");
             }
 
-            fragBuilder->codeAppendf("vec4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
+            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
                                      colors);
             if (SkShader::kClamp_TileMode == ge.fTileMode) {
                 fragBuilder->codeAppendf("if (%s < 0.0) {", t);
@@ -1644,7 +1644,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                 fragBuilder->codeAppendf("}");
             }
 
-            fragBuilder->codeAppendf("vec4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
+            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
                                      colors);
             if (SkShader::kClamp_TileMode == ge.fTileMode) {
                 fragBuilder->codeAppendf("if (%s > 1.0) {", t);
@@ -1667,7 +1667,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
-            fragBuilder->codeAppendf("vec4 colorTemp = mix(%s[0], %s[1], clamp(%s, 0.0, 1.0));",
+            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp(%s, 0.0, 1.0));",
                                      colors, colors, t);
 
             // We could skip this step if both colors are known to be opaque. Two
@@ -1693,7 +1693,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
             fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * %s);", t);
-            fragBuilder->codeAppendf("vec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
+            fragBuilder->codeAppendf("float4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
             if (!shaderCaps->canUseMinAndAbsTogether()) {
                 // The Tegra3 compiler will sometimes never return if we have
@@ -1724,7 +1724,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
 
             const char* fsyuni = uniformHandler->getUniformCStr(fFSYUni);
 
-            fragBuilder->codeAppendf("vec2 coord = vec2(%s, %s);", gradientTValue, fsyuni);
+            fragBuilder->codeAppendf("float2 coord = float2(%s, %s);", gradientTValue, fsyuni);
             fragBuilder->codeAppendf("%s = ", outputColor);
             fragBuilder->appendTextureLookupAndModulate(inputColor, texSamplers[0], "coord",
                                                         kVec2f_GrSLType, &fColorSpaceHelper);

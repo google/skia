@@ -119,7 +119,7 @@ SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) 
 
     SkString coords2D;
     coords2D.printf("%s_ensure2D", coords.c_str());
-    this->codeAppendf("\tvec2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
+    this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
                       coords.c_str());
     return coords2D;
 }
@@ -199,7 +199,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
-            this->codeAppendf("vec4 %s = %s;", kDstColorName, fbFetchColorName);
+            this->codeAppendf("float4 %s = %s;", kDstColorName, fbFetchColorName);
         } else {
             return fbFetchColorName;
         }
@@ -305,9 +305,9 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
     m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
-    this->definitions().appendf("const highp vec2 %s[] = vec2[](", name);
+    this->definitions().appendf("const highp float2 %s[] = float2[](", name);
     for (int i = 0; i < specs.fEffectiveSampleCnt; ++i) {
-        this->definitions().appendf("vec2(%f, %f)", offsets[i].x(), offsets[i].y());
+        this->definitions().appendf("float2(%f, %f)", offsets[i].x(), offsets[i].y());
         this->definitions().append(i + 1 != specs.fEffectiveSampleCnt ? ", " : ");\n");
     }
 }
