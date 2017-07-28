@@ -72,7 +72,12 @@ DEFINE_bool(forceAnalyticAA, false, "Force analytic anti-aliasing even if the pa
                                     "whether it's concave or convex, we consider a path complicated"
                                     "if its number of points is comparable to its resolution.");
 
-DEFINE_bool(deltaAA, false,
+DEFINE_bool(deltaAA,
+#ifdef SK_SUPPORT_LEGACY_DELTA_AA
+            false,
+#else
+            true,
+#endif
             "If true, use delta anti-aliasing in suitable cases (it overrides forceAnalyticAA.");
 
 DEFINE_bool(forceDeltaAA, false, "Force delta anti-aliasing for all paths.");
