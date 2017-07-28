@@ -115,8 +115,8 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 // may return undefined results". This appears to be an issue with
                 // the 'any' call since even the simple "result=black; if (any())
                 // result=white;" code fails to compile.
-                builder->codeAppend("vec4 outside = vec4(0.0, 0.0, 0.0, 0.0);");
-                builder->codeAppend("vec4 inside = ");
+                builder->codeAppend("float4 outside = float4(0.0, 0.0, 0.0, 0.0);");
+                builder->codeAppend("float4 inside = ");
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
                                                         kVec2f_GrSLType, colorXformHelper);
                 builder->codeAppend(";");
@@ -131,12 +131,12 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                 builder->codeAppend("float blend = step(1.0, max(x, y));");
                 builder->codeAppendf("%s = mix(inside, outside, blend);", outColor);
             } else {
-                builder->codeAppend("bvec4 outside;\n");
+                builder->codeAppend("bool4 outside;\n");
                 builder->codeAppendf("outside.xy = lessThan(%s, %s.xy);", inCoords.c_str(),
                                        domain);
                 builder->codeAppendf("outside.zw = greaterThan(%s, %s.zw);", inCoords.c_str(),
                                        domain);
-                builder->codeAppendf("%s = any(outside) ? vec4(0.0, 0.0, 0.0, 0.0) : ",
+                builder->codeAppendf("%s = any(outside) ? float4(0.0, 0.0, 0.0, 0.0) : ",
                                        outColor);
                 builder->appendTextureLookupAndModulate(inModulateColor, sampler, inCoords.c_str(),
                                                         kVec2f_GrSLType, colorXformHelper);
@@ -385,7 +385,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                                                                      kDefault_GrSLPrecision,
                                                                      "scaleAndTranslate",
                                                                      &scaleAndTranslateName);
-            args.fFragBuilder->codeAppendf("vec2 coords = sk_FragCoord.xy * %s.xy + %s.zw;",
+            args.fFragBuilder->codeAppendf("float2 coords = sk_FragCoord.xy * %s.xy + %s.zw;",
                                            scaleAndTranslateName, scaleAndTranslateName);
             fGLDomain.sampleTexture(args.fFragBuilder,
                                     args.fUniformHandler,

@@ -67,7 +67,7 @@ public:
                                                         v.fsIn(),
                                                         kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
-            fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
             fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
