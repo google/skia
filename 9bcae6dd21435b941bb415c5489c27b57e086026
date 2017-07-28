@@ -22,6 +22,30 @@
       "revId": "9bcae6dd21435b941bb415c5489c27b57e086026",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14808649_5171fc7a",
+        "filename": "src/core/SkRecordDraw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-07-28T16:43:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae8c697f_e5902bd3",
+      "range": {
+        "startLine": 460,
+        "startChar": 17,
+        "endLine": 460,
+        "endChar": 30
+      },
+      "revId": "9bcae6dd21435b941bb415c5489c27b57e086026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
