@@ -580,6 +580,7 @@ skia_vk_sources = [
 ]
 
 skia_metal_sources = [
+  "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlGpu.h",
   "$_src/gpu/mtl/GrMtlGpu.mm",
   "$_src/gpu/mtl/GrMtlTrampoline.h",
