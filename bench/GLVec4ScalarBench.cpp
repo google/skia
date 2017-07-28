@@ -119,7 +119,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     vshaderTxt.append(
             "void main()\n"
             "{\n"
-            "    gl_Position = vec4(a_position, 0.0, 1.0);\n"
+            "    gl_Position = float4(a_position, 0.0, 1.0);\n"
             "    o_position = a_position;\n"
             "    o_color = a_color;\n"
             "}\n");
@@ -152,13 +152,13 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
     fshaderTxt.appendf(
             "void main()\n"
             "{\n"
-            "    vec4 outputColor;\n"
+            "    float4 outputColor;\n"
             "    %s outputCoverage;\n"
-            "    outputColor = vec4(%s, 1.0);\n"
+            "    outputColor = float4(%s, 1.0);\n"
             "    outputCoverage = %s;\n",
-            fCoverageSetup == kUseVec4_CoverageSetup ? "vec4" : "float",
+            fCoverageSetup == kUseVec4_CoverageSetup ? "float4" : "float",
             oColor.getName().c_str(),
-            fCoverageSetup == kUseVec4_CoverageSetup ? "vec4(1.0)" : "1.0"
+            fCoverageSetup == kUseVec4_CoverageSetup ? "float4(1.0)" : "1.0"
             );
 
     float radius = 1.0f;
@@ -173,7 +173,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
             "    }\n",
             oPosition.getName().c_str(), centerX, centerY,
             radius,
-            fCoverageSetup == kUseVec4_CoverageSetup ? "vec4(edgeAlpha)" : "edgeAlpha"
+            fCoverageSetup == kUseVec4_CoverageSetup ? "float4(edgeAlpha)" : "edgeAlpha"
             );
         radius *= 0.8f;
     }

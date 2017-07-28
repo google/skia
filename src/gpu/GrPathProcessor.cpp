@@ -44,7 +44,7 @@ public:
         fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, stagedLocalVarName);
 
         // setup constant solid coverage
-        fragBuilder->codeAppendf("%s = vec4(1);", args.fOutputCoverage);
+        fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
     }
 
     void emitTransforms(GrGLSLVaryingHandler* varyingHandler,

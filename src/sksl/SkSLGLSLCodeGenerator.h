@@ -96,7 +96,7 @@ protected:
 
     virtual void writePrecisionModifier();
 
-    void writeType(const Type& type);
+    virtual void writeType(const Type& type);
 
     void writeExtension(const Extension& ext);
 
