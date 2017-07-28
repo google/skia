@@ -1,3 +1,3 @@
 {
-  "fileOrder": ["skcanvas", "skpaint", "skrect", "skregion", "skmatrix", "grcontext", "canvas"]
+  "fileOrder": ["skcanvas_overview", "skpaint_overview", "skrect_overview", "skregion_overview", "skmatrix_overview", "creating_skcanvas", "SkCanvas_Reference", "SkPaint_Reference", "SkPath_Reference", "usingBookmaker"]
 }
