@@ -26,6 +26,7 @@ public:
     GrProcessorSet(GrPaint&& paint);
     GrProcessorSet(SkBlendMode mode);
     GrProcessorSet(sk_sp<GrFragmentProcessor> colorFP);
+    GrProcessorSet(GrProcessorSet&&);
 
     ~GrProcessorSet();
 
@@ -136,6 +137,7 @@ public:
 
     /** These are valid only for non-LCD coverage. */
     static const GrProcessorSet& EmptySet();
+    static GrProcessorSet MakeEmptySet();
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
     SkString dumpProcessors() const;
@@ -151,6 +153,10 @@ private:
     union XP {
         XP(const GrXPFactory* factory) : fFactory(factory) {}
         XP(const GrXferProcessor* processor) : fProcessor(processor) {}
+        explicit XP(XP&& that) : fProcessor(that.fProcessor) {
+            SkASSERT(fProcessor == that.fProcessor);
+            that.fProcessor = nullptr;
+        }
         const GrXPFactory* fFactory;
         const GrXferProcessor* fProcessor;
     };

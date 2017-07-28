@@ -39,7 +39,6 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
                     0xffff>()
     };
     GrPipeline::InitArgs args;
-    args.fProcessors = &this->processors();
     args.fFlags = fPipelineSRGBFlags;
     if (GrAATypeIsHW(fAAType)) {
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
@@ -51,7 +50,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;
 
-    return pipeline->init(args);
+    return pipeline->init(args, std::move(this->processors()));
 }
 
 //////////////////////////////////////////////////////////////////////////////
