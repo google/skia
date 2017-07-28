@@ -58,7 +58,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* constantColor) const {
         *constantColor = GrColor_TRANSPARENT_BLACK;
         return true;
     }
-    if (this->numColorFragmentProcessors()) {
+    if (this->firstColorFragmentProcessor()) {
         return false;
     }
     if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {

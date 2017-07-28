@@ -170,13 +170,11 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
     }
     return false;
 }
-
-static bool get_analytic_clip_processor(const ElementList& elements,
-                                        bool abortIfAA,
-                                        const SkRect& drawDevBounds,
-                                        gr_fp<GrFragmentProcessor>* resultFP) {
-    SkASSERT(elements.count() <= kMaxAnalyticElements);
-    SkSTArray<kMaxAnalyticElements, gr_fp<GrFragmentProcessor>> fps;
+// TODO INDICATE FAILURE
+static gr_fp<GrFragmentProcessor> get_analytic_clip_processor(const ElementList& elements,
+                                                              bool abortIfAA,
+                                                              const SkRect& drawDevBounds) {
+    gr_fp<GrFragmentProcessor> fp;
     ElementList::Iter iter(elements);
     while (iter.get()) {
         SkClipOp op = iter.get()->getOp();
@@ -198,13 +196,13 @@ static bool get_analytic_clip_processor(const ElementList& elements,
                 // element's primitive, so don't attempt to set skip.
                 break;
             default:
-                return false;
+                return nullptr;
         }
         if (!skip) {
             GrPrimitiveEdgeType edgeType;
             if (iter.get()->isAA()) {
                 if (abortIfAA) {
-                    return false;
+                    return nullptr;
                 }
                 edgeType =
                     invert ? kInverseFillAA_GrProcessorEdgeType : kFillAA_GrProcessorEdgeType;
@@ -212,34 +210,30 @@ static bool get_analytic_clip_processor(const ElementList& elements,
                 edgeType =
                     invert ? kInverseFillBW_GrProcessorEdgeType : kFillBW_GrProcessorEdgeType;
             }
-
+            gr_fp<GrFragmentProcessor> next;
             switch (iter.get()->getType()) {
                 case SkClipStack::Element::kPath_Type:
-                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getPath()));
+                    next = GrConvexPolyEffect::Make(edgeType, iter.get()->getPath());
                     break;
                 case SkClipStack::Element::kRRect_Type: {
-                    fps.emplace_back(GrRRectEffect::Make(edgeType, iter.get()->getRRect()));
+                    next = GrRRectEffect::Make(edgeType, iter.get()->getRRect());
                     break;
                 }
                 case SkClipStack::Element::kRect_Type: {
-                    fps.emplace_back(GrConvexPolyEffect::Make(edgeType, iter.get()->getRect()));
+                    fp = GrConvexPolyEffect::Make(edgeType, iter.get()->getRect());
                     break;
                 }
                 default:
                     break;
             }
-            if (!fps.back()) {
-                return false;
+            if (!next) {
+                return nullptr;
             }
+            fp = GrFragmentProcessor::RunInSeries(std::move(next), std::move(fp));
         }
         iter.next();
     }
-
-    *resultFP = nullptr;
-    if (fps.count()) {
-        *resultFP = GrFragmentProcessor::RunInSeries(fps.begin(), fps.count());
-    }
-    return true;
+    return fp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -304,8 +298,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
         gr_fp<GrFragmentProcessor> clipFP;
         if ((reducedClip.requiresAA() || avoidStencilBuffers) &&
-            get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA, devBounds,
-                                        &clipFP)) {
+            (clipFP = get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA,
+                                                  devBounds))) {
             out->addCoverageFP(std::move(clipFP));
             return true;
         }

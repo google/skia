@@ -31,8 +31,6 @@ public:
 
     const char* name() const override { return "NormalMapFP"; }
 
-    const SkMatrix& invCTM() const { return fInvCTM; }
-
     gr_fp<GrFragmentProcessor> clone() const override {
         auto child = this->childProcessor(0).clone();
         if (!child) {
@@ -109,10 +107,12 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalMapFP::GenKey(*this, caps, b);
     }
+
+    const SkMatrix& invCTM() const { return fInvCTM; }
+
     NormalMapFP(gr_fp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
             : INHERITED(kNone_OptimizationFlags), fInvCTM(invCTM) {
         this->registerChildProcessor(mapFP);
-
         this->initClassID<NormalMapFP>();
     }
 

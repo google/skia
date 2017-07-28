@@ -50,7 +50,7 @@ public:
 
     void addCoverageFP(gr_fp<GrFragmentProcessor> fp) {
         SkASSERT(!fClipCoverageFP);
-        fClipCoverageFP = fp;
+        fClipCoverageFP = std::move(fp);
     }
 
     void addStencilClip(uint32_t clipStackID) {
