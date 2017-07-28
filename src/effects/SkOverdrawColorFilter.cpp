@@ -122,7 +122,7 @@ sk_sp<GrFragmentProcessor> OverdrawFragmentProcessor::Make(const SkPMColor* colo
                                                              SkGetPackedA32(colors[i])));
     }
 
-    return sk_sp<OverdrawFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
+    return sk_sp<GrFragmentProcessor>(new OverdrawFragmentProcessor(grColors));
 }
 
 // This could implement the constant input -> constant output optimization, but we don't really
