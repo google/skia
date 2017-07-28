@@ -62,9 +62,9 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
         handler->specifyCoordsForCurrCoordTransform(SkString(v.fsIn()), varyingType);
 
         if (kVec2f_GrSLType == varyingType) {
-            vb->codeAppendf("%s = (%s * vec3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = (%s * float3(%s, 1)).xy;", v.vsOut(), uniName, localCoords);
         } else {
-            vb->codeAppendf("%s = %s * vec3(%s, 1);", v.vsOut(), uniName, localCoords);
+            vb->codeAppendf("%s = %s * float3(%s, 1);", v.vsOut(), uniName, localCoords);
         }
         ++i;
     }
@@ -89,7 +89,7 @@ void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
                                             GrGPArgs* gpArgs,
                                             const char* posName) {
     gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-    vertBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+    vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
 }
 
 void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
@@ -100,7 +100,7 @@ void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
                                             UniformHandle* viewMatrixUniform) {
     if (mat.isIdentity()) {
         gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-        vertBuilder->codeAppendf("vec2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
+        vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
     } else {
         const char* viewMatrixName;
         *viewMatrixUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
@@ -109,11 +109,11 @@ void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
                                                         &viewMatrixName);
         if (!mat.hasPerspective()) {
             gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
-            vertBuilder->codeAppendf("vec2 %s = (%s * vec3(%s, 1)).xy;",
+            vertBuilder->codeAppendf("float2 %s = (%s * float3(%s, 1)).xy;",
                                      gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         } else {
             gpArgs->fPositionVar.set(kVec3f_GrSLType, "pos3");
-            vertBuilder->codeAppendf("vec3 %s = %s * vec3(%s, 1);",
+            vertBuilder->codeAppendf("float3 %s = %s * float3(%s, 1);",
                                      gpArgs->fPositionVar.c_str(), viewMatrixName, posName);
         }
     }

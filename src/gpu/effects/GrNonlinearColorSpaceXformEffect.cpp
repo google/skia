@@ -71,13 +71,13 @@ public:
         }
 
         if (nullptr == args.fInputColor) {
-            args.fInputColor = "vec4(1)";
+            args.fInputColor = "float4(1)";
         }
-        fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+        fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
 
         // 1: Un-premultiply the input color (if necessary)
         fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
-        fragBuilder->codeAppendf("color = vec4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
+        fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
 
         // 2: Apply src transfer function (to get to linear RGB)
         if (srcCoeffsName) {
@@ -89,7 +89,7 @@ public:
         // 3: Apply gamut matrix
         if (gamutXformName) {
             fragBuilder->codeAppendf(
-                "color.rgb = (%s * vec4(color.rgb, 1.0)).rgb;", gamutXformName);
+                "color.rgb = (%s * float4(color.rgb, 1.0)).rgb;", gamutXformName);
         }
 
         // 4: Apply dst transfer fn
@@ -100,7 +100,7 @@ public:
         }
 
         // 5: Premultiply again
-        fragBuilder->codeAppendf("%s = vec4(color.rgb * color.a, color.a);", args.fOutputColor);
+        fragBuilder->codeAppendf("%s = float4(color.rgb * color.a, color.a);", args.fOutputColor);
     }
 
     static inline void GenKey(const GrProcessor& processor, const GrShaderCaps&,
