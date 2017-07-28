@@ -1,0 +1,528 @@
+# external references that will be documented eventually ...
+#External
+ DirectWrite TrueType Windows Linux Android
+ FreeType FreeType-based Harfbuzz   
+ PostScript PostScript_arct
+ OS_X Core_Graphics Core_Text iOS
+ LCD RGB
+ Premultiplied Unpremultiplied
+ Unicode Unicode5 UTF-8 UTF-16 UTF-32 ASCII Unichar
+ HTML_Canvas HTML_Canvas_arcTo
+ API
+ CPU
+ GPU GPU-backed GPU_Context OpenGL Vulkan
+ NULL
+ RFC
+ Bezier Coons
+ SkUserConfig.h  # not external, but still thinking about how markup refers to this
+ Skia           # ditto
+ SK_USE_FREETYPE_EMBOLDEN # ditto
+ SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
+ SK_BUILD_FOR_ANDROID_FRAMEWORK # ditto
+ Developer_Mode # ditto
+ Draw_Layer # ditto
+ Raster_Engine # ditto
+
+# FreeType related
+FT_LOAD_TARGET_LIGHT
+FT_LOAD_TARGET_NORMAL
+FT_LOAD_TARGET_LCD
+FT_LOAD_TARGET_LCD_V
+FT_LOAD_NO_HINTING
+FT_Load_Glyph
+
+#External ##
+
+#Topic Arc
+#Substitute arcs
+#Topic ##
+
+#Topic BBH_Factory
+#Class SkBBHFactory
+##
+##
+
+#Topic Bitmap
+#Class SkBitmap
+    #Subtopic Row_Bytes
+    ##
+#Class ##
+##
+
+#Topic Blend_Mode
+#EnumClass SkBlendMode
+    #Const kSrc 1
+    ##
+    #Const kSrcOver 3
+    ##
+    #Const kPlus 12
+    ##
+#EnumClass ##
+#Topic ##
+
+#Topic Circle
+#Substitute circles
+#Topic ##
+
+#Topic Clip_Op
+#EnumClass SkClipOp
+    #Const kDifference 0
+    ##
+    #Const kIntersect 1
+    ##
+##
+##
+
+#Topic Color
+    #Typedef SkColor
+    #Typedef ##
+
+    # fixme: defines, not methods, need new markup type
+    #Method int SkColorGetA(color)
+    ##
+    #Method int SkColorGetR(color)
+    ##
+    #Method int SkColorGetG(color)
+    ##
+    #Method int SkColorGetB(color)
+    ##
+    #Method int SkColorSetARGB(a, r, g, b)
+    ##
+
+    #Const SK_ColorBLACK 0xFF000000 
+    ##
+    #Const SK_ColorBLUE 0xFF0000FF 
+    ##
+    #Const SK_ColorGREEN 0xFF00FF00 
+    ##
+    #Const SK_ColorRED 0xFFFF0000 
+    ##
+    #Const SK_ColorWHITE 0xFFFFFFFF 
+    ##
+    #Subtopic Alpha
+    #Substitute alpha
+    #Subtopic ##
+    #Subtopic RGB
+    #Substitute RGB
+        #Subtopic Red
+        #Substitute red
+        #Subtopic ##
+        #Subtopic Blue
+        #Substitute blue
+        #Subtopic ##
+        #Subtopic Green
+        #Substitute green
+        #Subtopic ##
+    #Subtopic ##
+    #Subtopic ARGB
+    #Substitute ARGB
+    #Subtopic ##
+
+    #Subtopic RBG
+    #Substitute RBG
+    #Subtopic ##
+
+    #Subtopic RGB-565
+    #Substitute RGB-565
+    #Alias Color_RGB-565 # quit changing - to _ !
+    #Subtopic ##
+#Topic ##
+
+#Topic Color_Filter
+#Class SkColorFilter
+#Class ##
+#Topic ##
+
+#Topic Color_Space
+##
+
+#Topic Curve
+#Alias Curves
+##
+
+#Topic Data
+##
+
+#Topic Device
+#Class SkBaseDevice
+##
+#Topic ##
+
+#Topic Document
+#Class SkDocument
+    #Method SkCanvas* beginPage(SkScalar width, SkScalar height,
+                        const SkRect* content = NULL)
+    ##
+##
+#Subtopic PDF
+##
+##
+
+#Topic Draw_Filter
+#Class SkDrawFilter
+##
+##
+
+#Topic Draw_Looper
+#Class SkDrawLooper
+#Class ##
+#Topic ##
+
+#Topic Drawable
+#Class SkDrawable
+    #Method void draw(SkCanvas*, const SkMatrix* = NULL)
+    ##
+##
+##
+
+#Topic Dump_Canvas
+#Class SkDumpCanvas
+##
+#Topic ##
+
+#Topic Filter_Quality
+#Enum SkFilterQuality
+    #Const kNone_SkFilterQuality 0
+    ##
+    #Const kLow_SkFilterQuality 1
+    ##
+    #Const kMedium_SkFilterQuality 2
+    ##
+    #Const kHigh_SkFilterQuality 3
+    ##
+#Enum ##
+#Topic ##
+
+#Topic Font
+#Subtopic Advance
+#Subtopic ##
+#Subtopic Engine
+##
+#Topic ##
+
+#Topic Font_Manager
+#Topic ##
+
+#Topic Glyph
+##
+
+#Topic Image
+    #Subtopic Alpha_Type
+        #Enum SkAlphaType
+            #Const kPremul_SkAlphaType 2
+            ##
+        ##
+    #Subtopic ##
+    #Subtopic Color_Type 
+        #Enum SkColorType
+            #Const kUnknown_SkColorType 0
+            ##
+            #Const kAlpha_8_SkColorType 1
+            ##
+            #Const kRGB_565_SkColorType 2
+            ##
+            #Const kARGB_4444_SkColorType 3
+            ##
+            #Const kRGBA_8888_SkColorType 4
+            ##
+            #Const kBGRA_8888_SkColorType 5
+            ##
+            #Const kIndex_8_SkColorType 6
+            ##
+            #Const kGray_8_SkColorType 7
+            ##
+            #Const kRGBA_F16_SkColorType 8
+            ##
+            #ToDo   this is a lie; need to not require values for consts ##
+            #Const kN32_SkColorType 4
+            ##
+        #Enum ##
+    #Subtopic ##
+    #Subtopic Info
+        #Struct SkImageInfo
+            #Method SkImageInfo()
+            ##
+        ## 
+    #Subtopic ##
+    #Class SkImage
+        #Method sk_sp<SkShader> makeShader(SkShader::TileMode, SkShader::TileMode,
+                                   const SkMatrix* localMatrix = nullptr) const
+        ##
+    ##
+#Topic ##
+
+#Topic Image_Filter
+#Subtopic Scaling
+#Subtopic ##
+#Class SkImageFilter
+#Class ##
+#Topic ##
+
+#Topic Image_Scaling
+##
+
+#Topic IRect
+#Struct SkIRect
+##
+##
+
+#Topic Line
+#Substitute lines
+#Alias Lines
+#Topic ##
+
+#Topic Mask
+#Topic ##
+
+#Topic Mask_Alpha
+#Topic ##
+
+#Topic Mask_Filter
+#Class SkMaskFilter
+#Class ##
+#Topic ##
+
+#Topic Matrix
+#Struct SkMatrix
+#Struct ##
+#Topic ##
+
+#Topic Nine_Patch
+##
+
+#Topic Number_Types
+    #Typedef SkGlyphID
+    #Typedef ##
+    #Typedef SkScalar
+    #Typedef ##
+    #Const SK_ScalarMax
+    to be written
+    ##
+    #Const SK_ScalarInfinity
+    to be written
+    ##
+    #Const SK_ScalarNegativeInfinity
+    to be written
+    ##
+    #Const SK_ScalarNaN
+    to be written
+    ##
+    #Typedef SkUnichar
+    #Typedef ##
+    #Typedef U8CPU
+    #Typedef ##
+#Topic ##
+
+#Topic Oval
+#Substitute ovals
+#Topic ##
+
+#Topic Paint_Defaults
+#Const SkPaintDefaults_Flags 0
+##
+#Const SkPaintDefaults_Hinting 2
+##
+#Const SkPaintDefaults_TextSize 12
+##
+#Const SkPaintDefaults_MiterLimit 4
+##
+#Topic ##
+
+#Topic Patch
+#Substitute patches
+#Topic ##
+
+#Topic Path_Effect
+    #Class SkPathEffect
+    #Class ##
+#Topic ##
+
+#Topic Path_Measure
+    #Class SkPathMeasure
+            #Method void dump() const
+            ##
+    ##
+##
+
+#Topic PathOps
+    #Method bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result)
+    ##
+#Topic ##
+
+#Topic Picture
+#Subtopic Recorder
+    #Class SkPictureRecorder
+        #Method SkCanvas* beginRecording(const SkRect& bounds,
+                             SkBBHFactory* bbhFactory = NULL,
+                             uint32_t recordFlags = 0)
+        ##
+    ##
+##
+##
+
+#Topic Pixel
+#Subtopic Storage
+##
+##
+
+#Topic Pixmap
+#Class SkPixmap
+##
+##
+
+#Topic Point
+#Alias Points
+    #Struct SkPoint
+        #Method bool equalsWithinTolerance(const SkPoint& p) const
+        ##
+    #Struct ##
+    #Subtopic Array
+    #Substitute SkPoint arrays
+    #Subtopic ##
+#Topic ##
+
+#Topic Raster_Handle_Allocator
+#Class SkRasterHandleAllocator
+    #Struct Rec
+    ##
+    #Method static std::unique_ptr<SkCanvas> MakeCanvas(std::unique_ptr<SkRasterHandleAllocator>, const SkImageInfo&, const Rec* rec = nullptr)
+    ##
+##
+##
+
+#Topic Rasterizer
+#Class SkRasterizer
+#Class ##
+#Subtopic Layer
+#Subtopic ##
+#Topic ##
+
+#Topic Rect
+#Alias Rects
+    #Struct SkRect
+        #Method static constexpr SkRect SK_WARN_UNUSED_RESULT MakeEmpty()
+        ##
+        #Method void dump() const
+        ##
+        #Method void dumpHex() const
+        ##
+    #Struct ##
+#Topic ##
+
+#Topic Reference_Count
+#Substitute SkRefCnt
+#Class sk_sp
+#Class ##
+#Topic ##
+
+#Topic Region
+#Class SkRegion
+##
+#Topic ##
+
+#Topic Round_Rect
+    #Class SkRRect
+        #Method void dump() const
+        ##
+        #Method void dumpHex() const
+        ##
+    ##
+#Topic ##
+
+#Topic RSXform
+#Struct SkRSXform
+##
+##
+
+#Topic Shader
+#Class SkShader
+    #Enum TileMode
+        #Const kClamp_TileMode 0
+        ##
+    ##
+    #Method static sk_sp<SkShader> MakeBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                            const SkMatrix* localMatrix = nullptr)
+    ##
+#Class ##
+#Subtopic Gradient
+#Subtopic ##
+#Topic ##
+
+#Topic Sprite
+#Substitute sprites
+#Topic ##
+
+#Topic Stream
+#Class SkFlattenable
+#Class ##
+#Topic ##
+
+#Topic String
+#Class SkString
+#Class ##
+#Topic ##
+
+#Topic Surface
+#Class SkSurface
+    #Method static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes,
+                                             const SkSurfaceProps* = nullptr)
+    ##
+##
+#Subtopic Properties
+    #Class SkSurfaceProps
+        #Enum InitType
+            #Const kLegacyFontHost_InitType 0
+            ##
+        ##
+    ##
+##
+#Subtopic GPU
+#Alias GPU_Surface
+##
+#Subtopic Raster
+#Alias Raster_Surface
+##
+##
+
+#Topic SVG
+#Subtopic Canvas
+##
+#Subtopic Arc
+##
+##
+
+#Topic Text
+#Topic ##
+
+#Topic Text_Blob
+#Class SkTextBlob
+#Class ##
+#Topic ##
+
+#Topic Typeface
+#Class SkTypeface
+#Class ##
+#Topic ##
+
+#Topic Vector
+#Struct SkVector
+##
+##
+
+#Topic Vertices
+#Substitute vertices
+#Subtopic Colors
+##
+#Subtopic Texs
+##
+#Topic ##
+
+#Topic Read_Buffer
+    #Struct SkReadBuffer
+    #Struct ##
+##
+
+#Topic Write_Buffer
+    #Struct SkWriteBuffer
+    #Struct ##
+#Topic ##
