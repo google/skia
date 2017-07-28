@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8c966ff_90d155cb",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-28T18:13:58Z",
+      "side": 1,
+      "message": "Nit: It\u0027s generally nicer to to \"\u0027Metal\u0027 in extra_config\" just in case we have to combine extra_configs later (eg. Android_Vulkan).",
+      "range": {
+        "startLine": 108,
+        "startChar": 7,
+        "endLine": 108,
+        "endChar": 29
+      },
+      "revId": "c44bf99b4dff2525ff69b6a102971f0455cb7b0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
