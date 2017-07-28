@@ -50,7 +50,7 @@ protected:
 
     struct GrGPArgs {
         // The variable used by a GP to store its position. It can be
-        // either a vec2 or a vec3 depending on the presence of perspective.
+        // either a float2 or a float3 depending on the presence of perspective.
         GrShaderVar fPositionVar;
     };
 

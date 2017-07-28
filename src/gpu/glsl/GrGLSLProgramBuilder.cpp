@@ -239,8 +239,8 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        this->uniformHandler(),
                                        this->shaderCaps(),
                                        xp,
-                                       colorIn.size() ? colorIn.c_str() : "vec4(1)",
-                                       coverageIn.size() ? coverageIn.c_str() : "vec4(1)",
+                                       colorIn.size() ? colorIn.c_str() : "float4(1)",
+                                       coverageIn.size() ? coverageIn.c_str() : "float4(1)",
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
                                        dstTextureSamplerHandle,
@@ -455,7 +455,7 @@ void GrGLSLProgramBuilder::nameExpression(SkString* output, const char* baseName
     } else {
         this->nameVariable(&outName, '\0', baseName);
     }
-    fFS.codeAppendf("vec4 %s;", outName.c_str());
+    fFS.codeAppendf("float4 %s;", outName.c_str());
     *output = outName;
 }
 
