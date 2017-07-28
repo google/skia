@@ -13,13 +13,13 @@ in uniform float outerThreshold;
 }
 
 @make {
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
                                            sk_sp<GrColorSpaceXform> colorXform,
                                            sk_sp<GrTextureProxy> mask,
                                            float innerThreshold,
                                            float outerThreshold,
                                            const SkIRect& bounds) {
-        return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(image,
+        return gr_fp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(image,
                                                                                 colorXform,
                                                                                 mask,
                                                                                 innerThreshold,

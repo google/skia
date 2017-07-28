@@ -77,7 +77,7 @@ protected:
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
-                sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
+                gr_fp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
                 SkASSERT(fp);
                 if (fp) {
                     GrPaint grPaint;

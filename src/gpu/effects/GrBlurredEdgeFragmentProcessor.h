@@ -19,8 +19,8 @@ class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum Mode { kGaussian_Mode = 0, kSmoothStep_Mode = 1 };
     int mode() const { return fMode; }
-    static sk_sp<GrFragmentProcessor> Make(int mode) {
-        return sk_sp<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
+    static gr_fp<GrFragmentProcessor> Make(int mode) {
+        return gr_fp<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
 

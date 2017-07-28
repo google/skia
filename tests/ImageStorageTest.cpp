@@ -19,16 +19,16 @@
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
     class TestFP : public GrFragmentProcessor {
     public:
-        static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+        static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                GrSLMemoryModel mm,
                                                GrSLRestrict restrict) {
-            return sk_sp<GrFragmentProcessor>(new TestFP(std::move(proxy), mm, restrict));
+            return gr_fp<GrFragmentProcessor>(new TestFP(std::move(proxy), mm, restrict));
         }
 
         const char* name() const override { return "Image Load Test FP"; }
 
-        sk_sp<GrFragmentProcessor> clone() const override {
-            return sk_sp<GrFragmentProcessor>(new TestFP(*this));
+        gr_fp<GrFragmentProcessor> clone() const override {
+            return gr_fp<GrFragmentProcessor>(new TestFP(*this));
         }
 
     private:

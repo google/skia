@@ -19,13 +19,13 @@
 
 class NormalFlatFP : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new NormalFlatFP());
+    static gr_fp<GrFragmentProcessor> Make() {
+        return gr_fp<GrFragmentProcessor>(new NormalFlatFP());
     }
 
     const char* name() const override { return "NormalFlatFP"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+    gr_fp<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
     class GLSLNormalFlatFP : public GrGLSLFragmentProcessor {
@@ -58,7 +58,7 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-sk_sp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkNormalFlatSourceImpl::asFragmentProcessor(
         const SkShaderBase::AsFPArgs&) const {
 
     return NormalFlatFP::Make();

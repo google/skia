@@ -19,7 +19,7 @@ namespace GrOvalEffect {
     /**
      * Creates an effect that performs clipping against an oval.
      */
-    sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
+    gr_fp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
 };
 
 #endif

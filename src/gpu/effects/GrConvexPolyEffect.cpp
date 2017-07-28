@@ -19,15 +19,15 @@ class AARectEffect : public GrFragmentProcessor {
 public:
     const SkRect& getRect() const { return fRect; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
-        return sk_sp<GrFragmentProcessor>(new AARectEffect(edgeType, rect));
+    static gr_fp<GrFragmentProcessor> Make(GrPrimitiveEdgeType edgeType, const SkRect& rect) {
+        return gr_fp<GrFragmentProcessor>(new AARectEffect(edgeType, rect));
     }
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 
     const char* name() const override { return "AARect"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(fEdgeType, fRect); }
+    gr_fp<GrFragmentProcessor> clone() const override { return Make(fEdgeType, fRect); }
 
 private:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -58,12 +58,12 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(AARectEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> AARectEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> AARectEffect::TestCreate(GrProcessorTestData* d) {
     SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1(),
                                    d->fRandom->nextSScalar1());
-    sk_sp<GrFragmentProcessor> fp;
+    gr_fp<GrFragmentProcessor> fp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
@@ -236,7 +236,7 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, const SkPath& path) {
+gr_fp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, const SkPath& path) {
     if (kHairlineAA_GrProcessorEdgeType == type) {
         return nullptr;
     }
@@ -306,7 +306,7 @@ sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType type, co
     return Make(type, n, edges);
 }
 
-sk_sp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType edgeType,
+gr_fp<GrFragmentProcessor> GrConvexPolyEffect::Make(GrPrimitiveEdgeType edgeType,
                                                     const SkRect& rect) {
     if (kHairlineAA_GrProcessorEdgeType == edgeType){
         return nullptr;
@@ -348,8 +348,8 @@ GrConvexPolyEffect::GrConvexPolyEffect(const GrConvexPolyEffect& that)
     memcpy(fEdges, that.fEdges, 3 * that.fEdgeCount * sizeof(SkScalar));
 }
 
-sk_sp<GrFragmentProcessor> GrConvexPolyEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrConvexPolyEffect(*this));
+gr_fp<GrFragmentProcessor> GrConvexPolyEffect::clone() const {
+    return gr_fp<GrFragmentProcessor>(new GrConvexPolyEffect(*this));
 }
 
 bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -364,14 +364,14 @@ bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {
     int count = d->fRandom->nextULessThan(kMaxEdges) + 1;
     SkScalar edges[kMaxEdges * 3];
     for (int i = 0; i < 3 * count; ++i) {
         edges[i] = d->fRandom->nextSScalar1();
     }
 
-    sk_sp<GrFragmentProcessor> fp;
+    gr_fp<GrFragmentProcessor> fp;
     do {
         GrPrimitiveEdgeType edgeType = static_cast<GrPrimitiveEdgeType>(
                 d->fRandom->nextULessThan(kGrProcessorEdgeTypeCnt));
