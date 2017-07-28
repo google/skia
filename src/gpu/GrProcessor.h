@@ -229,10 +229,14 @@ public:
             , fVisibility(that.fVisibility) {}
 
     TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerParams&);
+
     explicit TextureSampler(sk_sp<GrTextureProxy>,
                             GrSamplerParams::FilterMode = GrSamplerParams::kNone_FilterMode,
                             SkShader::TileMode tileXAndY = SkShader::kClamp_TileMode,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    TextureSampler& operator=(const TextureSampler&) = delete;
+
     void reset(sk_sp<GrTextureProxy>, const GrSamplerParams&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
     void reset(sk_sp<GrTextureProxy>,
@@ -279,13 +283,24 @@ private:
  * Used to represent a texel buffer that will be read in a GrResourceIOProcessor. It holds a
  * GrBuffer along with an associated offset and texel config.
  */
-class GrResourceIOProcessor::BufferAccess : public SkNoncopyable {
+class GrResourceIOProcessor::BufferAccess {
 public:
     BufferAccess() = default;
     BufferAccess(GrPixelConfig texelConfig, GrBuffer* buffer,
                  GrShaderFlags visibility = kFragment_GrShaderFlag) {
         this->reset(texelConfig, buffer, visibility);
     }
+    /**
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
+     * always takes a new ref on the buffer proxy as the new fragment processor will not yet be
+     * in pending execution state.
+     */
+    explicit BufferAccess(const BufferAccess& that) {
+        this->reset(that.fTexelConfig, that.fBuffer.get(), that.fVisibility);
+    }
+
+    BufferAccess& operator=(const BufferAccess&) = delete;
+
     /**
      * Must be initialized before adding to a GrProcessor's buffer access list.
      */
@@ -327,10 +342,23 @@ private:
  * Currently the format of the load/store data in the shader is inferred from the texture config,
  * though it could be made explicit.
  */
-class GrResourceIOProcessor::ImageStorageAccess : public SkNoncopyable {
+class GrResourceIOProcessor::ImageStorageAccess {
 public:
     ImageStorageAccess(sk_sp<GrTextureProxy>, GrIOType, GrSLMemoryModel, GrSLRestrict,
                        GrShaderFlags visibility = kFragment_GrShaderFlag);
+    /**
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
+     * always takes a new ref on the surface proxy as the new fragment processor will not yet be
+     * in pending execution state.
+     */
+    explicit ImageStorageAccess(const ImageStorageAccess& that)
+            : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
+            , fVisibility(that.fVisibility)
+            , fFormat(that.fFormat)
+            , fMemoryModel(that.fMemoryModel)
+            , fRestrict(that.fRestrict) {}
+
+    ImageStorageAccess& operator=(const ImageStorageAccess&) = delete;
 
     bool operator==(const ImageStorageAccess& that) const {
         return this->proxy() == that.proxy() && fVisibility == that.fVisibility;
