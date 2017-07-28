@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "53d997e6_82a03e17",
+        "filename": "infra/bots/recipe_modules/flavor/gn_flavor.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-28T11:37:53Z",
+      "side": 1,
+      "message": "Yep. Fixed.",
+      "parentUuid": "8b2b2006_1f171b22",
+      "revId": "4b6f88971fb34e5b18c03ed072b8727d820e451b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0c4fea57_82db6d07",
         "filename": "infra/bots/recipes/check_generated_files.py",
         "patchSetId": 8
@@ -30,6 +48,30 @@
       "writtenOn": "2017-07-27T20:37:38Z",
       "side": 1,
       "message": "2017",
+      "range": {
+        "startLine": 1,
+        "startChar": 12,
+        "endLine": 1,
+        "endChar": 16
+      },
+      "revId": "4b6f88971fb34e5b18c03ed072b8727d820e451b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d021f089_c2cbb181",
+        "filename": "infra/bots/recipes/check_generated_files.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-07-28T11:37:53Z",
+      "side": 1,
+      "message": "https://memegen.googleplex.com/5246365049815040",
+      "parentUuid": "0c4fea57_82db6d07",
       "range": {
         "startLine": 1,
         "startChar": 12,
