@@ -56,6 +56,7 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     traceEvent.fNumArgs = numArgs;
     traceEvent.fName = name;
     traceEvent.fCategory = fCategories.getCategoryGroupName(categoryEnabledFlag);
+    traceEvent.fID = id;
     traceEvent.fClockBegin = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     traceEvent.fClockEnd = 0;
     traceEvent.fThreadID = SkGetThreadID();
@@ -85,12 +86,51 @@ void SkChromeTracingTracer::updateTraceEventDuration(const uint8_t* categoryEnab
     traceEvent->fClockEnd = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 }
 
-Json::Value SkChromeTracingTracer::traceEventToJson(const TraceEvent& traceEvent) {
+static Json::Value trace_value_to_json(uint64_t argValue, uint8_t argType) {
+    skia::tracing_internals::TraceValueUnion value;
+    value.as_uint = argValue;
+
+    switch (argType) {
+        case TRACE_VALUE_TYPE_BOOL:
+            return Json::Value(value.as_bool);
+        case TRACE_VALUE_TYPE_UINT:
+            return Json::Value(static_cast<Json::UInt64>(value.as_uint));
+        case TRACE_VALUE_TYPE_INT:
+            return Json::Value(static_cast<Json::Int64>(value.as_uint));
+        case TRACE_VALUE_TYPE_DOUBLE:
+            return Json::Value(value.as_double);
+        case TRACE_VALUE_TYPE_POINTER:
+            return Json::Value(SkStringPrintf("%p", value.as_pointer).c_str());
+        case TRACE_VALUE_TYPE_STRING:
+        case TRACE_VALUE_TYPE_COPY_STRING:
+            return Json::Value(value.as_string);
+        default:
+            return Json::Value("<unknown type>");
+    }
+}
+
+Json::Value SkChromeTracingTracer::traceEventToJson(const TraceEvent& traceEvent,
+                                                    BaseTypeResolver* baseTypeResolver) {
+    // We track the original (creation time) "name" of each currently live object, so we can
+    // automatically insert "base_name" fields in object snapshot events.
+    if (TRACE_EVENT_PHASE_CREATE_OBJECT == traceEvent.fPhase) {
+        SkASSERT(nullptr == baseTypeResolver->find(traceEvent.fID));
+        baseTypeResolver->set(traceEvent.fID, traceEvent.fName);
+    } else if (TRACE_EVENT_PHASE_DELETE_OBJECT == traceEvent.fPhase) {
+        SkASSERT(nullptr != baseTypeResolver->find(traceEvent.fID));
+        baseTypeResolver->remove(traceEvent.fID);
+    }
+
     Json::Value json;
     char phaseString[2] = { traceEvent.fPhase, 0 };
     json["ph"] = phaseString;
     json["name"] = traceEvent.fName;
     json["cat"] = traceEvent.fCategory;
+    if (0 != traceEvent.fID) {
+        // IDs are (almost) always pointers
+        json["id"] = SkStringPrintf("%p", traceEvent.fID).c_str();
+    }
+    // Convert nanoseconds to microseconds (standard time unit for tracing JSON files)
     json["ts"] = static_cast<double>(traceEvent.fClockBegin) * 1E-3;
     if (0 != traceEvent.fClockEnd) {
         json["dur"] = static_cast<double>(traceEvent.fClockEnd - traceEvent.fClockBegin) * 1E-3;
@@ -99,34 +139,32 @@ Json::Value SkChromeTracingTracer::traceEventToJson(const TraceEvent& traceEvent
     // Trace events *must* include a process ID, but for internal tools this isn't particularly
     // important (and certainly not worth adding a cross-platform API to get it).
     json["pid"] = 0;
-    if (traceEvent.fNumArgs) {
+
+    if (TRACE_EVENT_PHASE_SNAPSHOT_OBJECT == traceEvent.fPhase &&
+            baseTypeResolver->find(traceEvent.fID) &&
+            0 != strcmp(*baseTypeResolver->find(traceEvent.fID), traceEvent.fName)) {
+        // Special handling for snapshots where the name differs from creation.
+        // We assume one arg, named "snapshot" (and we end up with nested "snapshot" fields).
+        SkASSERT(1 == traceEvent.fNumArgs);
+        Json::Value snapshot;
+        snapshot["base_type"] = *baseTypeResolver->find(traceEvent.fID);
+        snapshot["snapshot"] = trace_value_to_json(traceEvent.fArgValues[0],
+                                                   traceEvent.fArgTypes[0]);
         Json::Value args;
-        skia::tracing_internals::TraceValueUnion value;
+        args["snapshot"] = snapshot;
+        json["args"] = args;
+    } else if (traceEvent.fNumArgs) {
+        Json::Value args;
         for (int i = 0; i < traceEvent.fNumArgs; ++i) {
-            value.as_uint = traceEvent.fArgValues[i];
-            switch (traceEvent.fArgTypes[i]) {
-                case TRACE_VALUE_TYPE_BOOL:
-                    args[traceEvent.fArgNames[i]] = value.as_bool;
-                    break;
-                case TRACE_VALUE_TYPE_UINT:
-                    args[traceEvent.fArgNames[i]] = static_cast<Json::UInt64>(value.as_uint);
-                    break;
-                case TRACE_VALUE_TYPE_INT:
-                    args[traceEvent.fArgNames[i]] = static_cast<Json::Int64>(value.as_uint);
-                    break;
-                case TRACE_VALUE_TYPE_DOUBLE:
-                    args[traceEvent.fArgNames[i]] = value.as_double;
-                    break;
-                case TRACE_VALUE_TYPE_POINTER:
-                    args[traceEvent.fArgNames[i]] = value.as_pointer;
-                    break;
-                case TRACE_VALUE_TYPE_STRING:
-                case TRACE_VALUE_TYPE_COPY_STRING:
-                    args[traceEvent.fArgNames[i]] = value.as_string;
-                    break;
-                default:
-                    args[traceEvent.fArgNames[i]] = "<unknown type>";
-                    break;
+            Json::Value argValue = trace_value_to_json(traceEvent.fArgValues[i],
+                                                       traceEvent.fArgTypes[i]);
+            if (traceEvent.fArgNames[i] && '#' == traceEvent.fArgNames[i][0]) {
+                // Interpret #foo as an ID reference
+                Json::Value idRef;
+                idRef["id_ref"] = argValue;
+                args[traceEvent.fArgNames[i] + 1] = idRef;
+            } else {
+                args[traceEvent.fArgNames[i]] = argValue;
             }
         }
         json["args"] = args;
@@ -138,15 +176,16 @@ void SkChromeTracingTracer::flush() {
     SkAutoMutexAcquire lock(fMutex);
 
     Json::Value root(Json::arrayValue);
+    BaseTypeResolver baseTypeResolver;
 
     for (int i = 0; i < fBlocks.count(); ++i) {
         for (int j = 0; j < kEventsPerBlock; ++j) {
-            root.append(this->traceEventToJson(fBlocks[i][j]));
+            root.append(this->traceEventToJson(fBlocks[i][j], &baseTypeResolver));
         }
     }
 
     for (int i = 0; i < fEventsInCurBlock; ++i) {
-        root.append(this->traceEventToJson(fCurBlock[i]));
+        root.append(this->traceEventToJson(fCurBlock[i], &baseTypeResolver));
     }
 
     SkString dirname = SkOSPath::Dirname(fFilename.c_str());
