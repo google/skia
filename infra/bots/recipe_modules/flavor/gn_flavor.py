@@ -2,7 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 import default_flavor
+
 
 """GN flavor utils, used for building Skia with GN."""
 class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
@@ -133,10 +135,19 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       env = {}
       if 'CheckGeneratedFiles' in extra_config:
-        env['PATH'] = '%s:%%(PATH)s' % self.m.vars.skia_dir.join('bin')
+        env['PATH'] = ':'.join([
+            str(self.m.vars.skia_dir.join('bin')), '%(PATH)s'])
         self._py(
             'fetch-clang-format',
             self.m.vars.skia_dir.join('bin', 'fetch-clang-format'))
+        self.m.run(
+            self.m.step,
+            'ls',
+            cmd=['ls', '-alh', self.m.vars.skia_dir.join('bin')])
+        self.m.run(
+            self.m.step,
+            'which clang-format',
+            cmd=['which', 'clang-format'])
 
       with self.m.env(env):
         self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
