@@ -1,4 +1,4 @@
-SkRect
+SkRect Overview
 ======
 
 *Rectangles*

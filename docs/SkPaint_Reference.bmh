@@ -1,4 +1,5 @@
 ﻿#Topic Paint
+#Alias Paint_Reference
 
 Paint controls options applied when drawing and measuring. Paint collects all
 options outside of the Canvas_Clip and Canvas_Matrix.

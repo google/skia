@@ -1,4 +1,5 @@
 #Topic Canvas
+#Alias Canvas_Reference
 
 Canvas provides an interface for drawing, and how the drawing is clipped and transformed.
 Canvas contains a stack of Matrix and Clip values.
