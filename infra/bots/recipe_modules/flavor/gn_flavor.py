@@ -105,6 +105,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
         args['skia_vulkan_sdk'] = '"%s"' % linux_vulkan_sdk
       if 'Win' in os:
         args['skia_vulkan_sdk'] = '"%s"' % win_vulkan_sdk
+    if 'Metal' in extra_config:
+      args['skia_use_metal'] = 'true'
     if 'CheckGeneratedFiles' in extra_config:
       args['skia_compile_processors'] = 'true'
 
