@@ -1412,42 +1412,16 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     this->addDrawOp(clip, std::move(op));
 }
 
-bool GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
-                                                 GrBackendSemaphore* backendSemaphores) {
+GrSemaphoresSubmitted GrRenderTargetContext::prepareForExternalIO(
+        int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
     ASSERT_SINGLE_OWNER
-    RETURN_FALSE_IF_ABANDONED
+    if (this->drawingManager()->wasAbandoned()) { return GrSemaphoresSubmitted::kNo; }
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "prepareForExternalIO", fContext);
 
-    if (numSemaphores && !this->caps()->fenceSyncSupport()) {
-        this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
-        return false;
-    }
-
-    SkTArray<sk_sp<GrSemaphore>> semaphores(numSemaphores);
-    for (int i = 0; i < numSemaphores; ++i) {
-        if (backendSemaphores[i].isInitialized()) {
-            semaphores.push_back(fContext->resourceProvider()->wrapBackendSemaphore(
-                    backendSemaphores[i], kBorrow_GrWrapOwnership));
-        } else {
-            semaphores.push_back(fContext->resourceProvider()->makeSemaphore(false));
-        }
-        // Create signal semaphore ops and force the final one to call flush.
-        bool forceFlush = (i == (numSemaphores - 1));
-        std::unique_ptr<GrOp> signalOp(GrSemaphoreOp::MakeSignal(semaphores.back(),
-                                                                 fRenderTargetProxy.get(),
-                                                                 forceFlush));
-        this->getRTOpList()->addOp(std::move(signalOp), *this->caps());
-    }
-
-    this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get());
-
-    for (int i = 0; i < numSemaphores; ++i) {
-        if (!backendSemaphores[i].isInitialized()) {
-            semaphores[i]->setBackendSemaphore(&backendSemaphores[i]);
-        }
-    }
-    return true;
+    return this->drawingManager()->prepareSurfaceForExternalIO(fRenderTargetProxy.get(),
+                                                               numSemaphores,
+                                                               backendSemaphores);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
