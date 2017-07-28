@@ -51,31 +51,35 @@ uint16_t* GrOpFlushState::makeIndexSpaceAtLeast(int minIndexCount, int fallbackI
 }
 
 void GrOpFlushState::doUpload(GrDrawOp::DeferredUploadFn& upload) {
-    GrDrawOp::WritePixelsFn wp = [this](GrSurface* surface, int left, int top, int width,
+    GrDrawOp::WritePixelsFn wp = [this](GrTextureProxy* proxy,
+                                        int left, int top, int width,
                                         int height, GrPixelConfig config, const void* buffer,
                                         size_t rowBytes) {
+        GrSurface* surface = proxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
-        fGpu->getWritePixelsInfo(surface, width, height, surface->config(), &drawPreference,
-                                 &tempInfo);
+        fGpu->getWritePixelsInfo(surface, width, height, proxy->config(),
+                                 &drawPreference, &tempInfo);
         if (GrGpu::kNoDraw_DrawPreference == drawPreference) {
-            return this->fGpu->writePixels(surface, left, top, width, height, config, buffer,
-                                           rowBytes);
+            return this->fGpu->writePixels(surface, left, top, width, height,
+                                           config, buffer, rowBytes);
         }
         GrSurfaceDesc desc;
-        desc.fConfig = surface->config();
+        desc.fOrigin = proxy->origin();
         desc.fWidth = width;
         desc.fHeight = height;
-        desc.fOrigin = surface->origin();
+        desc.fConfig = proxy->config();
         sk_sp<GrTexture> temp(this->fResourceProvider->createApproxTexture(
                 desc, GrResourceProvider::kNoPendingIO_Flag));
         if (!temp) {
             return false;
         }
-        if (!fGpu->writePixels(temp.get(), 0, 0, width, height, desc.fConfig, buffer, rowBytes)) {
+        if (!fGpu->writePixels(temp.get(), 0, 0, width, height, desc.fConfig,
+                               buffer, rowBytes)) {
             return false;
         }
-        return fGpu->copySurface(surface, temp.get(), SkIRect::MakeWH(width, height), {left, top});
+        return fGpu->copySurface(surface, temp.get(),
+                                 SkIRect::MakeWH(width, height), {left, top});
     };
     upload(wp);
 }

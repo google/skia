@@ -216,7 +216,7 @@ private:
         void setLastUploadToken(GrDrawOpUploadToken token) { fLastUpload = token; }
         void setLastUseToken(GrDrawOpUploadToken token) { fLastUse = token; }
 
-        void uploadToTexture(GrDrawOp::WritePixelsFn&, GrTexture* texture);
+        void uploadToTexture(GrDrawOp::WritePixelsFn&, GrTextureProxy*);
         void resetRects();
 
     private:
