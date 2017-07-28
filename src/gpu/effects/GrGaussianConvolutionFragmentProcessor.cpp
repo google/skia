@@ -7,7 +7,6 @@
 
 #include "GrGaussianConvolutionFragmentProcessor.h"
 
-#include "GrProxyMove.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "../private/GrGLSL.h"

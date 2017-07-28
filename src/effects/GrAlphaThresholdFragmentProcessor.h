@@ -17,7 +17,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrColorSpaceXform.h"
-#include "effects/GrProxyMove.h"
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     inline OptimizationFlags optFlags(float outerThreshold);

@@ -236,8 +236,7 @@ bool HCodeGenerator::generateCode() {
     this->writeSection(HEADER_SECTION);
     this->writef("#include \"GrFragmentProcessor.h\"\n"
                  "#include \"GrCoordTransform.h\"\n"
-                 "#include \"GrColorSpaceXform.h\"\n"
-                 "#include \"effects/GrProxyMove.h\"\n");
+                 "#include \"GrColorSpaceXform.h\"\n");
     this->writef("class %s : public GrFragmentProcessor {\n"
                  "public:\n",
                  fFullName.c_str());

@@ -15,7 +15,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrColorSpaceXform.h"
-#include "effects/GrProxyMove.h"
 class GrDitherEffect : public GrFragmentProcessor {
 public:
     int rangeType() const { return fRangeType; }

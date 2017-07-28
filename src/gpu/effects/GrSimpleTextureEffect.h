@@ -15,7 +15,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrColorSpaceXform.h"
-#include "effects/GrProxyMove.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
     sk_sp<GrColorSpaceXform> colorXform() const { return fColorXform; }
