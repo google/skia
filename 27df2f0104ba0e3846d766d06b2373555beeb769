@@ -16,6 +16,24 @@
       "revId": "27df2f0104ba0e3846d766d06b2373555beeb769",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0201446_288c98d6",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T14:17:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9add4db_139c562f",
+      "revId": "27df2f0104ba0e3846d766d06b2373555beeb769",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
