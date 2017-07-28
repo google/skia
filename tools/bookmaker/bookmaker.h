@@ -8,7 +8,7 @@
 #ifndef bookmaker_DEFINED
 #define bookmaker_DEFINED
 
-#define STDOUT_TO_IDE_OUT 01
+#define STDOUT_TO_IDE_OUT 0
 
 #include "SkData.h"
 
