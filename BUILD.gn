@@ -456,7 +456,7 @@ if (skia_compile_processors) {
     }
     args = [
       rebase_path(skslc_path),
-      rebase_path("infra/bots/.recipe_deps/depot_tools/clang-format"),
+      rebase_path("bin/clang-format"),
     ]
     args += rebase_path(skia_gpu_processor_sources)
   }
