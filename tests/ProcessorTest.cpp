@@ -83,11 +83,24 @@ public:
         b->add32(sk_atomic_inc(&gKey));
     }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        sk_sp<GrFragmentProcessor> child;
+        if (this->numChildProcessors()) {
+            SkASSERT(1 == this->numChildProcessors());
+            child = this->childProcessor(0).clone();
+            if (!child) {
+                return nullptr;
+            }
+        }
+        return sk_sp<GrFragmentProcessor> (new TestFP(*this, std::move(child)));
+    }
+
 private:
     TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
            const SkTArray<sk_sp<GrBuffer>>& buffers,
            const SkTArray<Image>& images)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
+        this->initClassID<TestFP>();
         for (const auto& proxy : proxies) {
             this->addTextureSampler(&fSamplers.emplace_back(proxy));
         }
@@ -103,7 +116,28 @@ private:
 
     TestFP(sk_sp<GrFragmentProcessor> child)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
+        this->initClassID<TestFP>();
         this->registerChildProcessor(std::move(child));
+    }
+
+    explicit TestFP(const TestFP& that, sk_sp<GrFragmentProcessor> child)
+            : INHERITED(that.optimizationFlags()), fSamplers(4), fBuffers(4), fImages(4) {
+        this->initClassID<TestFP>();
+        for (int i = 0; i < that.fSamplers.count(); ++i) {
+            fSamplers.emplace_back(that.fSamplers[i]);
+            this->addTextureSampler(&fSamplers.back());
+        }
+        for (int i = 0; i < that.fBuffers.count(); ++i) {
+            fBuffers.emplace_back(that.fBuffers[i]);
+            this->addBufferAccess(&fBuffers.back());
+        }
+        for (int i = 0; i < that.fImages.count(); ++i) {
+            fImages.emplace_back(that.fImages[i]);
+            this->addImageStorageAccess(&fImages.back());
+        }
+        if (child) {
+            this->registerChildProcessor(std::move(child));
+        }
     }
 
     virtual GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -151,109 +185,127 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     desc.fHeight = 10;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-        sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox, 1, 1, kRGBA_8888_GrPixelConfig, nullptr));
-        {
-            bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
-            bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
-            sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      desc, SkBackingFit::kExact,
-                                                                      SkBudgeted::kYes));
-            sk_sp<GrTextureProxy> proxy2(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      desc, SkBackingFit::kExact,
-                                                                      SkBudgeted::kYes));
-            sk_sp<GrTextureProxy> proxy3(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      desc, SkBackingFit::kExact,
-                                                                      SkBudgeted::kYes));
-            sk_sp<GrTextureProxy> proxy4(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      desc, SkBackingFit::kExact,
-                                                                      SkBudgeted::kYes));
-            sk_sp<GrBuffer> buffer(texelBufferSupport
-                                           ? context->resourceProvider()->createBuffer(
-                                                     1024, GrBufferType::kTexel_GrBufferType,
-                                                     GrAccessPattern::kStatic_GrAccessPattern, 0)
-                                           : nullptr);
+    for (bool makeClone : {false, true}) {
+        for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
+            sk_sp<GrRenderTargetContext> renderTargetContext(
+                    context->makeDeferredRenderTargetContext( SkBackingFit::kApprox, 1, 1,
+                                                              kRGBA_8888_GrPixelConfig, nullptr));
             {
-                SkTArray<sk_sp<GrTextureProxy>> proxies;
-                SkTArray<sk_sp<GrBuffer>> buffers;
-                SkTArray<TestFP::Image> images;
-                proxies.push_back(proxy1);
+                bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
+                bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
+                sk_sp<GrTextureProxy> proxy1(
+                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                     desc, SkBackingFit::kExact,
+                                                     SkBudgeted::kYes));
+                sk_sp<GrTextureProxy> proxy2
+                        (GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                      desc, SkBackingFit::kExact,
+                                                      SkBudgeted::kYes));
+                sk_sp<GrTextureProxy> proxy3(
+                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                     desc, SkBackingFit::kExact,
+                                                     SkBudgeted::kYes));
+                sk_sp<GrTextureProxy> proxy4(
+                        GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                     desc, SkBackingFit::kExact,
+                                                     SkBudgeted::kYes));
+                sk_sp<GrBuffer> buffer(texelBufferSupport
+                        ? context->resourceProvider()->createBuffer(
+                                  1024, GrBufferType::kTexel_GrBufferType,
+                                  GrAccessPattern::kStatic_GrAccessPattern, 0)
+                        : nullptr);
+                {
+                    SkTArray<sk_sp<GrTextureProxy>> proxies;
+                    SkTArray<sk_sp<GrBuffer>> buffers;
+                    SkTArray<TestFP::Image> images;
+                    proxies.push_back(proxy1);
+                    if (texelBufferSupport) {
+                        buffers.push_back(buffer);
+                    }
+                    if (imageLoadStoreSupport) {
+                        images.emplace_back(proxy2, GrIOType::kRead_GrIOType);
+                        images.emplace_back(proxy3, GrIOType::kWrite_GrIOType);
+                        images.emplace_back(proxy4, GrIOType::kRW_GrIOType);
+                    }
+                    auto fp = TestFP::Make(std::move(proxies), std::move(buffers),
+                                           std::move(images));
+                    for (int i = 0; i < parentCnt; ++i) {
+                        fp = TestFP::Make(std::move(fp));
+                    }
+                    sk_sp<GrFragmentProcessor> clone;
+                    if (makeClone) {
+                        clone = fp->clone();
+                    }
+                    std::unique_ptr<GrDrawOp> op(TestOp::Make(std::move(fp)));
+                    renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                    if (clone) {
+                        op = TestOp::Make(std::move(clone));
+                        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                    }
+                }
+                int refCnt, readCnt, writeCnt;
+
+                testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
+                // IO counts should be double if there is a clone of the FP.
+                int ioRefMul = makeClone ? 2 : 1;
+                REPORTER_ASSERT(reporter, 1 == refCnt);
+                REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
+                REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
+
                 if (texelBufferSupport) {
-                    buffers.push_back(buffer);
+                    testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul *  0 == writeCnt);
                 }
+
                 if (imageLoadStoreSupport) {
-                    images.emplace_back(proxy2, GrIOType::kRead_GrIOType);
-                    images.emplace_back(proxy3, GrIOType::kWrite_GrIOType);
-                    images.emplace_back(proxy4, GrIOType::kRW_GrIOType);
+                    testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
+
+                    testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 1 == writeCnt);
+
+                    testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 1 == writeCnt);
                 }
-                auto fp = TestFP::Make(std::move(proxies), std::move(buffers), std::move(images));
-                for (int i = 0; i < parentCnt; ++i) {
-                    fp = TestFP::Make(std::move(fp));
+
+                context->flush();
+
+                testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
+                REPORTER_ASSERT(reporter, 1 == refCnt);
+                REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
+                REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
+
+                if (texelBufferSupport) {
+                    testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
                 }
-                std::unique_ptr<GrDrawOp> op(TestOp::Make(std::move(fp)));
-                renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
-            }
-            int refCnt, readCnt, writeCnt;
 
-            testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
-            REPORTER_ASSERT(reporter, 1 == refCnt);
-            REPORTER_ASSERT(reporter, 1 == readCnt);
-            REPORTER_ASSERT(reporter, 0 == writeCnt);
+                if (texelBufferSupport) {
+                    testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 
-            if (texelBufferSupport) {
-                testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 1 == readCnt);
-                REPORTER_ASSERT(reporter, 0 == writeCnt);
-            }
+                    testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 
-            if (imageLoadStoreSupport) {
-                testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 1 == readCnt);
-                REPORTER_ASSERT(reporter, 0 == writeCnt);
-
-                testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 0 == readCnt);
-                REPORTER_ASSERT(reporter, 1 == writeCnt);
-
-                testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 1 == readCnt);
-                REPORTER_ASSERT(reporter, 1 == writeCnt);
-            }
-
-            context->flush();
-
-            testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
-            REPORTER_ASSERT(reporter, 1 == refCnt);
-            REPORTER_ASSERT(reporter, 0 == readCnt);
-            REPORTER_ASSERT(reporter, 0 == writeCnt);
-
-            if (texelBufferSupport) {
-                testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 0 == readCnt);
-                REPORTER_ASSERT(reporter, 0 == writeCnt);
-            }
-
-            if (texelBufferSupport) {
-                testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 0 == readCnt);
-                REPORTER_ASSERT(reporter, 0 == writeCnt);
-
-                testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 0 == readCnt);
-                REPORTER_ASSERT(reporter, 0 == writeCnt);
-
-                testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
-                REPORTER_ASSERT(reporter, 1 == refCnt);
-                REPORTER_ASSERT(reporter, 0 == readCnt);
-                REPORTER_ASSERT(reporter, 0 == writeCnt);
+                    testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
+                    REPORTER_ASSERT(reporter, 1 == refCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
+                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
+                }
             }
         }
     }
