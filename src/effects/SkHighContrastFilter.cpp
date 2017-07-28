@@ -251,26 +251,26 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
                                                     "contrast", &contrast);
 
     if (nullptr == args.fInputColor) {
-        args.fInputColor = "vec4(1)";
+        args.fInputColor = "float4(1)";
     }
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    fragBuilder->codeAppendf("vec4 color = %s;", args.fInputColor);
+    fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
 
     // Unpremultiply. The max() is to guard against 0 / 0.
     fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
-    fragBuilder->codeAppendf("color = vec4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
+    fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
 
     // Grayscale.
     if (fConfig.fGrayscale) {
-        fragBuilder->codeAppendf("float luma = dot(color, vec4(%f, %f, %f, 0));",
+        fragBuilder->codeAppendf("float luma = dot(color, float4(%f, %f, %f, 0));",
                                  SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B);
-        fragBuilder->codeAppendf("color = vec4(luma, luma, luma, 0);");
+        fragBuilder->codeAppendf("color = float4(luma, luma, luma, 0);");
     }
 
     if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
-        fragBuilder->codeAppendf("color = vec4(1, 1, 1, 1) - color;");
+        fragBuilder->codeAppendf("color = float4(1, 1, 1, 1) - color;");
     }
 
     if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
@@ -325,7 +325,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
                                   "return p;",
                                   &hue2rgbFuncName);
         fragBuilder->codeAppendf("if (s == 0) {");
-        fragBuilder->codeAppendf("  color = vec4(l, l, l, 0);");
+        fragBuilder->codeAppendf("  color = float4(l, l, l, 0);");
         fragBuilder->codeAppendf("} else {");
         fragBuilder->codeAppendf("  float q = l < 0.5 ? l * (1 + s) : l + s - l * s;");
         fragBuilder->codeAppendf("  float p = 2 * l - q;");
