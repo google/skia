@@ -234,7 +234,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
     }
     string match = filename.substr(start);
     string header = match;
-    filename = "bmh_" + match + ".md";
+    filename = match + ".md";
     match += ".bmh";
     fOut = nullptr;
     for (const auto& topic : fBmhParser.fTopicMap) {
@@ -260,7 +260,12 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
                 SkDebugf("could not open output file %s\n", fullName.c_str());
                 return false;
             }
-            fprintf(fOut, "Experimental %s", header.c_str());
+            size_t underscorePos = header.find('_');
+            if (string::npos != underscorePos) {
+                header.replace(underscorePos, 1, " ");
+            }
+            SkASSERT(string::npos == header.find('_'));
+            fprintf(fOut, "%s", header.c_str());
             this->lfAlways(1);
             fprintf(fOut, "===");
         }
