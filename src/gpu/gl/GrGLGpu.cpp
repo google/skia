@@ -3512,7 +3512,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
         "void main() {"
         "  v_texCoord = a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw;"
         "  gl_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
-        "  gl_Position.zw = vec2(0, 1);"
+        "  gl_Position.zw = float2(0, 1);"
         "}"
     );
 
@@ -3628,27 +3628,27 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     vshaderTxt.append(
         "// Mipmap Program VS\n"
         "void main() {"
-        "  gl_Position.xy = a_vertex * vec2(2, 2) - vec2(1, 1);"
-        "  gl_Position.zw = vec2(0, 1);"
+        "  gl_Position.xy = a_vertex * float2(2, 2) - float2(1, 1);"
+        "  gl_Position.zw = float2(0, 1);"
     );
 
     // Insert texture coordinate computation:
     if (oddWidth && oddHeight) {
         vshaderTxt.append(
             "  v_texCoord0 = a_vertex.xy * u_texCoordXform.yw;"
-            "  v_texCoord1 = a_vertex.xy * u_texCoordXform.yw + vec2(u_texCoordXform.x, 0);"
-            "  v_texCoord2 = a_vertex.xy * u_texCoordXform.yw + vec2(0, u_texCoordXform.z);"
+            "  v_texCoord1 = a_vertex.xy * u_texCoordXform.yw + float2(u_texCoordXform.x, 0);"
+            "  v_texCoord2 = a_vertex.xy * u_texCoordXform.yw + float2(0, u_texCoordXform.z);"
             "  v_texCoord3 = a_vertex.xy * u_texCoordXform.yw + u_texCoordXform.xz;"
         );
     } else if (oddWidth) {
         vshaderTxt.append(
-            "  v_texCoord0 = a_vertex.xy * vec2(u_texCoordXform.y, 1);"
-            "  v_texCoord1 = a_vertex.xy * vec2(u_texCoordXform.y, 1) + vec2(u_texCoordXform.x, 0);"
+            "  v_texCoord0 = a_vertex.xy * float2(u_texCoordXform.y, 1);"
+            "  v_texCoord1 = a_vertex.xy * float2(u_texCoordXform.y, 1) + float2(u_texCoordXform.x, 0);"
         );
     } else if (oddHeight) {
         vshaderTxt.append(
-            "  v_texCoord0 = a_vertex.xy * vec2(1, u_texCoordXform.w);"
-            "  v_texCoord1 = a_vertex.xy * vec2(1, u_texCoordXform.w) + vec2(0, u_texCoordXform.z);"
+            "  v_texCoord0 = a_vertex.xy * float2(1, u_texCoordXform.w);"
+            "  v_texCoord1 = a_vertex.xy * float2(1, u_texCoordXform.w) + float2(0, u_texCoordXform.z);"
         );
     } else {
         vshaderTxt.append(
@@ -3760,7 +3760,7 @@ bool GrGLGpu::createStencilClipClearProgram() {
     vshaderTxt.append(
             "// Stencil Clip Clear Program VS\n"
             "void main() {"
-            "  gl_Position = vec4(a_vertex.x, a_vertex.y, 0, 1);"
+            "  gl_Position = float4(a_vertex.x, a_vertex.y, 0, 1);"
             "}");
 
     SkString fshaderTxt(version);
@@ -3770,7 +3770,7 @@ bool GrGLGpu::createStencilClipClearProgram() {
     fshaderTxt.appendf(
             "// Stencil Clip Clear Program FS\n"
             "void main() {"
-            "  sk_FragColor = vec4(0);"
+            "  sk_FragColor = float4(0);"
             "}");
 
     const char* str;
