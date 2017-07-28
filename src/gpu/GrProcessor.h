@@ -287,6 +287,15 @@ public:
         this->reset(texelConfig, buffer, visibility);
     }
     /**
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
+     * always takes a new ref on the buffer proxy as the new fragment processor will not yet be
+     * in pending execution state.
+     */
+    explicit BufferAccess(const BufferAccess& that) {
+        this->reset(that.fTexelConfig, that.fBuffer.get(), that.fVisibility);
+    }
+
+    /**
      * Must be initialized before adding to a GrProcessor's buffer access list.
      */
     void reset(GrPixelConfig texelConfig, GrBuffer* buffer,
@@ -331,6 +340,17 @@ class GrResourceIOProcessor::ImageStorageAccess : public SkNoncopyable {
 public:
     ImageStorageAccess(sk_sp<GrTextureProxy>, GrIOType, GrSLMemoryModel, GrSLRestrict,
                        GrShaderFlags visibility = kFragment_GrShaderFlag);
+    /**
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
+     * always takes a new ref on the surface proxy as the new fragment processor will not yet be
+     * in pending execution state.
+     */
+    explicit ImageStorageAccess(const ImageStorageAccess& that)
+            : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
+            , fVisibility(that.fVisibility)
+            , fFormat(that.fFormat)
+            , fMemoryModel(that.fMemoryModel)
+            , fRestrict(that.fRestrict) {}
 
     bool operator==(const ImageStorageAccess& that) const {
         return this->proxy() == that.proxy() && fVisibility == that.fVisibility;
