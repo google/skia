@@ -163,6 +163,10 @@ public:
 
     const char* name() const override { return "Morphology"; }
 
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(*this));
+    }
+
 private:
     GrCoordTransform fCoordTransform;
     TextureSampler fTextureSampler;
