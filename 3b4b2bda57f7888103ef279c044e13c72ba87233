@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9656958d_1363550c",
+        "filename": "include/private/GrGLSL.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "Assuming we still need this enum, we should rename them to match (perhaps in a sep. CL).",
+      "range": {
+        "startLine": 94,
+        "startChar": 13,
+        "endLine": 94,
+        "endChar": 28
+      },
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c889526_bb9cc60e",
+        "filename": "src/core/SkColorMatrixFilterRowMajor255.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "wrap, or just rm the \\n?",
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7050a6d_46be1537",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "wrap",
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "104391ea_8d06752b",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "reflow",
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfea10ed_bba9e709",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "reflow",
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0963810_6a6eaae9",
+        "filename": "src/gpu/glsl/GrGLSLVertexShaderBuilder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "fix indent",
+      "range": {
+        "startLine": 30,
+        "startChar": 46,
+        "endLine": 30,
+        "endChar": 53
+      },
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce38fb33_a59164ef",
+        "filename": "src/gpu/instanced/InstanceProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-28T15:28:24Z",
+      "side": 1,
+      "message": "fix indent",
+      "range": {
+        "startLine": 516,
+        "startChar": 44,
+        "endLine": 516,
+        "endChar": 46
+      },
+      "revId": "3b4b2bda57f7888103ef279c044e13c72ba87233",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
