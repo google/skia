@@ -99,7 +99,7 @@ public:
     static int Count() { return GetFactories()->count(); }
 
     /** Use factory function at Index idx to create a processor. */
-    static sk_sp<Processor> MakeIdx(int idx, GrProcessorTestData* data) {
+    static ProcessorSmartPtr MakeIdx(int idx, GrProcessorTestData* data) {
         GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
         ProcessorSmartPtr processor = factory->fMakeProc(data);
         SkASSERT(processor);
