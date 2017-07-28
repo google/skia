@@ -167,7 +167,7 @@ GrGLuint GLVec4ScalarBench::setupShader(const GrGLContext* ctx) {
         float centerY = 1.0f - radius;
         fshaderTxt.appendf(
             "    {\n"
-            "        float d = length(%s - vec2(%f, %f));\n"
+            "        float d = length(%s - float2(%f, %f));\n"
             "        float edgeAlpha = clamp(100.0 * (%f - d), 0.0, 1.0);\n"
             "        outputCoverage = 0.5 * outputCoverage + 0.5 * %s;\n"
             "    }\n",
