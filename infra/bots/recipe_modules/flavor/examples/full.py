@@ -57,6 +57,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Android_API26',
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-x86_64-Debug-CommandBuffer',
+  'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Ubuntu-Clang-x86_64-Release-Mini',
   'Build-Ubuntu-Clang-x86_64-Release-Shared',
   'Build-Ubuntu-Clang-x86_64-Release-Vulkan',

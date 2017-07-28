@@ -336,6 +336,12 @@
         "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
       ]
     },
+    "Build-Mac-Clang-x86_64-Debug-Metal": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Mac-Clang-x86_64-Debug-Metal"
+      ]
+    },
     "Build-Mac-Clang-x86_64-Release": {
       "priority": 0.8,
       "tasks": [
@@ -3865,6 +3871,28 @@
         "compile",
         "repository=<(REPO)",
         "buildername=Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
+    "Build-Mac-Clang-x86_64-Debug-Metal": {
+      "dimensions": [
+        "gpu:none",
+        "os:Mac-10.12",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Mac-Clang-x86_64-Debug-Metal",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

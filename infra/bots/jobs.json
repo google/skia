@@ -55,6 +55,7 @@
   "Build-Mac-Clang-x64-Release-iOS",
   "Build-Mac-Clang-x86_64-Debug",
   "Build-Mac-Clang-x86_64-Debug-CommandBuffer",
+  "Build-Mac-Clang-x86_64-Debug-Metal",
   "Build-Mac-Clang-x86_64-Release",
   "Build-Mac-Clang-x86_64-Release-CommandBuffer",
   "Build-Win-Clang-arm64-Release-Android",
