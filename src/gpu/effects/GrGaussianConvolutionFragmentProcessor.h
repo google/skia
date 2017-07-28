@@ -32,8 +32,6 @@ public:
             std::move(proxy), dir, halfWidth, gaussianSigma, mode, bounds));
     }
 
-    ~GrGaussianConvolutionFragmentProcessor() override;
-
     const float* kernel() const { return fKernel; }
 
     const int* bounds() const { return fBounds; }
@@ -45,6 +43,10 @@ public:
     GrTextureDomain::Mode mode() const { return fMode; }
 
     const char* name() const override { return "GaussianConvolution"; }
+
+    sk_sp<GrFragmentProcessor> clone() const override {
+        return sk_sp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(*this));
+    }
 
     // This was decided based on the min allowed value for the max texture
     // samples per fragment program run in DX9SM2 (32). A sigma param of 4.0
@@ -60,6 +62,8 @@ private:
     GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, Direction,
                                            int halfWidth, float gaussianSigma,
                                            GrTextureDomain::Mode mode, int bounds[2]);
+
+    explicit GrGaussianConvolutionFragmentProcessor(const GrGaussianConvolutionFragmentProcessor&);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
