@@ -21,7 +21,6 @@
 #include "GrContext.h"
 #include "GrCoordTransform.h"
 #include "GrTexture.h"
-#include "effects/GrProxyMove.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"

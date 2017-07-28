@@ -15,7 +15,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrColorSpaceXform.h"
-#include "effects/GrProxyMove.h"
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
     int edgeType() const { return fEdgeType; }

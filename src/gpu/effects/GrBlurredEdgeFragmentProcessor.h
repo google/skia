@@ -15,7 +15,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 #include "GrColorSpaceXform.h"
-#include "effects/GrProxyMove.h"
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum Mode { kGaussian_Mode = 0, kSmoothStep_Mode = 1 };

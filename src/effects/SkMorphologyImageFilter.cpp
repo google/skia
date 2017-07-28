@@ -25,7 +25,6 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
-#include "effects/GrProxyMove.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
