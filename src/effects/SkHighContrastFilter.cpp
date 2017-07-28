@@ -35,7 +35,7 @@ public:
     ~SkHighContrast_Filter() override {}
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
+    gr_fp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
  #endif
 
     void onAppendStages(SkRasterPipeline* p,
@@ -166,15 +166,15 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 class HighContrastFilterEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(const SkHighContrastConfig& config) {
-        return sk_sp<GrFragmentProcessor>(new HighContrastFilterEffect(config));
+    static gr_fp<GrFragmentProcessor> Make(const SkHighContrastConfig& config) {
+        return gr_fp<GrFragmentProcessor>(new HighContrastFilterEffect(config));
     }
 
     const char* name() const override { return "HighContrastFilter"; }
 
     const SkHighContrastConfig& config() const { return fConfig; }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(fConfig); }
+    gr_fp<GrFragmentProcessor> clone() const override { return Make(fConfig); }
 
 private:
     HighContrastFilterEffect(const SkHighContrastConfig& config)
@@ -353,7 +353,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = color;", args.fOutputColor);
 }
 
-sk_sp<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
+gr_fp<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
     return HighContrastFilterEffect::Make(fConfig);
 }
 #endif

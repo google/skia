@@ -469,7 +469,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst,
     }
 
     if (tempProxy) {
-        sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
+        gr_fp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
                 tempProxy, nullptr, SkMatrix::I());
         if (premulOnGpu) {
             fp = fContext->createUPMToPMEffect(std::move(fp), useConfigConversionEffect);
@@ -597,7 +597,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
         if (tempRTC) {
             SkMatrix textureMatrix = SkMatrix::MakeTrans(SkIntToScalar(left), SkIntToScalar(top));
             sk_sp<GrTextureProxy> proxy = src->asTextureProxyRef();
-            sk_sp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
+            gr_fp<GrFragmentProcessor> fp = GrSimpleTextureEffect::Make(
                     std::move(proxy), nullptr, textureMatrix);
             if (unpremulOnGpu) {
                 fp = fContext->createPMToUPMEffect(std::move(fp), useConfigConversionEffect);
@@ -912,7 +912,7 @@ bool GrContext::abandoned() const {
     return fDrawingManager->wasAbandoned();
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProcessor> fp,
+gr_fp<GrFragmentProcessor> GrContext::createPMToUPMEffect(gr_fp<GrFragmentProcessor> fp,
                                                           bool useConfigConversionEffect) {
     ASSERT_SINGLE_OWNER
     // We have specialized effects that guarantee round-trip conversion for some formats
@@ -931,7 +931,7 @@ sk_sp<GrFragmentProcessor> GrContext::createPMToUPMEffect(sk_sp<GrFragmentProces
     }
 }
 
-sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProcessor> fp,
+gr_fp<GrFragmentProcessor> GrContext::createUPMToPMEffect(gr_fp<GrFragmentProcessor> fp,
                                                           bool useConfigConversionEffect) {
     ASSERT_SINGLE_OWNER
     // We have specialized effects that guarantee round-trip conversion for these formats

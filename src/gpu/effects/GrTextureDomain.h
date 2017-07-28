@@ -153,7 +153,7 @@ protected:
  */
 class GrTextureDomainEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
                                            sk_sp<GrColorSpaceXform>,
                                            const SkMatrix&,
                                            const SkRect& domain,
@@ -162,8 +162,8 @@ public:
 
     const char* name() const override { return "TextureDomain"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrTextureDomainEffect(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrTextureDomainEffect(*this));
     }
 
     SkString dumpInfo() const override {
@@ -207,7 +207,7 @@ private:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
                                            const SkIRect& subset,
                                            const SkIPoint& deviceSpaceOffset);
 
@@ -223,7 +223,7 @@ public:
         return str;
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    gr_fp<GrFragmentProcessor> clone() const override;
 
 private:
     TextureSampler fTextureSampler;

@@ -16,7 +16,7 @@
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            const SkIRect& bounds,
                                            const SkISize& kernelSize,
                                            const SkScalar* kernel,
@@ -25,12 +25,12 @@ public:
                                            const SkIPoint& kernelOffset,
                                            GrTextureDomain::Mode tileMode,
                                            bool convolveAlpha) {
-        return sk_sp<GrFragmentProcessor>(
+        return gr_fp<GrFragmentProcessor>(
             new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize,
                                           kernel, gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static sk_sp<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> proxy,
+    static gr_fp<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> proxy,
                                                    const SkIRect& bounds,
                                                    const SkISize& kernelSize,
                                                    SkScalar gain,
@@ -52,7 +52,7 @@ public:
 
     const char* name() const override { return "MatrixConvolution"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    gr_fp<GrFragmentProcessor> clone() const override;
 
 private:
     GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy,

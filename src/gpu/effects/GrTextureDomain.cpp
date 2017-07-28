@@ -206,7 +206,7 @@ inline GrFragmentProcessor::OptimizationFlags GrTextureDomainEffect::OptFlags(
     }
 }
 
-sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(sk_sp<GrTextureProxy> proxy,
+gr_fp<GrFragmentProcessor> GrTextureDomainEffect::Make(sk_sp<GrTextureProxy> proxy,
                                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
                                                        const SkMatrix& matrix,
                                                        const SkRect& domain,
@@ -217,7 +217,7 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::Make(sk_sp<GrTextureProxy> pro
         return GrSimpleTextureEffect::Make(std::move(proxy),
                                            std::move(colorSpaceXform), matrix, filterMode);
     } else {
-        return sk_sp<GrFragmentProcessor>(
+        return gr_fp<GrFragmentProcessor>(
             new GrTextureDomainEffect(std::move(proxy),
                                       std::move(colorSpaceXform),
                                       matrix, domain, mode, filterMode));
@@ -312,7 +312,7 @@ bool GrTextureDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureDomainEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
@@ -337,11 +337,11 @@ sk_sp<GrFragmentProcessor> GrTextureDomainEffect::TestCreate(GrProcessorTestData
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(
+gr_fp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(
         sk_sp<GrTextureProxy> proxy,
         const SkIRect& subset,
         const SkIPoint& deviceSpaceOffset) {
-    return sk_sp<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(
+    return gr_fp<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(
             std::move(proxy), subset, deviceSpaceOffset));
 }
 
@@ -369,8 +369,8 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
     this->addTextureSampler(&fTextureSampler);
 }
 
-sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(*this));
+gr_fp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::clone() const {
+    return gr_fp<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(*this));
 }
 
 GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLSLInstance() const  {
@@ -441,7 +441,7 @@ bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProce
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceTextureDecalFragmentProcessor);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreate(
+gr_fp<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
