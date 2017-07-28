@@ -57,6 +57,7 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
                                            const LoadAndStoreInfo& stencilInfo)
     : fGpu(gpu)
     , fRenderTarget(nullptr)
+    , fOrigin(kTopLeft_GrSurfaceOrigin)
     , fClearColor(GrColor4f::FromGrColor(colorInfo.fClearColor))
     , fLastPipelineState(nullptr) {
 
@@ -67,9 +68,10 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
     fCurrentCmdInfo = -1;
 }
 
-void GrVkGpuCommandBuffer::init(GrVkRenderTarget* target) {
+void GrVkGpuCommandBuffer::init(GrVkRenderTarget* target, GrSurfaceOrigin origin) {
     SkASSERT(!fRenderTarget);
     fRenderTarget = target;
+    fOrigin = origin;
 
     GrVkRenderPass::LoadStoreOps vkColorOps(fVkColorLoadOp, fVkColorStoreOp);
     GrVkRenderPass::LoadStoreOps vkStencilOps(fVkStencilLoadOp, fVkStencilStoreOp);
@@ -181,10 +183,10 @@ void GrVkGpuCommandBuffer::onSubmit() {
     }
 }
 
-void GrVkGpuCommandBuffer::discard(GrRenderTarget* rt) {
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
+void GrVkGpuCommandBuffer::discard(GrRenderTargetProxy* proxy) {
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(proxy->priv().peekRenderTarget());
     if (!fRenderTarget) {
-        this->init(target);
+        this->init(target, proxy->origin());
     }
     SkASSERT(target == fRenderTarget);
 
@@ -217,13 +219,13 @@ void GrVkGpuCommandBuffer::discard(GrRenderTarget* rt) {
     }
 }
 
-void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, const GrFixedClip& clip,
+void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
                                               bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());
 
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(proxy->priv().peekRenderTarget());
     if (!fRenderTarget) {
-        this->init(target);
+        this->init(target, proxy->origin());
     }
     SkASSERT(target == fRenderTarget);
 
@@ -251,7 +253,7 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, const GrFixedC
     SkIRect vkRect;
     if (!clip.scissorEnabled()) {
         vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
-    } else if (kBottomLeft_GrSurfaceOrigin != fRenderTarget->origin()) {
+    } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
         vkRect = clip.scissorRect();
     } else {
         const SkIRect& scissor = clip.scissorRect();
@@ -284,13 +286,14 @@ void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTarget* rt, const GrFixedC
     }
 }
 
-void GrVkGpuCommandBuffer::onClear(GrRenderTarget* rt, const GrFixedClip& clip, GrColor color) {
+void GrVkGpuCommandBuffer::onClear(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
+                                   GrColor color) {
     // parent class should never let us get here with no RT
     SkASSERT(!clip.hasWindowRectangles());
 
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(proxy->priv().peekRenderTarget());
     if (!fRenderTarget) {
-        this->init(target);
+        this->init(target, proxy->origin());
     }
     SkASSERT(target == fRenderTarget);
 
@@ -337,7 +340,7 @@ void GrVkGpuCommandBuffer::onClear(GrRenderTarget* rt, const GrFixedClip& clip, 
     SkIRect vkRect;
     if (!clip.scissorEnabled()) {
         vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
-    } else if (kBottomLeft_GrSurfaceOrigin != fRenderTarget->origin()) {
+    } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
         vkRect = clip.scissorRect();
     } else {
         const SkIRect& scissor = clip.scissorRect();
@@ -411,10 +414,10 @@ void GrVkGpuCommandBuffer::addAdditionalRenderPass() {
 }
 
 void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
-                                        GrRenderTarget* rt) {
-    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(rt);
+                                        GrRenderTargetProxy* proxy) {
+    GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(proxy->priv().peekRenderTarget());
     if (!fRenderTarget) {
-        this->init(target);
+        this->init(target, proxy->origin());
     }
     if (!fCommandBufferInfos[fCurrentCmdInfo].fIsEmpty) {
         this->addAdditionalRenderPass();
@@ -551,7 +554,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
                                   const SkRect& bounds) {
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(pipeline.renderTarget());
     if (!fRenderTarget) {
-        this->init(target);
+        this->init(target, pipeline.proxy()->origin());
     }
     SkASSERT(target == fRenderTarget);
 
