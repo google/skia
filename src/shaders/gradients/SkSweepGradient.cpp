@@ -224,14 +224,9 @@ void SkSweepGradient::toString(SkString* str) const {
     str->append(")");
 }
 
-bool SkSweepGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
-                                                  SkMatrix* matrix,
-                                                  SkRasterPipeline* p,
-                                                  SkRasterPipeline*) const {
-    matrix->postConcat(fPtsToUnit);
+void SkSweepGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
+                                           SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_unit_angle);
-
-    return true;
 }
 
 #endif
