@@ -10,16 +10,47 @@
 #include "SkRasterPipeline.h"
 #include "../../jumper/SkJumper.h"
 
+sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0,
+                                                  const SkPoint& c1, SkScalar r1,
+                                                  bool flipped, const Descriptor& desc) {
+    SkMatrix gradientMatrix;
+    Type     gradientType;
+
+    if (SkScalarNearlyZero((c0 - c1).length())) {
+        // Concentric case: we can pretend we're radial (with a tiny twist).
+        gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
+        gradientMatrix.postScale(1 / r1, 1 / r1);
+
+        gradientType = Type::kRadial;
+    } else {
+        const SkPoint centers[2] = { c0    , c1     };
+        const SkPoint unitvec[2] = { {0, 0}, {1, 0} };
+
+        if (!gradientMatrix.setPolyToPoly(centers, unitvec, 2)) {
+            // Degenerate case.
+            return nullptr;
+        }
+
+        // General two-point case.
+        gradientType = Type::kTwoPoint;
+    }
+
+    return sk_sp<SkShader>(new SkTwoPointConicalGradient(c0, r0, c1, r1, flipped, desc,
+                                                         gradientType, gradientMatrix));
+}
+
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
         const SkPoint& start, SkScalar startRadius,
         const SkPoint& end, SkScalar endRadius,
-        bool flippedGrad, const Descriptor& desc)
-    : SkGradientShaderBase(desc, SkMatrix::I())
+        bool flippedGrad, const Descriptor& desc,
+        Type type, const SkMatrix& gradientMatrix)
+    : SkGradientShaderBase(desc, gradientMatrix)
     , fCenter1(start)
     , fCenter2(end)
     , fRadius1(startRadius)
     , fRadius2(endRadius)
     , fFlippedGrad(flippedGrad)
+    , fType(type)
 {
     // this is degenerate, and should be caught by our caller
     SkASSERT(fCenter1 != fCenter2 || fRadius1 != fRadius2);
@@ -176,15 +207,12 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
                                                             SkMatrix* matrix,
                                                             SkRasterPipeline* p,
                                                             SkRasterPipeline* postPipeline) const {
-    const auto dCenter = (fCenter1 - fCenter2).length();
+    matrix->postConcat(fPtsToUnit);
+
     const auto dRadius = fRadius2 - fRadius1;
     SkASSERT(dRadius >= 0);
 
-    // When the two circles are concentric, we can pretend we're radial (with a tiny *twist).
-    if (SkScalarNearlyZero(dCenter)) {
-        const SkMatrix tmp = SkMatrix::Concat(SkMatrix::MakeScale(1 / fRadius2, 1 / fRadius2),
-                                              SkMatrix::MakeTrans(-fCenter1.fX, -fCenter1.fY));
-        matrix->postConcat(tmp);
+    if (fType == Type::kRadial) {
         p->append(SkRasterPipeline::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
@@ -197,15 +225,7 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
         return true;
     }
 
-    // To simplify the stage math, we transform the universe (translate/scale/rotate)
-    // such that fCenter1 -> (0, 0) and fCenter2 -> (1, 0).
-    SkMatrix map_to_unit_vector;
-    const SkPoint centers[2] = { fCenter1, fCenter2 };
-    const SkPoint unitvec[2] = { {0, 0}, {1, 0} };
-    if (!map_to_unit_vector.setPolyToPoly(centers, unitvec, 2)) {
-        return false;
-    }
-    matrix->postConcat(map_to_unit_vector);
+    const auto dCenter = (fCenter1 - fCenter2).length();
 
     // Since we've squashed the centers into a unit vector, we must also scale
     // all the coefficient variables by (1 / dCenter).

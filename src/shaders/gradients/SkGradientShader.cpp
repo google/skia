@@ -1202,8 +1202,8 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     if (!flipGradient) {
         desc_init(&desc, opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, flags,
                   localMatrix);
-        return sk_make_sp<SkTwoPointConicalGradient>(start, startRadius, end, endRadius,
-                                                     flipGradient, desc);
+        return SkTwoPointConicalGradient::Create(start, startRadius, end, endRadius, flipGradient,
+                                                 desc);
     } else {
         SkAutoSTArray<8, SkColor4f> colorsNew(opt.fCount);
         SkAutoSTArray<8, SkScalar> posNew(opt.fCount);
@@ -1222,8 +1222,8 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                       flags, localMatrix);
         }
 
-        return sk_make_sp<SkTwoPointConicalGradient>(end, endRadius, start, startRadius,
-                                                     flipGradient, desc);
+        return SkTwoPointConicalGradient::Create(end, endRadius, start, startRadius, flipGradient,
+                                                 desc);
     }
 }
 
