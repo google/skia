@@ -83,11 +83,7 @@ bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc*,
                                                    SkMatrix* matrix,
                                                    SkRasterPipeline*,
                                                    SkRasterPipeline*) const {
-#ifdef SK_SUPPORT_LEGACY_GRADIENT_MATRIX_MATH
-    *matrix = SkMatrix::Concat(fPtsToUnit, *matrix);
-#else
     matrix->postConcat(fPtsToUnit);
-#endif
     return true;
 }
 
