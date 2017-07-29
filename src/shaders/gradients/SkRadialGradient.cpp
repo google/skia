@@ -377,14 +377,9 @@ bool SkRadialGradient::onIsRasterPipelineOnly() const {
 #endif
 }
 
-bool SkRadialGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
-                                 SkMatrix* matrix,
-                                 SkRasterPipeline* p,
-                                 SkRasterPipeline*) const {
-    matrix->postConcat(fPtsToUnit);
-
+void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
+                                            SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_radius);
-    return true;
 }
 
 #ifndef SK_IGNORE_TO_STRING

@@ -79,12 +79,9 @@ SkShaderBase::Context* SkLinearGradient::onMakeBurstPipelineContext(
                            : nullptr;
 }
 
-bool SkLinearGradient::adjustMatrixAndAppendStages(SkArenaAlloc*,
-                                                   SkMatrix* matrix,
-                                                   SkRasterPipeline*,
-                                                   SkRasterPipeline*) const {
-    matrix->postConcat(fPtsToUnit);
-    return true;
+void SkLinearGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline*,
+                                            SkRasterPipeline*) const {
+    // No extra stage needed for linear gradients.
 }
 
 sk_sp<SkShader> SkLinearGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {

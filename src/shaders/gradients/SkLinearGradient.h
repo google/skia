@@ -64,10 +64,8 @@ protected:
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     Context* onMakeBurstPipelineContext(const ContextRec&, SkArenaAlloc*) const override;
 
-    bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
-                                     SkMatrix* matrix,
-                                     SkRasterPipeline* tPipeline,
-                                     SkRasterPipeline* postPipeline) const final;
+    void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
+                              SkRasterPipeline* postPipeline) const final;
 
 
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;

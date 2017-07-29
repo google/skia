@@ -202,12 +202,8 @@ void SkTwoPointConicalGradient::toString(SkString* str) const {
 }
 #endif
 
-bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
-                                                            SkMatrix* matrix,
-                                                            SkRasterPipeline* p,
-                                                            SkRasterPipeline* postPipeline) const {
-    matrix->postConcat(fPtsToUnit);
-
+void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
+                                                     SkRasterPipeline* postPipeline) const {
     const auto dRadius = fRadius2 - fRadius1;
     SkASSERT(dRadius >= 0);
 
@@ -220,8 +216,7 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
 
         p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
                                                  SkMatrix::MakeScale(scale, 1)));
-
-        return true;
+        return;
     }
 
     const auto dCenter = (fCenter1 - fCenter2).length();
@@ -267,6 +262,4 @@ bool SkTwoPointConicalGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
         p->append(SkRasterPipeline::mask_2pt_conical_degenerates, ctx);
         postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
     }
-
-    return true;
 }

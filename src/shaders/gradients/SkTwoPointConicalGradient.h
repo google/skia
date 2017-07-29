@@ -38,10 +38,8 @@ protected:
     void flatten(SkWriteBuffer& buffer) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
-    bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
-                                     SkMatrix* matrix,
-                                     SkRasterPipeline* tPipeline,
-                                     SkRasterPipeline* postPipeline) const override;
+    void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
+                              SkRasterPipeline* postPipeline) const override;
 
     bool onIsRasterPipelineOnly() const override { return true; }
 
