@@ -301,7 +301,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
 
     SkColorSpaceTransferFn srcFn;
     if (isColorAware && srcInfo.gammaCloseToSRGB()) {
-        pipeline.append_from_srgb(srcInfo.alphaType());
+        pipeline.append_from_srgb(premulState);
     } else if (isColorAware && !srcInfo.colorSpace()->gammaIsLinear()) {
         SkAssertResult(srcInfo.colorSpace()->isNumericalTransferFn(&srcFn));
         pipeline.append(SkRasterPipeline::parametric_r, &srcFn);
