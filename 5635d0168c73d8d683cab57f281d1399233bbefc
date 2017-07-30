@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f19cd17_3b70e53d",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 6035
+      },
+      "writtenOn": "2017-07-30T19:50:16Z",
+      "side": 1,
+      "message": "Do these transforms have an assumption about premulState? Should we have an SkASSERT of that?",
+      "revId": "5635d0168c73d8d683cab57f281d1399233bbefc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
