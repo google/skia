@@ -2108,14 +2108,12 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         }
     }
 
-    bool hasInternalformatFunction = (bool)gli->fFunctions.fGetInternalformativ;
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         if (ConfigInfo::kRenderableWithMSAA_Flag & fConfigTable[i].fFlags) {
-            if (hasInternalformatFunction && // This check is temporary until chrome is updated
-                ((kGL_GrGLStandard == ctxInfo.standard() &&
+            if ((kGL_GrGLStandard == ctxInfo.standard() &&
                  (ctxInfo.version() >= GR_GL_VER(4,2) ||
                   ctxInfo.hasExtension("GL_ARB_internalformat_query"))) ||
-                (kGLES_GrGLStandard == ctxInfo.standard() && ctxInfo.version() >= GR_GL_VER(3,0)))) {
+                (kGLES_GrGLStandard == ctxInfo.standard() && ctxInfo.version() >= GR_GL_VER(3,0))) {
                 int count;
                 GrGLenum format = fConfigTable[i].fFormats.fInternalFormatRenderbuffer;
                 GR_GL_GetInternalformativ(gli, GR_GL_RENDERBUFFER, format, GR_GL_NUM_SAMPLE_COUNTS,
