@@ -33,6 +33,8 @@ private:
             , fRadii(radii) {
         this->initClassID<GrEllipseEffect>();
     }
+    GrEllipseEffect(const GrEllipseEffect& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

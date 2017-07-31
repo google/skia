@@ -57,6 +57,11 @@ bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (fRangeType != that.fRangeType) return false;
     return true;
 }
+GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
+        : INHERITED(optimizationFlags()), fRangeType(src.fRangeType) {}
+sk_sp<GrFragmentProcessor> GrDitherEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrDitherEffect(*this));
+}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* testData) {
