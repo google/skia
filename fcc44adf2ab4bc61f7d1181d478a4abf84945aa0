@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72c49492_abf363d8",
+        "filename": "src/core/SkBlurImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-31T19:08:10Z",
+      "side": 1,
+      "message": "static assert?",
+      "range": {
+        "startLine": 103,
+        "startChar": 4,
+        "endLine": 103,
+        "endChar": 12
+      },
+      "revId": "fcc44adf2ab4bc61f7d1181d478a4abf84945aa0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
