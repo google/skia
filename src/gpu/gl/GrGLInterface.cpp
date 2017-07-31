@@ -757,8 +757,7 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 2) || fExtensions.has("GL_ARB_sync")) {
             if (!fFunctions.fFenceSync ||
-                // Is sync needs to be added to chrome before uncommenting
-                // !fFunctions.fIsSync ||
+                !fFunctions.fIsSync ||
                 !fFunctions.fClientWaitSync ||
                 !fFunctions.fWaitSync ||
                 !fFunctions.fDeleteSync) {
@@ -768,8 +767,7 @@ bool GrGLInterface::validate() const {
     } else if (kGLES_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 0) || fExtensions.has("GL_APPLE_sync")) {
             if (!fFunctions.fFenceSync ||
-                // Is sync needs to be added to chrome before uncommenting
-                // !fFunctions.fIsSync ||
+                !fFunctions.fIsSync ||
                 !fFunctions.fClientWaitSync ||
                 !fFunctions.fWaitSync ||
                 !fFunctions.fDeleteSync) {
@@ -817,7 +815,7 @@ bool GrGLInterface::validate() const {
          (glVer >= GR_GL_VER(4,2) || fExtensions.has("GL_ARB_internalformat_query"))) ||
         (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0))) {
         if (!fFunctions.fGetInternalformativ) {
-        //    RETURN_FALSE_INTERFACE;
+            RETURN_FALSE_INTERFACE;
         }
     }
 
