@@ -22,6 +22,30 @@
       "revId": "38c274a567d42e113a3418fd77775d8261af195b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e1d52c6_20f26b94",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-07-31T19:31:42Z",
+      "side": 1,
+      "message": "It\u0027s actually the type name (eg \"GrOp\"). That kind of confusion is part of the reason I thought a unit test/demo would be helpful.",
+      "parentUuid": "17675770_97292e09",
+      "range": {
+        "startLine": 102,
+        "startChar": 59,
+        "endLine": 102,
+        "endChar": 63
+      },
+      "revId": "38c274a567d42e113a3418fd77775d8261af195b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
