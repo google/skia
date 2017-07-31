@@ -13,6 +13,8 @@
 #include "GrSemaphore.h"
 #include "GrTexture.h"
 
+#include "GrMtlCaps.h"
+
 #import <Metal/Metal.h>
 
 class GrSemaphore;
@@ -24,6 +26,8 @@ public:
                          id<MTLDevice> device, id<MTLCommandQueue> queue);
 
     ~GrMtlGpu() override {}
+ 
+    const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
@@ -61,7 +65,7 @@ public:
 
 private:
     GrMtlGpu(GrContext* context, const GrContextOptions& options,
-             id<MTLDevice> device, id<MTLCommandQueue> queue);
+             id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -140,6 +144,8 @@ private:
     }
     bool isTestingOnlyBackendTexture(GrBackendObject ) const override { return false; }
     void deleteTestingOnlyBackendTexture(GrBackendObject, bool abandonTexture) override {}
+
+    sk_sp<GrMtlCaps> fMtlCaps;
 
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;

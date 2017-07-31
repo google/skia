@@ -331,6 +331,7 @@ private:
     uint8_t fSamplerPrecisions[(1 << kGrShaderTypeCount)][kGrPixelConfigCnt];
 
     friend class GrGLCaps;  // For initialization.
+    friend class GrMtlCaps;
     friend class GrVkCaps;
     friend class SkSL::ShaderCapsFactory;
 };
