@@ -338,7 +338,7 @@ public:
      * signal. Thus the array of semaphores will remain uninitialized. However, any pending surface
      * IO will still be flush.
      */
-    bool flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores);
+    bool flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore signalSemaphores[]);
 
     /**
      * Inserts a list of GPU semaphores that the current backend 3D API must wait on before
@@ -348,7 +348,7 @@ public:
      * If this call returns false, then the GPU backend will not wait on any passed in semaphores,
      * and the client will still own the semaphores.
      */
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+    bool wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);

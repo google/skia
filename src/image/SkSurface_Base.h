@@ -80,7 +80,7 @@ public:
      * Inserts the requested number of semaphores for the gpu to signal when work is complete on the
      * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
      */
-    virtual bool onFlush(int numSemaphores, GrBackendSemaphore* signalSemaphores) {
+    virtual bool onFlush(int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
         return false;
     }
 
@@ -89,7 +89,7 @@ public:
      * commands on the gpu. Any previously submitting commands will not be blocked by these
      * semaphores.
      */
-    virtual bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+    virtual bool onWait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
         return false;
     }
 
