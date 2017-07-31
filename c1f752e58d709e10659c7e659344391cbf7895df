@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "460069cc_aab00ed1",
+        "filename": "src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-31T21:48:53Z",
+      "side": 1,
+      "message": "We don\u0027t need to preserve the validity of old keys, this could just be return origin.",
+      "revId": "c1f752e58d709e10659c7e659344391cbf7895df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
