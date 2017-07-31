@@ -28,6 +28,8 @@ private:
     GrBlurredEdgeFragmentProcessor(int mode) : INHERITED(kNone_OptimizationFlags), fMode(mode) {
         this->initClassID<GrBlurredEdgeFragmentProcessor>();
     }
+    GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

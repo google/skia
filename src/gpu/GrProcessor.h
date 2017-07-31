@@ -273,6 +273,8 @@ public:
      */
     const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
 
+    TextureSampler clone() const { abort(); }
+
 private:
     GrSurfaceProxyRef               fProxyRef;
     GrSamplerParams                 fParams;
