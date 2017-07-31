@@ -23,6 +23,7 @@ declare_args() {
   cxx = "c++"
 
   msvc = 2015
+  win_clang = false
 }
 declare_args() {
   is_debug = !is_official_build
@@ -174,7 +175,7 @@ set_defaults("component") {
   }
 }
 
-if (is_win) {
+if (is_win && !win_clang) {
   # Windows tool chain
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"
