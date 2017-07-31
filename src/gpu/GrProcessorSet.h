@@ -17,15 +17,18 @@
 class GrAppliedClip;
 class GrXPFactory;
 
-class GrProcessorSet : private SkNoncopyable {
+class GrProcessorSet {
 private:
     // Arbitrary constructor arg for empty set and analysis
     enum class Empty { kEmpty };
 
 public:
-    GrProcessorSet(GrPaint&& paint);
-    GrProcessorSet(SkBlendMode mode);
+    GrProcessorSet(GrPaint&&);
+    GrProcessorSet(SkBlendMode);
     GrProcessorSet(sk_sp<GrFragmentProcessor> colorFP);
+    GrProcessorSet(GrProcessorSet&&);
+    GrProcessorSet(const GrProcessorSet&) = delete;
+    GrProcessorSet& operator=(const GrProcessorSet&) = delete;
 
     ~GrProcessorSet();
 
@@ -136,6 +139,7 @@ public:
 
     /** These are valid only for non-LCD coverage. */
     static const GrProcessorSet& EmptySet();
+    static GrProcessorSet MakeEmptySet();
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
 
     SkString dumpProcessors() const;
@@ -151,6 +155,10 @@ private:
     union XP {
         XP(const GrXPFactory* factory) : fFactory(factory) {}
         XP(const GrXferProcessor* processor) : fProcessor(processor) {}
+        explicit XP(XP&& that) : fProcessor(that.fProcessor) {
+            SkASSERT(fProcessor == that.fProcessor);
+            that.fProcessor = nullptr;
+        }
         const GrXPFactory* fFactory;
         const GrXferProcessor* fProcessor;
     };
