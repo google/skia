@@ -199,9 +199,6 @@ sk_sp<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(GrProcessorTe
 sk_sp<GrFragmentProcessor> ComposeTwoFragmentProcessor::clone() const {
     auto src = this->childProcessor(0).clone();
     auto dst = this->childProcessor(1).clone();
-    if (!src || !dst) {
-        return nullptr;
-    }
     return sk_sp<GrFragmentProcessor>(
             new ComposeTwoFragmentProcessor(std::move(src), std::move(dst), fMode));
 }
@@ -498,12 +495,8 @@ GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() con
 }
 
 sk_sp<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const {
-    auto child = this->childProcessor(0).clone();
-    if (!child) {
-        return nullptr;
-    }
     return sk_sp<GrFragmentProcessor>(
-            new ComposeOneFragmentProcessor(std::move(child), fMode, fChild));
+            new ComposeOneFragmentProcessor(this->childProcessor(0).clone(), fMode, fChild));
 }
 
 //////////////////////////////////////////////////////////////////////////////
