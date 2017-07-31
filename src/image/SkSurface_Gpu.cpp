@@ -149,7 +149,7 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTargetContext()->discard();
 }
 
-bool SkSurface_Gpu::onFlush(int numSemaphores, GrBackendSemaphore* signalSemaphores) {
+bool SkSurface_Gpu::onFlush(int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
     return fDevice->flushAndSignalSemaphores(numSemaphores, signalSemaphores);
 }
 
