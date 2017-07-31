@@ -72,10 +72,10 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
 
 uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin) {
     SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
-    return origin;
+    return origin + 1;
 
-    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
-    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(1 == kBottomLeft_GrSurfaceOrigin);
 }
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
@@ -272,10 +272,10 @@ const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
 
 GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
     SkASSERT(fProgramBuilder->header().fSurfaceOriginKey);
-    return static_cast<GrSurfaceOrigin>(fProgramBuilder->header().fSurfaceOriginKey);
+    return static_cast<GrSurfaceOrigin>(fProgramBuilder->header().fSurfaceOriginKey-1);
 
-    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
-    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(1 == kBottomLeft_GrSurfaceOrigin);
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {

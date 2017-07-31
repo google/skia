@@ -742,7 +742,6 @@ sk_sp<GrTextureContext> GrContextPriv::makeBackendTextureContext(const GrBackend
                                                                  sk_sp<SkColorSpace> colorSpace) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTexture(tex));
     if (!surface) {
         return nullptr;
@@ -763,8 +762,6 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContex
                                                                    sk_sp<SkColorSpace> colorSpace,
                                                                    const SkSurfaceProps* props) {
     ASSERT_SINGLE_OWNER_PRIV
-
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
 
     sk_sp<GrSurface> surface(
             fContext->resourceProvider()->wrapRenderableBackendTexture(tex, sampleCnt));
@@ -788,7 +785,6 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetC
                                                 const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrRenderTarget> rt(fContext->resourceProvider()->wrapBackendRenderTarget(backendRT));
     if (!rt) {
         return nullptr;
@@ -812,7 +808,6 @@ sk_sp<GrRenderTargetContext> GrContextPriv::makeBackendTextureAsRenderTargetRend
                                                      const SkSurfaceProps* surfaceProps) {
     ASSERT_SINGLE_OWNER_PRIV
 
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
     sk_sp<GrSurface> surface(fContext->resourceProvider()->wrapBackendTextureAsRenderTarget(
                                                                                         tex,
                                                                                         sampleCnt));
@@ -877,8 +872,6 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
                                                         GrSurfaceOrigin origin,
                                                         const SkSurfaceProps* surfaceProps,
                                                         SkBudgeted budgeted) {
-    SkASSERT(kDefault_GrSurfaceOrigin != origin);
-
     if (this->abandoned()) {
         return nullptr;
     }
