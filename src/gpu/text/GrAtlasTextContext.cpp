@@ -241,7 +241,9 @@ GrAtlasTextContext::MakeDrawTextBlob(GrTextBlobCache* blobCache,
                                      const char text[], size_t byteLength,
                                      SkScalar x, SkScalar y) {
     int glyphCount = paint.skPaint().countText(text, byteLength);
-
+    if (!glyphCount) {
+        return nullptr;
+    }
     sk_sp<GrAtlasTextBlob> blob = blobCache->makeBlob(glyphCount, 1);
     blob->initThrowawayBlob(viewMatrix, x, y);
 
@@ -267,6 +269,9 @@ GrAtlasTextContext::MakeDrawPosTextBlob(GrTextBlobCache* blobCache,
                                         const SkScalar pos[], int scalarsPerPosition, const
                                         SkPoint& offset) {
     int glyphCount = paint.skPaint().countText(text, byteLength);
+    if (!glyphCount) {
+        return nullptr;
+    }
 
     sk_sp<GrAtlasTextBlob> blob = blobCache->makeBlob(glyphCount, 1);
     blob->initThrowawayBlob(viewMatrix, offset.x(), offset.y());
@@ -297,8 +302,10 @@ void GrAtlasTextContext::drawText(GrContext* context, GrRenderTargetContext* rtc
                              paint, ComputeScalerContextFlags(rtc),
                              viewMatrix, props,
                              text, byteLength, x, y));
-        blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
-                             viewMatrix, regionClipBounds, x, y);
+        if (blob) {
+            blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
+                                 viewMatrix, regionClipBounds, x, y);
+        }
         return;
     }
 
@@ -325,8 +332,10 @@ void GrAtlasTextContext::drawPosText(GrContext* context, GrRenderTargetContext* 
                                 text, byteLength,
                                 pos, scalarsPerPosition,
                                 offset));
-        blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
-                             viewMatrix, regionClipBounds, offset.fX, offset.fY);
+        if (blob) {
+            blob->flushThrowaway(context, rtc, props, fDistanceAdjustTable.get(), paint, clip,
+                                 viewMatrix, regionClipBounds, offset.fX, offset.fY);
+        }
         return;
     }
 
