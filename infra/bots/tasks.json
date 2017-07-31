@@ -365,6 +365,12 @@
         "Build-Win-Clang-arm64-Release-Android"
       ]
     },
+    "Build-Win-Clang-x86_64-Release": {
+      "priority": 0.8,
+      "tasks": [
+        "Build-Win-Clang-x86_64-Release"
+      ]
+    },
     "Build-Win-MSVC-x86-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -3983,12 +3989,51 @@
       "isolate": "compile_skia.isolate",
       "priority": 0.8
     },
+    "Build-Win-Clang-x86_64-Release": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/win_toolchain",
+          "path": "t",
+          "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
+        }
+      ],
+      "dimensions": [
+        "gpu:none",
+        "os:Windows-2008ServerR2-SP1",
+        "pool:Skia"
+      ],
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "compile",
+        "repository=<(REPO)",
+        "buildername=Build-Win-Clang-x86_64-Release",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "isolate": "compile_skia.isolate",
+      "priority": 0.8
+    },
     "Build-Win-MSVC-x86-Debug": {
       "cipd_packages": [
         {
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4018,6 +4063,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4047,6 +4097,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4076,6 +4131,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4105,6 +4165,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4134,6 +4199,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4163,6 +4233,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4192,6 +4267,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4221,6 +4301,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4250,6 +4335,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4279,6 +4369,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         },
         {
           "name": "skia/bots/win_vulkan_sdk",
@@ -4313,6 +4408,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4342,6 +4442,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4371,6 +4476,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         }
       ],
       "dimensions": [
@@ -4400,6 +4510,11 @@
           "name": "skia/bots/win_toolchain",
           "path": "t",
           "version": "version:6"
+        },
+        {
+          "name": "skia/bots/clang_win",
+          "path": "clang_win",
+          "version": "version:0"
         },
         {
           "name": "skia/bots/win_vulkan_sdk",

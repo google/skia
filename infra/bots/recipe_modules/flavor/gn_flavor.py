@@ -109,6 +109,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       args['skia_use_metal'] = 'true'
     if 'CheckGeneratedFiles' in extra_config:
       args['skia_compile_processors'] = 'true'
+    if compiler == 'Clang' and 'Win' in os:
+      args['clang_win'] = '"%s"' % self.m.vars.slave_dir.join('clang_win')
 
     for (k,v) in {
       'cc':  cc,
