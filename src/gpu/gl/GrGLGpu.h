@@ -441,7 +441,7 @@ private:
         void invalidate() { fRTOrigin = kInvalidSurfaceOrigin; }
         bool knownDisabled() const { return this->valid() && !fWindowState.enabled(); }
         void setDisabled() {
-            fRTOrigin = kDefault_GrSurfaceOrigin;
+            fRTOrigin = kTopLeft_GrSurfaceOrigin;
             fWindowState.setDisabled();
         }
 

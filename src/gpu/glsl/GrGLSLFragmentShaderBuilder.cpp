@@ -74,8 +74,8 @@ uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin)
     SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
     return origin;
 
-    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
-    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(1 == kBottomLeft_GrSurfaceOrigin);
 }
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
@@ -274,8 +274,8 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
     SkASSERT(fProgramBuilder->header().fSurfaceOriginKey);
     return static_cast<GrSurfaceOrigin>(fProgramBuilder->header().fSurfaceOriginKey);
 
-    GR_STATIC_ASSERT(1 == kTopLeft_GrSurfaceOrigin);
-    GR_STATIC_ASSERT(2 == kBottomLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
+    GR_STATIC_ASSERT(1 == kBottomLeft_GrSurfaceOrigin);
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
