@@ -69,6 +69,7 @@ TEST_BUILDERS = [
   'Build-Ubuntu-GCC-x86_64-Release-PDFium',
   'Build-Ubuntu-GCC-x86_64-Release-PDFium_SkiaPaths',
   'Build-Win-Clang-arm64-Release-Android',
+  'Build-Win-Clang-x86_64-Release',
   'Build-Win-MSVC-x86_64-Debug-GDI',
   'Build-Win-MSVC-x86_64-Debug-NoGPU',
   'Build-Win-MSVC-x86_64-Release-Exceptions',
