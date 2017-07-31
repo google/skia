@@ -20,8 +20,8 @@ public:
     int edgeType() const { return fEdgeType; }
     SkPoint center() const { return fCenter; }
     SkPoint radii() const { return fRadii; }
-    static sk_sp<GrFragmentProcessor> Make(int edgeType, SkPoint center, SkPoint radii) {
-        return sk_sp<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
+    static gr_fp<GrFragmentProcessor> Make(int edgeType, SkPoint center, SkPoint radii) {
+        return gr_fp<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
     }
     const char* name() const override { return "EllipseEffect"; }
 

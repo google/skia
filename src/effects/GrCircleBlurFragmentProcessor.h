@@ -21,7 +21,7 @@ public:
     float textureRadius() const { return fTextureRadius; }
     float solidRadius() const { return fSolidRadius; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+    static gr_fp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            const SkRect& circle, float sigma);
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
 

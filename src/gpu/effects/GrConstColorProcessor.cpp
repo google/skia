@@ -62,7 +62,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> GrConstColorProcessor::clone() const { return Make(fColor, fMode); }
+gr_fp<GrFragmentProcessor> GrConstColorProcessor::clone() const { return Make(fColor, fMode); }
 
 GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input) const {
     switch (fMode) {
@@ -96,7 +96,7 @@ bool GrConstColorProcessor::onIsEqual(const GrFragmentProcessor& other) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConstColorProcessor);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrConstColorProcessor::TestCreate(GrProcessorTestData* d) {
     GrColor4f color;
     int colorPicker = d->fRandom->nextULessThan(3);
     switch (colorPicker) {

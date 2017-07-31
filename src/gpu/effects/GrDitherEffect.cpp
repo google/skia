@@ -59,9 +59,9 @@ bool GrDitherEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* testData) {
+gr_fp<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* testData) {
     float range = testData->fRandom->nextRangeF(0.001f, 0.05f);
-    return sk_sp<GrFragmentProcessor>(new GrDitherEffect(range));
+    return gr_fp<GrFragmentProcessor>(new GrDitherEffect(range));
 }
 #endif
 #endif

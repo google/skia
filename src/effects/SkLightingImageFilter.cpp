@@ -411,7 +411,7 @@ protected:
                                          const SkIRect& bounds,
                                          const SkMatrix& matrix,
                                          const OutputProperties& outputProperties) const;
-    virtual sk_sp<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
+    virtual gr_fp<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
                                                              const SkMatrix&,
                                                              const SkIRect* srcBounds,
                                                              BoundaryMode boundaryMode) const = 0;
@@ -442,7 +442,7 @@ void SkLightingImageFilterInternal::drawRect(GrRenderTargetContext* renderTarget
     SkRect srcRect = dstRect.makeOffset(SkIntToScalar(bounds.x()), SkIntToScalar(bounds.y()));
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
-    sk_sp<GrFragmentProcessor> fp(this->makeFragmentProcessor(std::move(srcProxy),
+    gr_fp<GrFragmentProcessor> fp(this->makeFragmentProcessor(std::move(srcProxy),
                                                               matrix, srcBounds,
                                                               boundaryMode));
     paint.addColorFragmentProcessor(std::move(fp));
@@ -541,7 +541,7 @@ protected:
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
+    gr_fp<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
                                                      const SkMatrix&, const SkIRect* bounds,
                                                      BoundaryMode) const override;
 #endif
@@ -578,7 +578,7 @@ protected:
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
+    gr_fp<GrFragmentProcessor> makeFragmentProcessor(sk_sp<GrTextureProxy>,
                                                      const SkMatrix&, const SkIRect* bounds,
                                                      BoundaryMode) const override;
 #endif
@@ -623,22 +623,22 @@ private:
 
 class GrDiffuseLightingEffect : public GrLightingEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<const SkImageFilterLight> light,
                                            SkScalar surfaceScale,
                                            const SkMatrix& matrix,
                                            SkScalar kd,
                                            BoundaryMode boundaryMode,
                                            const SkIRect* srcBounds) {
-        return sk_sp<GrFragmentProcessor>(
+        return gr_fp<GrFragmentProcessor>(
                 new GrDiffuseLightingEffect(std::move(proxy), std::move(light), surfaceScale,
                                             matrix, kd, boundaryMode, srcBounds));
     }
 
     const char* name() const override { return "DiffuseLighting"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrDiffuseLightingEffect(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrDiffuseLightingEffect(*this));
     }
 
     SkScalar kd() const { return fKD; }
@@ -668,7 +668,7 @@ private:
 
 class GrSpecularLightingEffect : public GrLightingEffect {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<const SkImageFilterLight> light,
                                            SkScalar surfaceScale,
                                            const SkMatrix& matrix,
@@ -676,15 +676,15 @@ public:
                                            SkScalar shininess,
                                            BoundaryMode boundaryMode,
                                            const SkIRect* srcBounds) {
-        return sk_sp<GrFragmentProcessor>(
+        return gr_fp<GrFragmentProcessor>(
                 new GrSpecularLightingEffect(std::move(proxy), std::move(light), surfaceScale,
                                              matrix, ks, shininess, boundaryMode, srcBounds));
     }
 
     const char* name() const override { return "SpecularLighting"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrSpecularLightingEffect>(new GrSpecularLightingEffect(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrSpecularLightingEffect(*this));
     }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -1373,7 +1373,7 @@ void SkDiffuseLightingImageFilter::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkDiffuseLightingImageFilter::makeFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkDiffuseLightingImageFilter::makeFragmentProcessor(
                                                    sk_sp<GrTextureProxy> proxy,
                                                    const SkMatrix& matrix,
                                                    const SkIRect* srcBounds,
@@ -1529,7 +1529,7 @@ void SkSpecularLightingImageFilter::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkSpecularLightingImageFilter::makeFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkSpecularLightingImageFilter::makeFragmentProcessor(
                                                     sk_sp<GrTextureProxy> proxy,
                                                     const SkMatrix& matrix,
                                                     const SkIRect* srcBounds,
@@ -1794,7 +1794,7 @@ static SkImageFilterLight* create_random_light(SkRandom* random) {
     }
 }
 
-sk_sp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
@@ -2020,7 +2020,7 @@ GrGLSLFragmentProcessor* GrSpecularLightingEffect::onCreateGLSLInstance() const 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);

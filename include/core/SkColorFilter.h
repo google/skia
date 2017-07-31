@@ -8,6 +8,7 @@
 #ifndef SkColorFilter_DEFINED
 #define SkColorFilter_DEFINED
 
+#include "GrTypes.h" // REMOVE ME
 #include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
@@ -131,7 +132,7 @@ public:
      *
      *  A null return indicates that the color filter isn't implemented for the GPU backend.
      */
-    virtual sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
+    virtual gr_fp<GrFragmentProcessor> asFragmentProcessor(GrContext*,
                                                            SkColorSpace* dstColorSpace) const;
 #endif
 

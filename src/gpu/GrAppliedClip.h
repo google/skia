@@ -51,7 +51,7 @@ public:
         fWindowRectsState.set(windows, mode);
     }
 
-    void addCoverageFP(sk_sp<GrFragmentProcessor> fp) {
+    void addCoverageFP(gr_fp<GrFragmentProcessor> fp) {
         SkASSERT(!fClipCoverageFP);
         fClipCoverageFP = fp;
     }
@@ -85,7 +85,7 @@ public:
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
-    sk_sp<GrFragmentProcessor> fClipCoverageFP;
+    gr_fp<GrFragmentProcessor> fClipCoverageFP;
     uint32_t                   fClipStackID = SkClipStack::kInvalidGenID;
 };
 

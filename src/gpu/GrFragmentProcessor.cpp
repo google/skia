@@ -75,7 +75,7 @@ bool GrFragmentProcessor::instantiate(GrResourceProvider* resourceProvider) cons
     return true;
 }
 
-int GrFragmentProcessor::registerChildProcessor(sk_sp<GrFragmentProcessor> child) {
+int GrFragmentProcessor::registerChildProcessor(gr_fp<GrFragmentProcessor> child) {
     this->combineRequiredFeatures(*child);
 
     if (child->usesLocalCoords()) {
@@ -109,8 +109,8 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     return true;
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputAlpha(
-    sk_sp<GrFragmentProcessor> fp) {
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::MulOutputByInputAlpha(
+    gr_fp<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
@@ -121,13 +121,13 @@ namespace {
 
 class PremulInputFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new PremulInputFragmentProcessor);
+    static gr_fp<GrFragmentProcessor> Make() {
+        return gr_fp<GrFragmentProcessor>(new PremulInputFragmentProcessor);
     }
 
     const char* name() const override { return "PremultiplyInput"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+    gr_fp<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
     PremulInputFragmentProcessor()
@@ -163,13 +163,13 @@ private:
 
 class UnpremulInputFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new UnpremulInputFragmentProcessor);
+    static gr_fp<GrFragmentProcessor> Make() {
+        return gr_fp<GrFragmentProcessor>(new UnpremulInputFragmentProcessor);
     }
 
     const char* name() const override { return "UnpremultiplyInput"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+    gr_fp<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
     UnpremulInputFragmentProcessor()
@@ -206,42 +206,42 @@ private:
 
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(sk_sp<GrFragmentProcessor> fp) {
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(gr_fp<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { PremulInputFragmentProcessor::Make(), fp};
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { PremulInputFragmentProcessor::Make(), fp};
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::PremulOutput(sk_sp<GrFragmentProcessor> fp) {
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::PremulOutput(gr_fp<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, PremulInputFragmentProcessor::Make() };
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { fp, PremulInputFragmentProcessor::Make() };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::UnpremulOutput(sk_sp<GrFragmentProcessor> fp) {
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::UnpremulOutput(gr_fp<GrFragmentProcessor> fp) {
     if (!fp) {
         return nullptr;
     }
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, UnpremulInputFragmentProcessor::Make() };
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { fp, UnpremulInputFragmentProcessor::Make() };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(sk_sp<GrFragmentProcessor> fp,
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(gr_fp<GrFragmentProcessor> fp,
                                                               const GrSwizzle& swizzle) {
     class SwizzleFragmentProcessor : public GrFragmentProcessor {
     public:
-        static sk_sp<GrFragmentProcessor> Make(const GrSwizzle& swizzle) {
-            return sk_sp<GrFragmentProcessor>(new SwizzleFragmentProcessor(swizzle));
+        static gr_fp<GrFragmentProcessor> Make(const GrSwizzle& swizzle) {
+            return gr_fp<GrFragmentProcessor>(new SwizzleFragmentProcessor(swizzle));
         }
 
         const char* name() const override { return "Swizzle"; }
         const GrSwizzle& swizzle() const { return fSwizzle; }
 
-        sk_sp<GrFragmentProcessor> clone() const override { return Make(fSwizzle); }
+        gr_fp<GrFragmentProcessor> clone() const override { return Make(fSwizzle); }
 
     private:
         SwizzleFragmentProcessor(const GrSwizzle& swizzle)
@@ -289,28 +289,28 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(sk_sp<GrFragmentPr
     if (GrSwizzle::RGBA() == swizzle) {
         return fp;
     }
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, SwizzleFragmentProcessor::Make(swizzle) };
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { fp, SwizzleFragmentProcessor::Make(swizzle) };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
-        sk_sp<GrFragmentProcessor> fp) {
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
+        gr_fp<GrFragmentProcessor> fp) {
 
     class PremulFragmentProcessor : public GrFragmentProcessor {
     public:
-        static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> processor) {
-            return sk_sp<GrFragmentProcessor>(new PremulFragmentProcessor(std::move(processor)));
+        static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> processor) {
+            return gr_fp<GrFragmentProcessor>(new PremulFragmentProcessor(std::move(processor)));
         }
 
         const char* name() const override { return "Premultiply"; }
 
-        sk_sp<GrFragmentProcessor> clone() const override {
+        gr_fp<GrFragmentProcessor> clone() const override {
             auto child = this->childProcessor(0).clone();
             return child ? Make(std::move(child)) : nullptr;
         }
 
     private:
-        PremulFragmentProcessor(sk_sp<GrFragmentProcessor> processor)
+        PremulFragmentProcessor(gr_fp<GrFragmentProcessor> processor)
                 : INHERITED(OptFlags(processor.get())) {
             this->initClassID<PremulFragmentProcessor>();
             this->registerChildProcessor(processor);
@@ -364,18 +364,18 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
 
 //////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentProcessor> fp,
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(gr_fp<GrFragmentProcessor> fp,
                                                               GrColor4f color) {
     class ReplaceInputFragmentProcessor : public GrFragmentProcessor {
     public:
-        static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> child, GrColor4f color) {
-            return sk_sp<GrFragmentProcessor>(new ReplaceInputFragmentProcessor(std::move(child),
+        static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> child, GrColor4f color) {
+            return gr_fp<GrFragmentProcessor>(new ReplaceInputFragmentProcessor(std::move(child),
                                                                                 color));
         }
 
         const char* name() const override { return "Replace Color"; }
 
-        sk_sp<GrFragmentProcessor> clone() const override {
+        gr_fp<GrFragmentProcessor> clone() const override {
             auto child = this->childProcessor(0).clone();
             return child ? Make(std::move(child), fColor) : nullptr;
         }
@@ -413,7 +413,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
             return new GLFP;
         }
 
-        ReplaceInputFragmentProcessor(sk_sp<GrFragmentProcessor> child, GrColor4f color)
+        ReplaceInputFragmentProcessor(gr_fp<GrFragmentProcessor> child, GrColor4f color)
                 : INHERITED(OptFlags(child.get(), color)), fColor(color) {
             this->initClassID<ReplaceInputFragmentProcessor>();
             this->registerChildProcessor(std::move(child));
@@ -453,18 +453,18 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
     return ReplaceInputFragmentProcessor::Make(std::move(fp), color);
 }
 
-sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProcessor>* series,
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(gr_fp<GrFragmentProcessor>* series,
                                                             int cnt) {
     class SeriesFragmentProcessor : public GrFragmentProcessor {
     public:
-        static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor>* children, int cnt) {
-            return sk_sp<GrFragmentProcessor>(new SeriesFragmentProcessor(children, cnt));
+        static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor>* children, int cnt) {
+            return gr_fp<GrFragmentProcessor>(new SeriesFragmentProcessor(children, cnt));
         }
 
         const char* name() const override { return "Series"; }
 
-        sk_sp<GrFragmentProcessor> clone() const override {
-            SkSTArray<4, sk_sp<GrFragmentProcessor>> children(this->numChildProcessors());
+        gr_fp<GrFragmentProcessor> clone() const override {
+            SkSTArray<4, gr_fp<GrFragmentProcessor>> children(this->numChildProcessors());
             for (int i = 0; i < this->numChildProcessors(); ++i) {
                 if (!children.push_back(this->childProcessor(i).clone())) {
                     return nullptr;
@@ -494,7 +494,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             return new GLFP;
         }
 
-        SeriesFragmentProcessor(sk_sp<GrFragmentProcessor>* children, int cnt)
+        SeriesFragmentProcessor(gr_fp<GrFragmentProcessor>* children, int cnt)
                 : INHERITED(OptFlags(children, cnt)) {
             SkASSERT(cnt > 1);
             this->initClassID<SeriesFragmentProcessor>();
@@ -503,7 +503,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
             }
         }
 
-        static OptimizationFlags OptFlags(sk_sp<GrFragmentProcessor>* children, int cnt) {
+        static OptimizationFlags OptFlags(gr_fp<GrFragmentProcessor>* children, int cnt) {
             OptimizationFlags flags = kAll_OptimizationFlags;
             for (int i = 0; i < cnt && flags != kNone_OptimizationFlags; ++i) {
                 flags &= children[i]->optimizationFlags();
@@ -536,11 +536,11 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(sk_sp<GrFragmentProc
     inputColor.setToUnknown();
     GrColorFragmentProcessorAnalysis info(inputColor, sk_sp_address_as_pointer_address(series),
                                           cnt);
-    SkTArray<sk_sp<GrFragmentProcessor>> replacementSeries;
+    SkTArray<gr_fp<GrFragmentProcessor>> replacementSeries;
     GrColor4f knownColor;
     int leadingFPsToEliminate = info.initialProcessorsToEliminate(&knownColor);
     if (leadingFPsToEliminate) {
-        sk_sp<GrFragmentProcessor> colorFP(
+        gr_fp<GrFragmentProcessor> colorFP(
                 GrConstColorProcessor::Make(knownColor, GrConstColorProcessor::kIgnore_InputMode));
         if (leadingFPsToEliminate == cnt) {
             return colorFP;
