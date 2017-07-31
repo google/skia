@@ -106,11 +106,11 @@ private:
     std::unique_ptr<Expression> call(Position position,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
-    bool determineCallCost(const FunctionDeclaration& function,
-                           const std::vector<std::unique_ptr<Expression>>& arguments,
-                           int* outCost);
+    int callCost(const FunctionDeclaration& function,
+                 const std::vector<std::unique_ptr<Expression>>& arguments);
     std::unique_ptr<Expression> call(Position position, std::unique_ptr<Expression> function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
+    int coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTBlock& block);
     std::unique_ptr<Statement> convertBreak(const ASTBreakStatement& b);
