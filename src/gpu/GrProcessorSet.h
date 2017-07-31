@@ -29,22 +29,6 @@ public:
 
     ~GrProcessorSet();
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessorCnt; }
-    int numCoverageFragmentProcessors() const {
-        return this->numFragmentProcessors() - fColorFragmentProcessorCnt;
-    }
-    int numFragmentProcessors() const {
-        return fFragmentProcessors.count() - fFragmentProcessorOffset;
-    }
-
-    const GrFragmentProcessor* colorFragmentProcessor(int idx) const {
-        SkASSERT(idx < fColorFragmentProcessorCnt);
-        return fFragmentProcessors[idx + fFragmentProcessorOffset];
-    }
-    const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
-        return fFragmentProcessors[idx + fColorFragmentProcessorCnt + fFragmentProcessorOffset];
-    }
-
     const GrXferProcessor* xferProcessor() const {
         SkASSERT(this->isFinalized());
         return fXP.fProcessor;
@@ -134,6 +118,16 @@ public:
 
     bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 
+    gr_fp<const GrFragmentProcessor> detachColorFragmentProcessors() {
+        SkASSERT(this->isFinalized());
+        return std::move(fHeadColorFragmentProcessor);
+    }
+
+    gr_fp<const GrFragmentProcessor> detachCoverageFragmentProcessors() {
+        SkASSERT(this->isFinalized());
+        return std::move(fHeadCoverageFragmentProcessor);
+    }
+
     /** These are valid only for non-LCD coverage. */
     static const GrProcessorSet& EmptySet();
     static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
@@ -142,9 +136,6 @@ public:
 
 private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
-
-    // This absurdly large limit allows Analysis and this to pack fields together.
-    static constexpr int kMaxColorProcessors = UINT8_MAX;
 
     enum Flags : uint16_t { kFinalized_Flag = 0x1 };
 
@@ -160,10 +151,9 @@ private:
         return fXP.fFactory;
     }
 
-    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
+    gr_fp<GrFragmentProcessor> fHeadColorFragmentProcessor;
+    gr_fp<GrFragmentProcessor> fHeadCoverageFragmentProcessor;
     XP fXP;
-    uint8_t fColorFragmentProcessorCnt = 0;
-    uint8_t fFragmentProcessorOffset = 0;
     uint8_t fFlags;
 };
 

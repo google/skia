@@ -162,7 +162,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     gr_fp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(kToPremul_PMConversion));
 
     paint1.addColorTextureProcessor(dataProxy, nullptr, SkMatrix::I());
-    paint1.addColorFragmentProcessor(pmToUPM);
+    paint1.addColorFragmentProcessor(pmToUPM->clone());
     paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect, kRect);

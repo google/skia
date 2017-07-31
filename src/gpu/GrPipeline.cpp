@@ -49,36 +49,21 @@ void GrPipeline::init(const InitArgs& args) {
         fDstTextureOffset = args.fDstProxy.offset();
     }
 
-    // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
-    fNumColorProcessors = args.fProcessors->numColorFragmentProcessors();
-    int numTotalProcessors =
-            fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
+    fHeadColorProcessor = std::move(args.fProcessors->detachColorFragmentProcessors());
+    fHeadCoverageProcessor = args.fAppliedClip->clipCoverageFragmentProcessor()->setNext(
+            std::move(args.fProcessors->detachCoverageFragmentProcessors()));
     if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
-        ++numTotalProcessors;
+        args.fAppliedClip->clipCoverageFragmentProcessor()->setNext(std::move(fHeadColorProcessor));
+        fHeadColorProcessor = args.fAppliedClip->removeClipCoverageProcessor();
     }
-    fFragmentProcessors.reset(numTotalProcessors);
-    int currFPIdx = 0;
-    for (int i = 0; i < args.fProcessors->numColorFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
-        fFragmentProcessors[currFPIdx].reset(fp);
+    for (auto fp : GrFragmentProcessor::Series(fHeadColorProcessor.get())) {
         if (!fp->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
-
-    for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
-        fFragmentProcessors[currFPIdx].reset(fp);
+    for (auto fp : GrFragmentProcessor::Series(fHeadCoverageProcessor.get())) {
         if (!fp->instantiate(args.fResourceProvider)) {
             this->markAsBad();
-        }
-    }
-    if (args.fAppliedClip) {
-        if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
-            fFragmentProcessors[currFPIdx].reset(fp);
-            if (!fp->instantiate(args.fResourceProvider)) {
-                this->markAsBad();
-            }
         }
     }
 }
