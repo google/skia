@@ -59,6 +59,7 @@
   "Build-Mac-Clang-x86_64-Release",
   "Build-Mac-Clang-x86_64-Release-CommandBuffer",
   "Build-Win-Clang-arm64-Release-Android",
+  "Build-Win-Clang-x86_64-Release",
   "Build-Win-MSVC-x86-Debug",
   "Build-Win-MSVC-x86-Debug-ANGLE",
   "Build-Win-MSVC-x86-Debug-Exceptions",
