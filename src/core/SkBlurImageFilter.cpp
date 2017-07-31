@@ -100,6 +100,9 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
         tileMode = static_cast<SkBlurImageFilter::TileMode>(buffer.readInt());
     }
 
+    static_assert(SkBlurImageFilter::kMax_TileMode == 2, "CreateProc");
+    SkASSERT(tileMode <= SkBlurImageFilter::kMax_TileMode);
+
     return SkBlurImageFilter::Make(
           sigmaX, sigmaY, common.getInput(0), &common.cropRect(), tileMode);
 }
@@ -108,6 +111,10 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);
+
+    static_assert(SkBlurImageFilter::kMax_TileMode == 2, "flatten");
+    SkASSERT(fTileMode <= SkBlurImageFilter::kMax_TileMode);
+
     buffer.writeInt(static_cast<int>(fTileMode));
 }
 
