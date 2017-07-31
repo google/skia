@@ -285,6 +285,19 @@ bool GrCircleBlurFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) 
     if (fBlurProfileSampler != that.fBlurProfileSampler) return false;
     return true;
 }
+GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
+        const GrCircleBlurFragmentProcessor& src)
+        : INHERITED(src.optimizationFlags())
+        , fCircleRect(src.fCircleRect)
+        , fTextureRadius(src.fTextureRadius)
+        , fSolidRadius(src.fSolidRadius)
+        , fBlurProfileSampler(src.fBlurProfileSampler) {
+    this->initClassID<GrCircleBlurFragmentProcessor>();
+    this->addTextureSampler(&fBlurProfileSampler);
+}
+sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(*this));
+}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(

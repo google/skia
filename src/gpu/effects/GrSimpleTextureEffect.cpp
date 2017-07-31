@@ -70,6 +70,19 @@ bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (fMatrix != that.fMatrix) return false;
     return true;
 }
+GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
+        : INHERITED(src.optimizationFlags())
+        , fImage(src.fImage)
+        , fColorXform(src.fColorXform)
+        , fMatrix(src.fMatrix)
+        , fImageCoordTransform(src.fImageCoordTransform) {
+    this->initClassID<GrSimpleTextureEffect>();
+    this->addTextureSampler(&fImage);
+    this->addCoordTransform(&fImageCoordTransform);
+}
+sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(*this));
+}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData* testData) {

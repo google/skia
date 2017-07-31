@@ -50,4 +50,12 @@ bool GrBlurredEdgeFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
     if (fMode != that.fMode) return false;
     return true;
 }
+GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
+        const GrBlurredEdgeFragmentProcessor& src)
+        : INHERITED(src.optimizationFlags()), fMode(src.fMode) {
+    this->initClassID<GrBlurredEdgeFragmentProcessor>();
+}
+sk_sp<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
+}
 #endif

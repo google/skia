@@ -47,6 +47,8 @@ public:
         return sk_sp<GrFragmentProcessor>(
                 new GrSimpleTextureEffect(std::move(proxy), std::move(colorSpaceXform), matrix, p));
     }
+    GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SimpleTextureEffect"; }
 
 private:

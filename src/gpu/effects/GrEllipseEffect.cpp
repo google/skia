@@ -113,6 +113,16 @@ bool GrEllipseEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (fRadii != that.fRadii) return false;
     return true;
 }
+GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
+        : INHERITED(src.optimizationFlags())
+        , fEdgeType(src.fEdgeType)
+        , fCenter(src.fCenter)
+        , fRadii(src.fRadii) {
+    this->initClassID<GrEllipseEffect>();
+}
+sk_sp<GrFragmentProcessor> GrEllipseEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrEllipseEffect(*this));
+}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrEllipseEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTestData* testData) {

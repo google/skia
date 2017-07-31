@@ -107,6 +107,25 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& oth
     if (fOuterThreshold != that.fOuterThreshold) return false;
     return true;
 }
+GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
+        const GrAlphaThresholdFragmentProcessor& src)
+        : INHERITED(src.optimizationFlags())
+        , fImage(src.fImage)
+        , fColorXform(src.fColorXform)
+        , fMask(src.fMask)
+        , fInnerThreshold(src.fInnerThreshold)
+        , fOuterThreshold(src.fOuterThreshold)
+        , fImageCoordTransform(src.fImageCoordTransform)
+        , fMaskCoordTransform(src.fMaskCoordTransform) {
+    this->initClassID<GrAlphaThresholdFragmentProcessor>();
+    this->addTextureSampler(&fImage);
+    this->addTextureSampler(&fMask);
+    this->addCoordTransform(&fImageCoordTransform);
+    this->addCoordTransform(&fMaskCoordTransform);
+}
+sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));
+}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
