@@ -250,9 +250,11 @@ bool HCodeGenerator::generateCode() {
                      FieldType(param->fType).c_str(), name, FieldName(name).c_str());
     }
     this->writeMake();
-    this->writef("    const char* name() const override { return \"%s\"; }\n"
+    this->writef("    %s(const %s& src);\n"
+                 "    sk_sp<GrFragmentProcessor> clone() const override;\n"
+                 "    const char* name() const override { return \"%s\"; }\n"
                  "private:\n",
-                 fName.c_str());
+                 fFullName.c_str(), fFullName.c_str(), fName.c_str());
     this->writeConstructor();
     this->writef("    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;\n"
                  "    void onGetGLSLProcessorKey(const GrShaderCaps&,"

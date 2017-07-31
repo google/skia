@@ -302,11 +302,13 @@ void CPPCodeGenerator::writeSetting(const Setting& s) {
     }
 }
 
-void CPPCodeGenerator::writeSection(const char* name, const char* prefix) {
+bool CPPCodeGenerator::writeSection(const char* name, const char* prefix) {
     const Section* s = fSectionAndParameterHelper.getSection(name);
     if (s) {
         this->writef("%s%s", prefix, s->fText.c_str());
+        return true;
     }
+    return false;
 }
 
 void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
@@ -503,6 +505,46 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     this->write("    }\n");
 }
 
+void CPPCodeGenerator::writeClone() {
+    if (!this->writeSection(CLONE_SECTION)) {
+        if (fSectionAndParameterHelper.getSection(FIELDS_SECTION)) {
+            fErrors.error(Position(1, 1), "fragment processors with custom @fields must also have "
+                                          "a custom @clone");
+        }
+        this->writef("%s::%s(const %s& src)\n"
+                     ": INHERITED(src.optimizationFlags())", fFullName.c_str(), fFullName.c_str(),
+                     fFullName.c_str());
+        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+            String fieldName = HCodeGenerator::FieldName(param->fName.c_str());
+            this->writef("\n, %s(%s)",
+                         fieldName.c_str(),
+                         ("src." + fieldName).c_str());
+        }
+        for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
+            String fieldName = HCodeGenerator::FieldName(s->fArgument.c_str());
+            this->writef("\n, %sCoordTransform(src.%sCoordTransform)", fieldName.c_str(),
+                         fieldName.c_str());
+        }
+        this->writef(" {\n"
+                     "    this->initClassID<%s>();\n",
+                     fFullName.c_str());
+        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+            if (param->fType.kind() == Type::kSampler_Kind) {
+                this->writef("    this->addTextureSampler(&%s);\n",
+                             HCodeGenerator::FieldName(param->fName.c_str()).c_str());
+            }
+        }
+        for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
+            String field = HCodeGenerator::FieldName(s->fArgument.c_str());
+            this->writef("    this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
+        }
+        this->write("}\n");
+        this->writef("sk_sp<GrFragmentProcessor> %s::clone() const {\n", fFullName.c_str());
+        this->writef("    return sk_sp<GrFragmentProcessor>(new %s(*this));\n", fFullName.c_str());
+        this->write("}\n");
+    }
+}
+
 void CPPCodeGenerator::writeTest() {
     const Section* test = fSectionAndParameterHelper.getSection(TEST_CODE_SECTION);
     if (test) {
@@ -639,6 +681,7 @@ bool CPPCodeGenerator::generateCode() {
     }
     this->write("    return true;\n"
                 "}\n");
+    this->writeClone();
     this->writeTest();
     this->writeSection(CPP_END_SECTION);
     this->write("#endif\n");

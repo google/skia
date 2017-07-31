@@ -23,6 +23,8 @@ public:
 
     static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            const SkRect& circle, float sigma);
+    GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
 
 private:

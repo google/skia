@@ -23,6 +23,8 @@ public:
     static sk_sp<GrFragmentProcessor> Make(int edgeType, SkPoint center, SkPoint radii) {
         return sk_sp<GrFragmentProcessor>(new GrEllipseEffect(edgeType, center, radii));
     }
+    GrEllipseEffect(const GrEllipseEffect& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "EllipseEffect"; }
 
 private:

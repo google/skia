@@ -23,6 +23,8 @@ public:
     static sk_sp<GrFragmentProcessor> Make(int edgeType, SkPoint center, float radius) {
         return sk_sp<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
     }
+    GrCircleEffect(const GrCircleEffect& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleEffect"; }
 
 private:

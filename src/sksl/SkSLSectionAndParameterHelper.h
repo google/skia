@@ -18,6 +18,7 @@
 namespace SkSL {
 
 #define CLASS_SECTION              "class"
+#define CLONE_SECTION              "clone"
 #define CONSTRUCTOR_SECTION        "constructor"
 #define CONSTRUCTOR_CODE_SECTION   "constructorCode"
 #define CONSTRUCTOR_PARAMS_SECTION "constructorParams"
@@ -110,6 +111,7 @@ public:
 
     static bool IsSupportedSection(const char* name) {
         return !strcmp(name, CLASS_SECTION) ||
+               !strcmp(name, CLONE_SECTION) ||
                !strcmp(name, CONSTRUCTOR_SECTION) ||
                !strcmp(name, CONSTRUCTOR_CODE_SECTION) ||
                !strcmp(name, CONSTRUCTOR_PARAMS_SECTION) ||

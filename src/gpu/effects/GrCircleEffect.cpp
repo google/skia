@@ -88,6 +88,16 @@ bool GrCircleEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (fRadius != that.fRadius) return false;
     return true;
 }
+GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
+        : INHERITED(src.optimizationFlags())
+        , fEdgeType(src.fEdgeType)
+        , fCenter(src.fCenter)
+        , fRadius(src.fRadius) {
+    this->initClassID<GrCircleEffect>();
+}
+sk_sp<GrFragmentProcessor> GrCircleEffect::clone() const {
+    return sk_sp<GrFragmentProcessor>(new GrCircleEffect(*this));
+}
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleEffect);
 #if GR_TEST_UTILS
 sk_sp<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestData* testData) {

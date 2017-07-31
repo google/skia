@@ -88,6 +88,8 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "    static sk_sp<GrFragmentProcessor> Make() {\n"
              "        return sk_sp<GrFragmentProcessor>(new GrTest());\n"
              "    }\n"
+             "    GrTest(const GrTest& src);\n"
+             "    sk_sp<GrFragmentProcessor> clone() const override;\n"
              "    const char* name() const override { return \"Test\"; }\n"
              "private:\n"
              "    GrTest()\n"
@@ -147,6 +149,13 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "    const GrTest& that = other.cast<GrTest>();\n"
              "    (void) that;\n"
              "    return true;\n"
+             "}\n"
+             "GrTest::GrTest(const GrTest& src)\n"
+             ": INHERITED(src.optimizationFlags()) {\n"
+             "    this->initClassID<GrTest>();\n"
+             "}\n"
+             "sk_sp<GrFragmentProcessor> GrTest::clone() const {\n"
+             "    return sk_sp<GrFragmentProcessor>(new GrTest(*this));\n"
              "}\n"
              "#endif\n"
          });
@@ -287,6 +296,7 @@ DEF_TEST(SkSLFPSections, r) {
          });
     test(r,
          "@fields { fields section }"
+         "@clone { }"
          "void main() {"
          "sk_OutColor = float4(1);"
          "}",
