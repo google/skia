@@ -16,6 +16,24 @@
       "revId": "5635d0168c73d8d683cab57f281d1399233bbefc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57ce687e_3bd0a08a",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-31T19:59:57Z",
+      "side": 1,
+      "message": "Nah, they just clamp to [0,1] either way.\n\nWe probably ought to clamp to [0,a] when premul, but they aren\u0027t realistically ever premul so I wouldn\u0027t worry about it here.",
+      "parentUuid": "3f19cd17_3b70e53d",
+      "revId": "5635d0168c73d8d683cab57f281d1399233bbefc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
