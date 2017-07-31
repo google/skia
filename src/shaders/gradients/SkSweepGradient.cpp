@@ -11,18 +11,14 @@
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 
-static SkMatrix translate(SkScalar dx, SkScalar dy) {
-    SkMatrix matrix;
-    matrix.setTranslate(dx, dy);
-    return matrix;
-}
-
-SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor& desc)
-    : SkGradientShaderBase(desc, translate(-cx, -cy))
-    , fCenter(SkPoint::Make(cx, cy))
+SkSweepGradient::SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1,
+                                 const Descriptor& desc)
+    : SkGradientShaderBase(desc, SkMatrix::MakeTrans(-center.x(), -center.y()))
+    , fCenter(center)
+    , fTBias(-t0)
+    , fTScale(1 / (t1 - t0))
 {
-    // overwrite the tilemode to a canonical value (since sweep ignores it)
-    fTileMode = SkShader::kClamp_TileMode;
+    SkASSERT(t0 < t1);
 }
 
 SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
@@ -39,14 +35,27 @@ sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
     const SkPoint center = buffer.readPoint();
+
+    SkScalar startAngle = 0,
+               endAngle = 360;
+    if (!buffer.isVersionLT(SkReadBuffer::kTileInfoInSweepGradient_Version)) {
+        const auto tBias  = buffer.readScalar(),
+                   tScale = buffer.readScalar();
+        startAngle = -tBias * 360;
+          endAngle = (1 / tScale - tBias) * 360;
+    }
+
     return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors,
                                        std::move(desc.fColorSpace), desc.fPos, desc.fCount,
+                                       desc.fTileMode, startAngle, endAngle,
                                        desc.fGradFlags, desc.fLocalMatrix);
 }
 
 void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter);
+    buffer.writeScalar(fTBias);
+    buffer.writeScalar(fTScale);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -62,8 +71,9 @@ class GrSweepGradient : public GrGradientEffect {
 public:
     class GLSLSweepProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        auto processor = sk_sp<GrSweepGradient>(new GrSweepGradient(args));
+    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args, SkScalar tBias,
+                                           SkScalar tScale) {
+        auto processor = sk_sp<GrSweepGradient>(new GrSweepGradient(args, tBias, tScale));
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
@@ -74,12 +84,17 @@ public:
     }
 
 private:
-    explicit GrSweepGradient(const CreateArgs& args)
-            : INHERITED(args, args.fShader->colorsAreOpaque()) {
+    explicit GrSweepGradient(const CreateArgs& args, SkScalar tBias, SkScalar tScale)
+            : INHERITED(args, args.fShader->colorsAreOpaque())
+            , fTBias(tBias)
+            , fTScale(tScale){
         this->initClassID<GrSweepGradient>();
     }
 
-    explicit GrSweepGradient(const GrSweepGradient& that) : INHERITED(that) {
+    explicit GrSweepGradient(const GrSweepGradient& that)
+            : INHERITED(that)
+            , fTBias(that.fTBias)
+            , fTScale(that.fTScale) {
         this->initClassID<GrSweepGradient>();
     }
 
@@ -88,7 +103,17 @@ private:
     virtual void onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                        GrProcessorKeyBuilder* b) const override;
 
+     bool onIsEqual(const GrFragmentProcessor& base) const override {
+         const GrSweepGradient& fp = base.cast<GrSweepGradient>();
+         return INHERITED::onIsEqual(base)
+             && fTBias == fp.fTBias
+             && fTScale == fp.fTScale;
+     }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
+
+    SkScalar fTBias;
+    SkScalar fTScale;
 
     typedef GrGradientEffect INHERITED;
 };
@@ -99,10 +124,17 @@ class GrSweepGradient::GLSLSweepProcessor : public GrGradientEffect::GLSLProcess
 public:
     GLSLSweepProcessor(const GrProcessor&) {}
 
+
     virtual void emitCode(EmitArgs&) override;
 
-    static void GenKey(const GrProcessor& processor, const GrShaderCaps&, GrProcessorKeyBuilder* b) {
-        b->add32(GenBaseGradientKey(processor));
+    static void GenKey(const GrProcessor& processor, const GrShaderCaps&,
+                       GrProcessorKeyBuilder* b) {
+        const GrSweepGradient& p = processor.cast<GrSweepGradient>();
+
+        uint32_t* key = b->add32n(3);
+        key[0] = GenBaseGradientKey(processor);
+        key[1] = SkFloat2Bits(p.fTBias);
+        key[2] = SkFloat2Bits(p.fTScale);
     }
 
 private:
@@ -163,6 +195,11 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
         t.printf("(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5)",
                  coords2D.c_str(), coords2D.c_str());
     }
+
+    if (ge.fTBias != 0 || ge.fTScale != 1) {
+        t = SkStringPrintf("((%s + %f) * %f)", t.c_str(), ge.fTBias, ge.fTScale);
+    }
+
     this->emitColor(args.fFragBuilder,
                     args.fUniformHandler,
                     args.fShaderCaps,
@@ -192,8 +229,9 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
     sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(
-        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, SkShader::kClamp_TileMode,
-                                     std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
+        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
+                                     std::move(colorSpaceXform), SkToBool(args.fDstColorSpace)),
+                                     fTBias, fTScale));
     if (!inner) {
         return nullptr;
     }
@@ -224,9 +262,11 @@ void SkSweepGradient::toString(SkString* str) const {
     str->append(")");
 }
 
-void SkSweepGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
+void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* p,
                                            SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_unit_angle);
+    p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeScale(fTScale, 1),
+                                             SkMatrix::MakeTrans(fTBias , 0)));
 }
 
 #endif
