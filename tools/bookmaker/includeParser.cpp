@@ -233,7 +233,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     if (0 == token.fName.find("internal_")
                             || 0 == token.fName.find("Internal_")
                             || 0 == token.fName.find("legacy_")
-                            || 0 == token.fName.find("temporary_")) {
+                            || 0 == token.fName.find("temporary_")
+                            || 0 == token.fName.find("private_")) {
                         continue;
                     }
                     const char* methodID = bmhParser.fMaps[(int) token.fMarkType].fName;
