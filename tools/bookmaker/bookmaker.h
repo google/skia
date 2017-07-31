@@ -1598,6 +1598,7 @@ public:
         kStart,
         kDelimiter,
         kPeriod,
+        kSpace,
     };
 
     enum class Wrote {

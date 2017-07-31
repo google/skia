@@ -247,8 +247,8 @@ public:
         multiple settings at once.
     */
     enum Flags {
-        kAntiAlias_Flag          = 0x01,   //!< mask for setting Anti-alias
-        kDither_Flag             = 0x04,   //!< mask for setting Dither
+        kAntiAlias_Flag          = 0x01,   //!< mask for setting anti-alias
+        kDither_Flag             = 0x04,   //!< mask for setting dither
         kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
@@ -404,7 +404,7 @@ public:
 
     /** If true, and if SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting, and if
         platform uses FreeType as the font manager, instruct the font manager to always hint
-        Glyphs.
+        glyphs.
 
         Equivalent to getFlags masked with kAutoHinting_Flag.
 
@@ -415,7 +415,7 @@ public:
     }
 
     /** If SkPaint::Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
-        instruct the font manager to always hint Glyphs.
+        instruct the font manager to always hint glyphs.
         auto-hinting has no effect if SkPaint::Hinting is set to kNo_Hinting or
         kSlight_Hinting.
 
@@ -516,7 +516,7 @@ public:
     */
     enum Style {
         /** Set to fill geometry.
-            Applies to SkRect, SkRegion, SkRRect, circles, ovals, SkPath, and Text.
+            Applies to SkRect, SkRegion, SkRRect, circles, ovals, SkPath, and text.
             SkBitmap, SkImage, patches, SkRegion, sprites, and vertices are painted as if
             kFill_Style is set, and ignore the set Style.
             The FillType specifies additional rules to fill the area outside the path edge,
@@ -527,15 +527,15 @@ public:
 
         /** Set to stroke geometry.
             Applies to SkRect, SkRegion, SkRRect, arcs, circles, ovals,
-            SkPath, and Text.
-            arcs, lines, SkPoint, and SkPoint arrays are always drawn as if kStroke_Style is set,
+            SkPath, and text.
+            Arcs, lines, SkPoint, and SkPoint arrays are always drawn as if kStroke_Style is set,
             and ignore the set Style.
             The stroke construction is unaffected by the FillType.
         */
         kStroke_Style,
 
         /** Set to stroke and fill geometry.
-            Applies to SkRect, SkRegion, SkRRect, circles, ovals, SkPath, and Text.
+            Applies to SkRect, SkRegion, SkRRect, circles, ovals, SkPath, and text.
             SkPath is treated as if it is set to SkPath::kWinding_FillType,
             and the set FillType is ignored.
         */
@@ -577,7 +577,7 @@ public:
     */
     void setColor(SkColor color);
 
-    /** Retrieves alpha from the Color used when stroking and filling.
+    /** Retrieves alpha from the color used when stroking and filling.
 
         @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
@@ -586,14 +586,14 @@ public:
     /** Replaces alpha, leaving RGB
         unchanged. An out of range value triggers an assert in the debug
         build. a is a value from zero to 255.
-        a set to zero makes Color fully transparent; a set to 255 makes Color
+        a set to zero makes color fully transparent; a set to 255 makes color
         fully opaque.
 
-        @param a  alpha component of Color
+        @param a  alpha component of color
     */
     void setAlpha(U8CPU a);
 
-    /** Sets Color used when drawing solid fills. The color components range from 0 to 255.
+    /** Sets color used when drawing solid fills. The color components range from 0 to 255.
         The color is unpremultiplied;
         alpha sets the transparency independent of RGB.
 
@@ -607,7 +607,7 @@ public:
     /** Returns the thickness of the pen used by SkPaint to
         outline the shape.
 
-        @return  zero for Hairline, greater than zero for pen thickness
+        @return  zero for hairline, greater than zero for pen thickness
     */
     SkScalar getStrokeWidth() const { return fWidth; }
 
@@ -615,7 +615,7 @@ public:
         outline the shape.
         Has no effect if width is less than zero.
 
-        @param width  zero thickness for Hairline; greater than zero for pen thickness
+        @param width  zero thickness for hairline; greater than zero for pen thickness
     */
     void setStrokeWidth(SkScalar width);
 
@@ -660,7 +660,7 @@ public:
     static constexpr int kCapCount = kLast_Cap + 1;
 
     /** \enum SkPaint::Join
-        Join specifies how corners are drawn when a shape is stroked. The paint's Join setting
+        Join specifies how corners are drawn when a shape is stroked. Join
         affects the four corners of a stroked rectangle, and the connected segments in a
         stroked path.
 
@@ -724,7 +724,7 @@ public:
         @param cullRect  optional limit passed to SkPathEffect
         @param resScale  if > 1, increase precision, else if (0 < res < 1) reduce precision
                          to favor speed and size
-        @return          true if the path represents style fill, or false if it represents Hairline
+        @return          true if the path represents style fill, or false if it represents hairline
     */
     bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                      SkScalar resScale = 1) const;
@@ -736,7 +736,7 @@ public:
 
         @param src  SkPath read to create a filled version
         @param dst  resulting SkPath dst may be the same as src, but may not be nullptr
-        @return     true if the path represents style fill, or false if it represents Hairline
+        @return     true if the path represents style fill, or false if it represents hairline
     */
     bool getFillPath(const SkPath& src, SkPath* dst) const {
         return this->getFillPath(src, dst, NULL, 1);
@@ -763,7 +763,7 @@ public:
         Sets SkShader to shader, decrementing SkRefCnt of the previous SkShader.
         Does not alter shader SkRefCnt.
 
-        @param shader  how geometry is filled with color; if nullptr, Color is used instead
+        @param shader  how geometry is filled with color; if nullptr, color is used instead
     */
     void setShader(sk_sp<SkShader> shader);
 

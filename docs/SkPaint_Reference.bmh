@@ -1458,7 +1458,7 @@ kEmbeddedBitmapText_Flag at compile time.
 #Substitute auto-hinting
 
 If Hinting is set to kNormal_Hinting or kFull_Hinting, Automatic_Hinting
-instructs the Font_Manager to always hint Glyphs.
+instructs the Font_Manager to always hint glyphs.
 Automatic_Hinting has no effect if Hinting is set to kNo_Hinting or
 kSlight_Hinting.
 
@@ -1468,7 +1468,7 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
     If true, and if Hinting is set to kNormal_Hinting or kFull_Hinting, and if
     platform uses FreeType as the Font_Manager, instruct the Font_Manager to always hint
-    Glyphs.
+    glyphs.
 
     Equivalent to getFlags masked with kAutoHinting_Flag.
 
@@ -1496,7 +1496,7 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 #Method void setAutohinted(bool useAutohinter)
 
     If Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
-    instruct the Font_Manager to always hint Glyphs.
+    instruct the Font_Manager to always hint glyphs.
     Automatic_Hinting has no effect if Hinting is set to kNo_Hinting or
     kSlight_Hinting.
 
@@ -2525,7 +2525,7 @@ the following curve, the pair of curves meet at Stroke_Join.
     static constexpr int kJoinCount = kLast_Join + 1;
 ##
 
-Join specifies how corners are drawn when a shape is stroked. The paint's Join setting
+Join specifies how corners are drawn when a shape is stroked. Join
 affects the four corners of a stroked rectangle, and the connected segments in a
 stroked path.
 
