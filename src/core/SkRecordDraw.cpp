@@ -457,10 +457,9 @@ private:
     }
 
     Bounds bounds(const DrawShadowRec& op) const {
-        // TODO: compute correct bounds for shadow
-        SkRect shadowBounds = op.path.getBounds();
-        shadowBounds.outset(100, 100);
-        return this->adjustAndMap(shadowBounds, nullptr);
+        SkRect bounds;
+        SkDrawShadowMetrics::GetLocalBounds(op.path, op.rec, fCTM, &bounds);
+        return this->adjustAndMap(bounds, nullptr);
     }
 
     Bounds bounds(const DrawPicture& op) const {

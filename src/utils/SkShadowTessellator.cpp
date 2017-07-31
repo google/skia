@@ -7,6 +7,7 @@
 
 #include "SkShadowTessellator.h"
 #include "SkColorPriv.h"
+#include "SkDrawShadowInfo.h"
 #include "SkGeometry.h"
 #include "SkInsetConvexPolygon.h"
 #include "SkPath.h"
@@ -345,16 +346,14 @@ private:
     void handleLine(const SkPoint& p) override;
     void addEdge(const SkVector& nextPoint, const SkVector& nextNormal);
 
-    static constexpr auto kHeightFactor = 1.0f / 128.0f;
-    static constexpr auto kGeomFactor = 64.0f;
     static constexpr auto kMaxEdgeLenSqr = 20 * 20;
     static constexpr auto kInsetFactor = -0.5f;
 
     SkScalar offset(SkScalar z) {
-        return z * kHeightFactor * kGeomFactor;
+        return SkDrawShadowMetrics::AmbientBlurRadius(z);
     }
     SkColor umbraColor(SkScalar z) {
-        SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(z*kHeightFactor, 0.0f)));
+        SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(z));
         return SkColorSetARGB(umbraAlpha * 255.9999f, 0, 0, 0);
     }
 
@@ -373,8 +372,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
         , fSplitFirstEdge(false)
         , fSplitPreviousEdge(false) {
     // Set base colors
-    SkScalar occluderHeight = heightFunc(0, 0);
-    SkScalar umbraAlpha = SkScalarInvert((1.0f + SkTMax(occluderHeight*kHeightFactor, 0.0f)));
+    SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(heightFunc(0, 0)));
     // umbraColor is the interior value, penumbraColor the exterior value.
     // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
     // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
@@ -804,17 +802,17 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     // Set radius and colors
     SkPoint center = SkPoint::Make(path.getBounds().centerX(), path.getBounds().centerY());
     SkScalar occluderHeight = this->heightFunc(center.fX, center.fY) + fZOffset;
-    float zRatio = SkTPin(occluderHeight / (fLightZ - occluderHeight), 0.0f, 0.95f);
-    SkScalar radius = lightRadius * zRatio;
-    fRadius = radius;
     fUmbraColor = SkColorSetARGB(255, 0, 0, 0);
     fPenumbraColor = SkColorSetARGB(0, 0, 0, 0);
 
-    // Compute the scale and translation for the spot shadow.
+    // Compute the blur radius, scale and translation for the spot shadow.
+    SkScalar radius;
     SkMatrix shadowTransform;
     if (!ctm.hasPerspective()) {
-        SkScalar scale = fLightZ / (fLightZ - occluderHeight);
-        SkVector translate = SkVector::Make(-zRatio * lightPos.fX, -zRatio * lightPos.fY);
+        SkScalar scale;
+        SkVector translate;
+        SkDrawShadowMetrics::GetSpotParams(occluderHeight, lightPos.fX, lightPos.fY, fLightZ,
+                                           lightRadius, &radius, &scale, &translate);
         shadowTransform.setScaleTranslate(scale, scale, translate.fX, translate.fY);
     } else {
         // For perspective, we have a scale, a z-shear, and another projective divide --
@@ -823,7 +821,9 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         shadowTransform.reset();
         // Also can't cull the center (for now).
         fTransparent = true;
+        radius = SkDrawShadowMetrics::SpotBlurRadius(occluderHeight, lightPos.fZ, lightRadius);
     }
+    fRadius = radius;
     SkMatrix fullTransform = SkMatrix::Concat(shadowTransform, ctm);
 
     // Set up our reverse mapping

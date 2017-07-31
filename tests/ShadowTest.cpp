@@ -6,6 +6,7 @@
  */
 
 #include "SkCanvas.h"
+#include "SkDrawShadowInfo.h"
 #include "SkPath.h"
 #include "SkShadowTessellator.h"
 #include "SkShadowUtils.h"
@@ -57,4 +58,61 @@ DEF_TEST(ShadowUtils, reporter) {
         path.lineTo((SkScalar)i, (SkScalar)i);
     }
     tessellate_shadow(reporter, path, canvas.getTotalMatrix(), false);
+}
+
+void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, const SkMatrix& ctm) {
+    const SkDrawShadowRec rec = {
+        SkPoint3::Make(0, 0, 4),
+        SkPoint3::Make(100, 0, 600),
+        800.f,
+        0.035f,
+        0.25f,
+        SK_ColorBLACK,
+        0
+    };
+    SkRect bounds;
+    SkDrawShadowMetrics::GetLocalBounds(path, rec, ctm, &bounds);
+    ctm.mapRect(&bounds);
+
+    auto verts = SkShadowTessellator::MakeAmbient(path, ctm, rec.fZPlaneParams, true);
+    if (verts) {
+        REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
+    }
+
+    SkPoint mapXY = ctm.mapXY(rec.fLightPos.fX, rec.fLightPos.fY);
+    SkPoint3 devLightPos = SkPoint3::Make(mapXY.fX, mapXY.fY, rec.fLightPos.fZ);
+    verts = SkShadowTessellator::MakeSpot(path, ctm, rec.fZPlaneParams, devLightPos,
+                                          rec.fLightRadius, false);
+    if (verts) {
+        REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
+    }
+}
+
+void check_bounds(skiatest::Reporter* reporter, const SkPath& path) {
+    SkMatrix ctm;
+    ctm.setTranslate(100, 100);
+    check_xformed_bounds(reporter, path, ctm);
+    ctm.postScale(2, 2);
+    check_xformed_bounds(reporter, path, ctm);
+    ctm.preRotate(45);
+    check_xformed_bounds(reporter, path, ctm);
+    ctm.preSkew(40, -20);
+    check_xformed_bounds(reporter, path, ctm);
+    ctm[SkMatrix::kMPersp0] = 0.0001f;
+    ctm[SkMatrix::kMPersp1] = 12.f;
+    check_xformed_bounds(reporter, path, ctm);
+}
+
+DEF_TEST(ShadowBounds, reporter) {
+    SkPath path;
+    path.addRRect(SkRRect::MakeRectXY(SkRect::MakeLTRB(-50, -20, 40, 30), 4, 4));
+    check_bounds(reporter, path);
+
+    path.reset();
+    path.addOval(SkRect::MakeLTRB(300, 300, 900, 900));
+    check_bounds(reporter, path);
+
+    path.reset();
+    path.cubicTo(100, 50, 20, 100, 0, 0);
+    check_bounds(reporter, path);
 }

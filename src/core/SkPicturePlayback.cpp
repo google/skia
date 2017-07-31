@@ -6,7 +6,7 @@
  */
 
 #include "SkCanvas.h"
-#include "SkDrawShadowRec.h"
+#include "SkDrawShadowInfo.h"
 #include "SkPatchUtils.h"
 #include "SkPictureData.h"
 #include "SkPicturePlayback.h"
