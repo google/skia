@@ -91,8 +91,7 @@ public:
      * Appends an additional color processor to the color computation.
      */
     void addColorFragmentProcessor(gr_fp<GrFragmentProcessor> fp) {
-        SkASSERT(fp);
-        fColorFragmentProcessors.push_back(std::move(fp));
+        fColorFragmentProcessorList.append(std::move(fp));
         fTrivial = false;
     }
 
@@ -100,8 +99,7 @@ public:
      * Appends an additional coverage processor to the coverage computation.
      */
     void addCoverageFragmentProcessor(gr_fp<GrFragmentProcessor> fp) {
-        SkASSERT(fp);
-        fCoverageFragmentProcessors.push_back(std::move(fp));
+        fCoverageFragmentProcessorList.append(std::move(fp));
         fTrivial = false;
     }
 
@@ -115,23 +113,15 @@ public:
                                   sk_sp<GrColorSpaceXform>, const SkMatrix&,
                                   const GrSamplerParams&);
 
-    void addCoverageTextureProcessor(sk_sp<GrTextureProxy>, const SkMatrix&);
-    void addCoverageTextureProcessor(sk_sp<GrTextureProxy>,
-                                     const SkMatrix&, const GrSamplerParams&);
+    gr_fp<GrFragmentProcessor> detachColorFragmentProcessors() {
+        return fColorFragmentProcessorList.detach();
+    }
 
-    int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
-    int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }
-    int numTotalFragmentProcessors() const { return this->numColorFragmentProcessors() +
-                                              this->numCoverageFragmentProcessors(); }
+    gr_fp<GrFragmentProcessor> detachCoverageFragmentProcessors() {
+            return fColorFragmentProcessorList.detach();
+    }
 
     const GrXPFactory* getXPFactory() const { return fXPFactory; }
-
-    GrFragmentProcessor* getColorFragmentProcessor(int i) const {
-        return fColorFragmentProcessors[i].get();
-    }
-    GrFragmentProcessor* getCoverageFragmentProcessor(int i) const {
-        return fCoverageFragmentProcessors[i].get();
-    }
 
     /**
      * Returns true if the paint's output color will be constant after blending. If the result is
@@ -168,11 +158,34 @@ public:
 private:
     GrPaint& operator=(const GrPaint&) = delete;
 
-    friend class GrProcessorSet;
-
     const GrXPFactory* fXPFactory = nullptr;
-    SkSTArray<4, gr_fp<GrFragmentProcessor>>  fColorFragmentProcessors;
-    SkSTArray<2, gr_fp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
+
+    class FragmentProcessorList {
+    public:
+        GrFragmentProcessor* head() const { return fHead.get(); }
+
+        gr_fp<GrFragmentProcessor> detach() {
+            fTail = nullptr;
+            return std::move(fHead);
+        }
+
+        void append(gr_fp<GrFragmentProcessor> fp) {
+            SkASSERT(fp);
+            if (fTail) {
+                fTail->setNext(std::move(fp));
+                fTail = fTail->next();
+            } else {
+                fHead = std::move(fp);
+                fTail = fHead.get();
+            }
+        }
+    private:
+        gr_fp<GrFragmentProcessor> fHead;
+        GrFragmentProcessor* fTail;
+    };
+
+    FragmentProcessorList fColorFragmentProcessorList;
+    FragmentProcessorList fCoverageFragmentProcessorList;
     bool fDisableOutputConversionToSRGB = false;
     bool fAllowSRGBInputs = false;
     bool fTrivial = true;

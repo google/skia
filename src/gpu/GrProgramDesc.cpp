@@ -148,19 +148,19 @@ static bool gen_meta_key(const GrXferProcessor& xp,
 }
 
 static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
-                                        const GrFragmentProcessor& fp,
+                                        const GrFragmentProcessor* fp,
                                         const GrShaderCaps& shaderCaps,
                                         GrProcessorKeyBuilder* b) {
-    for (int i = 0; i < fp.numChildProcessors(); ++i) {
-        if (!gen_frag_proc_and_meta_keys(primProc, fp.childProcessor(i), shaderCaps, b)) {
+    for (int i = 0; i < fp->numChildProcessors(); ++i) {
+        if (!gen_frag_proc_and_meta_keys(primProc, &fp->childProcessor(i), shaderCaps, b)) {
             return false;
         }
     }
 
-    fp.getGLSLProcessorKey(shaderCaps, b);
+    fp->getGLSLProcessorKey(shaderCaps, b);
 
-    return gen_meta_key(fp, shaderCaps, primProc.getTransformKey(fp.coordTransforms(),
-                                                                 fp.numCoordTransforms()), b);
+    return gen_meta_key(*fp, shaderCaps, primProc.getTransformKey(fp->coordTransforms(),
+                                                                  fp->numCoordTransforms()), b);
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc,
@@ -187,13 +187,22 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     }
     GrProcessor::RequiredFeatures requiredFeatures = primProc.requiredFeatures();
 
-    for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {
-        const GrFragmentProcessor& fp = pipeline.getFragmentProcessor(i);
-        if (!gen_frag_proc_and_meta_keys(primProc, fp, shaderCaps, &b)) {
-            desc->key().reset();
-            return false;
+    auto genFPKeys = [](const GrFragmentProcessor* head) {
+        int cnt = 0;
+        for (auto fp : GrFragmentProcessor::Series(head) {
+            if (!gen_frag_proc_and_meta_keys(primProc, fp, shaderCaps, &b)) {
+                return -1;
+            }
+            requiredFeatures |= fp->requiredFeatures();
+            ++cnt;
         }
-        requiredFeatures |= fp.requiredFeatures();
+        return cnt;
+    };
+    int numColorFPs = genFPKeys(pipeline.headColorFragmentProcessor());
+    int numCoverageFPs = genFPKeys(pipeline.headCoverageFragmentProcessor());
+    if (numColorFPs  < 0 || numCoverageFPs < 0) {
+        desc->key().reset();
+        return false;
     }
 
     const GrXferProcessor& xp = pipeline.getXferProcessor();
@@ -233,11 +242,11 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
     header->fOutputSwizzle = shaderCaps.configOutputSwizzle(proxy->config()).asKey();
 
     header->fSnapVerticesToPixelCenters = pipeline.snapVerticesToPixelCenters();
-    header->fColorFragmentProcessorCnt = pipeline.numColorFragmentProcessors();
-    header->fCoverageFragmentProcessorCnt = pipeline.numCoverageFragmentProcessors();
+    header->fColorFragmentProcessorCnt = numColorFPs;
+    header->fCoverageFragmentProcessorCnt = numCoverageFPs;
     // Fail if the client requested more processors than the key can fit.
-    if (header->fColorFragmentProcessorCnt != pipeline.numColorFragmentProcessors() ||
-        header->fCoverageFragmentProcessorCnt != pipeline.numCoverageFragmentProcessors()) {
+    if (header->fColorFragmentProcessorCnt != numColorFPs ||
+        header->fCoverageFragmentProcessorCnt != numCoverageFPs) {
         return false;
     }
     header->fHasPointSize = hasPointSize ? 1 : 0;

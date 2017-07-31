@@ -46,34 +46,22 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet processors, GrApplie
         fDstTextureOffset = args.fDstProxy.offset();
     }
 
-    // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
-    fNumColorProcessors = processors.numColorFragmentProcessors();
-    int numTotalProcessors =
-            fNumColorProcessors + processors.numCoverageFragmentProcessors();
+
+    fHeadColorProcessor = std::move(args.fProcessors->detachColorFragmentProcessors());
+    fHeadCoverageProcessor = args.fAppliedClip->clipCoverageFragmentProcessor()->setNext(
+            std::move(args.fProcessors->detachCoverageFragmentProcessors()));
     auto clipFP = appliedClip.detachClipCoverageFragmentProcessor();
     if (clipFP) {
-        ++numTotalProcessors;
+        args.fAppliedClip->clipCoverageFragmentProcessor()->setNext(std::move(clipFP));
+        fHeadColorProcessor = args.fAppliedClip->removeClipCoverageProcessor();
     }
-    fFragmentProcessors.reset(numTotalProcessors);
-    int currFPIdx = 0;
-    for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = processors.colorFragmentProcessor(i);
-        fFragmentProcessors[currFPIdx].reset(fp);
+    for (auto fp : GrFragmentProcessor::Series(fHeadColorProcessor.get())) {
         if (!fp->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
-
-    for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = processors.coverageFragmentProcessor(i);
-        fFragmentProcessors[currFPIdx].reset(fp);
+    for (auto fp : GrFragmentProcessor::Series(fHeadCoverageProcessor.get())) {
         if (!fp->instantiate(args.fResourceProvider)) {
-            this->markAsBad();
-        }
-    }
-    if (clipFP) {
-        fFragmentProcessors[currFPIdx].reset(clipFP.get());
-        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
