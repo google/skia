@@ -35,6 +35,8 @@ public:
         return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
                 image, colorXform, mask, innerThreshold, outerThreshold, bounds));
     }
+    GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
 
 private:

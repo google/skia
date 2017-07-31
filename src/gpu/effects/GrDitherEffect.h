@@ -46,6 +46,8 @@ public:
         }
         return sk_sp<GrFragmentProcessor>(new GrDitherEffect(rangeType));
     }
+    GrDitherEffect(const GrDitherEffect& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DitherEffect"; }
 
 private:
