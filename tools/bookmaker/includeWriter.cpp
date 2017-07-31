@@ -709,6 +709,12 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                                 if (MarkType::kTopic == parent->fMarkType ||
                                         MarkType::kSubtopic == parent->fMarkType) {
                                     const char* commentStart = parent->fContentStart;
+                                    for (auto child : parent->fChildren) {
+                                        if (MarkType::kClass == child->fMarkType) {
+                                            break;
+                                        }
+                                        commentStart = child->fTerminator;
+                                    }
                                     const char* commentEnd = root->fStart;
                                     this->structOut(root, *root, commentStart, commentEnd);
                                 } else {
@@ -905,7 +911,15 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
     if (fBmhParser->fMethodMap.end() != rootDefIter) {
         substitute = methodname + "()";
     } else {
-        auto parent = fRootTopic->fChildren[0]->asRoot();
+        RootDefinition* parent = nullptr;
+        for (auto candidate : fRootTopic->fChildren) {
+            if (MarkType::kClass == candidate->fMarkType
+                    || MarkType::kStruct == candidate->fMarkType) {
+                parent = candidate->asRoot();
+                break;
+            }
+        }
+        SkASSERT(parent);
         auto defRef = parent->find(parent->fName + "::" + methodname);
         if (defRef && MarkType::kMethod == defRef->fMarkType) {
             substitute = methodname + "()";
@@ -984,11 +998,10 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first)
             }
         }
     }
- //   start here;
-    // first I thought first meant first word after period, but the below doesn't work
-//    if (first && isupper(start[0]) && substitute.length() > 0 && islower(substitute[0])) {
-//        substitute[0] = start[0];
-//    }
+    // Ensure first word after period is capitalized if substitute is lower cased.
+    if (first && isupper(start[0]) && substitute.length() > 0 && islower(substitute[0])) {
+        substitute[0] = start[0];
+    }
     return substitute;
 }
 int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word word,
@@ -1115,7 +1128,9 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                     default:
                         SkASSERT(0);
                 }
-                punctuation = PunctuationState::kStart;
+                punctuation = PunctuationState::kPeriod == punctuation ||
+                        (PunctuationState::kStart == punctuation && ' ' >= last) ? 
+                        PunctuationState::kStart : PunctuationState::kSpace;
                 word = Word::kStart;
                 hasLower = false;
                 hasUpper = false;
@@ -1226,8 +1241,6 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                 if (PunctuationState::kPeriod == punctuation ||
                         PunctuationState::kDelimiter == punctuation) {
                     word = Word::kMixed;
-                } else {
-                    punctuation = PunctuationState::kStart;
                 }
                 break;
             case 'a': case 'b': case 'c': case 'd': case 'e':
