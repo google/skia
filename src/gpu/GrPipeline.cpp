@@ -17,20 +17,18 @@
 
 #include "ops/GrOp.h"
 
-GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet processors) {
+GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet processors, GrAppliedClip appliedClip) {
     SkASSERT(args.fProxy);
     processors.isFinalized();
 
     fProxy.reset(args.fProxy);
 
     fFlags = args.fFlags;
-    if (args.fAppliedClip) {
-        fScissorState = args.fAppliedClip->scissorState();
-        if (args.fAppliedClip->hasStencilClip()) {
-            fFlags |= kHasStencilClip_Flag;
-        }
-        fWindowRectsState = args.fAppliedClip->windowRectsState();
+    fScissorState = appliedClip.scissorState();
+    if (appliedClip.hasStencilClip()) {
+        fFlags |= kHasStencilClip_Flag;
     }
+    fWindowRectsState = appliedClip.windowRectsState();
     if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
         fFlags |= kStencilEnabled_Flag;
     }
@@ -52,7 +50,8 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet processors) {
     fNumColorProcessors = processors.numColorFragmentProcessors();
     int numTotalProcessors =
             fNumColorProcessors + processors.numCoverageFragmentProcessors();
-    if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
+    auto clipFP = appliedClip.detachClipCoverageFragmentProcessor();
+    if (clipFP) {
         ++numTotalProcessors;
     }
     fFragmentProcessors.reset(numTotalProcessors);
@@ -72,12 +71,10 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet processors) {
             this->markAsBad();
         }
     }
-    if (args.fAppliedClip) {
-        if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
-            fFragmentProcessors[currFPIdx].reset(fp);
-            if (!fp->instantiate(args.fResourceProvider)) {
-                this->markAsBad();
-            }
+    if (clipFP) {
+        fFragmentProcessors[currFPIdx].reset(clipFP.get());
+        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
+            this->markAsBad();
         }
     }
 }
