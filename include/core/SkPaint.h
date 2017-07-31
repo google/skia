@@ -288,7 +288,7 @@ public:
 
     /** If true, pixels on the active edges of SkPath may be drawn with partial transparency.
 
-        Equivalent to getFlags masked with kAntiAlias_Flag.
+        Equivalent to getFlags() masked with kAntiAlias_Flag.
 
         @return  kAntiAlias_Flag state
     */
@@ -308,7 +308,7 @@ public:
 
     /** If true, color error may be distributed to smooth color transition.
 
-        Equivalent to getFlags masked with kDither_Flag.
+        Equivalent to getFlags() masked with kDither_Flag.
 
         @return  kDither_Flag state
     */
@@ -327,7 +327,7 @@ public:
 
     /** If true, text is converted to SkPath before drawing and measuring.
 
-        Equivalent to getFlags masked with kLinearText_Flag.
+        Equivalent to getFlags() masked with kLinearText_Flag.
 
         @return  kLinearText_Flag state
     */
@@ -347,7 +347,7 @@ public:
 
     /** If true, glyphs at different sub-pixel positions may differ on pixel edge coverage.
 
-        Equivalent to getFlags masked with kSubpixelText_Flag.
+        Equivalent to getFlags() masked with kSubpixelText_Flag.
 
         @return  kSubpixelText_Flag state
     */
@@ -385,7 +385,7 @@ public:
 
     /** If true, font engine may return glyphs from font bitmaps instead of from outlines.
 
-        Equivalent to getFlags masked with kEmbeddedBitmapText_Flag.
+        Equivalent to getFlags() masked with kEmbeddedBitmapText_Flag.
 
         @return  kEmbeddedBitmapText_Flag state
     */
@@ -406,7 +406,7 @@ public:
         platform uses FreeType as the font manager, instruct the font manager to always hint
         glyphs.
 
-        Equivalent to getFlags masked with kAutoHinting_Flag.
+        Equivalent to getFlags() masked with kAutoHinting_Flag.
 
         @return  kAutoHinting_Flag state
     */
@@ -419,7 +419,7 @@ public:
         auto-hinting has no effect if SkPaint::Hinting is set to kNo_Hinting or
         kSlight_Hinting.
 
-        setAutohinted only affects platforms that use FreeType as the font manager.
+        Only affects platforms that use FreeType as the font manager.
 
         Sets kAutoHinting_Flag if useAutohinter is true.
         Clears kAutoHinting_Flag if useAutohinter is false.
@@ -430,7 +430,7 @@ public:
 
     /** If true, glyphs are drawn top to bottom instead of left to right.
 
-        Equivalent to getFlags masked with kVerticalText_Flag.
+        Equivalent to getFlags() masked with kVerticalText_Flag.
 
         @return  kVerticalText_Flag state
     */
@@ -451,7 +451,7 @@ public:
     /** If true, approximate bold by increasing the stroke width when creating glyph bitmaps
         from outlines.
 
-        Equivalent to getFlags masked with kFakeBoldText_Flag.
+        Equivalent to getFlags() masked with kFakeBoldText_Flag.
 
         @return  kFakeBoldText_Flag state
     */
@@ -470,7 +470,7 @@ public:
 
     /** Returns if character spacing may be adjusted by the hinting difference.
 
-        Equivalent to getFlags masked with kDevKernText_Flag.
+        Equivalent to getFlags() masked with kDevKernText_Flag.
 
         @return  kDevKernText_Flag state
     */
@@ -499,7 +499,7 @@ public:
 
     /** Sets SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
-        setFilterQuality does not check to see if quality is valid.
+        Does not check to see if quality is valid.
 
         @param quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                         kMedium_SkFilterQuality, kHigh_SkFilterQuality
@@ -713,7 +713,7 @@ public:
     /** The geometry drawn at the corners of strokes.
 
         @param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
-                     otherwise, setStrokeJoin has no effect
+                     otherwise, has no effect
     */
     void setStrokeJoin(Join join);
 
@@ -790,7 +790,7 @@ public:
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
     /** Returns SkBlendMode.
-        By default, getBlendMode returns SkBlendMode::kSrcOver.
+        By default, returns SkBlendMode::kSrcOver.
 
         @return  mode used to combine source color with destination color
     */
@@ -951,7 +951,7 @@ public:
     /** Sets SkDrawLooper to drawLooper,
         decrementing SkRefCnt of the previous drawLooper.
         Pass nullptr to clear SkDrawLooper and leave SkDrawLooper effect on drawing unaltered.
-        setDrawLooper does not alter drawLooper SkRefCnt.
+        Does not alter drawLooper SkRefCnt.
 
         @param drawLooper  Iterates through drawing one or more time, altering SkPaint
     */
@@ -970,7 +970,7 @@ public:
         SkCanvas::drawPosTextH, SkCanvas::drawTextOnPath,
         SkCanvas::drawTextOnPathHV, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
         and SkCanvas::drawString;
-        as well as calls that place text glyphs like getTextWidths and getTextPath.
+        as well as calls that place text glyphs like getTextWidths() and getTextPath().
 
         The text position is set by the font for both horizontal and vertical text.
         Typically, for horizontal text, the position is to the left side of the glyph on the
@@ -1093,11 +1093,12 @@ public:
         Invalid values for encoding are ignored.
 
         @param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or
+                         kGlyphID_TextEncoding
     */
     void setTextEncoding(TextEncoding encoding);
 
     /** \struct SkPaint::FontMetrics
-        FontMetrics is filled out by getFontMetrics. FontMetrics contents reflect the values
+        FontMetrics is filled out by getFontMetrics(). FontMetrics contents reflect the values
         computed by font manager using SkTypeface. Values are set to zero if they are
         not availble.
 
@@ -1288,7 +1289,7 @@ public:
         descent, ascent, and leading.
         Result is scaled by text size but does not take into account
         dimensions required by stroking and SkPathEffect.
-        getFontSpacing returns the same result as getFontMetrics.
+        Returns the same result as getFontMetrics().
 
         @return  recommended spacing between lines
     */
@@ -1302,7 +1303,7 @@ public:
         Does not check text for valid character encoding or valid
         glyph indices.
 
-        If byteLength equals zero, textToGlyphs returns zero.
+        If byteLength equals zero, returns zero.
         If byteLength includes a partial character, the partial character is ignored.
 
         If SkPaint::TextEncoding is kUTF8_TextEncoding and
@@ -1320,8 +1321,8 @@ public:
         Returns false if any characters in text are not supported in
         SkTypeface.
 
-        If SkPaint::TextEncoding is kGlyphID_TextEncoding, containsText
-        returns true if all glyph indices in text are non-zero; containsText
+        If SkPaint::TextEncoding is kGlyphID_TextEncoding,
+        returns true if all glyph indices in text are non-zero;
         does not check to see if text contains valid glyph indices for SkTypeface.
 
         Returns true if bytelength is zero.
@@ -1347,7 +1348,7 @@ public:
 
     /** Returns the number of glyphs in text.
         Uses SkPaint::TextEncoding to count the glyphs.
-        Returns the same result as textToGlyphs.
+        Returns the same result as textToGlyphs().
 
         @param text        character stroage encoded with SkPaint::TextEncoding
         @param byteLength  length of character storage in bytes
@@ -1433,7 +1434,7 @@ public:
         Uses SkPaint::TextEncoding to decode text, SkTypeface to get the glyph paths,
         and text size, fake bold, and SkPathEffect to scale and modify the glyph paths.
         All of the glyph paths are stored in path.
-        getTextPath uses x, y, and SkPaint::Align to position path.
+        Uses x, y, and SkPaint::Align to position path.
 
         @param text    character codes or glyph indices
         @param length  number of bytes of text
@@ -1549,19 +1550,19 @@ public:
 
     /** Returns the union of bounds of all glyphs.
         Returned dimensions are computed by font manager from font data,
-        ignoring SkPaint::Hinting. getFontBounds includes text size, text scale x,
+        ignoring SkPaint::Hinting. Includes text size, text scale x,
         and text skew x, but not fake bold or SkPathEffect.
 
         If text size is large, text scale x is one, and text skew x is zero,
-        getFontBounds returns the same bounds as SkPaint::FontMetrics { FontMetrics::fXMin,
+        returns the same bounds as SkPaint::FontMetrics { FontMetrics::fXMin,
         FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
 
         @return  union of bounds of all glyphs
     */
     SkRect getFontBounds() const;
 
-    /** Returns true if SkPaint prevents all drawing.
-        If nothingToDraw returns false, the SkPaint may or may not allow drawing.
+    /** Returns true if SkPaint prevents all drawing;
+        otherwise, the SkPaint may or may not allow drawing.
 
         Returns true if SkBlendMode and alpha are enabled,
         and computed alpha is zero.
@@ -1580,7 +1581,7 @@ public:
     bool canComputeFastBounds() const;
 
     /** (to be made private)
-        Only call this if canComputeFastBounds returned true. This takes a
+        Only call this if canComputeFastBounds() returned true. This takes a
         raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
         effects in the paint (e.g. stroking). If needed, it uses the storage
         rect parameter. It returns the adjusted bounds that can then be used
