@@ -46,6 +46,29 @@
       "revId": "38c274a567d42e113a3418fd77775d8261af195b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eba997a7_2be6af3e",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-31T19:35:42Z",
+      "side": 1,
+      "message": "And so is this to handle a case where someone first added an object with a derived type but later does a snapshot event on the base type? E.g. we recorded as NonAARectOp when an op was created but later when it is flushed we snapshot is as GrOp?",
+      "range": {
+        "startLine": 157,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 87
+      },
+      "revId": "38c274a567d42e113a3418fd77775d8261af195b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
