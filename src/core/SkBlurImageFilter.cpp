@@ -95,7 +95,7 @@ sk_sp<SkFlattenable> SkBlurImageFilterImpl::CreateProc(SkReadBuffer& buffer) {
     SkScalar sigmaY = buffer.readScalar();
     SkBlurImageFilter::TileMode tileMode;
     if (buffer.isVersionLT(SkReadBuffer::kTileModeInBlurImageFilter_Version)) {
-        tileMode = SkBlurImageFilter::kClampToBlack_TileMode;
+        tileMode = SkBlurImageFilter::TileMode::kClampToBlack;
     } else {
         tileMode = static_cast<SkBlurImageFilter::TileMode>(buffer.readInt());
     }
@@ -114,11 +114,11 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 static GrTextureDomain::Mode to_texture_domain_mode(SkBlurImageFilter::TileMode tileMode) {
     switch (tileMode) {
-      case SkBlurImageFilter::TileMode::kClamp_TileMode:
+      case SkBlurImageFilter::TileMode::kClamp:
         return GrTextureDomain::kClamp_Mode;
-      case SkBlurImageFilter::TileMode::kClampToBlack_TileMode:
+      case SkBlurImageFilter::TileMode::kClampToBlack:
         return GrTextureDomain::kDecal_Mode;
-      case SkBlurImageFilter::TileMode::kRepeat_TileMode:
+      case SkBlurImageFilter::TileMode::kRepeat:
         return GrTextureDomain::kRepeat_Mode;
       default:
         SkFAIL("Unsupported tile mode.");

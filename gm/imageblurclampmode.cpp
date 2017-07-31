@@ -77,17 +77,17 @@ protected:
             canvas->save();
             sk_sp<SkImageFilter> filter(
                   SkBlurImageFilter::Make(sigma, 0.0f, nullptr, nullptr,
-                                          SkBlurImageFilter::kClamp_TileMode));
+                                          SkBlurImageFilter::TileMode::kClamp));
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
             filter = SkBlurImageFilter::Make(0.0f, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kClamp_TileMode);
+                                             SkBlurImageFilter::TileMode::kClamp);
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
             filter = SkBlurImageFilter::Make(sigma, sigma, nullptr, nullptr,
-                                             SkBlurImageFilter::kClamp_TileMode);
+                                             SkBlurImageFilter::TileMode::kClamp);
             draw_image(canvas, image, std::move(filter));
             canvas->translate(image->width() + 20, 0);
 
