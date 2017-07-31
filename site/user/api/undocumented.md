@@ -1,4 +1,4 @@
-(to be documented)
+undocumented
 ===
 
 # <a name="Glyph"></a> Glyph
@@ -595,6 +595,8 @@ static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
 ## <a name="Properties"></a> Properties
 
 # <a name="SkSurfaceProps"></a> Class SkSurfaceProps
+
+# <a name="Legacy_Font_Host"></a> Legacy Font Host
 
 ## <a name="SkSurfaceProps::InitType"></a> Enum SkSurfaceProps::InitType
 

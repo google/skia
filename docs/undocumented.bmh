@@ -365,6 +365,9 @@ FT_Load_Glyph
 ##
 ##
 
+#Enum SkPixelGeometry
+##
+
 #Topic Pixmap
 #Class SkPixmap
 ##
@@ -470,10 +473,12 @@ FT_Load_Glyph
 ##
 #Subtopic Properties
     #Class SkSurfaceProps
+        #Topic Legacy_Font_Host
         #Enum InitType
             #Const kLegacyFontHost_InitType 0
             ##
         ##
+        #Topic ##
     ##
 ##
 #Subtopic GPU

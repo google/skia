@@ -19,8 +19,15 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
     const auto& nameDef = child.fTokens.front();
     string fullName;
     if (nullptr != nameDef.fContentEnd) {
-        string enumName(nameDef.fContentStart,
-                (int) (nameDef.fContentEnd - nameDef.fContentStart));
+        TextParser enumClassCheck(&nameDef);
+        const char* start = enumClassCheck.fStart;
+        size_t len = (size_t) (enumClassCheck.fEnd - start);
+        if (enumClassCheck.skipExact("class ")) {
+            start = enumClassCheck.fChar;
+            const char* end = enumClassCheck.anyOf(" \n;{");
+            len = (size_t) (end - start);
+        }
+        string enumName(start, len);
         fullName = root->fName + "::" + enumName;
         enumDef = root->find(enumName);
         if (!enumDef) {
