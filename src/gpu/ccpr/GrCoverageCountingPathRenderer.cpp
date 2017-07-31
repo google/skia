@@ -292,7 +292,6 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
         return; // Setup failed.
     }
 
-    GrPipeline pipeline;
     GrPipeline::InitArgs args;
     args.fAppliedClip = flushState->drawOpArgs().fAppliedClip;
     args.fCaps = &flushState->caps();
@@ -300,7 +299,7 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     args.fFlags = fSRGBFlags;
     args.fProxy = flushState->drawOpArgs().fProxy;
     args.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    pipeline.init(args);
+    GrPipeline pipeline(args);
 
     int baseInstance = fBaseInstance;
 

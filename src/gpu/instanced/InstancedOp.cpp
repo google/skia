@@ -225,7 +225,6 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
 
     state->gpu()->handleDirtyContext();
 
-    GrPipeline pipeline;
     GrPipeline::InitArgs args;
     args.fAppliedClip = state->drawOpArgs().fAppliedClip;
     args.fCaps = &state->caps();
@@ -240,7 +239,7 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     }
     args.fProxy = state->drawOpArgs().fProxy;
     args.fDstProxy = state->drawOpArgs().fDstProxy;
-    pipeline.init(args);
+    GrPipeline pipeline(args);
 
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
         state->gpu()->xferBarrier(pipeline.renderTarget(), barrierType);
