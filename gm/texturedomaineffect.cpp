@@ -122,7 +122,7 @@ protected:
                     GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    sk_sp<GrFragmentProcessor> fp(
+                    gr_fp<GrFragmentProcessor> fp(
                         GrTextureDomainEffect::Make(
                                    proxy,
                                    nullptr, textureMatrices[tm],

@@ -229,15 +229,15 @@ class GrRadialGradient : public GrGradientEffect {
 public:
     class GLSLRadialProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        auto processor = sk_sp<GrRadialGradient>(new GrRadialGradient(args));
+    static gr_fp<GrFragmentProcessor> Make(const CreateArgs& args) {
+        auto processor = gr_fp<GrRadialGradient>(new GrRadialGradient(args));
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     const char* name() const override { return "Radial Gradient"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrRadialGradient(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrRadialGradient(*this));
     }
 
 private:
@@ -293,7 +293,7 @@ void GrRadialGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) {
     sk_sp<SkShader> shader;
     do {
         RandomGradientParams params(d->fRandom);
@@ -308,7 +308,7 @@ sk_sp<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) 
                                                         params.fTileMode);
     } while (!shader);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    gr_fp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -333,7 +333,7 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs& args) const {
+gr_fp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs& args) const {
     SkASSERT(args.fContext);
 
     SkMatrix matrix;
@@ -350,7 +350,7 @@ sk_sp<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(const AsFPArgs&
     matrix.postConcat(fPtsToUnit);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
-    sk_sp<GrFragmentProcessor> inner(GrRadialGradient::Make(
+    gr_fp<GrFragmentProcessor> inner(GrRadialGradient::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     if (!inner) {
