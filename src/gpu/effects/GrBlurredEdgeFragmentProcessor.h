@@ -22,6 +22,8 @@ public:
     static sk_sp<GrFragmentProcessor> Make(int mode) {
         return sk_sp<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }
+    GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
+    sk_sp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
 
 private:
