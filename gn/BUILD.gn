@@ -13,16 +13,6 @@ declare_args() {
   malloc = ""
 }
 
-is_clang = is_android || is_ios || is_mac || (cc == "clang" && cxx == "clang++")
-if (!is_clang && !is_win) {
-  is_clang = exec_script("is_clang.py",
-                         [
-                           cc,
-                           cxx,
-                         ],
-                         "value")
-}
-
 if (is_ios) {
   if (is_tvos) {
     sdk = "appletvos"

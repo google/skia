@@ -729,7 +729,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
     if (ColorMode::kLegacy != fColorMode) {
         auto transferFn = (ColorMode::kColorManagedLinearF16 == fColorMode)
             ? SkColorSpace::kLinear_RenderTargetGamma : SkColorSpace::kSRGB_RenderTargetGamma;
-        SkMatrix44 toXYZ;
+        SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
         SkAssertResult(fColorSpacePrimaries.toXYZD50(&toXYZ));
         cs = SkColorSpace::MakeRGB(transferFn, toXYZ);
     }

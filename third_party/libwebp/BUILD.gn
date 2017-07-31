@@ -17,15 +17,7 @@ if (skia_use_system_libwebp) {
     ]
   }
 } else {
-  third_party("libwebp") {
-    public_include_dirs = [ "../externals/libwebp/src" ]
-
-    if (is_android) {
-      deps = [
-        "//third_party/cpu-features",
-      ]
-    }
-
+  config("libwebp_defines") {
     defines = [
       # WebP naturally decodes to RGB_565, and we work with BGR_565.
       # This makes WebP decode to BGR_565 when we ask for RGB_565.
@@ -33,7 +25,49 @@ if (skia_use_system_libwebp) {
       # TODO: swizzle ourself in SkWebpCodec instead of requiring this non-standard libwebp.
       "WEBP_SWAP_16BIT_CSP",
     ]
+  }
 
+  third_party("libwebp_sse41") {
+    public_include_dirs = [ "../externals/libwebp/src" ]
+    configs += [ ":libwebp_defines" ]
+    sources = [
+      "../externals/libwebp/src/dsp/alpha_processing_sse41.c",
+      "../externals/libwebp/src/dsp/dec_sse41.c",
+      "../externals/libwebp/src/dsp/enc_sse41.c",
+      "../externals/libwebp/src/dsp/lossless_enc_sse41.c",
+    ]
+    if ((current_cpu == "x86" || current_cpu == "x64") &&
+        (!is_win || is_clang)) {
+      cflags_c = ["-msse4.1"]
+    }
+  }
+
+  third_party("libwebp_avx2") {
+    public_include_dirs = [ "../externals/libwebp/src" ]
+    configs += [ ":libwebp_defines" ]
+    sources = [
+      "../externals/libwebp/src/dsp/enc_avx2.c",
+    ]
+    if ((current_cpu == "x86" || current_cpu == "x64") &&
+        (!is_win || is_clang)) {
+      cflags_c = ["-mavx2"]
+    }
+  }
+
+  third_party("libwebp") {
+    public_include_dirs = [ "../externals/libwebp/src" ]
+
+    deps = [
+      ":libwebp_sse41",
+      ":libwebp_avx2",
+    ]
+    if (is_android) {
+      deps += [
+        "//third_party/cpu-features",
+      ]
+    }
+
+    configs += [ ":libwebp_defines" ]
     sources = [
       "../externals/libwebp/src/dec/alpha_dec.c",
       "../externals/libwebp/src/dec/buffer_dec.c",
@@ -50,7 +84,6 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/alpha_processing_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/alpha_processing_neon.c",
       "../externals/libwebp/src/dsp/alpha_processing_sse2.c",
-      "../externals/libwebp/src/dsp/alpha_processing_sse41.c",
       "../externals/libwebp/src/dsp/argb.c",
       "../externals/libwebp/src/dsp/argb_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/argb_sse2.c",
@@ -65,15 +98,12 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/dec_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/dec_neon.c",
       "../externals/libwebp/src/dsp/dec_sse2.c",
-      "../externals/libwebp/src/dsp/dec_sse41.c",
       "../externals/libwebp/src/dsp/enc.c",
-      "../externals/libwebp/src/dsp/enc_avx2.c",
       "../externals/libwebp/src/dsp/enc_mips32.c",
       "../externals/libwebp/src/dsp/enc_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/enc_msa.c",
       "../externals/libwebp/src/dsp/enc_neon.c",
       "../externals/libwebp/src/dsp/enc_sse2.c",
-      "../externals/libwebp/src/dsp/enc_sse41.c",
       "../externals/libwebp/src/dsp/filters.c",
       "../externals/libwebp/src/dsp/filters_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/filters_msa.c",
@@ -86,7 +116,6 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/lossless_enc_msa.c",
       "../externals/libwebp/src/dsp/lossless_enc_neon.c",
       "../externals/libwebp/src/dsp/lossless_enc_sse2.c",
-      "../externals/libwebp/src/dsp/lossless_enc_sse41.c",
       "../externals/libwebp/src/dsp/lossless_mips_dsp_r2.c",
       "../externals/libwebp/src/dsp/lossless_msa.c",
       "../externals/libwebp/src/dsp/lossless_neon.c",
