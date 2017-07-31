@@ -2,6 +2,7 @@ declare_args() {
   host_ar = ar
   host_cc = cc
   host_cxx = cxx
+  is_clang_win = clang_win
 
   if (is_android) {
     if (host_os == "win") {
@@ -68,7 +69,11 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    cl_exe = "$env_setup$bin/cl.exe"
+    if (is_clang_win) {
+      cl_exe = "$cc"
+    }
+    command = "$cl_exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -83,7 +88,8 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    cl_exe = "$env_setup$bin/cl.exe"
+    command = "$cl_exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
