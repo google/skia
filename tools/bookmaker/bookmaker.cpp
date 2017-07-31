@@ -48,20 +48,10 @@ more complications I haven't figured out. I don't know when or how to pluralize
 references. This should be "objects' reference counts" probably, but then 
 I lose the link to SkRefCnt.
 
-SkPaint.bmh line 2074
-arcs at front of sentence not capitalized
-
 SkPaint.bmh line 2639
 I'd argue that 'fill path' is OK, in that is it the path that will fill, not the path
 that has already been filled. I see the awkwardness though, and will add it to my bug list.
 
-check for function name in its own description
-
-multiple line #Param / #Return only copies first line?
-
-rework underlinethickness / strikeout thickness
-
-getTextIntercepts lost underline comment
  */
 
 static string normalized_name(string name) {
@@ -1017,6 +1007,19 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
                     }
                     if (!this->popParentStack(fParent)) { // if not one liner, pop
                         return false;
+                    }
+                    if (MarkType::kParam == markType || MarkType::kReturn == markType) {
+                        const char* parmEndCheck = definition->fContentEnd;
+                        while (parmEndCheck < definition->fTerminator) {
+                            if (fMC == parmEndCheck[0]) {
+                                break;
+                            }
+                            if (' ' < parmEndCheck[0]) {
+                                this->reportError<bool>(
+                                        "use full end marker on multiline #Param and #Return");
+                            }
+                            ++parmEndCheck;
+                        }
                     }
                 } else {
                     fMarkup.emplace_front(markType, defStart, fLineCount, fParent);

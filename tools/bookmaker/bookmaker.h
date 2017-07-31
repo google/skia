@@ -1625,19 +1625,21 @@ public:
     void enumMembersOut(const RootDefinition* root, const Definition& child);
     void enumSizeItems(const Definition& child);
     int lookupMethod(const PunctuationState punctuation, const Word word,
-            const int start, const int run, int lastWrite, const char last, 
+            const int start, const int run, int lastWrite, 
             const char* data);
     int lookupReference(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite, const char last, 
             const char* data);
-    void methodOut(const Definition* method);
+    void methodOut(const Definition* method, const Definition& child);
     bool populate(Definition* def, RootDefinition* root);
     bool populate(BmhParser& bmhParser);
 
     void reset() override {
         INHERITED::resetCommon();
+        fBmhMethod = nullptr;
         fBmhParser = nullptr;
         fEnumDef = nullptr;
+        fMethodDef = nullptr;
         fStructDef = nullptr;
         fAnonymousEnumCount = 1;
         fInStruct = false;
@@ -1654,7 +1656,9 @@ public:
 private:
     BmhParser* fBmhParser;
     Definition* fDeferComment;
+    const Definition* fBmhMethod;
     const Definition* fEnumDef;
+    const Definition* fMethodDef;
     const Definition* fStructDef;
     const char* fContinuation;  // used to construct paren-qualified method name
     int fAnonymousEnumCount;

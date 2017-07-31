@@ -1500,7 +1500,7 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
     Automatic_Hinting has no effect if Hinting is set to kNo_Hinting or
     kSlight_Hinting.
 
-    setAutohinted only affects platforms that use FreeType as the Font_Manager.
+    Only affects platforms that use FreeType as the Font_Manager.
 
     Sets kAutoHinting_Flag if useAutohinter is true.
     Clears kAutoHinting_Flag if useAutohinter is false.
@@ -1814,7 +1814,7 @@ draws faster; a higher setting looks better when the image is scaled.
 
 Sets Filter_Quality, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
-setFilterQuality does not check to see if quality is valid. 
+Does not check to see if quality is valid. 
 
 #Param  quality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality, 
                  kMedium_SkFilterQuality, kHigh_SkFilterQuality
@@ -2613,7 +2613,7 @@ void draw(SkCanvas* canvas) {
     The geometry drawn at the corners of strokes. 
 
     #Param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
-                 otherwise, setStrokeJoin has no effect 
+                 otherwise, has no effect 
     ##
 
     #Example
@@ -2978,7 +2978,7 @@ void draw(SkCanvas* canvas) {
 #Method SkBlendMode getBlendMode() const
 
     Returns Blend_Mode.
-    By default, getBlendMode returns SkBlendMode::kSrcOver.
+    By default, returns SkBlendMode::kSrcOver.
 
     #Return  mode used to combine source color with destination color ##
 
@@ -3643,7 +3643,7 @@ Deprecated.
     Sets Draw_Looper to drawLooper,
     decrementing Reference_Count of the previous drawLooper. 
     Pass nullptr to clear Draw_Looper and leave Draw_Looper effect on drawing unaltered.
-    setDrawLooper does not alter drawLooper Reference_Count.
+    Does not alter drawLooper Reference_Count.
 
     #Param drawLooper  Iterates through drawing one or more time, altering Paint ##
 
@@ -4084,7 +4084,8 @@ void draw(SkCanvas* canvas) {
     Invalid values for encoding are ignored.
 
     #Param encoding  one of: kUTF8_TextEncoding, kUTF16_TextEncoding, kUTF32_TextEncoding, or 
-                     kGlyphID_TextEncoding ##
+                     kGlyphID_TextEncoding 
+    #Param ##
 
     #Example
         SkPaint paint;
@@ -4421,7 +4422,7 @@ void draw(SkCanvas* canvas) {
     descent, ascent, and leading.
     Result is scaled by Text_Size but does not take into account
     dimensions required by stroking and Path_Effect.
-    getFontSpacing returns the same result as getFontMetrics.
+    Returns the same result as getFontMetrics.
 
     #Return         recommended spacing between lines ##
 
@@ -4447,11 +4448,11 @@ void draw(SkCanvas* canvas) {
 
 Returns the union of bounds of all glyphs.
 Returned dimensions are computed by Font_Manager from font data, 
-ignoring Hinting. getFontBounds includes Text_Size, Text_Scale_X,
+ignoring Hinting. Includes Text_Size, Text_Scale_X,
 and Text_Skew_X, but not Fake_Bold or Path_Effect.
 
 If Text_Size is large, Text_Scale_X is one, and Text_Skew_X is zero,
-getFontBounds returns the same bounds as Font_Metrics { FontMetrics::fXMin, 
+returns the same bounds as Font_Metrics { FontMetrics::fXMin, 
 FontMetrics::fTop, FontMetrics::fXMax, FontMetrics::fBottom }.
 
 #Return  union of bounds of all glyphs ##
@@ -4486,7 +4487,7 @@ glyphs may be nullptr, to compute the glyph count.
 Does not check text for valid character encoding or valid
 glyph indices.
 
-If byteLength equals zero, textToGlyphs returns zero.
+If byteLength equals zero, returns zero.
 If byteLength includes a partial character, the partial character is ignored.
 
 If Text_Encoding is kUTF8_TextEncoding and
@@ -4545,8 +4546,8 @@ text contains an invalid UTF-8 sequence, zero is returned.
     Returns false if any characters in text are not supported in
     Typeface.
 
-    If Text_Encoding is kGlyphID_TextEncoding, containsText
-    returns true if all glyph indices in text are non-zero; containsText
+    If Text_Encoding is kGlyphID_TextEncoding,
+    returns true if all glyph indices in text are non-zero;
     does not check to see if text contains valid glyph indices for Typeface.
 
     Returns true if bytelength is zero.
@@ -4827,7 +4828,7 @@ Returns the geometry as Path equivalent to the drawn text.
 Uses Text_Encoding to decode text, Typeface to get the glyph paths,
 and Text_Size, Fake_Bold, and Path_Effect to scale and modify the glyph paths.
 All of the glyph paths are stored in path.
-getTextPath uses x, y, and Text_Align to position path.
+Uses x, y, and Text_Align to position path.
 
     #Param text          character codes or glyph indices ##
     #Param length        number of bytes of text ##
@@ -5121,8 +5122,8 @@ void draw(SkCanvas* canvas) {
 
 #Method bool nothingToDraw() const
 
-    Returns true if Paint prevents all drawing.
-    If nothingToDraw returns false, the Paint may or may not allow drawing.
+    Returns true if Paint prevents all drawing;
+    otherwise, the Paint may or may not allow drawing.
 
     Returns true if Blend_Mode and Color_Alpha are enabled,
     and computed Color_Alpha is zero.

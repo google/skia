@@ -322,7 +322,9 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
 }
 
 // walk children and output complete method doxygen description
-void IncludeWriter::methodOut(const Definition* method) {
+void IncludeWriter::methodOut(const Definition* method, const Definition& child) {
+    fBmhMethod = method;
+    fMethodDef = &child;
     fContinuation = nullptr;
     fDeferComment = nullptr;
     if (0 == fIndent) {
@@ -414,6 +416,8 @@ void IncludeWriter::methodOut(const Definition* method) {
     fIndent -= 4;
     this->lfcr();
     this->writeCommentTrailer();
+    fBmhMethod = nullptr;
+    fMethodDef = nullptr;
 }
 
 void IncludeWriter::structOut(const Definition* root, const Definition& child,
@@ -596,7 +600,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                     params.skipToEndBracket('(');
                     if (params.fEnd - params.fChar >= childLen &&
                             !strncmp(params.fChar, child.fContentStart, childLen)) {
-                        this->methodOut(clonedMethod);
+                        this->methodOut(clonedMethod, child);
                         break;
                     }
                     ++alternate;
@@ -636,7 +640,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                     fclose(fOut);  // so we can see what we've written so far
                     return this->reportError<bool>("method not found");
                 }
-                this->methodOut(method);
+                this->methodOut(method, child);
                 continue;
             }
             methodName += "()";
@@ -645,7 +649,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 method = method->fParent;
             }
             if (method) {
-                this->methodOut(method);
+                this->methodOut(method, child);
                 continue;
             }
             fLineCount = child.fLineCount;
@@ -680,7 +684,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 clonedMethod = method;
                 continue;
             }
-            this->methodOut(method);
+            this->methodOut(method, child);
             continue;
         } 
         if (Definition::Type::kKeyWord == child.fType) {
@@ -903,9 +907,11 @@ static string ConvertRef(const string str, bool first) {
     return substitute;
 }
 
-// FIXME: buggy that this is called with strings containing spaces but resolveRef below is not..
 string IncludeWriter::resolveMethod(const char* start, const char* end, bool first) {
     string methodname(start, end - start);
+    if (string::npos != methodname.find("()")) {
+        return "";
+    }
     string substitute;
     auto rootDefIter = fBmhParser->fMethodMap.find(methodname);
     if (fBmhParser->fMethodMap.end() != rootDefIter) {
@@ -924,6 +930,11 @@ string IncludeWriter::resolveMethod(const char* start, const char* end, bool fir
         if (defRef && MarkType::kMethod == defRef->fMarkType) {
             substitute = methodname + "()";
         }
+    }
+    if (fMethodDef && methodname == fMethodDef->fName) {
+        TextParser report(fBmhMethod);
+        report.reportError("method should not include references to itself");
+        return "";
     }
     return substitute;
 }
@@ -953,6 +964,8 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first)
                         }
                     }
                     SkDebugf("unfound: %s\n", undername.c_str());
+                    this->reportError("reference unfound");
+                    return "";
                 }
             }
         }
@@ -1004,25 +1017,30 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first)
     }
     return substitute;
 }
+
 int IncludeWriter::lookupMethod(const PunctuationState punctuation, const Word word,
-        const int start, const int run, int lastWrite, const char last, const char* data) {
-    const int end = PunctuationState::kDelimiter == punctuation ||
+        const int lastSpace, const int run, int lastWrite, const char* data) {
+    int wordStart = lastSpace;
+    while (' ' >= data[wordStart]) {
+        ++wordStart;
+    }
+    const int wordEnd = PunctuationState::kDelimiter == punctuation ||
             PunctuationState::kPeriod == punctuation ? run - 1 : run;
-    string temp = this->resolveMethod(&data[start], &data[end], Word::kFirst == word);
+    string temp = this->resolveMethod(&data[wordStart], &data[wordEnd], Word::kFirst == word);
     if (temp.length()) {
-        if (start > lastWrite) {
-            SkASSERT(data[start - 1] >= ' ');
+        if (wordStart > lastWrite) {
+            SkASSERT(data[wordStart - 1] >= ' ');
             if (' ' == data[lastWrite]) {
                 this->writeSpace();
             }
-            this->writeBlockTrim(start - lastWrite, &data[lastWrite]);
-            if (' ' == data[start - 1]) {
+            this->writeBlockTrim(wordStart - lastWrite, &data[lastWrite]);
+            if (' ' == data[wordStart - 1]) {
                 this->writeSpace();
             }
         }
         SkASSERT(temp[temp.length() - 1] > ' ');
         this->writeString(temp.c_str());
-        lastWrite = end;
+        lastWrite = wordEnd;
     }
     return lastWrite;
 }
@@ -1076,8 +1094,10 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
     int lastWrite = 0;
     int lineFeeds = 0;
     int lastPrintable = 0;
+    int lastSpace = -1;
     char c = 0;
     char last;
+    bool embeddedSymbol = false;
     bool hasLower = false;
     bool hasUpper = false;
     bool hasSymbol = false;
@@ -1120,9 +1140,9 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                                 lastWrite, last, data);
                         break;
                     case Word::kMixed:
-                        if (hasUpper && hasLower && !hasSymbol) {
-                            lastWrite = this->lookupMethod(punctuation, word, start, run,
-                                    lastWrite, last, data);
+                        if (hasUpper && hasLower && !hasSymbol && lastSpace > 0) {
+                            lastWrite = this->lookupMethod(punctuation, word, lastSpace, run,
+                                    lastWrite, data);
                         }
                         break;
                     default:
@@ -1132,9 +1152,11 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                         (PunctuationState::kStart == punctuation && ' ' >= last) ? 
                         PunctuationState::kStart : PunctuationState::kSpace;
                 word = Word::kStart;
+                embeddedSymbol = false;
                 hasLower = false;
                 hasUpper = false;
                 hasSymbol = false;
+                lastSpace = run;
                 break;
             case '.':
                 switch (word) {
@@ -1153,10 +1175,9 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                     default:
                         SkASSERT(0);
                 }
-                hasSymbol = true;
+                embeddedSymbol = true;
                 break;
             case ',': case ';': case ':':
-                hasSymbol |= PunctuationState::kDelimiter == punctuation;
                 switch (word) {
                     case Word::kStart:
                         punctuation = PunctuationState::kDelimiter;
@@ -1173,13 +1194,14 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                     default:
                         SkASSERT(0);
                 }
+                embeddedSymbol = true;
                 break;
             case '\'': // possessive apostrophe isn't treated as delimiting punctation
             case '=':
             case '!':  // assumed not to be punctuation, but a programming symbol
             case '&': case '>': case '<': case '{': case '}': case '/': case '*':
                 word = Word::kMixed;
-                hasSymbol = true;
+                embeddedSymbol = true;
                 break;
             case '(':
                 if (' ' == last) {
@@ -1187,11 +1209,11 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                 } else {
                     word = Word::kMixed;
                 }
-                hasSymbol = true;
+                embeddedSymbol = true;
                 break;
             case ')':   // assume word type has already been set
                 punctuation = PunctuationState::kDelimiter;
-                hasSymbol = true;
+                embeddedSymbol = true;
                 break;
             case '_':
                 switch (word) {
@@ -1208,6 +1230,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                     default:
                         SkASSERT(0);
                 }
+                hasSymbol |= embeddedSymbol;
                 break;
             case 'A': case 'B': case 'C': case 'D': case 'E':
             case 'F': case 'G': case 'H': case 'I': case 'J':
@@ -1242,6 +1265,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                         PunctuationState::kDelimiter == punctuation) {
                     word = Word::kMixed;
                 }
+                hasSymbol |= embeddedSymbol;
                 break;
             case 'a': case 'b': case 'c': case 'd': case 'e':
             case 'f': case 'g': case 'h': case 'i': case 'j':
@@ -1266,6 +1290,7 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
                 }
                 hasLower = true;
                 punctuation = PunctuationState::kStart;
+                hasSymbol |= embeddedSymbol;
                 break;
             default:
                 SkASSERT(0);
@@ -1274,6 +1299,8 @@ IncludeWriter::Wrote IncludeWriter::rewriteBlock(int size, const char* data) {
     }
     if ((word == Word::kCap || word == Word::kFirst || word == Word::kUnderline) && hasLower) {
         lastWrite = this->lookupReference(punctuation, word, start, run, lastWrite, last, data);
+    } else if (word == Word::kMixed && hasUpper && hasLower && !hasSymbol && lastSpace > 0) {
+        lastWrite = this->lookupMethod(punctuation, word, lastSpace, run, lastWrite, data);
     }
     if (run > lastWrite) {
         if (' ' == data[lastWrite]) {
