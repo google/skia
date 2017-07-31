@@ -183,15 +183,15 @@ SkColorMatrixFilterRowMajor255::makeComposed(sk_sp<SkColorFilter> innerFilter) c
 
 class ColorMatrixEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(const SkScalar matrix[20]) {
-        return sk_sp<GrFragmentProcessor>(new ColorMatrixEffect(matrix));
+    static gr_fp<GrFragmentProcessor> Make(const SkScalar matrix[20]) {
+        return gr_fp<GrFragmentProcessor>(new ColorMatrixEffect(matrix));
     }
 
     const char* name() const override { return "Color Matrix"; }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(fMatrix); }
+    gr_fp<GrFragmentProcessor> clone() const override { return Make(fMatrix); }
 
 private:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
@@ -284,7 +284,7 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorMatrixEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar colorMatrix[20];
     for (size_t i = 0; i < SK_ARRAY_COUNT(colorMatrix); ++i) {
         colorMatrix[i] = d->fRandom->nextSScalar1();
@@ -294,7 +294,7 @@ sk_sp<GrFragmentProcessor> ColorMatrixEffect::TestCreate(GrProcessorTestData* d)
 
 #endif
 
-sk_sp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkColorMatrixFilterRowMajor255::asFragmentProcessor(
                                                                   GrContext*, SkColorSpace*) const {
     return ColorMatrixEffect::Make(fMatrix);
 }

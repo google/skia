@@ -508,7 +508,7 @@ void CPPCodeGenerator::writeTest() {
     if (test) {
         this->writef("GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
                      "#if GR_TEST_UTILS\n"
-                     "sk_sp<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
+                     "gr_fp<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
                      fFullName.c_str(),
                      fFullName.c_str(),
                      test->fArgument.c_str());

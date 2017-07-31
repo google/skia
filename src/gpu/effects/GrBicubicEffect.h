@@ -22,8 +22,8 @@ public:
 
     const char* name() const override { return "Bicubic"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrBicubicEffect(*this));
     }
 
     const GrTextureDomain& domain() const { return fDomain; }
@@ -33,11 +33,11 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            const SkShader::TileMode tileModes[2]) {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy),
+        return gr_fp<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               matrix, tileModes));
     }
@@ -45,11 +45,11 @@ public:
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& matrix,
                                            const SkRect& domain) {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy),
+        return gr_fp<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               matrix, domain));
     }

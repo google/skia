@@ -18,7 +18,7 @@ uniform float4 circleData;
 }
 
 @make {
-    static sk_sp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+    static gr_fp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
                                            const SkRect& circle, float sigma);
 }
 
@@ -256,7 +256,7 @@ uniform float4 circleData;
         return blurProfile;
     }
 
-    sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
+    gr_fp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(
                                                                GrResourceProvider* resourceProvider,
                                                                const SkRect& circle,
                                                                float sigma) {
@@ -267,7 +267,7 @@ uniform float4 circleData;
         if (!profile) {
             return nullptr;
         }
-        return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(circle,
+        return gr_fp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(circle,
                                                                             textureRadius,
                                                                             solidRadius,
                                                                             std::move(profile),

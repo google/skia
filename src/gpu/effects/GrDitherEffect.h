@@ -19,7 +19,7 @@ class GrDitherEffect : public GrFragmentProcessor {
 public:
     int rangeType() const { return fRangeType; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+    static gr_fp<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
         int rangeType;
         switch (dstConfig) {
             case kGray_8_GrPixelConfig:
@@ -44,7 +44,7 @@ public:
             case kAlpha_8_GrPixelConfig:
                 return nullptr;
         }
-        return sk_sp<GrFragmentProcessor>(new GrDitherEffect(rangeType));
+        return gr_fp<GrFragmentProcessor>(new GrDitherEffect(rangeType));
     }
     const char* name() const override { return "DitherEffect"; }
 
