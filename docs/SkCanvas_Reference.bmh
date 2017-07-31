@@ -359,7 +359,8 @@ Used by subclasses with custom implementations for draw methods.
 #Param width  Zero or greater. ##
 #Param height Zero or greater. ##
 #Param props  The LCD striping orientation and setting for device independent fonts.
-                     If nullptr, use Legacy_Font_Host settings. ##
+              If nullptr, use Legacy_Font_Host settings. 
+#Param ##
 
 #Return       Canvas placeholder with dimensions. ##
 
@@ -2372,7 +2373,8 @@ This is private API to be used only by Android framework.
 ##
 
 #Param  rect   The maximum allowed clip in device coordinates. 
-Empty rect means max clip is not enforced. ##
+               Empty rect means max clip is not enforced. 
+#Param ##
 
 ##
 
@@ -5240,11 +5242,14 @@ Image_Filter, and Blend_Mode. If Shader is provided it is treated as the Coons
 patch texture; Blend_Mode mode combines Color colors and Shader if both are provided.
 
 #Param cubics     Point array cubics specifying the four cubics starting at the top left corner, 
-in clockwise order, sharing every fourth point. The last cubic ends at the first point. ##
+                  in clockwise order, sharing every fourth point. The last cubic ends at the first point.
+#Param ##
 #Param colors     Color array color associating colors with corners in top left, top right, bottom right,
-bottom left order. ##
+                  bottom left order. 
+#Param ##
 #Param texCoords  Point array texCoords mapping Shader as texture to corners in same order, if paint
-contains Shader; or nullptr. ##
+                  contains Shader; or nullptr. 
+#Param ##
 #Param mode       Blend_Mode for colors and Shader if present. ##
 #Param paint      Shader, Color_Filter, Blend_Mode, used to draw. ##
 
@@ -5288,11 +5293,14 @@ Image_Filter, (?) and Blend_Mode. If Shader is provided it is treated as the Coo
 patch texture.
 
 #Param cubics     Point array cubics specifying the four cubics starting at the top left corner, 
-in clockwise order, sharing every fourth point. The last cubic ends at the first point. ##
+                  in clockwise order, sharing every fourth point. The last cubic ends at the first point. 
+#Param ##
 #Param colors     Color array color associating colors with corners in top left, top right, bottom right,
-bottom left order; or nullptr. ##
+                  bottom left order; or nullptr.
+#Param ##
 #Param texCoords  Point array texCoords mapping Shader as texture to corners in same order, if paint
-contains Shader; or nullptr. ##
+                  contains Shader; or nullptr.
+#Param ##
 #Param paint      Shader, Color_Filter, Blend_Mode, used to draw. ##
 
 #Example
