@@ -369,7 +369,7 @@ void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst) {
     }
 }
 
-#if defined(_MSC_VER)
+#if !defined(__clang__) && defined(_MSC_VER)
     // MSVC takes ~2 minutes to compile this function with optimization.
     // We don't really care to wait that long for this function.
     #pragma optimize("", off)

@@ -476,7 +476,7 @@ int main(int argc, char** argv) {
 
     {
         SkColorSpaceTransferFn colorSpaceTransferFn;
-        SkMatrix44 toXYZD50;
+        SkMatrix44 toXYZD50(SkMatrix44::kIdentity_Constructor);
         if (colorSpace->isNumericalTransferFn(&colorSpaceTransferFn) &&
             colorSpace->toXYZD50(&toXYZD50)) {
             SkString description = SkICCGetColorProfileTag(colorSpaceTransferFn, toXYZD50);

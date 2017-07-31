@@ -50,6 +50,13 @@ toolchain("msvc") {
     }
   }
 
+  if (clang_win != "") {
+    cl = "$clang_win/bin/clang-cl.exe"
+  } else {
+    cl = "$bin/cl.exe"
+  }
+
+
   tool("asm") {
     _ml = "ml"
     if (target_cpu == "x64") {
@@ -68,7 +75,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup$cl /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -83,7 +90,7 @@ toolchain("msvc") {
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup$bin/cl.exe /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    command = "$env_setup$cl /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",

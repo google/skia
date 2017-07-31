@@ -164,7 +164,8 @@ public:
         HDC hdc = (HDC)fCanvas->accessTopRasterHandle();
 
         COLORREF cr = RGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c));// SkEndian_Swap32(c) >> 8;
-        FillRect(hdc, &toRECT(r.round()), CreateSolidBrush(cr));
+        RECT rounded = toRECT(r.round());
+        FillRect(hdc, &rounded, CreateSolidBrush(cr));
 
         // Assuming GDI wrote zeros for alpha, this will or-in 0xFF for alpha
         SkPaint paint;
@@ -244,7 +245,8 @@ public:
         xf.eDy = ctm[SkMatrix::kMTransY];
         SetWorldTransform(hdc, &xf);
 
-        HRGN hrgn = CreateRectRgnIndirect(&toRECT(clip_bounds));
+        RECT clip_bounds_RECT = toRECT(clip_bounds);
+        HRGN hrgn = CreateRectRgnIndirect(&clip_bounds_RECT);
         int result = SelectClipRgn(hdc, hrgn);
         SkASSERT(result != ERROR);
         result = DeleteObject(hrgn);
