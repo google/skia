@@ -111,8 +111,7 @@ public:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
     sk_sp<GrFragmentProcessor> clone() const override {
-        auto child = this->childProcessor(0).clone();
-        return child ? Make(std::move(child)) : nullptr;
+        return Make(this->childProcessor(0).clone());
     }
 
 private:

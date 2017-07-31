@@ -88,11 +88,9 @@ public:
 
     /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
-     * If the processor has child processors they are cloned as well. Currently this
-     * has a default implementation that fails. This is temporary until it can be implemented
-     * for all fragemnt processor leaf classes.
+     * If the processor has child processors they are cloned as well.
      */
-    virtual sk_sp<GrFragmentProcessor> clone() const { return nullptr; }
+    virtual sk_sp<GrFragmentProcessor> clone() const = 0;
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 

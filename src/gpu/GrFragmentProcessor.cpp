@@ -305,8 +305,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
         const char* name() const override { return "Premultiply"; }
 
         sk_sp<GrFragmentProcessor> clone() const override {
-            auto child = this->childProcessor(0).clone();
-            return child ? Make(std::move(child)) : nullptr;
+            return Make(this->childProcessor(0).clone());
         }
 
     private:
@@ -376,8 +375,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
         const char* name() const override { return "Replace Color"; }
 
         sk_sp<GrFragmentProcessor> clone() const override {
-            auto child = this->childProcessor(0).clone();
-            return child ? Make(std::move(child), fColor) : nullptr;
+            return Make(this->childProcessor(0).clone(), fColor);
         }
 
     private:

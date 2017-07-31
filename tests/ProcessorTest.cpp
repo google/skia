@@ -84,15 +84,7 @@ public:
     }
 
     sk_sp<GrFragmentProcessor> clone() const override {
-        sk_sp<GrFragmentProcessor> child;
-        if (this->numChildProcessors()) {
-            SkASSERT(1 == this->numChildProcessors());
-            child = this->childProcessor(0).clone();
-            if (!child) {
-                return nullptr;
-            }
-        }
-        return sk_sp<GrFragmentProcessor> (new TestFP(*this, std::move(child)));
+        return sk_sp<GrFragmentProcessor>(new TestFP(*this));
     }
 
 private:
@@ -120,7 +112,7 @@ private:
         this->registerChildProcessor(std::move(child));
     }
 
-    explicit TestFP(const TestFP& that, sk_sp<GrFragmentProcessor> child)
+    explicit TestFP(const TestFP& that)
             : INHERITED(that.optimizationFlags()), fSamplers(4), fBuffers(4), fImages(4) {
         this->initClassID<TestFP>();
         for (int i = 0; i < that.fSamplers.count(); ++i) {
@@ -135,8 +127,8 @@ private:
             fImages.emplace_back(that.fImages[i]);
             this->addImageStorageAccess(&fImages.back());
         }
-        if (child) {
-            this->registerChildProcessor(std::move(child));
+        for (int i = 0; i < that.numChildProcessors(); ++i) {
+            this->registerChildProcessor(that.childProcessor(i).clone());
         }
     }
 
@@ -554,8 +546,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
             auto clone = fp->clone();
-            // Currently clone() is allowed to fail.
             if (!clone) {
+                ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
             if (!fp->instantiate(context->resourceProvider()) ||
