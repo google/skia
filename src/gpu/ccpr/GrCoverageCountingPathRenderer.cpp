@@ -296,11 +296,10 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     GrPipeline::InitArgs args;
     args.fAppliedClip = flushState->drawOpArgs().fAppliedClip;
     args.fCaps = &flushState->caps();
-    args.fProcessors = &fProcessors;
     args.fFlags = fSRGBFlags;
     args.fProxy = flushState->drawOpArgs().fProxy;
     args.fDstProxy = flushState->drawOpArgs().fDstProxy;
-    pipeline.init(args);
+    pipeline.init(args, std::move(fProcessors));
 
     int baseInstance = fBaseInstance;
 
