@@ -200,11 +200,11 @@ void SkSurface::flush() {
     asSB(this)->onFlush(0, nullptr);
 }
 
-bool SkSurface::flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore* signalSemaphores) {
+bool SkSurface::flushAndSignalSemaphores(int numSemaphores, GrBackendSemaphore signalSemaphores[]) {
     return asSB(this)->onFlush(numSemaphores, signalSemaphores);
 }
 
-bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
+bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
     return asSB(this)->onWait(numSemaphores, waitSemaphores);
 }
 

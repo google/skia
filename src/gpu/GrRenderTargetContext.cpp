@@ -1413,7 +1413,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 }
 
 bool GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
-                                                 GrBackendSemaphore* backendSemaphores) {
+                                                 GrBackendSemaphore backendSemaphores[]) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1451,7 +1451,7 @@ bool GrRenderTargetContext::prepareForExternalIO(int numSemaphores,
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
-                                             const GrBackendSemaphore* waitSemaphores) {
+                                             const GrBackendSemaphore waitSemaphores[]) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
