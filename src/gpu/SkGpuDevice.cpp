@@ -1735,7 +1735,7 @@ void SkGpuDevice::flush() {
 }
 
 bool SkGpuDevice::flushAndSignalSemaphores(int numSemaphores,
-                                           GrBackendSemaphore* signalSemaphores) {
+                                           GrBackendSemaphore signalSemaphores[]) {
     ASSERT_SINGLE_OWNER
 
     return fRenderTargetContext->prepareForExternalIO(numSemaphores, signalSemaphores);
