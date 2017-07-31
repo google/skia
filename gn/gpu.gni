@@ -587,6 +587,8 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlGpu.mm",
   "$_src/gpu/mtl/GrMtlTrampoline.h",
   "$_src/gpu/mtl/GrMtlTrampoline.mm",
+  "$_src/gpu/mtl/GrMtlUtil.h",
+  "$_src/gpu/mtl/GrMtlUtil.mm",
 ]
 
 skia_native_gpu_sources = [
