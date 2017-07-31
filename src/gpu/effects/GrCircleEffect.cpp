@@ -27,11 +27,11 @@ public:
         fCircleVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
                                                       kDefault_GrSLPrecision, "circle");
         fragBuilder->codeAppendf(
-                "float2 prevCenter;\nfloat prevRadius = %f;\nfloat d;\n@if (%d == 2 || %d == 3) "
-                "{\n    d = (length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z;\n} else {\n   "
-                " d = (1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z;\n}\n@if ((%d == 1 "
-                "|| %d == 3) || %d == 4) {\n    d = clamp(d, 0.0, 1.0);\n} else {\n    d = d > 0.5 "
-                "? 1.0 : 0.0;\n}\n%s = %s * d;\n",
+                "highp float2 prevCenter;\nhighp float prevRadius = %f;\nhighp float d;\n@if (%d "
+                "== 2 || %d == 3) {\n    d = (length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * "
+                "%s.z;\n} else {\n    d = (1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * "
+                "%s.z;\n}\n@if ((%d == 1 || %d == 3) || %d == 4) {\n    d = clamp(d, 0.0, 1.0);\n} "
+                "else {\n    d = d > 0.5 ? 1.0 : 0.0;\n}\n%s = %s * d;\n",
                 prevRadius, _outer.edgeType(), _outer.edgeType(),
                 args.fUniformHandler->getUniformCStr(fCircleVar),
                 args.fUniformHandler->getUniformCStr(fCircleVar),

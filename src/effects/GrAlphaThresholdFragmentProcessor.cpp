@@ -44,11 +44,12 @@ public:
         SkSL::String sk_TransformedCoords2D_1 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
         fragBuilder->codeAppendf(
-                "float4 _tmpVar1;float4 color = %stexture(%s, %s).%s%s;\nfloat4 mask_color = "
-                "texture(%s, %s).%s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n        "
-                "float scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = %s;\n "
-                "   }\n} else if (color.w < %s) {\n    float scale = %s / max(0.001, color.w);\n   "
-                " color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
+                "float4 _tmpVar1;highp float4 color = %stexture(%s, %s).%s%s;\nhighp float4 "
+                "mask_color = texture(%s, %s).%s;\nif (mask_color.w < 0.5) {\n    if (color.w > "
+                "%s) {\n        highp float scale = %s / color.w;\n        color.xyz *= scale;\n   "
+                "     color.w = %s;\n    }\n} else if (color.w < %s) {\n    highp float scale = %s "
+                "/ max(0.001, color.w);\n    color.xyz *= scale;\n    color.w = %s;\n}\n%s = "
+                "color;\n",
                 fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),

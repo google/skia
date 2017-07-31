@@ -236,9 +236,9 @@ public:
         fCircleDataVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
                                                           kDefault_GrSLPrecision, "circleData");
         fragBuilder->codeAppendf(
-                "float2 vec = float2((sk_FragCoord.x - %s.x) * %s.w, (sk_FragCoord.y - %s.y) * "
-                "%s.w);\nfloat dist = length(vec) + (0.5 - %s.z) * %s.w;\n%s = %s * texture(%s, "
-                "float2(dist, 0.5)).%s.w;\n",
+                "highp float2 vec = float2((sk_FragCoord.x - %s.x) * %s.w, (sk_FragCoord.y - %s.y) "
+                "* %s.w);\nhighp float dist = length(vec) + (0.5 - %s.z) * %s.w;\n%s = %s * "
+                "texture(%s, float2(dist, 0.5)).%s.w;\n",
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),
                 args.fUniformHandler->getUniformCStr(fCircleDataVar),

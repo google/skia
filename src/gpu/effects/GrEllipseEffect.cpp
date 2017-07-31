@@ -32,17 +32,17 @@ public:
                                                          kDefault_GrSLPrecision, "scale");
         }
         fragBuilder->codeAppendf(
-                "float2 prevCenter;\nfloat2 prevRadii = float2(%f, %f);\nbool useScale = "
-                "%s;\nfloat2 d = sk_FragCoord.xy - %s.xy;\n@if (useScale) {\n    d *= "
-                "%s.y;\n}\nfloat2 Z = d * %s.zw;\nfloat implicit = dot(Z, d) - 1.0;\nfloat "
-                "grad_dot = 4.0 * dot(Z, Z);\ngrad_dot = max(grad_dot, 0.0001);\nfloat approx_dist "
-                "= implicit * inversesqrt(grad_dot);\n@if (useScale) {\n    approx_dist *= "
-                "%s.x;\n}\nfloat alpha;\n@switch (%d) {\n    case 0:\n        alpha = approx_dist "
-                "> 0.0 ? 0.0 : 1.0;\n        break;\n    case 1:\n        alpha = clamp(0.5 - "
-                "approx_dist, 0.0, 1.0);\n        break;\n    case 2:\n        alpha = approx_dist "
-                "> 0.0 ? 1.0 : 0.0;\n        break;\n    case 3:\n        alpha = clamp(0.5 + "
-                "approx_dist, 0.0, 1.0);\n        break;\n    default:\n        discard;\n}\n%s = "
-                "%s * alpha;\n",
+                "highp float2 prevCenter;\nhighp float2 prevRadii = float2(%f, %f);\nbool useScale "
+                "= %s;\nhighp float2 d = sk_FragCoord.xy - %s.xy;\n@if (useScale) {\n    d *= "
+                "%s.y;\n}\nhighp float2 Z = d * %s.zw;\nhighp float implicit = dot(Z, d) - "
+                "1.0;\nhighp float grad_dot = 4.0 * dot(Z, Z);\ngrad_dot = max(grad_dot, "
+                "0.0001);\nhighp float approx_dist = implicit * inversesqrt(grad_dot);\n@if "
+                "(useScale) {\n    approx_dist *= %s.x;\n}\nhighp float alpha;\n@switch (%d) {\n   "
+                " case 0:\n        alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n        break;\n    "
+                "case 1:\n        alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n        break;\n    "
+                "case 2:\n        alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n        break;\n    case "
+                "3:\n        alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n        break;\n    "
+                "default:\n        discard;\n}\n%s = %s * alpha;\n",
                 prevRadii.fX, prevRadii.fY, (useScale ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(fEllipseVar),
                 fScaleVar.isValid() ? args.fUniformHandler->getUniformCStr(fScaleVar)

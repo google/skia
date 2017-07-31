@@ -25,7 +25,7 @@ public:
                 args.fFp.cast<GrBlurredEdgeFragmentProcessor>();
         (void)_outer;
         fragBuilder->codeAppendf(
-                "float factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
+                "highp float factor = 1.0 - %s.w;\n@switch (%d) {\n    case 0:\n        factor = "
                 "exp((-factor * factor) * 4.0) - 0.017999999999999999;\n        break;\n    case "
                 "1:\n        factor = smoothstep(1.0, 0.0, factor);\n        break;\n}\n%s = "
                 "float4(factor);\n",
