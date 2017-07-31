@@ -509,6 +509,9 @@ void GrTextUtils::DrawTextAsPath(GrContext* context, GrRenderTargetContext* rtc,
                                  const SkPaint& paint, const SkMatrix& viewMatrix,
                                  const char text[], size_t byteLength, SkScalar x, SkScalar y,
                                  const SkIRect& clipBounds) {
+    if (!paint.countText(text, byteLength)) {
+        return;
+    }
     SkTextToPathIter iter(text, byteLength, paint, true);
 
     SkMatrix    matrix;
@@ -537,6 +540,9 @@ void GrTextUtils::DrawPosTextAsPath(GrContext* context,
                                     const char text[], size_t byteLength,
                                     const SkScalar pos[], int scalarsPerPosition,
                                     const SkPoint& offset, const SkIRect& clipBounds) {
+    if (!origPaint.countText(text, byteLength)) {
+        return;
+    }
     // setup our std paint, in hopes of getting hits in the cache
     SkPaint paint(origPaint);
     SkScalar matrixScale = paint.setupForAsPaths();
