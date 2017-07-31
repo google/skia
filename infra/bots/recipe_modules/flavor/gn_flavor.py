@@ -110,6 +110,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if 'CheckGeneratedFiles' in extra_config:
       args['skia_compile_processors'] = 'true'
 
+    if compiler == 'Clang' and 'Win' in os:
+      with self.m.context(cwd=self.m.vars.skia_dir):
+        self._py('fetch-clang-win',
+                 self.m.vars.skia_dir.join('bin', 'fetch-clang-win'))
+      args['clang_win'] = self.m.vars.skia_dir.join('bin', 'clang_win')
+
     for (k,v) in {
       'cc':  cc,
       'cxx': cxx,
