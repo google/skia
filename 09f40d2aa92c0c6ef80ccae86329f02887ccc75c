@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d4e82e5_da1e9c8d",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-07-31T16:34:12Z",
+      "side": 1,
+      "message": "I think this is implicitly deleted as long as we have alternate ctors defined",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 14
+      },
+      "revId": "09f40d2aa92c0c6ef80ccae86329f02887ccc75c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
