@@ -50,7 +50,8 @@ config("default") {
       "WIN32_LEAN_AND_MEAN",
       "NOMINMAX",
     ]
-    include_dirs = [
+
+    _include_dirs = [
       #2017
       "$windk/VC/Tools/MSVC/14.10.25017/include",
 
@@ -76,6 +77,17 @@ config("default") {
       "$windk/win_sdk/Include/10.0.14393.0/um",
       "$windk/win_sdk/Include/10.0.14393.0/winrt",
     ]
+    if (is_clang) {
+      foreach(dir, _include_dirs) {
+        cflags += [
+          "-imsvc",
+          dir,
+        ]
+      }
+    } else {
+      include_dirs = _include_dirs
+    }
+
     lib_dirs = [
       # For local builds.
       # 2017
