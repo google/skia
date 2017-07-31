@@ -159,7 +159,7 @@ bool SkEncodeImageWithWIC(SkWStream* stream, const SkPixmap& pixmap,
         PROPBAG2 name = { 0 };
         name.dwType = PROPBAG2_TYPE_DATA;
         name.vt = VT_R4;
-        name.pstrName = L"ImageQuality";
+        name.pstrName = const_cast<LPOLESTR>(L"ImageQuality");
 
         VARIANT value;
         VariantInit(&value);
