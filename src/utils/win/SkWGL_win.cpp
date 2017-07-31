@@ -229,7 +229,7 @@ void destroy_dummy_window(HWND dummy) {
 }
 
 #define GET_PROC(NAME, SUFFIX) f##NAME = \
-                     (##NAME##Proc) wglGetProcAddress("wgl" #NAME #SUFFIX)
+                     (NAME##Proc) wglGetProcAddress("wgl" #NAME #SUFFIX)
 
 SkWGLExtensions::SkWGLExtensions()
     : fGetExtensionsString(nullptr)
