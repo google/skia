@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a7e6633a_655cc923",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-31T19:38:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86ac1f74_2c3f5da7",
+      "range": {
+        "startLine": 472,
+        "startChar": 2,
+        "endLine": 472,
+        "endChar": 65
+      },
+      "revId": "cbfc930506a1069b5c061f203b0a0bf09c55c382",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ac2ac9b4_35328fda",
         "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
         "patchSetId": 3
@@ -69,6 +93,30 @@
       "revId": "cbfc930506a1069b5c061f203b0a0bf09c55c382",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff47e326_f5ecf7ce",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-07-31T19:38:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac2ac9b4_35328fda",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 35
+      },
+      "revId": "cbfc930506a1069b5c061f203b0a0bf09c55c382",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
