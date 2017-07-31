@@ -26,7 +26,7 @@ static_assert(1 == kCubic_RecursiveLimit, "cubic_stroke_relies_on_cubic_equallin
 static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
               "recursive_limits_mismatch");
 
-#if defined SK_DEBUG && QUAD_STROKE_APPROXIMATION
+#if defined SK_DEBUG && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
     int gMaxRecursion[SK_ARRAY_COUNT(kRecursiveLimits)] = { 0 };
 #endif
 #ifndef DEBUG_QUAD_STROKER
@@ -1141,7 +1141,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     if (!SkScalarIsFinite(quadPts->fQuad[2].fX) || !SkScalarIsFinite(quadPts->fQuad[2].fY)) {
         return false;  // just abort if projected quad isn't representable
     }
-#if QUAD_STROKE_APPROXIMATION
+#if QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
     SkDEBUGCODE(gMaxRecursion[fFoundTangents] = SkTMax(gMaxRecursion[fFoundTangents],
             fRecursionDepth + 1));
 #endif
@@ -1179,7 +1179,7 @@ bool SkPathStroker::conicStroke(const SkConic& conic, SkQuadConstruct* quadPts) 
         addDegenerateLine(quadPts);
         return true;
     }
-#if QUAD_STROKE_APPROXIMATION
+#if QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
     SkDEBUGCODE(gMaxRecursion[kConic_RecursiveLimit] = SkTMax(gMaxRecursion[kConic_RecursiveLimit],
             fRecursionDepth + 1));
 #endif
@@ -1211,7 +1211,7 @@ bool SkPathStroker::quadStroke(const SkPoint quad[3], SkQuadConstruct* quadPts) 
         addDegenerateLine(quadPts);
         return true;
     }
-#if QUAD_STROKE_APPROXIMATION
+#if QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
     SkDEBUGCODE(gMaxRecursion[kQuad_RecursiveLimit] = SkTMax(gMaxRecursion[kQuad_RecursiveLimit],
             fRecursionDepth + 1));
 #endif
