@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17675770_97292e09",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-07-31T19:16:21Z",
+      "side": 1,
+      "message": "What is name in an actual use case?",
+      "range": {
+        "startLine": 102,
+        "startChar": 59,
+        "endLine": 102,
+        "endChar": 63
+      },
+      "revId": "38c274a567d42e113a3418fd77775d8261af195b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
