@@ -34,11 +34,7 @@ public:
     const SkMatrix& invCTM() const { return fInvCTM; }
 
     sk_sp<GrFragmentProcessor> clone() const override {
-        auto child = this->childProcessor(0).clone();
-        if (!child) {
-            return nullptr;
-        }
-        return Make(std::move(child), fInvCTM);
+        return Make(this->childProcessor(0).clone(), fInvCTM);
     }
 
 private:

@@ -250,11 +250,7 @@ public:
     const char* name() const override { return "RGBToYUV"; }
 
     sk_sp<GrFragmentProcessor> clone() const override {
-        auto child = this->childProcessor(0).clone();
-        if (!child) {
-            return nullptr;
-        }
-        return Make(std::move(child), fColorSpace, fOutputChannels);
+        return Make(this->childProcessor(0).clone(), fColorSpace, fOutputChannels);
     }
 
     SkYUVColorSpace getColorSpace() const { return fColorSpace; }

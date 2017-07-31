@@ -122,14 +122,7 @@ public:
     const char* name() const override { return "LightingFP"; }
 
     sk_sp<GrFragmentProcessor> clone() const override {
-        // Currently we make the child clone here and pass it to the "copy" constructor. This is
-        // because clone() may fail for processor classes that haven't yet implemented it. Once all
-        // processors have an implementation the child can be cloned in a true copy constructor.
-        auto normalFPClone = this->childProcessor(0).clone();
-        if (!normalFPClone) {
-            return nullptr;
-        }
-        return sk_sp<GrFragmentProcessor>(new LightingFP(*this, std::move(normalFPClone)));
+        return sk_sp<GrFragmentProcessor>(new LightingFP(*this));
     }
 
     const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }
@@ -263,11 +256,11 @@ private:
         this->initClassID<LightingFP>();
     }
 
-    LightingFP(const LightingFP& that, sk_sp<GrFragmentProcessor> normalFPClone)
+    LightingFP(const LightingFP& that)
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag)
             , fDirectionalLights(that.fDirectionalLights)
             , fAmbientColor(that.fAmbientColor) {
-        this->registerChildProcessor(std::move(normalFPClone));
+        this->registerChildProcessor(that.childProcessor(0).clone());
         this->initClassID<LightingFP>();
     }
 
