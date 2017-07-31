@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dbe9308_03620f2a",
+        "filename": "src/core/SkStrokerPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-07-31T17:20:15Z",
+      "side": 1,
+      "message": "Should this be \"QUAD_STROKE_APPROX_EXTENDED_DEBUGGING\" ?",
+      "revId": "fdda76266507313d9ccaefb822141f2b5e71857f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
