@@ -41,14 +41,19 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     extra_cflags = []
     extra_ldflags = []
 
-    if compiler == 'Clang' and self.m.vars.is_linux:
-      cc  = clang_linux + '/bin/clang'
-      cxx = clang_linux + '/bin/clang++'
-      extra_cflags .append('-B%s/bin' % clang_linux)
-      extra_ldflags.append('-B%s/bin' % clang_linux)
-      extra_ldflags.append('-fuse-ld=lld')
-    elif compiler == 'Clang':
-      cc, cxx = 'clang', 'clang++'
+    if compiler == 'Clang':
+      if self.m.vars.is_linux:
+        cc  = clang_linux + '/bin/clang'
+        cxx = clang_linux + '/bin/clang++'
+        extra_cflags .append('-B%s/bin' % clang_linux)
+        extra_ldflags.append('-B%s/bin' % clang_linux)
+        extra_ldflags.append('-fuse-ld=lld')
+      elif 'Win' in os:
+        clang_win = self.m.vars.slave_dir.join('clang_win', 'bin')
+        cc = clang_win.join('clang-cl.exe')
+        cxx = clang_win.join('clang-cl.exe')
+      else:
+        cc, cxx = 'clang', 'clang++'
     elif compiler == 'GCC':
       cc, cxx = 'gcc', 'g++'
 
