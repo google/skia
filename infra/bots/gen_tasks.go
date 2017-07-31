@@ -947,18 +947,14 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	j := &specs.JobSpec{
 		Priority:  0.8,
 		TaskSpecs: deps,
+		Trigger:   specs.TRIGGER_ANY_BRANCH,
 	}
-	if name == "Housekeeper-Nightly-RecreateSKPs_Canary" {
-		j.Trigger = "nightly"
-	}
-	if name == "Housekeeper-Nightly-UpdateMetaConfig" {
-		j.Trigger = "nightly"
-	}
-	if name == "Housekeeper-Weekly-RecreateSKPs" {
-		j.Trigger = "weekly"
-	}
-	if name == "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
-		j.Trigger = "weekly"
+	if strings.Contains(name, "-Nightly-") {
+		j.Trigger = specs.TRIGGER_NIGHTLY
+	} else if strings.Contains(name, "-Weekly-") || name == "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs" {
+		j.Trigger = specs.TRIGGER_WEEKLY
+	} else if strings.Contains(name, "Flutter") || strings.Contains(name, "PDFium") || strings.Contains(name, "CommandBuffer") {
+		j.Trigger = specs.TRIGGER_MASTER_ONLY
 	}
 	b.MustAddJob(name, j)
 }

@@ -250,7 +250,8 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-GCC-x86_64-Release-Flutter_Android"
-      ]
+      ],
+      "trigger": "master"
     },
     "Build-Debian9-GCC-x86_64-Release-Mesa": {
       "priority": 0.8,
@@ -268,13 +269,15 @@
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-GCC-x86_64-Release-PDFium"
-      ]
+      ],
+      "trigger": "master"
     },
     "Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths": {
       "priority": 0.8,
       "tasks": [
         "Build-Debian9-GCC-x86_64-Release-PDFium_SkiaPaths"
-      ]
+      ],
+      "trigger": "master"
     },
     "Build-Debian9-GCC-x86_64-Release-SKNX_NO_SIMD": {
       "priority": 0.8,
@@ -334,7 +337,8 @@
       "priority": 0.8,
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
-      ]
+      ],
+      "trigger": "master"
     },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "priority": 0.8,
@@ -352,7 +356,8 @@
       "priority": 0.8,
       "tasks": [
         "Build-Mac-Clang-x86_64-Release-CommandBuffer"
-      ]
+      ],
+      "trigger": "master"
     },
     "Build-Win-Clang-arm64-Release-Android": {
       "priority": 0.8,
@@ -949,7 +954,8 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Perf-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Release-CommandBuffer"
-      ]
+      ],
+      "trigger": "master"
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
@@ -1819,7 +1825,8 @@
       "priority": 0.8,
       "tasks": [
         "Upload-Test-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Debug-CommandBuffer"
-      ]
+      ],
+      "trigger": "master"
     },
     "Test-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Release": {
       "priority": 0.8,
