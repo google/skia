@@ -28,7 +28,7 @@ SkString GrDrawPathOp::dumpInfo() const {
     return string;
 }
 
-void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pipeline) {
+GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     static constexpr GrUserStencilSettings kCoverPass{
             GrUserStencilSettings::StaticInit<
                     0x0000,
@@ -50,8 +50,7 @@ void GrDrawPathOpBase::initPipeline(const GrOpFlushState& state, GrPipeline* pip
     args.fCaps = &state.caps();
     args.fResourceProvider = state.resourceProvider();
     args.fDstProxy = state.drawOpArgs().fDstProxy;
-
-    return pipeline->init(args);
+    return args;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,8 +66,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 //////////////////////////////////////////////////////////////////////////////
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
-    GrPipeline pipeline;
-    this->initPipeline(*state, &pipeline);
+    GrPipeline pipeline(this->pipelineInitArgs(*state));
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;
@@ -180,8 +178,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     sk_sp<GrPathProcessor> pathProc(
             GrPathProcessor::Create(this->color(), drawMatrix, localMatrix));
 
-    GrPipeline pipeline;
-    this->initPipeline(*state, &pipeline);
+    GrPipeline pipeline(this->pipelineInitArgs(*state));
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     if (fDraws.count() == 1) {

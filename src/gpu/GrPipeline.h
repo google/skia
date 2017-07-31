@@ -95,10 +95,7 @@ public:
         SkIRect fScissorRect;
     };
 
-    /**
-     * A Default constructed pipeline is unusable until init() is called.
-     **/
-    GrPipeline() = default;
+    GrPipeline() = delete;
 
     /**
      * Creates a simple pipeline with default settings and no processors. The provided blend mode
@@ -107,13 +104,10 @@ public:
      **/
     GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
 
-    GrPipeline(const InitArgs& args) { this->init(args); }
+    GrPipeline(const InitArgs& args);
 
     GrPipeline(const GrPipeline&) = delete;
     GrPipeline& operator=(const GrPipeline&) = delete;
-
-    /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
-    void init(const InitArgs&);
 
     /** True if the pipeline has been initialized. */
     bool isInitialized() const { return SkToBool(fProxy.get()); }

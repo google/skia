@@ -17,7 +17,7 @@
 
 #include "ops/GrOp.h"
 
-void GrPipeline::init(const InitArgs& args) {
+GrPipeline::GrPipeline(const InitArgs& args) {
     SkASSERT(args.fProxy);
     SkASSERT(args.fProcessors);
     SkASSERT(args.fProcessors->isFinalized());
