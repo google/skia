@@ -44,23 +44,27 @@ public:
         kOblique_Slant,
     };
 
-    SkFontStyle();
+    constexpr SkFontStyle()
+        : fWeight(kNormal_Weight), fWidth(kNormal_Width), fSlant(kUpright_Slant)
+    { }
 
-    constexpr SkFontStyle(int weight, int width, Slant slant) : fUnion {{
-        static_cast<uint16_t>(SkTPin<int>(weight, kInvisible_Weight, kExtraBlack_Weight)),
-        static_cast<uint8_t >(SkTPin<int>(width, kUltraCondensed_Width, kUltraExpanded_Width)),
-        static_cast<uint8_t >(SkTPin<int>(slant, kUpright_Slant, kOblique_Slant))
-    }} { }
+    constexpr SkFontStyle(int weight, int width, Slant slant)
+        : fWeight(static_cast<uint16_t>(SkTPin<int>(weight, kInvisible_Weight, kExtraBlack_Weight)))
+        , fWidth (static_cast<uint8_t >(SkTPin<int>(width, kUltraCondensed_Width, kUltraExpanded_Width)))
+        , fSlant (static_cast<uint8_t >(SkTPin<int>(slant, kUpright_Slant, kOblique_Slant)))
+    { }
 
     static SkFontStyle FromOldStyle(unsigned oldStyle);
 
     bool operator==(const SkFontStyle& rhs) const {
-        return fUnion.fU32 == rhs.fUnion.fU32;
+        static_assert(sizeof(SkFontStyle) == sizeof(fWeight) + sizeof(fWidth) + sizeof(fSlant),
+                      "SkFontStyle must be packed.");
+        return memcmp(this, &rhs, sizeof(SkFontStyle)) == 0;
     }
 
-    int weight() const { return fUnion.fR.fWeight; }
-    int width() const { return fUnion.fR.fWidth; }
-    Slant slant() const { return (Slant)fUnion.fR.fSlant; }
+    int weight() const { return fWeight; }
+    int width() const { return fWidth; }
+    Slant slant() const { return (Slant)fSlant; }
 
     static constexpr SkFontStyle Normal() {
         return SkFontStyle(kNormal_Weight, kNormal_Width, kUpright_Slant);
@@ -76,14 +80,9 @@ public:
     }
 
 private:
-    union {
-        struct {
-            uint16_t fWeight;   // 100 .. 900
-            uint8_t  fWidth;    // 1 .. 9
-            uint8_t  fSlant;    // 0 .. 2
-        } fR;
-        uint32_t    fU32;
-    } fUnion;
+    uint16_t fWeight;   // 100 .. 900
+    uint8_t fWidth;     // 1 .. 9
+    uint8_t fSlant;     // 0 .. 2
 };
 
 #endif
