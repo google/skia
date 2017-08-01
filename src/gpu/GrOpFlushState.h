@@ -8,6 +8,7 @@
 #ifndef GrOpFlushState_DEFINED
 #define GrOpFlushState_DEFINED
 
+#include "GrAppliedClip.h"
 #include "GrBufferAllocPool.h"
 #include "SkArenaAlloc.h"
 #include "ops/GrMeshDrawOp.h"
@@ -99,8 +100,8 @@ public:
     struct DrawOpArgs {
         GrRenderTarget* renderTarget() const { return fProxy->priv().peekRenderTarget(); }
 
-        GrRenderTargetProxy*      fProxy;
-        const GrAppliedClip*      fAppliedClip;
+        GrRenderTargetProxy* fProxy;
+        GrAppliedClip* fAppliedClip;
         GrXferProcessor::DstProxy fDstProxy;
     };
 
@@ -109,6 +110,11 @@ public:
     const DrawOpArgs& drawOpArgs() const {
         SkASSERT(fOpArgs);
         return *fOpArgs;
+    }
+
+    GrAppliedClip takeAppliedClip() {
+        SkASSERT(fOpArgs);
+        return fOpArgs->fAppliedClip ? std::move(*fOpArgs->fAppliedClip) : GrAppliedClip();
     }
 
     template <typename... Args>
@@ -238,6 +244,7 @@ public:
 
     const GrAppliedClip* clip() const { return this->state()->drawOpArgs().fAppliedClip; }
 
+    GrAppliedClip takeAppliedClip() { return this->state()->takeAppliedClip(); }
     const GrXferProcessor::DstProxy& dstProxy() const {
         return this->state()->drawOpArgs().fDstProxy;
     }
@@ -249,17 +256,17 @@ public:
 
     /**
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
-     * GrAppliedClip.
+     * GrAppliedClip. This may only
      * */
-    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet) {
+    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
+                             GrAppliedClip&& clip) {
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fFlags = pipelineFlags;
         pipelineArgs.fProxy = this->proxy();
-        pipelineArgs.fAppliedClip = this->clip();
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
         pipelineArgs.fResourceProvider = this->resourceProvider();
-        return this->allocPipeline(pipelineArgs, std::move(processorSet));
+        return this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip));
     }
 
 private:
