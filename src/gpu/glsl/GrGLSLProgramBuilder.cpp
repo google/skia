@@ -28,8 +28,8 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrPipeline& pipeline,
     , fPipeline(pipeline)
     , fPrimProc(primProc)
     , fDesc(desc)
-    , fGeometryProcessor(nullptr)
-    , fXferProcessor(nullptr)
+    , fGeometryProcessor1(nullptr)
+    , fXferProcessor1(nullptr)
     , fNumVertexSamplers(0)
     , fNumGeometrySamplers(0)
     , fNumFragmentSamplers(0)
@@ -65,7 +65,7 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     this->emitAndInstallXferProc(inputColor, inputCoverage);
     this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
 
-    return this->checkSamplerCounts() && this->checkImageStorageCounts();
+    return false; //this->checkSamplerCounts() && this->checkImageStorageCounts();
 }
 
 void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& proc,
@@ -94,8 +94,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     fFS.codeAppend(openBrace.c_str());
     fVS.codeAppendf("// Primitive Processor %s\n", proc.name());
 
-    SkASSERT(!fGeometryProcessor);
-    fGeometryProcessor = proc.createGLSLInstance(*this->shaderCaps());
+    SkASSERT(!fGeometryProcessor1);
+    fGeometryProcessor1.reset(proc.createGLSLInstance(*this->shaderCaps()));
 
     SkSTArray<4, SamplerHandle>      texSamplers(proc.numTextureSamplers());
     SkSTArray<2, TexelBufferHandle>  texelBuffers(proc.numBuffers());
@@ -118,7 +118,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            texelBuffers.begin(),
                                            imageStorages.begin(),
                                            &transformHandler);
-    fGeometryProcessor->emitCode(args);
+    fGeometryProcessor1->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
@@ -194,7 +194,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor&
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
-    fFragmentProcessors.push_back(fragProc);
+    fFragmentProcessors1.push_back(fragProc);
 
     fFS.codeAppend("}");
     return output;
@@ -205,9 +205,9 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
-    SkASSERT(!fXferProcessor);
+    SkASSERT(!fXferProcessor1);
     const GrXferProcessor& xp = fPipeline.getXferProcessor();
-    fXferProcessor = xp.createGLSLInstance();
+    fXferProcessor1.reset(xp.createGLSLInstance());
 
     // Enable dual source secondary output if we have one
     if (xp.hasSecondaryOutput()) {
@@ -245,7 +245,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        fFS.getSecondaryColorOutputName(),
                                        dstTextureSamplerHandle,
                                        dstTextureOrigin);
-    fXferProcessor->emitCode(args);
+    fXferProcessor1->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
@@ -473,8 +473,8 @@ void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
 }
 
 void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        delete fFragmentProcessors[i];
+    for (int i = 0; i < fFragmentProcessors1.count(); ++i) {
+        delete fFragmentProcessors1[i];
     }
 }
 
