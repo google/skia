@@ -24,6 +24,7 @@
 #include "SkMakeUnique.h"
 #include "SkMatrixUtils.h"
 #include "SkMetaData.h"
+#include "SkMSAN.h"
 #include "SkNoDrawCanvas.h"
 #include "SkNx.h"
 #include "SkPaintPriv.h"
@@ -2567,6 +2568,7 @@ void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScala
                         const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
+        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->onDrawText(text, byteLength, x, y, paint);
     }
 }
@@ -2574,6 +2576,7 @@ void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint po
                            const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
+        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->onDrawPosText(text, byteLength, pos, paint);
     }
 }
@@ -2581,6 +2584,7 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
                             SkScalar constY, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
+        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
     }
 }
@@ -2588,6 +2592,7 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath&
                               const SkMatrix* matrix, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
+        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
     }
 }
@@ -2595,6 +2600,7 @@ void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXf
                                const SkRect* cullRect, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
+        sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
         this->onDrawTextRSXform(text, byteLength, xform, cullRect, paint);
     }
 }
