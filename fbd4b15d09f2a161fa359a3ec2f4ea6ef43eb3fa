@@ -88,6 +88,24 @@
       "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "557347b6_ac6724a6",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-01T15:48:07Z",
+      "side": 1,
+      "message": "Now using vec2f for the uniform.  PTAL.",
+      "parentUuid": "ac9cc11b_e313ef25",
+      "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
