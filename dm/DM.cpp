@@ -1450,11 +1450,13 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
+            ctxInfo.grContext()->flush();
         }
         ctxInfo = factory->getContextInfo(contextType,
                                           GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
+            ctxInfo.grContext()->flush();
         }
     }
 #endif
