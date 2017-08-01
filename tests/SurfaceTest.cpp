@@ -346,6 +346,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceCopyOnWrite_Gpu, reporter, ctxInfo) {
     for (auto& surface_func : { &create_gpu_surface, &create_gpu_scratch_surface }) {
         auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
         test_copy_on_write(reporter, surface.get());
+        ctxInfo.grContext()->flush();
     }
 }
 #endif
@@ -526,6 +527,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceNoCanvas_Gpu, reporter, ctxInfo) {
             for (auto& mode : modes) {
                 auto surface(surface_func(ctxInfo.grContext(), kPremul_SkAlphaType, nullptr));
                 test_func(reporter, surface.get(), mode);
+                ctxInfo.grContext()->flush();
             }
         }
     }
