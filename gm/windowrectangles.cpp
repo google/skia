@@ -160,7 +160,7 @@ private:
         out->addCoverageFP(fFP);
         return true;
     }
-    sk_sp<GrFragmentProcessor> fFP;
+    gr_fp<GrFragmentProcessor> fFP;
 };
 
 /**

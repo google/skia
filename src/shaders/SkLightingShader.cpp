@@ -55,7 +55,7 @@ public:
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    gr_fp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     class LightingShaderContext : public Context {
@@ -114,15 +114,15 @@ private:
 // premul'd.
 class LightingFP : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> normalFP,
+    static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> normalFP,
                                            sk_sp<SkLights> lights) {
-        return sk_sp<GrFragmentProcessor>(new LightingFP(std::move(normalFP), std::move(lights)));
+        return gr_fp<GrFragmentProcessor>(new LightingFP(std::move(normalFP), std::move(lights)));
     }
 
     const char* name() const override { return "LightingFP"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new LightingFP(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new LightingFP(*this));
     }
 
     const SkTArray<SkLights::Light>& directionalLights() const { return fDirectionalLights; }
@@ -239,7 +239,7 @@ private:
         GLSLLightingFP::GenKey(*this, caps, b);
     }
 
-    LightingFP(sk_sp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights)
+    LightingFP(gr_fp<GrFragmentProcessor> normalFP, sk_sp<SkLights> lights)
             : INHERITED(kPreservesOpaqueInput_OptimizationFlag) {
         // fuse all ambient lights into a single one
         fAmbientColor = lights->ambientLightColor();
@@ -280,14 +280,14 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
-    sk_sp<GrFragmentProcessor> normalFP(fNormalSource->asFragmentProcessor(args));
+gr_fp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPArgs& args) const {
+    gr_fp<GrFragmentProcessor> normalFP(fNormalSource->asFragmentProcessor(args));
     if (!normalFP) {
         return nullptr;
     }
 
     if (fDiffuseShader) {
-        sk_sp<GrFragmentProcessor> fpPipeline[] = {
+        gr_fp<GrFragmentProcessor> fpPipeline[] = {
             as_SB(fDiffuseShader)->asFragmentProcessor(args),
             LightingFP::Make(std::move(normalFP), fLights)
         };
@@ -295,7 +295,7 @@ sk_sp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPA
             return nullptr;
         }
 
-        sk_sp<GrFragmentProcessor> innerLightFP = GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+        gr_fp<GrFragmentProcessor> innerLightFP = GrFragmentProcessor::RunInSeries(fpPipeline, 2);
         // FP is wrapped because paint's alpha needs to be applied to output
         return GrFragmentProcessor::MulOutputByInputAlpha(std::move(innerLightFP));
     } else {

@@ -27,7 +27,7 @@ public:
     sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerParams&, SkIPoint* outOffset,
                                                        SkScalar scaleAdjust[2]);
 
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
+    gr_fp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
                                 const SkRect& constraintRect,
                                 FilterConstraint,

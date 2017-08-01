@@ -62,15 +62,15 @@ class GrSweepGradient : public GrGradientEffect {
 public:
     class GLSLSweepProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        auto processor = sk_sp<GrSweepGradient>(new GrSweepGradient(args));
+    static gr_fp<GrFragmentProcessor> Make(const CreateArgs& args) {
+        auto processor = gr_fp<GrSweepGradient>(new GrSweepGradient(args));
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     const char* name() const override { return "Sweep Gradient"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrSweepGradient(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new GrSweepGradient(*this));
     }
 
 private:
@@ -127,7 +127,7 @@ void GrSweepGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSweepGradient);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
 
     RandomGradientParams params(d->fRandom);
@@ -137,7 +137,7 @@ sk_sp<GrFragmentProcessor> GrSweepGradient::TestCreate(GrProcessorTestData* d) {
         SkGradientShader::MakeSweep(center.fX, center.fY,  params.fColors,
                                     params.fStops, params.fColorCount);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    gr_fp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -174,7 +174,7 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& args) const {
+gr_fp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& args) const {
 
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
@@ -191,7 +191,7 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
-    sk_sp<GrFragmentProcessor> inner(GrSweepGradient::Make(
+    gr_fp<GrFragmentProcessor> inner(GrSweepGradient::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, &matrix, SkShader::kClamp_TileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     if (!inner) {

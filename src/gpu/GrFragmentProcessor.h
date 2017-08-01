@@ -33,7 +33,7 @@ public:
     *  does so by returning a parent FP that multiplies the passed in FPs output by the parent's
     *  input alpha. The passed in FP will not receive an input color.
     */
-    static sk_sp<GrFragmentProcessor> MulOutputByInputAlpha(sk_sp<GrFragmentProcessor>);
+    static gr_fp<GrFragmentProcessor> MulOutputByInputAlpha(gr_fp<GrFragmentProcessor>);
 
     /**
      *  This assumes that the input color to the returned processor will be unpremul and that the
@@ -41,38 +41,38 @@ public:
      *  The result of the returned processor is a premul of its input color modulated by the child
      *  processor's premul output.
      */
-    static sk_sp<GrFragmentProcessor> MakeInputPremulAndMulByOutput(sk_sp<GrFragmentProcessor>);
+    static gr_fp<GrFragmentProcessor> MakeInputPremulAndMulByOutput(gr_fp<GrFragmentProcessor>);
 
     /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
      *  The parent will ignore its input color and instead feed the passed in color as input to the
      *  child.
      */
-    static sk_sp<GrFragmentProcessor> OverrideInput(sk_sp<GrFragmentProcessor>, GrColor4f);
+    static gr_fp<GrFragmentProcessor> OverrideInput(gr_fp<GrFragmentProcessor>, GrColor4f);
 
     /**
      *  Returns a fragment processor that premuls the input before calling the passed in fragment
      *  processor.
      */
-    static sk_sp<GrFragmentProcessor> PremulInput(sk_sp<GrFragmentProcessor>);
+    static gr_fp<GrFragmentProcessor> PremulInput(gr_fp<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then premuls
      *  the output.
      */
-    static sk_sp<GrFragmentProcessor> PremulOutput(sk_sp<GrFragmentProcessor>);
+    static gr_fp<GrFragmentProcessor> PremulOutput(gr_fp<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then unpremuls
      *  the output.
      */
-    static sk_sp<GrFragmentProcessor> UnpremulOutput(sk_sp<GrFragmentProcessor>);
+    static gr_fp<GrFragmentProcessor> UnpremulOutput(gr_fp<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */
-    static sk_sp<GrFragmentProcessor> SwizzleOutput(sk_sp<GrFragmentProcessor>, const GrSwizzle&);
+    static gr_fp<GrFragmentProcessor> SwizzleOutput(gr_fp<GrFragmentProcessor>, const GrSwizzle&);
 
     /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
@@ -82,7 +82,7 @@ public:
      *
      * The array elements with be moved.
      */
-    static sk_sp<GrFragmentProcessor> RunInSeries(sk_sp<GrFragmentProcessor>*, int cnt);
+    static gr_fp<GrFragmentProcessor> RunInSeries(gr_fp<GrFragmentProcessor>*, int cnt);
 
     ~GrFragmentProcessor() override;
 
@@ -90,7 +90,7 @@ public:
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */
-    virtual sk_sp<GrFragmentProcessor> clone() const = 0;
+    virtual gr_fp<GrFragmentProcessor> clone() const = 0;
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
@@ -309,7 +309,7 @@ protected:
      * processors will allow the ProgramBuilder to automatically handle their transformed coords and
      * texture accesses and mangle their uniform and output color names.
      */
-    int registerChildProcessor(sk_sp<GrFragmentProcessor> child);
+    int registerChildProcessor(gr_fp<GrFragmentProcessor> child);
 
 private:
     void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
@@ -351,7 +351,7 @@ private:
     SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
 
     /**
-     * This is not SkSTArray<1, sk_sp<GrFragmentProcessor>> because this class holds strong
+     * This is not SkSTArray<1, gr_fp<GrFragmentProcessor>> because this class holds strong
      * references until notifyRefCntIsZero and then it holds pending executions.
      */
     SkSTArray<1, GrFragmentProcessor*, true> fChildProcessors;

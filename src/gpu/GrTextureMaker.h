@@ -30,7 +30,7 @@ public:
                                                    sk_sp<SkColorSpace>* texColorSpace,
                                                    SkScalar scaleAdjust[2]);
 
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
+    gr_fp<GrFragmentProcessor> createFragmentProcessor(
                                 const SkMatrix& textureMatrix,
                                 const SkRect& constraintRect,
                                 FilterConstraint filterConstraint,

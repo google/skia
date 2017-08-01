@@ -24,16 +24,16 @@
 
 class NormalMapFP : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> mapFP,
+    static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> mapFP,
                                            const SkMatrix& invCTM) {
-        return sk_sp<GrFragmentProcessor>(new NormalMapFP(std::move(mapFP), invCTM));
+        return gr_fp<GrFragmentProcessor>(new NormalMapFP(std::move(mapFP), invCTM));
     }
 
     const char* name() const override { return "NormalMapFP"; }
 
     const SkMatrix& invCTM() const { return fInvCTM; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
+    gr_fp<GrFragmentProcessor> clone() const override {
         return Make(this->childProcessor(0).clone(), fInvCTM);
     }
 
@@ -105,7 +105,7 @@ private:
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLNormalMapFP::GenKey(*this, caps, b);
     }
-    NormalMapFP(sk_sp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
+    NormalMapFP(gr_fp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
             : INHERITED(kNone_OptimizationFlags), fInvCTM(invCTM) {
         this->registerChildProcessor(mapFP);
 
@@ -124,9 +124,9 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-sk_sp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkNormalMapSourceImpl::asFragmentProcessor(
         const SkShaderBase::AsFPArgs& args) const {
-    sk_sp<GrFragmentProcessor> mapFP = as_SB(fMapShader)->asFragmentProcessor(args);
+    gr_fp<GrFragmentProcessor> mapFP = as_SB(fMapShader)->asFragmentProcessor(args);
     if (!mapFP) {
         return nullptr;
     }
