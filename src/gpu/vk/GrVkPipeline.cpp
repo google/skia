@@ -495,7 +495,6 @@ void GrVkPipeline::freeGPUData(const GrVkGpu* gpu) const {
 void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
                                               GrVkCommandBuffer* cmdBuffer,
                                               const GrRenderTarget* renderTarget,
-                                              GrSurfaceOrigin rtOrigin,
                                               SkIRect scissorRect) {
     if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
         scissorRect.setEmpty();
@@ -504,10 +503,10 @@ void GrVkPipeline::SetDynamicScissorRectState(GrVkGpu* gpu,
     VkRect2D scissor;
     scissor.offset.x = scissorRect.fLeft;
     scissor.extent.width = scissorRect.width();
-    if (kTopLeft_GrSurfaceOrigin == rtOrigin) {
+    if (kTopLeft_GrSurfaceOrigin == renderTarget->origin()) {
         scissor.offset.y = scissorRect.fTop;
     } else {
-        SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
+        SkASSERT(kBottomLeft_GrSurfaceOrigin == renderTarget->origin());
         scissor.offset.y = renderTarget->height() - scissorRect.fBottom;
     }
     scissor.extent.height = scissorRect.height();

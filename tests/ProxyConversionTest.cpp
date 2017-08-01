@@ -27,7 +27,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_FBO0(GrResourceProvider* provider,
                                     desc.fConfig, fboInfo);
 
     SkASSERT(kDefault_GrSurfaceOrigin != desc.fOrigin);
-    sk_sp<GrRenderTarget> defaultFBO(provider->wrapBackendRenderTarget(backendRT));
+    sk_sp<GrRenderTarget> defaultFBO(provider->wrapBackendRenderTarget(backendRT, desc.fOrigin));
     SkASSERT(!defaultFBO->asTexture());
 
     return GrSurfaceProxy::MakeWrapped(std::move(defaultFBO), desc.fOrigin);

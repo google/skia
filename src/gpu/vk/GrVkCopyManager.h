@@ -8,7 +8,6 @@
 #ifndef GrVkCopyManager_DEFINED
 #define GrVkCopyManager_DEFINED
 
-#include "GrTypes.h"
 #include "GrVkDescriptorSetManager.h"
 
 #include "vk/GrVkDefines.h"
@@ -28,9 +27,10 @@ public:
     ~GrVkCopyManager();
 
     bool copySurfaceAsDraw(GrVkGpu* gpu,
-                           GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                           GrSurface* src, GrSurfaceOrigin srcOrigin,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+                           GrSurface* dst,
+                           GrSurface* src,
+                           const SkIRect& srcRect,
+                           const SkIPoint& dstPoint);
 
     void destroyResources(GrVkGpu* gpu);
     void abandonResources();

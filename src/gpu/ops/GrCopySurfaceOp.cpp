@@ -87,7 +87,6 @@ void GrCopySurfaceOp::onExecute(GrOpFlushState* state) {
         return;
     }
 
-    state->gpu()->copySurface(fDst.get()->priv().peekSurface(), fDst.get()->origin(),
-                              fSrc.get()->priv().peekSurface(), fSrc.get()->origin(),
-                              fSrcRect, fDstPoint);
+    state->gpu()->copySurface(fDst.get()->priv().peekSurface(),
+                              fSrc.get()->priv().peekSurface(), fSrcRect, fDstPoint);
 }

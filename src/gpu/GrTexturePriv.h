@@ -57,7 +57,7 @@ public:
 
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
     static void ComputeScratchKey(GrPixelConfig config, int width, int height,
-                                  bool isRenderTarget, int sampleCnt,
+                                  GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
                                   bool isMipMapped, GrScratchKey* key);
 
 

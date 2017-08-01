@@ -63,6 +63,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, rtProxy->uniqueID().asUInt() != rt->uniqueID().asUInt());
     }
 
+    REPORTER_ASSERT(reporter, rt->origin() == rtProxy->origin());
     if (SkBackingFit::kExact == fit) {
         REPORTER_ASSERT(reporter, rt->width() == rtProxy->width());
         REPORTER_ASSERT(reporter, rt->height() == rtProxy->height());
@@ -97,6 +98,7 @@ static void check_texture(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, texProxy->uniqueID().asUInt() != tex->uniqueID().asUInt());
     }
 
+    REPORTER_ASSERT(reporter, tex->origin() == texProxy->origin());
     if (SkBackingFit::kExact == fit) {
         REPORTER_ASSERT(reporter, tex->width() == texProxy->width());
         REPORTER_ASSERT(reporter, tex->height() == texProxy->height());
@@ -232,7 +234,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                                                         config, fboInfo);
 
                         sk_sp<GrRenderTarget> defaultFBO(
-                            provider->wrapBackendRenderTarget(backendRT));
+                            provider->wrapBackendRenderTarget(backendRT, origin));
 
                         sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(defaultFBO,
                                                                                  origin));

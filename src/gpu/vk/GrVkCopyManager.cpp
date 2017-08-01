@@ -143,9 +143,10 @@ bool GrVkCopyManager::createCopyProgram(GrVkGpu* gpu) {
 }
 
 bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
-                                        GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                                        GrSurface* src, GrSurfaceOrigin srcOrigin,
-                                        const SkIRect& srcRect, const SkIPoint& dstPoint) {
+                                        GrSurface* dst,
+                                        GrSurface* src,
+                                        const SkIRect& srcRect,
+                                        const SkIPoint& dstPoint) {
     // None of our copy methods can handle a swizzle. TODO: Make copySurfaceAsDraw handle the
     // swizzle.
     if (gpu->caps()->shaderCaps()->configOutputSwizzle(src->config()) !=
@@ -203,7 +204,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     float dx1 = 2.f * (dstPoint.fX + w) / dw - 1.f;
     float dy0 = 2.f * dstPoint.fY / dh - 1.f;
     float dy1 = 2.f * (dstPoint.fY + h) / dh - 1.f;
-    if (kBottomLeft_GrSurfaceOrigin == dstOrigin) {
+    if (kBottomLeft_GrSurfaceOrigin == dst->origin()) {
         dy0 = -dy0;
         dy1 = -dy1;
     }
@@ -214,7 +215,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     float sy0 = (float)srcRect.fTop;
     float sy1 = (float)(srcRect.fTop + h);
     int sh = src->height();
-    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+    if (kBottomLeft_GrSurfaceOrigin == src->origin()) {
         sy0 = sh - sy0;
         sy1 = sh - sy1;
     }
@@ -292,7 +293,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(srcTex->asRenderTarget());
     if (texRT) {
-        gpu->onResolveRenderTarget(texRT, srcOrigin);
+        gpu->onResolveRenderTarget(texRT);
     }
 
     GrVkPrimaryCommandBuffer* cmdBuffer = gpu->currentCommandBuffer();

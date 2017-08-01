@@ -87,6 +87,7 @@ public:
      * @return GrTexture object or NULL on failure.
      */
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
+                                        GrSurfaceOrigin origin,
                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
@@ -95,6 +96,7 @@ public:
      * to the texture.
      */
     sk_sp<GrTexture> wrapRenderableBackendTexture(const GrBackendTexture& tex,
+                                                  GrSurfaceOrigin origin,
                                                   int sampleCnt,
                                                   GrWrapOwnership = kBorrow_GrWrapOwnership);
 
@@ -107,7 +109,7 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
 
     static const uint32_t kMinScratchTextureSize;
 
@@ -210,6 +212,7 @@ public:
       * @return GrRenderTarget object or NULL on failure.
       */
      sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                            GrSurfaceOrigin origin,
                                                             int sampleCnt);
 
     /**
