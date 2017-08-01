@@ -286,8 +286,6 @@ private:
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
-    void onFinishFlush(bool insertedSemaphores) override;
-
     bool hasExtension(const char* ext) const { return fGLContext->hasExtension(ext); }
 
     bool copySurfaceAsDraw(GrSurface* dst,

@@ -7,7 +7,6 @@
 
 #include "GrDrawingManager.h"
 
-#include "GrBackendSemaphore.h"
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrOnFlushResourceProvider.h"
@@ -84,14 +83,11 @@ gr_instanced::OpAllocator* GrDrawingManager::instancingAllocator() {
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
-GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
-                                                      GrResourceCache::FlushType type,
-                                                      int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[]) {
+void GrDrawingManager::internalFlush(GrSurfaceProxy*, GrResourceCache::FlushType type) {
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "internalFlush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
-        return GrSemaphoresSubmitted::kNo;
+        return;
     }
     fFlushing = true;
     bool flushed = false;
@@ -194,8 +190,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     SkASSERT(fFlushState.nextDrawToken() == fFlushState.nextTokenToFlush());
 
-    GrSemaphoresSubmitted result = fContext->getGpu()->finishFlush(numSemaphores,
-                                                                   backendSemaphores);
+    fContext->getGpu()->finishFlush();
 
     fFlushState.reset();
     // We always have to notify the cache when it requested a flush so it can reset its state.
@@ -206,24 +201,20 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
         onFlushCBObject->postFlush();
     }
     fFlushing = false;
-
-    return result;
 }
 
-GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
-        GrSurfaceProxy* proxy, int numSemaphores, GrBackendSemaphore backendSemaphores[]) {
+void GrDrawingManager::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     if (this->wasAbandoned()) {
-        return GrSemaphoresSubmitted::kNo;
+        return;
     }
     SkASSERT(proxy);
 
-    GrSemaphoresSubmitted result;
-    if (proxy->priv().hasPendingIO() || numSemaphores) {
-        result = this->flush(proxy, numSemaphores, backendSemaphores);
+    if (proxy->priv().hasPendingIO()) {
+        this->flush(proxy);
     }
 
     if (!proxy->instantiate(fContext->resourceProvider())) {
-        return result;
+        return;
     }
 
     GrSurface* surface = proxy->priv().peekSurface();
@@ -231,7 +222,6 @@ GrSemaphoresSubmitted GrDrawingManager::prepareSurfaceForExternalIO(
     if (fContext->getGpu() && surface->asRenderTarget()) {
         fContext->getGpu()->resolveRenderTarget(surface->asRenderTarget());
     }
-    return result;
 }
 
 void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

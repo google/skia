@@ -160,7 +160,7 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
 
     if (gpu->vkCaps().newCBOnPipelineChange()) {
         // We bind a new pipeline here for the copy so we must start a new command buffer.
-        gpu->finishFlush(0, nullptr);
+        gpu->finishFlush();
     }
 
     GrVkRenderTarget* rt = static_cast<GrVkRenderTarget*>(dst->asRenderTarget());

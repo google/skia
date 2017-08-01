@@ -29,7 +29,6 @@ private:
 protected:
     explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
 
-    friend class GrGpu; // setBackendSemaphore
     friend class GrRenderTargetContext; // setBackendSemaphore
     friend class GrResourceProvider; // resetGpu
 
