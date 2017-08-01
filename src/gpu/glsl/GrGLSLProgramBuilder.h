@@ -106,7 +106,7 @@ public:
 
     GrGLSLPrimitiveProcessor* fGeometryProcessor;
     GrGLSLXferProcessor* fXferProcessor;
-    GrGLSLFragProcs fFragmentProcessors;
+    GrGLSLFragProcs fFragmentProcessors1;
 
 protected:
     explicit GrGLSLProgramBuilder(const GrPipeline&,

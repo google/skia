@@ -65,7 +65,7 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     this->emitAndInstallXferProc(inputColor, inputCoverage);
     this->emitFSOutputSwizzle(this->pipeline().getXferProcessor().hasSecondaryOutput());
 
-    return this->checkSamplerCounts() && this->checkImageStorageCounts();
+    return false; //this->checkSamplerCounts() && this->checkImageStorageCounts();
 }
 
 void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& proc,
@@ -194,7 +194,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(const GrFragmentProcessor&
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
-    fFragmentProcessors.push_back(fragProc);
+    fFragmentProcessors1.push_back(fragProc);
 
     fFS.codeAppend("}");
     return output;
@@ -473,8 +473,8 @@ void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
 }
 
 void GrGLSLProgramBuilder::cleanupFragmentProcessors() {
-    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        delete fFragmentProcessors[i];
+    for (int i = 0; i < fFragmentProcessors1.count(); ++i) {
+        delete fFragmentProcessors1[i];
     }
 }
 

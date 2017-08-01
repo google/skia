@@ -277,5 +277,5 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            fVaryingHandler.fPathProcVaryingInfos,
                            fGeometryProcessor,
                            fXferProcessor,
-                           fFragmentProcessors);
+                           fFragmentProcessors1);
 }
