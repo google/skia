@@ -76,9 +76,7 @@ sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData
     int texIdx = testData->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                                : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {
-            SkShader::kClamp_TileMode,
-            SkShader::kRepeat_TileMode,
-            SkShader::kMirror_TileMode,
+            SkShader::kClamp_TileMode, SkShader::kRepeat_TileMode, SkShader::kMirror_TileMode,
     };
     SkShader::TileMode tileModes[] = {
             kTileModes[testData->fRandom->nextULessThan(SK_ARRAY_COUNT(kTileModes))],

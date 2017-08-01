@@ -180,7 +180,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
     }
     this->resolveProgramResourceLocations(programID);
 
-    this->cleanupShaders(shadersToDelete);
+    this->cleanupShaders(programID, shadersToDelete);
 
     return this->createProgram(programID);
 }
@@ -256,11 +256,12 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID) {
 
 void GrGLProgramBuilder::cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs) {
     GL_CALL(DeleteProgram(programID));
-    this->cleanupShaders(shaderIDs);
+    this->cleanupShaders(programID, shaderIDs);
     this->cleanupFragmentProcessors();
 }
-void GrGLProgramBuilder::cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs) {
+void GrGLProgramBuilder::cleanupShaders(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs) {
     for (int i = 0; i < shaderIDs.count(); ++i) {
+      GL_CALL(DetachShader(programID, shaderIDs[i]));
       GL_CALL(DeleteShader(shaderIDs[i]));
     }
 }

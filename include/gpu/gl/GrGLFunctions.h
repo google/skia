@@ -18,6 +18,7 @@ extern "C" {
 
 typedef GrGLvoid (* GrGLActiveTextureProc)(GrGLenum texture);
 typedef GrGLvoid (* GrGLAttachShaderProc)(GrGLuint program, GrGLuint shader);
+typedef GrGLvoid (* GrGLDetachShaderProc)(GrGLuint program, GrGLuint shader);
 typedef GrGLvoid (* GrGLBeginQueryProc)(GrGLenum target, GrGLuint id);
 typedef GrGLvoid (* GrGLBindAttribLocationProc)(GrGLuint program, GrGLuint index, const char* name);
 typedef GrGLvoid (* GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);

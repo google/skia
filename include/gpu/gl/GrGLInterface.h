@@ -104,6 +104,7 @@ public:
     struct Functions {
         GrGLFunction<GrGLActiveTextureProc> fActiveTexture;
         GrGLFunction<GrGLAttachShaderProc> fAttachShader;
+        GrGLFunction<GrGLDetachShaderProc> fDetachShader;
         GrGLFunction<GrGLBeginQueryProc> fBeginQuery;
         GrGLFunction<GrGLBindAttribLocationProc> fBindAttribLocation;
         GrGLFunction<GrGLBindBufferProc> fBindBuffer;

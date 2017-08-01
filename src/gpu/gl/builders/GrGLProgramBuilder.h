@@ -58,7 +58,7 @@ private:
     bool checkLinkStatus(GrGLuint programID);
     void resolveProgramResourceLocations(GrGLuint programID);
     void cleanupProgram(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
-    void cleanupShaders(const SkTDArray<GrGLuint>& shaderIDs);
+    void cleanupShaders(GrGLuint programID, const SkTDArray<GrGLuint>& shaderIDs);
 
     // Subclasses create different programs
     GrGLProgram* createProgram(GrGLuint programID);

@@ -66,6 +66,7 @@ bool GrGLInterface::validate() const {
     // functions that are always required
     if (!fFunctions.fActiveTexture ||
         !fFunctions.fAttachShader ||
+        !fFunctions.fDetachShader ||
         !fFunctions.fBindAttribLocation ||
         !fFunctions.fBindBuffer ||
         !fFunctions.fBindTexture ||

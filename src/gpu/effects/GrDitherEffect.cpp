@@ -27,12 +27,16 @@ public:
                 "float value;\nfloat range;\n@switch (%d) {\n    case 0:\n        range = "
                 "0.0039215686274509803;\n        break;\n    case 1:\n        range = "
                 "0.015873015873015872;\n        break;\n    default:\n        range = "
-                "0.0083333333333333332;\n        break;\n}\n@if (sk_Caps.integerSupport) {\n    "
-                "int x = int(sk_FragCoord.x);\n    int y = int(sk_FragCoord.y);\n    uint m = "
+                "0.066666666666666666;\n        break;\n}\n@if (sk_Caps.integerSupport) {\n    int "
+                "x = int(sk_FragCoord.x);\n    int y = int(sk_FragCoord.y);\n    uint m = "
                 "uint((((((y & 1) << 5 | (x & 1) << 4) | (y & 2) << 2) | (x & 2) << 1) | (y & 4) "
                 ">> 1) | (x & 4) >> 2);\n    value = float(m) / 64.0 - 0.4921875;\n} else {\n    "
-                "value = fract(sin(dot(sk_FragCoord.xy, vec2(12.989800000000001, "
-                "78.233000000000004))) * 43758.545299999998) - 0.5;\n}\n%s = vec4(clamp(%s.xyz + "
+                "vec2 first_bits = mod(floor(sk_FragCoord.xy), vec2(2.0, 2.0));\n    vec2 "
+                "second_bits = mod(floor(sk_FragCoord.xy * vec2(0.5, 0.5)), vec2(2.0, 2.0));\n    "
+                "vec2 third_bits = mod(floor(sk_FragCoord.xy * vec2(0.25, 0.25)), vec2(2.0, "
+                "2.0));\n    float m = ((((first_bits.y * 32.0 + first_bits.x * 16.0) + "
+                "second_bits.y * 8.0) + second_bits.x * 4.0) + third_bits.y * 2.0) + "
+                "third_bits.x;\n    value = m / 64.0 - 0.4921875;\n}\n%s = vec4(clamp(%s.xyz + "
                 "value * range, 0.0, %s.w), %s.w);\n",
                 _outer.rangeType(), args.fOutputColor,
                 args.fInputColor ? args.fInputColor : "vec4(1)",
