@@ -22,6 +22,7 @@
 #include "SkTInternalLList.h"
 
 class GrBlobRegenHelper;
+class GrBuffer;
 struct GrDistanceFieldAdjustTable;
 class GrMemoryPool;
 class SkDrawFilter;
@@ -268,6 +269,10 @@ public:
         }
     }
 
+    sk_sp<const GrBuffer>& vertexBuffer(int run, int subRun) { 
+        return fRuns[run].fSubRunInfo[subRun].fVertexBuffer;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, int run, int subRun,
@@ -441,6 +446,9 @@ private:
                 fFlags = antiAliased ? fFlags | kAntiAliased_Flag : fFlags & ~kAntiAliased_Flag;
             }
             bool isAntiAliased() const { return SkToBool(fFlags & kAntiAliased_Flag); }
+
+            // stored vertex buffer
+            sk_sp<const GrBuffer> fVertexBuffer;
 
         private:
             enum Flag {

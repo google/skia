@@ -110,36 +110,51 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
     SkASSERT(vertexStride == GrAtlasTextBlob::GetVertexStride(maskFormat));
 
     int glyphCount = this->numGlyphs();
-    const GrBuffer* vertexBuffer;
+    if (fGeoData[0].fBlob->vertexBuffer(fGeoData[0].fRun, fGeoData[0].fSubRun)) {
+        flushInfo.fVertexBuffer = fGeoData[0].fBlob->vertexBuffer(fGeoData[0].fRun,
+                                                                  fGeoData[0].fSubRun);
+        flushInfo.fGlyphsToFlush = glyphCount;
+        flushInfo.fVertexOffset = 0;
+    } else {
+        size_t size = vertexStride * glyphCount * kVerticesPerGlyph;
+        GrBuffer* vertexBuffer = target->resourceProvider()->createBuffer(size,
+                                                                          kVertex_GrBufferType,
+                                                                          kStatic_GrAccessPattern,
+                                                                          0);
+        void* vertices = vertexBuffer->map();
+        flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
+        if (!vertices || !flushInfo.fVertexBuffer) {
+            SkDebugf("Could not allocate vertices\n");
+            return;
+        }
+        flushInfo.fVertexOffset = 0;
 
-    void* vertices = target->makeVertexSpace(
-            vertexStride, glyphCount * kVerticesPerGlyph, &vertexBuffer, &flushInfo.fVertexOffset);
-    flushInfo.fVertexBuffer.reset(SkRef(vertexBuffer));
+        fGeoData[0].fBlob->vertexBuffer(fGeoData[0].fRun,
+                                        fGeoData[0].fSubRun).reset(SkRef(vertexBuffer));
+
+        unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
+
+        GrBlobRegenHelper helper(this, target, &flushInfo);
+        SkAutoGlyphCache glyphCache;
+        for (int i = 0; i < fGeoCount; i++) {
+            const Geometry& args = fGeoData[i];
+            Blob* blob = args.fBlob;
+            size_t byteCount;
+            void* blobVertices;
+            int subRunGlyphCount;
+            blob->regenInOp(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
+                            vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
+                            &blobVertices, &byteCount, &subRunGlyphCount);
+
+            // now copy all vertices
+            memcpy(currVertex, blobVertices, byteCount);
+
+            currVertex += byteCount;
+        }
+
+        vertexBuffer->unmap();
+    }
     flushInfo.fIndexBuffer.reset(target->resourceProvider()->refQuadIndexBuffer());
-    if (!vertices || !flushInfo.fVertexBuffer) {
-        SkDebugf("Could not allocate vertices\n");
-        return;
-    }
-
-    unsigned char* currVertex = reinterpret_cast<unsigned char*>(vertices);
-
-    GrBlobRegenHelper helper(this, target, &flushInfo);
-    SkAutoGlyphCache glyphCache;
-    for (int i = 0; i < fGeoCount; i++) {
-        const Geometry& args = fGeoData[i];
-        Blob* blob = args.fBlob;
-        size_t byteCount;
-        void* blobVertices;
-        int subRunGlyphCount;
-        blob->regenInOp(target, fFontCache, &helper, args.fRun, args.fSubRun, &glyphCache,
-                        vertexStride, args.fViewMatrix, args.fX, args.fY, args.fColor,
-                        &blobVertices, &byteCount, &subRunGlyphCount);
-
-        // now copy all vertices
-        memcpy(currVertex, blobVertices, byteCount);
-
-        currVertex += byteCount;
-    }
 
     this->flush(target, &flushInfo);
 }
@@ -157,6 +172,9 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
 }
 
 bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+    // never combine
+    return false;
+
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (fProcessors != that->fProcessors) {
         return false;

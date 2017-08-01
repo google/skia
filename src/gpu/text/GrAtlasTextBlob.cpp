@@ -186,9 +186,10 @@ bool GrAtlasTextBlob::mustRegenerate(const GrTextUtils::Paint& paint,
         return true;
     }
 
-    if (fInitialViewMatrix.hasPerspective() && !fInitialViewMatrix.cheapEqualTo(viewMatrix)) {
-        return true;
-    }
+//    if (fInitialViewMatrix.hasPerspective() && 
+//        (!this->hasDistanceField() || !fInitialViewMatrix.cheapEqualTo(viewMatrix))) {
+//        return true;
+//    }
 
     // We only cache one masked version
     if (fKey.fHasBlur &&
