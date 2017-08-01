@@ -19,8 +19,15 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
     const auto& nameDef = child.fTokens.front();
     string fullName;
     if (nullptr != nameDef.fContentEnd) {
-        string enumName(nameDef.fContentStart,
-                (int) (nameDef.fContentEnd - nameDef.fContentStart));
+        TextParser enumClassCheck(&nameDef);
+        const char* start = enumClassCheck.fStart;
+        size_t len = (size_t) (enumClassCheck.fEnd - start);
+        if (enumClassCheck.skipExact("class ")) {
+            start = enumClassCheck.fChar;
+            const char* end = enumClassCheck.anyOf(" \n;{");
+            len = (size_t) (end - start);
+        }
+        string enumName(start, len);
         fullName = root->fName + "::" + enumName;
         enumDef = root->find(enumName);
         if (!enumDef) {
@@ -88,7 +95,11 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
         this->lfcr();
         this->writeCommentTrailer();
     }
-    bodyEnd = child.fChildren[0]->fContentStart;
+    Definition* braceHolder = child.fChildren[0];
+    if (KeyWord::kClass == braceHolder->fKeyWord) {
+        braceHolder = braceHolder->fChildren[0];
+    }
+    bodyEnd = braceHolder->fContentStart;
     SkASSERT('{' == bodyEnd[0]);
     ++bodyEnd;
     this->lfcr();
@@ -251,6 +262,9 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
     const char* lastEnd = nullptr;
     SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
     auto brace = child.fChildren[0];
+    if (KeyWord::kClass == brace->fKeyWord) {
+        brace = brace->fChildren[0];
+    }
     SkASSERT(Bracket::kBrace == brace->fBracket);
     for (auto& token : brace->fTokens) {
         if (Definition::Type::kBracket == token.fType) {
@@ -756,7 +770,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                     }
                     break;
                 case KeyWord::kEnum: {
-                    this->fInEnum = true;
+                    fInEnum = true;
                     this->enumHeaderOut(root, child);
                     this->enumSizeItems(child);
                 } break;
@@ -802,7 +816,11 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 fContinuation = nullptr;
                 fDeferComment = nullptr;
             } else {
-                if (!this->populate(&child, root)) {
+                if (fInEnum && KeyWord::kClass == child.fChildren[0]->fKeyWord) {
+                    if (!this->populate(child.fChildren[0], root)) {
+                        return false;
+                    }
+                } else if (!this->populate(&child, root)) {
                     return false;
                 }
             }
