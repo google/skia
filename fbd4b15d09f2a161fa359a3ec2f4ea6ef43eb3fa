@@ -16,6 +16,24 @@
       "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7022e0d1_9e7612cf",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-01T13:57:36Z",
+      "side": 1,
+      "message": "At the moment these values are baked into the shader, so I\u0027m not aware of any way to animate without rebuilding the SkShader.\n\n[...]\n\nOh, I think I get it - the GL shaders are not keyed off the SkShader itself, so rebuiling the latter doesn\u0027t necessarily invalidate the former.  Awesome!\n\nIs there a perf implication to using uniforms rather than constants?\n\nWould this idea apply to the other params also (cx, cy, etc.)?  Should we look at converting all gradients/params to uniforms?  If so, I can take a stab in follow-ups.",
+      "parentUuid": "6fa11b94_5da17cd2",
+      "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
