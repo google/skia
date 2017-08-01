@@ -66,7 +66,7 @@ private:
  * and "45 degree" device-space bounds (| 1 -1 | * devCoords).
  *                                      | 1  1 |
  */
-class GrCCPRCoverageOpsBuilder::AccumulatingViewMatrix {
+class AccumulatingViewMatrix {
 public:
     AccumulatingViewMatrix(const SkMatrix& m, const SkPoint& initialPoint);
 
@@ -158,6 +158,59 @@ bool GrCCPRCoverageOpsBuilder::init(GrOnFlushResourceProvider* onFlushRP,
     return true;
 }
 
+using MaxBufferItems = GrCCPRCoverageOpsBuilder::MaxBufferItems;
+
+void MaxBufferItems::countPathItems(GrCCPRCoverageOpsBuilder::ScissorMode scissorMode,
+                                    const SkPath& path) {
+    MaxPrimitives& maxPrimitives = fMaxPrimitives[(int)scissorMode];
+    int currFanPts = 0;
+
+    for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+            case SkPath::kClose_Verb:
+                fMaxFanPoints += currFanPts;
+                maxPrimitives.fMaxTriangles += SkTMax(0, currFanPts - 2);
+                currFanPts = SkPath::kMove_Verb == verb ? 1 : 0;
+                continue;
+            case SkPath::kLine_Verb:
+                SkASSERT(currFanPts > 0);
+                ++currFanPts;
+                continue;
+            case SkPath::kQuad_Verb:
+                SkASSERT(currFanPts > 0);
+                ++currFanPts;
+                ++fMaxControlPoints;
+                ++maxPrimitives.fMaxQuadratics;
+                continue;
+            case SkPath::kCubic_Verb:
+                SkASSERT(currFanPts > 0);
+                // Over-allocate for the worst case when the cubic is chopped into 3 segments.
+                enum { kMaxSegments = 3 };
+                currFanPts += kMaxSegments;
+                // Each cubic segment has two control points.
+                fMaxControlPoints += kMaxSegments * 2;
+                // Each cubic segment also emits two root t,s values as "control points".
+                fMaxControlPoints += kMaxSegments * 2;
+                maxPrimitives.fMaxCubics += kMaxSegments;
+                // The cubic may also turn out to be a quadratic. While we over-allocate by a fair
+                // amount, this is still a relatively small amount of space.
+                ++maxPrimitives.fMaxQuadratics;
+                continue;
+            case SkPath::kConic_Verb:
+                SkASSERT(currFanPts > 0);
+                SkFAIL("Conics are not supported.");
+            default:
+                SkFAIL("Unexpected path verb.");
+        }
+    }
+
+    fMaxFanPoints += currFanPts;
+    maxPrimitives.fMaxTriangles += SkTMax(0, currFanPts - 2);
+
+    ++fMaxPaths;
+}
+
 void GrCCPRCoverageOpsBuilder::parsePath(ScissorMode scissorMode, const SkMatrix& viewMatrix,
                                          const SkPath& path, SkRect* devBounds,
                                          SkRect* devBounds45) {
@@ -179,21 +232,22 @@ void GrCCPRCoverageOpsBuilder::parsePath(ScissorMode scissorMode, const SkMatrix
     for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                this->startContour(m, pts[ptsIdx++]);
+                this->startContour(m.transform(pts[ptsIdx++]));
                 continue;
             case SkPath::kClose_Verb:
                 this->closeContour();
                 continue;
             case SkPath::kLine_Verb:
-                this->fanTo(m, pts[ptsIdx]);
+                this->fanTo(m.transform(pts[ptsIdx]));
                 break;
             case SkPath::kQuad_Verb:
                 SkASSERT(ptsIdx >= 1); // SkPath should have inserted an implicit moveTo if needed.
-                this->quadraticTo(m, &pts[ptsIdx - 1]);
+                this->quadraticTo(m.transform(pts[ptsIdx]), m.transform(pts[ptsIdx + 1]));
                 break;
             case SkPath::kCubic_Verb:
                 SkASSERT(ptsIdx >= 1); // SkPath should have inserted an implicit moveTo if needed.
-                this->cubicTo(m, &pts[ptsIdx - 1]);
+                this->cubicTo(m.transform(pts[ptsIdx]), m.transform(pts[ptsIdx + 1]),
+                              m.transform(pts[ptsIdx + 2]));
                 break;
             case SkPath::kConic_Verb:
                 SkFAIL("Conics are not supported.");
@@ -235,27 +289,26 @@ void GrCCPRCoverageOpsBuilder::saveParsedPath(const SkIRect& clippedDevIBounds,
     fInstanceIndices[(int)fCurrScissorMode] = fCurrPathIndices;
 }
 
-void GrCCPRCoverageOpsBuilder::startContour(AccumulatingViewMatrix& m, const SkPoint& anchorPoint) {
+void GrCCPRCoverageOpsBuilder::startContour(const SkPoint& anchorPoint) {
     this->closeContour();
-    fCurrPathSpaceAnchorPoint = anchorPoint;
-    fPointsData[fFanPtsIdx++] = m.transform(anchorPoint);
+    fPointsData[fFanPtsIdx++] = fCurrAnchorPoint = fCurrFanPoint = anchorPoint;
     SkASSERT(fCurrContourStartIdx == fFanPtsIdx - 1);
 }
 
-void GrCCPRCoverageOpsBuilder::fanTo(AccumulatingViewMatrix& m, const SkPoint& pt) {
+void GrCCPRCoverageOpsBuilder::fanTo(const SkPoint& pt) {
     SkASSERT(fCurrContourStartIdx < fFanPtsIdx);
-    if (pt == fCurrPathSpaceAnchorPoint) {
-        this->startContour(m, pt);
+    if (pt == fCurrAnchorPoint) {
+        this->startContour(pt);
         return;
     }
-    fPointsData[fFanPtsIdx++] = m.transform(pt);
+    fPointsData[fFanPtsIdx++] = fCurrFanPoint = pt;
 }
 
-void GrCCPRCoverageOpsBuilder::quadraticTo(AccumulatingViewMatrix& m, const SkPoint P[3]) {
+void GrCCPRCoverageOpsBuilder::quadraticTo(SkPoint controlPt, SkPoint endPt) {
     SkASSERT(fCurrPathIndices.fQuadratics < fBaseInstances[(int)fCurrScissorMode].fSerpentines);
 
-    this->fanTo(m, P[2]);
-    fPointsData[fControlPtsIdx++] = m.transform(P[1]);
+    this->fanTo(endPt);
+    fPointsData[fControlPtsIdx++] = controlPt;
 
     fInstanceData[fCurrPathIndices.fQuadratics++].fQuadraticData = {
         fControlPtsIdx - 1,
@@ -263,12 +316,13 @@ void GrCCPRCoverageOpsBuilder::quadraticTo(AccumulatingViewMatrix& m, const SkPo
     };
 }
 
-void GrCCPRCoverageOpsBuilder::cubicTo(AccumulatingViewMatrix& m, const SkPoint P[4]) {
+void GrCCPRCoverageOpsBuilder::cubicTo(SkPoint controlPt1, SkPoint controlPt2, SkPoint endPt) {
+    SkPoint P[4] = {fCurrFanPoint, controlPt1, controlPt2, endPt};
     double t[2], s[2];
     SkCubicType type = SkClassifyCubic(P, t, s);
 
     if (SkCubicType::kLineOrPoint == type) {
-        this->fanTo(m, P[3]);
+        this->fanTo(P[3]);
         return;
     }
 
@@ -278,8 +332,7 @@ void GrCCPRCoverageOpsBuilder::cubicTo(AccumulatingViewMatrix& m, const SkPoint 
         SkScalar x2 = P[2].y() - P[3].y(),  y2 = P[3].x() - P[2].x(),
                  k2 = x2 * P[3].x() + y2 * P[3].y();
         SkScalar rdet = 1 / (x1*y2 - y1*x2);
-        SkPoint Q[3] = {P[0], {(y2*k1 - y1*k2) * rdet, (x1*k2 - x2*k1) * rdet}, P[3]};
-        this->quadraticTo(m, Q);
+        this->quadraticTo({(y2*k1 - y1*k2) * rdet, (x1*k2 - x2*k1) * rdet}, P[3]);
         return;
     }
 
@@ -310,7 +363,7 @@ void GrCCPRCoverageOpsBuilder::cubicTo(AccumulatingViewMatrix& m, const SkPoint 
         }
 
         // (This might put ts0/ts1 out of order, but it doesn't matter anymore at this point.)
-        this->emitCubicSegment(m, type, chopped.first(),
+        this->emitCubicSegment(type, chopped.first(),
                                to_skpoint(t[1 - x], s[1 - x] * chopT), to_skpoint(1, 1));
         t[x] = 0;
         s[x] = 1;
@@ -322,17 +375,16 @@ void GrCCPRCoverageOpsBuilder::cubicTo(AccumulatingViewMatrix& m, const SkPoint 
         C = chopped.second();
     }
 
-    this->emitCubicSegment(m, type, C, to_skpoint(t[0], s[0]), to_skpoint(t[1], s[1]));
+    this->emitCubicSegment(type, C, to_skpoint(t[0], s[0]), to_skpoint(t[1], s[1]));
 }
 
-void GrCCPRCoverageOpsBuilder::emitCubicSegment(AccumulatingViewMatrix& m,
-                                                SkCubicType type, const SkDCubic& C,
+void GrCCPRCoverageOpsBuilder::emitCubicSegment(SkCubicType type, const SkDCubic& C,
                                                 const SkPoint& ts0, const SkPoint& ts1) {
     SkASSERT(fCurrPathIndices.fSerpentines < fCurrPathIndices.fLoops);
 
-    fPointsData[fControlPtsIdx++] = m.transform(to_skpoint(C[1]));
-    fPointsData[fControlPtsIdx++] = m.transform(to_skpoint(C[2]));
-    this->fanTo(m, to_skpoint(C[3]));
+    fPointsData[fControlPtsIdx++] = to_skpoint(C[1]);
+    fPointsData[fControlPtsIdx++] = to_skpoint(C[2]);
+    this->fanTo(to_skpoint(C[3]));
 
     // Also emit the cubic's root t,s values as "control points".
     fPointsData[fControlPtsIdx++] = ts0;
@@ -419,60 +471,6 @@ void GrCCPRCoverageOpsBuilder::validate() {
 }
 
 #endif
-
-using MaxBufferItems = GrCCPRCoverageOpsBuilder::MaxBufferItems;
-
-void MaxBufferItems::countPathItems(GrCCPRCoverageOpsBuilder::ScissorMode scissorMode,
-                                    const SkPath& path) {
-    MaxPrimitives& maxPrimitives = fMaxPrimitives[(int)scissorMode];
-    int currFanPts = 0;
-
-    for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
-        switch (verb) {
-        case SkPath::kMove_Verb:
-        case SkPath::kClose_Verb:
-            fMaxFanPoints += currFanPts;
-            maxPrimitives.fMaxTriangles += SkTMax(0, currFanPts - 2);
-            currFanPts = SkPath::kMove_Verb == verb ? 1 : 0;
-            continue;
-        case SkPath::kLine_Verb:
-            SkASSERT(currFanPts > 0);
-            ++currFanPts;
-            continue;
-        case SkPath::kQuad_Verb:
-            SkASSERT(currFanPts > 0);
-            ++currFanPts;
-            ++fMaxControlPoints;
-            ++maxPrimitives.fMaxQuadratics;
-            continue;
-        case SkPath::kCubic_Verb: {
-            SkASSERT(currFanPts > 0);
-            // Over-allocate for the worst case when the cubic is chopped into 3 segments.
-            static constexpr int kMaxSegments = 3;
-            currFanPts += kMaxSegments;
-            // Each cubic segment has two control points.
-            fMaxControlPoints += kMaxSegments * 2;
-            // Each cubic segment also emits two root t,s values as "control points".
-            fMaxControlPoints += kMaxSegments * 2;
-            maxPrimitives.fMaxCubics += kMaxSegments;
-            // The cubic may also turn out to be a quadratic. While we over-allocate by a fair
-            // amount, this is still a relatively small amount of space.
-            ++maxPrimitives.fMaxQuadratics;
-            continue;
-        }
-        case SkPath::kConic_Verb:
-            SkASSERT(currFanPts > 0);
-            SkFAIL("Conics are not supported.");
-        default:
-            SkFAIL("Unexpected path verb.");
-        }
-    }
-
-    fMaxFanPoints += currFanPts;
-    maxPrimitives.fMaxTriangles += SkTMax(0, currFanPts - 2);
-
-    ++fMaxPaths;
-}
 
 using CoverageOp = GrCCPRCoverageOpsBuilder::CoverageOp;
 
@@ -596,8 +594,6 @@ inline PrimitiveTallies PrimitiveTallies::operator-(const PrimitiveTallies& b) c
 inline int PrimitiveTallies::sum() const {
     return fTriangles + fQuadratics + fSerpentines + fLoops;
 }
-
-using AccumulatingViewMatrix = GrCCPRCoverageOpsBuilder::AccumulatingViewMatrix;
 
 inline AccumulatingViewMatrix::AccumulatingViewMatrix(const SkMatrix& m,
                                                       const SkPoint& initialPoint) {

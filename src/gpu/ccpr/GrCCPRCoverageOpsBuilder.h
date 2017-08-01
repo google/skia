@@ -95,7 +95,6 @@ public:
     std::unique_ptr<GrDrawOp> SK_WARN_UNUSED_RESULT finalize(SkISize drawBounds);
 
     class CoverageOp;
-    class AccumulatingViewMatrix;
 
 private:
     using PrimitiveInstance = GrCCPRCoverageProcessor::PrimitiveInstance;
@@ -116,12 +115,11 @@ private:
         SkIRect            fScissor;
     };
 
-    void startContour(AccumulatingViewMatrix&, const SkPoint& anchorPoint);
-    void fanTo(AccumulatingViewMatrix&, const SkPoint& pt);
-    void quadraticTo(AccumulatingViewMatrix&, const SkPoint P[3]);
-    void cubicTo(AccumulatingViewMatrix&, const SkPoint P[4]);
-    void emitCubicSegment(AccumulatingViewMatrix&, SkCubicType, const SkDCubic&,
-                          const SkPoint& ts0, const SkPoint& ts1);
+    void startContour(const SkPoint& anchorPoint);
+    void fanTo(const SkPoint& pt);
+    void quadraticTo(SkPoint controlPt, SkPoint endPt);
+    void cubicTo(SkPoint controlPt1, SkPoint controlPt2, SkPoint endPt);
+    void emitCubicSegment(SkCubicType, const SkDCubic&, const SkPoint& ts0, const SkPoint& ts1);
     void closeContour();
     void emitHierarchicalFan(int32_t indices[], int count);
     SkDEBUGCODE(void validate();)
@@ -129,7 +127,8 @@ private:
     ScissorMode              fCurrScissorMode;
     PrimitiveTallies         fCurrPathIndices;
     int32_t                  fCurrContourStartIdx;
-    SkPoint                  fCurrPathSpaceAnchorPoint;
+    SkPoint                  fCurrAnchorPoint;
+    SkPoint                  fCurrFanPoint;
 
     sk_sp<GrBuffer>          fPointsBuffer;
     SkPoint*                 fPointsData;
