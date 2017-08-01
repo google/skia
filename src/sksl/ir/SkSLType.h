@@ -52,47 +52,37 @@ public:
         kOther_Kind
     };
 
-    enum NumberKind {
-        kFloat_NumberKind,
-        kSigned_NumberKind,
-        kUnsigned_NumberKind,
-        kNonnumeric_NumberKind
-    };
-
     // Create an "other" (special) type with the given name. These types cannot be directly
     // referenced from user code.
     Type(String name)
     : INHERITED(Position(), kType_Kind, std::move(name))
-    , fTypeKind(kOther_Kind)
-    , fNumberKind(kNonnumeric_NumberKind) {}
+    , fTypeKind(kOther_Kind) {}
 
     // Create a generic type which maps to the listed types.
     Type(String name, std::vector<const Type*> types)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kGeneric_Kind)
-    , fNumberKind(kNonnumeric_NumberKind)
     , fCoercibleTypes(std::move(types)) {}
 
     // Create a struct type with the given fields.
     Type(Position position, String name, std::vector<Field> fields)
     : INHERITED(position, kType_Kind, std::move(name))
     , fTypeKind(kStruct_Kind)
-    , fNumberKind(kNonnumeric_NumberKind)
     , fFields(std::move(fields)) {}
 
     // Create a scalar type.
-    Type(String name, NumberKind numberKind)
+    Type(String name, bool isNumber)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
-    , fNumberKind(numberKind)
+    , fIsNumber(isNumber)
     , fColumns(1)
     , fRows(1) {}
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(String name, NumberKind numberKind, std::vector<const Type*> coercibleTypes)
+    Type(String name, bool isNumber, std::vector<const Type*> coercibleTypes)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
-    , fNumberKind(numberKind)
+    , fIsNumber(isNumber)
     , fCoercibleTypes(std::move(coercibleTypes))
     , fColumns(1)
     , fRows(1) {}
@@ -105,7 +95,6 @@ public:
     Type(String name, Kind kind, const Type& componentType, int columns)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kind)
-    , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(1)
@@ -115,7 +104,6 @@ public:
     Type(String name, const Type& componentType, int columns, int rows)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kMatrix_Kind)
-    , fNumberKind(kNonnumeric_NumberKind)
     , fComponentType(&componentType)
     , fColumns(columns)
     , fRows(rows)
@@ -126,14 +114,13 @@ public:
          bool isSampled)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kSampler_Kind)
-    , fNumberKind(kNonnumeric_NumberKind)
     , fDimensions(dimensions)
     , fIsDepth(isDepth)
     , fIsArrayed(isArrayed)
     , fIsMultisampled(isMultisampled)
     , fIsSampled(isSampled) {}
 
-    const String& name() const {
+    String name() const {
         return fName;
     }
 
@@ -160,35 +147,7 @@ public:
      * Returns true if this is a numeric scalar type.
      */
     bool isNumber() const {
-        return fNumberKind != kNonnumeric_NumberKind;
-    }
-
-    /**
-     * Returns true if this is a floating-point scalar type (float, half, or double).
-     */
-    bool isFloat() const {
-        return fNumberKind == kFloat_NumberKind;
-    }
-
-    /**
-     * Returns true if this is a signed scalar type (int or short).
-     */
-    bool isSigned() const {
-        return fNumberKind == kSigned_NumberKind;
-    }
-
-    /**
-     * Returns true if this is an unsigned scalar type (uint or ushort).
-     */
-    bool isUnsigned() const {
-        return fNumberKind == kUnsigned_NumberKind;
-    }
-
-    /**
-     * Returns true if this is a signed or unsigned integer.
-     */
-    bool isInteger() const {
-        return isSigned() || isUnsigned();
+        return fIsNumber;
     }
 
     /**
@@ -196,15 +155,17 @@ public:
      * another type.
      */
     bool canCoerceTo(const Type& other) const {
-        return coercionCost(other) != INT_MAX;
+        int cost;
+        return determineCoercionCost(other, &cost);
     }
 
     /**
      * Determines the "cost" of coercing (implicitly converting) this type to another type. The cost
      * is a number with no particular meaning other than that lower costs are preferable to higher
-     * costs. Returns INT_MAX if the coercion is not possible.
+     * costs. Returns true if a conversion is possible, false otherwise. The value of the out
+     * parameter is undefined if false is returned.
      */
-    int coercionCost(const Type& other) const;
+    bool determineCoercionCost(const Type& other, int* outCost) const;
 
     /**
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
@@ -284,8 +245,7 @@ private:
     typedef Symbol INHERITED;
 
     const Kind fTypeKind;
-    // always kNonnumeric_NumberKind for non-scalar values
-    const NumberKind fNumberKind;
+    const bool fIsNumber = false;
     const Type* fComponentType = nullptr;
     const std::vector<const Type*> fCoercibleTypes;
     const int fColumns = -1;

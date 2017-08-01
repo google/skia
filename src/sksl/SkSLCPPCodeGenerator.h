@@ -39,8 +39,6 @@ private:
 
     void writeIndexExpression(const IndexExpression& i) override;
 
-    void writeIntLiteral(const IntLiteral& i) override;
-
     void writeVariableReference(const VariableReference& ref) override;
 
     String getSamplerHandle(const Variable& var);

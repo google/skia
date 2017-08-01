@@ -116,8 +116,6 @@ protected:
 
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 
-    void writeTypePrecision(const Type& type);
-
     void writeVarDeclarations(const VarDeclarations& decl, bool global);
 
     void writeFragCoord();
@@ -152,7 +150,7 @@ protected:
 
     void writeBoolLiteral(const BoolLiteral& b);
 
-    virtual void writeIntLiteral(const IntLiteral& i);
+    void writeIntLiteral(const IntLiteral& i);
 
     void writeFloatLiteral(const FloatLiteral& f);
 
