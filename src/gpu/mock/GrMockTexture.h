@@ -90,7 +90,7 @@ private:
 
     void computeScratchKey(GrScratchKey* key) const override {
         GrTexturePriv::ComputeScratchKey(this->config(), this->width(), this->height(),
-                                         true, this->numStencilSamples(),
+                                         this->origin(), true, this->numStencilSamples(),
                                          this->texturePriv().hasMipMaps(), key);
     }
 };

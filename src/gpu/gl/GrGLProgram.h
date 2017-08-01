@@ -124,7 +124,7 @@ protected:
                          int* nextTexelBufferIdx, int* nextImageStorageIdx);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTargetProxy*);
+    void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTarget*);
 
     // Helper for setData() that binds textures and texel buffers to the appropriate texture units
     void bindTextures(const GrResourceIOProcessor&, bool allowSRGBInputs, int* nextSamplerIdx,

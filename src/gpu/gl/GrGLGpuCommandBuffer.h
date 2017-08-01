@@ -1,9 +1,9 @@
 /*
- * Copyright 2016 Google Inc.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
- */
+* Copyright 2016 Google Inc.
+*
+* Use of this source code is governed by a BSD-style license that can be
+* found in the LICENSE file.
+*/
 
 #ifndef GrGLGpuCommandBuffer_DEFINED
 #define GrGLGpuCommandBuffer_DEFINED
@@ -69,7 +69,7 @@ private:
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->clear(clip, color, fRenderTarget, proxy->origin());
+        fGpu->clear(clip, color, fRenderTarget);
     }
 
     void onClearStencilClip(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
@@ -79,7 +79,7 @@ private:
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget, proxy->origin());
+        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
     }
 
     GrGLGpu*                    fGpu;

@@ -16,8 +16,7 @@ class GrSemaphore;
 
 class GrBackendTextureImageGenerator : public SkImageGenerator {
 public:
-    static std::unique_ptr<SkImageGenerator> Make(sk_sp<GrTexture>, GrSurfaceOrigin,
-                                                  sk_sp<GrSemaphore>,
+    static std::unique_ptr<SkImageGenerator> Make(sk_sp<GrTexture>, sk_sp<GrSemaphore>,
                                                   SkAlphaType, sk_sp<SkColorSpace>);
 
     ~GrBackendTextureImageGenerator() override;
@@ -34,7 +33,7 @@ protected:
 #endif
 
 private:
-    GrBackendTextureImageGenerator(const SkImageInfo& info, GrTexture*, GrSurfaceOrigin,
+    GrBackendTextureImageGenerator(const SkImageInfo& info, GrTexture*,
                                    uint32_t owningContextID, sk_sp<GrSemaphore>,
                                    const GrBackendTexture&);
 

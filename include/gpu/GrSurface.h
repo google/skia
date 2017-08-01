@@ -35,6 +35,11 @@ public:
      */
     SkRect getBoundsRect() const { return SkRect::MakeIWH(this->width(), this->height()); }
 
+    GrSurfaceOrigin origin() const {
+        SkASSERT(kTopLeft_GrSurfaceOrigin == fOrigin || kBottomLeft_GrSurfaceOrigin == fOrigin);
+        return fOrigin;
+    }
+
     /**
      * Retrieves the pixel config specified when the surface was created.
      * For render targets this can be kUnknown_GrPixelConfig
@@ -76,7 +81,8 @@ protected:
             : INHERITED(gpu)
             , fConfig(desc.fConfig)
             , fWidth(desc.fWidth)
-            , fHeight(desc.fHeight) {}
+            , fHeight(desc.fHeight)
+            , fOrigin(desc.fOrigin) {}
     ~GrSurface() override {}
 
 
@@ -87,6 +93,7 @@ private:
     GrPixelConfig        fConfig;
     int                  fWidth;
     int                  fHeight;
+    GrSurfaceOrigin      fOrigin;
 
     typedef GrGpuResource INHERITED;
 };

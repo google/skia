@@ -54,8 +54,7 @@ static GrBackendTexture make_backend_texture_from_handle(GrBackend backend,
 }
 
 std::unique_ptr<SkImageGenerator>
-GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin origin,
-                                     sk_sp<GrSemaphore> semaphore,
+GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, sk_sp<GrSemaphore> semaphore,
                                      SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     if (colorSpace && (!colorSpace->gammaCloseToSRGB() && !colorSpace->gammaIsLinear())) {
         return nullptr;
@@ -83,12 +82,11 @@ GrBackendTextureImageGenerator::Make(sk_sp<GrTexture> texture, GrSurfaceOrigin o
     SkImageInfo info = SkImageInfo::Make(texture->width(), texture->height(), colorType, alphaType,
                                          std::move(colorSpace));
     return std::unique_ptr<SkImageGenerator>(new GrBackendTextureImageGenerator(
-          info, texture.get(), origin, context->uniqueID(), std::move(semaphore), backendTexture));
+            info, texture.get(), context->uniqueID(), std::move(semaphore), backendTexture));
 }
 
 GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo& info,
                                                                GrTexture* texture,
-                                                               GrSurfaceOrigin origin,
                                                                uint32_t owningContextID,
                                                                sk_sp<GrSemaphore> semaphore,
                                                                const GrBackendTexture& backendTex)
@@ -97,7 +95,7 @@ GrBackendTextureImageGenerator::GrBackendTextureImageGenerator(const SkImageInfo
     , fSemaphore(std::move(semaphore))
     , fLastBorrowingContextID(SK_InvalidGenID)
     , fBackendTexture(backendTex)
-    , fSurfaceOrigin(origin) { }
+    , fSurfaceOrigin(texture->origin()) { }
 
 GrBackendTextureImageGenerator::~GrBackendTextureImageGenerator() {
     fRefHelper->unref();
@@ -148,13 +146,12 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
             }
         }
 
-        SkASSERT(kDefault_GrSurfaceOrigin != fSurfaceOrigin);
         // We just gained access to the texture. If we're on the original context, we could use the
         // original texture, but we'd have no way of detecting that it's no longer in-use. So we
         // always make a wrapped copy, where the release proc informs us that the context is done
         // with it. This is unfortunate - we'll have two texture objects referencing the same GPU
         // object. However, no client can ever see the original texture, so this should be safe.
-        tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture,
+        tex = context->resourceProvider()->wrapBackendTexture(fBackendTexture, fSurfaceOrigin,
                                                               kBorrow_GrWrapOwnership);
         if (!tex) {
             fRefHelper->fBorrowingContextID = SK_InvalidGenID;

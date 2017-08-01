@@ -178,8 +178,7 @@ void GrVkGpuCommandBuffer::onSubmit() {
             cbInfo.fBounds.roundOut(&iBounds);
 
             fGpu->submitSecondaryCommandBuffer(cbInfo.fCommandBuffers, cbInfo.fRenderPass,
-                                               &cbInfo.fColorClearValue, fRenderTarget, fOrigin,
-                                               iBounds);
+                                               &cbInfo.fColorClearValue, fRenderTarget, iBounds);
         }
     }
 }
@@ -500,12 +499,10 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
     GrRenderTarget* rt = pipeline.renderTarget();
 
     if (!pipeline.getScissorState().enabled()) {
-        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
-                                                 rt, pipeline.proxy()->origin(),
+        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), rt,
                                                  SkIRect::MakeWH(rt->width(), rt->height()));
     } else if (!hasDynamicState) {
-        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
-                                                 rt, pipeline.proxy()->origin(),
+        GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), rt,
                                                  pipeline.getScissorState().rect());
     }
     GrVkPipeline::SetDynamicViewportState(fGpu, cbInfo.currentCmdBuf(), rt);
@@ -534,14 +531,14 @@ static void prepare_sampled_images(const GrResourceIOProcessor& processor, GrVkG
         // We may need to resolve the texture first if it is also a render target
         GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
         if (texRT) {
-            gpu->onResolveRenderTarget(texRT, sampler.proxy()->origin());
+            gpu->onResolveRenderTarget(texRT);
         }
 
         const GrSamplerParams& params = sampler.params();
         // Check if we need to regenerate any mip maps
         if (GrSamplerParams::kMipMap_FilterMode == params.filterMode()) {
             if (vkTexture->texturePriv().mipMapsAreDirty()) {
-                gpu->generateMipmap(vkTexture, sampler.proxy()->origin());
+                gpu->generateMipmap(vkTexture);
                 vkTexture->texturePriv().dirtyMipMaps(false);
             }
         }
@@ -605,8 +602,7 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
         if (dynamicStates) {
             if (pipeline.getScissorState().enabled()) {
                 GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
-                                                         target, pipeline.proxy()->origin(),
-                                                         dynamicStates[i].fScissorRect);
+                                                         target, dynamicStates[i].fScissorRect);
             }
         }
 
