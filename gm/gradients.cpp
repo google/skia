@@ -1033,3 +1033,41 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
                                            SkBlendMode::kExclusion);
     });
 }
+
+DEF_SIMPLE_GM(sweep_tiling, canvas, 512, 512) {
+    static constexpr SkScalar size = 160;
+    static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN };
+    static constexpr SkScalar   pos[] = { 0, .25f, .50f };
+    static_assert(SK_ARRAY_COUNT(colors) == SK_ARRAY_COUNT(pos), "size mismatch");
+
+    static constexpr SkShader::TileMode modes[] = { SkShader::kClamp_TileMode,
+                                                    SkShader::kRepeat_TileMode,
+                                                    SkShader::kMirror_TileMode };
+
+    static const struct {
+        SkScalar start, end;
+    } angles[] = {
+        { -330, -270 },
+        {   30,   90 },
+        {  390,  450 },
+    };
+
+    SkPaint p;
+    const SkRect r = SkRect::MakeWH(size, size);
+
+    for (auto mode : modes) {
+        {
+            SkAutoCanvasRestore acr(canvas, true);
+
+            for (auto angle : angles) {
+                p.setShader(SkGradientShader::MakeSweep(size / 2, size / 2, colors, pos,
+                                                        SK_ARRAY_COUNT(colors), mode,
+                                                        angle.start, angle.end, 0, nullptr));
+
+                canvas->drawRect(r, p);
+                canvas->translate(size * 1.1f, 0);
+            }
+        }
+        canvas->translate(0, size * 1.1f);
+    }
+}

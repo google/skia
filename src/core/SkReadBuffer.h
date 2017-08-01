@@ -74,6 +74,7 @@ public:
         kComposeShaderCanLerp_Version      = 54,
         kNoModesInMergeImageFilter_Verison = 55,
         kTileModeInBlurImageFilter_Version = 56,
+        kTileInfoInSweepGradient_Version   = 57,
     };
 
     /**

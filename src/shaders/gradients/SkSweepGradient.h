@@ -12,7 +12,7 @@
 
 class SkSweepGradient final : public SkGradientShaderBase {
 public:
-    SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
+    SkSweepGradient(const SkPoint& center, SkScalar t0, SkScalar t1, const Descriptor&);
 
     GradientType asAGradient(GradientInfo* info) const override;
 
@@ -33,7 +33,9 @@ protected:
     bool onIsRasterPipelineOnly() const override { return true; }
 
 private:
-    const SkPoint fCenter;
+    const SkPoint  fCenter;
+    const SkScalar fTBias,
+                   fTScale;
 
     friend class SkGradientShader;
     typedef SkGradientShaderBase INHERITED;

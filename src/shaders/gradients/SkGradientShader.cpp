@@ -1228,11 +1228,14 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                                             const SkColor colors[],
                                             const SkScalar pos[],
                                             int colorCount,
+                                            SkShader::TileMode mode,
+                                            SkScalar startAngle,
+                                            SkScalar endAngle,
                                             uint32_t flags,
                                             const SkMatrix* localMatrix) {
     ColorConverter converter(colors, colorCount);
-    return MakeSweep(cx, cy, converter.fColors4f.begin(), nullptr, pos, colorCount, flags,
-                     localMatrix);
+    return MakeSweep(cx, cy, converter.fColors4f.begin(), nullptr, pos, colorCount,
+                     mode, startAngle, endAngle, flags, localMatrix);
 }
 
 sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
@@ -1240,26 +1243,39 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                                             sk_sp<SkColorSpace> colorSpace,
                                             const SkScalar pos[],
                                             int colorCount,
+                                            SkShader::TileMode mode,
+                                            SkScalar startAngle,
+                                            SkScalar endAngle,
                                             uint32_t flags,
                                             const SkMatrix* localMatrix) {
-    if (!valid_grad(colors, pos, colorCount, SkShader::kClamp_TileMode)) {
+    if (!valid_grad(colors, pos, colorCount, mode)) {
         return nullptr;
     }
     if (1 == colorCount) {
         return SkShader::MakeColorShader(colors[0], std::move(colorSpace));
     }
+    if (startAngle >= endAngle) {
+        return nullptr;
+    }
     if (localMatrix && !localMatrix->invert(nullptr)) {
         return nullptr;
     }
 
-    auto mode = SkShader::kClamp_TileMode;
+    if (startAngle <= 0 && endAngle >= 360) {
+        // If the t-range includes [0,1], then we can always use clamping (presumably faster).
+        mode = SkShader::kClamp_TileMode;
+    }
 
     ColorStopOptimizer opt(colors, pos, colorCount, mode);
 
     SkGradientShaderBase::Descriptor desc;
     desc_init(&desc, opt.fColors, std::move(colorSpace), opt.fPos, opt.fCount, mode, flags,
               localMatrix);
-    return sk_make_sp<SkSweepGradient>(cx, cy, desc);
+
+    const SkScalar t0 = startAngle / 360,
+                   t1 =   endAngle / 360;
+
+    return sk_make_sp<SkSweepGradient>(SkPoint::Make(cx, cy), t0, t1, desc);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkGradientShader)
