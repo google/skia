@@ -4337,13 +4337,6 @@ bool GrGLGpu::onIsACopyNeededForTextureParams(GrTextureProxy* proxy,
     return false;
 }
 
-void GrGLGpu::onFinishFlush(bool insertedSemaphore) {
-    // If we inserted semaphores during the flush, we need to call GLFlush.
-    if (insertedSemaphore) {
-        GL_CALL(Flush());
-    }
-}
-
 GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
     SkASSERT(this->caps()->fenceSyncSupport());
     GrGLsync sync;
@@ -4372,6 +4365,7 @@ sk_sp<GrSemaphore> GrGLGpu::wrapBackendSemaphore(const GrBackendSemaphore& semap
     SkASSERT(this->caps()->fenceSyncSupport());
     return GrGLSemaphore::MakeWrapped(this, semaphore.glSync(), ownership);
 }
+
 
 void GrGLGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) {
     GrGLSemaphore* glSem = static_cast<GrGLSemaphore*>(semaphore.get());

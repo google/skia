@@ -127,6 +127,8 @@ public:
                                       GrVkRenderTarget*,
                                       const SkIRect& bounds);
 
+    void finishFlush() override;
+
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
@@ -209,8 +211,6 @@ private:
                           int left, int top, int width, int height,
                           GrPixelConfig config, GrBuffer* transferBuffer,
                           size_t offset, size_t rowBytes) override;
-
-    void onFinishFlush(bool insertedSemaphores) override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
     // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
