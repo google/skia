@@ -34,7 +34,7 @@ const (
 	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
-	DEFAULT_OS_DEBIAN = "Debian-9.0"
+	DEFAULT_OS_DEBIAN = "Debian-9.1"
 	DEFAULT_OS_UBUNTU = "Ubuntu-14.04"
 
 	// Name prefix for upload jobs.
@@ -187,10 +187,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
 			d["os"] = "Windows-10-10586"
-		}
-		// dogben accidentally upgraded this machine.
-		if os == "Debian9" && parts["cpu_or_gpu_value"] == "GTX960" {
-			d["os"] = "Debian-9.1"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
