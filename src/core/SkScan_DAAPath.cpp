@@ -205,18 +205,8 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
         }
     }
 
-    // 3. Sort edges in x so we may need less sorting for delta based on x. This only helps
-    //    SkCoverageDeltaList. And we don't want to sort more than SORT_THRESHOLD edges where
-    //    the log(count) factor of the quick sort may become a bottleneck; when there are so
-    //    many edges, we're unlikely to make deltas sorted anyway.
-    constexpr int SORT_THRESHOLD = 4096;
-    if (std::is_same<Deltas, SkCoverageDeltaList>::value && count < SORT_THRESHOLD) {
-        XLessThan lessThan;
-        SkTQSort(list, list + count - 1, lessThan);
-    }
-
     // Future todo: parallize and SIMD the following code.
-    // 4. iterate through edges and generate deltas
+    // 3. iterate through edges and generate deltas
     for(int index = 0; index < count; ++index) {
         SkAnalyticCubicEdge storage;
         SkASSERT(sizeof(SkAnalyticQuadraticEdge) >= sizeof(SkAnalyticEdge));
@@ -338,7 +328,7 @@ void SkScan::DAAFillPath(const SkPath& path, const SkRegion& origClip, SkBlitter
             blitter->blitMask(deltaMask.prepareSkMask(), clippedIR);
         } else {
             SkCoverageDeltaAllocator alloc;
-            SkCoverageDeltaList deltaList(&alloc, clippedIR.fTop, clippedIR.fBottom, forceRLE);
+            SkCoverageDeltaList deltaList(&alloc, clippedIR, forceRLE);
             gen_alpha_deltas(path, *clipRgn, deltaList, blitter, skipRect, clipRect == nullptr);
             blitter->blitCoverageDeltas(&deltaList, clipBounds, isEvenOdd, isInverse, isConvex);
         }

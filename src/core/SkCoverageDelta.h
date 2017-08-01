@@ -16,13 +16,9 @@
 
 // Future todo: maybe we can make fX and fDelta 16-bit long to speed it up a little bit.
 struct SkCoverageDelta {
-    int     fX;     // the y coordinate will be implied in SkCoverageDeltaList
+    int16_t fX;
+    int16_t fY;
     SkFixed fDelta; // the amount that the alpha changed
-
-    // Sort according to fX
-    bool operator<(const SkCoverageDelta& other) const {
-        return fX < other.fX;
-    }
 };
 
 // All the arguments needed for SkBlitter::blitAntiRect
@@ -43,38 +39,35 @@ using SkCoverageDeltaAllocator = SkSTArenaAlloc<256>;
 // Once sorted, getDelta(y, i) should return the i-th leftmost delta on row y.
 class SkCoverageDeltaList {
 public:
+    static constexpr int PADDING = 1; // for precision error
+
     // We can store INIT_ROW_SIZE deltas per row (i.e., per y-scanline) initially,
     // and we reserve RESERVED_HEIGHT rows on stack memory.
 #ifdef GOOGLE3
     static constexpr int INIT_ROW_SIZE = 8; // google3 has 16k stack limit
     static constexpr int RESERVED_HEIGHT = 120;
 #else
-    static constexpr int INIT_ROW_SIZE = 32;
-    static constexpr int RESERVED_HEIGHT = 128;
+    static constexpr int RESERVED_WIDTH     = 128;
+    static constexpr int RESERVED_HEIGHT    = 128;
+    static constexpr int RESERVED_STORAGE   = 8 * 1024;
 #endif
 
-    SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom, bool forceRLE);
+    SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, const SkIRect& bounds, bool forceRLE);
 
-    inline int  top() const { return fTop; }
-    inline int  bottom() const { return fBottom; }
+    inline int  top() const { return fBounds.fTop; }
+    inline int  bottom() const { return fBounds.fBottom; }
     inline bool forceRLE() const { return fForceRLE; }
-    inline int  count(int y) const { this->checkY(y); return fCounts[y]; }
-    inline bool sorted(int y) const { this->checkY(y); return fSorted[y]; }
-    inline void addDelta(int x, int y, SkFixed delta) { this->push_back(y, {x, delta}); }
+    inline int  countByX(int x) const { this->checkX(x); return fCountByX[x]; }
+    inline int  countByY(int y) const { this->checkY(y); return fCountByY[y]; }
+    inline void addDelta(int x, int y, SkFixed delta) {
+        SkASSERT((int16_t)x == x && (int16_t)y == y);
+        this->push_back({(int16_t)x, (int16_t)y, delta});
+    }
 
     inline const SkCoverageDelta& getDelta(int y, int i) const {
         this->checkY(y);
-        SkASSERT(i < fCounts[y]);
+        SkASSERT(fRows && i < fCountByY[y]);
         return fRows[y][i];
-    }
-
-    // It might be better to sort right before blitting to make the memory hot
-    inline void sort(int y) {
-        this->checkY(y);
-        if (!fSorted[y]) {
-            SkTQSort(fRows[y], fRows[y] + fCounts[y] - 1);
-            fSorted[y] = true;
-        }
     }
 
     inline const SkAntiRect& getAntiRect() const { return fAntiRect; }
@@ -83,37 +76,38 @@ public:
         fAntiRect = {x, y, width, height, leftAlpha, rightAlpha};
     }
 
-    inline void push_back(int y, const SkCoverageDelta& delta) {
-        this->checkY(y);
-        if (fCounts[y] == fMaxCounts[y]) {
-            fMaxCounts[y] *= 2;
-            SkCoverageDelta* newRow = fAlloc->makeArrayDefault<SkCoverageDelta>(fMaxCounts[y]);
-            memcpy(newRow, fRows[y], sizeof(SkCoverageDelta) * fCounts[y]);
-            fRows[y] = newRow;
+    inline void push_back(const SkCoverageDelta& delta) {
+        if (fCount == fMaxCount) {
+            fMaxCount *= 2;
+            SkCoverageDelta* deltas = fAlloc->makeArrayDefault<SkCoverageDelta>(fMaxCount);
+            memcpy(deltas, fDeltas, sizeof(SkCoverageDelta) * fCount);
+            fDeltas = deltas;
         }
-        SkASSERT(fCounts[y] < fMaxCounts[y]);
-        fRows[y][fCounts[y]++] = delta;
-        fSorted[y] = fSorted[y] && (fCounts[y] == 1 || delta.fX >= fRows[y][fCounts[y] - 2].fX);
+        fDeltas[fCount++] = delta;
+        fCountByX[delta.fX]++;
+        fCountByY[delta.fY]++;
     }
+
+    void sort();
 
 private:
     SkCoverageDeltaAllocator*   fAlloc;
+    SkCoverageDelta*            fDeltas;
     SkCoverageDelta**           fRows;
-    bool*                       fSorted;
-    int*                        fCounts;
-    int*                        fMaxCounts;
-    int                         fTop;
-    int                         fBottom;
+    int*                        fCountByX;
+    int*                        fCountByY;
+    int                         fCount;
+    int                         fMaxCount;
+    SkIRect                     fBounds;
     SkAntiRect                  fAntiRect;
     bool                        fForceRLE;
 
-    SkCoverageDelta             fReservedStorage[RESERVED_HEIGHT * INIT_ROW_SIZE];
+    SkCoverageDelta             fReservedStorage[RESERVED_STORAGE];
     SkCoverageDelta*            fReservedRows[RESERVED_HEIGHT];
-    bool                        fReservedSorted[RESERVED_HEIGHT];
-    int                         fReservedCounts[RESERVED_HEIGHT];
-    int                         fReservedMaxCounts[RESERVED_HEIGHT];
+    int                         fReservedCounts[RESERVED_HEIGHT + RESERVED_WIDTH];
 
-    inline void checkY(int y) const { SkASSERT(y >= fTop && y < fBottom); }
+    inline void checkX(int x) const { SkASSERT(x >= fBounds.fLeft && x < fBounds.fRight); }
+    inline void checkY(int y) const { SkASSERT(y >= fBounds.fTop && y < fBounds.fBottom); }
 };
 
 class SkCoverageDeltaMask {
