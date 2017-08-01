@@ -1079,19 +1079,21 @@ SI F ulp_before(F f) {
     return unaligned_load<F>(&bits);
 }
 
+// We make sure to funnel all three tilers through exclusive_clamp() so that we're guaranteed
+// to be in [0,ctx->scale), even in the presence of bugs or floating point precision issues.
 SI F exclusive_clamp(F v, const SkJumper_TileCtx* ctx) {
     v = max(0,v);
     return min(v, ulp_before(ctx->scale));
 }
 SI F exclusive_repeat(F v, const SkJumper_TileCtx* ctx) {
     v = v - floor_(v*ctx->invScale)*ctx->scale;
-    return min(v, ulp_before(ctx->scale));
+    return exclusive_clamp(v, ctx);
 }
 SI F exclusive_mirror(F v, const SkJumper_TileCtx* ctx) {
     auto limit = ctx->scale;
     auto invLimit = ctx->invScale;
     v = abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
-    return min(v, ulp_before(limit));
+    return exclusive_clamp(v, ctx);
 }
 // Clamp x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
 STAGE(clamp_x)  { r = exclusive_clamp (r, (const SkJumper_TileCtx*)ctx); }
