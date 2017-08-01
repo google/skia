@@ -81,6 +81,9 @@ protected:
 
         fGlyphs.append(glyphCount);
         p.textToGlyphs(fText, txtLen, fGlyphs.begin());
+        for (unsigned b = 0; b < SK_ARRAY_COUNT(blobConfigs); ++b) {
+            fBlobs[b] = this->makeBlob(b);
+        }
     }
 
     SkString onShortName() override {
@@ -93,17 +96,16 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         for (unsigned b = 0; b < SK_ARRAY_COUNT(blobConfigs); ++b) {
-            sk_sp<SkTextBlob> blob(this->makeBlob(b));
 
             SkPaint p;
             SkPoint offset = SkPoint::Make(SkIntToScalar(10 + 300 * (b % 2)),
                                            SkIntToScalar(20 + 150 * (b / 2)));
 
-            canvas->drawTextBlob(blob, offset.x(), offset.y(), p);
+            canvas->drawTextBlob(fBlobs[b], offset.x(), offset.y(), p);
 
             p.setColor(SK_ColorBLUE);
             p.setStyle(SkPaint::kStroke_Style);
-            SkRect box = blob->bounds();
+            SkRect box = fBlobs[b]->bounds();
             box.offset(offset);
             canvas->drawRect(box, p);
 
@@ -184,6 +186,7 @@ private:
     SkTDArray<uint16_t> fGlyphs;
     sk_sp<SkTypeface>   fTypeface;
     const char*         fText;
+    sk_sp<SkTextBlob>   fBlobs[SK_ARRAY_COUNT(blobConfigs)];
     typedef skiagm::GM INHERITED;
 };
 
