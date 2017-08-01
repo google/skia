@@ -554,6 +554,15 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 !clone->instantiate(context->resourceProvider())) {
                 continue;
             }
+            REPORTER_ASSERT(reporter, !strcmp(fp->name(), clone->name()));
+            REPORTER_ASSERT(reporter, fp->compatibleWithCoverageAsAlpha() ==
+                                      clone->compatibleWithCoverageAsAlpha());
+            REPORTER_ASSERT(reporter, fp->isEqual(*clone));
+            REPORTER_ASSERT(reporter, fp->preservesOpaqueInput() == clone->preservesOpaqueInput());
+            REPORTER_ASSERT(reporter, fp->hasConstantOutputForConstantInput() ==
+                                      clone->hasConstantOutputForConstantInput());
+            REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors());
+            REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords());
             // Draw with original and read back the results.
             test_draw_op(rtc.get(), fp, inputTexture);
             memset(readData1.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
