@@ -68,6 +68,7 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         fIndentation++;
         for (const auto& f : type.fields()) {
             this->writeModifiers(f.fModifiers, false);
+            this->writeTypePrecision(*f.fType);
             // sizes (which must be static in structs) are part of the type name here
             this->writeType(*f.fType);
             this->writeLine(" " + f.fName + ";");
@@ -78,31 +79,37 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         switch (type.kind()) {
             case Type::kVector_Kind: {
                 Type component = type.componentType();
-                if (component == *fContext.fFloat_Type) {
+                if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                     this->write("vec");
                 }
                 else if (component == *fContext.fDouble_Type) {
                     this->write("dvec");
                 }
-                else if (component == *fContext.fInt_Type) {
+                else if (component == *fContext.fInt_Type || component == *fContext.fShort_Type) {
                     this->write("ivec");
                 }
-                else if (component == *fContext.fUInt_Type) {
+                else if (component == *fContext.fUInt_Type || component == *fContext.fUShort_Type) {
                     this->write("uvec");
                 }
                 else if (component == *fContext.fBool_Type) {
                     this->write("bvec");
+                }
+                else {
+                    ABORT("unsupported vector type");
                 }
                 this->write(to_string(type.columns()));
                 break;
             }
             case Type::kMatrix_Kind: {
                 Type component = type.componentType();
-                if (component == *fContext.fFloat_Type) {
+                if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
                     this->write("mat");
                 }
                 else if (component == *fContext.fDouble_Type) {
                     this->write("dmat");
+                }
+                else {
+                    ABORT("unsupported matrix type");
                 }
                 this->write(to_string(type.columns()));
                 if (type.columns() != type.rows()) {
@@ -118,6 +125,21 @@ void GLSLCodeGenerator::writeType(const Type& type) {
                     this->write(to_string(type.columns()));
                 }
                 this->write("]");
+                break;
+            }
+            case Type::kScalar_Kind: {
+                if (type == *fContext.fHalf_Type) {
+                    this->write("float");
+                }
+                else if (type == *fContext.fShort_Type) {
+                    this->write("int");
+                }
+                else if (type == *fContext.fUShort_Type) {
+                    this->write("uint");
+                }
+                else {
+                    this->write(type.name());
+                }
                 break;
             }
             default:
@@ -653,6 +675,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     for (const auto& f : structType->fields()) {
         this->writeModifiers(f.fModifiers, false);
+        this->writeTypePrecision(*f.fType);
         this->writeType(*f.fType);
         this->writeLine(" " + f.fName + ";");
     }
@@ -676,6 +699,25 @@ void GLSLCodeGenerator::writeVarInitializer(const Variable& var, const Expressio
     this->writeExpression(value, kTopLevel_Precedence);
 }
 
+void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
+    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
+        switch (type.kind()) {
+            case Type::kScalar_Kind:
+                if (type == *fContext.fHalf_Type || type == *fContext.fShort_Type ||
+                        type == *fContext.fUShort_Type) {
+                    this->write("mediump ");
+                }
+                break;
+            case Type::kVector_Kind: // fall through
+            case Type::kMatrix_Kind:
+                this->writeTypePrecision(type.componentType());
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
     ASSERT(decl.fVars.size() > 0);
     bool wroteType = false;
@@ -685,6 +727,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             this->write(", ");
         } else {
             this->writeModifiers(var.fVar->fModifiers, global);
+            this->writeTypePrecision(decl.fBaseType);
             this->writeType(decl.fBaseType);
             this->write(" ");
             wroteType = true;

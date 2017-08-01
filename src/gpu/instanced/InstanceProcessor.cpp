@@ -421,7 +421,7 @@ void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
 }
 
 void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* usedShapeDefinitions) {
-    v->codeAppendf("uint2 corner = uint2(%s & 1, (%s >> 1) & 1);",
+    v->codeAppendf("uint2 corner = uint2(uint(%s) & 1, (uint(%s) >> 1) & 1);",
                    fInputs.attr(Attrib::kVertexAttrs), fInputs.attr(Attrib::kVertexAttrs));
     v->codeAppend ("float2 cornerSign = float2(corner) * 2.0 - 1.0;");
     v->codeAppendf("float2 radii%s;", fNeedsNeighborRadii ? ", neighborRadii" : "");
