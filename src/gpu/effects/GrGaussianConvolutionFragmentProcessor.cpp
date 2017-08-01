@@ -176,7 +176,7 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
+static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
     const float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
 
     float sum = 0.0f;
@@ -212,7 +212,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
     this->addTextureSampler(&fTextureSampler);
     SkASSERT(radius <= kMaxKernelRadius);
 
-    fill_in_1D_guassian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
+    fill_in_1D_gaussian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
 
     memcpy(fBounds, bounds, sizeof(fBounds));
 }

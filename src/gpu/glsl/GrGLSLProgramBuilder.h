@@ -104,8 +104,8 @@ public:
 
     BuiltinUniformHandles fUniformHandles;
 
-    GrGLSLPrimitiveProcessor* fGeometryProcessor;
-    GrGLSLXferProcessor* fXferProcessor;
+    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
 
 protected:
