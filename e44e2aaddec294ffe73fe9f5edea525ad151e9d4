@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58c2e986_b9522a09",
+        "filename": "src/gpu/effects/GrDitherEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5955
+      },
+      "writtenOn": "2017-08-01T02:25:15Z",
+      "side": 1,
+      "message": "I\u0027ll fix the space in the next upload.",
+      "range": {
+        "startLine": 65,
+        "startChar": 15,
+        "endLine": 65,
+        "endChar": 16
+      },
+      "revId": "e44e2aaddec294ffe73fe9f5edea525ad151e9d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
