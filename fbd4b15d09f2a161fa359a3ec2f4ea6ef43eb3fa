@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fa11b94_5da17cd2",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-01T13:41:46Z",
+      "side": 1,
+      "message": "I think we should use uniforms rather than embedding the constants into the shader. If this were to animate then every frame would compile a new shader.",
+      "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
