@@ -275,7 +275,7 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            fUniformHandler.fTexelBuffers,
                            fUniformHandler.fImageStorages,
                            fVaryingHandler.fPathProcVaryingInfos,
-                           fGeometryProcessor,
+                           std::move(fGeometryProcessor1),
                            fXferProcessor,
-                           fFragmentProcessors);
+                           fFragmentProcessors1);
 }

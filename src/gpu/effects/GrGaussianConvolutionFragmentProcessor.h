@@ -31,7 +31,7 @@ public:
 
     ~GrGaussianConvolutionFragmentProcessor() override;
 
-    const float* kernel() const { return fKernel; }
+    const float* kernel() const { return fKernel1; }
 
     const int* bounds() const { return fBounds; }
     bool useBounds() const { return fMode != GrTextureDomain::kIgnore_Mode; }
@@ -65,7 +65,7 @@ private:
 
     // TODO: Inline the kernel constants into the generated shader code. This may involve pulling
     // some of the logic from SkGpuBlurUtils into this class related to radius/sigma calculations.
-    float fKernel[kMaxKernelWidth];
+    float fKernel1[kMaxKernelWidth];
     int   fBounds[2];
     GrTextureDomain::Mode fMode;
 

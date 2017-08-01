@@ -104,9 +104,9 @@ public:
 
     BuiltinUniformHandles fUniformHandles;
 
-    GrGLSLPrimitiveProcessor* fGeometryProcessor;
+    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor1;
     GrGLSLXferProcessor* fXferProcessor;
-    GrGLSLFragProcs fFragmentProcessors;
+    GrGLSLFragProcs fFragmentProcessors1;
 
 protected:
     explicit GrGLSLProgramBuilder(const GrPipeline&,

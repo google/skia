@@ -34,12 +34,12 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const UniformInfoArray& texelBuffers,
                          const UniformInfoArray& imageStorages,
                          const VaryingInfoArray& pathProcVaryings,
-                         GrGLSLPrimitiveProcessor* geometryProcessor,
+                         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                          GrGLSLXferProcessor* xferProcessor,
                          const GrGLSLFragProcs& fragmentProcessors)
     : fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
-    , fGeometryProcessor(geometryProcessor)
+    , fGeometryProcessor1(std::move(geometryProcessor))
     , fXferProcessor(xferProcessor)
     , fFragmentProcessors(fragmentProcessors)
     , fDesc(desc)
@@ -82,7 +82,7 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     int nextTexSamplerIdx = 0;
     int nextTexelBufferIdx = fNumTextureSamplers;
     int nextImageStorageIdx = 0;
-    fGeometryProcessor->setData(fProgramDataManager, primProc,
+    fGeometryProcessor1->setData(fProgramDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     this->bindTextures(primProc, pipeline.getAllowSRGBInputs(), &nextTexSamplerIdx,
                        &nextTexelBufferIdx, &nextImageStorageIdx);

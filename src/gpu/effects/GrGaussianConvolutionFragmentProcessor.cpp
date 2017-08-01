@@ -176,7 +176,7 @@ void GrGLConvolutionEffect::GenKey(const GrProcessor& processor, const GrShaderC
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
+static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianSigma, int radius) {
     const float denom = 1.0f / (2.0f * gaussianSigma * gaussianSigma);
 
     float sum = 0.0f;
@@ -192,6 +192,7 @@ static void fill_in_1D_guassian_kernel(float* kernel, int width, float gaussianS
     for (int i = 0; i < width; ++i) {
         kernel[i] *= scale;
     }
+    memset(&kernel[width], 0, GrGaussianConvolutionFragmentProcessor::kMaxKernelWidth-width);
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
@@ -207,7 +208,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
     this->initClassID<GrGaussianConvolutionFragmentProcessor>();
     SkASSERT(radius <= kMaxKernelRadius);
 
-    fill_in_1D_guassian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
+    fill_in_1D_gaussian_kernel(fKernel1, this->width(), gaussianSigma, this->radius());
 
     memcpy(fBounds, bounds, sizeof(fBounds));
 }
@@ -229,7 +230,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
     return (this->radius() == s.radius() && this->direction() == s.direction() &&
             this->mode() == s.mode() &&
             0 == memcmp(fBounds, s.fBounds, sizeof(fBounds)) &&
-            0 == memcmp(fKernel, s.fKernel, this->width() * sizeof(float)));
+            0 == memcmp(fKernel1, s.fKernel1, this->width() * sizeof(float)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -115,7 +115,7 @@ protected:
                 const UniformInfoArray& texelBuffers,
                 const UniformInfoArray& imageStorages,
                 const VaryingInfoArray&, // used for NVPR only currently
-                GrGLSLPrimitiveProcessor* geometryProcessor,
+                std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                 GrGLSLXferProcessor* xferProcessor,
                 const GrGLSLFragProcs& fragmentProcessors);
 
@@ -139,7 +139,7 @@ protected:
     GrGLuint fProgramID;
 
     // the installed effects
-    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGLSLPrimitiveProcessor> fGeometryProcessor1;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     GrGLSLFragProcs fFragmentProcessors;
 
