@@ -165,6 +165,12 @@ public:
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
 
+    // The D3D shader compiler, when targeting PS 3.0 (ie within ANGLE) fails to compile certain
+    // constructs. See detailed comments in GrGLCaps.cpp.
+    bool mustGuardDivisionEvenAfterExplicitZeroCheck() const {
+        return fMustGuardDivisionEvenAfterExplicitZeroCheck;
+    }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -295,6 +301,7 @@ private:
     bool fRequiresLocalOutputColorForFBFetch : 1;
     bool fMustImplementGSInvocationsWithLoop : 1;
     bool fMustObfuscateUniformColor : 1;
+    bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
 
     PrecisionInfo fFloatPrecisions[kGrShaderTypeCount][kGrSLPrecisionCount];
 
