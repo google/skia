@@ -14,6 +14,7 @@ if (skia_use_system_libwebp) {
     libs = [
       "webp",
       "webpdemux",
+      "webpmux",
     ]
   }
 } else {
@@ -38,7 +39,7 @@ if (skia_use_system_libwebp) {
     ]
     if ((current_cpu == "x86" || current_cpu == "x64") &&
         (!is_win || is_clang)) {
-      cflags_c = ["-msse4.1"]
+      cflags_c = [ "-msse4.1" ]
     }
   }
 
@@ -50,7 +51,7 @@ if (skia_use_system_libwebp) {
     ]
     if ((current_cpu == "x86" || current_cpu == "x64") &&
         (!is_win || is_clang)) {
-      cflags_c = ["-mavx2"]
+      cflags_c = [ "-mavx2" ]
     }
   }
 
@@ -58,13 +59,11 @@ if (skia_use_system_libwebp) {
     public_include_dirs = [ "../externals/libwebp/src" ]
 
     deps = [
-      ":libwebp_sse41",
       ":libwebp_avx2",
+      ":libwebp_sse41",
     ]
     if (is_android) {
-      deps += [
-        "//third_party/cpu-features",
-      ]
+      deps += [ "//third_party/cpu-features" ]
     }
 
     configs += [ ":libwebp_defines" ]
