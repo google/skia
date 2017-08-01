@@ -249,7 +249,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     bool hasSingleShapeType = SkIsPow2(ip.opInfo().fShapeTypes);
     if (!hasSingleShapeType) {
         v->defineConstant("SHAPE_TYPE_BIT", kShapeType_InfoBit);
-        v->codeAppendf("uint shapeType = %s >> SHAPE_TYPE_BIT;",
+        v->codeAppendf("uint shapeType = %s >> uint(SHAPE_TYPE_BIT);",
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
@@ -268,7 +268,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         }
     } else {
         if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
-            v->codeAppend ("if (shapeType >= SIMPLE_R_RECT_SHAPE_TYPE) {");
+            v->codeAppend ("if (shapeType >= uint(SIMPLE_R_RECT_SHAPE_TYPE)) {");
             backend->setupRRect(v, &usedShapeDefinitions);
             v->codeAppend ("}");
             usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
@@ -278,7 +278,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                 if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
                     v->codeAppend ("else ");
                 }
-                v->codeAppend ("if (OVAL_SHAPE_TYPE == shapeType) {");
+                v->codeAppend ("if (uint(OVAL_SHAPE_TYPE) == shapeType) {");
                 usedShapeDefinitions |= kOval_ShapeFlag;
             } else {
                 v->codeAppend ("else {");
@@ -298,8 +298,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         if (!hasSingleInnerShapeType) {
             v->defineConstantf("int", "INNER_SHAPE_TYPE_MASK", "0x%x", kInnerShapeType_InfoMask);
             v->defineConstant("INNER_SHAPE_TYPE_BIT", kInnerShapeType_InfoBit);
-            v->codeAppendf("uint innerShapeType = ((%s & INNER_SHAPE_TYPE_MASK) >> "
-                                                  "INNER_SHAPE_TYPE_BIT);",
+            v->codeAppendf("uint innerShapeType = ((%s & uint(INNER_SHAPE_TYPE_MASK)) >> "
+                                                  "uint(INNER_SHAPE_TYPE_BIT));",
                            inputs.attr(Attrib::kInstanceInfo));
         }
         // Here we take advantage of the fact that outerRect == localRect in recordDRRect.
@@ -330,7 +330,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             }
         } else {
             if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
-                v->codeAppend ("if (SIMPLE_R_RECT_SHAPE_TYPE == innerShapeType) {");
+                v->codeAppend ("if (uint(SIMPLE_R_RECT_SHAPE_TYPE) == innerShapeType) {");
                 backend->setupInnerSimpleRRect(v);
                 v->codeAppend("}");
                 usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
@@ -340,7 +340,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                     if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
                         v->codeAppend ("else ");
                     }
-                    v->codeAppend ("if (OVAL_SHAPE_TYPE == innerShapeType) {");
+                    v->codeAppend ("if (uint(OVAL_SHAPE_TYPE) == innerShapeType) {");
                     usedShapeDefinitions |= kOval_ShapeFlag;
                 } else {
                     v->codeAppend ("else {");
@@ -421,7 +421,7 @@ void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
 }
 
 void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* usedShapeDefinitions) {
-    v->codeAppendf("uint2 corner = uint2(%s & 1, (%s >> 1) & 1);",
+    v->codeAppendf("uint2 corner = uint2(uint(%s) & 1, (uint(%s) >> 1) & 1);",
                    fInputs.attr(Attrib::kVertexAttrs), fInputs.attr(Attrib::kVertexAttrs));
     v->codeAppend ("float2 cornerSign = float2(corner) * 2.0 - 1.0;");
     v->codeAppendf("float2 radii%s;", fNeedsNeighborRadii ? ", neighborRadii" : "");
