@@ -1124,6 +1124,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             sk_free(buffer);
         }
     }
+
+    ctxInfo.glContext()->makeCurrent();
 }
 #endif
 
