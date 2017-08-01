@@ -40,6 +40,13 @@ struct IntLiteral : public Expression {
         return fValue == i.fValue;
     }
 
+    int coercionCost(const Type& target) const override {
+        if (target.isUnsigned()) {
+            return 0;
+        }
+        return INHERITED::coercionCost(target);
+    }
+
     const int64_t fValue;
 
     typedef Expression INHERITED;

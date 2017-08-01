@@ -910,7 +910,7 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     if (expr->fType == *fContext.fInvalid_Type) {
         return nullptr;
     }
-    if (!expr->fType.canCoerceTo(type)) {
+    if (expr->coercionCost(type) == INT_MAX) {
         fErrors.error(expr->fPosition, "expected '" + type.description() + "', but found '" +
                                         expr->fType.description() + "'");
         return nullptr;
@@ -1213,8 +1213,20 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(
     const Type* leftType;
     const Type* rightType;
     const Type* resultType;
-    if (!determine_binary_type(fContext, expression.fOperator, left->fType, right->fType, &leftType,
-                               &rightType, &resultType,
+    const Type* rawLeftType;
+    if (left->fKind == Expression::kIntLiteral_Kind && right->fType.isInteger()) {
+        rawLeftType = &right->fType;
+    } else {
+        rawLeftType = &left->fType;
+    }
+    const Type* rawRightType;
+    if (right->fKind == Expression::kIntLiteral_Kind && left->fType.isInteger()) {
+        rawRightType = &left->fType;
+    } else {
+        rawRightType = &right->fType;
+    }
+    if (!determine_binary_type(fContext, expression.fOperator, *rawLeftType, *rawRightType,
+                               &leftType, &rightType, &resultType,
                                !Token::IsAssignment(expression.fOperator))) {
         fErrors.error(expression.fPosition, "type mismatch: '" +
                                             Token::OperatorName(expression.fOperator) +
@@ -1367,32 +1379,30 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
 }
 
 /**
- * Determines the cost of coercing the arguments of a function to the required types. Returns true
- * if the cost could be computed, false if the call is not valid. Cost has no particular meaning
- * other than "lower costs are preferred".
+ * Determines the cost of coercing the arguments of a function to the required types. Cost has no
+ * particular meaning other than "lower costs are preferred". Returns INT_MAX if the call is not
+ * valid.
  */
-bool IRGenerator::determineCallCost(const FunctionDeclaration& function,
-                                    const std::vector<std::unique_ptr<Expression>>& arguments,
-                                    int* outCost) {
+int IRGenerator::callCost(const FunctionDeclaration& function,
+             const std::vector<std::unique_ptr<Expression>>& arguments) {
     if (function.fParameters.size() != arguments.size()) {
-        return false;
+        return INT_MAX;
     }
     int total = 0;
     std::vector<const Type*> types;
     const Type* ignored;
     if (!function.determineFinalTypes(arguments, &types, &ignored)) {
-        return false;
+        return INT_MAX;
     }
     for (size_t i = 0; i < arguments.size(); i++) {
-        int cost;
-        if (arguments[i]->fType.determineCoercionCost(*types[i], &cost)) {
+        int cost = arguments[i]->coercionCost(*types[i]);
+        if (cost != INT_MAX) {
             total += cost;
         } else {
-            return false;
+            return INT_MAX;
         }
     }
-    *outCost = total;
-    return true;
+    return total;
 }
 
 std::unique_ptr<Expression> IRGenerator::applyColorSpace(std::unique_ptr<Expression> texture,
@@ -1436,8 +1446,8 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
     const FunctionDeclaration* best = nullptr;
     if (ref->fFunctions.size() > 1) {
         for (const auto& f : ref->fFunctions) {
-            int cost;
-            if (this->determineCallCost(*f, arguments, &cost) && cost < bestCost) {
+            int cost = this->callCost(*f, arguments);
+            if (cost < bestCost) {
                 bestCost = cost;
                 best = f;
             }
@@ -1470,8 +1480,16 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
                                 to_string((uint64_t) args.size()) + ")");
         return nullptr;
     }
-    if (type == *fContext.fFloat_Type && args.size() == 1 &&
-        args[0]->fKind == Expression::kIntLiteral_Kind) {
+    if (type.isFloat() && args[0]->fType.isFloat()) {
+        return std::move(args[0]);
+    }
+    if (type.isSigned() && args[0]->fType.isSigned()) {
+        return std::move(args[0]);
+    }
+    if (type.isUnsigned() && args[0]->fType.isUnsigned()) {
+        return std::move(args[0]);
+    }
+    if (type.isFloat() && args.size() == 1 && args[0]->fKind == Expression::kIntLiteral_Kind) {
         int64_t value = ((IntLiteral&) *args[0]).fValue;
         return std::unique_ptr<Expression>(new FloatLiteral(fContext, position, (double) value));
     }
