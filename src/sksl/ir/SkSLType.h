@@ -13,6 +13,7 @@
 #include "../SkSLPosition.h"
 #include "../SkSLUtil.h"
 #include "../spirv.h"
+#include <climits>
 #include <vector>
 #include <memory>
 
