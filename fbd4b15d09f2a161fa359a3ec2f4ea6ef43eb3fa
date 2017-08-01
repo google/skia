@@ -34,6 +34,24 @@
       "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97fcfffc_e41fd442",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-01T14:08:25Z",
+      "side": 1,
+      "message": "\u003e Would this idea apply to the other params also (cx, cy, etc.)?  Should we look at converting all gradients/params to uniforms?\n\nNever mind, I think cx/cy are folded into the matrix and not part of the shader code anyway.  tBias/tScale are the only interesting params -- I\u0027ll look at converting to uniforms.",
+      "parentUuid": "7022e0d1_9e7612cf",
+      "revId": "fbd4b15d09f2a161fa359a3ec2f4ea6ef43eb3fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
