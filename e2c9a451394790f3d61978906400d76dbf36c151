@@ -16,6 +16,24 @@
       "revId": "e2c9a451394790f3d61978906400d76dbf36c151",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce1f9d4d_9f2bb1aa",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-01T20:40:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2857ca51_194139b1",
+      "revId": "e2c9a451394790f3d61978906400d76dbf36c151",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
