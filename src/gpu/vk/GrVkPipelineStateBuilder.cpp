@@ -204,8 +204,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  fUniformHandler.fCurrentFragmentUBOOffset,
                                  (uint32_t)fUniformHandler.numSamplers(),
                                  (uint32_t)fUniformHandler.numTexelBuffers(),
-                                 fGeometryProcessor,
-                                 fXferProcessor,
+                                 std::move(fGeometryProcessor),
+                                 std::move(fXferProcessor),
                                  fFragmentProcessors);
 }
 

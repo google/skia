@@ -40,8 +40,8 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
                                      uint32_t fragmentUniformSize,
                                      uint32_t numSamplers,
                                      uint32_t numTexelBuffers,
-                                     GrGLSLPrimitiveProcessor* geometryProcessor,
-                                     GrGLSLXferProcessor* xferProcessor,
+                                     std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                                     std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                                      const GrGLSLFragProcs& fragmentProcessors)
     : fPipeline(pipeline)
     , fPipelineLayout(layout)
@@ -51,8 +51,8 @@ GrVkPipelineState::GrVkPipelineState(GrVkGpu* gpu,
     , fSamplerDSHandle(samplerDSHandle)
     , fTexelBufferDSHandle(texelBufferDSHandle)
     , fBuiltinUniformHandles(builtinUniformHandles)
-    , fGeometryProcessor(geometryProcessor)
-    , fXferProcessor(xferProcessor)
+    , fGeometryProcessor(std::move(geometryProcessor))
+    , fXferProcessor(std::move(xferProcessor))
     , fFragmentProcessors(fragmentProcessors)
     , fDesc(desc)
     , fDataManager(uniforms, geometryUniformSize, fragmentUniformSize) {

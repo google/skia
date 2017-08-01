@@ -34,13 +34,13 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const UniformInfoArray& texelBuffers,
                          const UniformInfoArray& imageStorages,
                          const VaryingInfoArray& pathProcVaryings,
-                         GrGLSLPrimitiveProcessor* geometryProcessor,
-                         GrGLSLXferProcessor* xferProcessor,
+                         std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                          const GrGLSLFragProcs& fragmentProcessors)
     : fBuiltinUniformHandles(builtinUniforms)
     , fProgramID(programID)
-    , fGeometryProcessor(geometryProcessor)
-    , fXferProcessor(xferProcessor)
+    , fGeometryProcessor(std::move(geometryProcessor))
+    , fXferProcessor(std::move(xferProcessor))
     , fFragmentProcessors(fragmentProcessors)
     , fDesc(desc)
     , fGpu(gpu)

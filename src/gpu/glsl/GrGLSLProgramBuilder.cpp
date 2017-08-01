@@ -95,7 +95,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     fVS.codeAppendf("// Primitive Processor %s\n", proc.name());
 
     SkASSERT(!fGeometryProcessor);
-    fGeometryProcessor = proc.createGLSLInstance(*this->shaderCaps());
+    fGeometryProcessor.reset(proc.createGLSLInstance(*this->shaderCaps()));
 
     SkSTArray<4, SamplerHandle>      texSamplers(proc.numTextureSamplers());
     SkSTArray<2, TexelBufferHandle>  texelBuffers(proc.numBuffers());
@@ -207,7 +207,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 
     SkASSERT(!fXferProcessor);
     const GrXferProcessor& xp = fPipeline.getXferProcessor();
-    fXferProcessor = xp.createGLSLInstance();
+    fXferProcessor.reset(xp.createGLSLInstance());
 
     // Enable dual source secondary output if we have one
     if (xp.hasSecondaryOutput()) {

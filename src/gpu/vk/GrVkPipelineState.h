@@ -100,8 +100,8 @@ private:
                       uint32_t fragmentUniformSize,
                       uint32_t numSamplers,
                       uint32_t numTexelBuffers,
-                      GrGLSLPrimitiveProcessor* geometryProcessor,
-                      GrGLSLXferProcessor* xferProcessor,
+                      std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
+                      std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                       const GrGLSLFragProcs& fragmentProcessors);
 
     void writeUniformBuffers(const GrVkGpu* gpu);
