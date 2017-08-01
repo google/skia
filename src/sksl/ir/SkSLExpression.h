@@ -85,10 +85,6 @@ struct Expression : public IRNode {
         return nullptr;
     }
 
-    virtual int coercionCost(const Type& target) const {
-        return fType.coercionCost(target);
-    }
-
     const Kind fKind;
     const Type& fType;
 
