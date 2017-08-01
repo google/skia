@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88f68c22_e4615823",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageOpsBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-01T21:45:26Z",
+      "side": 1,
+      "message": "Just moved up from below.",
+      "range": {
+        "startLine": 161,
+        "startChar": 6,
+        "endLine": 161,
+        "endChar": 21
+      },
+      "revId": "72c4d372e743553226b438953ab3363795637a8a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
