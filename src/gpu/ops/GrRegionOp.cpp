@@ -52,19 +52,23 @@ namespace {
 
 class RegionOp final : public GrMeshDrawOp {
 private:
-    using Helper = GrSimpleMeshDrawOpHelper;
+    using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
 public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix,
-                                          const SkRegion& region, GrAAType aaType) {
-        return Helper::FactoryHelper<RegionOp>(std::move(paint), viewMatrix, region, aaType);
+                                          const SkRegion& region, GrAAType aaType,
+                                          const GrUserStencilSettings* stencilSettings = nullptr) {
+        return Helper::FactoryHelper<RegionOp>(std::move(paint), viewMatrix, region, aaType,
+                                               stencilSettings);
     }
 
     RegionOp(const Helper::MakeArgs& helperArgs, GrColor color, const SkMatrix& viewMatrix,
-             const SkRegion& region, GrAAType aaType)
-            : INHERITED(ClassID()), fHelper(helperArgs, aaType), fViewMatrix(viewMatrix) {
+             const SkRegion& region, GrAAType aaType, const GrUserStencilSettings* stencilSettings)
+            : INHERITED(ClassID())
+            , fHelper(helperArgs, aaType, stencilSettings)
+            , fViewMatrix(viewMatrix) {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;
         info.fRegion = region;
@@ -200,7 +204,8 @@ GR_DRAW_OP_TEST_DEFINE(RegionOp) {
     if (GrFSAAType::kUnifiedMSAA == fsaaType && random->nextBool()) {
         aaType = GrAAType::kMSAA;
     }
-    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType);
+    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType,
+                          GrGetRandomStencil(random, context));
 }
 
 #endif
