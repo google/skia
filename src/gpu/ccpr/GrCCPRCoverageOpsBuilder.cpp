@@ -11,6 +11,7 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrOnFlushResourceProvider.h"
 #include "GrOpFlushState.h"
+#include "GrPathUtils.h"
 #include "SkGeometry.h"
 #include "SkMakeUnique.h"
 #include "SkMathPriv.h"
@@ -167,6 +168,9 @@ void MaxBufferItems::countPathItems(GrCCPRCoverageOpsBuilder::ScissorMode scisso
 
     for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
         switch (verb) {
+            enum { kMaxQuadraticSegments = 2 };
+            enum { kMaxCubicSegments = 3 };
+
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
                 fMaxFanPoints += currFanPts;
@@ -179,24 +183,25 @@ void MaxBufferItems::countPathItems(GrCCPRCoverageOpsBuilder::ScissorMode scisso
                 continue;
             case SkPath::kQuad_Verb:
                 SkASSERT(currFanPts > 0);
-                ++currFanPts;
-                ++fMaxControlPoints;
-                ++maxPrimitives.fMaxQuadratics;
+                currFanPts += kMaxQuadraticSegments;
+                fMaxControlPoints += kMaxQuadraticSegments;
+                maxPrimitives.fMaxQuadratics += kMaxQuadraticSegments;
                 continue;
-            case SkPath::kCubic_Verb:
+            case SkPath::kCubic_Verb: {
+                GR_STATIC_ASSERT(kMaxCubicSegments >= kMaxQuadraticSegments);
                 SkASSERT(currFanPts > 0);
                 // Over-allocate for the worst case when the cubic is chopped into 3 segments.
-                enum { kMaxSegments = 3 };
-                currFanPts += kMaxSegments;
+                currFanPts += kMaxCubicSegments;
                 // Each cubic segment has two control points.
-                fMaxControlPoints += kMaxSegments * 2;
+                fMaxControlPoints += kMaxCubicSegments * 2;
                 // Each cubic segment also emits two root t,s values as "control points".
-                fMaxControlPoints += kMaxSegments * 2;
-                maxPrimitives.fMaxCubics += kMaxSegments;
+                fMaxControlPoints += kMaxCubicSegments * 2;
+                maxPrimitives.fMaxCubics += kMaxCubicSegments;
                 // The cubic may also turn out to be a quadratic. While we over-allocate by a fair
-                // amount, this is still a relatively small amount of space.
-                ++maxPrimitives.fMaxQuadratics;
+                // amount, this is still a relatively small amount of space compared to the atlas.
+                maxPrimitives.fMaxQuadratics += kMaxQuadraticSegments;
                 continue;
+            }
             case SkPath::kConic_Verb:
                 SkASSERT(currFanPts > 0);
                 SkFAIL("Conics are not supported.");
@@ -305,11 +310,24 @@ void GrCCPRCoverageOpsBuilder::fanTo(const SkPoint& pt) {
 }
 
 void GrCCPRCoverageOpsBuilder::quadraticTo(SkPoint controlPt, SkPoint endPt) {
-    SkASSERT(fCurrPathIndices.fQuadratics < fBaseInstances[(int)fCurrScissorMode].fSerpentines);
+    SkASSERT(fCurrPathIndices.fQuadratics+2 <= fBaseInstances[(int)fCurrScissorMode].fSerpentines);
+
+    SkPoint P[3] = {fCurrFanPoint, controlPt, endPt};
+    SkPoint chopped[5];
+    if (GrPathUtils::chopMonotonicQuads(P, chopped)) {
+        this->fanTo(chopped[2]);
+        fPointsData[fControlPtsIdx++] = chopped[1];
+        fInstanceData[fCurrPathIndices.fQuadratics++].fQuadraticData = {
+            fControlPtsIdx - 1,
+            fFanPtsIdx - 2
+        };
+
+        controlPt = chopped[3];
+        SkASSERT(endPt == chopped[4]);
+    }
 
     this->fanTo(endPt);
     fPointsData[fControlPtsIdx++] = controlPt;
-
     fInstanceData[fCurrPathIndices.fQuadratics++].fQuadraticData = {
         fControlPtsIdx - 1,
         fFanPtsIdx - 2
@@ -515,7 +533,7 @@ void CoverageOp::onExecute(GrOpFlushState* flushState) {
     auto constexpr kQuadraticsGrPrimitiveType = GrCCPRCoverageProcessor::kQuadraticsGrPrimitiveType;
     this->drawMaskPrimitives(flushState, pipeline, Mode::kQuadraticHulls,
                              kQuadraticsGrPrimitiveType, 3, &PrimitiveTallies::fQuadratics);
-    this->drawMaskPrimitives(flushState, pipeline, Mode::kQuadraticFlatEdges,
+    this->drawMaskPrimitives(flushState, pipeline, Mode::kQuadraticCorners,
                              kQuadraticsGrPrimitiveType, 3, &PrimitiveTallies::fQuadratics);
 
     // Cubics.
