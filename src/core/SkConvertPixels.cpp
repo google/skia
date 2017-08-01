@@ -159,56 +159,7 @@ static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
     }
 }
 
-// Fast Path 4: Index 8 sources.
-template <typename T>
-void do_index8(const SkImageInfo& dstInfo, T* dstPixels, size_t dstRB,
-               const SkImageInfo& srcInfo, const uint8_t* srcPixels, size_t srcRB,
-               SkColorTable* ctable, SkTransferFunctionBehavior behavior) {
-    T dstCTable[256];
-    int count = ctable->count();
-    SkImageInfo srcInfo8888 = srcInfo.makeColorType(kN32_SkColorType).makeWH(count, 1);
-    SkImageInfo dstInfoCT = dstInfo.makeWH(count, 1);
-    size_t rowBytes = count * sizeof(T);
-    SkConvertPixels(dstInfoCT, dstCTable, rowBytes, srcInfo8888, ctable->readColors(), rowBytes,
-                    nullptr, behavior);
-
-    for (int y = 0; y < dstInfo.height(); y++) {
-        for (int x = 0; x < dstInfo.width(); x++) {
-            dstPixels[x] = dstCTable[srcPixels[x]];
-        }
-        dstPixels = SkTAddOffset<T>(dstPixels, dstRB);
-        srcPixels = SkTAddOffset<const uint8_t>(srcPixels, srcRB);
-    }
-}
-
-void convert_from_index8(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                         const SkImageInfo& srcInfo, const uint8_t* srcPixels, size_t srcRB,
-                         SkColorTable* ctable, SkTransferFunctionBehavior behavior) {
-    switch (dstInfo.colorType()) {
-        case kAlpha_8_SkColorType:
-            do_index8(dstInfo, (uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable,
-                      behavior);
-            break;
-        case kRGB_565_SkColorType:
-        case kARGB_4444_SkColorType:
-            do_index8(dstInfo, (uint16_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable,
-                      behavior);
-            break;
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            do_index8(dstInfo, (uint32_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable,
-                      behavior);
-            break;
-        case kRGBA_F16_SkColorType:
-            do_index8(dstInfo, (uint64_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable,
-                      behavior);
-            break;
-        default:
-            SkASSERT(false);
-    }
-}
-
-// Fast Path 5: Alpha 8 dsts.
+// Fast Path 4: Alpha 8 dsts.
 static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
                               const void* src, size_t srcRB, SkColorTable* ctable) {
     if (srcInfo.isOpaque()) {
@@ -412,7 +363,7 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
         return;
     }
 
-    // Fast Path 5: Alpha 8 dsts.
+    // Fast Path 4: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
         convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB, ctable);
         return;
