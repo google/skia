@@ -487,6 +487,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             }
         }
     }
+
+    testContext->makeCurrent();
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contextInfo) {
@@ -953,6 +955,9 @@ DEF_GPUTEST(SkImage_MakeCrossContextRelease, reporter, /*factory*/) {
             otherProxy.reset(nullptr);
             refImg.reset(nullptr);
         }
+
+        testContext->makeCurrent();
+        ctx->flush();
     }
 }
 
@@ -1032,6 +1037,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
         { [testContext, otherContextInfo] {
             otherContextInfo.testContext()->makeCurrent();
             sk_sp<SkImage> otherContextImage = create_gpu_image(otherContextInfo.grContext());
+            otherContextInfo.grContext()->flush();
             testContext->makeCurrent();
             return otherContextImage;
           }, {{SkMatrix::I(), kNone_SkFilterQuality, 0}},
@@ -1124,6 +1130,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             sk_free(buffer);
         }
     }
+
+    testContext->makeCurrent();
 }
 #endif
 

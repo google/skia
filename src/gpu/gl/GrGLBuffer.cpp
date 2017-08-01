@@ -243,6 +243,10 @@ void GrGLBuffer::onUnmap() {
 }
 
 bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
+    SkDebugf("this: %p %p\n", this, src);
+
+    SkDebugf("glGpu: %p\n", this->glGpu());
+    
     SkASSERT(fBufferID);
     if (this->wasDestroyed()) {
         return false;
