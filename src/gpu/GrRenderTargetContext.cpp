@@ -362,7 +362,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     // test that needs investigation. We also skip cases where there are fragment processors
     // because they may depend on having correct local coords and this path draws in device space
     // without a local matrix.
-    if (!paint.numTotalFragmentProcessors() && clip.isRRect(r, &rrect, &aa) && !rrect.isRect()) {
+    if (!paint.hasColorOrCoverageProcessor() && clip.isRRect(r, &rrect, &aa) && !rrect.isRect()) {
         this->drawRRect(GrNoClip(), std::move(paint), aa, SkMatrix::I(), rrect,
                         GrStyle::SimpleFill());
         return;

@@ -287,15 +287,14 @@ gr_fp<GrFragmentProcessor> SkLightingShaderImpl::asFragmentProcessor(const AsFPA
     }
 
     if (fDiffuseShader) {
-        gr_fp<GrFragmentProcessor> fpPipeline[] = {
-            as_SB(fDiffuseShader)->asFragmentProcessor(args),
-            LightingFP::Make(std::move(normalFP), fLights)
-        };
-        if (!fpPipeline[0] || !fpPipeline[1]) {
+        auto diffuseFP = as_SB(fDiffuseShader)->asFragmentProcessor(args);
+        auto lightingFP = LightingFP::Make(std::move(normalFP), fLights);
+        if (!diffuseFP || !lightingFP) {
             return nullptr;
         }
 
-        gr_fp<GrFragmentProcessor> innerLightFP = GrFragmentProcessor::RunInSeries(fpPipeline, 2);
+        gr_fp<GrFragmentProcessor> innerLightFP =
+                GrFragmentProcessor::RunInSeries(std::move(diffuseFP), std::move(lightingFP));
         // FP is wrapped because paint's alpha needs to be applied to output
         return GrFragmentProcessor::MulOutputByInputAlpha(std::move(innerLightFP));
     } else {

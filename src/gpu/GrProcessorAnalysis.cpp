@@ -10,9 +10,7 @@
 #include "ops/GrDrawOp.h"
 
 GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
-        const GrProcessorAnalysisColor& input,
-        const GrFragmentProcessor* const* processors,
-        int cnt) {
+        const GrProcessorAnalysisColor& input, const GrFragmentProcessor* head) {
     fCompatibleWithCoverageAsAlpha = true;
     fIsOpaque = input.isOpaque();
     fUsesLocalCoords = false;
@@ -21,12 +19,11 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
     if ((fKnowOutputColor = input.isConstant(&color))) {
         fLastKnownOutputColor = GrColor4f::FromGrColor(color);
     }
-    for (int i = 0; i < cnt; ++i) {
+    for (auto fp : GrFragmentProcessor::Series(head)) {
         if (fUsesLocalCoords && !fKnowOutputColor && !fCompatibleWithCoverageAsAlpha &&
             !fIsOpaque) {
             break;
         }
-        const GrFragmentProcessor* fp = processors[i];
         if (fKnowOutputColor &&
             fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
             ++fProcessorsToEliminate;

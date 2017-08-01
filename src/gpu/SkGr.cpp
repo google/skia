@@ -418,7 +418,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     gr_fp<GrFragmentProcessor> shaderFP;
     if (!primColorMode || blend_requires_shader(*primColorMode)) {
         if (shaderProcessor) {
-            shaderFP = *shaderProcessor;
+            shaderFP = std::move(*shaderProcessor);
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
                 SkShaderBase::AsFPArgs(context, &viewM, nullptr, skPaint.getFilterQuality(),
@@ -443,7 +443,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             // the GrPaint color will be ignored.
 
             GrColor4f shaderInput = origColor.opaque();
-            shaderFP = GrFragmentProcessor::OverrideInput(shaderFP, shaderInput);
+            shaderFP = GrFragmentProcessor::OverrideInput(std::move(shaderFP), shaderInput);
             shaderFP = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(shaderFP),
                                                                          *primColorMode);
 
@@ -539,8 +539,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // Conservative default, in case GrPixelConfigToColorType() fails.
     SkColorType ct = SkColorType::kRGB_565_SkColorType;
     GrPixelConfigToColorType(rtc->config(), &ct);
-    if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0
-        && !rtc->isGammaCorrect()) {
+    if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->hasColorProcessor() &&
+        !rtc->isGammaCorrect()) {
         auto ditherFP = GrDitherEffect::Make(rtc->config());
         if (ditherFP) {
             grPaint->addColorFragmentProcessor(std::move(ditherFP));
@@ -608,13 +608,12 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
             if (!shaderFP) {
                 return false;
             }
-            gr_fp<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
-            shaderFP = GrFragmentProcessor::RunInSeries(fpSeries, 2);
+            shaderFP = GrFragmentProcessor::RunInSeries(std::move(shaderFP), std::move(fp));
         } else {
-            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(fp);
+            shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
         }
     } else {
-        shaderFP = GrFragmentProcessor::MulOutputByInputAlpha(fp);
+        shaderFP = GrFragmentProcessor::MulOutputByInputAlpha(std::move(fp));
     }
 
     return SkPaintToGrPaintReplaceShader(context, rtc, paint, std::move(shaderFP), grPaint);

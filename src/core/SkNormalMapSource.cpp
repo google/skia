@@ -107,7 +107,7 @@ private:
     }
     NormalMapFP(gr_fp<GrFragmentProcessor> mapFP, const SkMatrix& invCTM)
             : INHERITED(kNone_OptimizationFlags), fInvCTM(invCTM) {
-        this->registerChildProcessor(mapFP);
+        this->registerChildProcessor(std::move(mapFP));
 
         this->initClassID<NormalMapFP>();
     }

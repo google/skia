@@ -93,8 +93,7 @@ public:
     GrColorFragmentProcessorAnalysis() = delete;
 
     GrColorFragmentProcessorAnalysis(const GrProcessorAnalysisColor& input,
-                                     const GrFragmentProcessor* const* processors,
-                                     int cnt);
+                                     const GrFragmentProcessor* head);
 
     bool isOpaque() const { return fIsOpaque; }
 
@@ -103,9 +102,7 @@ public:
      * the first fragment processor. This result assumes that processors that should be eliminated
      * as indicated by initialProcessorsToEliminate() are in fact eliminated.
      */
-    bool allProcessorsCompatibleWithCoverageAsAlpha() const {
-        return fCompatibleWithCoverageAsAlpha;
-    }
+    bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithCoverageAsAlpha; }
 
     /**
      * Do any of the fragment processors require local coords. This result assumes that
@@ -124,13 +121,6 @@ public:
     int initialProcessorsToEliminate(GrColor* newPipelineInputColor) const {
         if (fProcessorsToEliminate > 0) {
             *newPipelineInputColor = fLastKnownOutputColor.toGrColor();
-        }
-        return fProcessorsToEliminate;
-    }
-
-    int initialProcessorsToEliminate(GrColor4f* newPipelineInputColor) const {
-        if (fProcessorsToEliminate > 0) {
-            *newPipelineInputColor = fLastKnownOutputColor;
         }
         return fProcessorsToEliminate;
     }
