@@ -108,7 +108,8 @@ void draw_child(skiatest::Reporter* reporter,
 void surface_semaphore_test(skiatest::Reporter* reporter,
                             const sk_gpu_test::ContextInfo& mainInfo,
                             const sk_gpu_test::ContextInfo& childInfo1,
-                            const sk_gpu_test::ContextInfo& childInfo2) {
+                            const sk_gpu_test::ContextInfo& childInfo2,
+                            bool flushContext) {
     GrContext* mainCtx = mainInfo.grContext();
     if (!mainCtx->caps()->fenceSyncSupport()) {
         return;
@@ -143,7 +144,11 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     }
 #endif
 
-    mainSurface->flushAndSignalSemaphores(2, semaphores.get());
+    if (flushContext) {
+        mainCtx->flushAndSignalSemaphores(2, semaphores.get());
+    } else {
+        mainSurface->flushAndSignalSemaphores(2, semaphores.get());
+    }
 
     sk_sp<SkImage> mainImage = mainSurface->makeImageSnapshot();
     GrBackendObject backendImage = mainImage->getTextureHandle(false);
@@ -171,31 +176,35 @@ DEF_GPUTEST(SurfaceSemaphores, reporter, factory) {
 #endif
 
     for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
-        sk_gpu_test::GrContextFactory::ContextType contextType =
-                (sk_gpu_test::GrContextFactory::ContextType) typeInt;
-        // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
-        // desktop since tests do not account for not fixing http://skbug.com/2809
-        if (contextType == sk_gpu_test::GrContextFactory::kGL_ContextType ||
-            contextType == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
-            if (contextType != kNativeGLType) {
+        for (auto flushContext : { false, true }) {
+            sk_gpu_test::GrContextFactory::ContextType contextType =
+                    (sk_gpu_test::GrContextFactory::ContextType) typeInt;
+            // Use "native" instead of explicitly trying OpenGL and OpenGL ES. Do not use GLES on
+            // desktop since tests do not account for not fixing http://skbug.com/2809
+            if (contextType == sk_gpu_test::GrContextFactory::kGL_ContextType ||
+                contextType == sk_gpu_test::GrContextFactory::kGLES_ContextType) {
+                if (contextType != kNativeGLType) {
+                    continue;
+                }
+            }
+            sk_gpu_test::ContextInfo ctxInfo = factory->getContextInfo(
+                    contextType, sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR);
+            if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
                 continue;
             }
-        }
-        sk_gpu_test::ContextInfo ctxInfo = factory->getContextInfo(
-                contextType, sk_gpu_test::GrContextFactory::ContextOverrides::kDisableNVPR);
-        if (!sk_gpu_test::GrContextFactory::IsRenderingContext(contextType)) {
-            continue;
-        }
-        skiatest::ReporterContext ctx(
-                reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
-        if (ctxInfo.grContext()) {
-            sk_gpu_test::ContextInfo child1 = factory->getSharedContextInfo(ctxInfo.grContext(), 0);
-            sk_gpu_test::ContextInfo child2 = factory->getSharedContextInfo(ctxInfo.grContext(), 1);
-            if (!child1.grContext() || !child2.grContext()) {
-                continue;
-            }
+            skiatest::ReporterContext ctx(
+                   reporter, SkString(sk_gpu_test::GrContextFactory::ContextTypeName(contextType)));
+            if (ctxInfo.grContext()) {
+                sk_gpu_test::ContextInfo child1 = factory->getSharedContextInfo(ctxInfo.grContext(),
+                                                                                0);
+                sk_gpu_test::ContextInfo child2 = factory->getSharedContextInfo(ctxInfo.grContext(),
+                                                                                1);
+                if (!child1.grContext() || !child2.grContext()) {
+                    continue;
+                }
 
-            surface_semaphore_test(reporter, ctxInfo, child1, child2);
+                surface_semaphore_test(reporter, ctxInfo, child1, child2, flushContext);
+            }
         }
     }
 }
@@ -217,7 +226,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
     mainSurface->flush();
 
     GrBackendSemaphore semaphore;
-    REPORTER_ASSERT(reporter, mainSurface->flushAndSignalSemaphores(1, &semaphore));
+    GrSemaphoresSubmitted submitted = mainSurface->flushAndSignalSemaphores(1, &semaphore);
+    REPORTER_ASSERT(reporter, GrSemaphoresSubmitted::kYes == submitted);
 
     if (kOpenGL_GrBackend == ctxInfo.backend()) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(ctx->getGpu());

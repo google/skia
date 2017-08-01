@@ -8,6 +8,7 @@
 
 #include "GrGpu.h"
 
+#include "GrBackendSemaphore.h"
 #include "GrBackendSurface.h"
 #include "GrBuffer.h"
 #include "GrCaps.h"
@@ -19,6 +20,7 @@
 #include "GrRenderTargetPriv.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
+#include "GrSemaphore.h"
 #include "GrStencilAttachment.h"
 #include "GrStencilSettings.h"
 #include "GrSurfacePriv.h"
@@ -512,4 +514,27 @@ bool GrGpu::SamplePatternComparator::operator()(const SamplePattern& a,
         }
     }
     return false; // Equal.
+}
+
+GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
+                                         GrBackendSemaphore backendSemaphores[]) {
+    if (this->caps()->fenceSyncSupport()) {
+        for (int i = 0; i < numSemaphores; ++i) {
+            sk_sp<GrSemaphore> semaphore;
+            if (backendSemaphores[i].isInitialized()) {
+                semaphore = fContext->resourceProvider()->wrapBackendSemaphore(
+                        backendSemaphores[i], kBorrow_GrWrapOwnership);
+            } else {
+                semaphore = fContext->resourceProvider()->makeSemaphore(false);
+            }
+            this->insertSemaphore(semaphore, false);
+
+            if (!backendSemaphores[i].isInitialized()) {
+                semaphore->setBackendSemaphore(&backendSemaphores[i]);
+            }
+        }
+    }
+    this->onFinishFlush((numSemaphores > 0 && this->caps()->fenceSyncSupport()));
+    return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
+                                            : GrSemaphoresSubmitted::kNo;
 }
