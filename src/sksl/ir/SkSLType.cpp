@@ -10,31 +10,37 @@
 
 namespace SkSL {
 
-bool Type::determineCoercionCost(const Type& other, int* outCost) const {
+int Type::coercionCost(const Type& other) const {
     if (*this == other) {
-        *outCost = 0;
-        return true;
+        return 0;
     }
     if (this->kind() == kVector_Kind && other.kind() == kVector_Kind) {
         if (this->columns() == other.columns()) {
-            return this->componentType().determineCoercionCost(other.componentType(), outCost);
+            return this->componentType().coercionCost(other.componentType());
         }
-        return false;
+        return INT_MAX;
     }
     if (this->kind() == kMatrix_Kind) {
-        if (this->columns() == other.columns() &&
-            this->rows() == other.rows()) {
-            return this->componentType().determineCoercionCost(other.componentType(), outCost);
+        if (this->columns() == other.columns() && this->rows() == other.rows()) {
+            return this->componentType().coercionCost(other.componentType());
         }
-        return false;
+        return INT_MAX;
+    }
+    if (this->isNumber() && other.isFloat()) {
+        return 1;
+    }
+    if (this->isSigned() && other.isSigned()) {
+        return 1;
+    }
+    if (this->isUnsigned() && other.isUnsigned()) {
+        return 1;
     }
     for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
         if (*fCoercibleTypes[i] == other) {
-            *outCost = (int) i + 1;
-            return true;
+            return (int) i + 1;
         }
     }
-    return false;
+    return INT_MAX;
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
