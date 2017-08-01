@@ -121,6 +121,13 @@ public:
      *  and its pixel ref may have an SkColorSpace.
      */
     SkCanvas(const SkBitmap& bitmap, ColorBehavior behavior);
+
+    /**
+     *  Android framework only function.
+     *  clipWithStencil draws the current clip into a stencil buffer with reference value and mask
+     *  set to 0x1. This function works only on a GPU canvas.
+     */
+    void clipWithStencil();
 #endif
 
     /** Construct a canvas with the specified bitmap to draw into.

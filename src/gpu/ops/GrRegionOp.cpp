@@ -169,11 +169,11 @@ private:
 namespace GrRegionOp {
 
 std::unique_ptr<GrDrawOp> Make(GrPaint&& paint, const SkMatrix& viewMatrix, const SkRegion& region,
-                               GrAAType aaType) {
+                               GrAAType aaType, const GrUserStencilSettings* stencilSettings) {
     if (aaType != GrAAType::kNone && aaType != GrAAType::kMSAA) {
         return nullptr;
     }
-    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType);
+    return RegionOp::Make(std::move(paint), viewMatrix, region, aaType, stencilSettings);
 }
 }
 

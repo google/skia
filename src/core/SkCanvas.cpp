@@ -745,6 +745,45 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, ColorBehavior)
     sk_sp<SkBaseDevice> device(new SkBitmapDevice(tmp, fProps, nullptr));
     this->init(device.get(), kDefault_InitFlags);
 }
+
+#include "GrStyle.h"
+#include "GrClip.h"
+#include "GrRenderTargetContext.h"
+#include "effects/GrDisableColorXP.h"
+#include "GrUserStencilSettings.h"
+
+void SkCanvas::clipWithStencil() {
+    SkRegion clipRegion;
+    this->temporary_internal_getRgnClip(&clipRegion);
+    if (clipRegion.isEmpty()) {
+        return;
+    }
+    SkBaseDevice* device = nullptr;
+    DeviceCM* rec = this->fMCRec->fTopLayer;
+    if (rec && rec->fDevice) {
+        device = rec->fDevice.get();
+    } else {
+        return;
+    }
+    GrRenderTargetContext* rtc = device->accessRenderTargetContext();
+    if (!rtc) {
+        return;
+    }
+    GrPaint grPaint;
+    grPaint.setXPFactory(GrDisableColorXPFactory::Get());
+    GrNoClip noClip;
+    static constexpr GrUserStencilSettings kDrawToStencil(
+         GrUserStencilSettings::StaticInit<
+             0x1,
+             GrUserStencilTest::kAlways,
+             0x1,
+             GrUserStencilOp::kReplace,
+             GrUserStencilOp::kReplace,
+             0x1>()
+    );
+    rtc->drawRegion(noClip, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
+                    GrStyle::SimpleFill(), &kDrawToStencil);
+}
 #endif
 
 SkCanvas::~SkCanvas() {
