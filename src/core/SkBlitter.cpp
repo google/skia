@@ -86,6 +86,8 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
     SkAlpha*    alphas  = reinterpret_cast<SkAlpha*>(runs + runSize);
     runs[clip.width()]  = 0; // we must set the last run to 0 so blitAntiH can stop there
 
+    deltas->sort();
+
     bool canUseMask = !deltas->forceRLE() &&
                       SkCoverageDeltaMask::CanHandle(SkIRect::MakeLTRB(0, 0, clip.width(), 1));
     const SkAntiRect& antiRect = deltas->getAntiRect();
@@ -98,13 +100,12 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
             continue;
         }
 
-        // If there are too many deltas, sorting will be slow. Using a mask will be much faster.
-        // This is such an important optimization that will bring ~2x speedup for benches like
-        // path_fill_small_long_line and path_stroke_small_sawtooth.
-        if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
+        // TODO since we're now always sorted, we may want to change the decision whether to use
+        // mask or not.
+        if (canUseMask && deltas->countByY(y) << 3 >= clip.width()) {
             SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
             SkCoverageDeltaMask mask(rowIR);
-            for(int i = 0; i < deltas->count(y); ++i) {
+            for(int i = 0; i < deltas->countByY(y); ++i) {
                 const SkCoverageDelta& delta = deltas->getDelta(y, i);
                 mask.addDelta(delta.fX, y, delta.fDelta);
             }
@@ -113,16 +114,13 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
             continue;
         }
 
-        // The normal flow of blitting deltas starts from here. First sort deltas.
-        deltas->sort(y);
-
         int     i = 0;              // init delta index to 0
         int     lastX = clip.fLeft; // init x to clip.fLeft
         SkFixed coverage = 0;       // init coverage to 0
 
         // skip deltas with x less than clip.fLeft; they must be precision errors
-        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
-        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
+        for(; i < deltas->countByY(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i);
+        for(; i < deltas->countByY(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
             const SkCoverageDelta& delta = deltas->getDelta(y, i);
             SkASSERT(delta.fX >= lastX);    // delta must be x sorted
             if (delta.fX > lastX) {         // we have proceeded to a new x (different from lastX)

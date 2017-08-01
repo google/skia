@@ -7,46 +7,75 @@
 
 #include "SkCoverageDelta.h"
 
-SkCoverageDeltaList::SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom,
+SkCoverageDeltaList::SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, const SkIRect& bounds,
                                          bool forceRLE) {
     fAlloc              = alloc;
-    fTop                = top;
-    fBottom             = bottom;
+    fBounds             = bounds.makeOutset(PADDING, 0);
     fForceRLE           = forceRLE;
+    fCount              = 0;
+    fMaxCount           = RESERVED_STORAGE;
+    fDeltas             = fReservedStorage;
+    fRows               = nullptr; // this will be generated in sort method
+
+    if (fBounds.height() + fBounds.width() < RESERVED_HEIGHT + RESERVED_WIDTH) {
+        fCountByX = fReservedCounts;
+    } else {
+        fCountByX = alloc->makeArrayDefault<int>(fBounds.width() + fBounds.height());
+    }
+    memset(fCountByX, 0, sizeof(int) * (fBounds.height() + fBounds.width()));
+    fCountByY = fCountByX + fBounds.width();
+    fCountByX -= fBounds.fLeft; // so we can directly use fCountByX[x]
+    fCountByY -= fBounds.fTop;  // so we can directly use fCountByY[y]
 
     // Init the anti-rect to be empty
-    fAntiRect.fY        = bottom;
+    fAntiRect.fY        = fBounds.fBottom;
     fAntiRect.fHeight   = 0;
+}
 
-    if (bottom - top <= RESERVED_HEIGHT) {
-        fSorted     = fReservedSorted;
-        fCounts     = fReservedCounts;
-        fMaxCounts  = fReservedMaxCounts;
-        fRows       = fReservedRows - top;
-        fRows[top]  = fReservedStorage;
-    } else {
-        fSorted     = fAlloc->makeArrayDefault<bool>(bottom - top);
-        fCounts     = fAlloc->makeArrayDefault<int>((bottom - top) * 2);
-        fMaxCounts  = fCounts + bottom - top;
-        fRows       = fAlloc->makeArrayDefault<SkCoverageDelta*>(bottom - top) - top;
-        fRows[top]  = fAlloc->makeArrayDefault<SkCoverageDelta>(INIT_ROW_SIZE * (bottom - top));
+void SkCoverageDeltaList::sort() {
+    SkCoverageDelta* sortStorage =
+            fCount <= RESERVED_STORAGE / 2 ? fDeltas + fCount
+                                           : fAlloc->makeArrayDefault<SkCoverageDelta>(fCount);
+
+    int* sortCounts = fReservedCounts + fBounds.height() + fBounds.width();
+    if (fBounds.height() + fBounds.width() > (RESERVED_HEIGHT + RESERVED_WIDTH) / 2) {
+        sortCounts = fAlloc->makeArrayDefault<int>(fBounds.height() + fBounds.width());
     }
 
-    memset(fSorted, true, bottom - top);
-    memset(fCounts, 0, sizeof(int) * (bottom - top));
-
-    // Minus top so we can directly use fCounts[y] instead of fCounts[y - fTop].
-    // Same for fMaxCounts, fRows, and fSorted.
-    fSorted    -= top;
-    fCounts    -= top;
-    fMaxCounts -= top;
-
-    for(int y = top; y < bottom; ++y) {
-        fMaxCounts[y] = INIT_ROW_SIZE;
+    fRows = fReservedRows;
+    if (SkTMax(fBounds.height(), fBounds.width()) > RESERVED_HEIGHT) {
+        fRows = (SkCoverageDelta**)fAlloc->makeArrayDefault<SkCoverageDelta**>(
+            SkTMax(fBounds.height(), fBounds.width()));
     }
-    for(int y = top + 1; y < bottom; ++y) {
-        fRows[y] = fRows[y - 1] + INIT_ROW_SIZE;
+
+    // first sort by x
+    memset(sortCounts, 0, sizeof(int) * fBounds.width());
+    int* countX = sortCounts - fBounds.fLeft;
+    fRows[0] = sortStorage;
+    fRows -= fBounds.fLeft;
+    for(int x = fBounds.fLeft + 1; x < fBounds.fRight; ++x) {
+        fRows[x] = fRows[x - 1] + fCountByX[x - 1];
     }
+    for(int i = 0; i < fCount; ++i) {
+        const SkCoverageDelta& delta = fDeltas[i];
+        fRows[delta.fX][countX[delta.fX]++] = delta;
+    }
+    memcpy(fDeltas, sortStorage, sizeof(SkCoverageDelta) * fCount);
+    fRows += fBounds.fLeft; // restore
+
+    // then sort by y
+    memset(sortCounts, 0, sizeof(int) * fBounds.height());
+    int* countY = sortCounts - fBounds.fTop;
+    fRows[0] = sortStorage;
+    fRows -= fBounds.fTop; // from now on, we can use fRows[y]
+    for(int y = fBounds.fTop + 1; y < fBounds.fBottom; ++ y) {
+        fRows[y] = fRows[y - 1] + fCountByY[y - 1];
+    }
+    for(int i = 0; i < fCount; ++i) {
+        const SkCoverageDelta& delta = fDeltas[i];
+        fRows[delta.fY][countY[delta.fY]++] = delta;
+    }
+    memcpy(fDeltas, sortStorage, sizeof(SkCoverageDelta) * fCount);
 }
 
 int SkCoverageDeltaMask::ExpandWidth(int width) {
