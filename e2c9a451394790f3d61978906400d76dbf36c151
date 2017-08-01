@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2857ca51_194139b1",
+        "filename": "src/shaders/gradients/SkSweepGradient.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-01T16:17:07Z",
+      "side": 1,
+      "message": "Doesn\u0027t really matter but could make these SK_FloatNaN",
+      "revId": "e2c9a451394790f3d61978906400d76dbf36c151",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
