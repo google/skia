@@ -98,6 +98,23 @@
                            static_cast<int>(value1_val), value2_name,       \
                            static_cast<int>(value2_val))
 
+// Macros to track the life time and value of arbitrary client objects.
+#define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) \
+  INTERNAL_TRACE_EVENT_ADD_WITH_ID(                                  \
+      TRACE_EVENT_PHASE_CREATE_OBJECT, category_group, name, id,     \
+      TRACE_EVENT_FLAG_NONE)
+
+#define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(category_group, name, id, \
+                                            snapshot)                 \
+  INTERNAL_TRACE_EVENT_ADD_WITH_ID(                                   \
+      TRACE_EVENT_PHASE_SNAPSHOT_OBJECT, category_group, name,        \
+      id, TRACE_EVENT_FLAG_NONE, "snapshot", snapshot)
+
+#define TRACE_EVENT_OBJECT_DELETED_WITH_ID(category_group, name, id) \
+  INTERNAL_TRACE_EVENT_ADD_WITH_ID(                                  \
+      TRACE_EVENT_PHASE_DELETE_OBJECT, category_group, name, id,     \
+      TRACE_EVENT_FLAG_NONE)
+
 // Macro to efficiently determine if a given category group is enabled.
 #define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)             \
   do {                                                                      \
@@ -118,6 +135,9 @@
 #define TRACE_EVENT_PHASE_ASYNC_BEGIN ('S')
 #define TRACE_EVENT_PHASE_ASYNC_END ('F')
 #define TRACE_EVENT_PHASE_COUNTER ('C')
+#define TRACE_EVENT_PHASE_CREATE_OBJECT ('N')
+#define TRACE_EVENT_PHASE_SNAPSHOT_OBJECT ('O')
+#define TRACE_EVENT_PHASE_DELETE_OBJECT ('D')
 
 // Flags for changing the behavior of TRACE_EVENT_API_ADD_TRACE_EVENT.
 #define TRACE_EVENT_FLAG_NONE (static_cast<unsigned int>(0))

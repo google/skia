@@ -13,6 +13,7 @@
 #include "SkJSONCPP.h"
 #include "SkSpinlock.h"
 #include "SkString.h"
+#include "SkTHash.h"
 
 /**
  * A SkEventTracer implementation that logs events to JSON for viewing with chrome://tracing.
@@ -48,7 +49,7 @@ private:
     void flush();
 
     enum {
-        // Events are currently 80 bytes, assuming 64-bit pointers and reasonable packing.
+        // Events are currently 88 bytes, assuming 64-bit pointers and reasonable packing.
         // This is a first guess at a number that balances memory usage vs. time overhead of
         // allocating blocks.
         kEventsPerBlock = 10000,
@@ -65,6 +66,7 @@ private:
 
         const char* fName;
         const char* fCategory;
+        uint64_t fID;
         uint64_t fClockBegin;
         uint64_t fClockEnd;
         SkThreadID fThreadID;
@@ -75,8 +77,10 @@ private:
 
     typedef std::unique_ptr<TraceEvent[]> BlockPtr;
     BlockPtr createBlock();
+
+    typedef SkTHashMap<uint64_t, const char*> BaseTypeResolver;
     TraceEvent* appendEvent(const TraceEvent&);
-    Json::Value traceEventToJson(const TraceEvent&);
+    Json::Value traceEventToJson(const TraceEvent&, BaseTypeResolver* baseTypeResolver);
 
     SkString fFilename;
     SkSpinlock fMutex;

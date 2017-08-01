@@ -128,6 +128,23 @@
       } \
     } while (0)
 
+// Implementation detail: internal macro to create static category and add
+// event if the category is enabled.
+#define INTERNAL_TRACE_EVENT_ADD_WITH_ID(phase, category_group, name, id, \
+                                         flags, ...) \
+    do { \
+      INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
+      if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
+        unsigned char trace_event_flags = flags | TRACE_EVENT_FLAG_HAS_ID; \
+        skia::tracing_internals::TraceID trace_event_trace_id( \
+            id, &trace_event_flags); \
+        skia::tracing_internals::AddTraceEvent( \
+            phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
+            name, trace_event_trace_id.data(), trace_event_flags, \
+            ##__VA_ARGS__); \
+      } \
+    } while (0)
+
 // Implementation detail: internal macro to create static category and add begin
 // event if the category is enabled. Also adds the end event when the scope
 // ends.
@@ -151,6 +168,40 @@ namespace tracing_internals {
 // used.
 const int kZeroNumArgs = 0;
 const uint64_t kNoEventId = 0;
+
+// TraceID encapsulates an ID that can either be an integer or pointer. Pointers
+// are by default mangled with the Process ID so that they are unlikely to
+// collide when the same pointer is used on different processes.
+class TraceID {
+public:
+    TraceID(const void* id, unsigned char* flags)
+            : data_(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(id))) {
+        *flags |= TRACE_EVENT_FLAG_MANGLE_ID;
+    }
+    TraceID(uint64_t id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(unsigned int id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(unsigned short id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(unsigned char id, unsigned char* flags)
+        : data_(id) { (void)flags; }
+    TraceID(long long id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(long id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(int id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(short id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+    TraceID(signed char id, unsigned char* flags)
+        : data_(static_cast<uint64_t>(id)) { (void)flags; }
+
+    uint64_t data() const { return data_; }
+
+private:
+    uint64_t data_;
+};
 
 // Simple union to store various types as uint64_t.
 union TraceValueUnion {
