@@ -61,6 +61,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fRequiresLocalOutputColorForFBFetch = false;
     fMustImplementGSInvocationsWithLoop = false;
     fMustObfuscateUniformColor = false;
+    fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     fFlatInterpolationSupport = false;
     fNoPerspectiveInterpolationSupport = false;
     fMultisampleInterpolationSupport = false;
@@ -149,6 +150,8 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Must implement geo shader invocations with loop : %s\n",
               (fMustImplementGSInvocationsWithLoop ? "YES" : "NO"));
     r.appendf("Must obfuscate uniform color: %s\n", (fMustObfuscateUniformColor ? "YES" : "NO"));
+    r.appendf("Must guard division even after explicit zero check: %s\n",
+              (fMustGuardDivisionEvenAfterExplicitZeroCheck ? "YES" : "NO"));
     r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ?  "YES" : "NO"));
     r.appendf("No perspective interpolation support: %s\n", (fNoPerspectiveInterpolationSupport ?
                                                              "YES" : "NO"));

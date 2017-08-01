@@ -927,6 +927,24 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
     if (kMaliT_GrGLRenderer == ctxInfo.renderer()) {
         shaderCaps->fMustObfuscateUniformColor = true;
     }
+
+#ifdef SK_BUILD_FOR_WIN
+    // Check for ANGLE on Windows, so we can workaround a bug in D3D itself (anglebug.com/2098).
+    //
+    // Basically, if a shader has a construct like:
+    //
+    // float x = someCondition ? someValue : 0;
+    // float2 result = (0 == x) ? float2(x, x)
+    //                          : float2(2 * x / x, 0);
+    //
+    // ... the compiler will produce an error 'NaN and infinity literals not allowed', even though
+    // we've explicitly guarded the division with a check against zero. This manifests in much
+    // more complex ways in some of our shaders, so we use this caps bit to add an epsilon value
+    // to the denominator of divisions, even when we've added checks that the denominator isn't 0.
+    if (kANGLE_GrGLDriver == ctxInfo.driver() || kChromium_GrGLDriver == ctxInfo.driver()) {
+        shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
+    }
+#endif
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

@@ -7,6 +7,7 @@
 
 #include "GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
+#include "glsl/GrGLSLProgramBuilder.h"
 #include "SkBlendModePriv.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -39,6 +40,12 @@ static void color_dodge_component(GrGLSLFragmentBuilder* fsBuilder,
                                   const char* src,
                                   const char* dst,
                                   const char component) {
+    const char* divisorGuard = "";
+    const GrShaderCaps* shaderCaps = fsBuilder->getProgramBuilder()->shaderCaps();
+    if (shaderCaps->mustGuardDivisionEvenAfterExplicitZeroCheck()) {
+        divisorGuard = "+ 0.00000001";
+    }
+
     fsBuilder->codeAppendf("if (0.0 == %s.%c) {", dst, component);
     fsBuilder->codeAppendf("%s.%c = %s.%c * (1.0 - %s.a);",
                            final, component, src, component, dst);
@@ -49,8 +56,8 @@ static void color_dodge_component(GrGLSLFragmentBuilder* fsBuilder,
                            final, component, src, dst, src, component, dst, dst, component,
                            src);
     fsBuilder->codeAppend("} else {");
-    fsBuilder->codeAppendf("d = min(%s.a, %s.%c * %s.a / d);",
-                           dst, dst, component, src);
+    fsBuilder->codeAppendf("d = min(%s.a, %s.%c * %s.a / (d %s));",
+                           dst, dst, component, src, divisorGuard);
     fsBuilder->codeAppendf("%s.%c = d * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);",
                            final, component, src, src, component, dst, dst, component, src);
     fsBuilder->codeAppend("}");
@@ -84,14 +91,20 @@ static void soft_light_component_pos_dst_alpha(GrGLSLFragmentBuilder* fsBuilder,
                                                const char* src,
                                                const char* dst,
                                                const char component) {
+    const char* divisorGuard = "";
+    const GrShaderCaps* shaderCaps = fsBuilder->getProgramBuilder()->shaderCaps();
+    if (shaderCaps->mustGuardDivisionEvenAfterExplicitZeroCheck()) {
+        divisorGuard = "+ 0.00000001";
+    }
+
     // if (2S < Sa)
     fsBuilder->codeAppendf("if (2.0 * %s.%c <= %s.a) {", src, component, src);
     // (D^2 (Sa-2 S))/Da+(1-Da) S+D (-Sa+2 S+1)
-    fsBuilder->codeAppendf("%s.%c = (%s.%c*%s.%c*(%s.a - 2.0*%s.%c)) / %s.a +"
+    fsBuilder->codeAppendf("%s.%c = (%s.%c*%s.%c*(%s.a - 2.0*%s.%c)) / (%s.a %s) +"
                            "(1.0 - %s.a) * %s.%c + %s.%c*(-%s.a + 2.0*%s.%c + 1.0);",
                            final, component, dst, component, dst, component, src, src,
-                           component, dst, dst, src, component, dst, component, src, src,
-                           component);
+                           component, dst, divisorGuard, dst, src, component, dst, component, src,
+                           src, component);
     // else if (4D < Da)
     fsBuilder->codeAppendf("} else if (4.0 * %s.%c <= %s.a) {",
                            dst, component, dst);
@@ -104,10 +117,10 @@ static void soft_light_component_pos_dst_alpha(GrGLSLFragmentBuilder* fsBuilder,
     fsBuilder->codeAppendf("%s.%c ="
                            "(DaSqd*(%s.%c - %s.%c * (3.0*%s.a - 6.0*%s.%c - 1.0)) +"
                            " 12.0*%s.a*DSqd*(%s.a - 2.0*%s.%c) - 16.0*DCub * (%s.a - 2.0*%s.%c) -"
-                           " DaCub*%s.%c) / DaSqd;",
+                           " DaCub*%s.%c) / (DaSqd %s);",
                            final, component, src, component, dst, component,
                            src, src, component, dst, src, src, component, src, src,
-                           component, src, component);
+                           component, src, component, divisorGuard);
     fsBuilder->codeAppendf("} else {");
     // -sqrt(Da * D) (Sa-2 S)-Da S+D (Sa-2 S+1)+S
     fsBuilder->codeAppendf("%s.%c = %s.%c*(%s.a - 2.0*%s.%c + 1.0) + %s.%c -"
