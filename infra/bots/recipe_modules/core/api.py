@@ -119,7 +119,7 @@ class SkiaApi(recipe_api.RecipeApi):
       chromium.name = 'src'
       chromium.managed = False
       chromium.url = 'https://chromium.googlesource.com/chromium/src.git'
-      chromium.revision = 'origin/lkgr'
+      chromium.revision = 'origin/lkcr'
 
     # Run bot_update.
 
