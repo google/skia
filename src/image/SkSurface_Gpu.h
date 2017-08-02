@@ -29,6 +29,7 @@ public:
     GrSemaphoresSubmitted onFlush(int numSemaphores,
                                   GrBackendSemaphore signalSemaphores[]) override;
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) override;
+    bool onCharacterize(SkSurfaceCharacterization*) const override;
 
     SkGpuDevice* getDevice() { return fDevice.get(); }
 
