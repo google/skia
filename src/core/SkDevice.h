@@ -13,6 +13,7 @@
 #include "SkColor.h"
 #include "SkSurfaceProps.h"
 
+class SkAndroidFrameworkUtils;
 class SkBitmap;
 class SkDrawFilter;
 struct SkDrawShadowRec;
@@ -346,6 +347,7 @@ protected:
     static void LogDrawScaleFactor(const SkMatrix&, SkFilterQuality);
 
 private:
+    friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;

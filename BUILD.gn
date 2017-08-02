@@ -678,6 +678,7 @@ component("skia") {
   sources += skia_utils_sources
   sources += skia_xps_sources
   sources += [
+    "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkBitmapRegionCodec.cpp",
     "src/android/SkBitmapRegionDecoder.cpp",
     "src/codec/SkAndroidCodec.cpp",

@@ -17,6 +17,7 @@
 
 class GrContext;
 class GrRenderTargetContext;
+class SkAndroidFrameworkUtils;
 class SkBaseDevice;
 class SkBitmap;
 class SkClipStack;
@@ -1457,6 +1458,7 @@ private:
     void checkForDeferredSave();
     void internalSetMatrix(const SkMatrix&);
 
+    friend class SkAndroidFrameworkUtils;
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
     friend class SkDebugCanvas;     // needs experimental fAllowSimplifyClip

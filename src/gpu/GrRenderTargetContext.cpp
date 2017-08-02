@@ -1277,7 +1277,8 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
                                        GrAA aa,
                                        const SkMatrix& viewMatrix,
                                        const SkRegion& region,
-                                       const GrStyle& style) {
+                                       const GrStyle& style,
+                                       const GrUserStencilSettings* ss) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1300,7 +1301,8 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     }
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo, GrAllowMixedSamples::kNo);
-    std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(std::move(paint), viewMatrix, region, aaType);
+    std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(std::move(paint), viewMatrix, region, aaType,
+                                                    ss);
     this->addDrawOp(clip, std::move(op));
 }
 

@@ -246,7 +246,8 @@ public:
                     GrAA aa,
                     const SkMatrix& viewMatrix,
                     const SkRegion& region,
-                    const GrStyle& style);
+                    const GrStyle& style,
+                    const GrUserStencilSettings* ss = nullptr);
 
     /**
      * Draws an oval.
