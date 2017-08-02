@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrBackendSemaphore.h"
 #include "GrContext.h"
 #include "GrClip.h"
 #include "GrContextOptions.h"
@@ -332,6 +333,14 @@ void GrContext::flush() {
     RETURN_IF_ABANDONED
 
     fDrawingManager->flush(nullptr);
+}
+
+GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
+                                                          GrBackendSemaphore signalSemaphores[]) {
+    ASSERT_SINGLE_OWNER
+    if (fDrawingManager->wasAbandoned()) { return GrSemaphoresSubmitted::kNo; }
+
+    return fDrawingManager->flush(nullptr, numSemaphores, signalSemaphores);
 }
 
 void GrContextPriv::flush(GrSurfaceProxy* proxy) {
@@ -668,7 +677,7 @@ void GrContextPriv::prepareSurfaceForExternalIO(GrSurfaceProxy* proxy) {
     RETURN_IF_ABANDONED_PRIV
     SkASSERT(proxy);
     ASSERT_OWNED_PROXY_PRIV(proxy);
-    fContext->fDrawingManager->prepareSurfaceForExternalIO(proxy);
+    fContext->fDrawingManager->prepareSurfaceForExternalIO(proxy, 0, nullptr);
 }
 
 void GrContextPriv::flushSurfaceWrites(GrSurfaceProxy* proxy) {
