@@ -1034,7 +1034,7 @@ DEF_SIMPLE_GM(fancy_gradients, canvas, 800, 300) {
     });
 }
 
-DEF_SIMPLE_GM(sweep_tiling, canvas, 512, 512) {
+DEF_SIMPLE_GM(sweep_tiling, canvas, 512, 690) {
     static constexpr SkScalar size = 160;
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorYELLOW, SK_ColorGREEN };
     static constexpr SkScalar   pos[] = { 0, .25f, .50f };
@@ -1050,6 +1050,7 @@ DEF_SIMPLE_GM(sweep_tiling, canvas, 512, 512) {
         { -330, -270 },
         {   30,   90 },
         {  390,  450 },
+        {  -30,  800 },
     };
 
     SkPaint p;
