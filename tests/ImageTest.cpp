@@ -486,6 +486,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
                 ERRORF(reporter, "makeTextureImage changed image alpha type.");
             }
         }
+
+        testContext->makeCurrent();
+        context->flush();
     }
 }
 
@@ -1123,6 +1126,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredTextureImage, reporter, ctxInfo) {
             }
             sk_free(buffer);
         }
+
+        testContext->makeCurrent();
+        context->flush();
     }
 }
 #endif

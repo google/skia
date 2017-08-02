@@ -251,6 +251,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     if (renderable) {
                         desc.fFlags = kRenderTarget_GrSurfaceFlag;
                         tex = provider->createTexture(desc, budgeted);
+                        if (!tex) {
+                            continue; // This can fail on Mesa
+                        }
                         sk_sp<GrRenderTarget> rt(sk_ref_sp(tex->asRenderTarget()));
 
                         sk_sp<GrSurfaceProxy> sProxy(GrSurfaceProxy::MakeWrapped(rt, origin));
