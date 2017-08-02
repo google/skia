@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "002eb357_f360bb92",
+        "filename": "src/android/SkBitmapRegionDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T19:26:06Z",
+      "side": 1,
+      "message": "remove this line as it isn\u0027t relevant to this CL.",
+      "revId": "60cb6742f1bc1e05eee3b54315a69d555d116ea4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
