@@ -48,8 +48,8 @@ void main() {
     }
     @if (sk_Caps.integerSupport) {
         // This ordered-dither code is lifted from the cpu backend.
-        int x = int(sk_FragCoord.x);
-        int y = int(sk_FragCoord.y);
+        uint x = uint(sk_FragCoord.x);
+        uint y = uint(sk_FragCoord.y);
         uint m = (y & 1) << 5 | (x & 1) << 4 |
                  (y & 2) << 2 | (x & 2) << 1 |
                  (y & 4) >> 1 | (x & 4) >> 2;

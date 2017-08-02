@@ -181,6 +181,10 @@ String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
     ABORT("should have found sampler in parameters\n");
 }
 
+void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
+    this->write(to_string((int32_t) i.fValue));
+}
+
 void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
