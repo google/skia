@@ -29,6 +29,10 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
+static std::tuple<SkScalar, SkScalar> angles_from_t_coeff(SkScalar tBias, SkScalar tScale) {
+    return std::make_tuple(-tBias * 360, (1 / tScale - tBias) * 360);
+}
+
 sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
     if (!desc.unflatten(buffer)) {
@@ -41,8 +45,7 @@ sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
     if (!buffer.isVersionLT(SkReadBuffer::kTileInfoInSweepGradient_Version)) {
         const auto tBias  = buffer.readScalar(),
                    tScale = buffer.readScalar();
-        startAngle = -tBias * 360;
-          endAngle = (1 / tScale - tBias) * 360;
+        std::tie(startAngle, endAngle) = angles_from_t_coeff(tBias, tScale);
     }
 
     return SkGradientShader::MakeSweep(center.x(), center.y(), desc.fColors,
@@ -258,8 +261,13 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
 sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     SkSTArray<8, SkColor> xformedColors(fColorCount);
     xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+
+    SkScalar startAngle, endAngle;
+    std::tie(startAngle, endAngle) = angles_from_t_coeff(fTBias, fTScale);
+
     return SkGradientShader::MakeSweep(fCenter.fX, fCenter.fY, xformedColors.begin(), fOrigPos,
-                                       fColorCount, fGradFlags, &this->getLocalMatrix());
+                                       fColorCount, fTileMode, startAngle, endAngle,
+                                       fGradFlags, &this->getLocalMatrix());
 }
 
 #ifndef SK_IGNORE_TO_STRING
