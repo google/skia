@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2df21d52_122b3781",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T14:58:32Z",
+      "side": 1,
+      "message": "I\u0027m looking to remove the previous call and get rid of this android framework only block of code. I think this would have a better home in something like include/android/SkAndroidFrameworkUtils.h.",
+      "revId": "e54fb08945eb579d07b26974893bb39126a8bfd8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
