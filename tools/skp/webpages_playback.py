@@ -230,7 +230,8 @@ class SkPicturePlayback(object):
 
       page_set_basename = os.path.basename(page_set).split('.')[0]
       page_set_json_name = page_set_basename + '.json'
-      wpr_data_file = page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wpr'
+      wpr_data_file = (
+          page_set.split(os.path.sep)[-1].split('.')[0] + '_000.wprgo')
       page_set_dir = os.path.dirname(page_set)
 
       if self._IsChromiumPageSet(page_set):
@@ -245,6 +246,7 @@ class SkPicturePlayback(object):
           '--extra-browser-args="%s"' % self._browser_args,
           '--browser=exact',
           '--browser-executable=%s' % self._browser_executable,
+          '--use-wpr-go',
           '%s_page_set' % page_set_basename,
           '--page-set-base-dir=%s' % page_set_dir
         )
