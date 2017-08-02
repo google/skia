@@ -243,6 +243,10 @@ void GrGLBuffer::onUnmap() {
 }
 
 bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
+    SkDebugf("this: %p %p\n", this, src);
+
+    SkDebugf("glGpu: %p %p\n", this->glGpu(), this->glGpu()->glInterface());
+    
     SkASSERT(fBufferID);
     if (this->wasDestroyed()) {
         return false;
@@ -257,10 +261,14 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     // bindbuffer handles dirty context
     GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
 
-#if GR_GL_USE_BUFFER_DATA_NULL_HINT
+    SkDebugf("a\n");
+    
+#if 0 //GR_GL_USE_BUFFER_DATA_NULL_HINT
     if (this->sizeInBytes() == srcSizeInBytes) {
+        SkDebugf("b\n");
         GL_CALL(BufferData(target, (GrGLsizeiptr) srcSizeInBytes, src, fUsage));
     } else {
+        SkDebugf("c\n");        
         // Before we call glBufferSubData we give the driver a hint using
         // glBufferData with nullptr. This makes the old buffer contents
         // inaccessible to future draws. The GPU may still be processing
@@ -268,9 +276,11 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
         // assign a different allocation for the new contents to avoid
         // flushing the gpu past draws consuming the old contents.
         // TODO I think we actually want to try calling bufferData here
-        GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
+//        GL_CALL(BufferData(target, this->sizeInBytes(), nullptr, fUsage));
+        SkDebugf("c2\n");        
         GL_CALL(BufferSubData(target, 0, (GrGLsizeiptr) srcSizeInBytes, src));
     }
+    SkDebugf("d\n");    
     fGLSizeInBytes = this->sizeInBytes();
 #else
     // Note that we're cheating on the size here. Currently no methods
@@ -279,7 +289,9 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     GL_CALL(BufferData(target, srcSizeInBytes, src, fUsage));
     fGLSizeInBytes = srcSizeInBytes;
 #endif
+    SkDebugf("e\n");    
     VALIDATE();
+    SkDebugf("f\n");        
     return true;
 }
 
