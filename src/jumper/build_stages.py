@@ -14,6 +14,7 @@ objdump       = 'gobjdump'
 ccache        = 'ccache'
 stages        = 'src/jumper/SkJumper_stages.cpp'
 stages_lowp   = 'src/jumper/SkJumper_stages_lowp.cpp'
+stages_8bit   = 'src/jumper/SkJumper_stages_8bit.cpp'
 generated     = 'src/jumper/SkJumper_generated.S'
 generated_win = 'src/jumper/SkJumper_generated_win.S'
 
@@ -22,8 +23,9 @@ objdump       = sys.argv[2] if len(sys.argv) > 2 else objdump
 ccache        = sys.argv[3] if len(sys.argv) > 3 else ccache
 stages        = sys.argv[4] if len(sys.argv) > 4 else stages
 stages_lowp   = sys.argv[5] if len(sys.argv) > 5 else stages_lowp
-generated     = sys.argv[6] if len(sys.argv) > 6 else generated
-generated_win = sys.argv[7] if len(sys.argv) > 7 else generated_win
+stages_8bit   = sys.argv[6] if len(sys.argv) > 6 else stages_8bit
+generated     = sys.argv[7] if len(sys.argv) > 7 else generated
+generated_win = sys.argv[8] if len(sys.argv) > 8 else generated_win
 
 clang = [ccache, clang, '-x', 'c++']
 
@@ -47,6 +49,10 @@ subprocess.check_call(clang + cflags + sse2 + x86 +
 subprocess.check_call(clang + cflags + sse2 + win + x86 +
                       ['-c', stages] +
                       ['-o', 'win_x86_sse2.o'])
+
+subprocess.check_call(clang + cflags + sse2 +
+                      ['-c', stages_8bit] +
+                      ['-o', '8bit_sse2.o'])
 
 ssse3 = ['-mssse3', '-mno-sse4.1']
 subprocess.check_call(clang + cflags + ssse3 +
@@ -223,9 +229,11 @@ parse_object_file('sse41.o', '.byte')
 print 'BALIGN32'
 parse_object_file('sse2.o',  '.byte')
 print 'BALIGN32'
-parse_object_file('lowp_hsw.o',  '.byte')
+parse_object_file('lowp_hsw.o', '.byte')
 print 'BALIGN32'
-parse_object_file('lowp_ssse3.o',  '.byte')
+parse_object_file('lowp_ssse3.o', '.byte')
+print 'BALIGN32'
+parse_object_file('8bit_sse2.o', '.byte')
 
 print '#elif defined(__i386__)'
 print 'BALIGN32'
@@ -253,9 +261,9 @@ parse_object_file('win_sse41.o', 'DB')
 print 'ALIGN 32'
 parse_object_file('win_sse2.o',  'DB')
 print 'ALIGN 32'
-parse_object_file('win_lowp_hsw.o',  'DB')
+parse_object_file('win_lowp_hsw.o', 'DB')
 print 'ALIGN 32'
-parse_object_file('win_lowp_ssse3.o',  'DB')
+parse_object_file('win_lowp_ssse3.o', 'DB')
 
 print 'ELSE'
 print '.MODEL FLAT,C'
