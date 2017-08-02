@@ -296,6 +296,12 @@ SkCanvas(int width, int height, const SkSurfaceProps* props = NULL)
 Creates <a href="bmh_SkCanvas_Reference?cl=9919#Canvas">Canvas</a> of the specified dimensions without a <a href="bmh_undocumented?cl=9919#Surface">Surface</a>.
 Used by subclasses with custom implementations for draw methods.
 
+If <a href="bmh_SkCanvas_Reference?cl=9919#props">props</a> equals nullptr, <a href="bmh_undocumented?cl=9919#Properties">Surface Properties</a> are created with <a href="bmh_undocumented?cl=9919#Properties_Legacy_Font_Host">Surface Properties Legacy Font Host</a> settings,
+which choose the pixel striping direction and order. Since a platform may dynamically
+change its direction when the device is rotated, and since a platform may have
+multiple monitors with different characteristics, it's best not to rely on this
+legacy behavior.
+
 ### Parameters
 
 <table>  <tr>    <td><code><strong>width </strong></code></td> <td>
@@ -322,6 +328,10 @@ canvas is empty
 ~~~~
 
 </fiddle-embed></div>
+
+### See Also
+
+<a href="bmh_undocumented?cl=9919#SkSurfaceProps">SkSurfaceProps</a> <a href="bmh_undocumented?cl=9919#SkPixelGeometry">SkPixelGeometry</a>
 
 ---
 
@@ -2103,8 +2113,10 @@ The clip restriction is not recorded in pictures.
 ### Parameters
 
 <table>  <tr>    <td><code><strong>rect </strong></code></td> <td>
-The maximum allowed clip in device coordinates.</td>
+The maximum allowed clip in device coordinates. 
+Empty <a href="bmh_SkCanvas_Reference?cl=9919#androidFramework_setDeviceClipRestriction">rect</a> means max clip is not enforced.</td>
   </tr>
+#
 
 ---
 
@@ -4497,12 +4509,18 @@ patch texture; <a href="bmh_undocumented?cl=9919#Blend_Mode">Blend Mode</a> <a h
 ### Parameters
 
 <table>  <tr>    <td><code><strong>cubics </strong></code></td> <td>
-<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">cubics</a> specifying the four <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">cubics</a> starting at the top left corner,</td>
-  </tr>  <tr>    <td><code><strong>colors </strong></code></td> <td>
-<a href="bmh_undocumented?cl=9919#Color">Color</a> array color associating <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">colors</a> with corners in top left, top right, bottom right,</td>
-  </tr>  <tr>    <td><code><strong>texCoords </strong></code></td> <td>
-<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">texCoords</a> mapping <a href="bmh_undocumented?cl=9919#Shader">Shader</a> as texture to corners in same order, if <a href="bmh_SkCanvas_Reference?cl=9919#paint">paint</a></td>
-  </tr>  <tr>    <td><code><strong>mode </strong></code></td> <td>
+<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">cubics</a> specifying the four <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">cubics</a> starting at the top left corner, 
+in clockwise order, sharing every fourth point. The last cubic ends at the first point.</td>
+  </tr>
+#  <tr>    <td><code><strong>colors </strong></code></td> <td>
+<a href="bmh_undocumented?cl=9919#Color">Color</a> array color associating <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">colors</a> with corners in top left, top right, bottom right,
+bottom left order.</td>
+  </tr>
+#  <tr>    <td><code><strong>texCoords </strong></code></td> <td>
+<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">texCoords</a> mapping <a href="bmh_undocumented?cl=9919#Shader">Shader</a> as texture to corners in same order, if <a href="bmh_SkCanvas_Reference?cl=9919#paint">paint</a>
+contains <a href="bmh_undocumented?cl=9919#Shader">Shader</a>; or nullptr.</td>
+  </tr>
+#  <tr>    <td><code><strong>mode </strong></code></td> <td>
 <a href="bmh_undocumented?cl=9919#Blend_Mode">Blend Mode</a> for <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch">colors</a> and <a href="bmh_undocumented?cl=9919#Shader">Shader</a> if present.</td>
   </tr>  <tr>    <td><code><strong>paint </strong></code></td> <td>
 <a href="bmh_undocumented?cl=9919#Shader">Shader</a>, <a href="bmh_undocumented?cl=9919#Color_Filter">Color Filter</a>, <a href="bmh_undocumented?cl=9919#Blend_Mode">Blend Mode</a>, used to draw.</td>
@@ -4530,12 +4548,18 @@ patch texture.
 ### Parameters
 
 <table>  <tr>    <td><code><strong>cubics </strong></code></td> <td>
-<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">cubics</a> specifying the four <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">cubics</a> starting at the top left corner,</td>
-  </tr>  <tr>    <td><code><strong>colors </strong></code></td> <td>
-<a href="bmh_undocumented?cl=9919#Color">Color</a> array color associating <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">colors</a> with corners in top left, top right, bottom right,</td>
-  </tr>  <tr>    <td><code><strong>texCoords </strong></code></td> <td>
-<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">texCoords</a> mapping <a href="bmh_undocumented?cl=9919#Shader">Shader</a> as texture to corners in same order, if <a href="bmh_SkCanvas_Reference?cl=9919#paint">paint</a></td>
-  </tr>  <tr>    <td><code><strong>paint </strong></code></td> <td>
+<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">cubics</a> specifying the four <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">cubics</a> starting at the top left corner, 
+in clockwise order, sharing every fourth point. The last cubic ends at the first point.</td>
+  </tr>
+#  <tr>    <td><code><strong>colors </strong></code></td> <td>
+<a href="bmh_undocumented?cl=9919#Color">Color</a> array color associating <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">colors</a> with corners in top left, top right, bottom right,
+bottom left order; or nullptr.</td>
+  </tr>
+#  <tr>    <td><code><strong>texCoords </strong></code></td> <td>
+<a href="bmh_undocumented?cl=9919#Point">Point</a> array <a href="bmh_SkCanvas_Reference?cl=9919#drawPatch_2">texCoords</a> mapping <a href="bmh_undocumented?cl=9919#Shader">Shader</a> as texture to corners in same order, if <a href="bmh_SkCanvas_Reference?cl=9919#paint">paint</a>
+contains <a href="bmh_undocumented?cl=9919#Shader">Shader</a>; or nullptr.</td>
+  </tr>
+#  <tr>    <td><code><strong>paint </strong></code></td> <td>
 <a href="bmh_undocumented?cl=9919#Shader">Shader</a>, <a href="bmh_undocumented?cl=9919#Color_Filter">Color Filter</a>, <a href="bmh_undocumented?cl=9919#Blend_Mode">Blend Mode</a>, used to draw.</td>
   </tr>
 </table>
