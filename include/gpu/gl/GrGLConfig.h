@@ -107,7 +107,7 @@
 #endif
 
 #if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
-    #define GR_GL_USE_BUFFER_DATA_NULL_HINT             1
+    #define GR_GL_USE_BUFFER_DATA_NULL_HINT             0
 #endif
 
 #if !defined(GR_GL_CHECK_ALLOC_WITH_GET_ERROR)
