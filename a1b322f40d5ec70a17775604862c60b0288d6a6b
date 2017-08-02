@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1352650f_535bf3fb",
+        "filename": "src/gpu/glsl/GrGLSLBlend.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-02T17:03:39Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be a \"+\"?",
+      "range": {
+        "startLine": 87,
+        "startChar": 84,
+        "endLine": 87,
+        "endChar": 85
+      },
+      "revId": "a1b322f40d5ec70a17775604862c60b0288d6a6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
