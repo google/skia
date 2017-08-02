@@ -209,7 +209,7 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
     //    SkCoverageDeltaList. And we don't want to sort more than SORT_THRESHOLD edges where
     //    the log(count) factor of the quick sort may become a bottleneck; when there are so
     //    many edges, we're unlikely to make deltas sorted anyway.
-    constexpr int SORT_THRESHOLD = 4096;
+    constexpr int SORT_THRESHOLD = 256;
     if (std::is_same<Deltas, SkCoverageDeltaList>::value && count < SORT_THRESHOLD) {
         XLessThan lessThan;
         SkTQSort(list, list + count - 1, lessThan);
