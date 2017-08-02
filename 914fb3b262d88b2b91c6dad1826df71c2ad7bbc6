@@ -1,0 +1,176 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "233d61cd_00bbc07f",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "use the skia copyright header",
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5095386c_19bbb338",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "remove this. and comments should be in the form of...\n\n/**\n * SkAnd....\n */",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 34
+      },
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9c6b684_756c0e07",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "remove this comment block",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a8e81d3_084ceb58",
+        "filename": "include/android/SkAndroidFrameworkUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "return bool so we know if the clip succeeded and can throw an error.",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 32,
+        "endChar": 15
+      },
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11c77de7_6afd737e",
+        "filename": "src/android/SkAndroidFrameworkUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "skia copyright header.",
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f0279e8_502d8cc2",
+        "filename": "src/android/SkAndroidFrameworkUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "return true, but do we still need to clear the stencil?",
+      "range": {
+        "startLine": 23,
+        "startChar": 14,
+        "endLine": 23,
+        "endChar": 15
+      },
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ae659bc_3022681b",
+        "filename": "src/android/SkAndroidFrameworkUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "return false",
+      "range": {
+        "startLine": 27,
+        "startChar": 8,
+        "endLine": 27,
+        "endChar": 14
+      },
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c4f4b22_a1819552",
+        "filename": "src/android/SkAndroidFrameworkUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-02T18:13:42Z",
+      "side": 1,
+      "message": "return false",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 14
+      },
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
