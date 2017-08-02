@@ -16,6 +16,24 @@
       "revId": "60cb6742f1bc1e05eee3b54315a69d555d116ea4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bbf062b_5a9ca4fc",
+        "filename": "src/android/SkBitmapRegionDecoder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-08-02T19:36:42Z",
+      "side": 1,
+      "message": "that was typed by accident in the wrong window.",
+      "parentUuid": "002eb357_f360bb92",
+      "revId": "60cb6742f1bc1e05eee3b54315a69d555d116ea4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
