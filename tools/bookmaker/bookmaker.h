@@ -8,7 +8,7 @@
 #ifndef bookmaker_DEFINED
 #define bookmaker_DEFINED
 
-#define STDOUT_TO_IDE_OUT 0
+#define STDOUT_TO_IDE_OUT 01
 
 #include "SkData.h"
 
@@ -1607,6 +1607,15 @@ public:
         kChars,
     };
 
+    struct IterState {
+        IterState (list<Definition>::iterator& tIter, list<Definition>::iterator& tIterEnd) 
+            : fDefIter(tIter)
+            , fDefEnd(tIterEnd) {
+        }
+        list<Definition>::iterator fDefIter;
+        list<Definition>::iterator fDefEnd;
+    };
+
     IncludeWriter() : IncludeParser() {}
     ~IncludeWriter() override {}
 
@@ -1622,7 +1631,7 @@ public:
     }
 
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
-    void enumMembersOut(const RootDefinition* root, const Definition& child);
+    void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite, 
@@ -1648,7 +1657,7 @@ public:
     string resolveMethod(const char* start, const char* end, bool first);
     string resolveRef(const char* start, const char* end, bool first);
     Wrote rewriteBlock(int size, const char* data);
-    void structMemberOut(const Definition* memberStart, const Definition& child);
+    Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
     void structSizeMembers(Definition& child);
@@ -1665,6 +1674,7 @@ private:
     int fEnumItemValueTab;
     int fEnumItemCommentTab;
     int fStructMemberTab;
+    int fStructValueTab;
     int fStructCommentTab;
     bool fInStruct;
 

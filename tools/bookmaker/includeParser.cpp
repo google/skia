@@ -77,6 +77,9 @@ KeyWord IncludeParser::FindKey(const char* start, const char* end) {
         }
         ++ch;
         if (start + ch >= end) {
+            if (end - start < (int) strlen(kKeyWords[index].fName)) {
+                return KeyWord::kNone;
+            }
             return kKeyWords[index].fKeyWord;
         }
     }
@@ -233,7 +236,8 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     if (0 == token.fName.find("internal_")
                             || 0 == token.fName.find("Internal_")
                             || 0 == token.fName.find("legacy_")
-                            || 0 == token.fName.find("temporary_")) {
+                            || 0 == token.fName.find("temporary_")
+                            || 0 == token.fName.find("private_")) {
                         continue;
                     }
                     const char* methodID = bmhParser.fMaps[(int) token.fMarkType].fName;
@@ -980,6 +984,9 @@ bool IncludeParser::parseEnum(Definition* child, Definition* markupDef) {
     markupChild->fKeyWord = KeyWord::kEnum;
     TextParser enumName(child);
     enumName.skipExact("enum ");
+    if (enumName.skipExact("class ")) {
+        markupChild->fMarkType = MarkType::kEnumClass;
+    }
     const char* nameStart = enumName.fChar;
     enumName.skipToSpace();
     markupChild->fName = markupDef->fName + "::" + 
@@ -1594,6 +1601,10 @@ bool IncludeParser::parseChar() {
             }
             if (Definition::Type::kKeyWord == fParent->fType
                     && KeyProperty::kObject == (kKeyWords[(int) fParent->fKeyWord].fProperty)) {
+                if (KeyWord::kClass == fParent->fKeyWord && fParent->fParent &&
+                        KeyWord::kEnum == fParent->fParent->fKeyWord) {
+                    this->popObject();
+                }
                 if (KeyWord::kEnum == fParent->fKeyWord) {
                     fInEnum = false;
                 }
