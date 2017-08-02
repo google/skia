@@ -58,10 +58,10 @@ void GrOpFlushState::doUpload(GrDrawOp::DeferredUploadFn& upload) {
         GrSurface* surface = proxy->priv().peekSurface();
         GrGpu::DrawPreference drawPreference = GrGpu::kNoDraw_DrawPreference;
         GrGpu::WritePixelTempDrawInfo tempInfo;
-        fGpu->getWritePixelsInfo(surface, width, height, proxy->config(),
+        fGpu->getWritePixelsInfo(surface, proxy->origin(), width, height, proxy->config(),
                                  &drawPreference, &tempInfo);
         if (GrGpu::kNoDraw_DrawPreference == drawPreference) {
-            return this->fGpu->writePixels(surface, left, top, width, height,
+            return this->fGpu->writePixels(surface, proxy->origin(), left, top, width, height,
                                            config, buffer, rowBytes);
         }
         GrSurfaceDesc desc;
@@ -74,11 +74,11 @@ void GrOpFlushState::doUpload(GrDrawOp::DeferredUploadFn& upload) {
         if (!temp) {
             return false;
         }
-        if (!fGpu->writePixels(temp.get(), 0, 0, width, height, desc.fConfig,
+        if (!fGpu->writePixels(temp.get(), proxy->origin(), 0, 0, width, height, desc.fConfig,
                                buffer, rowBytes)) {
             return false;
         }
-        return fGpu->copySurface(surface, temp.get(),
+        return fGpu->copySurface(surface, proxy->origin(), temp.get(), proxy->origin(),
                                  SkIRect::MakeWH(width, height), {left, top});
     };
     upload(wp);
