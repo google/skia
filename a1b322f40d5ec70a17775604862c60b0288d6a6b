@@ -22,6 +22,30 @@
       "revId": "a1b322f40d5ec70a17775604862c60b0288d6a6b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a2a6853_734b729a",
+        "filename": "src/gpu/glsl/GrGLSLBlend.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-02T17:07:38Z",
+      "side": 1,
+      "message": "The \u0027+\u0027 is in divisorGuard, so that when the caps bit isn\u0027t set, this just wraps the original term in parens, but doesn\u0027t add anything else.",
+      "parentUuid": "1352650f_535bf3fb",
+      "range": {
+        "startLine": 87,
+        "startChar": 84,
+        "endLine": 87,
+        "endChar": 85
+      },
+      "revId": "a1b322f40d5ec70a17775604862c60b0288d6a6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
