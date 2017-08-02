@@ -171,6 +171,23 @@
       "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "973c130b_ee5a23c0",
+        "filename": "src/android/SkAndroidFrameworkUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-02T18:24:32Z",
+      "side": 1,
+      "message": "line up ?",
+      "revId": "914fb3b262d88b2b91c6dad1826df71c2ad7bbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
