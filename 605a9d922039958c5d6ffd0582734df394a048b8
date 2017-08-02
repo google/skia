@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6eb9eb_27e6ff29",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-02T15:57:07Z",
+      "side": 1,
+      "message": "If we do need to do this, probably it\u0027s append_matrix()\u0027s job to check and return false?",
+      "range": {
+        "startLine": 385,
+        "startChar": 7,
+        "endLine": 385,
+        "endChar": 20
+      },
+      "revId": "605a9d922039958c5d6ffd0582734df394a048b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
