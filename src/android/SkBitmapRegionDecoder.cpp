@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
 #include "SkBitmapRegionCodec.h"
 #include "SkBitmapRegionDecoder.h"
 #include "SkAndroidCodec.h"
