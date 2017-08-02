@@ -22,6 +22,30 @@
       "revId": "605a9d922039958c5d6ffd0582734df394a048b8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8457e8c2_e176abf5",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-02T16:24:21Z",
+      "side": 1,
+      "message": "Good point.  Abandoning for now, unless y\u0027all think we really need this.",
+      "parentUuid": "9a6eb9eb_27e6ff29",
+      "range": {
+        "startLine": 385,
+        "startChar": 7,
+        "endLine": 385,
+        "endChar": 20
+      },
+      "revId": "605a9d922039958c5d6ffd0582734df394a048b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
