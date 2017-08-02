@@ -12,7 +12,7 @@ including:
 -   [SkPicture](#skpicture) - Skia's display list format.
 -   [NullCanvas](#nullcanvas)  - Useful for testing only.
 -   [SkXPS](#skxps) - Experimental XPS backend.
--   [SkSVG](#sksvg) - Experimental XPS backend.
+-   [SkSVG](#sksvg) - Experimental SVG backend.
 
 Each backend has a unique way of creating a SkCanvas.  This page gives
 an example for each:
