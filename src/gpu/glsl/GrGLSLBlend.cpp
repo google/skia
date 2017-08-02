@@ -70,6 +70,12 @@ static void color_burn_component(GrGLSLFragmentBuilder* fsBuilder,
                                  const char* src,
                                  const char* dst,
                                  const char component) {
+    const char* divisorGuard = "";
+    const GrShaderCaps* shaderCaps = fsBuilder->getProgramBuilder()->shaderCaps();
+    if (shaderCaps->mustGuardDivisionEvenAfterExplicitZeroCheck()) {
+        divisorGuard = "+ 0.00000001";
+    }
+
     fsBuilder->codeAppendf("if (%s.a == %s.%c) {", dst, dst, component);
     fsBuilder->codeAppendf("%s.%c = %s.a * %s.a + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);",
                            final, component, src, dst, src, component, dst, dst, component,
@@ -78,8 +84,8 @@ static void color_burn_component(GrGLSLFragmentBuilder* fsBuilder,
     fsBuilder->codeAppendf("%s.%c = %s.%c * (1.0 - %s.a);",
                            final, component, dst, component, src);
     fsBuilder->codeAppend("} else {");
-    fsBuilder->codeAppendf("float d = max(0.0, %s.a - (%s.a - %s.%c) * %s.a / %s.%c);",
-                           dst, dst, dst, component, src, src, component);
+    fsBuilder->codeAppendf("float d = max(0.0, %s.a - (%s.a - %s.%c) * %s.a / (%s.%c %s));",
+                           dst, dst, dst, component, src, src, component, divisorGuard);
     fsBuilder->codeAppendf("%s.%c = %s.a * d + %s.%c * (1.0 - %s.a) + %s.%c * (1.0 - %s.a);",
                            final, component, src, src, component, dst, dst, component, src);
     fsBuilder->codeAppend("}");
