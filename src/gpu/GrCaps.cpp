@@ -116,35 +116,43 @@ static SkString map_flags_to_string(uint32_t flags) {
     return str;
 }
 
-SkString GrCaps::dump() const {
+SkString GrCaps::dump(int indent) const {
     SkString r;
-    static const char* gNY[] = {"NO", "YES"};
-    r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);
-    r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
-    r.appendf("sRGB Support                       : %s\n", gNY[fSRGBSupport]);
-    r.appendf("sRGB Write Control                 : %s\n", gNY[fSRGBWriteControl]);
-    r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
-    r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
-    r.appendf("Reuse Scratch Buffers              : %s\n", gNY[fReuseScratchBuffers]);
-    r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
-    r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
-    r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
-    r.appendf("Sample Locations Support           : %s\n", gNY[fSampleLocationsSupport]);
-    r.appendf("Multisample disable support        : %s\n", gNY[fMultisampleDisableSupport]);
-    r.appendf("Instance Attrib Support            : %s\n", gNY[fInstanceAttribSupport]);
-    r.appendf("Uses Mixed Samples                 : %s\n", gNY[fUsesMixedSamples]);
-    r.appendf("Prefer client-side dynamic buffers : %s\n", gNY[fPreferClientSideDynamicBuffers]);
-    r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);
-    r.appendf("Must clear buffer memory           : %s\n", gNY[fMustClearUploadedBufferData]);
-    r.appendf("Sample shading support             : %s\n", gNY[fSampleShadingSupport]);
-    r.appendf("Fence sync support                 : %s\n", gNY[fFenceSyncSupport]);
-    r.appendf("Cross context texture support      : %s\n", gNY[fCrossContextTextureSupport]);
+    r.appendf("{\n");
+    indent += 2;
 
-    r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
-    r.appendf("Prefer VRAM Use over flushes [workaround] : %s\n", gNY[fPreferVRAMUseOverFlushes]);
+    static const char* gNY[] = {"NO", "YES"};
+    auto appendFlag = [&](const char* desc, bool flag) {
+        r.appendf("%*s\"%s\": \"%s\",\n", indent, "", desc, gNY[flag]);
+    };
+    appendFlag("MIP Map Support", fMipMapSupport);
+    appendFlag("NPOT Texture Tile Support", fNPOTTextureTileSupport);
+    appendFlag("sRGB Support", fSRGBSupport);
+    appendFlag("sRGB Write Control", fSRGBWriteControl);
+    appendFlag("sRGB Decode Disable", fSRGBDecodeDisableSupport);
+    appendFlag("Discard Render Target Support", fDiscardRenderTargetSupport);
+    appendFlag("Reuse Scratch Textures", fReuseScratchTextures);
+    appendFlag("Reuse Scratch Buffers", fReuseScratchBuffers);
+    appendFlag("Gpu Tracing Support", fGpuTracingSupport);
+    appendFlag("Oversized Stencil Support", fOversizedStencilSupport);
+    appendFlag("Texture Barrier Support", fTextureBarrierSupport);
+    appendFlag("Sample Locations Support", fSampleLocationsSupport);
+    appendFlag("Multisample disable support", fMultisampleDisableSupport);
+    appendFlag("Instance Attrib Support", fInstanceAttribSupport);
+    appendFlag("Uses Mixed Samples", fUsesMixedSamples);
+    appendFlag("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
+    appendFlag("Full screen clear is free", fFullClearIsFree);
+    appendFlag("Must clear buffer memory", fMustClearUploadedBufferData);
+    appendFlag("Sample shading support", fSampleShadingSupport);
+    appendFlag("Fence sync support", fFenceSyncSupport);
+    appendFlag("Cross context texture support", fCrossContextTextureSupport);
+
+    appendFlag("Draw Instead of Clear [workaround]", fUseDrawInsteadOfClear);
+    appendFlag("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
 
     if (this->advancedBlendEquationSupport()) {
-        r.appendf("Advanced Blend Equation Blacklist  : 0x%x\n", fAdvBlendEqBlacklist);
+        r.appendf("%*s\"Advanced Blend Equation Blacklist\": \"0x%x\",\n", indent, "",
+                  fAdvBlendEqBlacklist);
     }
 
     r.appendf("Max Vertex Attributes              : %d\n", fMaxVertexAttributes);

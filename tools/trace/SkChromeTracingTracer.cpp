@@ -156,6 +156,6 @@ void SkChromeTracingTracer::flush() {
         }
     }
     SkFILEWStream stream(fFilename.c_str());
-    stream.writeText(Json::FastWriter().write(root).c_str());
+    stream.writeText(Json::StyledWriter().write(root).c_str());
     stream.flush();
 }

@@ -12,6 +12,14 @@
 #include "SkBlendModePriv.h"
 #include "SkGradientShader.h"
 #include "SkPM4fPriv.h"
+#include "GrContext.h"
+#include "GrCaps.h"
+
+DEF_SIMPLE_GM(caps_dump, canvas, 100, 100) {
+    if (canvas->getGrContext()) {
+        SkDebugf("%s\n", canvas->getGrContext()->dump().c_str());
+    }
+}
 
 DEF_SIMPLE_GM(gamma, canvas, 850, 200) {
     SkPaint p;

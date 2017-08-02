@@ -1244,7 +1244,7 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-SkString GrGLCaps::dump() const {
+SkString GrGLCaps::dump(int indent) const {
 
     SkString r = INHERITED::dump();
 

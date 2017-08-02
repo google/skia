@@ -984,3 +984,36 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+SkString GrContext::dump(int indent) const {
+    SkString r;
+    r.appendf("{\n");
+    indent += 2;
+
+    static const char* kBackendStr[] = {
+        "Metal",
+        "OpenGL",
+        "Vulkan",
+        "Mock",
+    };
+    GR_STATIC_ASSERT(0 == kMetal_GrBackend);
+    GR_STATIC_ASSERT(1 == kOpenGL_GrBackend);
+    GR_STATIC_ASSERT(2 == kVulkan_GrBackend);
+    GR_STATIC_ASSERT(3 == kMock_GrBackend);
+    r.appendf("%*s\"backend\": \"%s\",\n", indent, "", kBackendStr[fBackend]);
+
+    r.appendf("%*s\"gpu\": ", indent, "");
+    r.append("\"\"");
+//    r.append(fGpu->dump(indent));
+    r.appendf(",\n");
+
+    r.appendf("%*s\"caps\": ", indent, "");
+    r.append(fCaps->dump(indent));
+
+    indent -= 2;
+    r.appendf("%*s}", indent, "");
+
+    return r;
+}
