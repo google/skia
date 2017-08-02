@@ -14,16 +14,6 @@ class SkRadialGradient final : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
-    class RadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
-    public:
-        RadialGradientContext(const SkRadialGradient&, const ContextRec&);
-
-        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-
-    private:
-        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
-    };
-
     GradientType asAGradient(GradientInfo* info) const override;
 #if SK_SUPPORT_GPU
     sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
@@ -35,13 +25,12 @@ public:
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
-    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
     sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
     
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
-    bool onIsRasterPipelineOnly() const override;
+    bool onIsRasterPipelineOnly() const override { return true; }
 
 private:
     const SkPoint fCenter;
