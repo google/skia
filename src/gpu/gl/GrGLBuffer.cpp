@@ -256,7 +256,6 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     SkASSERT(srcSizeInBytes <= this->sizeInBytes());
     // bindbuffer handles dirty context
     GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
-
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
     if (this->sizeInBytes() == srcSizeInBytes) {
         GL_CALL(BufferData(target, (GrGLsizeiptr) srcSizeInBytes, src, fUsage));
