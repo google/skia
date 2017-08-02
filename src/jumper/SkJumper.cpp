@@ -125,14 +125,20 @@ extern "C" {
                     ASM(start_pipeline,sse41     ),
                     ASM(start_pipeline,sse2      ),
                     ASM(start_pipeline,hsw_lowp  ),
-                    ASM(start_pipeline,ssse3_lowp);
+                    ASM(start_pipeline,ssse3_lowp),
+                    ASM(start_pipeline,hsw_8bit  ),
+                    ASM(start_pipeline,sse41_8bit),
+                    ASM(start_pipeline,sse2_8bit );
 
     StageFn ASM(just_return,hsw),
             ASM(just_return,avx),
             ASM(just_return,sse41),
             ASM(just_return,sse2),
             ASM(just_return,hsw_lowp  ),
-            ASM(just_return,ssse3_lowp);
+            ASM(just_return,ssse3_lowp),
+            ASM(just_return,hsw_8bit  ),
+            ASM(just_return,sse41_8bit),
+            ASM(just_return,sse2_8bit );
 
     #define M(st) StageFn ASM(st,hsw);
         SK_RASTER_PIPELINE_STAGES(M)
@@ -151,6 +157,15 @@ extern "C" {
         LOWP_STAGES(M)
     #undef M
     #define M(st) StageFn ASM(st,ssse3_lowp);
+        LOWP_STAGES(M)
+    #undef M
+    #define M(st) StageFn ASM(st,hsw_8bit);
+        LOWP_STAGES(M)
+    #undef M
+    #define M(st) StageFn ASM(st,sse41_8bit);
+        LOWP_STAGES(M)
+    #undef M
+    #define M(st) StageFn ASM(st,sse2_8bit);
         LOWP_STAGES(M)
     #undef M
 
@@ -187,6 +202,30 @@ extern "C" {
         }
         LOWP_STAGES(M)
     #undef M
+
+    #if !defined(SK_JUMPER_LEGACY_LOWP)
+        template <SkRasterPipeline::StockStage st>
+        static constexpr StageFn* hsw_8bit() { return nullptr; }
+
+        template <SkRasterPipeline::StockStage st>
+        static constexpr StageFn* sse41_8bit() { return nullptr; }
+
+        template <SkRasterPipeline::StockStage st>
+        static constexpr StageFn* sse2_8bit() { return nullptr; }
+
+        #define M(st) \
+            template <> constexpr StageFn* hsw_8bit<SkRasterPipeline::st>() {   \
+                return ASM(st,hsw_8bit);                                        \
+            }                                                                   \
+            template <> constexpr StageFn* sse41_8bit<SkRasterPipeline::st>() { \
+                return ASM(st,sse41_8bit);                                      \
+            }                                                                   \
+            template <> constexpr StageFn* sse2_8bit<SkRasterPipeline::st>() {  \
+                return ASM(st,sse2_8bit);                                       \
+            }
+        LOWP_STAGES(M)
+        #undef M
+    #endif
 #endif
 
 // Engines comprise everything we need to run SkRasterPipelines.
@@ -297,6 +336,36 @@ static SkJumper_Engine choose_engine() {
 
     static SkJumper_Engine choose_lowp() {
     #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+        #if !defined(SK_JUMPER_LEGACY_LOWP)
+            if (1 && SkCpu::Supports(SkCpu::HSW)) {
+                return {
+                #define M(st) hsw_8bit<SkRasterPipeline::st>(),
+                    { SK_RASTER_PIPELINE_STAGES(M) },
+                    ASM(start_pipeline,hsw_8bit),
+                    ASM(just_return   ,hsw_8bit)
+                #undef M
+                };
+            }
+            if (1 && SkCpu::Supports(SkCpu::SSE41)) {
+                return {
+                #define M(st) sse41_8bit<SkRasterPipeline::st>(),
+                    { SK_RASTER_PIPELINE_STAGES(M) },
+                    ASM(start_pipeline,sse41_8bit),
+                    ASM(just_return   ,sse41_8bit)
+                #undef M
+                };
+            }
+            if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+                return {
+                #define M(st) sse2_8bit<SkRasterPipeline::st>(),
+                    { SK_RASTER_PIPELINE_STAGES(M) },
+                    ASM(start_pipeline,sse2_8bit),
+                    ASM(just_return   ,sse2_8bit)
+                #undef M
+                };
+            }
+        #endif
+
         if (1 && SkCpu::Supports(SkCpu::HSW)) {
             return {
             #define M(st) hsw_lowp<SkRasterPipeline::st>(),
