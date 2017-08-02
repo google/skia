@@ -36152,6 +36152,121 @@ ALIGN 4
   DB  128,67,0,0                          ; addb          $0x0,0x0(%rbx)
   DB  128                                 ; .byte         0x80
   DB  67                                  ; rex.XB
+ALIGN 32
+
+PUBLIC _sk_start_pipeline_sse2_8bit
+_sk_start_pipeline_sse2_8bit LABEL PROC
+  DB  85                                  ; push          %rbp
+  DB  72,137,229                          ; mov           %rsp,%rbp
+  DB  65,87                               ; push          %r15
+  DB  65,86                               ; push          %r14
+  DB  65,85                               ; push          %r13
+  DB  65,84                               ; push          %r12
+  DB  86                                  ; push          %rsi
+  DB  87                                  ; push          %rdi
+  DB  83                                  ; push          %rbx
+  DB  72,129,236,216,0,0,0                ; sub           $0xd8,%rsp
+  DB  68,15,41,125,176                    ; movaps        %xmm15,-0x50(%rbp)
+  DB  68,15,41,117,160                    ; movaps        %xmm14,-0x60(%rbp)
+  DB  68,15,41,109,144                    ; movaps        %xmm13,-0x70(%rbp)
+  DB  68,15,41,101,128                    ; movaps        %xmm12,-0x80(%rbp)
+  DB  68,15,41,157,112,255,255,255        ; movaps        %xmm11,-0x90(%rbp)
+  DB  68,15,41,149,96,255,255,255         ; movaps        %xmm10,-0xa0(%rbp)
+  DB  68,15,41,141,80,255,255,255         ; movaps        %xmm9,-0xb0(%rbp)
+  DB  68,15,41,133,64,255,255,255         ; movaps        %xmm8,-0xc0(%rbp)
+  DB  15,41,189,48,255,255,255            ; movaps        %xmm7,-0xd0(%rbp)
+  DB  15,41,181,32,255,255,255            ; movaps        %xmm6,-0xe0(%rbp)
+  DB  76,137,195                          ; mov           %r8,%rbx
+  DB  73,137,215                          ; mov           %rdx,%r15
+  DB  72,137,141,24,255,255,255           ; mov           %rcx,-0xe8(%rbp)
+  DB  72,139,117,48                       ; mov           0x30(%rbp),%rsi
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  73,137,197                          ; mov           %rax,%r13
+  DB  73,137,246                          ; mov           %rsi,%r14
+  DB  76,137,141,240,254,255,255          ; mov           %r9,-0x110(%rbp)
+  DB  77,57,207                           ; cmp           %r9,%r15
+  DB  15,131,138,0,0,0                    ; jae           10b <_sk_start_pipeline_sse2_8bit+0x10b>
+  DB  72,139,133,24,255,255,255           ; mov           -0xe8(%rbp),%rax
+  DB  72,141,64,4                         ; lea           0x4(%rax),%rax
+  DB  72,137,133,248,254,255,255          ; mov           %rax,-0x108(%rbp)
+  DB  76,141,165,0,255,255,255            ; lea           -0x100(%rbp),%r12
+  DB  72,57,157,248,254,255,255           ; cmp           %rbx,-0x108(%rbp)
+  DB  72,139,133,24,255,255,255           ; mov           -0xe8(%rbp),%rax
+  DB  72,137,133,0,255,255,255            ; mov           %rax,-0x100(%rbp)
+  DB  76,137,189,8,255,255,255            ; mov           %r15,-0xf8(%rbp)
+  DB  72,199,133,16,255,255,255,0,0,0,0   ; movq          $0x0,-0xf0(%rbp)
+  DB  119,36                              ; ja            e7 <_sk_start_pipeline_sse2_8bit+0xe7>
+  DB  76,137,231                          ; mov           %r12,%rdi
+  DB  76,137,246                          ; mov           %r14,%rsi
+  DB  65,255,213                          ; callq         *%r13
+  DB  72,139,141,0,255,255,255            ; mov           -0x100(%rbp),%rcx
+  DB  72,141,65,4                         ; lea           0x4(%rcx),%rax
+  DB  72,137,133,0,255,255,255            ; mov           %rax,-0x100(%rbp)
+  DB  72,131,193,8                        ; add           $0x8,%rcx
+  DB  72,57,217                           ; cmp           %rbx,%rcx
+  DB  118,220                             ; jbe           c3 <_sk_start_pipeline_sse2_8bit+0xc3>
+  DB  72,137,217                          ; mov           %rbx,%rcx
+  DB  72,41,193                           ; sub           %rax,%rcx
+  DB  116,16                              ; je            ff <_sk_start_pipeline_sse2_8bit+0xff>
+  DB  72,137,141,16,255,255,255           ; mov           %rcx,-0xf0(%rbp)
+  DB  76,137,231                          ; mov           %r12,%rdi
+  DB  76,137,246                          ; mov           %r14,%rsi
+  DB  65,255,213                          ; callq         *%r13
+  DB  73,255,199                          ; inc           %r15
+  DB  76,59,189,240,254,255,255           ; cmp           -0x110(%rbp),%r15
+  DB  117,143                             ; jne           9a <_sk_start_pipeline_sse2_8bit+0x9a>
+  DB  15,40,181,32,255,255,255            ; movaps        -0xe0(%rbp),%xmm6
+  DB  15,40,189,48,255,255,255            ; movaps        -0xd0(%rbp),%xmm7
+  DB  68,15,40,133,64,255,255,255         ; movaps        -0xc0(%rbp),%xmm8
+  DB  68,15,40,141,80,255,255,255         ; movaps        -0xb0(%rbp),%xmm9
+  DB  68,15,40,149,96,255,255,255         ; movaps        -0xa0(%rbp),%xmm10
+  DB  68,15,40,157,112,255,255,255        ; movaps        -0x90(%rbp),%xmm11
+  DB  68,15,40,101,128                    ; movaps        -0x80(%rbp),%xmm12
+  DB  68,15,40,109,144                    ; movaps        -0x70(%rbp),%xmm13
+  DB  68,15,40,117,160                    ; movaps        -0x60(%rbp),%xmm14
+  DB  68,15,40,125,176                    ; movaps        -0x50(%rbp),%xmm15
+  DB  72,129,196,216,0,0,0                ; add           $0xd8,%rsp
+  DB  91                                  ; pop           %rbx
+  DB  95                                  ; pop           %rdi
+  DB  94                                  ; pop           %rsi
+  DB  65,92                               ; pop           %r12
+  DB  65,93                               ; pop           %r13
+  DB  65,94                               ; pop           %r14
+  DB  65,95                               ; pop           %r15
+  DB  93                                  ; pop           %rbp
+  DB  195                                 ; retq
+
+PUBLIC _sk_just_return_sse2_8bit
+_sk_just_return_sse2_8bit LABEL PROC
+  DB  195                                 ; retq
+
+PUBLIC _sk_clear_sse2_8bit
+_sk_clear_sse2_8bit LABEL PROC
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  15,87,192                           ; xorps         %xmm0,%xmm0
+  DB  255,224                             ; jmpq          *%rax
+
+PUBLIC _sk_black_color_sse2_8bit
+_sk_black_color_sse2_8bit LABEL PROC
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  15,40,5,14,0,0,0                    ; movaps        0xe(%rip),%xmm0        # 180 <_sk_white_color_sse2_8bit+0xc>
+  DB  255,224                             ; jmpq          *%rax
+
+PUBLIC _sk_white_color_sse2_8bit
+_sk_white_color_sse2_8bit LABEL PROC
+  DB  72,173                              ; lods          %ds:(%rsi),%rax
+  DB  102,15,118,192                      ; pcmpeqd       %xmm0,%xmm0
+  DB  255,224                             ; jmpq          *%rax
+
+ALIGN 16
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
+  DB  0,0                                 ; add           %al,(%rax)
+  DB  0,255                               ; add           %bh,%bh
 ELSE
 .MODEL FLAT,C
 _text32 SEGMENT ALIGN(32) 'CODE'
