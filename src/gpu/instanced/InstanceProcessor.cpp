@@ -238,7 +238,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         v->defineConstantf("int", "PERSPECTIVE_FLAG", "0x%x", kPerspective_InfoFlag);
         v->codeAppendf("float3x3 shapeMatrix = float3x3(%s, %s, float3(0, 0, 1));",
                        inputs.attr(Attrib::kShapeMatrixX), inputs.attr(Attrib::kShapeMatrixY));
-        v->codeAppendf("if (0 != (%s & PERSPECTIVE_FLAG)) {",
+        v->codeAppendf("if (0 != (%s & uint(PERSPECTIVE_FLAG))) {",
                        inputs.attr(Attrib::kInstanceInfo));
         v->codeAppend (    "shapeMatrix[2] = ");
         inputs.fetchNextParam(kVec3f_GrSLType);
@@ -249,7 +249,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     bool hasSingleShapeType = SkIsPow2(ip.opInfo().fShapeTypes);
     if (!hasSingleShapeType) {
         v->defineConstant("SHAPE_TYPE_BIT", kShapeType_InfoBit);
-        v->codeAppendf("uint shapeType = %s >> SHAPE_TYPE_BIT;",
+        v->codeAppendf("uint shapeType = %s >> uint(SHAPE_TYPE_BIT);",
                        inputs.attr(Attrib::kInstanceInfo));
     }
 
@@ -268,7 +268,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         }
     } else {
         if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
-            v->codeAppend ("if (shapeType >= SIMPLE_R_RECT_SHAPE_TYPE) {");
+            v->codeAppend ("if (shapeType >= uint(SIMPLE_R_RECT_SHAPE_TYPE)) {");
             backend->setupRRect(v, &usedShapeDefinitions);
             v->codeAppend ("}");
             usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
@@ -278,7 +278,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                 if (ip.opInfo().fShapeTypes & kRRect_ShapesMask) {
                     v->codeAppend ("else ");
                 }
-                v->codeAppend ("if (OVAL_SHAPE_TYPE == shapeType) {");
+                v->codeAppend ("if (uint(OVAL_SHAPE_TYPE) == shapeType) {");
                 usedShapeDefinitions |= kOval_ShapeFlag;
             } else {
                 v->codeAppend ("else {");
@@ -298,8 +298,8 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         if (!hasSingleInnerShapeType) {
             v->defineConstantf("int", "INNER_SHAPE_TYPE_MASK", "0x%x", kInnerShapeType_InfoMask);
             v->defineConstant("INNER_SHAPE_TYPE_BIT", kInnerShapeType_InfoBit);
-            v->codeAppendf("uint innerShapeType = ((%s & INNER_SHAPE_TYPE_MASK) >> "
-                                                  "INNER_SHAPE_TYPE_BIT);",
+            v->codeAppendf("uint innerShapeType = ((%s & uint(INNER_SHAPE_TYPE_MASK)) >> "
+                                                  "uint(INNER_SHAPE_TYPE_BIT));",
                            inputs.attr(Attrib::kInstanceInfo));
         }
         // Here we take advantage of the fact that outerRect == localRect in recordDRRect.
@@ -330,7 +330,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             }
         } else {
             if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
-                v->codeAppend ("if (SIMPLE_R_RECT_SHAPE_TYPE == innerShapeType) {");
+                v->codeAppend ("if (uint(SIMPLE_R_RECT_SHAPE_TYPE) == innerShapeType) {");
                 backend->setupInnerSimpleRRect(v);
                 v->codeAppend("}");
                 usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
@@ -340,7 +340,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                     if (ip.opInfo().fInnerShapeTypes & kSimpleRRect_ShapeFlag) {
                         v->codeAppend ("else ");
                     }
-                    v->codeAppend ("if (OVAL_SHAPE_TYPE == innerShapeType) {");
+                    v->codeAppend ("if (uint(OVAL_SHAPE_TYPE) == innerShapeType) {");
                     usedShapeDefinitions |= kOval_ShapeFlag;
                 } else {
                     v->codeAppend ("else {");
@@ -378,7 +378,7 @@ void GLSLInstanceProcessor::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
     if (ip.opInfo().fHasLocalMatrix && ip.opInfo().fHasParams) {
         v->defineConstantf("int", "LOCAL_MATRIX_FLAG", "0x%x", kLocalMatrix_InfoFlag);
-        v->codeAppendf("if (0 != (%s & LOCAL_MATRIX_FLAG)) {",
+        v->codeAppendf("if (0 != (%s & uint(LOCAL_MATRIX_FLAG))) {",
                        inputs.attr(Attrib::kInstanceInfo));
         if (!ip.opInfo().fUsesLocalCoords) {
             inputs.skipParams(2);
@@ -421,7 +421,7 @@ void GLSLInstanceProcessor::Backend::init(GrGLSLVaryingHandler* varyingHandler,
 }
 
 void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* usedShapeDefinitions) {
-    v->codeAppendf("uint2 corner = uint2(%s & 1, (%s >> 1) & 1);",
+    v->codeAppendf("uint2 corner = uint2(uint(%s) & 1, (uint(%s) >> 1) & 1);",
                    fInputs.attr(Attrib::kVertexAttrs), fInputs.attr(Attrib::kVertexAttrs));
     v->codeAppend ("float2 cornerSign = float2(corner) * 2.0 - 1.0;");
     v->codeAppendf("float2 radii%s;", fNeedsNeighborRadii ? ", neighborRadii" : "");
@@ -439,7 +439,7 @@ void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* use
         }
     } else {
         if (types & kSimpleRRect_ShapeFlag) {
-            v->codeAppend ("if (SIMPLE_R_RECT_SHAPE_TYPE == shapeType) {");
+            v->codeAppend ("if (uint(SIMPLE_R_RECT_SHAPE_TYPE) == shapeType) {");
             this->setupSimpleRadii(v);
             v->codeAppend ("}");
             *usedShapeDefinitions |= kSimpleRRect_ShapeFlag;
@@ -449,7 +449,7 @@ void GLSLInstanceProcessor::Backend::setupRRect(GrGLSLVertexBuilder* v, int* use
                 if (types & kSimpleRRect_ShapeFlag) {
                     v->codeAppend ("else ");
                 }
-                v->codeAppend ("if (NINE_PATCH_SHAPE_TYPE == shapeType) {");
+                v->codeAppend ("if (uint(NINE_PATCH_SHAPE_TYPE) == shapeType) {");
                 *usedShapeDefinitions |= kNinePatch_ShapeFlag;
             } else {
                 v->codeAppend ("else {");
