@@ -14,6 +14,7 @@ objdump       = 'gobjdump'
 ccache        = 'ccache'
 stages        = 'src/jumper/SkJumper_stages.cpp'
 stages_lowp   = 'src/jumper/SkJumper_stages_lowp.cpp'
+stages_8bit   = 'src/jumper/SkJumper_stages_8bit.cpp'
 generated     = 'src/jumper/SkJumper_generated.S'
 generated_win = 'src/jumper/SkJumper_generated_win.S'
 
@@ -22,8 +23,9 @@ objdump       = sys.argv[2] if len(sys.argv) > 2 else objdump
 ccache        = sys.argv[3] if len(sys.argv) > 3 else ccache
 stages        = sys.argv[4] if len(sys.argv) > 4 else stages
 stages_lowp   = sys.argv[5] if len(sys.argv) > 5 else stages_lowp
-generated     = sys.argv[6] if len(sys.argv) > 6 else generated
-generated_win = sys.argv[7] if len(sys.argv) > 7 else generated_win
+stages_8bit   = sys.argv[6] if len(sys.argv) > 6 else stages_8bit
+generated     = sys.argv[7] if len(sys.argv) > 7 else generated
+generated_win = sys.argv[8] if len(sys.argv) > 8 else generated_win
 
 clang = [ccache, clang, '-x', 'c++']
 
@@ -48,6 +50,13 @@ subprocess.check_call(clang + cflags + sse2 + win + x86 +
                       ['-c', stages] +
                       ['-o', 'win_x86_sse2.o'])
 
+subprocess.check_call(clang + cflags + sse2 +
+                      ['-c', stages_8bit] +
+                      ['-o', '8bit_sse2.o'])
+subprocess.check_call(clang + cflags + sse2 + win +
+                      ['-c', stages_8bit] +
+                      ['-o', 'win_8bit_sse2.o'])
+
 ssse3 = ['-mssse3', '-mno-sse4.1']
 subprocess.check_call(clang + cflags + ssse3 +
                       ['-c', stages_lowp] +
@@ -63,6 +72,13 @@ subprocess.check_call(clang + cflags + sse41 +
 subprocess.check_call(clang + cflags + sse41 + win +
                       ['-c', stages] +
                       ['-o', 'win_sse41.o'])
+
+subprocess.check_call(clang + cflags + sse41 +
+                      ['-c', stages_8bit] +
+                      ['-o', '8bit_sse41.o'])
+subprocess.check_call(clang + cflags + sse41 + win +
+                      ['-c', stages_8bit] +
+                      ['-o', 'win_8bit_sse41.o'])
 
 avx = ['-mavx']
 subprocess.check_call(clang + cflags + avx +
@@ -86,12 +102,23 @@ subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', stages_lowp] +
                       ['-o', 'win_lowp_hsw.o'])
 
+subprocess.check_call(clang + cflags + hsw +
+                      ['-c', stages_8bit] +
+                      ['-o', '8bit_hsw.o'])
+subprocess.check_call(clang + cflags + hsw + win +
+                      ['-c', stages_8bit] +
+                      ['-o', 'win_8bit_hsw.o'])
+
 # iOS disallows the use of register x18,
 # so we need to use it as a least-common denominator.
 aarch64 = [ '--target=arm64-apple-ios' ]
 subprocess.check_call(clang + cflags + aarch64 +
                       ['-c', stages] +
                       ['-o', 'aarch64.o'])
+# TODO: need to work out relocations (adrp, lCPI, etc.)
+#subprocess.check_call(clang + cflags + aarch64 +
+#                      ['-c', stages_8bit] +
+#                      ['-o', '8bit_aarch64.o'])
 
 vfp4 = [
     '--target=armv7a-linux-gnueabihf',
@@ -100,6 +127,10 @@ vfp4 = [
 subprocess.check_call(clang + cflags + vfp4 +
                       ['-c', stages] +
                       ['-o', 'vfp4.o'])
+# TODO: should work fine... I just want to turn this one on separately from x86
+#subprocess.check_call(clang + cflags + vfp4 +
+#                      ['-c', stages_8bit] +
+#                      ['-o', '8bit_vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
   globl, hidden, label, comment, align = \
@@ -130,6 +161,7 @@ def parse_object_file(dot_o, directive, target=None):
                    '--insn-width=11',
                    '-j', '.text',
                    '-j', '.literal4',
+                   '-j', '.literal8',
                    '-j', '.literal16',
                    '-j', '.const',
                    dot_o]
@@ -193,6 +225,7 @@ print '#if defined(__MACH__)'
 print '    #define HIDDEN .private_extern'
 print '    #define FUNCTION(name)'
 print '    #define BALIGN4  .align 2'
+print '    #define BALIGN8  .align 3'
 print '    #define BALIGN16 .align 4'
 print '    #define BALIGN32 .align 5'
 print '#else'
@@ -200,6 +233,7 @@ print '    .section .note.GNU-stack,"",%progbits'
 print '    #define HIDDEN .hidden'
 print '    #define FUNCTION(name) .type name,%function'
 print '    #define BALIGN4  .balign 4'
+print '    #define BALIGN8  .balign 8'
 print '    #define BALIGN16 .balign 16'
 print '    #define BALIGN32 .balign 32'
 print '#endif'
@@ -207,11 +241,13 @@ print '#endif'
 print '.text'
 print '#if defined(__aarch64__)'
 print 'BALIGN4'
-parse_object_file('aarch64.o', '.long')
+parse_object_file(     'aarch64.o', '.long')
+#parse_object_file('8bit_aarch64.o', '.long')
 
 print '#elif defined(__arm__)'
 print 'BALIGN4'
-parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
+parse_object_file(     'vfp4.o', '.long', target='elf32-littlearm')
+#parse_object_file('8bit_vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
 print 'BALIGN32'
@@ -223,9 +259,15 @@ parse_object_file('sse41.o', '.byte')
 print 'BALIGN32'
 parse_object_file('sse2.o',  '.byte')
 print 'BALIGN32'
-parse_object_file('lowp_hsw.o',  '.byte')
+parse_object_file('lowp_hsw.o', '.byte')
 print 'BALIGN32'
-parse_object_file('lowp_ssse3.o',  '.byte')
+parse_object_file('lowp_ssse3.o', '.byte')
+print 'BALIGN32'
+parse_object_file('8bit_hsw.o', '.byte')
+print 'BALIGN32'
+parse_object_file('8bit_sse41.o', '.byte')
+print 'BALIGN32'
+parse_object_file('8bit_sse2.o', '.byte')
 
 print '#elif defined(__i386__)'
 print 'BALIGN32'
@@ -253,9 +295,15 @@ parse_object_file('win_sse41.o', 'DB')
 print 'ALIGN 32'
 parse_object_file('win_sse2.o',  'DB')
 print 'ALIGN 32'
-parse_object_file('win_lowp_hsw.o',  'DB')
+parse_object_file('win_lowp_hsw.o', 'DB')
 print 'ALIGN 32'
-parse_object_file('win_lowp_ssse3.o',  'DB')
+parse_object_file('win_lowp_ssse3.o', 'DB')
+print 'ALIGN 32'
+parse_object_file('win_8bit_hsw.o', 'DB')
+print 'ALIGN 32'
+parse_object_file('win_8bit_sse41.o', 'DB')
+print 'ALIGN 32'
+parse_object_file('win_8bit_sse2.o', 'DB')
 
 print 'ELSE'
 print '.MODEL FLAT,C'
