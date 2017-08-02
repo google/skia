@@ -91,6 +91,8 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
+    SkASSERT(!this->isRasterPipelineOnly());
+
     return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
         ? this->onMakeContext(rec, alloc)
         : nullptr;
