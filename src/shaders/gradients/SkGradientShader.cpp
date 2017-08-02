@@ -375,6 +375,9 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         return false;
     }
     matrix.postConcat(fPtsToUnit);
+    if (!matrix.isFinite()) {
+        return false;
+    }
 
     SkRasterPipeline_<256> postPipeline;
 
