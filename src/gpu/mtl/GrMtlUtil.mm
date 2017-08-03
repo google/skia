@@ -101,3 +101,55 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format) {
             return kUnknown_GrPixelConfig;
     }
 }
+
+bool GrMTLFormatIsSRGB(MTLPixelFormat format, MTLPixelFormat* linearFormat) {
+    MTLPixelFormat linearFmt = format;
+    switch (format) {
+        case MTLPixelFormatRGBA8Unorm:
+            linearFmt = MTLPixelFormatRGBA8Unorm;
+            break;
+        case MTLPixelFormatBGRA8Unorm:
+            linearFmt = MTLPixelFormatBGRA8Unorm;
+            break;
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+            linearFmt = MTLPixelFormatRGBA8Unorm;
+            break;
+        case MTLPixelFormatBGRA8Unorm_sRGB:
+            linearFmt = MTLPixelFormatBGRA8Unorm;
+            break;
+        case MTLPixelFormatRGBA8Sint:
+            linearFmt = MTLPixelFormatRGBA8Sint;
+            break;
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatB5G6R5Unorm:
+            linearFmt = MTLPixelFormatB5G6R5Unorm;
+            break;
+        case MTLPixelFormatABGR4Unorm:
+            linearFmt = MTLPixelFormatABGR4Unorm;
+            break;
+#endif
+        case MTLPixelFormatR8Unorm:
+            linearFmt = MTLPixelFormatR8Unorm;
+            break;
+        case MTLPixelFormatRGBA32Float:
+            linearFmt = MTLPixelFormatRGBA32Float;
+            break;
+        case MTLPixelFormatRG32Float:
+            linearFmt = MTLPixelFormatRG32Float;
+            break;
+        case MTLPixelFormatRGBA16Float:
+            linearFmt = MTLPixelFormatRGBA16Float;
+            break;
+        case MTLPixelFormatR16Float:
+            linearFmt = MTLPixelFormatR16Float;
+            break;
+        default:
+            break;
+    }
+
+    if (linearFormat) {
+        *linearFormat = linearFmt;
+    }
+    return (linearFmt != format);
+}
+
