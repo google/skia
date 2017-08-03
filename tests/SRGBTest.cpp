@@ -71,8 +71,9 @@ DEF_TEST(sk_pipeline_srgb_edge_cases, r) {
 
     SkJumper_MemoryCtx dst = { &color, 0 };
 
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::uniform_color, &color);
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, color);
     p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_f32, &dst);
     p.run(0,0,4,1);
