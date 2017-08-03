@@ -167,8 +167,9 @@ static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkC
 
         float scratch_matrix_3x4[12];
 
-        SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline::uniform_color, &color4f);
+        SkSTArenaAlloc<256> alloc;
+        SkRasterPipeline p(&alloc);
+        p.append_constant_color(&alloc, color4f);
         append_gamut_transform(&p, scratch_matrix_3x4, src, dst, kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::store_f32, &color4f_ptr);
 
