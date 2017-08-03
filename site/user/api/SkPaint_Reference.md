@@ -21,7 +21,8 @@ algorithms that alter the drawing geometry, color, and transparency. For instanc
 The objects contained by <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> are opaque, and cannot be edited outside of the <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a>
 to affect it. The implementation is free to defer computations associated with the
 <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a>, or ignore them altogether. For instance, some <a href="bmh_undocumented?cl=9919#GPU">GPU</a> implementations draw all
-<a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> geometries with anti-aliasing, regardless of <a href="bmh_SkPaint_Reference?cl=9919#kAntiAlias_Flag">SkPaint::kAntiAlias Flag</a> setting.
+<a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> geometries with anti-aliasing, regardless of how <a href="bmh_SkPaint_Reference?cl=9919#kAntiAlias_Flag">SkPaint::kAntiAlias Flag</a> 
+is set in <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a>.
 
 <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> describes a single color, a single font, a single image quality, and so on.
 Multiple colors are drawn either by using multiple paints or with objects like
@@ -291,7 +292,8 @@ SkPaint(const SkPaint& paint)
 
 Makes a shallow copy of <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a>. <a href="bmh_undocumented?cl=9919#Typeface">Typeface</a>, <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a>, <a href="bmh_undocumented?cl=9919#Shader">Shader</a>,
 <a href="bmh_undocumented?cl=9919#Mask_Filter">Mask Filter</a>, <a href="bmh_undocumented?cl=9919#Color_Filter">Color Filter</a>, <a href="bmh_undocumented?cl=9919#Rasterizer">Rasterizer</a>, <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a>, and <a href="bmh_undocumented?cl=9919#Image_Filter">Image Filter</a> are shared
-between the original <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> and the copy. These objects' <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> are increased.
+between the original <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> and the copy. Objects containing <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> increment
+their references by one.
 
 The referenced objects <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a>, <a href="bmh_undocumented?cl=9919#Shader">Shader</a>, <a href="bmh_undocumented?cl=9919#Mask_Filter">Mask Filter</a>, <a href="bmh_undocumented?cl=9919#Color_Filter">Color Filter</a>, <a href="bmh_undocumented?cl=9919#Rasterizer">Rasterizer</a>,
 <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a>, and <a href="bmh_undocumented?cl=9919#Image_Filter">Image Filter</a> cannot be modified after they are created.
@@ -395,7 +397,7 @@ paint1 == paint2
 
 Decreases <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> of owned objects: <a href="bmh_undocumented?cl=9919#Typeface">Typeface</a>, <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a>, <a href="bmh_undocumented?cl=9919#Shader">Shader</a>,
 <a href="bmh_undocumented?cl=9919#Mask_Filter">Mask Filter</a>, <a href="bmh_undocumented?cl=9919#Color_Filter">Color Filter</a>, <a href="bmh_undocumented?cl=9919#Rasterizer">Rasterizer</a>, <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a>, and <a href="bmh_undocumented?cl=9919#Image_Filter">Image Filter</a>. If the
-objects' reference count goes to zero, they are deleted.
+objects containing <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> go to zero, they are deleted.
 
 ---
 
@@ -410,10 +412,10 @@ SkPaint& operator=(const SkPaint& paint)
 
 Makes a shallow copy of <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a>. <a href="bmh_undocumented?cl=9919#Typeface">Typeface</a>, <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a>, <a href="bmh_undocumented?cl=9919#Shader">Shader</a>,
 <a href="bmh_undocumented?cl=9919#Mask_Filter">Mask Filter</a>, <a href="bmh_undocumented?cl=9919#Color_Filter">Color Filter</a>, <a href="bmh_undocumented?cl=9919#Rasterizer">Rasterizer</a>, <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a>, and <a href="bmh_undocumented?cl=9919#Image_Filter">Image Filter</a> are shared
-between the original <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> and the copy. The objects' <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> are in the
+between the original <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> and the copy. Objects containing <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> in the
 prior destination are decreased by one, and the referenced objects are deleted if the
-resulting count is zero. The objects' <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> in the parameter <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> are increased
-by one. <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> is unmodified.
+resulting count is zero. Objects containing <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> in the parameter <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a>
+are increased by one. <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> is unmodified.
 
 ### Parameters
 
@@ -449,9 +451,9 @@ SkPaint& operator=(SkPaint&& paint)
 </pre>
 
 Moves the <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> to avoid incrementing the reference counts
-of objects referenced by the <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> parameter. The objects' <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> are in the
-prior destination are decreased by one, and the referenced objects are deleted if the
-resulting count is zero.
+of objects referenced by the <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> parameter. Objects containing <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> in the
+prior destination are decreased by one; those objects are deleted if the resulting count
+is zero.
 
 After the call, <a href="bmh_SkPaint_Reference?cl=9919#paint">paint</a> is undefined, and can be safely destructed.
 
@@ -656,7 +658,7 @@ enum <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> {
 <a href="bmh_SkPaint_Reference?cl=9919#kNo_Hinting">kNo Hinting</a>            = 0,
 <a href="bmh_SkPaint_Reference?cl=9919#kSlight_Hinting">kSlight Hinting</a>        = 1,
 <a href="bmh_SkPaint_Reference?cl=9919#kNormal_Hinting">kNormal Hinting</a>        = 2,
-<a href="bmh_SkPaint_Reference?cl=9919#kFull_Hinting">kFull Hinting</a>          = 3
+<a href="bmh_SkPaint_Reference?cl=9919#kFull_Hinting">kFull Hinting</a>          = 3,
 };</pre>
 
 <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> adjusts the glyph outlines so that the shape provides a uniform
@@ -1030,7 +1032,7 @@ Dithering is always enabled for linear gradients drawing into
 <a href="bmh_SkPaint_Reference?cl=9919#Dither">Dither</a> can be enabled by default by setting <a href="bmh_undocumented?cl=9919#SkPaintDefaults_Flags">SkPaintDefaults Flags</a> to <a href="bmh_SkPaint_Reference?cl=9919#kDither_Flag">kDither Flag</a>
 at compile time.
 
-Some platform implementations may ignore dithering. Setto ignore <a href="bmh_SkPaint_Reference?cl=9919#Dither">Dither</a> on <a href="bmh_undocumented?cl=9919#GPU">GPU Surface</a>.
+Some platform implementations may ignore dithering. Setto ignore <a href="bmh_SkPaint_Reference?cl=9919#Dither">Dither</a> on <a href="bmh_undocumented?cl=9919#GPU_Surface">GPU Surface</a>.
 
 ### Example
 
@@ -1430,7 +1432,7 @@ paint1 == paint2
 
 # <a name="Automatic_Hinting"></a> Automatic Hinting
 If <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> is set to <a href="bmh_SkPaint_Reference?cl=9919#kNormal_Hinting">kNormal Hinting</a> or <a href="bmh_SkPaint_Reference?cl=9919#kFull_Hinting">kFull Hinting</a>, <a href="bmh_SkPaint_Reference?cl=9919#Automatic_Hinting">Automatic Hinting</a>
-instructs the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a> to always hint Glyphs.
+instructs the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a> to always hint glyphs.
 <a href="bmh_SkPaint_Reference?cl=9919#Automatic_Hinting">Automatic Hinting</a> has no effect if <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> is set to <a href="bmh_SkPaint_Reference?cl=9919#kNo_Hinting">kNo Hinting</a> or
 <a href="bmh_SkPaint_Reference?cl=9919#kSlight_Hinting">kSlight Hinting</a>.
 
@@ -1445,7 +1447,7 @@ bool isAutohinted() const
 
 If true, and if <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> is set to <a href="bmh_SkPaint_Reference?cl=9919#kNormal_Hinting">kNormal Hinting</a> or <a href="bmh_SkPaint_Reference?cl=9919#kFull_Hinting">kFull Hinting</a>, and if
 platform uses <a href="bmh_undocumented?cl=9919#FreeType">FreeType</a> as the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a>, instruct the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a> to always hint
-Glyphs.
+glyphs.
 
 Equivalent to <a href="bmh_SkPaint_Reference?cl=9919#getFlags">getFlags</a> masked with <a href="bmh_SkPaint_Reference?cl=9919#kAutoHinting_Flag">kAutoHinting Flag</a>.
 
@@ -1480,11 +1482,11 @@ void setAutohinted(bool useAutohinter)
 </pre>
 
 If <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> is set to <a href="bmh_SkPaint_Reference?cl=9919#kNormal_Hinting">kNormal Hinting</a> or <a href="bmh_SkPaint_Reference?cl=9919#kFull_Hinting">kFull Hinting</a> and <a href="bmh_SkPaint_Reference?cl=9919#useAutohinter">useAutohinter</a> is set,
-instruct the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a> to always hint Glyphs.
+instruct the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a> to always hint glyphs.
 <a href="bmh_SkPaint_Reference?cl=9919#Automatic_Hinting">Automatic Hinting</a> has no effect if <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a> is set to <a href="bmh_SkPaint_Reference?cl=9919#kNo_Hinting">kNo Hinting</a> or
 <a href="bmh_SkPaint_Reference?cl=9919#kSlight_Hinting">kSlight Hinting</a>.
 
-<a href="bmh_SkPaint_Reference?cl=9919#setAutohinted">setAutohinted</a> only affects platforms that use <a href="bmh_undocumented?cl=9919#FreeType">FreeType</a> as the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a>.
+Only affects platforms that use <a href="bmh_undocumented?cl=9919#FreeType">FreeType</a> as the <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a>.
 
 Sets <a href="bmh_SkPaint_Reference?cl=9919#kAutoHinting_Flag">kAutoHinting Flag</a> if <a href="bmh_SkPaint_Reference?cl=9919#useAutohinter">useAutohinter</a> is true.
 Clears <a href="bmh_SkPaint_Reference?cl=9919#kAutoHinting_Flag">kAutoHinting Flag</a> if <a href="bmh_SkPaint_Reference?cl=9919#useAutohinter">useAutohinter</a> is false.
@@ -1802,7 +1804,7 @@ void setFilterQuality(SkFilterQuality quality)
 
 Sets <a href="bmh_undocumented?cl=9919#Filter_Quality">Filter Quality</a>, the image filtering level. A lower setting
 draws faster; a higher setting looks better when the image is scaled.
-<a href="bmh_SkPaint_Reference?cl=9919#setFilterQuality">setFilterQuality</a> does not check to see if <a href="bmh_SkPaint_Reference?cl=9919#setFilterQuality">quality</a> is valid. 
+Does not check to see if <a href="bmh_SkPaint_Reference?cl=9919#setFilterQuality">quality</a> is valid. 
 
 ### Parameters
 
@@ -2111,7 +2113,7 @@ and the set <a href="bmh_SkPath_Reference?cl=9919#Fill_Type">Path Fill Type</a> 
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
 enum {
-<a href="bmh_SkPaint_Reference?cl=9919#kStyleCount">kStyleCount</a> = <a href="bmh_SkPaint_Reference?cl=9919#kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1
+<a href="bmh_SkPaint_Reference?cl=9919#kStyleCount">kStyleCount</a> = <a href="bmh_SkPaint_Reference?cl=9919#kStrokeAndFill_Style">kStrokeAndFill Style</a> + 1,
 };</pre>
 
 ### Constants
@@ -2381,7 +2383,7 @@ enum <a href="bmh_SkPaint_Reference?cl=9919#Cap">Cap</a> {
 <a href="bmh_SkPaint_Reference?cl=9919#kSquare_Cap">kSquare Cap</a>,
 
 <a href="bmh_SkPaint_Reference?cl=9919#kLast_Cap">kLast Cap</a> = <a href="bmh_SkPaint_Reference?cl=9919#kSquare_Cap">kSquare Cap</a>,
-<a href="bmh_SkPaint_Reference?cl=9919#kDefault_Cap">kDefault Cap</a> = <a href="bmh_SkPaint_Reference?cl=9919#kButt_Cap">kButt Cap</a>
+<a href="bmh_SkPaint_Reference?cl=9919#kDefault_Cap">kDefault Cap</a> = <a href="bmh_SkPaint_Reference?cl=9919#kButt_Cap">kButt Cap</a>,
 };
 static constexpr int <a href="bmh_SkPaint_Reference?cl=9919#kCapCount">kCapCount</a> = <a href="bmh_SkPaint_Reference?cl=9919#kLast_Cap">kLast Cap</a> + 1;</pre>
 
@@ -2525,11 +2527,11 @@ enum <a href="bmh_SkPaint_Reference?cl=9919#Join">Join</a> {
 <a href="bmh_SkPaint_Reference?cl=9919#kBevel_Join">kBevel Join</a>,
 
 <a href="bmh_SkPaint_Reference?cl=9919#kLast_Join">kLast Join</a> = <a href="bmh_SkPaint_Reference?cl=9919#kBevel_Join">kBevel Join</a>,
-<a href="bmh_SkPaint_Reference?cl=9919#kDefault_Join">kDefault Join</a> = <a href="bmh_SkPaint_Reference?cl=9919#kMiter_Join">kMiter Join</a>
+<a href="bmh_SkPaint_Reference?cl=9919#kDefault_Join">kDefault Join</a> = <a href="bmh_SkPaint_Reference?cl=9919#kMiter_Join">kMiter Join</a>,
 };
 static constexpr int <a href="bmh_SkPaint_Reference?cl=9919#kJoinCount">kJoinCount</a> = <a href="bmh_SkPaint_Reference?cl=9919#kLast_Join">kLast Join</a> + 1;</pre>
 
-<a href="bmh_SkPaint_Reference?cl=9919#Join">Join</a> specifies how corners are drawn when a shape is stroked. The paint's <a href="bmh_SkPaint_Reference?cl=9919#Join">Join</a> setting
+<a href="bmh_SkPaint_Reference?cl=9919#Join">Join</a> specifies how corners are drawn when a shape is stroked. <a href="bmh_SkPaint_Reference?cl=9919#Join">Join</a>
 affects the four corners of a stroked rectangle, and the connected segments in a
 stroked path.
 
@@ -2621,7 +2623,7 @@ The geometry drawn at the corners of strokes.
 
 <table>  <tr>    <td><code><strong>join </strong></code></td> <td>
 one of: <a href="bmh_SkPaint_Reference?cl=9919#kMiter_Join">kMiter Join</a>, <a href="bmh_SkPaint_Reference?cl=9919#kRound_Join">kRound Join</a>, <a href="bmh_SkPaint_Reference?cl=9919#kBevel_Join">kBevel Join</a>;
-otherwise, <a href="bmh_SkPaint_Reference?cl=9919#setStrokeJoin">setStrokeJoin</a> has no effect</td>
+otherwise, has no effect</td>
   </tr>
 </table>
 
@@ -2954,7 +2956,7 @@ SkBlendMode getBlendMode() const
 </pre>
 
 Returns <a href="bmh_undocumented?cl=9919#Blend_Mode">Blend Mode</a>.
-By default, <a href="bmh_SkPaint_Reference?cl=9919#getBlendMode">getBlendMode</a> returns <a href="bmh_undocumented?cl=9919#kSrcOver">SkBlendMode::kSrcOver</a>.
+By default, returns <a href="bmh_undocumented?cl=9919#kSrcOver">SkBlendMode::kSrcOver</a>.
 
 ### Return Value
 
@@ -3610,7 +3612,7 @@ void setDrawLooper(sk_sp<SkDrawLooper> drawLooper)
 Sets <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a> to <a href="bmh_SkPaint_Reference?cl=9919#drawLooper">drawLooper</a>,
 decrementing <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a> of the previous <a href="bmh_SkPaint_Reference?cl=9919#drawLooper">drawLooper</a>. 
 Pass nullptr to clear <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a> and leave <a href="bmh_undocumented?cl=9919#Draw_Looper">Draw Looper</a> effect on drawing unaltered.
-<a href="bmh_SkPaint_Reference?cl=9919#setDrawLooper">setDrawLooper</a> does not alter <a href="bmh_SkPaint_Reference?cl=9919#drawLooper">drawLooper</a> <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a>.
+Does not alter <a href="bmh_SkPaint_Reference?cl=9919#drawLooper">drawLooper</a> <a href="bmh_undocumented?cl=9919#Reference_Count">Reference Count</a>.
 
 ### Parameters
 
@@ -3695,7 +3697,7 @@ and by its height if <a href="bmh_SkPaint_Reference?cl=9919#Flags">Flags</a> has
 
 <pre style="padding: 1em 1em 1em 1em;width: 44em; background-color: #f0f0f0">
 enum {
-<a href="bmh_SkPaint_Reference?cl=9919#kAlignCount">kAlignCount</a> = 3
+<a href="bmh_SkPaint_Reference?cl=9919#kAlignCount">kAlignCount</a> = 3,
 };</pre>
 
 ### Constants
@@ -3936,7 +3938,7 @@ enum <a href="bmh_SkPaint_Reference?cl=9919#TextEncoding">TextEncoding</a> {
 <a href="bmh_SkPaint_Reference?cl=9919#kUTF8_TextEncoding">kUTF8 TextEncoding</a>,
 <a href="bmh_SkPaint_Reference?cl=9919#kUTF16_TextEncoding">kUTF16 TextEncoding</a>,
 <a href="bmh_SkPaint_Reference?cl=9919#kUTF32_TextEncoding">kUTF32 TextEncoding</a>,
-<a href="bmh_SkPaint_Reference?cl=9919#kGlyphID_TextEncoding">kGlyphID TextEncoding</a>
+<a href="bmh_SkPaint_Reference?cl=9919#kGlyphID_TextEncoding">kGlyphID TextEncoding</a>,
 };</pre>
 
 <a href="bmh_SkPaint_Reference?cl=9919#TextEncoding">TextEncoding</a> determines whether text specifies character codes and their encoded size,
@@ -4026,8 +4028,11 @@ Invalid values for <a href="bmh_SkPaint_Reference?cl=9919#setTextEncoding">encod
 ### Parameters
 
 <table>  <tr>    <td><code><strong>encoding </strong></code></td> <td>
-one of: <a href="bmh_SkPaint_Reference?cl=9919#kUTF8_TextEncoding">kUTF8 TextEncoding</a>, <a href="bmh_SkPaint_Reference?cl=9919#kUTF16_TextEncoding">kUTF16 TextEncoding</a>, <a href="bmh_SkPaint_Reference?cl=9919#kUTF32_TextEncoding">kUTF32 TextEncoding</a>, or</td>
+one of: <a href="bmh_SkPaint_Reference?cl=9919#kUTF8_TextEncoding">kUTF8 TextEncoding</a>, <a href="bmh_SkPaint_Reference?cl=9919#kUTF16_TextEncoding">kUTF16 TextEncoding</a>, <a href="bmh_SkPaint_Reference?cl=9919#kUTF32_TextEncoding">kUTF32 TextEncoding</a>, or 
+<a href="bmh_SkPaint_Reference?cl=9919#kGlyphID_TextEncoding">kGlyphID TextEncoding</a></td>
   </tr>
+#
+
 </table>
 
 ### Example
@@ -4370,7 +4375,7 @@ Returns the recommended spacing between lines: the sum of metrics
 descent, ascent, and leading.
 Result is scaled by <a href="bmh_SkPaint_Reference?cl=9919#Text_Size">Text Size</a> but does not take into account
 dimensions required by stroking and <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a>.
-<a href="bmh_SkPaint_Reference?cl=9919#getFontSpacing">getFontSpacing</a> returns the same result as <a href="bmh_SkPaint_Reference?cl=9919#getFontMetrics">getFontMetrics</a>.
+Returns the same result as <a href="bmh_SkPaint_Reference?cl=9919#getFontMetrics">getFontMetrics</a>.
 
 ### Return Value
 
@@ -4402,11 +4407,11 @@ SkRect getFontBounds() const
 
 Returns the union of bounds of all glyphs.
 Returned dimensions are computed by <a href="bmh_undocumented?cl=9919#Font_Manager">Font Manager</a> from font data, 
-ignoring <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a>. <a href="bmh_SkPaint_Reference?cl=9919#getFontBounds">getFontBounds</a> includes <a href="bmh_SkPaint_Reference?cl=9919#Text_Size">Text Size</a>, <a href="bmh_SkPaint_Reference?cl=9919#Text_Scale_X">Text Scale X</a>,
+ignoring <a href="bmh_SkPaint_Reference?cl=9919#Hinting">Hinting</a>. Includes <a href="bmh_SkPaint_Reference?cl=9919#Text_Size">Text Size</a>, <a href="bmh_SkPaint_Reference?cl=9919#Text_Scale_X">Text Scale X</a>,
 and <a href="bmh_SkPaint_Reference?cl=9919#Text_Skew_X">Text Skew X</a>, but not <a href="bmh_SkPaint_Reference?cl=9919#Fake_Bold">Fake Bold</a> or <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a>.
 
 If <a href="bmh_SkPaint_Reference?cl=9919#Text_Size">Text Size</a> is large, <a href="bmh_SkPaint_Reference?cl=9919#Text_Scale_X">Text Scale X</a> is one, and <a href="bmh_SkPaint_Reference?cl=9919#Text_Skew_X">Text Skew X</a> is zero,
-<a href="bmh_SkPaint_Reference?cl=9919#getFontBounds">getFontBounds</a> returns the same bounds as <a href="bmh_SkPaint_Reference?cl=9919#Font_Metrics">Font Metrics</a> { <a href="bmh_SkPaint_Reference?cl=9919#FontMetrics_fXMin">FontMetrics::fXMin</a>, 
+returns the same bounds as <a href="bmh_SkPaint_Reference?cl=9919#Font_Metrics">Font Metrics</a> { <a href="bmh_SkPaint_Reference?cl=9919#FontMetrics_fXMin">FontMetrics::fXMin</a>, 
 <a href="bmh_SkPaint_Reference?cl=9919#FontMetrics_fTop">FontMetrics::fTop</a>, <a href="bmh_SkPaint_Reference?cl=9919#FontMetrics_fXMax">FontMetrics::fXMax</a>, <a href="bmh_SkPaint_Reference?cl=9919#FontMetrics_fBottom">FontMetrics::fBottom</a> }.
 
 ### Return Value
@@ -4443,7 +4448,7 @@ Returns the number of glyph indices represented by <a href="bmh_SkPaint_Referenc
 Does not check <a href="bmh_SkPaint_Reference?cl=9919#text">text</a> for valid character encoding or valid
 glyph indices.
 
-If <a href="bmh_SkPaint_Reference?cl=9919#byteLength">byteLength</a> equals zero, <a href="bmh_SkPaint_Reference?cl=9919#textToGlyphs">textToGlyphs</a> returns zero.
+If <a href="bmh_SkPaint_Reference?cl=9919#byteLength">byteLength</a> equals zero, returns zero.
 If <a href="bmh_SkPaint_Reference?cl=9919#byteLength">byteLength</a> includes a partial character, the partial character is ignored.
 
 If <a href="bmh_SkPaint_Reference?cl=9919#Text_Encoding">Text Encoding</a> is <a href="bmh_SkPaint_Reference?cl=9919#kUTF8_TextEncoding">kUTF8 TextEncoding</a> and
@@ -4519,8 +4524,8 @@ Returns true if all <a href="bmh_SkPaint_Reference?cl=9919#text">text</a> corres
 Returns false if any characters in <a href="bmh_SkPaint_Reference?cl=9919#text">text</a> are not supported in
 <a href="bmh_undocumented?cl=9919#Typeface">Typeface</a>.
 
-If <a href="bmh_SkPaint_Reference?cl=9919#Text_Encoding">Text Encoding</a> is <a href="bmh_SkPaint_Reference?cl=9919#kGlyphID_TextEncoding">kGlyphID TextEncoding</a>, <a href="bmh_SkPaint_Reference?cl=9919#containsText">containsText</a>
-returns true if all glyph indices in <a href="bmh_SkPaint_Reference?cl=9919#text">text</a> are non-zero; <a href="bmh_SkPaint_Reference?cl=9919#containsText">containsText</a>
+If <a href="bmh_SkPaint_Reference?cl=9919#Text_Encoding">Text Encoding</a> is <a href="bmh_SkPaint_Reference?cl=9919#kGlyphID_TextEncoding">kGlyphID TextEncoding</a>,
+returns true if all glyph indices in <a href="bmh_SkPaint_Reference?cl=9919#text">text</a> are non-zero;
 does not check to see if <a href="bmh_SkPaint_Reference?cl=9919#text">text</a> contains valid glyph indices for <a href="bmh_undocumented?cl=9919#Typeface">Typeface</a>.
 
 Returns true if bytelength is zero.
@@ -4784,7 +4789,7 @@ Returns the geometry as <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> equ
 Uses <a href="bmh_SkPaint_Reference?cl=9919#Text_Encoding">Text Encoding</a> to decode <a href="bmh_SkPaint_Reference?cl=9919#text">text</a>, <a href="bmh_undocumented?cl=9919#Typeface">Typeface</a> to get the glyph paths,
 and <a href="bmh_SkPaint_Reference?cl=9919#Text_Size">Text Size</a>, <a href="bmh_SkPaint_Reference?cl=9919#Fake_Bold">Fake Bold</a>, and <a href="bmh_undocumented?cl=9919#Path_Effect">Path Effect</a> to scale and modify the glyph paths.
 All of the glyph paths are stored in <a href="bmh_SkPaint_Reference?cl=9919#path">path</a>.
-<a href="bmh_SkPaint_Reference?cl=9919#getTextPath">getTextPath</a> uses <a href="bmh_SkPaint_Reference?cl=9919#x">x</a>, <a href="bmh_SkPaint_Reference?cl=9919#y">y</a>, and <a href="bmh_SkPaint_Reference?cl=9919#Text_Align">Text Align</a> to position <a href="bmh_SkPaint_Reference?cl=9919#path">path</a>.
+Uses <a href="bmh_SkPaint_Reference?cl=9919#x">x</a>, <a href="bmh_SkPaint_Reference?cl=9919#y">y</a>, and <a href="bmh_SkPaint_Reference?cl=9919#Text_Align">Text Align</a> to position <a href="bmh_SkPaint_Reference?cl=9919#path">path</a>.
 
 ### Parameters
 
@@ -5027,8 +5032,8 @@ number of intersections; may be zero
 bool nothingToDraw() const
 </pre>
 
-Returns true if <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> prevents all drawing.
-If <a href="bmh_SkPaint_Reference?cl=9919#nothingToDraw">nothingToDraw</a> returns false, the <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> may or may not allow drawing.
+Returns true if <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> prevents all drawing;
+otherwise, the <a href="bmh_SkPaint_Reference?cl=9919#Paint">Paint</a> may or may not allow drawing.
 
 Returns true if <a href="bmh_undocumented?cl=9919#Blend_Mode">Blend Mode</a> and <a href="bmh_undocumented?cl=9919#Alpha">Color Alpha</a> are enabled,
 and computed <a href="bmh_undocumented?cl=9919#Alpha">Color Alpha</a> is zero.
