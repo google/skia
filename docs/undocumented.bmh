@@ -10,11 +10,13 @@
  HTML_Canvas HTML_Canvas_arcTo
  API
  CPU
- GPU GPU-backed GPU_Context OpenGL Vulkan
+ GPU GPU-backed OpenGL Vulkan
  NULL
  RFC
  Bezier Coons
+ SaveLayerFlags # not external; need to add typedef support
  SkUserConfig.h  # not external, but still thinking about how markup refers to this
+ SkXXX.h        # ditto
  Skia           # ditto
  SK_USE_FREETYPE_EMBOLDEN # ditto
  SK_SUPPORT_LEGACY_PAINT_TEXTDECORATION # ditto
@@ -206,6 +208,14 @@ FT_Load_Glyph
 #Topic Glyph
 ##
 
+#Topic GPU_Context
+#Substitute GPU context
+##
+
+#Topic GPU_Surface
+#Substitute GPU surface
+##
+
 #Topic Image
     #Subtopic Alpha_Type
         #Enum SkAlphaType
@@ -365,6 +375,9 @@ FT_Load_Glyph
 ##
 ##
 
+#Enum SkPixelGeometry
+##
+
 #Topic Pixmap
 #Class SkPixmap
 ##
@@ -388,6 +401,9 @@ FT_Load_Glyph
     #Method static std::unique_ptr<SkCanvas> MakeCanvas(std::unique_ptr<SkRasterHandleAllocator>, const SkImageInfo&, const Rec* rec = nullptr)
     ##
 ##
+##
+
+#Topic Raster_Surface
 ##
 
 #Topic Rasterizer
@@ -470,17 +486,13 @@ FT_Load_Glyph
 ##
 #Subtopic Properties
     #Class SkSurfaceProps
+        #Topic Legacy_Font_Host
         #Enum InitType
             #Const kLegacyFontHost_InitType 0
             ##
         ##
+        #Topic ##
     ##
-##
-#Subtopic GPU
-#Alias GPU_Surface
-##
-#Subtopic Raster
-#Alias Raster_Surface
 ##
 ##
 
