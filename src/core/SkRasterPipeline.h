@@ -129,12 +129,13 @@ public:
     void append_from_srgb(SkAlphaType);
     void append_from_srgb_dst(SkAlphaType);
 
-    // Appends a stage for the specified matrix. Tries to optimize the stage by analyzing
-    // the type of matrix.
+    // Appends a stage for the specified matrix.
+    // Tries to optimize the stage by analyzing the type of matrix.
     void append_matrix(SkArenaAlloc*, const SkMatrix&);
 
-    // Appends a stage for the uniform color. Tries to optimize the stage based on the color.
-    void append_uniform_color(SkArenaAlloc*, const SkPM4f& color);
+    // Appends a stage for a constant uniform color.
+    // Tries to optimize the stage based on the color.
+    void append_constant_color(SkArenaAlloc*, const SkPM4f& color);
 
     bool empty() const { return fStages == nullptr; }
 
