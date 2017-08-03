@@ -65,6 +65,11 @@ SI U8x4 pack(U16x4 v) {
     auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
          _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
     return _mm256_packus_epi16(_02, _13);
+#elif defined(__SSE2__)
+    static_assert(sizeof(v) == 32, "");
+    auto lo = unaligned_load<__m128i>((char*)&v +  0),
+         hi = unaligned_load<__m128i>((char*)&v + 16);
+    return _mm_packus_epi16(lo,hi);
 #else
     return __builtin_convertvector(v, U8x4);
 #endif
