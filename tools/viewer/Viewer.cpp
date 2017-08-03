@@ -29,6 +29,7 @@
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkRandom.h"
+#include "SkScan.h"
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkSwizzle.h"
@@ -388,6 +389,29 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->setBackend(newBackend);
     });
 
+    fCommands.addCommand('A', "AAA", "Toggle analytic AA", [this]() {
+        if (!gSkUseAnalyticAA) {
+            gSkUseAnalyticAA = true;
+        } else if (!gSkForceAnalyticAA) {
+            gSkForceAnalyticAA = true;
+        } else {
+            gSkUseAnalyticAA = gSkForceAnalyticAA = false;
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('D', "DAA", "Toggle delta AA", [this]() {
+        if (!gSkUseDeltaAA) {
+            gSkUseDeltaAA = true;
+        } else if (!gSkForceDeltaAA) {
+            gSkForceDeltaAA = true;
+        } else {
+            gSkUseDeltaAA = gSkForceDeltaAA = false;
+        }
+        this->updateTitle();
+        fWindow->inval();
+    });
+
     // set up slides
     this->initSlides();
     this->setStartupSlide();
@@ -541,6 +565,20 @@ void Viewer::updateTitle() {
 
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
+
+    if (gSkUseDeltaAA) {
+        if (gSkForceDeltaAA) {
+            title.append(" <FDAA>");
+        } else {
+            title.append(" <DAA>");
+        }
+    } else if (gSkUseAnalyticAA) {
+        if (gSkForceAnalyticAA) {
+            title.append(" <FAAA>");
+        } else {
+            title.append(" <AAA>");
+        }
+    }
 
     switch (fColorMode) {
         case ColorMode::kLegacy:
