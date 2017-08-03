@@ -302,11 +302,11 @@ STAGE(dither) {
 
 // load 4 floats from memory, and splat them into r,g,b,a
 STAGE(uniform_color) {
-    auto rgba = (const float*)ctx;
-    r = rgba[0];
-    g = rgba[1];
-    b = rgba[2];
-    a = rgba[3];
+    auto c = (const SkJumper_UniformColorCtx*)ctx;
+    r = c->r;
+    g = c->g;
+    b = c->b;
+    a = c->a;
 }
 
 // splats opaque-black into r,g,b,a

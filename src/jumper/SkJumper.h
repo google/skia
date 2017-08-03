@@ -116,4 +116,9 @@ struct SkJumper_2PtConicalCtx {
              fDR;
 };
 
+struct SkJumper_UniformColorCtx {
+    float r,g,b,a;
+    uint32_t rgba;
+};
+
 #endif//SkJumper_DEFINED

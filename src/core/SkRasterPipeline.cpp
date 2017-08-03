@@ -7,6 +7,8 @@
 
 #include "SkRasterPipeline.h"
 #include "SkPM4f.h"
+#include "SkPM4fPriv.h"
+#include "../jumper/SkJumper.h"
 
 SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
     this->reset();
@@ -87,9 +89,12 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
         this->append(white_color);
         INC_WHITE;
     } else {
-        float* storage = alloc->makeArray<float>(4);
-        memcpy(storage, rgba, 4 * sizeof(float));
-        this->unchecked_append(uniform_color, storage);
+        auto ctx = alloc->make<SkJumper_UniformColorCtx>();
+        Sk4f color = Sk4f::Load(rgba);
+        color.store(&ctx->r);
+        ctx->rgba = Sk4f_toL32(color);
+
+        this->unchecked_append(uniform_color, ctx);
         INC_COLOR;
     }
 
