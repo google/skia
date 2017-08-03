@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c5f7628_097fe187",
+        "filename": "infra/bots/assets/svg/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T17:14:29Z",
+      "side": 1,
+      "message": "So IIUC, we\u0027re downloading SVGs from three places:\n1. SVGs listed in tools/svg/svgs.txt via svg_downloader\n2. SVGs listed in tools/svg/parse_svgs.txt via svg_downloader\n3. Everything in gs://skia-svgs/skbug4713/\n\nThey all become part of the same asset.  Why do they need to be in different places?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2079a34a_5a58f9af",
+        "filename": "infra/bots/assets/svg/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T17:14:29Z",
+      "side": 1,
+      "message": "I\u0027m having trouble parsing this comment.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 67
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f0e9f91_cc5dc376",
+        "filename": "infra/bots/assets/svg/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T17:14:29Z",
+      "side": 1,
+      "message": "Why did this change?",
+      "range": {
+        "startLine": 52,
+        "startChar": 62,
+        "endLine": 52,
+        "endChar": 66
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2752be6e_44e3a343",
+        "filename": "tools/svg/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T17:14:29Z",
+      "side": 1,
+      "message": "Why is this called parse_svgs.txt?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15bd5902_111b0090",
+        "filename": "tools/svg/svg_downloader.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T17:14:29Z",
+      "side": 1,
+      "message": "Maybe \"Add this prefix to all downloaded SVG files\" ?",
+      "range": {
+        "startLine": 39,
+        "startChar": 12,
+        "endLine": 39,
+        "endChar": 65
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
