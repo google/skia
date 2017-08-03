@@ -16,10 +16,9 @@ Get the fiddle command line interface tool.
 $ go get go.skia.org/infra/fiddle/go/fiddlecli
 ##
 
-Get the Bookmaker CL and build it.
+Build Bookmaker.
 
 #Code
-$ git cl patch 9919
 $ ninja -C out/dir bookmaker
 ##
 
@@ -31,7 +30,8 @@ out/dir/obj/ from an IDE.
 $ ./out/dir/bookmaker -t -i include/core/SkXXX.h
 ##
 
-Use your favorite editor to fill out SkXXX.bmh.
+Copy SkXXX.bmh to docs.
+Use your favorite editor to fill out docs/SkXXX.bmh.
 
 Generate fiddle.json from all examples, including the ones you just wrote.
 Error checking is syntatic: starting keywords are closed, keywords have the
@@ -40,7 +40,7 @@ If you run Bookmaker inside Visual_Studio, you can click on errors and it
 will take you to the source line in question.
 
 #Code
-$ ./out/dir/bookmaker -e fiddle.json -b current_directory
+$ ./out/dir/bookmaker -e fiddle.json -b docs
 ##
 
 Once complete, run fiddlecli to generate the example hashes.
@@ -56,7 +56,7 @@ missing or mismatched printf output.
 Again, you can click on any errors inside Visual_Studio.
 
 #Code
-$ ./out/dir/bookmaker -r site/user/api -b current_directory -f fiddleout.json
+$ ./out/dir/bookmaker -r site/user/api -b docs -f fiddleout.json
 ##
 
 The original include may have changed since you started creating the markdown.
@@ -64,32 +64,20 @@ Check to see if it is up to date.
 This reports if a method no longer exists or its parameters have changed.
 
 #Code
-$ ./out/dir/bookmaker -x -b current_directory/SkXXX.bmh -i include/core/SkXXX.h
+$ ./out/dir/bookmaker -x -b docs/SkXXX.bmh -i include/core/SkXXX.h
 ##
 
-#Topic Bugs
-#List
-overaggressive reference finding in code block
-missing examples
-redundant examples -- got tired so used the same one more than once
-some examples need vertical resizing
-list doesn't work (ironic, huh)
-##
+Generate an updated include header.
+This writes the updated SkXXX.h to the current directory.
+
+#Code
+$ ./out/dir/bookmaker -p -b docs -i include/core/SkXXX.h
 ##
 
-#Topic To_Do
-#List
-check that all methods have one line descriptions in overview
-see also -- anything that can be done automatically? maybe any ref shows up everywhere
-index by example png
-generate pdf or pdf-like out
-generate b/w out instead of color -- have b/w versions of examples?
-formalize voice / syntax for parts of topic and method
-write bmh data back into include
-    have a way to write one block that covers multiple nearly indentical methods?
-    may want to do this for pdf view as well
-write a one-method-per-page online view?
-##
+#Subtopic Bugs
+
+Bookmaker bugs are tracked #A here # bug.skia.org/6898 ##.
+
 ##
 
 #Topic Bookmaker ##
