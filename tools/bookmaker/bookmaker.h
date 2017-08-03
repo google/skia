@@ -497,6 +497,35 @@ public:
         return len <= (size_t) lineLen && 0 == strncmp(str, fChar, len);
     }
 
+    // ignores minor white space differences
+    bool startsWith(const char* str, size_t oLen) const {
+        size_t tIndex = 0;
+        size_t tLen = fEnd - fChar;
+        size_t oIndex = 0;
+        while (oIndex < oLen && tIndex < tLen) {
+            bool tSpace = ' ' >= fChar[tIndex];
+            bool oSpace = ' ' >= str[oIndex];
+            if (tSpace != oSpace) {
+                break;
+            }
+            if (tSpace) {
+                do {
+                    ++tIndex;
+                } while (tIndex < tLen && ' ' >= fChar[tIndex]);
+                do {
+                    ++oIndex;
+                } while (oIndex < oLen && ' ' >= str[oIndex]);
+                continue;
+            }
+            if (fChar[tIndex] != str[oIndex]) {
+                break;
+            }
+            ++tIndex;
+            ++oIndex;
+        }
+        return oIndex >= oLen;
+    }
+
     const char* strnchr(char ch, const char* end) const {
         const char* ptr = fChar;
         while (ptr < end) {
@@ -1028,7 +1057,7 @@ public:
         if (size <= 0) {
             return false;
         }
-        SkASSERT(size < 8000);
+        SkASSERT(size < 16000);
         if (size > 3 && !strncmp("#end", data, 4)) {
             fMaxLF = 1;
         }
@@ -1203,10 +1232,10 @@ public:
 , { "EnumClass",   &fClassMap,   MarkType::kEnumClass,   R_Y, E_O, M_CSST | M(Root) }
 , { "Error",       nullptr,      MarkType::kError,       R_N, E_N, M(Example) }
 , { "Example",     nullptr,      MarkType::kExample,     R_O, E_N, M_CSST | M_E | M(Method) }
-, { "Experimental", nullptr,    MarkType::kExperimental, R_Y, E_N, 0 }
+, { "Experimental", nullptr,     MarkType::kExperimental, R_Y, E_N, 0 }
 , { "External",    nullptr,      MarkType::kExternal,    R_Y, E_N, M(Root) }
 , { "File",        nullptr,      MarkType::kFile,        R_N, E_N, M(Track) }
-, { "Formula",     nullptr,      MarkType::kFormula,     R_O, E_N, M_ST | M(Method) | M_D }
+, { "Formula",     nullptr,      MarkType::kFormula,     R_O, E_N, M_ST | M(Member) | M(Method) | M_D }
 , { "Function",    nullptr,      MarkType::kFunction,    R_O, E_N, M(Example) }
 , { "Height",      nullptr,      MarkType::kHeight,      R_N, E_N, M(Example) }
 , { "Image",       nullptr,      MarkType::kImage,       R_N, E_N, M(Example) }
@@ -1465,6 +1494,7 @@ public:
     }
 
     static KeyWord FindKey(const char* start, const char* end);
+    bool internalName(const Definition& ) const;
     void keywordEnd();
     void keywordStart(const char* keyword);
     bool parseChar();
@@ -1607,6 +1637,15 @@ public:
         kChars,
     };
 
+    struct IterState {
+        IterState (list<Definition>::iterator tIter, list<Definition>::iterator tIterEnd) 
+            : fDefIter(tIter)
+            , fDefEnd(tIterEnd) {
+        }
+        list<Definition>::iterator fDefIter;
+        list<Definition>::iterator fDefEnd;
+    };
+
     IncludeWriter() : IncludeParser() {}
     ~IncludeWriter() override {}
 
@@ -1622,7 +1661,7 @@ public:
     }
 
     void enumHeaderOut(const RootDefinition* root, const Definition& child);
-    void enumMembersOut(const RootDefinition* root, const Definition& child);
+    void enumMembersOut(const RootDefinition* root, Definition& child);
     void enumSizeItems(const Definition& child);
     int lookupMethod(const PunctuationState punctuation, const Word word,
             const int start, const int run, int lastWrite, 
@@ -1648,7 +1687,7 @@ public:
     string resolveMethod(const char* start, const char* end, bool first);
     string resolveRef(const char* start, const char* end, bool first);
     Wrote rewriteBlock(int size, const char* data);
-    void structMemberOut(const Definition* memberStart, const Definition& child);
+    Definition* structMemberOut(const Definition* memberStart, const Definition& child);
     void structOut(const Definition* root, const Definition& child,
             const char* commentStart, const char* commentEnd);
     void structSizeMembers(Definition& child);
@@ -1656,6 +1695,7 @@ public:
 private:
     BmhParser* fBmhParser;
     Definition* fDeferComment;
+    Definition* fLastComment;
     const Definition* fBmhMethod;
     const Definition* fEnumDef;
     const Definition* fMethodDef;
@@ -1665,6 +1705,7 @@ private:
     int fEnumItemValueTab;
     int fEnumItemCommentTab;
     int fStructMemberTab;
+    int fStructValueTab;
     int fStructCommentTab;
     bool fInStruct;
 
@@ -1752,6 +1793,7 @@ private:
 
     void reset() override {
         INHERITED::resetCommon();
+        fEnumClass = nullptr;
         fMethod = nullptr;
         fRoot = nullptr;
         fTableState = TableState::kNone;
@@ -1771,6 +1813,7 @@ private:
     void resolveOut(const char* start, const char* end, BmhParser::Resolvable );
 
     const BmhParser& fBmhParser;
+    const Definition* fEnumClass;
     Definition* fMethod;
     RootDefinition* fRoot;
     TableState fTableState;

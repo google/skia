@@ -19,8 +19,19 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
     const auto& nameDef = child.fTokens.front();
     string fullName;
     if (nullptr != nameDef.fContentEnd) {
-        string enumName(nameDef.fContentStart,
-                (int) (nameDef.fContentEnd - nameDef.fContentStart));
+        TextParser enumClassCheck(&nameDef);
+        const char* start = enumClassCheck.fStart;
+        size_t len = (size_t) (enumClassCheck.fEnd - start);
+        bool enumClass = enumClassCheck.skipExact("class ");
+        if (enumClass) {
+            start = enumClassCheck.fChar;
+            const char* end = enumClassCheck.anyOf(" \n;{");
+            len = (size_t) (end - start);
+        }
+        string enumName(start, len);
+        if (enumClass) {
+            child.fChildren[0]->fName = enumName;
+        }
         fullName = root->fName + "::" + enumName;
         enumDef = root->find(enumName);
         if (!enumDef) {
@@ -60,8 +71,10 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
                 !this->contentFree((int) (commentEnd - commentStart), commentStart)) {
             this->writeCommentHeader();
             this->writeString("\\enum");
-            this->writeSpace();
-            this->writeString(fullName.c_str());
+            if (fullName.length() > 0) {
+                this->writeSpace();
+                this->writeString(fullName.c_str());
+            }
             fIndent += 4;
             this->lfcr();
             wroteHeader = true;
@@ -88,7 +101,11 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
         this->lfcr();
         this->writeCommentTrailer();
     }
-    bodyEnd = child.fChildren[0]->fContentStart;
+    Definition* braceHolder = child.fChildren[0];
+    if (KeyWord::kClass == braceHolder->fKeyWord) {
+        braceHolder = braceHolder->fChildren[0];
+    }
+    bodyEnd = braceHolder->fContentStart;
     SkASSERT('{' == bodyEnd[0]);
     ++bodyEnd;
     this->lfcr();
@@ -99,7 +116,7 @@ void IncludeWriter::enumHeaderOut(const RootDefinition* root,
     fEnumDef = enumDef;
 }
 
-void IncludeWriter::enumMembersOut(const RootDefinition* root, const Definition& child) {
+void IncludeWriter::enumMembersOut(const RootDefinition* root, Definition& child) {
     // iterate through include tokens and find how much remains for 1 line comments
     // put ones that fit on same line, ones that are too big on preceding line?
     const Definition* currentEnumItem = nullptr;
@@ -113,10 +130,14 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, const Definition&
         kItemComment,
     };
     State state = State::kNoItem;
-    // can't use (auto& token : child.fTokens) 'cause we need state one past end 
-    auto tokenIter = child.fTokens.begin();
-    for (int onePast = 0; onePast < 2; onePast += tokenIter == child.fTokens.end()) {
-        const Definition* token = onePast ? nullptr : &*tokenIter++;
+    vector<IterState> iterStack;
+    iterStack.emplace_back(child.fTokens.begin(), child.fTokens.end());
+    IterState* iterState = &iterStack[0];
+    bool preprocessorWord = false;
+    const char* preprocessStart = nullptr;
+    const char* preprocessEnd = nullptr;
+    for (int onePast = 0; onePast < 2; onePast += iterState->fDefIter == iterState->fDefEnd) {
+        Definition* token = onePast ? nullptr : &*iterState->fDefIter++;
         if (token && Definition::Type::kBracket == token->fType) {
             if (Bracket::kSlashSlash == token->fBracket) {
                 fStart = token->fContentEnd;
@@ -126,10 +147,30 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, const Definition&
                 fStart = token->fContentEnd + 1;
                 continue;  // ignore old inline comments
             }
+            if (Bracket::kPound == token->fBracket) {  // preprocessor wraps member
+                preprocessStart = token->fContentStart;
+                if (KeyWord::kIf == token->fKeyWord || KeyWord::kIfdef == token->fKeyWord) {
+                    iterStack.emplace_back(token->fTokens.begin(), token->fTokens.end());
+                    iterState = &iterStack.back();
+                    preprocessorWord = true;
+                } else if (KeyWord::kEndif == token->fKeyWord) {
+                    iterStack.pop_back();
+                    iterState = &iterStack.back();
+                    preprocessEnd = token->fContentEnd;
+                } else {
+                    SkASSERT(0); // incomplete
+                }
+                continue;
+            }
             SkASSERT(0); // incomplete
         }
         if (token && Definition::Type::kWord != token->fType) {
             SkASSERT(0); // incomplete
+        }
+        if (preprocessorWord) {
+            preprocessorWord = false;
+            preprocessEnd = token->fContentEnd;
+            continue;
         }
         if (token && State::kItemName == state) {
             TextParser enumLine(token->fFileName, lastEnd,
@@ -172,6 +213,17 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, const Definition&
                 fIndent -= 4;
             }
             this->lfcr();
+            if (preprocessStart) {
+                SkASSERT(preprocessEnd);
+                int saveIndent = fIndent;
+                fIndent = SkTMax(0, fIndent - 8);
+                this->lf(2);
+                this->writeBlock((int) (preprocessEnd - preprocessStart), preprocessStart);
+                this->lfcr();
+                fIndent = saveIndent;
+                preprocessStart = nullptr;
+                preprocessEnd = nullptr;
+            }
             if (token && State::kItemValue == state) {
                 fStart = token->fContentStart;
             }
@@ -182,8 +234,11 @@ void IncludeWriter::enumMembersOut(const RootDefinition* root, const Definition&
             break;
         }
         SkASSERT(token);
-        string itemName = root->fName + "::" + string(token->fContentStart,
-                (int) (token->fContentEnd - token->fContentStart));
+        string itemName = root->fName + "::";
+        if (KeyWord::kClass == child.fParent->fKeyWord) {
+            itemName += child.fParent->fName + "::";
+        }
+        itemName += string(token->fContentStart, (int) (token->fContentEnd - token->fContentStart));
         for (auto& enumItem : fEnumDef->fChildren) {
             if (MarkType::kConst != enumItem->fMarkType) {
                 continue;
@@ -251,8 +306,16 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
     const char* lastEnd = nullptr;
     SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
     auto brace = child.fChildren[0];
+    if (KeyWord::kClass == brace->fKeyWord) {
+        brace = brace->fChildren[0];
+    }
     SkASSERT(Bracket::kBrace == brace->fBracket);
-    for (auto& token : brace->fTokens) {
+    vector<IterState> iterStack;
+    iterStack.emplace_back(brace->fTokens.begin(), brace->fTokens.end());
+    IterState* iterState = &iterStack[0];
+    bool preprocessorWord = false;
+    while (iterState->fDefIter != iterState->fDefEnd) {
+        auto& token = *iterState->fDefIter++;
         if (Definition::Type::kBracket == token.fType) {
             if (Bracket::kSlashSlash == token.fBracket) {
                 continue;  // ignore old inline comments
@@ -260,10 +323,27 @@ void IncludeWriter::enumSizeItems(const Definition& child) {
             if (Bracket::kSlashStar == token.fBracket) {
                 continue;  // ignore old inline comments
             }
+            if (Bracket::kPound == token.fBracket) {  // preprocessor wraps member
+                if (KeyWord::kIf == token.fKeyWord || KeyWord::kIfdef == token.fKeyWord) {
+                    iterStack.emplace_back(token.fTokens.begin(), token.fTokens.end());
+                    iterState = &iterStack.back();
+                    preprocessorWord = true;
+                } else if (KeyWord::kEndif == token.fKeyWord) {
+                    iterStack.pop_back();
+                    iterState = &iterStack.back();
+                } else {
+                    SkASSERT(0); // incomplete
+                }
+                continue;
+            }
             SkASSERT(0); // incomplete
         }
         if (Definition::Type::kWord != token.fType) {
             SkASSERT(0); // incomplete
+        }
+        if (preprocessorWord) {
+            preprocessorWord = false;
+            continue;
         }
         if (State::kItemName == state) {
             TextParser enumLine(token.fFileName, lastEnd,
@@ -358,7 +438,31 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
                 }
                 commentStart = methodProp->fTerminator;
                 commentLen = (int) (method->fContentEnd - commentStart);
-            break;
+                break;
+            case MarkType::kExperimental:
+                this->writeString("EXPERIMENTAL:");
+                this->writeSpace();
+                commentStart = methodProp->fContentStart;
+                commentLen = (int) (methodProp->fContentEnd - commentStart);
+                if (commentLen > 0) {
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart)) {
+                        this->lfcr();
+                    }
+                }
+                commentStart = methodProp->fTerminator;
+                commentLen = (int) (method->fContentEnd - commentStart);
+                break;
+            case MarkType::kToDo:
+                commentLen = (int) (methodProp->fStart - commentStart);
+                if (commentLen > 0) {
+                    SkASSERT(commentLen < 1000);
+                    if (Wrote::kNone != this->rewriteBlock(commentLen, commentStart)) {
+                        this->lfcr();
+                    }
+                }
+                commentStart = methodProp->fTerminator;
+                commentLen = (int) (method->fContentEnd - commentStart);
+                break;
             default:
                 commentLen = (int) (methodProp->fStart - commentStart);
                 breakOut = true;
@@ -367,7 +471,7 @@ void IncludeWriter::methodOut(const Definition* method, const Definition& child)
             break;
         }
     }
-    SkASSERT(commentLen > 0 && commentLen < 1000);
+    SkASSERT(commentLen > 0 && commentLen < 1500);
     this->rewriteBlock(commentLen, commentStart);
     // compute indention column
     size_t column = 0;
@@ -436,23 +540,40 @@ void IncludeWriter::structOut(const Definition* root, const Definition& child,
     this->writeCommentTrailer();
 }
 
-void IncludeWriter::structMemberOut(const Definition* memberStart, const Definition& child) {
+Definition* IncludeWriter::structMemberOut(const Definition* memberStart, const Definition& child) {
+    const char* blockStart = fDeferComment ? fLastComment->fContentEnd : fStart;
+    this->writeBlockTrim((int) (memberStart->fStart - blockStart), blockStart);
     const char* commentStart = nullptr;
     ptrdiff_t commentLen = 0;
     string name(child.fContentStart, (int) (child.fContentEnd - child.fContentStart));
     bool isShort;
+    Definition* commentBlock = nullptr;
     for (auto memberDef : fStructDef->fChildren)  {
         if (memberDef->fName.length() - name.length() == memberDef->fName.find(name)) {
             commentStart = memberDef->fContentStart;
-            commentLen = memberDef->fContentEnd - memberDef->fContentStart;
+            commentLen = memberDef->fContentEnd - commentStart;
             isShort = memberDef->fShort;
+            commentBlock = memberDef;
+            SkASSERT(!isShort || memberDef->fChildren.size() == 0);
             break;
         }
     }
     if (!isShort) {
         this->writeCommentHeader();
+        bool wroteLineFeed = false;
         fIndent += 4;
-        bool wroteLineFeed = Wrote::kLF == this->rewriteBlock(commentLen, commentStart);
+        for (auto child : commentBlock->fChildren) {
+            commentLen = child->fStart - commentStart;
+            wroteLineFeed |= Wrote::kLF == this->rewriteBlock(commentLen, commentStart);
+            if (MarkType::kFormula == child->fMarkType) {
+                this->writeSpace();
+                this->writeBlock((int) (child->fContentEnd - child->fContentStart),
+                        child->fContentStart); 
+            }
+            commentStart = child->fTerminator;
+        }
+        commentLen = commentBlock->fContentEnd - commentStart;
+        wroteLineFeed |= Wrote::kLF == this->rewriteBlock(commentLen, commentStart);
         fIndent -= 4;
         if (wroteLineFeed || fColumn > 100 - 3 /* space * / */ ) {
             this->lfcr();
@@ -462,10 +583,25 @@ void IncludeWriter::structMemberOut(const Definition* memberStart, const Definit
         this->writeCommentTrailer();
     }
     this->lfcr();
-    this->writeBlock((int) (memberStart->fContentEnd - memberStart->fContentStart),
+    this->writeBlock((int) (child.fStart - memberStart->fContentStart),
             memberStart->fContentStart);
     this->indentToColumn(fStructMemberTab);
     this->writeString(name.c_str());
+    auto tokenIter = child.fParent->fTokens.begin();
+    std::advance(tokenIter, child.fParentIndex + 1);
+    Definition* valueStart = &*tokenIter;
+    while (Definition::Type::kPunctuation != tokenIter->fType) {
+        std::advance(tokenIter, 1);
+        SkASSERT(child.fParent->fTokens.end() != tokenIter);
+    }
+    Definition* valueEnd = &*tokenIter;
+    if (valueStart != valueEnd) {
+        this->indentToColumn(fStructValueTab);
+        this->writeString("=");
+        this->writeSpace();
+        this->writeBlock((int) (valueEnd->fStart - valueStart->fContentStart),
+                valueStart->fContentStart); 
+    }
     this->writeString(";");
     if (isShort) {
         this->indentToColumn(fStructCommentTab);
@@ -474,14 +610,18 @@ void IncludeWriter::structMemberOut(const Definition* memberStart, const Definit
         this->rewriteBlock(commentLen, commentStart);
         this->lfcr();
     }
+    return valueEnd;
 }
 
 void IncludeWriter::structSizeMembers(Definition& child) {
     int longestType = 0;
     Definition* typeStart = nullptr;
     int longestName = 0;
+    int longestValue = 0;
     SkASSERT(child.fChildren.size() == 1 || child.fChildren.size() == 2);
     bool inEnum = false;
+    bool inMethod = false;
+    bool inMember = false;
     auto brace = child.fChildren[0];
     SkASSERT(Bracket::kBrace == brace->fBracket);
     for (auto& token : brace->fTokens) {
@@ -493,6 +633,9 @@ void IncludeWriter::structSizeMembers(Definition& child) {
                 continue;  // ignore old inline comments
             }
             if (Bracket::kParen == token.fBracket) {
+                if (inMethod) {
+                    continue;
+                }
                 break;
             }
             SkASSERT(0); // incomplete
@@ -525,6 +668,20 @@ void IncludeWriter::structSizeMembers(Definition& child) {
                 SkASSERT(Punctuation::kSemicolon == token.fPunctuation);
                 inEnum = false;
             }
+            if (inMethod) {
+                if (Punctuation::kColon == token.fPunctuation) {
+                    inMethod = false;
+                } else if (Punctuation::kLeftBrace == token.fPunctuation) {
+                    inMethod = false;
+                } else {
+                    SkASSERT(0);  // incomplete
+                }
+            }
+            if (inMember) {
+                SkASSERT(Punctuation::kSemicolon == token.fPunctuation);
+                typeStart = nullptr;
+                inMember = false;
+            }
             continue;
         }
         if (Definition::Type::kWord != token.fType) {
@@ -534,19 +691,33 @@ void IncludeWriter::structSizeMembers(Definition& child) {
             TextParser typeStr(token.fFileName, typeStart->fContentStart, token.fContentStart,
                     token.fLineCount);
             typeStr.trimEnd();
-            longestType = SkTMax(longestType, (int) (typeStr.fEnd - typeStart->fContentStart));
+            longestType = SkTMax(longestType, (int) (typeStr.fEnd - typeStr.fStart));
             longestName = SkTMax(longestName, (int) (token.fContentEnd - token.fContentStart));
             typeStart->fMemberStart = true;
-            typeStart = nullptr;
+            inMember = true;
+            continue;
+        }
+        if (MarkType::kMethod == token.fMarkType) {
+            inMethod = true;
             continue;
         }
         SkASSERT(MarkType::kNone == token.fMarkType);
-        if (!typeStart) {
+        if (typeStart) {
+            if (inMember) {
+                longestValue =
+                        SkTMax(longestValue, (int) (token.fContentEnd - token.fContentStart));
+            }
+        } else {
             typeStart = &token;
         }
     }
     fStructMemberTab = longestType + fIndent + 1 /* space before name */ ;
-    fStructCommentTab = fStructMemberTab + longestName + 2 /* ; space */ ;
+    fStructValueTab = fStructMemberTab + longestName + 2 /* space ; */ ;
+    fStructCommentTab = fStructValueTab;
+    if (longestValue) {
+        fStructCommentTab += longestValue + 3 /* space = space */ ;
+        fStructValueTab -= 1 /* ; */ ;
+    }
     // iterate through bmh children and see which comments fit on include lines
     for (auto& member : fStructDef->fChildren) {
         if (MarkType::kMember != member->fMarkType) {
@@ -574,9 +745,18 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
     const Definition* method;
     const Definition* clonedMethod = nullptr;
     const Definition* memberStart = nullptr;
+    const Definition* memberEnd = nullptr;
     fContinuation = nullptr;
     bool inStruct = false;
+    bool inConstructor = false;
     for (auto& child : def->fTokens) {
+        if (memberEnd) {
+            if (memberEnd != &child) {
+                continue;
+            }
+            fStart = child.fContentStart + 1;
+            memberEnd = nullptr;
+        }
         if (child.fPrivate) {
             continue;
         }
@@ -588,6 +768,9 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
             }
             if (Definition::Type::kBracket == child.fType && Bracket::kParen == child.fBracket) {
                 if (!clonedMethod) {
+                    if (inConstructor) {
+                        fContinuation = child.fContentStart;
+                    }
                     continue;
                 }
                 int alternate = 1;
@@ -598,8 +781,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                     TextParser params(clonedMethod->fFileName, clonedMethod->fStart, 
                         clonedMethod->fContentStart, clonedMethod->fLineCount);
                     params.skipToEndBracket('(');
-                    if (params.fEnd - params.fChar >= childLen &&
-                            !strncmp(params.fChar, child.fContentStart, childLen)) {
+                    if (params.startsWith(child.fContentStart, childLen)) {
                         this->methodOut(clonedMethod, child);
                         break;
                     }
@@ -643,9 +825,12 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 this->methodOut(method, child);
                 continue;
             }
+            if (inConstructor) {
+                continue;
+            }
             methodName += "()";
             method = root->find(methodName);
-            if (MarkType::kDefinedBy == method->fMarkType) {
+            if (method && MarkType::kDefinedBy == method->fMarkType) {
                 method = method->fParent;
             }
             if (method) {
@@ -660,9 +845,13 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
             if (!fDeferComment) {
                 fDeferComment = &child;
             }
+            fLastComment = &child;
             continue;
         } 
         if (MarkType::kMethod == child.fMarkType) {
+            if (this->internalName(child)) {
+                continue;
+            }
             const char* bodyEnd = fDeferComment ? fDeferComment->fContentStart - 1 :
                     child.fContentStart;
             // FIXME: roll end-trimming into writeBlockTrim call
@@ -675,6 +864,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
             }
             fStart = child.fContentStart;
             methodName = root->fName + "::" + child.fName;
+            inConstructor = root->fName == child.fName;
             fContinuation = child.fContentEnd;
             method = root->find(methodName);
             if (!method) {
@@ -732,6 +922,13 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                             if (nullptr == structDef) {
                                 structDef = root->find(root->fName + "::" + child.fName);
                             }
+                            if (!structDef) {
+                                this->lf(2);
+                                fIndent = 0;
+                                this->writeBlock((int) (fStart - bodyEnd), bodyEnd);
+                                this->lfcr();
+                                continue;
+                            }
                             Definition* codeBlock = nullptr;
                             Definition* nextBlock = nullptr;
                             for (auto test : structDef->fChildren) {
@@ -756,7 +953,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                     }
                     break;
                 case KeyWord::kEnum: {
-                    this->fInEnum = true;
+                    fInEnum = true;
                     this->enumHeaderOut(root, child);
                     this->enumSizeItems(child);
                 } break;
@@ -777,6 +974,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 case KeyWord::kPrivate:
                 case KeyWord::kProtected:
                 case KeyWord::kFriend:
+                case KeyWord::kTypedef:
                     break;
                 default:
                     SkASSERT(0);
@@ -795,21 +993,27 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
                 const char* structEnd = child.fContentEnd;
                 SkAssertResult('}' == structEnd[-1]);
                 --structEnd;
-                this->writeBlock((int) (structEnd - fStart), fStart);
+                this->writeBlockTrim((int) (structEnd - fStart), fStart);
                 this->lf(2);
                 fStart = structEnd;
                 fIndent -= 4;
                 fContinuation = nullptr;
                 fDeferComment = nullptr;
             } else {
-                if (!this->populate(&child, root)) {
+                if (fInEnum && KeyWord::kClass == child.fChildren[0]->fKeyWord) {
+                    if (!this->populate(child.fChildren[0], root)) {
+                        return false;
+                    }
+                } else if (!this->populate(&child, root)) {
                     return false;
                 }
             }
             continue;
         } 
         if (Definition::Type::kBracket == child.fType) {
-            if (KeyWord::kEnum == child.fParent->fKeyWord) {
+            if (KeyWord::kEnum == child.fParent->fKeyWord || 
+                    (KeyWord::kClass == child.fParent->fKeyWord && child.fParent->fParent &&
+                    KeyWord::kEnum == child.fParent->fParent->fKeyWord)) {
                 this->enumMembersOut(root, child);
                 this->writeString("};");
                 this->lf(2);
@@ -828,7 +1032,7 @@ bool IncludeWriter::populate(Definition* def, RootDefinition* root) {
         }
         if (Definition::Type::kWord == child.fType) {
             if (MarkType::kMember == child.fMarkType) {
-                this->structMemberOut(memberStart, child);
+                memberEnd = this->structMemberOut(memberStart, child);
                 fStart = child.fContentEnd + 1;
                 fDeferComment = nullptr;
             }
@@ -953,6 +1157,12 @@ string IncludeWriter::resolveRef(const char* start, const char* end, bool first)
             rootDefIter = fBmhParser->fTopicMap.find(prefixedName);
             if (fBmhParser->fTopicMap.end() != rootDefIter) {
                 rootDef = rootDefIter->second;
+            } else if (fStructDef) {
+                string localPrefix = fStructDef->fFiddle + '_' + undername;
+                rootDefIter = fBmhParser->fTopicMap.find(localPrefix);
+                if (fBmhParser->fTopicMap.end() != rootDefIter) {
+                    rootDef = rootDefIter->second;
+                }
             } else {
                 auto aliasIter = fBmhParser->fAliasMap.find(undername);
                 if (fBmhParser->fAliasMap.end() != aliasIter) {
