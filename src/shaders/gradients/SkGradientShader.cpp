@@ -1906,7 +1906,7 @@ GrGradientEffect::~GrGradientEffect() {
 bool GrGradientEffect::onIsEqual(const GrFragmentProcessor& processor) const {
     const GrGradientEffect& ge = processor.cast<GrGradientEffect>();
 
-    if (this->fColorType != ge.getColorType()) {
+    if (fTileMode != ge.fTileMode || fColorType != ge.getColorType()) {
         return false;
     }
     SkASSERT(this->useAtlas() == ge.useAtlas());
