@@ -78,7 +78,7 @@ void SkRasterPipeline::dump() const {
     #define INC_COLOR
 #endif
 
-void SkRasterPipeline::append_uniform_color(SkArenaAlloc* alloc, const SkPM4f& c) {
+void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const SkPM4f& c) {
     if (c.r() == 0 && c.g() == 0 && c.b() == 0 && c.a() == 1) {
         this->append(black_color);
         INC_BLACK;

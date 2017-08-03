@@ -99,7 +99,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     SkRasterPipeline_<256> shaderPipeline;
     if (!shader) {
         // Having no shader makes things nice and easy... just use the paint color.
-        shaderPipeline.append_uniform_color(alloc, paintColor);
+        shaderPipeline.append_constant_color(alloc, paintColor);
         bool is_opaque    = paintColor.a() == 1.0f,
              is_constant  = true;
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
@@ -198,7 +198,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         colorPipeline->append(SkRasterPipeline::store_f32, &constantColorPtr);
         colorPipeline->run(0,0,1,1);
         colorPipeline->reset();
-        colorPipeline->append_uniform_color(alloc, constantColor);
+        colorPipeline->append_constant_color(alloc, constantColor);
 
         is_opaque = constantColor.a() == 1.0f;
     }
