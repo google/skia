@@ -1335,7 +1335,7 @@ int main(int argc, char** argv) {
     }
     gather_tests();
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
-    info("%d srcs * %d sinks + %d tests == %d tasks",
+    info("%d srcs * %d sinks + %d tests == %d tasks\n",
          gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
