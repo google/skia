@@ -71,6 +71,30 @@
       "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ce93081_41aa2557",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-03T21:32:40Z",
+      "side": 1,
+      "message": "You know how these things go.  If you know how something works, you can\u0027t know where someone learning it will get lost until you see them stumble.\n\nIf you\u0027d like to link to the doc here I\u0027d be happy to +1.",
+      "parentUuid": "05377beb_3e4625f0",
+      "range": {
+        "startLine": 6,
+        "startChar": 11,
+        "endLine": 6,
+        "endChar": 15
+      },
+      "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
