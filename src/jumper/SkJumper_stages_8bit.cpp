@@ -12,6 +12,10 @@
 // 8-bit per channel, and while we're at it keep our pixels interlaced.
 // This is the natural format for kN32_SkColorType buffers, and we hope
 // the stages in this file can replace many custom legacy routines.
+//
+// 8-bit multiplications create 16-bit results, so we keep our 8-bit values
+// in 16-bit lanes.  This way we don't have to keep unpacking and repacking
+// them... we just unpack on the way in and pack on the way out.
 
 #if !defined(JUMPER)
     #error "This file must be pre-compiled."
@@ -30,34 +34,36 @@
 #if defined(__AVX2__)
     using U8    = uint8_t  __attribute__((ext_vector_type( 8)));
     using U32   = uint32_t __attribute__((ext_vector_type( 8)));
+    using U64   = uint64_t __attribute__((ext_vector_type( 8)));
     using U8x4  = uint8_t  __attribute__((ext_vector_type(32)));
     using U16x4 = uint16_t __attribute__((ext_vector_type(32)));
+    using P     = uint16_t __attribute__((ext_vector_type(16)));
 #else
     using U8    = uint8_t  __attribute__((ext_vector_type( 4)));
     using U32   = uint32_t __attribute__((ext_vector_type( 4)));
+    using U64   = uint64_t __attribute__((ext_vector_type( 4)));
     using U8x4  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16x4 = uint16_t __attribute__((ext_vector_type(16)));
+    using P     = uint16_t __attribute__((ext_vector_type( 8)));
 #endif
 
 union V {
-    U32  u32;
-    U8x4 u8x4;
+    U64   u64;
+    U16x4 u16x4;
 
     V() = default;
-    V(U32   v) : u32 (v) {}
-    V(U8x4  v) : u8x4(v) {}
-    V(int   v) : u8x4(v) {}
-    V(float v) : u8x4(v*255) {}
+    V(U64    v) : u64  (v) {}
+    V(U16x4  v) : u16x4(v) {}
+    V(int    v) : u16x4(v) {}
+    V(float  v) : u16x4(v*255) {}
 };
-static const size_t kStride = sizeof(V) / sizeof(uint32_t);
+static const size_t kStride = sizeof(V) / sizeof(uint64_t);
 
-SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
-SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
+SI V operator+(V x, V y) { return x.u16x4 + y.u16x4; }
+SI V operator-(V x, V y) { return x.u16x4 - y.u16x4; }
 SI V operator*(V x, V y) {
     // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
-    U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
-          Y = __builtin_convertvector(y.u8x4, U16x4);
-    return __builtin_convertvector((X*Y + X)>>8, U8x4);
+    return (x.u16x4 * y.u16x4 + x.u16x4) >> 8;
 }
 
 SI V inv(V v) { return 0xff - v; }
@@ -65,21 +71,32 @@ SI V lerp(V from, V to, V t) { return to*t + from*inv(t); }
 
 SI V alpha(V v) {
 #if defined(__AVX2__)
-    return __builtin_shufflevector(v.u8x4,v.u8x4,
+    return __builtin_shufflevector(v.u16x4,v.u16x4,
                                     3, 3, 3, 3,  7, 7, 7, 7, 11,11,11,11, 15,15,15,15,
                                    19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31);
 #else
-    return __builtin_shufflevector(v.u8x4,v.u8x4, 3,3,3,3, 7,7,7,7, 11,11,11,11, 15,15,15,15);
+    return __builtin_shufflevector(v.u16x4,v.u16x4, 3,3,3,3, 7,7,7,7, 11,11,11,11, 15,15,15,15);
+#endif
+}
+
+SI V splat_alpha(U8 a) {
+    V v = __builtin_convertvector(a, U64);
+#if defined(__AVX2__)
+    return __builtin_shufflevector(v.u16x4,v.u16x4,
+                                    0, 0, 0, 0,  4, 4, 4, 4,  8, 8, 8, 8, 12,12,12,12,
+                                   16,16,16,16, 20,20,20,20, 24,24,24,24, 28,28,28,28);
+#else
+    return __builtin_shufflevector(v.u16x4,v.u16x4, 0,0,0,0, 4,4,4,4, 8,8,8,8, 12,12,12,12);
 #endif
 }
 
 SI V swap_rb(V v) {
 #if defined(__AVX2__)
-    return __builtin_shufflevector(v.u8x4,v.u8x4,
+    return __builtin_shufflevector(v.u16x4,v.u16x4,
                                     2, 1, 0, 3,  6, 5, 4, 7, 10, 9, 8,11, 14,13,12,15,
                                    18,17,16,19, 22,21,20,23, 26,25,24,27, 30,29,28,31);
 #else
-    return __builtin_shufflevector(v.u8x4,v.u8x4, 2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15);
+    return __builtin_shufflevector(v.u16x4,v.u16x4, 2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15);
 #endif
 }
 
@@ -87,7 +104,11 @@ struct Params {
     size_t x,y,tail;
 };
 
-using Stage = void(const Params* params, void** program, V src, V dst);
+// Ordinarily we'd pass around two V, src and dst.
+// But V is actually two vector registers wide, so to work within Sys-V calling convention,
+// we pass each half as its own argument, splitting and putting them back together transparently.
+
+using Stage = void(const Params* params, void** program, P src_lo, P src_hi, P dst_lo, P dst_hi);
 
 #if defined(__AVX__)
     // We really want to make sure all paths go through this function's (implicit) vzeroupper.
@@ -97,30 +118,43 @@ using Stage = void(const Params* params, void** program, V src, V dst);
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
                                      void** program, const SkJumper_constants*) {
-    V v;
+    P p;
     auto start = (Stage*)load_and_inc(program);
     for (; y < ylimit; y++) {
         Params params = { x,y,0 };
         while (params.x + kStride <= xlimit) {
-            start(&params,program, v,v);
+            start(&params,program, p,p,p,p);
             params.x += kStride;
         }
         if (size_t tail = xlimit - params.x) {
             params.tail = tail;
-            start(&params,program, v,v);
+            start(&params,program, p,p,p,p);
         }
     }
 }
 
-extern "C" void WRAP(just_return)(const Params*, void**, V,V) {}
+extern "C" void WRAP(just_return)(const Params*, void**, P,P,P,P) {}
 
 #define STAGE(name)                                                                   \
     SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst);   \
-    extern "C" void WRAP(name)(const Params* params, void** program, V src, V dst) {  \
+    extern "C" void WRAP(name)(const Params* params, void** program,                  \
+                               P src_lo, P src_hi, P dst_lo, P dst_hi) {              \
+        V src, dst;                                                                   \
+        memcpy((char*)&src +         0, &src_lo, sizeof(P));                          \
+        memcpy((char*)&src + sizeof(P), &src_hi, sizeof(P));                          \
+        memcpy((char*)&dst +         0, &dst_lo, sizeof(P));                          \
+        memcpy((char*)&dst + sizeof(P), &dst_hi, sizeof(P));                          \
+                                                                                      \
         LazyCtx ctx(program);                                                         \
         name##_k(ctx, params->x, params->y, params->tail, src, dst);                  \
+                                                                                      \
+        memcpy(&src_lo, (char*)&src +         0, sizeof(P));                          \
+        memcpy(&src_hi, (char*)&src + sizeof(P), sizeof(P));                          \
+        memcpy(&dst_lo, (char*)&dst +         0, sizeof(P));                          \
+        memcpy(&dst_hi, (char*)&dst + sizeof(P), sizeof(P));                          \
+                                                                                      \
         auto next = (Stage*)load_and_inc(program);                                    \
-        next(params,program, src,dst);                                                \
+        next(params,program, src_lo,src_hi,dst_lo,dst_hi);                            \
     }                                                                                 \
     SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst)
 
@@ -205,113 +239,112 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 STAGE(uniform_color) {
     auto c = (const float*)ctx;
 
-    src.u32 = (uint32_t)(c[0] * 255) << 0
-            | (uint32_t)(c[1] * 255) << 8
-            | (uint32_t)(c[2] * 255) << 16
-            | (uint32_t)(c[3] * 255) << 24;
+    src.u64 = (uint64_t)(c[0] * 255) << 0
+            | (uint64_t)(c[1] * 255) << 16
+            | (uint64_t)(c[2] * 255) << 32
+            | (uint64_t)(c[3] * 255) << 48;
 }
 STAGE(set_rgb) {
     auto c = (const float*)ctx;
 
-    src.u32 = (uint32_t)(c[0] * 255) << 0
-            | (uint32_t)(c[1] * 255) << 8
-            | (uint32_t)(c[2] * 255) << 16
-            | (src.u32 & 0xff000000);
+    src.u64 = (uint64_t)(c[0] * 255) << 0
+            | (uint64_t)(c[1] * 255) << 16
+            | (uint64_t)(c[2] * 255) << 32
+            | (src.u64 & 0x00ff000000000000);
 }
 
 STAGE(premul) {
     // I.e. rgb *= a, a *= 1.0f.
-    src = src * (alpha(src).u32 | 0xff000000);
+    src = src * (alpha(src).u64 | 0x00ff000000000000);
 }
 STAGE(swap_rb) {
     src = swap_rb(src);
 }
 
+// These are our main pack/unpack routines, for 8<->16 bit lanes.
+SI U8x4    pack(U16x4 v) { return __builtin_convertvector(v, U8x4 ); }
+SI U16x4 unpack(U8x4  v) { return __builtin_convertvector(v, U16x4); }
+
+// These are the _same_ 8<->16 bit operations, just syntax sugar for the whole-pixel types.
+SI U32     pack(U64   v) { return (U32)  pack((U16x4)v); }
+SI U64   unpack(U32   v) { return (U64)unpack((U8x4 )v); }
+
 STAGE(load_8888) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
-    src = load<U32>(ptr, tail);
+    src = unpack(load<U32>(ptr, tail));
 }
 STAGE(load_8888_dst) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
-    dst = load<U32>(ptr, tail);
+    dst = unpack(load<U32>(ptr, tail));
 }
 STAGE(store_8888) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
-    store(ptr, src.u32, tail);
+    store(ptr, pack(src.u64), tail);
 }
 
 STAGE(load_bgra) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
-    src = swap_rb(load<U32>(ptr, tail));
+    src = swap_rb(unpack(load<U32>(ptr, tail)));
 }
 STAGE(load_bgra_dst) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
-    dst = swap_rb(load<U32>(ptr, tail));
+    dst = swap_rb(unpack(load<U32>(ptr, tail)));
 }
 STAGE(store_bgra) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
-    store(ptr, swap_rb(src).u32, tail);
+    store(ptr, pack(swap_rb(src).u64), tail);
 }
 
 STAGE(load_a8) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
-    src = __builtin_convertvector(load<U8>(ptr, tail), U32) << 24;
+    src = unpack(__builtin_convertvector(load<U8>(ptr, tail), U32) << 24);
 }
 STAGE(load_a8_dst) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
-    dst = __builtin_convertvector(load<U8>(ptr, tail), U32) << 24;
+    dst = unpack(__builtin_convertvector(load<U8>(ptr, tail), U32) << 24);
 }
 STAGE(store_a8) {
     auto ptr = ptr_at_xy<uint8_t>(ctx, x,y);
-    store(ptr, __builtin_convertvector(src.u32 >> 24, U8), tail);
+    store(ptr, __builtin_convertvector(pack(src.u64) >> 24, U8), tail);
 }
 
 STAGE(load_g8) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
-    src = (__builtin_convertvector(load<U8>(ptr, tail), U32) * 0x010101) | 0xff000000;
+    src = unpack(0xff000000 | (__builtin_convertvector(load<U8>(ptr, tail), U32) * 0x010101));
 }
 STAGE(load_g8_dst) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
-    dst = (__builtin_convertvector(load<U8>(ptr, tail), U32) * 0x010101) | 0xff000000;
-}
-
-STAGE(srcover_rgba_8888) {
-    auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
-
-    V d = load<U32>(ptr, tail);
-    V b = src + d*inv(alpha(src));
-
-    store(ptr, b.u32, tail);
+    dst = unpack(0xff000000 | (__builtin_convertvector(load<U8>(ptr, tail), U32) * 0x010101));
 }
 
 STAGE(scale_1_float) {
     float c = *(const float*)ctx;
     src = src * c;
 }
-STAGE(scale_u8) {
-    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
-
-    V c = __builtin_convertvector(load<U8>(ptr, tail), U32) << 24;
-    src = src * alpha(c);
-}
-
 STAGE(lerp_1_float) {
     float c = *(const float*)ctx;
     src = lerp(dst, src, c);
 }
+
+STAGE(scale_u8) {
+    auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
+
+    V c = splat_alpha(load<U8>(ptr, tail));
+    src = src * c;
+}
 STAGE(lerp_u8) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, x,y);
 
-    V c = __builtin_convertvector(load<U8>(ptr, tail), U32) << 24;
-    src = lerp(dst, src, alpha(c));
+    V c = splat_alpha(load<U8>(ptr, tail));
+    src = lerp(dst, src, c);
 }
 
 STAGE(move_src_dst) { dst = src; }
 STAGE(move_dst_src) { src = dst; }
 
-STAGE(black_color) { src.u32 = 0xff000000; }
-STAGE(white_color) { src.u32 = 0xffffffff; }
-STAGE(clear)       { src.u32 = 0x00000000; }
+STAGE(black_color) { src.u64 = 0x00ff000000000000; }
+STAGE(white_color) { src.u64 = 0x00ff00ff00ff00ff; }
+STAGE(clear)       { src.u64 = 0x0000000000000000; }
 
 STAGE(srcatop)  { src = src*alpha(dst) + dst*inv(alpha(src)); }
 STAGE(dstatop)  { src = dst*alpha(src) + src*inv(alpha(dst)); }
@@ -325,3 +358,12 @@ STAGE(modulate) { src = src*dst; }
 STAGE(multiply) { src = src*inv(alpha(dst)) + dst*inv(alpha(src)) + src*dst; }
 STAGE(screen)   { src = src + inv(src)*dst; }
 STAGE(xor_)     { src = src*inv(alpha(dst)) + dst*inv(alpha(src)); }
+
+STAGE(srcover_rgba_8888) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
+
+    V d = unpack(load<U32>(ptr, tail));
+    V b = src + d*inv(alpha(src));
+
+    store(ptr, pack(b.u64), tail);
+}
