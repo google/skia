@@ -15,7 +15,9 @@
 #include "GrTypes.h"
 
 class SkCanvas;
+class SkDeferredDisplayList;
 class SkPaint;
+class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrContext;
@@ -33,6 +35,7 @@ class GrRenderTarget;
  */
 class SK_API SkSurface : public SkRefCnt {
 public:
+
     /**
      *  Create a new surface, using the specified pixels/rowbytes as its
      *  backend.
@@ -356,6 +359,26 @@ public:
      * and the client will still own the semaphores.
      */
     bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
+
+    // surface -> promise of size, CS, etc
+    // make builder w/ the promise -> get a canvas
+    // pour draws into the canvas
+    // snap a foo
+    //   does everthing up to (and including) prepare
+    // surface->drawFoo
+    //   does the execute stage w/ uploads
+
+    /**
+     * This creates a characterization of this SkSurface's properties that can
+     * be used to perform gpu-backend preprocessing in a separate thread (via
+     * the SkDeferredDisplayListMaker).
+     */
+    bool characterize(SkSurfaceCharacterization*) const;
+
+    /**
+     * Draw a deferred display list (created via SkDeferredDisplayListMaker
+     */
+    void draw(SkDeferredDisplayList*);
 
 protected:
     SkSurface(int width, int height, const SkSurfaceProps*);

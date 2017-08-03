@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 
 #include "SkFontLCDConfig.h"
+
 static SkPixelGeometry compute_default_geometry() {
     SkFontLCDConfig::LCDOrder order = SkFontLCDConfig::GetSubpixelOrder();
     if (SkFontLCDConfig::kNONE_LCDOrder == order) {
@@ -207,6 +208,14 @@ GrSemaphoresSubmitted SkSurface::flushAndSignalSemaphores(int numSemaphores,
 
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
     return asSB(this)->onWait(numSemaphores, waitSemaphores);
+}
+
+bool SkSurface::characterize(SkSurfaceCharacterization* data) const {
+    return asSB(const_cast<SkSurface*>(this))->onCharacterize(data);
+}
+
+void SkSurface::draw(SkDeferredDisplayList* dl) {
+    return asSB(this)->onDraw(dl);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
