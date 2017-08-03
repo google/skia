@@ -29,7 +29,7 @@ public:
 
     SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
 
-    static bool IsRasterPipelineOnly(SkColorType, SkAlphaType,
+    static bool IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType, SkAlphaType,
                                      SkShader::TileMode tx, SkShader::TileMode ty);
 
 protected:
@@ -40,7 +40,7 @@ protected:
 #endif
     SkImage* onIsAImage(SkMatrix*, TileMode*) const override;
 
-    bool onIsRasterPipelineOnly() const override;
+    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override;
 
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix& ctm, const SkPaint&, const SkMatrix*) const override;
