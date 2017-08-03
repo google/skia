@@ -8,6 +8,10 @@
 #include "SkJumper.h"
 #include "SkJumper_misc.h"
 
+#if defined(__SSE2__)
+    #include <immintrin.h>
+#endif
+
 // We're going to try going even lower precision than _lowp.cpp,
 // 8-bit per channel, and while we're at it keep our pixels interlaced.
 // This is the natural format for kN32_SkColorType buffers, and we hope
@@ -51,13 +55,28 @@ union V {
 };
 static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 
+// Usually __builtin_convertvector() is pretty good, but sometimes we can do better.
+SI U8x4 pack(U16x4 v) {
+#if defined(__AVX2__)
+    static_assert(sizeof(v) == 64, "");
+    auto lo = unaligned_load<__m256i>((char*)&v +  0),
+         hi = unaligned_load<__m256i>((char*)&v + 32);
+
+    auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
+         _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
+    return _mm256_packus_epi16(_02, _13);
+#else
+    return __builtin_convertvector(v, U8x4);
+#endif
+}
+
 SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
 SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
 SI V operator*(V x, V y) {
     // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
     U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
           Y = __builtin_convertvector(y.u8x4, U16x4);
-    return __builtin_convertvector((X*Y + X)>>8, U8x4);
+    return pack((X*Y + X)>>8);
 }
 
 SI V inv(V v) { return 0xff - v; }
@@ -162,8 +181,6 @@ SI void store(T* dst, V v, size_t tail) {
 }
 
 #if 1 && defined(__AVX2__)
-    #include <immintrin.h>
-
     SI U32 mask(size_t tail) {
         // We go a little out of our way to avoid needing large constant values here.
 
