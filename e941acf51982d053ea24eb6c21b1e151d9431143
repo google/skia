@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd6dc374_c7960d2d",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-03T17:59:54Z",
+      "side": 1,
+      "message": "looks like all callsites are guarded by kSrcOver, maybe assert instead?",
+      "range": {
+        "startLine": 306,
+        "startChar": 8,
+        "endLine": 306,
+        "endChar": 39
+      },
+      "revId": "e941acf51982d053ea24eb6c21b1e151d9431143",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bda2db8_0dc7d54b",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-03T17:59:54Z",
+      "side": 1,
+      "message": "kBGRA too?",
+      "range": {
+        "startLine": 307,
+        "startChar": 42,
+        "endLine": 307,
+        "endChar": 64
+      },
+      "revId": "e941acf51982d053ea24eb6c21b1e151d9431143",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
