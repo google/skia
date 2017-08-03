@@ -1,4 +1,4 @@
-using Bookmaker
+usingBookmaker
 ===
 
 # <a name="Bookmaker"></a> Bookmaker
