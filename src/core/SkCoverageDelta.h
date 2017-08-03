@@ -37,6 +37,9 @@ struct SkAntiRect {
 
 using SkCoverageDeltaAllocator = SkSTArenaAlloc<256>;
 
+// Make sure that Clang inline what we want (otherwise it could be 25% slower...)
+#define AI SK_ALWAYS_INLINE
+
 // A list of SkCoverageDelta with y from top() to bottom().
 // For each row y, there are count(y) number of deltas.
 // You can ask whether they are sorted or not by sorted(y), and you can sort them by sort(y).
@@ -55,21 +58,21 @@ public:
 
     SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom, bool forceRLE);
 
-    inline int  top() const { return fTop; }
-    inline int  bottom() const { return fBottom; }
-    inline bool forceRLE() const { return fForceRLE; }
-    inline int  count(int y) const { this->checkY(y); return fCounts[y]; }
-    inline bool sorted(int y) const { this->checkY(y); return fSorted[y]; }
-    inline void addDelta(int x, int y, SkFixed delta) { this->push_back(y, {x, delta}); }
+    AI int  top() const { return fTop; }
+    AI int  bottom() const { return fBottom; }
+    AI bool forceRLE() const { return fForceRLE; }
+    AI int  count(int y) const { this->checkY(y); return fCounts[y]; }
+    AI bool sorted(int y) const { this->checkY(y); return fSorted[y]; }
+    AI void addDelta(int x, int y, SkFixed delta) { this->push_back(y, {x, delta}); }
 
-    inline const SkCoverageDelta& getDelta(int y, int i) const {
+    AI const SkCoverageDelta& getDelta(int y, int i) const {
         this->checkY(y);
         SkASSERT(i < fCounts[y]);
         return fRows[y][i];
     }
 
     // It might be better to sort right before blitting to make the memory hot
-    inline void sort(int y) {
+    AI void sort(int y) {
         this->checkY(y);
         if (!fSorted[y]) {
             SkTQSort(fRows[y], fRows[y] + fCounts[y] - 1);
@@ -77,16 +80,16 @@ public:
         }
     }
 
-    inline const SkAntiRect& getAntiRect() const { return fAntiRect; }
-    inline void setAntiRect(int x, int y, int width, int height,
+    AI const SkAntiRect& getAntiRect() const { return fAntiRect; }
+    AI void setAntiRect(int x, int y, int width, int height,
             SkAlpha leftAlpha, SkAlpha rightAlpha) {
         fAntiRect = {x, y, width, height, leftAlpha, rightAlpha};
     }
 
-    inline void push_back(int y, const SkCoverageDelta& delta) {
+    AI void push_back(int y, const SkCoverageDelta& delta) {
         this->checkY(y);
         if (fCounts[y] == fMaxCounts[y]) {
-            fMaxCounts[y] *= 2;
+            fMaxCounts[y] *= 4;
             SkCoverageDelta* newRow = fAlloc->makeArrayDefault<SkCoverageDelta>(fMaxCounts[y]);
             memcpy(newRow, fRows[y], sizeof(SkCoverageDelta) * fCounts[y]);
             fRows[y] = newRow;
@@ -136,24 +139,24 @@ public:
 
     SkCoverageDeltaMask(const SkIRect& bounds);
 
-    inline int              top()       const { return fBounds.fTop; }
-    inline int              bottom()    const { return fBounds.fBottom; }
-    inline SkAlpha*         getMask()         { return fMask; }
-    inline const SkIRect&   getBounds() const { return fBounds; }
+    AI int              top()       const { return fBounds.fTop; }
+    AI int              bottom()    const { return fBounds.fBottom; }
+    AI SkAlpha*         getMask()         { return fMask; }
+    AI const SkIRect&   getBounds() const { return fBounds; }
 
-    inline void             addDelta (int x, int y, SkFixed delta) { this->delta(x, y) += delta; }
-    inline SkFixed&         delta    (int x, int y) {
+    AI void             addDelta (int x, int y, SkFixed delta) { this->delta(x, y) += delta; }
+    AI SkFixed&         delta    (int x, int y) {
         this->checkX(x);
         this->checkY(y);
         return fDeltas[this->index(x, y)];
     }
 
-    inline void setAntiRect(int x, int y, int width, int height,
+    AI void setAntiRect(int x, int y, int width, int height,
                             SkAlpha leftAlpha, SkAlpha rightAlpha) {
         fAntiRect = {x, y, width, height, leftAlpha, rightAlpha};
     }
 
-    inline SkMask prepareSkMask() {
+    AI SkMask prepareSkMask() {
         SkMask mask;
         mask.fImage     = fMask;
         mask.fBounds    = fBounds;
@@ -172,9 +175,9 @@ private:
     int         fExpandedWidth;
     SkAntiRect  fAntiRect;
 
-    inline int  index(int x, int y) const { return y * fExpandedWidth + x; }
-    inline void checkY(int y) const { SkASSERT(y >= fBounds.fTop && y < fBounds.fBottom); }
-    inline void checkX(int x) const {
+    AI int  index(int x, int y) const { return y * fExpandedWidth + x; }
+    AI void checkY(int y) const { SkASSERT(y >= fBounds.fTop && y < fBounds.fBottom); }
+    AI void checkX(int x) const {
         SkASSERT(x >= fBounds.fLeft - PADDING && x < fBounds.fRight + PADDING);
     }
 };
@@ -224,5 +227,7 @@ static SK_ALWAYS_INLINE T ConvexCoverageToAlpha(T coverage, bool isInverse) {
     result -= (result >> 8); // 256 to 255
     return isInverse ? 255 - result : result;
 }
+
+#undef AI
 
 #endif
