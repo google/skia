@@ -15,11 +15,13 @@
 
 #include "SkCanvas.h"
 #include "SkColorSpace_Base.h"
+#include "SkDeferredDisplayList.h"
 #include "SkGpuDevice.h"
 #include "SkImage_Base.h"
 #include "SkImage_Gpu.h"
 #include "SkImagePriv.h"
 #include "SkSurface_Base.h"
+#include "SkSurfaceCharacterization.h"
 
 #if SK_SUPPORT_GPU
 
@@ -113,7 +115,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot() {
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
-    if (srcProxy) {
+    if (srcProxy) { 
         // The renderTargetContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcProxy->priv().isExact());
@@ -157,6 +159,25 @@ GrSemaphoresSubmitted SkSurface_Gpu::onFlush(int numSemaphores,
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
     return fDevice->wait(numSemaphores, waitSemaphores);
 }
+
+bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* data) const {
+    data->set(fDevice->width(), fDevice->height(),
+              fDevice->accessRenderTargetContext()->config());
+    return true;
+}
+
+bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& data) const {
+    return data.width() == fDevice->width() &&
+           data.height() == fDevice->height() &&
+           data.config() == fDevice->accessRenderTargetContext()->config();
+}
+
+void SkSurface_Gpu::onDraw(SkDeferredDisplayList* dl) {
+    if (!this->isCompatible(dl->characterization())) {
+        return;
+    }
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
