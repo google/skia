@@ -34,7 +34,7 @@ const (
 	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
-	DEFAULT_OS_DEBIAN = "Debian-9.0"
+	DEFAULT_OS_DEBIAN = "Debian-9.1"
 	DEFAULT_OS_UBUNTU = "Ubuntu-14.04"
 
 	// Name prefix for upload jobs.
