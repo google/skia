@@ -286,6 +286,30 @@
     },
     {
       "key": {
+        "uuid": "8321834c_bae8907c",
+        "filename": "tools/svg/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-08-03T19:01:50Z",
+      "side": 1,
+      "message": "That\u0027s true. Should I call it svgs_parsing_only.txt / svgs_for_parsing.txt / svgs_parse.txt ?",
+      "parentUuid": "08decfed_75d39676",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15bd5902_111b0090",
         "filename": "tools/svg/svg_downloader.py",
         "patchSetId": 1
