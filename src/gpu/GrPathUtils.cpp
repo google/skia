@@ -567,6 +567,53 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
     }
 }
 
+static inline Sk2f normalize(const Sk2f& n) {
+    Sk2f nn = n*n;
+    return n * (nn + SkNx_shuffle<1,0>(nn)).rsqrt();
+}
+
+bool GrPathUtils::chopMonotonicQuads(const SkPoint p[3], SkPoint dst[5]) {
+    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+    GR_STATIC_ASSERT(2 * sizeof(float) == sizeof(SkPoint));
+    GR_STATIC_ASSERT(0 == offsetof(SkPoint, fX));
+
+    Sk2f p0 = Sk2f::Load(&p[0]);
+    Sk2f p1 = Sk2f::Load(&p[1]);
+    Sk2f p2 = Sk2f::Load(&p[2]);
+
+    Sk2f tan0 = p1 - p0;
+    Sk2f tan1 = p2 - p1;
+    Sk2f v = p2 - p0;
+
+    // Check if the curve is already monotonic (i.e. (tan0 dot v) >= 0 and (tan1 dot v) >= 0).
+    // This should almost always be this case for well-behaved curves in the real world.
+    float dot0[2], dot1[2];
+    (tan0 * v).store(dot0);
+    (tan1 * v).store(dot1);
+    if (dot0[0] + dot0[1] >= 0 && dot1[0] + dot1[1] >= 0) {
+        return false;
+    }
+
+    // Chop the curve into two segments with equal curvature.
+    Sk2f n = normalize(tan0) - normalize(tan1);
+    Sk2f dQ1n = (tan0 - tan1) * n;
+    Sk2f dQ0n = tan0 * n;
+    Sk2f t = (dQ0n + SkNx_shuffle<1,0>(dQ0n)) / (dQ1n + SkNx_shuffle<1,0>(dQ1n));
+    t = Sk2f::Min(Sk2f::Max(t, 0), 1); // Clamp for FP error.
+
+    Sk2f p01 = SkNx_fma(t, tan0, p0);
+    Sk2f p12 = SkNx_fma(t, tan1, p1);
+    Sk2f p012 = SkNx_fma(t, p12 - p01, p01);
+
+    p0.store(&dst[0]);
+    p01.store(&dst[1]);
+    p012.store(&dst[2]);
+    p12.store(&dst[3]);
+    p2.store(&dst[4]);
+
+    return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
