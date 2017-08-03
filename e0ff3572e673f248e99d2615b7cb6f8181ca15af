@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "f7f75b1a_dee60c81",
+        "filename": "infra/bots/assets/svg/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T18:59:24Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "68e933c8_588a8921",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 21
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2079a34a_5a58f9af",
         "filename": "infra/bots/assets/svg/create.py",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Yes it was confusing. Made it better hopefully.",
       "parentUuid": "2079a34a_5a58f9af",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 67
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c63ec7a3_30a90a77",
+        "filename": "infra/bots/assets/svg/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T18:59:24Z",
+      "side": 1,
+      "message": "Much better, thanks!",
+      "parentUuid": "d6a13d2e_701642e9",
       "range": {
         "startLine": 49,
         "startChar": 0,
@@ -143,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "e148bffc_f839bfc3",
+        "filename": "infra/bots/assets/svg/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T18:59:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6d8d772b_e9d4d793",
+      "range": {
+        "startLine": 52,
+        "startChar": 62,
+        "endLine": 52,
+        "endChar": 66
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2752be6e_44e3a343",
         "filename": "tools/svg/README.md",
         "patchSetId": 1
@@ -178,6 +250,30 @@
       "side": 1,
       "message": "The decided upon prefix in https://bugs.chromium.org/p/skia/issues/detail?id\u003d6918\u0026desc\u003d2 was svgparse_ so I figure this name should be something similarish.",
       "parentUuid": "2752be6e_44e3a343",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08decfed_75d39676",
+        "filename": "tools/svg/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T18:59:24Z",
+      "side": 1,
+      "message": "Okay, that bug just states that the name will be svgparse.  It\u0027s confusing to me because parse_svgs sounds like an action, but the file just contains URLs of SKPs.",
+      "parentUuid": "b9803c52_c6557bde",
       "range": {
         "startLine": 12,
         "startChar": 0,
