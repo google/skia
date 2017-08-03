@@ -7,6 +7,7 @@
 
 #include "Benchmark.h"
 #include "SkOpts.h"
+#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "../src/jumper/SkJumper.h"
 
@@ -119,12 +120,11 @@ public:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        SkColor4f c = { 1.0f, 1.0f, 1.0f, 1.0f };
-
         SkColorSpaceTransferFn from_2dot2 = gamma(  2.2f),
                                  to_2dot2 = gamma(1/2.2f);
-        SkRasterPipeline_<256> p;
-        p.append(SkRasterPipeline::uniform_color, &c);
+        SkSTArenaAlloc<256> alloc;
+        SkRasterPipeline p(&alloc);
+        p.append_constant_color(&alloc, {{1.0f, 1.0f, 1.0f, 1.0f}});
         p.append(SkRasterPipeline::parametric_r, &from_2dot2);
         p.append(SkRasterPipeline::parametric_g, &from_2dot2);
         p.append(SkRasterPipeline::parametric_b, &from_2dot2);

@@ -7,6 +7,7 @@
 
 #include "Test.h"
 #include "SkHalf.h"
+#include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "../src/jumper/SkJumper.h"
 
@@ -278,12 +279,13 @@ DEF_TEST(SkRasterPipeline_repeat_tiling, r) {
     // so v' becomes negative. :'(
 
     // Here's a regression test to make sure this doesn't happen.
-    float in [4] = {19133558.0f,0,0,0};
+    SkPM4f in = {{19133558.0f,0,0,0}};
     float out[4 * SkJumper_kMaxStride];
     SkJumper_TileCtx tile = { 9.0f, 1/9.0f };
 
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::uniform_color, in);
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, in);
     p.append(SkRasterPipeline::repeat_x, &tile);
     p.append(SkRasterPipeline::store_rgba, out);
     p.run(0,0,1,1);

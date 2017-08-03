@@ -19,7 +19,8 @@ void SkRasterPipeline::reset() {
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
-    SkASSERT(stage != from_srgb);
+    SkASSERT(stage != from_srgb);      // Please use append_from_srgb().
+    SkASSERT(stage != uniform_color);  // Please use append_constant_color();
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
@@ -88,7 +89,7 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const SkPM4f& 
     } else {
         float* storage = alloc->makeArray<float>(4);
         memcpy(storage, c.fVec, 4 * sizeof(float));
-        this->append(uniform_color, storage);
+        this->unchecked_append(uniform_color, storage);
         INC_COLOR;
     }
 
