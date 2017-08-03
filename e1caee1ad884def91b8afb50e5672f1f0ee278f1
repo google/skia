@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c03a611_c75976d1",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2017-08-03T20:51:20Z",
+      "side": 1,
+      "message": "I\u0027d find it useful if something (README in this dir, or comment at top of this file) explained what problem is being solved here, and how it\u0027s being solved.\n\n(context: I\u0027m working on https://crbug.com/495204 a bit again, and SkJumper_generated_win.S is one of the few assembly files in the chrome build.)",
+      "range": {
+        "startLine": 6,
+        "startChar": 11,
+        "endLine": 6,
+        "endChar": 15
+      },
+      "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
