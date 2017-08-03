@@ -32,15 +32,24 @@ def create_asset(target_dir):
   download_svgs_cmd = [
     'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
     '--output_dir', target_dir,
+    '--svgs_file', os.path.join(SVG_TOOLS, 'svgs.txt'),
   ]
   subprocess.check_call(download_svgs_cmd)
 
-  # Download SVGs from Google storage. These are material design SVGs from
-  # skbug.com/5757.
+  # Download the SVGs specified in tools/svg/parse_svgs.txt with a prefix.
+  download_parse_svgs_cmd = [
+    'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
+    '--output_dir', target_dir,
+    '--svgs_file', os.path.join(SVG_TOOLS, 'parse_svgs.txt'),
+    '--prefix', 'svgparse_',
+  ]
+  subprocess.check_call(download_parse_svgs_cmd)
+
+  # Download SVGs from Google storage.
   # There was no easy way to create URLs from them to specify in
-  # tools/svg/svgs.txt which is why they had been stored in Google storage.
+  # a txt file which is why they had been stored in Google storage.
   subprocess.check_call([
-      'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, 'skbug5757', '*'),
+      'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, 'skbug4713', '*'),
       target_dir
   ])
 
