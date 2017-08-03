@@ -46,6 +46,31 @@
       "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05377beb_3e4625f0",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 6026
+      },
+      "writtenOn": "2017-08-03T21:14:47Z",
+      "side": 1,
+      "message": "Oh, documentation, awesome! Thanks, I\u0027ll read that. Maybe a comment at the top of this script could just link there, then I would\u0027ve found it myself. (Should\u0027ve thought of typing my question into google...)",
+      "parentUuid": "29431f52_afee76a6",
+      "range": {
+        "startLine": 6,
+        "startChar": 11,
+        "endLine": 6,
+        "endChar": 15
+      },
+      "tag": "mailMessageId\u003d\u003cCAMGbLiHg2JDAJTftxJrqbaVqHLbFD0VSo2r2SBbhjJuePTubXQ@mail.gmail.com\u003e",
+      "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
