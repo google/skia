@@ -559,6 +559,8 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src,
 
     // Are we going to try to unpremul as part of a draw? For the non-legacy case, we always allow
     // this. GrConfigConversionEffect fails on some GPUs, so only allow this if it works perfectly.
+    (void)fContext->validPMUPMConversionExists();
+
     bool unpremulOnGpu = unpremul &&
                          (!useConfigConversionEffect || fContext->validPMUPMConversionExists());
 
@@ -962,8 +964,13 @@ sk_sp<GrFragmentProcessor> GrContext::createUPMToPMEffect(sk_sp<GrFragmentProces
 bool GrContext::validPMUPMConversionExists() {
     ASSERT_SINGLE_OWNER
     if (!fDidTestPMConversions) {
-        fPMUPMConversionsRoundTrip = GrConfigConversionEffect::TestForPreservingPMConversions(this);
         fDidTestPMConversions = true;
+        fPMUPMConversionsRoundTrip = GrConfigConversionEffect::TestForPreservingPMConversions(this);
+        if (fPMUPMConversionsRoundTrip) {
+            exit(0);
+        } else {
+            exit(1);
+        }
     }
 
     // The PM<->UPM tests fail or succeed together so we only need to check one.

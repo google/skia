@@ -21,7 +21,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
         // Use highp throughout the shader to avoid some precision issues on specific GPUs.
-        fragBuilder->elevateDefaultPrecision(kHigh_GrSLPrecision);
+//        fragBuilder->elevateDefaultPrecision(kHigh_GrSLPrecision);
 
         if (nullptr == args.fInputColor) {
             // could optimize this case, but we aren't for now.
