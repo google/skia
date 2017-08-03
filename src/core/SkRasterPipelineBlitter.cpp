@@ -55,6 +55,8 @@ private:
     void maybe_clamp  (SkRasterPipeline*) const;
     void append_store (SkRasterPipeline*) const;
 
+    bool try_srcover_rgba_8888(SkRasterPipeline*) const;
+
     // If we have an burst context, use it to fill our shader buffer.
     void burst_shade(int x, int y, int w);
 
@@ -300,6 +302,20 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     this->blitRect(x,y,w,1);
 }
 
+bool SkRasterPipelineBlitter::try_srcover_rgba_8888(SkRasterPipeline* p) const {
+    if (fBlend == SkBlendMode::kSrcOver
+            && fDst.info().colorType() == kRGBA_8888_SkColorType
+            && !fDst.colorSpace()
+            && fDst.info().alphaType() != kUnpremul_SkAlphaType
+            && fDitherRate == 0.0f) {
+
+        p->clamp_if_unclamped(kPremul_SkAlphaType);
+        p->append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
+        return true;
+    }
+    return false;
+}
+
 void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
     if (fCanMemsetInBlitRect) {
         for (int ylimit = y+h; y < ylimit; y++) {
@@ -317,14 +333,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
     if (!fBlitRect) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend == SkBlendMode::kSrcOver
-                && fDst.info().colorType() == kRGBA_8888_SkColorType
-                && !fDst.colorSpace()
-                && fDst.info().alphaType() != kUnpremul_SkAlphaType
-                && fDitherRate == 0.0f) {
-            p.clamp_if_unclamped(kPremul_SkAlphaType);
-            p.append(SkRasterPipeline::srcover_rgba_8888, &fDstPtr);
-        } else {
+        if (!this->try_srcover_rgba_8888(&p)) {
             if (fBlend != SkBlendMode::kSrc) {
                 this->append_load_d(&p);
                 this->append_blend(&p);
@@ -353,15 +362,19 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
         p.extend(fColorPipeline);
         if (fBlend == SkBlendMode::kSrcOver) {
             p.append(SkRasterPipeline::scale_1_float, &fCurrentCoverage);
-            this->append_load_d(&p);
-            this->append_blend(&p);
+            if (!this->try_srcover_rgba_8888(&p)) {
+                this->append_load_d(&p);
+                this->append_blend(&p);
+                this->maybe_clamp(&p);
+                this->append_store(&p);
+            }
         } else {
             this->append_load_d(&p);
             this->append_blend(&p);
             p.append(SkRasterPipeline::lerp_1_float, &fCurrentCoverage);
+            this->maybe_clamp(&p);
+            this->append_store(&p);
         }
-        this->maybe_clamp(&p);
-        this->append_store(&p);
         fBlitAntiH = p.compile();
     }
 
@@ -407,15 +420,19 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         p.extend(fColorPipeline);
         if (fBlend == SkBlendMode::kSrcOver) {
             p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
-            this->append_load_d(&p);
-            this->append_blend(&p);
+            if (!this->try_srcover_rgba_8888(&p)) {
+                this->append_load_d(&p);
+                this->append_blend(&p);
+                this->maybe_clamp(&p);
+                this->append_store(&p);
+            }
         } else {
             this->append_load_d(&p);
             this->append_blend(&p);
             p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+            this->maybe_clamp(&p);
+            this->append_store(&p);
         }
-        this->maybe_clamp(&p);
-        this->append_store(&p);
         fBlitMaskA8 = p.compile();
     }
     if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
