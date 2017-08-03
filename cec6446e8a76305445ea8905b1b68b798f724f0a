@@ -22,6 +22,30 @@
       "revId": "cec6446e8a76305445ea8905b1b68b798f724f0a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e87300e_1b1fd20c",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-03T01:17:22Z",
+      "side": 1,
+      "message": "I agree this is something very interesting to look into.  We do currently have lots of register to play with.\n\nLast couple times I checked, branching to a full {load,store} is faster than always mask{load,store}.  Kind of dumb I agree.",
+      "parentUuid": "35d00715_f0a4dfbb",
+      "range": {
+        "startLine": 193,
+        "startChar": 53,
+        "endLine": 193,
+        "endChar": 57
+      },
+      "revId": "cec6446e8a76305445ea8905b1b68b798f724f0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
