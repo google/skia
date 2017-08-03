@@ -117,12 +117,14 @@ void SkCoverageDeltaMask::convertCoverageToAlpha(bool isEvenOdd, bool isInverse,
                 c[j] = c[j - 1] + deltaRow[ix + j];
             }
 
-            // My SIMD CoverageToAlpha seems to be only faster with SSSE3.
-            // (On linux, even with -mavx2, my SIMD still seems to be slow...)
-            // Even with only SSSE2, it's still faster to do SIMD_WIDTH non-SIMD computations at one
-            // time (i.e., SIMD_WIDTH = 8 is faster than SIMD_WIDTH = 1 even if SK_CPU_SSE_LEVEL is
-            // less than SK_CPU_SSE_LEVEL_SSSE3). Maybe the compiler is doing some SIMD by itself.
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+            // When compiled using GCC on my Linux desktop which does not have SSSE3 by default,
+            // my SIMD CoverageToAlpha seems to be slower than a simple for loop.
+            // (Even with -mavx2, my SIMD still seems to be slow...)
+            // However, it's still faster to do SIMD_WIDTH non-SIMD computations at one
+            // time (i.e., SIMD_WIDTH = 8 is faster than SIMD_WIDTH = 1 even if we're using the
+            // for loop). Maybe the compiler is doing some SIMD by itself.
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3 || \
+    !(defined(SK_CPU_X86) && defined(__GNUC__) && !defined(__clang__))
             using SkNi = SkNx<SIMD_WIDTH, int>;
 
             SkNi cn = SkNi::Load(c);
