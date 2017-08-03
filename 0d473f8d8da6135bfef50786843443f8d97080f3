@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77bd8f31_4678fc77",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-03T20:47:38Z",
+      "side": 1,
+      "message": "Seems like you don\u0027t need to handle the non-sRGB formats in this switch? (Because you already set linearFmt to format above)?",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 38
+      },
+      "revId": "0d473f8d8da6135bfef50786843443f8d97080f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
