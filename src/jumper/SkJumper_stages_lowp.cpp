@@ -218,11 +218,12 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 // Stages!
 
 STAGE(uniform_color) {
+    auto c = (const SkJumper_UniformColorCtx*)ctx;
     // We're converting to fixed point, which lets us play some IEEE representation tricks,
     // replacing a naive *32768 and float->int conversion with a simple float add.
     using F32x4 = float    __attribute__((ext_vector_type(4)));
     using U16x8 = uint16_t __attribute__((ext_vector_type(8)));
-    auto bits = (U16x8)(unaligned_load<F32x4>((const float*)ctx) + 256.0f);
+    auto bits = (U16x8)(unaligned_load<F32x4>((const float*)&c->r) + 256.0f);
     r = (U16)bits[0];
     g = (U16)bits[2];
     b = (U16)bits[4];

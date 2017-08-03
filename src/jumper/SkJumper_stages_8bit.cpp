@@ -220,13 +220,10 @@ SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
 }
 
 STAGE(uniform_color) {
-    auto c = (const float*)ctx;
-
-    src.u32 = (uint32_t)(c[0] * 255) << 0
-            | (uint32_t)(c[1] * 255) << 8
-            | (uint32_t)(c[2] * 255) << 16
-            | (uint32_t)(c[3] * 255) << 24;
+    auto c = (const SkJumper_UniformColorCtx*)ctx;
+    src.u32 = c->rgba;
 }
+
 STAGE(set_rgb) {
     auto c = (const float*)ctx;
 
