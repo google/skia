@@ -407,7 +407,7 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
     }
 
     if (!fDoAA) {
-        fFiniteBound.set(SkScalarFloorToScalar(fFiniteBound.fLeft+0.45f),
+        fFiniteBound.set(SkScalarRoundToScalar(fFiniteBound.fLeft),
                          SkScalarRoundToScalar(fFiniteBound.fTop),
                          SkScalarRoundToScalar(fFiniteBound.fRight),
                          SkScalarRoundToScalar(fFiniteBound.fBottom));
