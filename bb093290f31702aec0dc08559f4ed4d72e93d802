@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1752147_1e0e491a",
+        "filename": "src/shaders/SkShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-03T18:09:21Z",
+      "side": 1,
+      "message": "nit: i added this recently, but I see we already assert in the Context ctor, so it seems redundant -- feel free to remove.",
+      "range": {
+        "startLine": 94,
+        "startChar": 4,
+        "endLine": 94,
+        "endChar": 56
+      },
+      "revId": "bb093290f31702aec0dc08559f4ed4d72e93d802",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
