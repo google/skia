@@ -310,6 +310,30 @@
     },
     {
       "key": {
+        "uuid": "cc57b4b3_2f8c7680",
+        "filename": "tools/svg/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-03T19:08:31Z",
+      "side": 1,
+      "message": "Sure, any of those would work, or \"svgs_parse_only\" or whatever.  Not a big deal as long as everyone involved knows what it means.",
+      "parentUuid": "8321834c_bae8907c",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "e0ff3572e673f248e99d2615b7cb6f8181ca15af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "15bd5902_111b0090",
         "filename": "tools/svg/svg_downloader.py",
         "patchSetId": 1
