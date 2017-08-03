@@ -282,8 +282,9 @@ DEF_TEST(SkRasterPipeline_repeat_tiling, r) {
     float out[4 * SkJumper_kMaxStride];
     SkJumper_TileCtx tile = { 9.0f, 1/9.0f };
 
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::uniform_color, in);
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, in);
     p.append(SkRasterPipeline::repeat_x, &tile);
     p.append(SkRasterPipeline::store_rgba, out);
     p.run(0,0,1,1);
