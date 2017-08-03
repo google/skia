@@ -296,7 +296,7 @@ STAGE(srcover_rgba_8888) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, x,y);
 
     V d = load<U32>(ptr, tail);
-    V b = src + d*inv(alpha(src));
+    V b = src + (d - d*alpha(src));
 
     store(ptr, b.u32, tail);
 }
@@ -336,8 +336,8 @@ STAGE(srcin)    { src = src * alpha(dst); }
 STAGE(dstin)    { src = dst * alpha(src); }
 STAGE(srcout)   { src = src * inv(alpha(dst)); }
 STAGE(dstout)   { src = dst * inv(alpha(src)); }
-STAGE(srcover)  { src = src + dst*inv(alpha(src)); }
-STAGE(dstover)  { src = dst + src*inv(alpha(dst)); }
+STAGE(srcover)  { src = src + (dst - dst*alpha(src)); }
+STAGE(dstover)  { src = dst + (src - src*alpha(dst)); }
 STAGE(modulate) { src = src*dst; }
 STAGE(multiply) { src = src*inv(alpha(dst)) + dst*inv(alpha(src)) + src*dst; }
 STAGE(screen)   { src = src + inv(src)*dst; }
