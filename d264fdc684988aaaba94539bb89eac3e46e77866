@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6caf23bb_c22049e7",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-03T17:38:39Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this function\n\n  if (!ctm.isScaleTranslate()) {\n      return true;\n  }\n\n?",
+      "range": {
+        "startLine": 64,
+        "startChar": 57,
+        "endLine": 64,
+        "endChar": 60
+      },
+      "revId": "d264fdc684988aaaba94539bb89eac3e46e77866",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
