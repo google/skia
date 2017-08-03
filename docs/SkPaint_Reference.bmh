@@ -20,7 +20,8 @@ Paint does not directly implement dashing or blur, but contains the objects that
 The objects contained by Paint are opaque, and cannot be edited outside of the Paint
 to affect it. The implementation is free to defer computations associated with the
 Paint, or ignore them altogether. For instance, some GPU implementations draw all
-Path geometries with anti-aliasing, regardless of SkPaint::kAntiAlias_Flag setting.
+Path geometries with anti-aliasing, regardless of how SkPaint::kAntiAlias_Flag 
+is set in Paint.
 
 Paint describes a single color, a single font, a single image quality, and so on.
 Multiple colors are drawn either by using multiple paints or with objects like
@@ -317,7 +318,8 @@ $$$#  # restore original markup character
 
 Makes a shallow copy of Paint. Typeface, Path_Effect, Shader,
 Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter are shared
-between the original paint and the copy. These objects' Reference_Count are increased.
+between the original paint and the copy. Objects containing Reference_Count increment
+their references by one.
 
 The referenced objects Path_Effect, Shader, Mask_Filter, Color_Filter, Rasterizer,
 Draw_Looper, and Image_Filter cannot be modified after they are created.
@@ -398,7 +400,7 @@ the paint with the result of SkPaint().
 
 Decreases Paint Reference_Count of owned objects: Typeface, Path_Effect, Shader,
 Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter. If the
-objects' reference count goes to zero, they are deleted.
+objects containing Reference_Count go to zero, they are deleted.
 
 #NoExample 
 ##
@@ -413,10 +415,10 @@ objects' reference count goes to zero, they are deleted.
 
 Makes a shallow copy of Paint. Typeface, Path_Effect, Shader,
 Mask_Filter, Color_Filter, Rasterizer, Draw_Looper, and Image_Filter are shared
-between the original paint and the copy. The objects' Reference_Count are in the
+between the original paint and the copy. Objects containing Reference_Count in the
 prior destination are decreased by one, and the referenced objects are deleted if the
-resulting count is zero. The objects' Reference_Count in the parameter paint are increased
-by one. paint is unmodified.
+resulting count is zero. Objects containing Reference_Count in the parameter paint
+are increased by one. paint is unmodified.
 
 #Param paint  original to copy ##
 
@@ -442,9 +444,9 @@ by one. paint is unmodified.
 #Method SkPaint& operator=(SkPaint&& paint)
 
 Moves the paint to avoid incrementing the reference counts
-of objects referenced by the paint parameter. The objects' Reference_Count are in the
-prior destination are decreased by one, and the referenced objects are deleted if the
-resulting count is zero.
+of objects referenced by the paint parameter. Objects containing Reference_Count in the
+prior destination are decreased by one; those objects are deleted if the resulting count
+is zero.
 
 After the call, paint is undefined, and can be safely destructed.
 
@@ -644,7 +646,7 @@ by the client.
         kNo_Hinting            = 0,
         kSlight_Hinting        = 1,
         kNormal_Hinting        = 2,
-        kFull_Hinting          = 3
+        kFull_Hinting          = 3,
     };
 ##
 
@@ -2090,7 +2092,7 @@ a fill draw.
 
 #Code
     enum {
-        kStyleCount = kStrokeAndFill_Style + 1
+        kStyleCount = kStrokeAndFill_Style + 1,
     };
 ##
 
@@ -2377,7 +2379,7 @@ Here are some miter limits and the angles that triggers them.
         kSquare_Cap,
 
         kLast_Cap = kSquare_Cap,
-        kDefault_Cap = kButt_Cap
+        kDefault_Cap = kButt_Cap,
     };
     static constexpr int kCapCount = kLast_Cap + 1;
 ##
@@ -2520,7 +2522,7 @@ the following curve, the pair of curves meet at Stroke_Join.
         kBevel_Join,
 
         kLast_Join = kBevel_Join,
-        kDefault_Join = kMiter_Join
+        kDefault_Join = kMiter_Join,
     };
     static constexpr int kJoinCount = kLast_Join + 1;
 ##
@@ -3724,7 +3726,7 @@ Align defaults to kLeft_Align.
 
 #Code
     enum {
-        kAlignCount = 3
+        kAlignCount = 3,
     };
 ##
 
@@ -3987,7 +3989,7 @@ Text_Skew_X defaults to 0.
         kUTF8_TextEncoding,
         kUTF16_TextEncoding,
         kUTF32_TextEncoding,
-        kGlyphID_TextEncoding
+        kGlyphID_TextEncoding,
     };
 ##
 

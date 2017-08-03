@@ -21,36 +21,10 @@ remove anonymous header, e.g. Enum SkPaint::::anonymous_2
 Text Encoding anchors in paragraph are echoed instead of being linked to anchor names
     also should not point to 'undocumented' since they are resolvable links
 #Member lost all formatting
-inconsistent use of capitalization in #Param
 #List needs '# content ##', formatting
 consts like enum members need fully qualfied refs to make a valid link
 enum comments should be disallowed unless after #Enum and before first #Const
     ... or, should look for enum comments in other places
-
-// in includeWriter.cpp
-lf preceding #A is ignored
-
-Text_Size should become SkPaint's text size if root is not Paint?
-100 column limit done manually -- either error or rewrap
-
-SkPaint.bmh line 22:
-Insert 'the' after 'regardless of' ?
-somewhat intentional. Imagine SkPaint::kXXX is 'Joe'. Then it shouldn't read 'regardless
-of the Joe setting.' To make that work as a proper pronoun, maybe it should read: 
-'regardless of SkPaint's kAntiAlias_Flag setting or 'regardless of SkPaint's anti-alias setting'. 
-It's the way it is so that SkPaint::kAntiAlias_Flag can be a link to the definition. 
-Its awkwardness is compounded because this description is technically outside of 'class SkPaint' 
-so a reference to kAntiAlias_Flag by itself doesn't know that it is defined inside SkPaint,
-but that's a detail I could work around.
-
-SkPaint.bmh line 319, 400, 444
-more complications I haven't figured out. I don't know when or how to pluralize 
-references. This should be "objects' reference counts" probably, but then 
-I lose the link to SkRefCnt.
-
-SkPaint.bmh line 2639
-I'd argue that 'fill path' is OK, in that is it the path that will fill, not the path
-that has already been filled. I see the awkwardness though, and will add it to my bug list.
 
  */
 
@@ -1649,7 +1623,7 @@ void TextParser::reportWarning(const char* errorStr) const {
         spaces -= lineLen;
         lineLen = err.lineLength();
     }
-    SkDebugf("%s(%zd): error: %s\n", fFileName.c_str(), err.fLineCount, errorStr);
+    SkDebugf("\n%s(%zd): error: %s\n", fFileName.c_str(), err.fLineCount, errorStr);
     if (0 == lineLen) {
         SkDebugf("[blank line]\n");
     } else {
@@ -1856,9 +1830,6 @@ string BmhParser::uniqueName(const string& base, MarkType markType) {
         for (const auto& iter : fParent->fChildren) {
             if (markType == iter->fMarkType) {
                 if (iter->fName == numBuilder) {
-                    if (MarkType::kMethod == markType) {
-                        SkDebugf("");
-                    }
                     fCloned = true;
                     numBuilder = builder + '_' + to_string(number);
                     goto tryNext;

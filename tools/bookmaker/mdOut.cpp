@@ -140,7 +140,8 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                     && string::npos != ref.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
                 // FIXME: see isDefined(); check to see if fXX is a member of xx.fXX
                 if (('f' != ref[0] && string::npos == ref.find("()"))
-                        || '.' != t.backup(ref.c_str())) {
+//                        || '.' != t.backup(ref.c_str())
+                        && ('k' != ref[0] && string::npos == ref.find("_Private"))) {
                     if (BmhParser::Resolvable::kOut != resolvable) {
                         t.reportError("missed camelCase");
                         return result;
@@ -284,6 +285,8 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     fLineCount = def->fLineCount;
     if (def->isRoot()) {
         fRoot = const_cast<RootDefinition*>(def->asRoot());
+    } else if (MarkType::kEnumClass == def->fMarkType) {
+        fEnumClass = def;
     }
     BmhParser::Resolvable resolvable = this->resolvable(def->fMarkType);
     for (auto& child : def->fChildren) {
@@ -297,6 +300,9 @@ void MdOut::childrenOut(const Definition* def, const char* start) {
     if (BmhParser::Resolvable::kNo != resolvable) {
         end = def->fContentEnd;
         this->resolveOut(start, end, resolvable);
+    }
+    if (MarkType::kEnumClass == def->fMarkType) {
+        fEnumClass = nullptr;
     }
 }
 
@@ -389,6 +395,18 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
                     return &iter.second;
                 }
             }
+            if (fEnumClass) {
+                string fullName = fEnumClass->fName + "::" + ref;
+                for (auto child : fEnumClass->fChildren) {
+                    if (fullName == child->fName) {
+                        return child;
+                    }
+                }
+            }
+            if (string::npos != ref.find("_Private")) {
+                return nullptr;
+            }
+            SkDebugf("");
         }
         if ('f' == ref[0]) {
             // FIXME : find def associated with prior, e.g.: r.fX where 'SkPoint r' was earlier

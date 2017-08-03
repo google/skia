@@ -1,4 +1,4 @@
-(to be documented)
+undocumented
 ===
 
 # <a name="Glyph"></a> Glyph
@@ -302,6 +302,10 @@ static std::unique_ptr<SkCanvas>
 
 # <a name="Font_Manager"></a> Font Manager
 
+# <a name="GPU_Context"></a> GPU Context
+
+# <a name="GPU_Surface"></a> GPU Surface
+
 # <a name="Image"></a> Image
 
 ## <a name="Alpha_Type"></a> Alpha Type
@@ -503,6 +507,8 @@ SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory = NULL,
 
 # <a name="SkPixmap"></a> Class SkPixmap
 
+# <a name="Raster_Surface"></a> Raster Surface
+
 # <a name="Rasterizer"></a> Rasterizer
 
 # <a name="SkRasterizer"></a> Class SkRasterizer
@@ -596,6 +602,8 @@ static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
 
 # <a name="SkSurfaceProps"></a> Class SkSurfaceProps
 
+# <a name="Legacy_Font_Host"></a> Legacy Font Host
+
 ## <a name="SkSurfaceProps::InitType"></a> Enum SkSurfaceProps::InitType
 
 ### Constants
@@ -606,10 +614,6 @@ static sk_sp<SkSurface> MakeRasterDirect(const SkImageInfo&, void* pixels,
   </tr>
 
 </table>
-
-## <a name="GPU"></a> GPU
-
-## <a name="Raster"></a> Raster
 
 # <a name="SVG"></a> SVG
 

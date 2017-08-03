@@ -832,7 +832,7 @@ enum <a href="bmh_SkPath_Reference?cl=9919#Convexity">Convexity</a> {
 
 <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> is convex if it contains one <a href="bmh_SkPath_Reference?cl=9919#Contour">Contour</a> and <a href="bmh_SkPath_Reference?cl=9919#Contour">Contour</a> loops no more than 
 360 degrees, and <a href="bmh_SkPath_Reference?cl=9919#Contour">Contour</a> angles all have same <a href="bmh_SkPath_Reference?cl=9919#Direction">Direction</a>. Convex <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> 
-may have better performance and require fewer resources on <a href="bmh_undocumented?cl=9919#GPU">GPU Surface</a>.
+may have better performance and require fewer resources on <a href="bmh_undocumented?cl=9919#GPU_Surface">GPU Surface</a>.
 
 <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> is concave when either at least one <a href="bmh_SkPath_Reference?cl=9919#Direction">Direction</a> change is clockwise and
 another is counterclockwise, or the sum of the changes in <a href="bmh_SkPath_Reference?cl=9919#Direction">Direction</a> is not 360
@@ -998,7 +998,7 @@ bool isOval(SkRect* rect, Direction* dir = nullptr, unsigned* start = nullptr) c
 <a href="bmh_SkPath_Reference?cl=9919#addRoundRect">addRoundRect</a>, <a href="bmh_SkPath_Reference?cl=9919#addRRect">addRRect</a>.  <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> constructed with <a href="bmh_SkPath_Reference?cl=9919#conicTo">conicTo</a> or <a href="bmh_SkPath_Reference?cl=9919#rConicTo">rConicTo</a> will not
 return true though <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> draws <a href="bmh_undocumented?cl=9919#Oval">Oval</a>.
 
-<a href="bmh_SkPath_Reference?cl=9919#isOval">isOval</a> triggers performance optimizations on some <a href="bmh_undocumented?cl=9919#GPU">GPU Surface</a> implementations.
+<a href="bmh_SkPath_Reference?cl=9919#isOval">isOval</a> triggers performance optimizations on some <a href="bmh_undocumented?cl=9919#GPU_Surface">GPU Surface</a> implementations.
 
 ### Parameters
 
@@ -1039,7 +1039,7 @@ bool isRRect(SkRRect* rrect, Direction* dir = nullptr, unsigned* start = nullptr
 is not empty, not <a href="bmh_undocumented?cl=9919#Rect">Rect</a>, and not <a href="bmh_undocumented?cl=9919#Oval">Oval</a>. <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> constructed with other other calls
 will not return true though <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> draws <a href="bmh_undocumented?cl=9919#Round_Rect">Round Rect</a>.
 
-<a href="bmh_SkPath_Reference?cl=9919#isRRect">isRRect</a> triggers performance optimizations on some <a href="bmh_undocumented?cl=9919#GPU">GPU Surface</a> implementations.
+<a href="bmh_SkPath_Reference?cl=9919#isRRect">isRRect</a> triggers performance optimizations on some <a href="bmh_undocumented?cl=9919#GPU_Surface">GPU Surface</a> implementations.
 
 ### Parameters
 
@@ -1274,8 +1274,8 @@ to inform <a href="bmh_undocumented?cl=9919#Device">Device</a> that the path nee
 Mark animating <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> volatile to improve performance.
 Mark unchanging <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> non-volative to improve repeated rendering.
 
-<a href="bmh_undocumented?cl=9919#Raster">Raster Surface</a> <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> draws are affected by volatile for some shadows.
-<a href="bmh_undocumented?cl=9919#GPU">GPU Surface</a> <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> draws are affected by volatile for some shadows and concave geometries.
+<a href="bmh_undocumented?cl=9919#Raster_Surface">Raster Surface</a> <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> draws are affected by volatile for some shadows.
+<a href="bmh_undocumented?cl=9919#GPU_Surface">GPU Surface</a> <a href="bmh_SkPath_Reference?cl=9919#Path">Path</a> draws are affected by volatile for some shadows and concave geometries.
 
 ### Parameters
 
