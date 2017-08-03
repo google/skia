@@ -22,6 +22,30 @@
       "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29431f52_afee76a6",
+        "filename": "src/jumper/build_stages.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-03T21:08:56Z",
+      "side": 1,
+      "message": "Here\u0027s our quick guide to working with this file: https://skia.org/dev/contrib/jumper.  I\u0027d be happy to field any specific questions you have.  As always, it seems like you\u0027re working on something neat.",
+      "parentUuid": "1c03a611_c75976d1",
+      "range": {
+        "startLine": 6,
+        "startChar": 11,
+        "endLine": 6,
+        "endChar": 15
+      },
+      "revId": "e1caee1ad884def91b8afb50e5672f1f0ee278f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
