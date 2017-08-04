@@ -90,6 +90,9 @@ string MdOut::addReferences(const char* refStart, const char* refEnd,
                 }
                 if (!foundMatch) {
                     if (!(def = this->isDefined(t, fullRef, true))) {
+                        if (!result.size()) {
+                            t.reportError("missing method");
+                        }
                         return result;
                     }
                     ref = fullRef;
@@ -406,7 +409,6 @@ const Definition* MdOut::isDefined(const TextParser& parser, const string& ref, 
             if (string::npos != ref.find("_Private")) {
                 return nullptr;
             }
-            SkDebugf("");
         }
         if ('f' == ref[0]) {
             // FIXME : find def associated with prior, e.g.: r.fX where 'SkPoint r' was earlier
@@ -504,8 +506,7 @@ string MdOut::linkRef(const string& leadingSpaces, const Definition* def,
         while (start > 0 && (isalnum(filename[start - 1]) || '_' == filename[start - 1])) {
             --start;
         }
-        buildup = "bmh_" + filename.substr(start) + "?cl=9919#"
-                + (classMatch ? namePart : *str);
+        buildup = filename.substr(start) + "#" + (classMatch ? namePart : *str);
         str = &buildup;
     }
     string refOut(ref);

@@ -67,7 +67,7 @@ when no Surface is required, and some helpers implicitly create Raster_Surface.
 #                                                               # description                                     ##
 #Legend ##
 # SkCanvas()                                                    # No Surface, no dimensions.                      ##
-# SkCanvas(int width, int height, const SkSurfaceProps* = NULL) # No Surface, set dimensions, Surface_Properties. ##
+# SkCanvas(int width, int height, const SkSurfaceProps* props = NULL) # No Surface, set dimensions, Surface_Properties. ##
 # SkCanvas(SkBaseDevice* device)                                # Existing Device. (SkBaseDevice is private.)     ##
 # SkCanvas(const SkBitmap& bitmap)                              # Uses existing Bitmap.                           ##
 # SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props) # Uses existing Bitmap and Surface_Properties.    ##
