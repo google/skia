@@ -11,6 +11,7 @@
 
 #include "SkTypes.h"
 #include "SkSafe_math.h"
+#include <float.h>
 
 /** Convert a sign-bit int (i.e. float interpreted as int) into a 2s compliement
     int. This also converts -0 (0x80000000) to 0. Doing this to a float allows
@@ -79,21 +80,33 @@ static inline int32_t pin_double_to_int(double x) {
     If the value is out of range, or NaN, return +/- SK_MaxS32
 */
 static inline int32_t SkFloatToIntFloor(float x) {
+#ifdef SK_SUPPORT_LEGACY_FLOATBITS
     return pin_double_to_int(floor(x));
+#else
+    return (int)floorf(x);
+#endif
 }
 
 /** Return the float rounded to an int.
     If the value is out of range, or NaN, return +/- SK_MaxS32
 */
 static inline int32_t SkFloatToIntRound(float x) {
+#ifdef SK_SUPPORT_LEGACY_FLOATBITS
     return pin_double_to_int(floor((double)x + 0.5));
+#else
+    return (int)floorf(x + 0.5f);
+#endif
 }
 
 /** Return the ceiling of the float as an int.
     If the value is out of range, or NaN, return +/- SK_MaxS32
 */
 static inline int32_t SkFloatToIntCeil(float x) {
+#ifdef SK_SUPPORT_LEGACY_FLOATBITS
     return pin_double_to_int(ceil(x));
+#else
+    return (int)ceilf(x);
+#endif
 }
 
 //  Scalar wrappers for float-bit routines
