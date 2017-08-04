@@ -42,6 +42,7 @@
     using U16x4 = uint16_t __attribute__((ext_vector_type(16)));
 #endif
 
+// Our normal working type, representing a few 4x8bit pixels.
 union V {
     U32  u32;
     U8x4 u8x4;
@@ -52,7 +53,9 @@ union V {
     V(int   v) : u8x4(v) {}
     V(float v) : u8x4(v*255) {}
 };
-static const size_t kStride = sizeof(V) / sizeof(uint32_t);
+SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
+SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
+// W operator*(V x, V y) is a little bit further down.
 
 // Usually __builtin_convertvector() is pretty good, but sometimes we can do better.
 SI U8x4 pack(U16x4 v) {
@@ -74,13 +77,25 @@ SI U8x4 pack(U16x4 v) {
 #endif
 }
 
-SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
-SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
-SI V operator*(V x, V y) {
-    // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
-    U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
-          Y = __builtin_convertvector(y.u8x4, U16x4);
-    return pack((X*Y + X)>>8);
+// Think "wide" or "VV", this is the same number of pixels as V, but 255 biased in 16-bit lanes.
+union W {
+    U16x4 u16x4;
+
+    W() = default;
+    W(U16x4 w) : u16x4(w) {}
+
+    operator V() const {
+        // A fast approximate rounding divide by 255.
+        return pack( (u16x4 + (u16x4 >> 7)) >> 8 );
+    }
+};
+SI W operator+(W x, W y) { return x.u16x4 + y.u16x4; }
+SI W operator-(W x, W y) { return x.u16x4 - y.u16x4; }
+
+// Mutiplying two [0,255] V values produces a W in [0,255*255].
+SI W operator*(V x, V y) {
+    return __builtin_convertvector(x.u8x4, U16x4)
+         * __builtin_convertvector(y.u8x4, U16x4);
 }
 
 SI V inv(V v) { return 0xff - v; }
@@ -111,6 +126,7 @@ struct Params {
 };
 
 using Stage = void(const Params* params, void** program, V src, V dst);
+static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 
 #if defined(__AVX__)
     // We really want to make sure all paths go through this function's (implicit) vzeroupper.
