@@ -99,15 +99,11 @@ void GrCCPRTriangleCornerProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* 
     this->defineInputVertices(g);
 
     g->codeAppend ("highp float2 self = in_vertices[sk_InvocationID];");
-    g->codeAppendf("%s(self + float2(-bloat.x, -bloat.y), 1);", emitVertexFn);
-    g->codeAppendf("%s(self + float2(-bloat.x, +bloat.y), 1);", emitVertexFn);
-    g->codeAppendf("%s(self + float2(+bloat.x, -bloat.y), 1);", emitVertexFn);
-    g->codeAppendf("%s(self + float2(+bloat.x, +bloat.y), 1);", emitVertexFn);
-    g->codeAppend ("EndPrimitive();");
+    int numVertices = this->emitCornerGeometry(g, emitVertexFn, "self");
 
     g->configure(GrGLSLGeometryBuilder::InputType::kTriangles,
                  GrGLSLGeometryBuilder::OutputType::kTriangleStrip,
-                 4, 3);
+                 numVertices, 3);
 }
 
 void GrCCPRTriangleCornerProcessor::emitPerVertexGeometryCode(SkString* fnBody,
