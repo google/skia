@@ -268,6 +268,9 @@ SkIRect SkThreadedBMPDevice::transformDrawBounds(const SkRect& drawBounds) const
 // The do {...} while (false) is to enforce trailing semicolon as suggested by mtklein@
 #define THREADED_DRAW(drawBounds, actualDrawCall)                                                  \
     do {                                                                                           \
+        if (fQueueSize == MAX_QUEUE_SIZE) {                                                        \
+            this->flush();                                                                         \
+        }                                                                                          \
         DrawState ds(this);                                                                        \
         SkASSERT(fQueueSize < MAX_QUEUE_SIZE);                                                     \
         fQueue[fQueueSize++] = {                                                                   \
