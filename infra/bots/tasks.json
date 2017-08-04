@@ -7699,7 +7699,8 @@
     },
     "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
       "dimensions": [
-        "pool:SkiaCT"
+        "pool:SkiaCT",
+        "os:Ubuntu-14.04"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -7721,7 +7722,8 @@
     },
     "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
       "dimensions": [
-        "pool:SkiaCT"
+        "pool:SkiaCT",
+        "os:Ubuntu-14.04"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -14511,7 +14513,8 @@
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
       "dimensions": [
-        "pool:SkiaCT"
+        "pool:SkiaCT",
+        "os:Ubuntu-14.04"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -14533,7 +14536,8 @@
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
       "dimensions": [
-        "pool:SkiaCT"
+        "pool:SkiaCT",
+        "os:Ubuntu-14.04"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -14555,7 +14559,8 @@
     },
     "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
       "dimensions": [
-        "pool:SkiaCT"
+        "pool:SkiaCT",
+        "os:Ubuntu-14.04"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [

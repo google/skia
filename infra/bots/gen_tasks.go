@@ -568,8 +568,11 @@ func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
 // generated chain of tasks, which the Job should add as a dependency.
 func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages:     []*specs.CipdPackage{},
-		Dimensions:       []string{"pool:SkiaCT"},
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions: []string{
+			"pool:SkiaCT",
+			"os:Ubuntu-14.04",
+		},
 		ExecutionTimeout: 24 * time.Hour,
 		ExtraArgs: []string{
 			"--workdir", "../../..", "ct_skps",
