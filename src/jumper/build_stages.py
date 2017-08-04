@@ -13,7 +13,6 @@ clang         = 'clang-4.0'
 objdump       = 'gobjdump'
 ccache        = 'ccache'
 stages        = 'src/jumper/SkJumper_stages.cpp'
-stages_lowp   = 'src/jumper/SkJumper_stages_lowp.cpp'
 stages_8bit   = 'src/jumper/SkJumper_stages_8bit.cpp'
 generated     = 'src/jumper/SkJumper_generated.S'
 generated_win = 'src/jumper/SkJumper_generated_win.S'
@@ -22,10 +21,9 @@ clang         = sys.argv[1] if len(sys.argv) > 1 else clang
 objdump       = sys.argv[2] if len(sys.argv) > 2 else objdump
 ccache        = sys.argv[3] if len(sys.argv) > 3 else ccache
 stages        = sys.argv[4] if len(sys.argv) > 4 else stages
-stages_lowp   = sys.argv[5] if len(sys.argv) > 5 else stages_lowp
-stages_8bit   = sys.argv[6] if len(sys.argv) > 6 else stages_8bit
-generated     = sys.argv[7] if len(sys.argv) > 7 else generated
-generated_win = sys.argv[8] if len(sys.argv) > 8 else generated_win
+stages_8bit   = sys.argv[5] if len(sys.argv) > 5 else stages_8bit
+generated     = sys.argv[6] if len(sys.argv) > 6 else generated
+generated_win = sys.argv[7] if len(sys.argv) > 7 else generated_win
 
 clang = [ccache, clang, '-x', 'c++']
 
@@ -57,14 +55,6 @@ subprocess.check_call(clang + cflags + sse2 + win +
                       ['-c', stages_8bit] +
                       ['-o', 'win_8bit_sse2.o'])
 
-ssse3 = ['-mssse3', '-mno-sse4.1']
-subprocess.check_call(clang + cflags + ssse3 +
-                      ['-c', stages_lowp] +
-                      ['-o', 'lowp_ssse3.o'])
-subprocess.check_call(clang + cflags + ssse3 + win +
-                      ['-c', stages_lowp] +
-                      ['-o', 'win_lowp_ssse3.o'])
-
 sse41 = ['-msse4.1']
 subprocess.check_call(clang + cflags + sse41 +
                       ['-c', stages] +
@@ -95,12 +85,6 @@ subprocess.check_call(clang + cflags + hsw +
 subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', stages] +
                       ['-o', 'win_hsw.o'])
-subprocess.check_call(clang + cflags + hsw +
-                      ['-c', stages_lowp] +
-                      ['-o', 'lowp_hsw.o'])
-subprocess.check_call(clang + cflags + hsw + win +
-                      ['-c', stages_lowp] +
-                      ['-o', 'win_lowp_hsw.o'])
 
 subprocess.check_call(clang + cflags + hsw +
                       ['-c', stages_8bit] +
@@ -259,10 +243,6 @@ parse_object_file('sse41.o', '.byte')
 print 'BALIGN32'
 parse_object_file('sse2.o',  '.byte')
 print 'BALIGN32'
-parse_object_file('lowp_hsw.o', '.byte')
-print 'BALIGN32'
-parse_object_file('lowp_ssse3.o', '.byte')
-print 'BALIGN32'
 parse_object_file('8bit_hsw.o', '.byte')
 print 'BALIGN32'
 parse_object_file('8bit_sse41.o', '.byte')
@@ -294,10 +274,6 @@ print 'ALIGN 32'
 parse_object_file('win_sse41.o', 'DB')
 print 'ALIGN 32'
 parse_object_file('win_sse2.o',  'DB')
-print 'ALIGN 32'
-parse_object_file('win_lowp_hsw.o', 'DB')
-print 'ALIGN 32'
-parse_object_file('win_lowp_ssse3.o', 'DB')
 print 'ALIGN 32'
 parse_object_file('win_8bit_hsw.o', 'DB')
 print 'ALIGN 32'

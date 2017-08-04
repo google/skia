@@ -12,10 +12,9 @@
     #include <immintrin.h>
 #endif
 
-// We're going to try going even lower precision than _lowp.cpp,
-// 8-bit per channel, and while we're at it keep our pixels interlaced.
-// This is the natural format for kN32_SkColorType buffers, and we hope
-// the stages in this file can replace many custom legacy routines.
+// This restricted SkJumper backend works on 8-bit per channel interlaced
+// pixels.  This is the natural format for kN32_SkColorType buffers, and we
+// hope the stages in this file can replace many custom legacy routines.
 
 #if !defined(JUMPER)
     #error "This file must be pre-compiled."
