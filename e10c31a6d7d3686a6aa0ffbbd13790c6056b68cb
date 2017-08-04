@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05080af0_b8a73c19",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-04T14:36:13Z",
+      "side": 1,
+      "message": "If you\u0027re thinking this much about SIMD, you may want to restructure so that some or all of this can use the SkOpts framework.  It will compile multiple versions of a function foo(), and then when you need to call it the function, SkOpts::foo() will be the best available at runtime, not just the best available at compile time like you get here.",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 74
+      },
+      "revId": "e10c31a6d7d3686a6aa0ffbbd13790c6056b68cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa7f2159_419660f2",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-04T14:36:13Z",
+      "side": 1,
+      "message": "There are no clients for whom it\u0027s important that we make GCC fast.  (If we have any GCC Perf bots we need to replace them with Clang bots.)\n\nLet\u0027s just use this SkNi path unconditionally without worrying about GCC?",
+      "range": {
+        "startLine": 127,
+        "startChar": 6,
+        "endLine": 127,
+        "endChar": 69
+      },
+      "revId": "e10c31a6d7d3686a6aa0ffbbd13790c6056b68cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad26ede1_e928c5e2",
+        "filename": "src/core/SkCoverageDelta.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-04T14:36:13Z",
+      "side": 1,
+      "message": "This many inline class methods seems suspicious, especially if they need to be forced and they\u0027re non-trivial like sort().\n\nIs it possible to separate out the parts of this data structure that are performance-critical from the parts that are not?  If we can isolate that performance-critical part in one translation unit, and leave any externally visible types in this header as only the final computed results, we\u0027re much more likely to get good code generation.",
+      "revId": "e10c31a6d7d3686a6aa0ffbbd13790c6056b68cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
