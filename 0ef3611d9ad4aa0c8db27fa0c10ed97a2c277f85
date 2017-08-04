@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55d8c8c7_58c4a5de",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-08-04T14:12:14Z",
+      "side": 1,
+      "message": "Maybe \"Get additional data associated with the canvas.\" is better?",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
