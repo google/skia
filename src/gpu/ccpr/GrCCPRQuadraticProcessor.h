@@ -17,12 +17,8 @@
  *
  * https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
  *
- * The curves are rendered in two passes:
- *
- * Pass 1: Draw a conservative raster hull around the quadratic bezier points, and compute the
- *         curve's coverage using the gradient-based AA technique outlined in the Loop/Blinn paper.
- *
- * Pass 2: Touch up and antialias the flat edge from P2 back to P0.
+ * The provided curves must be monotonic with respect to the vector of their closing edge [P2 - P0].
+ * Use GrPathUtils::chopMonotonicQuads.
  */
 class GrCCPRQuadraticProcessor : public GrCCPRCoverageProcessor::PrimitiveProcessor {
 public:
@@ -32,10 +28,12 @@ public:
                                kHigh_GrSLPrecision)
             , fCanonicalDerivatives("canonical_derivatives", kMat22f_GrSLType,
                                     GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fCanonicalCoord(kVec4f_GrSLType) {}
+            , fEdgeDistanceEquation("edge_distance_equation", kVec3f_GrSLType,
+                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
+            , fXYD(kVec3f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
-        varyingHandler->addVarying("canonical_coord", &fCanonicalCoord, kHigh_GrSLPrecision);
+        varyingHandler->addVarying("xyd", &fXYD, kHigh_GrSLPrecision);
     }
 
     void onEmitVertexShader(const GrCCPRCoverageProcessor&, GrGLSLVertexBuilder*,
@@ -45,65 +43,74 @@ public:
     void onEmitGeometryShader(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* wind,
                               const char* rtAdjust) const final;
     void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
-                                   const char* wind) const override;
-    void emitShaderCoverage(GrGLSLFragmentBuilder* f, const char* outputCoverage) const override;
+                                   const char* wind) const final;
 
 protected:
     virtual void emitQuadraticGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                                       const char* wind, const char* rtAdjust) const = 0;
+                                       const char* rtAdjust) const = 0;
+    virtual void onEmitPerVertexGeometryCode(SkString* fnBody) const = 0;
 
     GrShaderVar       fCanonicalMatrix;
     GrShaderVar       fCanonicalDerivatives;
-    GrGLSLGeoToFrag   fCanonicalCoord;
+    GrShaderVar       fEdgeDistanceEquation;
+    GrGLSLGeoToFrag   fXYD;
 
     typedef GrCCPRCoverageProcessor::PrimitiveProcessor INHERITED;
 };
 
+/**
+ * This pass draws a conservative raster hull around the quadratic bezier curve, computes the
+ * curve's coverage using the gradient-based AA technique outlined in the Loop/Blinn paper, and
+ * uses simple distance-to-edge to subtract out coverage for the flat closing edge [P2 -> P0]. Since
+ * the provided curves are monotonic, this will get every pixel right except the two corners.
+ */
 class GrCCPRQuadraticHullProcessor : public GrCCPRQuadraticProcessor {
 public:
+    GrCCPRQuadraticHullProcessor()
+            : fGradXY(kVec2f_GrSLType) {}
+
+    void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
+        this->INHERITED::resetVaryings(varyingHandler);
+        varyingHandler->addVarying("grad_xy", &fGradXY, kHigh_GrSLPrecision);
+    }
+
     void emitQuadraticGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                               const char* wind, const char* rtAdjust) const override;
+                               const char* rtAdjust) const override;
+    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
+    void emitShaderCoverage(GrGLSLFragmentBuilder* f, const char* outputCoverage) const override;
 
 private:
+    GrGLSLGeoToFrag   fGradXY;
+
     typedef GrCCPRQuadraticProcessor INHERITED;
 };
 
 /**
- * This pass touches up the flat edge (P2 -> P0) of a closed quadratic segment as follows:
- *
- *   1) Erase what the previous hull shader estimated for coverage.
- *   2) Replace coverage with distance to the curve's flat edge (this is necessary when the edge
- *      is shared and must create a "water-tight" seam).
- *   3) Use pseudo MSAA to subtract out the remaining pixel coverage that is still inside the flat
- *      edge, but outside the curve.
+ * This pass fixes the corners of a closed quadratic segment with soft MSAA.
  */
-class GrCCPRQuadraticSharedEdgeProcessor : public GrCCPRQuadraticProcessor {
+class GrCCPRQuadraticCornerProcessor : public GrCCPRQuadraticProcessor {
 public:
-    GrCCPRQuadraticSharedEdgeProcessor()
-            : fXYD("xyd", kMat33f_GrSLType, GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fEdgeDistanceDerivatives("edge_distance_derivatives", kVec2f_GrSLType,
+    GrCCPRQuadraticCornerProcessor()
+            : fEdgeDistanceDerivatives("edge_distance_derivatives", kVec2f_GrSLType,
                                        GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fFragCanonicalDerivatives(kMat22f_GrSLType)
-            , fEdgeDistance(kVec3f_GrSLType) {}
+            , fdXYDdx(kVec3f_GrSLType)
+            , fdXYDdy(kVec3f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
-        varyingHandler->addFlatVarying("canonical_derivatives", &fFragCanonicalDerivatives,
-                                       kHigh_GrSLPrecision);
-        varyingHandler->addVarying("edge_distance", &fEdgeDistance, kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("dXYDdx", &fdXYDdx, kHigh_GrSLPrecision);
+        varyingHandler->addFlatVarying("dXYDdy", &fdXYDdy, kHigh_GrSLPrecision);
     }
 
     void emitQuadraticGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn,
-                               const char* wind, const char* rtAdjust) const override;
-    void emitPerVertexGeometryCode(SkString* fnBody, const char* position, const char* coverage,
-                                   const char* wind) const override;
+                               const char* rtAdjust) const override;
+    void onEmitPerVertexGeometryCode(SkString* fnBody) const override;
     void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const override;
 
 private:
-    GrShaderVar       fXYD;
     GrShaderVar       fEdgeDistanceDerivatives;
-    GrGLSLGeoToFrag   fFragCanonicalDerivatives;
-    GrGLSLGeoToFrag   fEdgeDistance;
+    GrGLSLGeoToFrag   fdXYDdx;
+    GrGLSLGeoToFrag   fdXYDdy;
 
     typedef GrCCPRQuadraticProcessor INHERITED;
 };

@@ -75,7 +75,7 @@ public:
 
         // Quadratics.
         kQuadraticHulls,
-        kQuadraticFlatEdges,
+        kQuadraticCorners,
 
         // Cubics.
         kSerpentineInsets,
@@ -219,6 +219,14 @@ protected:
     // border of a conservative raster edge and 0 on the inside (see emitEdgeGeometry).
     void emitEdgeDistanceEquation(GrGLSLGeometryBuilder*, const char* leftPt, const char* rightPt,
                                   const char* outputDistanceEquation) const;
+
+    // Emits the conservative raster of a single point (i.e. pixel-size box centered on the point).
+    // Coverage is +1 all around.
+    //
+    // Geometry shader must be configured to output triangle strips.
+    //
+    // Returns the number of vertices that were emitted.
+    int emitCornerGeometry(GrGLSLGeometryBuilder*, const char* emitVertexFn, const char* pt) const;
 
     // Defines a global float2 array that contains MSAA sample locations as offsets from pixel
     // center. Subclasses can use this for software multisampling.
