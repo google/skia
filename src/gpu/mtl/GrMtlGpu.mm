@@ -7,6 +7,8 @@
 
 #include "GrMtlGpu.h"
 
+#include "GrMtlTexture.h"
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
@@ -102,4 +104,43 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     SkDebugf("width: %d\n", width);
     // Unused queue warning fix
     SkDebugf("ptr to queue: %p\n", fQueue);
+}
+
+sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
+                                           const GrMipLevel texels[], int mipLevelCount) {
+    int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
+
+    if (!fMtlCaps->isConfigTexturable(desc.fConfig)) {
+        return nullptr;
+    }
+
+    bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    if (renderTarget) {
+        // Current we don't have render target support
+        return nullptr;
+    }
+
+    sk_sp<GrMtlTexture> tex;
+    if (renderTarget) {
+        // Enable once we have render target support
+#if 0
+        tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
+                                                                    desc, mipLevels);
+#endif
+    } else {
+        tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, mipLevels);
+    }
+
+    if (!tex) {
+        return nullptr;
+    }
+
+    if (mipLevelCount) {
+        // Perform initial data upload here
+    }
+
+    if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
+        // Do initial clear of the texture
+    }
+    return tex;
 }
