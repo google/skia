@@ -348,8 +348,9 @@ const SkJumper_Engine& SkRasterPipeline::build_pipeline(void** ip) const {
     void** reset_point = ip;
     *--ip = (void*)gLowp.just_return;
     for (const StageList* st = fStages; st; st = st->prev) {
-        if (st->stage == SkRasterPipeline::clamp_0) {
-            continue;  // No-op in lowp.
+        if (st->stage == SkRasterPipeline::clamp_0 ||
+            st->stage == SkRasterPipeline::clamp_1) {
+            continue;  // No-ops in lowp.
         }
         if (StageFn* fn = gLowp.stages[st->stage]) {
             if (st->ctx) {
