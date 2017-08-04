@@ -51,37 +51,49 @@ union V {
     V(U8x4  v) : u8x4(v) {}
     V(int   v) : u8x4(v) {}
     V(float v) : u8x4(v*255) {}
+
+    V(U16x4 v) {
+        // Usually __builtin_convertvector() is pretty good, but sometimes we can do better.
+    #if defined(__AVX2__)
+        static_assert(sizeof(v) == 64, "");
+        auto lo = unaligned_load<__m256i>((char*)&v +  0),
+             hi = unaligned_load<__m256i>((char*)&v + 32);
+
+        auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
+             _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
+        this->u8x4 = _mm256_packus_epi16(_02, _13);
+    #elif defined(__SSE2__)
+        static_assert(sizeof(v) == 32, "");
+        auto lo = unaligned_load<__m128i>((char*)&v +  0),
+             hi = unaligned_load<__m128i>((char*)&v + 16);
+        this->u8x4 = _mm_packus_epi16(lo,hi);
+    #else
+        this->u8x4 __builtin_convertvector(v, U8x4);
+    #endif
+    }
 };
 static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 
-// Usually __builtin_convertvector() is pretty good, but sometimes we can do better.
-SI U8x4 pack(U16x4 v) {
-#if defined(__AVX2__)
-    static_assert(sizeof(v) == 64, "");
-    auto lo = unaligned_load<__m256i>((char*)&v +  0),
-         hi = unaligned_load<__m256i>((char*)&v + 32);
-
-    auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
-         _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
-    return _mm256_packus_epi16(_02, _13);
-#elif defined(__SSE2__)
-    static_assert(sizeof(v) == 32, "");
-    auto lo = unaligned_load<__m128i>((char*)&v +  0),
-         hi = unaligned_load<__m128i>((char*)&v + 16);
-    return _mm_packus_epi16(lo,hi);
-#else
-    return __builtin_convertvector(v, U8x4);
-#endif
-}
-
 SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
 SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
-SI V operator*(V x, V y) {
-    // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
-    U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
-          Y = __builtin_convertvector(y.u8x4, U16x4);
-    return pack((X*Y + X)>>8);
-}
+
+#if !defined(SK_JUMPER_LEGACY_8BIT_MUL)
+    // Leave the result as 8-bit in 16-bit lanes in case we've got more math coming.
+    SI U16x4 operator*(V x, V y) {
+        // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
+        U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
+              Y = __builtin_convertvector(y.u8x4, U16x4);
+        return (X*Y + X)>>8;
+    }
+#else
+    // Pack back immediately to 8-bit.
+    SI V operator*(V x, V y) {
+        // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
+        U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
+              Y = __builtin_convertvector(y.u8x4, U16x4);
+        return (X*Y + X)>>8;
+    }
+#endif
 
 SI V inv(V v) { return 0xff - v; }
 SI V lerp(V from, V to, V t) { return to*t + from*inv(t); }
