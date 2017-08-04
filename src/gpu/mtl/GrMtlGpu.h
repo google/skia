@@ -26,8 +26,10 @@ public:
                          id<MTLDevice> device, id<MTLCommandQueue> queue);
 
     ~GrMtlGpu() override {}
- 
+
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
+
+    id<MTLDevice> device() const { return fDevice; }
 
     bool onGetReadPixelsInfo(GrSurface* srcSurface, int readWidth, int readHeight, size_t rowBytes,
                              GrPixelConfig readConfig, DrawPreference*,
@@ -72,9 +74,7 @@ private:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                     const GrMipLevel texels[], int mipLevelCount) override {
-        return nullptr;
-    }
+                                     const GrMipLevel texels[], int mipLevelCount) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
                                           GrSurfaceOrigin,

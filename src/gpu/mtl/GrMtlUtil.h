@@ -22,5 +22,10 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 */
 GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format);
 
+/**
+ * Returns true if the given vulkan texture format is sRGB encoded.
+ * Also provides the non-sRGB version, if there is one.
+ */
+bool GrMTLFormatIsSRGB(MTLPixelFormat format, MTLPixelFormat* linearFormat);
 
 #endif
