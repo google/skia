@@ -22,9 +22,6 @@
     */
 static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScalar width) {
     const SkScalar rad = SkScalarHalf(width);
-    // TODO we should be able to enable this assert, but we'd have to filter these draws
-    // this is a bug
-    // SkASSERT(rad < rect.width() / 2 && rad < rect.height() / 2);
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
     verts[1].set(rect.fLeft - rad, rect.fTop - rad);
@@ -36,6 +33,15 @@ static void init_stroke_rect_strip(SkPoint verts[10], const SkRect& rect, SkScal
     verts[7].set(rect.fLeft - rad, rect.fBottom + rad);
     verts[8] = verts[0];
     verts[9] = verts[1];
+
+    // TODO: we should be catching this higher up the call stack and just draw a single
+    // non-AA rect
+    if (2*rad >= rect.width()) {
+        verts[0].fX = verts[2].fX = verts[4].fX = verts[6].fX = verts[8].fX = rect.centerX();
+    }
+    if (2*rad >= rect.height()) {
+        verts[0].fY = verts[2].fY = verts[4].fY = verts[6].fY = verts[8].fY = rect.centerY();
+    }
 }
 
 // Allow all hairlines and all miters, so long as the miter limit doesn't produce beveled corners.
