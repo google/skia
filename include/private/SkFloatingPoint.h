@@ -82,15 +82,9 @@ static inline float sk_float_pow(float base, float exp) {
 
 #define sk_double_isnan(a)          sk_float_isnan(a)
 
-#ifdef SK_USE_FLOATBITS
-    #define sk_float_floor2int(x)   SkFloatToIntFloor(x)
-    #define sk_float_round2int(x)   SkFloatToIntRound(x)
-    #define sk_float_ceil2int(x)    SkFloatToIntCeil(x)
-#else
-    #define sk_float_floor2int(x)   (int)sk_float_floor(x)
-    #define sk_float_round2int(x)   (int)sk_float_floor((x) + 0.5f)
-    #define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
-#endif
+#define sk_float_floor2int(x)   (int)sk_float_floor(x)
+#define sk_float_round2int(x)   (int)sk_float_floor((x) + 0.5f)
+#define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
 
 #define sk_double_floor(x)          floor(x)
 #define sk_double_round(x)          floor((x) + 0.5)
