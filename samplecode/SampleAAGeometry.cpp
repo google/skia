@@ -203,6 +203,7 @@ static void add_path_segment(int index, SkPath* path) {
     SkPoint lastPt = { 0, 0 };  // init to avoid warning
     SkPath::Verb verb;
     SkPath::RawIter iter(*path);
+    SkPath extras;
     int counter = -1;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         SkScalar weight  SK_INIT_TO_AVOID_WARNING;
@@ -1235,9 +1236,96 @@ public:
         }
     }
 
+    static inline Sk2f normalize(const Sk2f& n) {
+            Sk2f nn = n*n;
+                return n * (nn + SkNx_shuffle<1,0>(nn)).rsqrt();
+    }
+
     void draw_points(SkCanvas* canvas, SkPoint* points, int count) {
         for (int index = 0; index < count; ++index) {
             canvas->drawCircle(points[index].fX, points[index].fY, 10, fPointPaint);
+        }
+        SkDebugf("count: %d\n", count);
+        if (count == 3) {
+            SkPaint extraPaint;
+            extraPaint.setStrokeWidth(4.f);
+            extraPaint.setColor(SK_ColorYELLOW);
+            canvas->drawLine(points[0], points[1], extraPaint);
+            extraPaint.setColor(SK_ColorBLACK);
+            canvas->drawLine(points[1], points[2], extraPaint);
+
+            SkPoint ttan0 = points[1] - points[0];
+            SkPoint ttan1 = points[2] - points[1];
+            SkPoint nTan0 = ttan0;
+            nTan0.normalize();
+            nTan0 *= 50.f;
+            SkPoint nTan1 = ttan1;
+            nTan1.normalize();
+            nTan1 *= 50.f;
+
+            SkPoint nn = nTan0 - nTan1;
+            nn *= 50.f;
+
+            extraPaint.setColor(SK_ColorGREEN);
+            //canvas->drawLine(points[0], points[0]+nTan0, extraPaint);
+            extraPaint.setColor(SK_ColorBLUE);
+            //canvas->drawLine(points[1], points[1]+nTan1, extraPaint);
+
+            extraPaint.setColor(SK_ColorMAGENTA);
+            canvas->drawLine(points[0], points[0]+nn, extraPaint);
+
+            extraPaint.setColor(SK_ColorRED);
+            SkPoint tMt = ttan0 - ttan1;
+            canvas->drawLine(points[0], points[0]+tMt, extraPaint);
+
+            extraPaint.setColor(SK_ColorBLACK);
+            canvas->drawLine(points[0], points[0]+ttan1, extraPaint);
+
+            Sk2f p0 = Sk2f::Load(&points[0]);
+            Sk2f p1 = Sk2f::Load(&points[1]);
+            Sk2f p2 = Sk2f::Load(&points[2]);
+            Sk2f tan0 = p1 - p0;
+            Sk2f tan1 = p2 - p1;
+
+            Sk2f n = normalize(tan0) - normalize(tan1);
+            Sk2f dQ1n = (tan0 - tan1) * n;
+            Sk2f dQ0n = tan0 * n;
+            Sk2f t = (dQ0n + SkNx_shuffle<1,0>(dQ0n)) / (dQ1n + SkNx_shuffle<1,0>(dQ1n));
+            t = Sk2f::Min(Sk2f::Max(t, 0), 1);
+
+            SkPoint tanPnt0;
+            SkPoint tanPnt1;
+            tan0.store(&tanPnt0);
+            tan1.store(&tanPnt1);
+            SkPoint myT;
+            myT.fX = myT.fY = tanPnt0.length() / (tanPnt0 - tanPnt1).length();
+            SkDebugf("myT: %f, %f\n", myT.fX, myT.fY);
+            t = Sk2f::Load(&myT);
+
+            Sk2f p01 = SkNx_fma(t, tan0, p0);
+            Sk2f p12 = SkNx_fma(t, tan1, p1);
+            Sk2f p012 = SkNx_fma(t, p12 - p01, p01);
+
+            SkPoint splitPnt;
+            p012.store(&splitPnt);
+
+            extraPaint.setColor(SK_ColorBLACK);
+            canvas->drawCircle(splitPnt.fX, splitPnt.fY, 2, extraPaint);
+
+            n = normalize(normalize(tan0) - normalize(tan1));
+            dQ1n = (tan0 - tan1) * n;
+            dQ0n = tan0 * n;
+            t = (dQ0n + SkNx_shuffle<1,0>(dQ0n)) / (dQ1n + SkNx_shuffle<1,0>(dQ1n));
+            t = Sk2f::Min(Sk2f::Max(t, 0), 1);
+
+            p01 = SkNx_fma(t, tan0, p0);
+            p12 = SkNx_fma(t, tan1, p1);
+            p012 = SkNx_fma(t, p12 - p01, p01);
+
+            p012.store(&splitPnt);
+
+            extraPaint.setColor(SK_ColorGREEN);
+            canvas->drawCircle(splitPnt.fX, splitPnt.fY, 2, extraPaint);
         }
     }
 
@@ -1810,7 +1898,7 @@ static struct KeyCommand {
     { 'd',  0,  "d",   "dump to console", &AAGeometryView::pathDump },
     { 'h',  0,  "h",     "hide controls", &AAGeometryView::hideAll },
     { 'r',  0,  "r",        "reset path", &AAGeometryView::constructPath },
-    { 'z',  0,  "z",              "undo", &AAGeometryView::undo },
+//    { 'z',  0,  "z",              "undo", &AAGeometryView::undo },
     { '?',  0,  "?",       "show legend", &AAGeometryView::showLegend },
 };
 
@@ -1855,6 +1943,7 @@ bool AAGeometryView::onQuery(SkEvent* evt) {
                 return (this->*keyCommand.fFunction)();
             }
         }
+#if 0
         if (('A' <= uni && uni <= 'Z') || ('a' <= uni && uni <= 'z')) {
             for (int index = 0; index < kButtonCount; ++index) {
                 Button* button = kButtonList[index].fButton;
@@ -1866,6 +1955,7 @@ bool AAGeometryView::onQuery(SkEvent* evt) {
                 }
             }
         }
+#endif
     }
     return this->INHERITED::onQuery(evt);
 }
