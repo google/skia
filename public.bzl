@@ -659,7 +659,6 @@ DEFINES_IOS = [
 
 DEFINES_ALL = [
     # Chrome DEFINES.
-    "SK_USE_FLOATBITS",
     "SK_USE_FREETYPE_EMBOLDEN",
     # Turn on a few Google3-specific build fixes.
     "GOOGLE3",
