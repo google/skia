@@ -10,12 +10,7 @@
 #include "SkBlitter.h"
 #include "SkRasterClip.h"
 
-#ifdef SK_NO_ANALYTIC_AA
-    std::atomic<bool> gSkUseAnalyticAA{false};
-#else
-    std::atomic<bool> gSkUseAnalyticAA{true};
-#endif
-
+std::atomic<bool> gSkUseAnalyticAA{true};
 std::atomic<bool> gSkForceAnalyticAA{false};
 
 #if defined(SK_SUPPORT_LEGACY_DELTA_AA) || (defined(_MSC_VER) && !defined(__clang__))
