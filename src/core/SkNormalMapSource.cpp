@@ -49,17 +49,17 @@ private:
 
             // add uniform
             const char* xformUniName = nullptr;
-            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kMat22f_GrSLType,
-                                                   kDefault_GrSLPrecision, "Xform", &xformUniName);
+            fXformUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2x2_GrSLType,
+                                                   "Xform", &xformUniName);
 
             SkString dstNormalColorName("dstNormalColor");
             this->emitChild(0, &dstNormalColorName, args);
-            fragBuilder->codeAppendf("float3 normal = normalize(%s.rgb - float3(0.5));",
+            fragBuilder->codeAppendf("half3 normal = normalize(%s.rgb - half3(0.5));",
                                      dstNormalColorName.c_str());
 
             // If there's no x & y components, return (0, 0, +/- 1) instead to avoid division by 0
             fragBuilder->codeAppend( "if (abs(normal.z) > 0.999) {");
-            fragBuilder->codeAppendf("    %s = normalize(float4(0.0, 0.0, normal.z, 0.0));",
+            fragBuilder->codeAppendf("    %s = normalize(half4(0.0, 0.0, normal.z, 0.0));",
                     args.fOutputColor);
             // Else, Normalizing the transformed X and Y, while keeping constant both Z and the
             // vector's angle in the XY plane. This maintains the "slope" for the surface while
@@ -67,13 +67,13 @@ private:
             // Here, we call 'scaling factor' the number that must divide the transformed X and Y so
             // that the normal's length remains equal to 1.
             fragBuilder->codeAppend( "} else {");
-            fragBuilder->codeAppendf("    float2 transformed = %s * normal.xy;",
+            fragBuilder->codeAppendf("    half2 transformed = %s * normal.xy;",
                     xformUniName);
-            fragBuilder->codeAppend( "    float scalingFactorSquared = "
+            fragBuilder->codeAppend( "    half scalingFactorSquared = "
                                                  "( (transformed.x * transformed.x) "
                                                    "+ (transformed.y * transformed.y) )"
                                                  "/(1.0 - (normal.z * normal.z));");
-            fragBuilder->codeAppendf("    %s = float4(transformed*inversesqrt(scalingFactorSquared),"
+            fragBuilder->codeAppendf("    %s = half4(transformed*inversesqrt(scalingFactorSquared),"
                                                    "normal.z, 0.0);",
                     args.fOutputColor);
             fragBuilder->codeAppend( "}");

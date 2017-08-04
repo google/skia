@@ -94,8 +94,6 @@ protected:
 
     virtual void writeHeader();
 
-    virtual void writePrecisionModifier();
-
     virtual void writeType(const Type& type);
 
     void writeExtension(const Extension& ext);

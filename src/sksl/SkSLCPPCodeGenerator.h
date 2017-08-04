@@ -31,8 +31,6 @@ private:
 
     void writeHeader() override;
 
-    void writePrecisionModifier() override;
-
     void writeType(const Type& type) override;
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;

@@ -35,7 +35,7 @@ private:
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-            fragBuilder->codeAppendf("%s = float4(0, 0, 1, 0);", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = half4(0, 0, 1, 0);", args.fOutputColor);
         }
 
     private:

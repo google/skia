@@ -146,40 +146,37 @@ private:
             if (lightingFP.fDirectionalLights.count() != 0) {
                 fLightDirsUni = uniformHandler->addUniformArray(
                         kFragment_GrShaderFlag,
-                        kVec3f_GrSLType,
-                        kDefault_GrSLPrecision,
+                        kHalf3_GrSLType,
                         "LightDir",
                         lightingFP.fDirectionalLights.count(),
                         &lightDirsUniName);
                 fLightColorsUni = uniformHandler->addUniformArray(
                         kFragment_GrShaderFlag,
-                        kVec3f_GrSLType,
-                        kDefault_GrSLPrecision,
+                        kHalf3_GrSLType,
                         "LightColor",
                         lightingFP.fDirectionalLights.count(),
                         &lightColorsUniName);
             }
 
             const char* ambientColorUniName = nullptr;
-            fAmbientColorUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                          kVec3f_GrSLType, kDefault_GrSLPrecision,
+            fAmbientColorUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf3_GrSLType,
                                                           "AmbientColor", &ambientColorUniName);
 
-            fragBuilder->codeAppendf("float4 diffuseColor = %s;", args.fInputColor);
+            fragBuilder->codeAppendf("half4 diffuseColor = %s;", args.fInputColor);
 
             SkString dstNormalName("dstNormal");
             this->emitChild(0, &dstNormalName, args);
 
-            fragBuilder->codeAppendf("float3 normal = %s.xyz;", dstNormalName.c_str());
+            fragBuilder->codeAppendf("half3 normal = %s.xyz;", dstNormalName.c_str());
 
-            fragBuilder->codeAppend( "float3 result = float3(0.0);");
+            fragBuilder->codeAppend( "half3 result = highfloat3(0.0);");
 
             // diffuse light
             if (lightingFP.fDirectionalLights.count() != 0) {
                 fragBuilder->codeAppendf("for (int i = 0; i < %d; i++) {",
                                          lightingFP.fDirectionalLights.count());
                 // TODO: modulate the contribution from each light based on the shadow map
-                fragBuilder->codeAppendf("    float NdotL = clamp(dot(normal, %s[i]), 0.0, 1.0);",
+                fragBuilder->codeAppendf("    half NdotL = clamp(dot(normal, %s[i]), 0.0, 1.0);",
                                          lightDirsUniName);
                 fragBuilder->codeAppendf("    result += %s[i]*diffuseColor.rgb*NdotL;",
                                          lightColorsUniName);
@@ -190,7 +187,7 @@ private:
             fragBuilder->codeAppendf("result += %s * diffuseColor.rgb;", ambientColorUniName);
 
             // Clamping to alpha (equivalent to an unpremul'd clamp to 1.0)
-            fragBuilder->codeAppendf("%s = float4(clamp(result.rgb, 0.0, diffuseColor.a), "
+            fragBuilder->codeAppendf("%s = half4(clamp(result.rgb, 0.0, diffuseColor.a), "
                                                "diffuseColor.a);", args.fOutputColor);
         }
 
