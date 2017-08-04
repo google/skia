@@ -107,11 +107,12 @@ def dm_flags(api, bot):
     configs.extend(['gbr-8888'])
 
   if '-TSAN' not in bot and sample_count is not '':
-    if ('TegraK1'  in bot or
-        'TegraX1'  in bot or
-        'GTX550Ti' in bot or
-        'GTX660'   in bot or
-        'GT610'    in bot):
+    if ('TegraK1'    in bot or
+        'TegraX1'    in bot or
+        'GTX550Ti'   in bot or
+        'GTX660'     in bot or
+        'GT610'      in bot or
+        'QuadroP400' in bot):
       configs.append(gl_prefix + 'nvprdit' + sample_count)
 
   # We want to test both the OpenGL config and the GLES config on Linux Intel:
@@ -804,6 +805,8 @@ TEST_BUILDERS = [
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86-Debug',
   'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug',
+  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-Valgrind' +
+   '_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind',
   ('Test-Ubuntu-GCC-ShuttleA-GPU-GTX550Ti-x86_64-Release-Valgrind' +
    '_AbandonGpuContext'),
