@@ -32,17 +32,27 @@ def create_asset(target_dir):
   download_svgs_cmd = [
     'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
     '--output_dir', target_dir,
+    '--svgs_file', os.path.join(SVG_TOOLS, 'svgs.txt'),
   ]
   subprocess.check_call(download_svgs_cmd)
 
-  # Download SVGs from Google storage. These are material design SVGs from
-  # skbug.com/5757.
-  # There was no easy way to create URLs from them to specify in
-  # tools/svg/svgs.txt which is why they had been stored in Google storage.
-  subprocess.check_call([
-      'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, 'skbug5757', '*'),
-      target_dir
-  ])
+  # Download the SVGs specified in tools/svg/svgs_parse_only.txt with a prefix.
+  download_svgs_parse_only_cmd = [
+    'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
+    '--output_dir', target_dir,
+    '--svgs_file', os.path.join(SVG_TOOLS, 'svgs_parse_only.txt'),
+    '--prefix', 'svgparse_',
+  ]
+  subprocess.check_call(download_svgs_parse_only_cmd)
+
+  # Download SVGs from Google storage.
+  # The Google storage bucket will either contain private SVGs or SVGs which we
+  # cannot download over the internet using svg_downloader.py.
+  for skbug in ['skbug4713', 'skbug6918']:
+    subprocess.check_call([
+        'gsutil', '-m', 'cp', os.path.join(SVG_GS_BUCKET, skbug, '*'),
+        target_dir
+    ])
 
 
 def main():
