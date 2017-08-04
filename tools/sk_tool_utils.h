@@ -121,12 +121,6 @@ namespace sk_tool_utils {
     void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
                           SkScalar x, SkScalar y);
 
-    void create_hemi_normal_map(SkBitmap* bm, const SkIRect& dst);
-
-    void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst);
-
-    void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
-
     void make_big_path(SkPath& path);
 
     // Return a blurred version of 'src'. This doesn't use a separable filter

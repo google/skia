@@ -26,14 +26,12 @@
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
-#include "SkLightingShader.h"
 #include "SkLocalMatrixImageFilter.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
-#include "SkNormalSource.h"
 #include "SkOffsetImageFilter.h"
 #include "../../src/effects/SkOverdrawColorFilter.h"
 #include "SkPaintImageFilter.h"
@@ -88,8 +86,6 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     // Shader
     SkPerlinNoiseShader::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
-    SkLightingShader::InitializeFlattenables();
-    SkNormalSource::InitializeFlattenables();
 
     // PathEffect
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)

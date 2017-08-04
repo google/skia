@@ -80,8 +80,8 @@ public:
         kSkRasterizer_Type,
         kSkShaderBase_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
-        kSkUnused_Xfermode_Type,
-        kSkNormalSource_Type,
+        kSkUnused_Type2,
+        kSkUnused_Type3,    // used to be SkNormalSource
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);

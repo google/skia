@@ -28,7 +28,6 @@ class SkDrawFilter;
 struct SkDrawShadowRec;
 class SkImage;
 class SkImageFilter;
-class SkLights;
 class SkMetaData;
 class SkPath;
 class SkPicture;
