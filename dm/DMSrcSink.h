@@ -248,6 +248,17 @@ private:
     Path fPath;
 };
 
+class DDLSKPSrc : public Src {
+public:
+    explicit DDLSKPSrc(Path path);
+
+    Error draw(SkCanvas*) const override;
+    SkISize size() const override;
+    Name name() const override;
+private:
+    Path fPath;
+};
+
 #if defined(SK_XML)
 } // namespace DM
 
