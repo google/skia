@@ -26,7 +26,7 @@ public:
     bool instantiate(GrResourceProvider*) override;
 
     GrFSAAType fsaaType() const {
-        if (!fSampleCnt) {
+        if (!fSampleCnt1) {
             SkASSERT(!(fRenderTargetFlags & GrRenderTargetFlags::kMixedSampled));
             return GrFSAAType::kNone;
         }
@@ -35,16 +35,23 @@ public:
                                                              : GrFSAAType::kUnifiedMSAA;
     }
 
+    void setNeedsStencil() { fNeedsStencil = true; }
+
     /**
      * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
      */
-    int numStencilSamples() const { return fSampleCnt; }
+    int numStencilSamples() const { return fSampleCnt1; }
+
+    /*
+     * When instantiated does this proxy require a stencil buffer?
+     */
+    bool needsStencil() const { return fNeedsStencil; }
 
     /**
      * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
     int numColorSamples() const {
-        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt1;
     }
 
     int worstCaseWidth() const;
@@ -73,7 +80,9 @@ protected:
 private:
     size_t onUninstantiatedGpuMemorySize() const override;
 
-    int                 fSampleCnt;
+    int                 fSampleCnt1;
+    bool                fNeedsStencil;
+
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
     // deferred resource.

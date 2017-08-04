@@ -21,11 +21,12 @@
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc& desc,
                                          SkBackingFit fit, SkBudgeted budgeted, uint32_t flags)
         : INHERITED(desc, fit, budgeted, flags)
-        , fSampleCnt(desc.fSampleCnt)
+        , fSampleCnt1(desc.fSampleCnt)
+        , fNeedsStencil(false)
         , fRenderTargetFlags(GrRenderTargetFlags::kNone) {
     // Since we know the newly created render target will be internal, we are able to precompute
     // what the flags will ultimately end up being.
-    if (caps.usesMixedSamples() && fSampleCnt > 0) {
+    if (caps.usesMixedSamples() && fSampleCnt1 > 0) {
         fRenderTargetFlags |= GrRenderTargetFlags::kMixedSampled;
     }
     if (caps.maxWindowRectangles() > 0) {
@@ -36,7 +37,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 // Wrapped version
 GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
     : INHERITED(std::move(surf), origin, SkBackingFit::kExact)
-    , fSampleCnt(fTarget->asRenderTarget()->numStencilSamples())
+    , fSampleCnt1(fTarget->asRenderTarget()->numStencilSamples())
+    , fNeedsStencil(false)
     , fRenderTargetFlags(fTarget->asRenderTarget()->renderTargetPriv().flags()) {
 }
 
@@ -49,7 +51,7 @@ int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
-    if (!this->instantiateImpl(resourceProvider, fSampleCnt, kFlags,
+    if (!this->instantiateImpl(resourceProvider, fSampleCnt1, fNeedsStencil, kFlags,
                                /* isMipped = */ false,
                                SkDestinationSurfaceColorMode::kLegacy)) {
         return false;
@@ -64,7 +66,7 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
 sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, kFlags,
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt1, fNeedsStencil, kFlags,
                                                        /* isMipped = */ false,
                                                        SkDestinationSurfaceColorMode::kLegacy);
     if (!surface) {

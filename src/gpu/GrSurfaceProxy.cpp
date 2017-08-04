@@ -44,7 +44,7 @@ GrSurfaceProxy::~GrSurfaceProxy() {
 }
 
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
-                                                GrResourceProvider* resourceProvider, int sampleCnt,
+                                                GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
     GrSurfaceDesc desc;
@@ -65,8 +65,22 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     } else {
         surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags).release());
     }
-    if (surface) {
-        surface->asTexture()->texturePriv().setMipColorMode(mipColorMode);
+    if (!surface) {
+        return nullptr;
+    }
+
+    surface->asTexture()->texturePriv().setMipColorMode(mipColorMode);
+
+    if (needsStencil) {
+        GrRenderTarget* rt = surface->asRenderTarget();
+        if (!rt) {
+            SkASSERT(0);
+            return nullptr;
+        }
+
+        if (!resourceProvider->attachStencilAttachment(rt)) {
+            return nullptr;
+        }
     }
 
     return surface;
@@ -84,14 +98,14 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 #endif
 }
 
-bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
+bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                                      GrSurfaceFlags flags, bool isMipMapped,
                                      SkDestinationSurfaceColorMode mipColorMode) {
     if (fTarget) {
         return true;
     }
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, flags,
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil, flags,
                                                        isMipMapped, mipColorMode);
     if (!surface) {
         return false;
