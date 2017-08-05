@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16910084_b2309bb5",
+        "filename": "include/private/SkFloatBits.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-08-05T18:38:15Z",
+      "side": 1,
+      "message": "This causes ASAN to fail with float-cast-overflow.\n\nPartial sanitized backtrace:\n    #0 in SkFloatToIntFloor(float) include/private/SkFloatBits.h:86:17\n    #1 in void SkLinearGradient::LinearGradientContext::shade4_dx_clamp\u003cfalse, false\u003e(unsigned int*, int, float, float, float, float const*) src/shaders/gradients/SkLinearGradient.cpp:655:60\n    #2 in SkLinearGradient::LinearGradientContext::shade4_clamp(int, int, unsigned int*, int) src/shaders/gradients/SkLinearGradient.cpp:784:19\n    #3 in SkLinearGradient::LinearGradientContext::shadeSpan(int, int, unsigned int*, int) src/shaders/gradients/SkLinearGradient.cpp:286:15\n    #4 in SkARGB32_Shader_Blitter::blitRect(int, int, int, int) src/core/SkBlitter_ARGB32.cpp:436:32\n    #5 in SkScan::FillIRect(SkIRect const\u0026, SkRegion const*, SkBlitter*) src/core/SkScan.cpp:41:21\n    #6 in SkScan::FillIRect(SkIRect const\u0026, SkRasterClip const\u0026, SkBlitter*) src/core/SkScan.cpp:88:9\n    #7 in SkDraw::drawPaint(SkPaint const\u0026) const src/core/SkDraw.cpp:222:5\n    #8 in SkBitmapDevice::drawPaint(SkPaint const\u0026) src/core/SkBitmapDevice.cpp:186:18\n    #9 in SkCanvas::internalDrawPaint(SkPaint const\u0026) src/core/SkCanvas.cpp:1962:23\n    #10 in SkCanvas::drawPaint(SkPaint const\u0026) src/core/SkCanvas.cpp:1704:11\n    #11 in test_clamping_overflow(skiatest::Reporter*) tests/GradientTest.cpp:343:27\n    #12 in test_Gradient(skiatest::Reporter*, sk_gpu_test::GrContextFactory*) tests/GradientTest.cpp:546:5",
+      "revId": "8addae8b539a2db6ed34d34bf12609fbc0b2d198",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
