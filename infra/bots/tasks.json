@@ -7188,7 +7188,7 @@
         {
           "name": "skia/bots/valgrind",
           "path": "valgrind",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -7240,7 +7240,7 @@
         {
           "name": "skia/bots/valgrind",
           "path": "valgrind",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -13950,7 +13950,7 @@
         {
           "name": "skia/bots/valgrind",
           "path": "valgrind",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -14002,7 +14002,7 @@
         {
           "name": "skia/bots/valgrind",
           "path": "valgrind",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "dependencies": [
@@ -14054,7 +14054,7 @@
         {
           "name": "skia/bots/valgrind",
           "path": "valgrind",
-          "version": "version:6"
+          "version": "version:7"
         }
       ],
       "dependencies": [

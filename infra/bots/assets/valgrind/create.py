@@ -22,9 +22,9 @@ import urllib2
 import utils
 
 
-VALGRIND = 'valgrind-3.12.0'
+VALGRIND = 'valgrind-3.13.0'
 TARBALL = '%s.tar.bz2' % VALGRIND
-DOWNLOAD_URL = 'http://valgrind.org/downloads/%s' % TARBALL
+DOWNLOAD_URL = 'ftp://sourceware.org/pub/valgrind/%s' % TARBALL
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'skia-%s' % VALGRIND)
 INSTALL_DIR = os.path.join(TEMP_DIR, 'valgrind_install')
 
