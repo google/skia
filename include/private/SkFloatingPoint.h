@@ -25,8 +25,6 @@
 #include <unistd.h>
 #endif
 
-#include "SkFloatBits.h"
-
 // C++98 cmath std::pow seems to be the earliest portable way to get float pow.
 // However, on Linux including cmath undefines isfinite.
 // http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14608
@@ -71,8 +69,7 @@ static inline float sk_float_pow(float base, float exp) {
     #define sk_float_isfinite(x)    _finite(x)
     #define sk_float_isnan(x)       _isnan(x)
     static inline int sk_float_isinf(float x) {
-        int32_t bits = SkFloat2Bits(x);
-        return (bits << 1) == (0xFF << 24);
+        return x && (x + x == x);
     }
 #else
     #define sk_float_isfinite(x)    isfinite(x)

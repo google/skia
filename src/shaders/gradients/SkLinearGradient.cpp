@@ -636,7 +636,7 @@ void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], 
         if (fx < 0) {
             // count is guaranteed to be positive, but the first arg may overflow int32 after
             // increment => casting to uint32 ensures correct clamping.
-            int n = SkTMin<uint32_t>(static_cast<uint32_t>(SkFloatToIntFloor(-fx * invDx)) + 1,
+            int n = SkTMin<uint32_t>(static_cast<uint32_t>(sk_float_floor2int(-fx * invDx)) + 1,
                                      count);
             SkASSERT(n > 0);
             fill<apply_alpha>(dstC, n, rec[0].fColor);
@@ -652,7 +652,7 @@ void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], 
         if (fx > 1) {
             // count is guaranteed to be positive, but the first arg may overflow int32 after
             // increment => casting to uint32 ensures correct clamping.
-            int n = SkTMin<uint32_t>(static_cast<uint32_t>(SkFloatToIntFloor((1 - fx) * invDx)) + 1,
+            int n = SkTMin<uint32_t>(static_cast<uint32_t>(sk_float_floor2int((1 - fx) * invDx)) + 1,
                                      count);
             SkASSERT(n > 0);
             fill<apply_alpha>(dstC, n, rec[fRecs.count() - 1].fColor);
