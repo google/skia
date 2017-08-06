@@ -1677,11 +1677,11 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
         }
 
         case kTwo_ColorType: {
-            const char* t      = gradientTValue;
+//            const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp(%s, 0.0, 1.0));",
-                                     colors, colors, t);
+            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], 0.5);",
+                                     colors, colors);
 
             // We could skip this step if both colors are known to be opaque. Two
             // considerations:
