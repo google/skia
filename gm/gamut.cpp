@@ -41,7 +41,7 @@ protected:
 struct BitmapCellRenderer : public CellRenderer {
     BitmapCellRenderer(SkColor color, SkFilterQuality quality, float scale = 1.0f)
         : fQuality(quality) {
-        int scaledSize = SkFloatToIntRound(scale * gRectSize);
+        int scaledSize = sk_float_round2int(scale * gRectSize);
         fBitmap.allocPixels(SkImageInfo::MakeS32(scaledSize, scaledSize, kPremul_SkAlphaType));
         fBitmap.eraseColor(color);
         const char* qualityNames[] = { "None", "Low", "Medium", "High" };

@@ -6,6 +6,7 @@
  */
 
 #include <cmath>
+#include "../private/SkFloatBits.h"
 #include "SkBuffer.h"
 #include "SkCubicClipper.h"
 #include "SkData.h"

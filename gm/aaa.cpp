@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "../private/SkFloatBits.h"
 #include "gm.h"
 #include "SkPath.h"
 #include "SkScan.h"
