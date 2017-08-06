@@ -25,8 +25,6 @@
 #include <unistd.h>
 #endif
 
-#include "SkFloatBits.h"
-
 // C++98 cmath std::pow seems to be the earliest portable way to get float pow.
 // However, on Linux including cmath undefines isfinite.
 // http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14608

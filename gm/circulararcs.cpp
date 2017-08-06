@@ -6,6 +6,7 @@
  */
 
 #include <functional>
+#include "../private/SkFloatBits.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "gm.h"

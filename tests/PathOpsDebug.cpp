@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "../private/SkFloatBits.h"
 #include "PathOpsTSectDebug.h"
 #include "SkOpCoincidence.h"
 #include "SkOpContour.h"
