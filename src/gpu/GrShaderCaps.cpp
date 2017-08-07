@@ -56,6 +56,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fUsesPrecisionModifiers = false;
     fCanUseAnyFunctionInShader = true;
     fCanUseMinAndAbsTogether = true;
+    fCanUseFractForNegativeValues = true;
     fMustForceNegatedAtanParamToFloat = false;
     fAtan2ImplementedAsAtanYOverX = false;
     fRequiresLocalOutputColorForFBFetch = false;
@@ -143,6 +144,8 @@ SkString GrShaderCaps::dump() const {
     r.appendf("Uses precision modifiers: %s\n", (fUsesPrecisionModifiers ? "YES" : "NO"));
     r.appendf("Can use any() function: %s\n", (fCanUseAnyFunctionInShader ? "YES" : "NO"));
     r.appendf("Can use min() and abs() together: %s\n", (fCanUseMinAndAbsTogether ? "YES" : "NO"));
+    r.appendf("Can use fract() for negative values: %s\n", (fCanUseFractForNegativeValues ?
+                                                            "YES" : "NO"));
     r.appendf("Must force negated atan param to float: %s\n", (fMustForceNegatedAtanParamToFloat ?
                                                                "YES" : "NO"));
     r.appendf("Must use local out color for FBFetch: %s\n", (fRequiresLocalOutputColorForFBFetch ?

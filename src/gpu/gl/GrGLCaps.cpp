@@ -892,10 +892,14 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo) {
         shaderCaps->fVertexIDSupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
     }
 
-    // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0), so we must do
-    // the abs first in a separate expression.
     if (kTegra3_GrGLRenderer == ctxInfo.renderer()) {
+        // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0),
+        // so we must do the abs first in a separate expression.
         shaderCaps->fCanUseMinAndAbsTogether = false;
+
+        // Tegra3 fract() seems to trigger undefined behavior for negative values, so we
+        // must avoid this condition.
+        shaderCaps->fCanUseFractForNegativeValues = false;
     }
 
     // On Intel GPU there is an issue where it reads the second argument to atan "- %s.x" as an int
