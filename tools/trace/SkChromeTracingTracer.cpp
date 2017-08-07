@@ -6,6 +6,7 @@
  */
 
 #include "SkChromeTracingTracer.h"
+#include "SkJSONWriter.h"
 #include "SkThreadID.h"
 #include "SkTraceEvent.h"
 #include "SkOSFile.h"
@@ -86,31 +87,38 @@ void SkChromeTracingTracer::updateTraceEventDuration(const uint8_t* categoryEnab
     traceEvent->fClockEnd = std::chrono::high_resolution_clock::now().time_since_epoch().count();
 }
 
-static Json::Value trace_value_to_json(uint64_t argValue, uint8_t argType) {
+static void trace_value_to_json(SkJSONWriter* writer, uint64_t argValue, uint8_t argType) {
     skia::tracing_internals::TraceValueUnion value;
     value.as_uint = argValue;
 
     switch (argType) {
         case TRACE_VALUE_TYPE_BOOL:
-            return Json::Value(value.as_bool);
+            writer->appendBool(value.as_bool);
+            break;
         case TRACE_VALUE_TYPE_UINT:
-            return Json::Value(static_cast<Json::UInt64>(value.as_uint));
+            writer->appendU64(value.as_uint);
+            break;
         case TRACE_VALUE_TYPE_INT:
-            return Json::Value(static_cast<Json::Int64>(value.as_uint));
+            writer->appendS64(value.as_int);
+            break;
         case TRACE_VALUE_TYPE_DOUBLE:
-            return Json::Value(value.as_double);
+            writer->appendDouble(value.as_double);
+            break;
         case TRACE_VALUE_TYPE_POINTER:
-            return Json::Value(SkStringPrintf("%p", value.as_pointer).c_str());
+            writer->appendPointer(value.as_pointer);
+            break;
         case TRACE_VALUE_TYPE_STRING:
         case TRACE_VALUE_TYPE_COPY_STRING:
-            return Json::Value(value.as_string);
+            writer->appendString(value.as_string);
+            break;
         default:
-            return Json::Value("<unknown type>");
+            writer->appendString("<unknown type>");
+            break;
     }
 }
 
-Json::Value SkChromeTracingTracer::traceEventToJson(const TraceEvent& traceEvent,
-                                                    BaseTypeResolver* baseTypeResolver) {
+void SkChromeTracingTracer::traceEventToJson(SkJSONWriter* writer, const TraceEvent& traceEvent,
+                                             BaseTypeResolver* baseTypeResolver) {
     // We track the original (creation time) "name" of each currently live object, so we can
     // automatically insert "base_name" fields in object snapshot events.
     if (TRACE_EVENT_PHASE_CREATE_OBJECT == traceEvent.fPhase) {
@@ -121,81 +129,66 @@ Json::Value SkChromeTracingTracer::traceEventToJson(const TraceEvent& traceEvent
         baseTypeResolver->remove(traceEvent.fID);
     }
 
-    Json::Value json;
+    writer->beginObject();
+
     char phaseString[2] = { traceEvent.fPhase, 0 };
-    json["ph"] = phaseString;
-    json["name"] = traceEvent.fName;
-    json["cat"] = traceEvent.fCategory;
+    writer->appendString("ph", phaseString);
+    writer->appendString("name", traceEvent.fName);
+    writer->appendString("cat", traceEvent.fCategory);
     if (0 != traceEvent.fID) {
         // IDs are (almost) always pointers
-        json["id"] = SkStringPrintf("%p", traceEvent.fID).c_str();
+        writer->appendPointer("id", reinterpret_cast<void*>(traceEvent.fID));
     }
     // Convert nanoseconds to microseconds (standard time unit for tracing JSON files)
-    json["ts"] = static_cast<double>(traceEvent.fClockBegin) * 1E-3;
+    writer->appendDouble("ts", static_cast<double>(traceEvent.fClockBegin) * 1E-3);
     if (0 != traceEvent.fClockEnd) {
-        json["dur"] = static_cast<double>(traceEvent.fClockEnd - traceEvent.fClockBegin) * 1E-3;
+        double dur = static_cast<double>(traceEvent.fClockEnd - traceEvent.fClockBegin) * 1E-3;
+        writer->appendDouble("dur", dur);
     }
-    json["tid"] = static_cast<Json::Int64>(traceEvent.fThreadID);
+    writer->appendS64("tid", traceEvent.fThreadID);
     // Trace events *must* include a process ID, but for internal tools this isn't particularly
     // important (and certainly not worth adding a cross-platform API to get it).
-    json["pid"] = 0;
+    writer->appendS32("pid", 0);
 
     if (traceEvent.fNumArgs) {
-        Json::Value args;
-        for (int i = 0; i < traceEvent.fNumArgs; ++i) {
-            Json::Value argValue = trace_value_to_json(traceEvent.fArgValues[i],
-                                                       traceEvent.fArgTypes[i]);
-            if (traceEvent.fArgNames[i] && '#' == traceEvent.fArgNames[i][0]) {
-                // Interpret #foo as an ID reference
-                Json::Value idRef;
-                idRef["id_ref"] = argValue;
-                args[traceEvent.fArgNames[i] + 1] = idRef;
-            } else {
-                args[traceEvent.fArgNames[i]] = argValue;
-            }
-        }
+        writer->beginObject("args");
+
+        bool addedSnapshot = false;
         if (TRACE_EVENT_PHASE_SNAPSHOT_OBJECT == traceEvent.fPhase &&
                 baseTypeResolver->find(traceEvent.fID) &&
                 0 != strcmp(*baseTypeResolver->find(traceEvent.fID), traceEvent.fName)) {
             // Special handling for snapshots where the name differs from creation.
-            // We start with args = { "snapshot": "Object info" }
-
-            // Inject base_type. args = { "snapshot": "Object Info", "base_type": "BaseFoo" }
-            args["base_type"] = *baseTypeResolver->find(traceEvent.fID);
-
-            // Wrap this up in a new dict, again keyed by "snapshot". The inner "snapshot" is now
-            // arbitrary, but we don't have a better name (and the outer key *must* be snapshot).
-            // snapshot = { "snapshot": { "snapshot": "Object Info", "base_type": "BaseFoo" } }
-            Json::Value snapshot;
-            snapshot["snapshot"] = args;
-
-            // Now insert that whole thing as the event's args.
-            // { "name": "DerivedFoo", "id": "0x12345678, ...
-            //     "args": { "snapshot":  { "snapshot": "Object Info", "base_type": "BaseFoo" } }
-            // }, ...
-            json["args"] = snapshot;
-        } else {
-            json["args"] = args;
+            writer->beginObject("snapshot");
+            writer->appendString("base_type", *baseTypeResolver->find(traceEvent.fID));
+            addedSnapshot = true;
         }
+
+        for (int i = 0; i < traceEvent.fNumArgs; ++i) {
+            // TODO: Skip '#'
+            writer->appendName(traceEvent.fArgNames[i]);
+
+            if (traceEvent.fArgNames[i] && '#' == traceEvent.fArgNames[i][0]) {
+                writer->beginObject();
+                writer->appendName("id_ref");
+                trace_value_to_json(writer, traceEvent.fArgValues[i], traceEvent.fArgTypes[i]);
+                writer->endObject();
+            } else {
+                trace_value_to_json(writer, traceEvent.fArgValues[i], traceEvent.fArgTypes[i]);
+            }
+        }
+
+        if (addedSnapshot) {
+            writer->endObject();
+        }
+
+        writer->endObject();
     }
-    return json;
+
+    writer->endObject();
 }
 
 void SkChromeTracingTracer::flush() {
     SkAutoMutexAcquire lock(fMutex);
-
-    Json::Value root(Json::arrayValue);
-    BaseTypeResolver baseTypeResolver;
-
-    for (int i = 0; i < fBlocks.count(); ++i) {
-        for (int j = 0; j < kEventsPerBlock; ++j) {
-            root.append(this->traceEventToJson(fBlocks[i][j], &baseTypeResolver));
-        }
-    }
-
-    for (int i = 0; i < fEventsInCurBlock; ++i) {
-        root.append(this->traceEventToJson(fCurBlock[i], &baseTypeResolver));
-    }
 
     SkString dirname = SkOSPath::Dirname(fFilename.c_str());
     if (!dirname.isEmpty() && !sk_exists(dirname.c_str(), kWrite_SkFILE_Flag)) {
@@ -203,7 +196,24 @@ void SkChromeTracingTracer::flush() {
             SkDebugf("Failed to create directory.");
         }
     }
-    SkFILEWStream stream(fFilename.c_str());
-    stream.writeText(Json::FastWriter().write(root).c_str());
-    stream.flush();
+
+    SkFILEWStream fileStream(fFilename.c_str());
+    SkJSONWriter writer(&fileStream, SkJSONWriter::Mode::kFast);
+    writer.beginArray();
+
+    BaseTypeResolver baseTypeResolver;
+
+    for (int i = 0; i < fBlocks.count(); ++i) {
+        for (int j = 0; j < kEventsPerBlock; ++j) {
+            this->traceEventToJson(&writer, fBlocks[i][j], &baseTypeResolver);
+        }
+    }
+
+    for (int i = 0; i < fEventsInCurBlock; ++i) {
+        this->traceEventToJson(&writer, fCurBlock[i], &baseTypeResolver);
+    }
+
+    writer.endArray();
+    writer.flush();
+    fileStream.flush();
 }
