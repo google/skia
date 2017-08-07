@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "../private/SkFloatBits.h"
 #include "PathOpsExtendedTest.h"
 
 #define TEST(name) { name, #name }
