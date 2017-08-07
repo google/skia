@@ -43,7 +43,7 @@ void main() {
             break;
         default:
             // Experimentally this looks better than the expected value of 1/15.
-            range = 0.125 / 15.0;
+            range = 1.0 / 15.0;
             break;
     }
     @if (sk_Caps.integerSupport) {
@@ -55,13 +55,11 @@ void main() {
                  (y & 4) >> 1 | (x & 4) >> 2;
         value = float(m) * 1.0 / 64.0 - 63.0 / 128.0;
     } else {
-        // Generate a random number based on the fragment position. For this
-        // random number generator, we use the "GLSL rand" function
-        // that seems to be floating around on the internet. It works under
-        // the assumption that sin(<big number>) oscillates with high frequency
-        // and sampling it will generate "randomness". Since we're using this
-        // for rendering and not cryptography it should be OK.
-        value = fract(sin(dot(sk_FragCoord.xy, float2(12.9898, 78.233))) * 43758.5453) - .5;
+        // Simulate the integer effect used above using step/mod. For speed, simulates a 4x4
+        // dither pattern rather than an 8x8 one.
+        float4 modValues = mod(sk_FragCoord.xyxy, float4(2.0, 2.0, 4.0, 4.0));
+        float4 stepValues = step(modValues, float4(1.0, 1.0, 2.0, 2.0));
+        value = dot(stepValues, float4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
     }
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
