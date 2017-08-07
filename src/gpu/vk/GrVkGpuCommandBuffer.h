@@ -32,6 +32,7 @@ public:
     void end() override;
 
     void discard(GrRenderTargetProxy*) override;
+    void insertEventMarker(GrSurfaceProxy*, const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
                       GrRenderTargetProxy*) override;

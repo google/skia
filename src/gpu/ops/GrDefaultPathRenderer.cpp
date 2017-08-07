@@ -566,6 +566,8 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
     GetPathDevBounds(path, renderTargetContext->width(), renderTargetContext->height(), viewMatrix,
                      &devBounds);
 
+    renderTargetContext->insertEventMarker("foo");
+
     for (int p = 0; p < passCount; ++p) {
         if (lastPassIsBounds && (p == passCount-1)) {
             SkRect bounds;
@@ -603,6 +605,9 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             renderTargetContext->addDrawOp(clip, std::move(op));
         }
     }
+
+    renderTargetContext->insertEventMarker("bar");
+
     return true;
 }
 
