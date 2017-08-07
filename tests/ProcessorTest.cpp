@@ -418,6 +418,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         // Increase the number of attempts if the FP has child FPs since optimizations likely depend
         // on child optimizations being present.
         sk_sp<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
+        printf("factory %s\n", fp->name());
         for (int j = 0; j < fp->numChildProcessors(); ++j) {
             // This value made a reasonable trade off between time and coverage when this test was
             // written.

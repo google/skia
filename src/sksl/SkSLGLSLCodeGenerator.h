@@ -94,9 +94,11 @@ protected:
 
     virtual void writeHeader();
 
-    virtual void writePrecisionModifier();
+    virtual bool usesPrecisionModifiers() const;
 
-    virtual void writeType(const Type& type);
+    virtual String getTypeName(const Type& type);
+
+    void writeType(const Type& type);
 
     void writeExtension(const Extension& ext);
 
