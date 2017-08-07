@@ -85,14 +85,6 @@ public:
         }
     }
 
-    ShadeProc asAShadeProc(void** ctx) override {
-        if (fState->getShaderProc32()) {
-            *ctx = fState;
-            return (ShadeProc)fState->getShaderProc32();
-        }
-        return nullptr;
-    }
-
 private:
     SkBitmapProcState*  fState;
 

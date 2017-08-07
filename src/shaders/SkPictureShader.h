@@ -59,7 +59,6 @@ private:
 
         uint32_t getFlags() const override;
 
-        ShadeProc asAShadeProc(void** ctx) override;
         void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
 
         sk_sp<SkShader>         fBitmapShader;

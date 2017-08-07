@@ -348,11 +348,6 @@ uint32_t SkPictureShader::PictureShaderContext::getFlags() const {
     return fBitmapShaderContext->getFlags();
 }
 
-SkShaderBase::Context::ShadeProc SkPictureShader::PictureShaderContext::asAShadeProc(void** ctx) {
-    SkASSERT(fBitmapShaderContext);
-    return fBitmapShaderContext->asAShadeProc(ctx);
-}
-
 void SkPictureShader::PictureShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     SkASSERT(fBitmapShaderContext);
     fBitmapShaderContext->shadeSpan(x, y, dstC, count);
