@@ -54,6 +54,10 @@ void GLSLCodeGenerator::writeExtension(const Extension& ext) {
     this->writeLine("#extension " + ext.fName + " : enable");
 }
 
+bool GLSLCodeGenerator::usesPrecisionModifiers() const {
+    return fProgram.fSettings.fCaps->usesPrecisionModifiers();
+}
+
 void GLSLCodeGenerator::writeType(const Type& type) {
     if (type.kind() == Type::kStruct_Kind) {
         for (const Type* search : fWrittenStructs) {
@@ -136,6 +140,10 @@ void GLSLCodeGenerator::writeType(const Type& type) {
                 }
                 else if (type == *fContext.fUShort_Type) {
                     this->write("uint");
+                }
+                else if (type == *fContext.fFloat_Type) {
+                    // FIXME: temporary, this goes away when highfloat is renamed back to float
+                    this->write("float");
                 }
                 else {
                     this->write(type.name());
@@ -364,16 +372,14 @@ void GLSLCodeGenerator::writeFragCoord() {
             // depending on the surrounding code, accessing .xy with a uniform involved can
             // do the same thing. Copying gl_FragCoord.xy into a temp float2beforehand
             // (and only accessing .xy) seems to "fix" things.
-            const char* precision = fProgram.fSettings.fCaps->usesPrecisionModifiers() ? "highp "
-                                                                                       : "";
+            const char* precision = usesPrecisionModifiers() ? "highp " : "";
             fHeader.writeText("uniform ");
             fHeader.writeText(precision);
             fHeader.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
             fSetupFragPositionGlobal = true;
         }
         if (!fSetupFragPositionLocal) {
-            const char* precision = fProgram.fSettings.fCaps->usesPrecisionModifiers() ? "highp "
-                                                                                       : "";
+            const char* precision = usesPrecisionModifiers() ? "highp " : "";
             fFunctionHeader += precision;
             fFunctionHeader += "    vec2 _sktmpCoord = gl_FragCoord.xy;\n";
             fFunctionHeader += precision;
@@ -649,7 +655,7 @@ void GLSLCodeGenerator::writeModifiers(const Modifiers& modifiers,
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
         this->write("const ");
     }
-    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
+    if (usesPrecisionModifiers()) {
         if (modifiers.fFlags & Modifiers::kLowp_Flag) {
             this->write("lowp ");
         }
@@ -700,7 +706,7 @@ void GLSLCodeGenerator::writeVarInitializer(const Variable& var, const Expressio
 }
 
 void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
-    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
+    if (usesPrecisionModifiers()) {
         switch (type.kind()) {
             case Type::kScalar_Kind:
                 if (type == *fContext.fHalf_Type || type == *fContext.fShort_Type ||
@@ -909,27 +915,6 @@ void GLSLCodeGenerator::writeHeader() {
     }
 }
 
-void GLSLCodeGenerator::writePrecisionModifier() {
-    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
-        this->write("precision ");
-        switch (fProgram.fDefaultPrecision) {
-            case Modifiers::kLowp_Flag:
-                this->write("lowp");
-                break;
-            case Modifiers::kMediump_Flag:
-                this->write("mediump");
-                break;
-            case Modifiers::kHighp_Flag:
-                this->write("highp");
-                break;
-            default:
-                ASSERT(false);
-                this->write("<error>");
-        }
-        this->writeLine(" float;");
-    }
-}
-
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.fKind) {
         case ProgramElement::kExtension_Kind:
@@ -945,7 +930,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
                 } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                            fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
                     this->write("out ");
-                    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
+                    if (usesPrecisionModifiers()) {
                         this->write("mediump ");
                     }
                     this->writeLine("vec4 sk_FragColor;");
@@ -976,7 +961,6 @@ bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
     StringStream body;
     fOut = &body;
-    this->writePrecisionModifier();
     for (const auto& e : fProgram.fElements) {
         this->writeProgramElement(*e);
     }

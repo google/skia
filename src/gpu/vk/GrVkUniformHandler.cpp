@@ -64,30 +64,42 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     so a float2x2 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     switch(type) {
+        case kShort_GrSLType: // fall through
         case kInt_GrSLType:
             return sizeof(int32_t);
+        case kUShort_GrSLType: // fall through
         case kUint_GrSLType:
             return sizeof(int32_t);
+        case kHalf_GrSLType: // fall through
         case kFloat_GrSLType:
             return sizeof(float);
-        case kVec2f_GrSLType:
+        case kHalf2_GrSLType: // fall through
+        case kFloat2_GrSLType:
             return 2 * sizeof(float);
-        case kVec3f_GrSLType:
+        case kHalf3_GrSLType: // fall through
+        case kFloat3_GrSLType:
             return 3 * sizeof(float);
-        case kVec4f_GrSLType:
+        case kHalf4_GrSLType: // fall through
+        case kFloat4_GrSLType:
             return 4 * sizeof(float);
-        case kVec2i_GrSLType:
+        case kShort2_GrSLType: // fall through
+        case kInt2_GrSLType:
             return 2 * sizeof(int32_t);
-        case kVec3i_GrSLType:
+        case kShort3_GrSLType: // fall through
+        case kInt3_GrSLType:
             return 3 * sizeof(int32_t);
-        case kVec4i_GrSLType:
+        case kShort4_GrSLType: // fall through
+        case kInt4_GrSLType:
             return 4 * sizeof(int32_t);
-        case kMat22f_GrSLType:
+        case kHalf2x2_GrSLType: // fall through
+        case kFloat2x2_GrSLType:
             //TODO: this will be 4 * szof(float) on std430.
             return 8 * sizeof(float);
-        case kMat33f_GrSLType:
+        case kHalf3x3_GrSLType: // fall through
+        case kFloat3x3_GrSLType:
             return 12 * sizeof(float);
-        case kMat44f_GrSLType:
+        case kHalf4x4_GrSLType: // fall through
+        case kFloat4x4_GrSLType:
             return 16 * sizeof(float);
 
         // This query is only valid for certain types.
@@ -118,7 +130,7 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
     // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
-    if (arrayCount || type == kMat22f_GrSLType) {
+    if (arrayCount || type == kFloat2x2_GrSLType) {
         alignmentMask = 0xF;
     }
     uint32_t offsetDiff = *currentOffset & alignmentMask;

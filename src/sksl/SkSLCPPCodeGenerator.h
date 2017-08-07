@@ -31,7 +31,7 @@ private:
 
     void writeHeader() override;
 
-    void writePrecisionModifier() override;
+    bool usesPrecisionModifiers() const override;
 
     void writeType(const Type& type) override;
 
