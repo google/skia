@@ -1955,6 +1955,13 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.reset();
     path.lineTo(100, 100);
     REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeXYWH(0, 0, 1, 1)));
+
+    // An empty path should not contain any rectangle. It's questionable whether an empty path
+    // contains an empty rectangle. However, since it is a conservative test it is ok to
+    // return false.
+    path.reset();
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(1,1)));
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(0,0)));
 }
 
 static void test_isRect_open_close(skiatest::Reporter* reporter) {
