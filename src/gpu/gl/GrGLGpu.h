@@ -178,6 +178,8 @@ public:
 
     void deleteSync(GrGLsync) const;
 
+    void insertEventMarker(const char*);
+
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
 
