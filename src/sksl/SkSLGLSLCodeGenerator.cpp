@@ -137,6 +137,10 @@ void GLSLCodeGenerator::writeType(const Type& type) {
                 else if (type == *fContext.fUShort_Type) {
                     this->write("uint");
                 }
+                else if (type == *fContext.fFloat_Type) {
+                    // FIXME: temporary, this goes away when highfloat is renamed back to float
+                    this->write("float");
+                }
                 else {
                     this->write(type.name());
                 }
@@ -909,27 +913,6 @@ void GLSLCodeGenerator::writeHeader() {
     }
 }
 
-void GLSLCodeGenerator::writePrecisionModifier() {
-    if (fProgram.fSettings.fCaps->usesPrecisionModifiers()) {
-        this->write("precision ");
-        switch (fProgram.fDefaultPrecision) {
-            case Modifiers::kLowp_Flag:
-                this->write("lowp");
-                break;
-            case Modifiers::kMediump_Flag:
-                this->write("mediump");
-                break;
-            case Modifiers::kHighp_Flag:
-                this->write("highp");
-                break;
-            default:
-                ASSERT(false);
-                this->write("<error>");
-        }
-        this->writeLine(" float;");
-    }
-}
-
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.fKind) {
         case ProgramElement::kExtension_Kind:
@@ -976,7 +959,6 @@ bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
     StringStream body;
     fOut = &body;
-    this->writePrecisionModifier();
     for (const auto& e : fProgram.fElements) {
         this->writeProgramElement(*e);
     }

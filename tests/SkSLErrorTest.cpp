@@ -240,7 +240,7 @@ DEF_TEST(SkSLDuplicateSymbol, r) {
 
 DEF_TEST(SkSLBinaryTypeMismatch, r) {
     test_failure(r,
-                 "void main() { float x = 3 * true; }",
+                 "void main() { highfloat x = 3 * true; }",
                  "error: 1: type mismatch: '*' cannot operate on 'int', 'bool'\n1 error\n");
     test_failure(r,
                  "void main() { bool x = 1 || 2.0; }",
@@ -249,23 +249,23 @@ DEF_TEST(SkSLBinaryTypeMismatch, r) {
 
 DEF_TEST(SkSLCallNonFunction, r) {
     test_failure(r,
-                 "void main() { float x = 3; x(); }",
+                 "void main() { highfloat x = 3; x(); }",
                  "error: 1: 'x' is not a function\n1 error\n");
 }
 
 DEF_TEST(SkSLInvalidUnary, r) {
     test_failure(r,
-                 "void main() { float4x4 x = float4x4(1); ++x; }",
-                 "error: 1: '++' cannot operate on 'float4x4'\n1 error\n");
+                 "void main() { highfloat4x4 x = highfloat4x4(1); ++x; }",
+                 "error: 1: '++' cannot operate on 'highfloat4x4'\n1 error\n");
     test_failure(r,
-                 "void main() { float3 x = float3(1); --x; }",
-                 "error: 1: '--' cannot operate on 'float3'\n1 error\n");
+                 "void main() { highfloat3 x = highfloat3(1); --x; }",
+                 "error: 1: '--' cannot operate on 'highfloat3'\n1 error\n");
     test_failure(r,
-                 "void main() { float4x4 x = float4x4(1); x++; }",
-                 "error: 1: '++' cannot operate on 'float4x4'\n1 error\n");
+                 "void main() { highfloat4x4 x = highfloat4x4(1); x++; }",
+                 "error: 1: '++' cannot operate on 'highfloat4x4'\n1 error\n");
     test_failure(r,
-                 "void main() { float3 x = float3(1); x--; }",
-                 "error: 1: '--' cannot operate on 'float3'\n1 error\n");
+                 "void main() { highfloat3 x = highfloat3(1); x--; }",
+                 "error: 1: '--' cannot operate on 'highfloat3'\n1 error\n");
     test_failure(r,
                  "void main() { int x = !12; }",
                  "error: 1: '!' cannot operate on 'int'\n1 error\n");
@@ -276,7 +276,7 @@ DEF_TEST(SkSLInvalidUnary, r) {
                  "struct foo { } bar; void main() { foo x = -bar; }",
                  "error: 1: '-' cannot operate on 'foo'\n1 error\n");
     test_success(r,
-                 "void main() { float2 x = float2(1, 1); x = +x; x = -x; }");
+                 "void main() { highfloat2 x = highfloat2(1, 1); x = +x; x = -x; }");
 }
 
 DEF_TEST(SkSLInvalidAssignment, r) {
@@ -296,7 +296,7 @@ DEF_TEST(SkSLBadIndex, r) {
                  "void main() { int x = 2[0]; }",
                  "error: 1: expected array, but found 'int'\n1 error\n");
     test_failure(r,
-                 "void main() { float2 x = float2(0); int y = x[0][0]; }",
+                 "void main() { highfloat2 x = highfloat2(0); int y = x[0][0]; }",
                  "error: 1: expected array, but found 'float'\n1 error\n");
 }
 
@@ -305,8 +305,8 @@ DEF_TEST(SkSLTernaryMismatch, r) {
                  "void main() { int x = 5 > 2 ? true : 1.0; }",
                  "error: 1: ternary operator result mismatch: 'bool', 'float'\n1 error\n");
     test_failure(r,
-                 "void main() { int x = 5 > 2 ? float3(1) : 1.0; }",
-                 "error: 1: ternary operator result mismatch: 'float3', 'float'\n1 error\n");
+                 "void main() { int x = 5 > 2 ? highfloat3(1) : 1.0; }",
+                 "error: 1: ternary operator result mismatch: 'highfloat3', 'float'\n1 error\n");
 }
 
 DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
@@ -415,19 +415,19 @@ DEF_TEST(SkSLDivByZero, r) {
 
 DEF_TEST(SkSLUnsupportedGLSLIdentifiers, r) {
     test_failure(r,
-                 "void main() { float x = gl_FragCoord.x; };",
+                 "void main() { highfloat x = gl_FragCoord.x; };",
                  "error: 1: unknown identifier 'gl_FragCoord'\n1 error\n");
     test_failure(r,
-                 "void main() { float r = gl_FragColor.r; };",
+                 "void main() { highfloat r = gl_FragColor.r; };",
                  "error: 1: unknown identifier 'gl_FragColor'\n1 error\n");
 }
 
 DEF_TEST(SkSLWrongSwitchTypes, r) {
     test_failure(r,
-                 "void main() { switch (float2(1)) { case 1: break; } }",
+                 "void main() { switch (highfloat2(1)) { case 1: break; } }",
                  "error: 1: expected 'int', but found 'float2'\n1 error\n");
     test_failure(r,
-                 "void main() { switch (1) { case float2(1): break; } }",
+                 "void main() { switch (1) { case highfloat2(1): break; } }",
                  "error: 1: expected 'int', but found 'float2'\n1 error\n");
 }
 
@@ -445,18 +445,18 @@ DEF_TEST(SkSLDuplicateCase, r) {
 
 DEF_TEST(SkSLFieldAfterRuntimeArray, r) {
     test_failure(r,
-                 "buffer broken { float x[]; float y; };",
+                 "buffer broken { highfloat x[]; highfloat y; };",
                  "error: 1: only the last entry in an interface block may be a runtime-sized "
                  "array\n1 error\n");
 }
 
 DEF_TEST(SkSLStaticIf, r) {
     test_success(r,
-                 "void main() { float x = 5; float y = 10;"
-                 "@if (x < y) { sk_FragColor = float4(1); } }");
+                 "void main() { highfloat x = 5; highfloat y = 10;"
+                 "@if (x < y) { sk_FragColor = highfloat4(1); } }");
     test_failure(r,
-                 "void main() { float x = sqrt(25); float y = 10;"
-                 "@if (x < y) { sk_FragColor = float4(1); } }",
+                 "void main() { highfloat x = sqrt(25); highfloat y = 10;"
+                 "@if (x < y) { sk_FragColor = highfloat4(1); } }",
                  "error: 1: static if has non-static test\n1 error\n");
 }
 
@@ -465,16 +465,16 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = float4(1); break;"
-                 "default: sk_FragColor = float4(0);"
+                 "case 1: sk_FragColor = highfloat4(1); break;"
+                 "default: sk_FragColor = highfloat4(0);"
                  "}"
                  "}");
     test_failure(r,
                  "void main() {"
                  "int x = int(sqrt(1));"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = float4(1); break;"
-                 "default: sk_FragColor = float4(0);"
+                 "case 1: sk_FragColor = highfloat4(1); break;"
+                 "default: sk_FragColor = highfloat4(0);"
                  "}"
                  "}",
                  "error: 1: static switch has non-static test\n1 error\n");
@@ -482,8 +482,8 @@ DEF_TEST(SkSLStaticSwitch, r) {
                  "void main() {"
                  "int x = 1;"
                  "@switch (x) {"
-                 "case 1: sk_FragColor = float4(1); if (sqrt(0) < sqrt(1)) break;"
-                 "default: sk_FragColor = float4(0);"
+                 "case 1: sk_FragColor = highfloat4(1); if (sqrt(0) < sqrt(1)) break;"
+                 "default: sk_FragColor = highfloat4(0);"
                  "}"
                  "}",
                  "error: 1: static switch contains non-static conditional break\n1 error\n");
