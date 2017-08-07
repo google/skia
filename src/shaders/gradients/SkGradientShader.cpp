@@ -1347,13 +1347,11 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorType(
         }
     }
 
-    if (SkShader::kClamp_TileMode == shader.getTileMode()) {
-        if (2 == shader.fColorCount) {
-            return kTwo_ColorType;
-        } else if (3 == shader.fColorCount &&
-                   close_to_one_half(shader.getRecs()[1].fPos)) {
-            return kThree_ColorType;
-        }
+    if (2 == shader.fColorCount) {
+        return kTwo_ColorType;
+    } else if (3 == shader.fColorCount &&
+               close_to_one_half(shader.getRecs()[1].fPos)) {
+        return kThree_ColorType;
     }
 
     return kTexture_ColorType;
@@ -1546,6 +1544,31 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
     return key;
 }
 
+static void emit_clamp_t(GrGLSLFPFragmentBuilder* fragBuilder,
+                           const char* t,
+                           SkShader::TileMode tileMode) {
+    switch (tileMode) {
+    case SkShader::kClamp_TileMode:
+        fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
+        break;
+    case SkShader::kRepeat_TileMode:
+        fragBuilder->codeAppendf("float clamp_t = fract(%s);", t);
+        break;
+    case SkShader::kMirror_TileMode:
+        fragBuilder->codeAppendf("float clamp_t = %s;", t);
+        // TODO: Is this conditional really useful?  Since the client requested kMirror,
+        // t is likely outside [0,1] most of the time so we might as well always fall through.
+        fragBuilder->codeAppendf("if (%s < 0.0 || %s > 1.0) {", t, t);
+        fragBuilder->codeAppendf("    if (mod(floor(%s), 2.0) == 0.0) {", t);
+        fragBuilder->codeAppendf("        clamp_t = fract(%s);", t);
+        fragBuilder->codeAppendf("    } else {");
+        fragBuilder->codeAppendf("        clamp_t = 1.0 - fract(%s);", t);
+        fragBuilder->codeAppendf("    }");
+        fragBuilder->codeAppendf("}");
+        break;
+    }
+}
+
 void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBuilder,
                                                 GrGLSLUniformHandler* uniformHandler,
                                                 const GrShaderCaps* shaderCaps,
@@ -1560,20 +1583,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
             const char* stopT = uniformHandler->getUniformCStr(fHardStopT);
 
-            fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
-
-            // Account for tile mode
-            if (SkShader::kRepeat_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("clamp_t = fract(%s);", t);
-            } else if (SkShader::kMirror_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("if (%s < 0.0 || %s > 1.0) {", t, t);
-                fragBuilder->codeAppendf("    if (mod(floor(%s), 2.0) == 0.0) {", t);
-                fragBuilder->codeAppendf("        clamp_t = fract(%s);", t);
-                fragBuilder->codeAppendf("    } else {");
-                fragBuilder->codeAppendf("        clamp_t = 1.0 - fract(%s);", t);
-                fragBuilder->codeAppendf("    }");
-                fragBuilder->codeAppendf("}");
-            }
+            emit_clamp_t(fragBuilder, t, ge.fTileMode);
 
             // Calculate color
             fragBuilder->codeAppend ("float4 start, end;");
@@ -1604,20 +1614,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
-            fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
-
-            // Account for tile mode
-            if (SkShader::kRepeat_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("clamp_t = fract(%s);", t);
-            } else if (SkShader::kMirror_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("if (%s < 0.0 || %s > 1.0) {", t, t);
-                fragBuilder->codeAppendf("    if (mod(floor(%s), 2.0) == 0.0) {", t);
-                fragBuilder->codeAppendf("        clamp_t = fract(%s);", t);
-                fragBuilder->codeAppendf("    } else {");
-                fragBuilder->codeAppendf("        clamp_t = 1.0 - fract(%s);", t);
-                fragBuilder->codeAppendf("    }");
-                fragBuilder->codeAppendf("}");
-            }
+            emit_clamp_t(fragBuilder, t, ge.fTileMode);
 
             fragBuilder->codeAppendf("float4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
                                      colors);
@@ -1642,20 +1639,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
-            fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
-
-            // Account for tile mode
-            if (SkShader::kRepeat_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("clamp_t = fract(%s);", t);
-            } else if (SkShader::kMirror_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("if (%s < 0.0 || %s > 1.0) {", t, t);
-                fragBuilder->codeAppendf("    if (mod(floor(%s), 2.0) == 0.0) {", t);
-                fragBuilder->codeAppendf("        clamp_t = fract(%s);", t);
-                fragBuilder->codeAppendf("    } else {");
-                fragBuilder->codeAppendf("        clamp_t = 1.0 - fract(%s);", t);
-                fragBuilder->codeAppendf("    }");
-                fragBuilder->codeAppendf("}");
-            }
+            emit_clamp_t(fragBuilder, t, ge.fTileMode);
 
             fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
                                      colors);
@@ -1680,8 +1664,10 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp(%s, 0.0, 1.0));",
-                                     colors, colors, t);
+            emit_clamp_t(fragBuilder, t, ge.fTileMode);
+
+            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);",
+                                     colors, colors);
 
             // We could skip this step if both colors are known to be opaque. Two
             // considerations:
@@ -1705,7 +1691,9 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             const char* t      = gradientTValue;
             const char* colors = uniformHandler->getUniformCStr(fColorsUni);
 
-            fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * %s);", t);
+            emit_clamp_t(fragBuilder, t, ge.fTileMode);
+
+            fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * clamp_t);");
             fragBuilder->codeAppendf("float4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
             if (!shaderCaps->canUseMinAndAbsTogether()) {
