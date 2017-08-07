@@ -47,7 +47,7 @@ function onStartup()
     local paint = Sk.newPaint();
     paint:setColor{a=1, r=1, g=0, b=0};
     if false then
-        local doc = Sk.newDocumentPDF('/skia/trunk/test.pdf');
+        local doc = Sk.newDocumentPDF('out/test.pdf');
         local canvas = doc:beginPage(72*8.5, 72*11);
         canvas:drawText('Hello Lua', 300, 300, paint);
         doc:close();
