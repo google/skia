@@ -621,6 +621,11 @@ template <bool apply_alpha> void ramp(SkPMColor dstC[], int n, const Sk4f& c, co
     }
 }
 
+static inline uint32_t clamped_advance(float advance) {
+    SkASSERT(advance >= 0);
+    return sk_float_floor2int(SkTMin<float>(advance, std::numeric_limits<int>::max() - 1)) + 1;
+}
+
 template <bool apply_alpha, bool dx_is_pos>
 void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], int count,
                                                               float fx, float dx, float invDx,
@@ -636,8 +641,7 @@ void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], 
         if (fx < 0) {
             // count is guaranteed to be positive, but the first arg may overflow int32 after
             // increment => casting to uint32 ensures correct clamping.
-            int n = SkTMin<uint32_t>(static_cast<uint32_t>(sk_float_floor2int(-fx * invDx)) + 1,
-                                     count);
+            int n = SkTMin<uint32_t>(clamped_advance(-fx * invDx), count);
             SkASSERT(n > 0);
             fill<apply_alpha>(dstC, n, rec[0].fColor);
             count -= n;
@@ -652,8 +656,7 @@ void SkLinearGradient::LinearGradientContext::shade4_dx_clamp(SkPMColor dstC[], 
         if (fx > 1) {
             // count is guaranteed to be positive, but the first arg may overflow int32 after
             // increment => casting to uint32 ensures correct clamping.
-            int n = SkTMin<uint32_t>(static_cast<uint32_t>(sk_float_floor2int((1 - fx) * invDx)) + 1,
-                                     count);
+            int n = SkTMin<uint32_t>(clamped_advance((1 - fx) * invDx), count);
             SkASSERT(n > 0);
             fill<apply_alpha>(dstC, n, rec[fRecs.count() - 1].fColor);
             count -= n;
