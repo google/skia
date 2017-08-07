@@ -195,6 +195,11 @@ public:
     }
 
     bool isRasterPipelineOnly() const {
+#ifndef SK_SUPPORT_LEGACY_ROTATED_SHADERS
+        if (!fLocalMatrix.isScaleTranslate()) {
+            return true;
+        }
+#endif
         // We always use RP when perspective is present.
         return fLocalMatrix.hasPerspective() || this->onIsRasterPipelineOnly();
     }
