@@ -98,13 +98,6 @@ public:
 
         virtual void shadeSpan4f(int x, int y, SkPM4f[], int count);
 
-        /**
-         * The const void* ctx is only const because all the implementations are const.
-         * This can be changed to non-const if a new shade proc needs to change the ctx.
-         */
-        typedef void (*ShadeProc)(const void* ctx, int x, int y, SkPMColor[], int count);
-        virtual ShadeProc asAShadeProc(void** ctx);
-
         // Notification from blitter::blitMask in case we need to see the non-alpha channels
         virtual void set3DMask(const SkMask*) {}
 

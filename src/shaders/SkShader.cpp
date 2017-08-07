@@ -131,10 +131,6 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 
 SkShaderBase::Context::~Context() {}
 
-SkShaderBase::Context::ShadeProc SkShaderBase::Context::asAShadeProc(void** ctx) {
-    return nullptr;
-}
-
 void SkShaderBase::Context::shadeSpan4f(int x, int y, SkPM4f dst[], int count) {
     const int N = 128;
     SkPMColor tmp[N];
