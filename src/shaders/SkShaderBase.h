@@ -105,13 +105,6 @@ public:
         typedef void (*ShadeProc)(const void* ctx, int x, int y, SkPMColor[], int count);
         virtual ShadeProc asAShadeProc(void** ctx);
 
-        /**
-         *  Similar to shadeSpan, but only returns the alpha-channel for a span.
-         *  The default implementation calls shadeSpan() and then extracts the alpha
-         *  values from the returned colors.
-         */
-        virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
-
         // Notification from blitter::blitMask in case we need to see the non-alpha channels
         virtual void set3DMask(const SkMask*) {}
 
