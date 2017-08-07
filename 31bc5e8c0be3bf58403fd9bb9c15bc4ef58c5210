@@ -46,6 +46,30 @@
       "revId": "31bc5e8c0be3bf58403fd9bb9c15bc4ef58c5210",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1bd45b09_d4cb136b",
+        "filename": "infra/bots/recipes/ct_skps.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-08-07T18:15:10Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "16e95e27_0ba20c41",
+      "range": {
+        "startLine": 124,
+        "startChar": 41,
+        "endLine": 124,
+        "endChar": 53
+      },
+      "revId": "31bc5e8c0be3bf58403fd9bb9c15bc4ef58c5210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
