@@ -275,8 +275,8 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
     SkPath::Iter iter(*this, true);
     SkPath::Verb verb;
     SkPoint pts[4];
+    int segmentCount = 0;
     SkDEBUGCODE(int moveCnt = 0;)
-    SkDEBUGCODE(int segmentCount = 0;)
     SkDEBUGCODE(int closeCount = 0;)
 
     while ((verb = iter.next(pts, true, true)) != kDone_Verb) {
@@ -290,17 +290,17 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
             case kLine_Verb:
                 nextPt = 1;
                 SkASSERT(moveCnt && !closeCount);
-                SkDEBUGCODE(++segmentCount);
+                ++segmentCount;
                 break;
             case kQuad_Verb:
             case kConic_Verb:
                 SkASSERT(moveCnt && !closeCount);
-                SkDEBUGCODE(++segmentCount);
+                ++segmentCount;
                 nextPt = 2;
                 break;
             case kCubic_Verb:
                 SkASSERT(moveCnt && !closeCount);
-                SkDEBUGCODE(++segmentCount);
+                ++segmentCount;
                 nextPt = 3;
                 break;
             case kClose_Verb:
@@ -332,7 +332,10 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
         }
     }
 
-    return check_edge_against_rect(prevPt, firstPt, rect, direction);
+    if (segmentCount) {
+        return check_edge_against_rect(prevPt, firstPt, rect, direction);
+    }
+    return false;
 }
 
 uint32_t SkPath::getGenerationID() const {
