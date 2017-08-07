@@ -33,7 +33,7 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
 
 SkPathRef::~SkPathRef() {
     this->callGenIDChangeListeners();
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     sk_free(fPoints);
 
     SkDEBUGCODE(fPoints = nullptr;)
@@ -114,12 +114,12 @@ static void transform_dir_and_start(const SkMatrix& matrix, bool isRRect, bool* 
 void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
                                       const SkPathRef& src,
                                       const SkMatrix& matrix) {
-    SkDEBUGCODE(src.validate();)
+    SkASSERT(src.isValid());
     if (matrix.isIdentity()) {
         if (dst->get() != &src) {
             src.ref();
             dst->reset(const_cast<SkPathRef*>(&src));
-            SkDEBUGCODE((*dst)->validate();)
+            SkASSERT((*dst)->isValid());
         }
         return;
     }
@@ -183,7 +183,7 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
         (*dst)->fRRectOrOvalStartIdx = start;
     }
 
-    SkDEBUGCODE((*dst)->validate();)
+    SkASSERT((*dst)->isValid());
 }
 
 // Given the verb array, deduce the required number of pts and conics,
@@ -310,7 +310,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
 
 void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
     if ((*pathRef)->unique()) {
-        SkDEBUGCODE((*pathRef)->validate();)
+        SkASSERT((*pathRef)->isValid());
         (*pathRef)->callGenIDChangeListeners();
         (*pathRef)->fBoundsIsDirty = true;  // this also invalidates fIsFinite
         (*pathRef)->fVerbCnt = 0;
@@ -321,7 +321,7 @@ void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
         (*pathRef)->fSegmentMask = 0;
         (*pathRef)->fIsOval = false;
         (*pathRef)->fIsRRect = false;
-        SkDEBUGCODE((*pathRef)->validate();)
+        SkASSERT((*pathRef)->isValid());
     } else {
         int oldVCnt = (*pathRef)->countVerbs();
         int oldPCnt = (*pathRef)->countPoints();
@@ -331,8 +331,8 @@ void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
 }
 
 bool SkPathRef::operator== (const SkPathRef& ref) const {
-    SkDEBUGCODE(this->validate();)
-    SkDEBUGCODE(ref.validate();)
+    SkASSERT(this->isValid());
+    SkASSERT(ref.isValid());
 
     // We explicitly check fSegmentMask as a quick-reject. We could skip it,
     // since it is only a cache of info in the fVerbs, but its a fast way to
@@ -378,7 +378,7 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
 }
 
 void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     SkDEBUGCODE(size_t beforePos = buffer->pos();)
 
     // Call getBounds() to ensure (as a side-effect) that fBounds
@@ -418,7 +418,7 @@ uint32_t SkPathRef::writeSize() const {
 void SkPathRef::copy(const SkPathRef& ref,
                      int additionalReserveVerbs,
                      int additionalReservePoints) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     this->resetToSize(ref.fVerbCnt, ref.fPointCnt, ref.fConicWeights.count(),
                         additionalReserveVerbs, additionalReservePoints);
     sk_careful_memcpy(this->verbsMemWritable(), ref.verbsMemBegin(), ref.fVerbCnt*sizeof(uint8_t));
@@ -434,7 +434,7 @@ void SkPathRef::copy(const SkPathRef& ref,
     fIsRRect = ref.fIsRRect;
     fRRectOrOvalIsCCW = ref.fRRectOrOvalIsCCW;
     fRRectOrOvalStartIdx = ref.fRRectOrOvalStartIdx;
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 }
 
 
@@ -458,7 +458,7 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
     // future this will appear to have been a fluke...
     static const unsigned int kMIN_COUNT_FOR_MEMSET_TO_BE_FAST = 16;
 
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     int pCnt;
     bool dirtyAfterEdit = true;
     switch (verb) {
@@ -526,12 +526,12 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
         *weights = fConicWeights.append(numVbs);
     }
 
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     return ret;
 }
 
 SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     int pCnt;
     bool dirtyAfterEdit = true;
     switch (verb) {
@@ -584,7 +584,7 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
         *fConicWeights.append() = weight;
     }
 
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     return ret;
 }
 
@@ -746,24 +746,35 @@ uint8_t SkPathRef::Iter::peek() const {
 
 #include "SkNx.h"
 
-void SkPathRef::validate() const {
-    SkASSERT(static_cast<ptrdiff_t>(fFreeSpace) >= 0);
-    SkASSERT(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) >= 0);
-    SkASSERT((nullptr == fPoints) == (nullptr == fVerbs));
-    SkASSERT(!(nullptr == fPoints && 0 != fFreeSpace));
-    SkASSERT(!(nullptr == fPoints && 0 != fFreeSpace));
-    SkASSERT(!(nullptr == fPoints && fPointCnt));
-    SkASSERT(!(nullptr == fVerbs && fVerbCnt));
-    SkASSERT(this->currSize() ==
-                fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt);
+bool SkPathRef::isValid() const {
+    if (static_cast<ptrdiff_t>(fFreeSpace) < 0)
+        return false;
+    if (reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) < 0)
+        return false;
+    if ((nullptr == fPoints) != (nullptr == fVerbs))
+        return false;
+    if (nullptr == fPoints && 0 != fFreeSpace)
+        return false;
+    if (nullptr == fPoints && 0 != fFreeSpace)
+        return false;
+    if (nullptr == fPoints && fPointCnt)
+        return false;
+    if (nullptr == fVerbs && fVerbCnt)
+        return false;
+    if (this->currSize() !=
+                fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt)
+        return false;
 
     if (fIsOval || fIsRRect) {
         // Currently we don't allow both of these to be set, even though ovals are round rects.
-        SkASSERT(fIsOval != fIsRRect);
+        if (fIsOval == fIsRRect)
+            return false;
         if (fIsOval) {
-            SkASSERT(fRRectOrOvalStartIdx < 4);
+            if (fRRectOrOvalStartIdx >= 4)
+                return false;
         } else {
-            SkASSERT(fRRectOrOvalStartIdx < 8);
+            if (fRRectOrOvalStartIdx >= 8)
+                return false;
         }
     }
 
@@ -787,13 +798,14 @@ void SkPathRef::validate() const {
             }
 #endif
 
-            SkASSERT(!fPoints[i].isFinite() ||
-                    (!(point < leftTop).anyTrue() && !(point > rightBot).anyTrue()));
+            if (fPoints[i].isFinite() && (point < leftTop).anyTrue() && !(point > rightBot).anyTrue())
+                return false;
             if (!fPoints[i].isFinite()) {
                 isFinite = false;
             }
         }
-        SkASSERT(SkToBool(fIsFinite) == isFinite);
+        if (SkToBool(fIsFinite) != isFinite)
+            return false;
     }
 
 #ifdef SK_DEBUG_PATH
@@ -824,7 +836,9 @@ void SkPathRef::validate() const {
                 break;
         }
     }
-    SkASSERT(mask == fSegmentMask);
+    if (mask != fSegmentMask)
+        return false;
 #endif // SK_DEBUG_PATH
+    return true;
 }
 #endif

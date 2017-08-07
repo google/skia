@@ -70,7 +70,7 @@ public:
          * 'weight' is only used if 'verb' is kConic_Verb
          */
         SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight = 0) {
-            SkDEBUGCODE(fPathRef->validate();)
+            SkASSERT(fPathRef->isValid());
             return fPathRef->growForVerb(verb, weight);
         }
 
@@ -244,14 +244,14 @@ public:
     static void Rewind(sk_sp<SkPathRef>* pathRef);
 
     ~SkPathRef();
-    int countPoints() const { SkDEBUGCODE(this->validate();) return fPointCnt; }
-    int countVerbs() const { SkDEBUGCODE(this->validate();) return fVerbCnt; }
-    int countWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.count(); }
+    int countPoints() const { SkASSERT(this->isValid()); return fPointCnt; }
+    int countVerbs() const { SkASSERT(this->isValid()); return fVerbCnt; }
+    int countWeights() const { SkASSERT(this->isValid()); return fConicWeights.count(); }
 
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
      */
-    const uint8_t* verbs() const { SkDEBUGCODE(this->validate();) return fVerbs; }
+    const uint8_t* verbs() const { SkASSERT(this->isValid()); return fVerbs; }
 
     /**
      * Returns a const pointer to the first verb in memory (which is the last logical verb).
@@ -261,15 +261,15 @@ public:
     /**
      * Returns a const pointer to the first point.
      */
-    const SkPoint* points() const { SkDEBUGCODE(this->validate();) return fPoints; }
+    const SkPoint* points() const { SkASSERT(this->isValid()); return fPoints; }
 
     /**
      * Shortcut for this->points() + this->countPoints()
      */
     const SkPoint* pointsEnd() const { return this->points() + this->countPoints(); }
 
-    const SkScalar* conicWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.begin(); }
-    const SkScalar* conicWeightsEnd() const { SkDEBUGCODE(this->validate();) return fConicWeights.end(); }
+    const SkScalar* conicWeights() const { SkASSERT(this->isValid()); return fConicWeights.begin(); }
+    const SkScalar* conicWeightsEnd() const { SkASSERT(this->isValid()); return fConicWeights.end(); }
 
     /**
      * Convenience methods for getting to a verb or point by index.
@@ -311,7 +311,7 @@ public:
 
     void addGenIDChangeListener(GenIDChangeListener* listener);
 
-    SkDEBUGCODE(void validate() const;)
+    bool isValid() const;
 
 private:
     enum SerializationOffsets {
@@ -338,7 +338,7 @@ private:
         fRRectOrOvalIsCCW = false;
         fRRectOrOvalStartIdx = 0xAC;
         SkDEBUGCODE(fEditorsAttached = 0;)
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints);
@@ -350,7 +350,7 @@ private:
 
     // called, if dirty, by getBounds()
     void computeBounds() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         // TODO(mtklein): remove fBoundsIsDirty and fIsFinite,
         // using an inverted rect instead of fBoundsIsDirty and always recalculating fIsFinite.
         SkASSERT(fBoundsIsDirty);
@@ -368,17 +368,17 @@ private:
 
     /** Makes additional room but does not change the counts or change the genID */
     void incReserve(int additionalVerbs, int additionalPoints) {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         size_t space = additionalVerbs * sizeof(uint8_t) + additionalPoints * sizeof (SkPoint);
         this->makeSpace(space);
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
     void resetToSize(int verbCount, int pointCount, int conicCount,
                      int reserveVerbs = 0, int reservePoints = 0) {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         fBoundsIsDirty = true;      // this also invalidates fIsFinite
         fGenerationID = 0;
 
@@ -409,7 +409,7 @@ private:
             fFreeSpace = this->currSize() - minSize;
         }
         fConicWeights.setCount(conicCount);
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /**
@@ -432,7 +432,7 @@ private:
      * are not changed.
      */
     void makeSpace(size_t size) {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         if (size <= fFreeSpace) {
             return;
         }
@@ -463,14 +463,14 @@ private:
         memmove(newVerbsDst, oldVerbsSrc, oldVerbSize);
         fVerbs = SkTAddOffset<uint8_t>(fPoints, newSize);
         fFreeSpace += growSize;
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
     }
 
     /**
      * Private, non-const-ptr version of the public function verbsMemBegin().
      */
     uint8_t* verbsMemWritable() {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return fVerbs - fVerbCnt;
     }
 
@@ -500,14 +500,14 @@ private:
 
     // called only by the editor. Note that this is not a const function.
     SkPoint* getPoints() {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         fIsOval = false;
         fIsRRect = false;
         return fPoints;
     }
 
     const SkPoint* getPoints() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return fPoints;
     }
 

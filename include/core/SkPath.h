@@ -231,7 +231,7 @@ public:
         @return true if the path is empty (contains no lines or curves)
     */
     bool isEmpty() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return 0 == fPathRef->countVerbs();
     }
 
@@ -244,7 +244,7 @@ public:
      *  are no infinities and no NaNs.
      */
     bool isFinite() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return fPathRef->isFinite();
     }
 
@@ -1119,8 +1119,8 @@ public:
     static const int kPathRefGenIDBitCnt = 32;
 #endif
 
-    SkDEBUGCODE(void validate() const;)
-    SkDEBUGCODE(void experimentalValidateRef() const { fPathRef->validate(); } )
+    bool isValid() const;
+    SkDEBUGCODE(void experimentalValidateRef() const { SkASSERT(fPathRef->isValid()); } )
 
 private:
     enum SerializationOffsets {
@@ -1191,7 +1191,7 @@ private:
         perform some computation (false).
      */
     bool hasComputedBounds() const {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
         return fPathRef->hasComputedBounds();
     }
 

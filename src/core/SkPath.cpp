@@ -153,21 +153,21 @@ void SkPath::resetFields() {
 SkPath::SkPath(const SkPath& that)
     : fPathRef(SkRef(that.fPathRef.get())) {
     this->copyFields(that);
-    SkDEBUGCODE(that.validate();)
+    SkASSERT(that.isValid());
 }
 
 SkPath::~SkPath() {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 }
 
 SkPath& SkPath::operator=(const SkPath& that) {
-    SkDEBUGCODE(that.validate();)
+    SkASSERT(that.isValid());
 
     if (this != &that) {
         fPathRef.reset(SkRef(that.fPathRef.get()));
         this->copyFields(that);
     }
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     return *this;
 }
 
@@ -345,14 +345,14 @@ uint32_t SkPath::getGenerationID() const {
 }
 
 void SkPath::reset() {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     fPathRef.reset(SkPathRef::CreateEmpty());
     this->resetFields();
 }
 
 void SkPath::rewind() {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     SkPathRef::Rewind(&fPathRef);
     this->resetFields();
@@ -559,7 +559,7 @@ addMissingClose:
 }
 
 bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
     const SkPoint* first = pts;
@@ -579,7 +579,7 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
 }
 
 bool SkPath::isNestedFillRects(SkRect rects[2], Direction dirs[2]) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     int currVerb = 0;
     const SkPoint* pts = fPathRef->points();
     const SkPoint* first = pts;
@@ -627,7 +627,7 @@ int SkPath::countPoints() const {
 }
 
 int SkPath::getPoints(SkPoint dst[], int max) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     SkASSERT(max >= 0);
     SkASSERT(!max || dst);
@@ -656,7 +656,7 @@ static inline void copy_verbs_reverse(uint8_t* inorderDst,
 }
 
 int SkPath::getVerbs(uint8_t dst[], int max) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     SkASSERT(max >= 0);
     SkASSERT(!max || dst);
@@ -666,7 +666,7 @@ int SkPath::getVerbs(uint8_t dst[], int max) const {
 }
 
 bool SkPath::getLastPt(SkPoint* lastPt) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     int count = fPathRef->countPoints();
     if (count > 0) {
@@ -682,7 +682,7 @@ bool SkPath::getLastPt(SkPoint* lastPt) const {
 }
 
 void SkPath::setPt(int index, SkScalar x, SkScalar y) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     int count = fPathRef->countPoints();
     if (count <= index) {
@@ -694,7 +694,7 @@ void SkPath::setPt(int index, SkScalar x, SkScalar y) {
 }
 
 void SkPath::setLastPt(SkScalar x, SkScalar y) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     int count = fPathRef->countPoints();
     if (count == 0) {
@@ -721,13 +721,13 @@ void SkPath::setConvexity(Convexity c) {
     } while (0)
 
 void SkPath::incReserve(U16CPU inc) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     SkPathRef::Editor(&fPathRef, inc, inc);
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 }
 
 void SkPath::moveTo(SkScalar x, SkScalar y) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     SkPathRef::Editor ed(&fPathRef);
 
@@ -760,7 +760,7 @@ void SkPath::injectMoveToIfNeeded() {
 }
 
 void SkPath::lineTo(SkScalar x, SkScalar y) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     this->injectMoveToIfNeeded();
 
@@ -778,7 +778,7 @@ void SkPath::rLineTo(SkScalar x, SkScalar y) {
 }
 
 void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     this->injectMoveToIfNeeded();
 
@@ -808,7 +808,7 @@ void SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     } else if (SK_Scalar1 == w) {
         this->quadTo(x1, y1, x2, y2);
     } else {
-        SkDEBUGCODE(this->validate();)
+        SkASSERT(this->isValid());
 
         this->injectMoveToIfNeeded();
 
@@ -831,7 +831,7 @@ void SkPath::rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2,
 
 void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                      SkScalar x3, SkScalar y3) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     this->injectMoveToIfNeeded();
 
@@ -854,7 +854,7 @@ void SkPath::rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
 }
 
 void SkPath::close() {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     int count = fPathRef->countVerbs();
     if (count > 0) {
@@ -1004,7 +1004,7 @@ void SkPath::addRect(const SkRect &rect, Direction dir, unsigned startIndex) {
 }
 
 void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     if (count <= 0) {
         return;
     }
@@ -1026,7 +1026,7 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     }
 
     DIRTY_AFTER_EDIT;
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 }
 
 #include "SkGeometry.h"
@@ -1175,7 +1175,7 @@ void SkPath::addRRect(const SkRRect &rrect, Direction dir, unsigned startIndex) 
             SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
         }
 
-        SkDEBUGCODE(fPathRef->validate();)
+        SkASSERT(fPathRef->isValid());
 }
 
 bool SkPath::hasOnlyMoveTos() const {
@@ -1688,7 +1688,7 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
 }
 
 void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->isValid());
     if (dst == nullptr) {
         dst = (SkPath*)this;
     }
@@ -1760,7 +1760,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             }
         }
 
-        SkDEBUGCODE(dst->validate();)
+        SkASSERT(dst->isValid());
     }
 }
 
@@ -2038,7 +2038,7 @@ SkPath::Verb SkPath::Iter::doNext(SkPoint ptsParam[4]) {
 */
 
 size_t SkPath::writeToMemory(void* storage) const {
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
 
     if (nullptr == storage) {
         const int byteCount = sizeof(int32_t) * 2 + fPathRef->writeSize();
@@ -2092,7 +2092,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     }
 
     fPathRef.reset(pathRef);
-    SkDEBUGCODE(this->validate();)
+    SkASSERT(this->isValid());
     buffer.skipToAlign4();
 
     // compatibility check
@@ -2216,37 +2216,42 @@ void SkPath::dumpHex() const {
     this->dump(nullptr, false, true);
 }
 
-#ifdef SK_DEBUG
-void SkPath::validate() const {
-    SkASSERT((fFillType & ~3) == 0);
+bool SkPath::isValid() const {
+    if ((fFillType & ~3) != 0)
+        return false;
 
 #ifdef SK_DEBUG_PATH
     if (!fBoundsIsDirty) {
         SkRect bounds;
 
         bool isFinite = compute_pt_bounds(&bounds, *fPathRef.get());
-        SkASSERT(SkToBool(fIsFinite) == isFinite);
+        if (SkToBool(fIsFinite) != isFinite)
+            return false;
 
         if (fPathRef->countPoints() <= 1) {
             // if we're empty, fBounds may be empty but translated, so we can't
             // necessarily compare to bounds directly
             // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
             // be [2, 2, 2, 2]
-            SkASSERT(bounds.isEmpty());
-            SkASSERT(fBounds.isEmpty());
+            if (!bounds.isEmpty() || !fBounds.isEmpty())
+                return false;
         } else {
             if (bounds.isEmpty()) {
-                SkASSERT(fBounds.isEmpty());
+                if (!fBounds.isEmpty())
+                    return false;
             } else {
                 if (!fBounds.isEmpty()) {
-                    SkASSERT(fBounds.contains(bounds));
+                    if (!fBounds.contains(bounds))
+                        return false;
                 }
             }
         }
     }
 #endif // SK_DEBUG_PATH
+    if (!fPathRef->isValid())
+        return false;
+    return true;
 }
-#endif // SK_DEBUG
 
 ///////////////////////////////////////////////////////////////////////////////
 
