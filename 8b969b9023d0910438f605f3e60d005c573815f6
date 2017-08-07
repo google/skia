@@ -34,6 +34,24 @@
       "revId": "8b969b9023d0910438f605f3e60d005c573815f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2142e28_1b20f56a",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-07T18:19:07Z",
+      "side": 1,
+      "message": "Oh, your problem is the if-statement on line 192.  I assume \"~8888\" is not in the list of configs.  Thus, this blacklist never gets applied.  blacklist() should probably error out in this case...",
+      "parentUuid": "dfb74842_ee8b245d",
+      "revId": "8b969b9023d0910438f605f3e60d005c573815f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
