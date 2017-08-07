@@ -3,8 +3,8 @@
 # found in the LICENSE file.
 
 {
-  'includes': [                                                                 
-    '../resources.isolate',                                                        
+  'includes': [
+    '../resources.isolate',
   ],
   'conditions': [
     ['OS=="linux"', {
@@ -12,7 +12,7 @@
         'files': [
           '<(TOOL_NAME)',
           'run_ct_skps.py',
-          '../../../../skps/<(BUILDER)/slave<(SLAVE_NUM)/',
+          '../../../../skps/<(CHROMIUM_BUILD)/<(PAGE_TYPE)/<(NUM_SLAVES)/slave<(SLAVE_NUM)/',
         ],
         'command': [
           'python',
