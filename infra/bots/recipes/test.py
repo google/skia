@@ -192,6 +192,9 @@ def dm_flags(api, bot):
     if config == '_' or config in configs:
       blacklisted.extend([config, src, options, name])
 
+  # Only run the 'svgparse_*' svgs on 8888.
+  blacklist('~8888 svg _ svgparse_*')
+
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
   blacklist('glsrgb image _ _')
