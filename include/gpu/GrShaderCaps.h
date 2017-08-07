@@ -153,6 +153,8 @@ public:
 
     bool canUseMinAndAbsTogether() const { return fCanUseMinAndAbsTogether; }
 
+    bool canUseFractForNegativeValues() const { return fCanUseFractForNegativeValues; }
+
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
 
     // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
@@ -296,6 +298,7 @@ private:
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether : 1;
+    bool fCanUseFractForNegativeValues : 1;
     bool fMustForceNegatedAtanParamToFloat : 1;
     bool fAtan2ImplementedAsAtanYOverX : 1;
     bool fRequiresLocalOutputColorForFBFetch : 1;
