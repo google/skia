@@ -4,9 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef PathOpsExtendedTest_DEFINED
 #define PathOpsExtendedTest_DEFINED
 
+#include "../private/SkFloatBits.h"
 #include "SkBitmap.h"
 #include "SkPath.h"
 #include "SkPathOpsTypes.h"

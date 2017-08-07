@@ -72,46 +72,8 @@ static inline float Sk2sComplimentAsFloat(int32_t x) {
     return SkBits2Float(Sk2sComplimentToSignBit(x));
 }
 
-static inline int32_t pin_double_to_int(double x) {
-    return (int32_t)SkTPin<double>(x, SK_MinS32, SK_MaxS32);
-}
-
-/** Return the floor of the float as an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntFloor(float x) {
-#ifdef SK_SUPPORT_LEGACY_FLOATBITS
-    return pin_double_to_int(floor(x));
-#else
-    return (int)floorf(x);
-#endif
-}
-
-/** Return the float rounded to an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntRound(float x) {
-#ifdef SK_SUPPORT_LEGACY_FLOATBITS
-    return pin_double_to_int(floor((double)x + 0.5));
-#else
-    return (int)floorf(x + 0.5f);
-#endif
-}
-
-/** Return the ceiling of the float as an int.
-    If the value is out of range, or NaN, return +/- SK_MaxS32
-*/
-static inline int32_t SkFloatToIntCeil(float x) {
-#ifdef SK_SUPPORT_LEGACY_FLOATBITS
-    return pin_double_to_int(ceil(x));
-#else
-    return (int)ceilf(x);
-#endif
-}
-
 //  Scalar wrappers for float-bit routines
 
 #define SkScalarAs2sCompliment(x)    SkFloatAs2sCompliment(x)
-#define Sk2sComplimentAsScalar(x)    Sk2sComplimentAsFloat(x)
 
 #endif
