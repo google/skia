@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7425ebae_730278bd",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2017-08-07T19:39:15Z",
+      "side": 1,
+      "message": "Prefer parens to backslash:\n\nif (config \u003d\u003d \u0027_\u0027 or\n    config in configs or\n    (config[0] \u003d\u003d \u0027~\u0027 and config[1:] in configs)):",
+      "range": {
+        "startLine": 192,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 52
+      },
+      "revId": "f8a2202def188f89394ffea379027b576cbbfe3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
