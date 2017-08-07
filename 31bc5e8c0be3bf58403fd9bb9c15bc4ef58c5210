@@ -22,6 +22,30 @@
       "revId": "31bc5e8c0be3bf58403fd9bb9c15bc4ef58c5210",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16e95e27_0ba20c41",
+        "filename": "infra/bots/recipes/ct_skps.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-08-07T18:14:01Z",
+      "side": 1,
+      "message": "Sorry, I should have noticed that would cause cache churn.\n\nI think version_file is not really required anymore. Leaving as-is since long-term plan is to rewrite most of this logic anyway.",
+      "parentUuid": "e50b1bfe_bb7c028f",
+      "range": {
+        "startLine": 124,
+        "startChar": 41,
+        "endLine": 124,
+        "endChar": 53
+      },
+      "revId": "31bc5e8c0be3bf58403fd9bb9c15bc4ef58c5210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
