@@ -550,10 +550,6 @@ def dm_flags(api, bot):
     match.append('~PathOpsSimplify') # skia:6479
     blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter']) # skia:6480
 
-  if ('Win10' in bot and 'Vulkan' in bot
-      and ('GTX1070' in bot or 'GTX660' in bot)):
-    blacklist('_ test _ SkImage_makeTextureImage') # skia:6554
-
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
