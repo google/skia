@@ -1028,7 +1028,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
-    sk_sp<GrFragmentProcessor> fp;
+    gr_fp<GrFragmentProcessor> fp;
 
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
@@ -1132,7 +1132,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
     sk_sp<GrColorSpaceXform> colorSpaceXform =
         GrColorSpaceXform::Make(result->getColorSpace(), fRenderTargetContext->getColorSpace());
 
-    sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(std::move(proxy),
+    gr_fp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(std::move(proxy),
                                                               std::move(colorSpaceXform),
                                                               SkMatrix::I()));
     if (GrPixelConfigIsAlphaOnly(config)) {
@@ -1416,7 +1416,7 @@ void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
     }
 
     static const GrSamplerParams::FilterMode kMode = GrSamplerParams::kNone_FilterMode;
-    sk_sp<GrFragmentProcessor> fp(
+    gr_fp<GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,
@@ -1474,7 +1474,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     CHECK_SHOULD_DRAW();
 
     static const GrSamplerParams::FilterMode kMode = GrSamplerParams::kNone_FilterMode;
-    sk_sp<GrFragmentProcessor> fp(
+    gr_fp<GrFragmentProcessor> fp(
         producer->createFragmentProcessor(SkMatrix::I(),
                                           SkRect::MakeIWH(producer->width(), producer->height()),
                                           GrTextureProducer::kNo_FilterConstraint, true,

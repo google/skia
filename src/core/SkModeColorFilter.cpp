@@ -97,16 +97,16 @@ sk_sp<SkColorFilter> SkModeColorFilter::onMakeColorSpace(SkColorSpaceXformer* xf
 #include "effects/GrConstColorProcessor.h"
 #include "SkGr.h"
 
-sk_sp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkModeColorFilter::asFragmentProcessor(
                                                     GrContext*, SkColorSpace* dstColorSpace) const {
     if (SkBlendMode::kDst == fMode) {
         return nullptr;
     }
 
-    sk_sp<GrFragmentProcessor> constFP(
+    gr_fp<GrFragmentProcessor> constFP(
         GrConstColorProcessor::Make(SkColorToPremulGrColor4f(fColor, dstColorSpace),
                                     GrConstColorProcessor::kIgnore_InputMode));
-    sk_sp<GrFragmentProcessor> fp(
+    gr_fp<GrFragmentProcessor> fp(
         GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(constFP), fMode));
     if (!fp) {
         return nullptr;

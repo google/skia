@@ -120,12 +120,12 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
         , fRadii(src.fRadii) {
     this->initClassID<GrEllipseEffect>();
 }
-sk_sp<GrFragmentProcessor> GrEllipseEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrEllipseEffect(*this));
+gr_fp<GrFragmentProcessor> GrEllipseEffect::clone() const {
+    return gr_fp<GrFragmentProcessor>(new GrEllipseEffect(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrEllipseEffect);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTestData* testData) {
+gr_fp<GrFragmentProcessor> GrEllipseEffect::TestCreate(GrProcessorTestData* testData) {
     SkPoint center;
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);

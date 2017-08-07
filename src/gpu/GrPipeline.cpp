@@ -19,8 +19,6 @@
 
 GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet processors, GrAppliedClip appliedClip) {
     SkASSERT(args.fProxy);
-    SkASSERT(args.fProcessors);
-    SkASSERT(args.fProcessors->isFinalized());
     SkASSERT(processors.isFinalized());
 
     fProxy.reset(args.fProxy);

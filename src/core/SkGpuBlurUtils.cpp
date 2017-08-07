@@ -81,7 +81,7 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    sk_sp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
+    gr_fp<GrFragmentProcessor> conv(GrGaussianConvolutionFragmentProcessor::Make(
             std::move(proxy), direction, radius, sigma, mode, bounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -109,7 +109,7 @@ static void convolve_gaussian_2d(GrRenderTargetContext* renderTargetContext,
     GrPaint paint;
     paint.setGammaCorrect(renderTargetContext->isGammaCorrect());
 
-    sk_sp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
+    gr_fp<GrFragmentProcessor> conv(GrMatrixConvolutionEffect::MakeGaussian(
             std::move(proxy), srcBounds, size, 1.0, 0.0, kernelOffset,
             mode, true, sigmaX, sigmaY));
     paint.addColorFragmentProcessor(std::move(conv));
@@ -280,7 +280,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
             SkRect domain = SkRect::Make(localSrcBounds);
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf : 0.0f,
                          (i < scaleFactorY) ? SK_ScalarHalf : 0.0f);
-            sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
+            gr_fp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
                                                         std::move(srcProxy),
                                                         nullptr,
                                                         SkMatrix::I(),
@@ -402,7 +402,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
 
         if (GrTextureDomain::kIgnore_Mode != mode) {
             SkRect domain = SkRect::Make(localSrcBounds);
-            sk_sp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
+            gr_fp<GrFragmentProcessor> fp(GrTextureDomainEffect::Make(
                                                         std::move(srcProxy),
                                                         nullptr,
                                                         SkMatrix::I(),
