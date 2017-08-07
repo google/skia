@@ -10,6 +10,19 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkMakeUnique.h"
+#include "Resources.h"
+#include "SkImage.h"
+
+static void test_repeat(SkCanvas* canvas) {
+    static sk_sp<SkImage> img;
+    if (!img) {
+        img = GetResourceAsImage("mandrill_256.png");
+    }
+    SkPaint p;
+    p.setAlpha(0x88);
+    p.setShader(img->makeShader(SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
+    canvas->drawPaint(p);
+}
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -141,6 +154,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (true) { test_repeat(canvas); return; }
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 

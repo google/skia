@@ -59,6 +59,8 @@
 class GrContext;
 #endif
 
+extern bool gSkForceRasterPipelineBlitter;
+
 enum OutputColorSpace {
     kLegacy_OutputColorSpace,
     kSRGB_OutputColorSpace,
@@ -1946,6 +1948,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(nullptr);
             this->updateTitle();
             return true;
+        case 'R':
+            gSkForceRasterPipelineBlitter = !gSkForceRasterPipelineBlitter;
+            this->inval(nullptr);
+            this->updateTitle();
+            break;
         case 'k':
             fPerspAnim = !fPerspAnim;
             this->inval(nullptr);
@@ -2294,6 +2301,9 @@ void SampleWindow::updateTitle() {
     }
     if (fUseDeferredCanvas) {
         title.prepend("<E> ");
+    }
+    if (gSkForceRasterPipelineBlitter) {
+        title.prepend("<R> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
