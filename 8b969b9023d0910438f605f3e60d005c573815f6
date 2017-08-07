@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "67a3d3b7_b28b8c86",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-07T19:18:19Z",
+      "side": 1,
+      "message": "Thoughts on this ugliness? Alternatively we could just use std::regex_match and require the user to send in regular expressions instead of wildcards.\n\nAlso, do we want to just let anybody use these wildcards or do we want to limit the wildcards to the source only?",
+      "revId": "8b969b9023d0910438f605f3e60d005c573815f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5778983e_73549439",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 2
@@ -52,6 +69,24 @@
       "revId": "8b969b9023d0910438f605f3e60d005c573815f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3496259e_d7ed876b",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-07T19:18:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2142e28_1b20f56a",
+      "revId": "8b969b9023d0910438f605f3e60d005c573815f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
