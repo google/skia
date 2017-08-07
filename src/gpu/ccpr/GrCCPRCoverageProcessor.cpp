@@ -28,8 +28,8 @@ const char* GrCCPRCoverageProcessor::GetProcessorName(Mode mode) {
             return "GrCCPRTriangleCornerProcessor";
         case Mode::kQuadraticHulls:
             return "GrCCPRQuadraticHullProcessor";
-        case Mode::kQuadraticFlatEdges:
-            return "GrCCPRQuadraticSharedEdgeProcessor";
+        case Mode::kQuadraticCorners:
+            return "GrCCPRQuadraticCornerProcessor";
         case Mode::kSerpentineInsets:
             return "GrCCPRCubicInsetProcessor (serpentine)";
         case Mode::kSerpentineBorders:
@@ -74,8 +74,8 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
             return new GrCCPRTriangleCornerProcessor();
         case Mode::kQuadraticHulls:
             return new GrCCPRQuadraticHullProcessor();
-        case Mode::kQuadraticFlatEdges:
-            return new GrCCPRQuadraticSharedEdgeProcessor();
+        case Mode::kQuadraticCorners:
+            return new GrCCPRQuadraticCornerProcessor();
         case Mode::kSerpentineInsets:
             return new GrCCPRCubicInsetProcessor(GrCCPRCubicProcessor::Type::kSerpentine);
         case Mode::kSerpentineBorders:
@@ -298,6 +298,17 @@ void PrimitiveProcessor::emitEdgeDistanceEquation(GrGLSLGeometryBuilder* g,
     g->codeAppendf("highp float scale = 1 / max(kk[0] - kk[1], 1e-30);");
 
     g->codeAppendf("%s = float3(-n, kk[1]) * scale;", outputDistanceEquation);
+}
+
+int PrimitiveProcessor::emitCornerGeometry(GrGLSLGeometryBuilder* g, const char* emitVertexFn,
+                                           const char* pt) const {
+    g->codeAppendf("%s(%s + float2(-bloat.x, -bloat.y), 1);", emitVertexFn, pt);
+    g->codeAppendf("%s(%s + float2(-bloat.x, +bloat.y), 1);", emitVertexFn, pt);
+    g->codeAppendf("%s(%s + float2(+bloat.x, -bloat.y), 1);", emitVertexFn, pt);
+    g->codeAppendf("%s(%s + float2(+bloat.x, +bloat.y), 1);", emitVertexFn, pt);
+    g->codeAppend ("EndPrimitive();");
+
+    return 4;
 }
 
 void PrimitiveProcessor::emitCoverage(const GrCCPRCoverageProcessor& proc, GrGLSLFragmentBuilder* f,
