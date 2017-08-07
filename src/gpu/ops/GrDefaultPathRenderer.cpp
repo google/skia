@@ -603,6 +603,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             renderTargetContext->addDrawOp(clip, std::move(op));
         }
     }
+
     return true;
 }
 
