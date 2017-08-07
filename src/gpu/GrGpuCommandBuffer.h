@@ -92,6 +92,8 @@ public:
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard(GrRenderTargetProxy*) = 0;
 
+    virtual void insertEventMarker(GrRenderTargetProxy*, const char*) = 0;
+
 private:
     virtual GrGpu* gpu() = 0;
     virtual GrRenderTarget* renderTarget() = 0;
