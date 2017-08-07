@@ -219,6 +219,10 @@ void GrVkGpuCommandBuffer::discard(GrRenderTargetProxy* proxy) {
     }
 }
 
+void GrVkGpuCommandBuffer::insertEventMarker(GrSurfaceProxy* proxy, const char* msg) {
+
+}
+
 void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
                                               bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());
