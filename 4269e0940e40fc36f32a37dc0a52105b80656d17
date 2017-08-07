@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aaa515a9_da418c66",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-08-07T14:45:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "95f3a89c_c3cb0c31",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 399,
+        "endChar": 9
+      },
+      "revId": "4269e0940e40fc36f32a37dc0a52105b80656d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "afebefcc_cbff4cb7",
         "filename": "tools/viewer/Viewer.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-07T14:37:10Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 404,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 9
+      },
+      "revId": "4269e0940e40fc36f32a37dc0a52105b80656d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "712b8751_1df58feb",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-08-07T14:45:34Z",
+      "side": 1,
+      "message": "Right, I think that I should make the flag/option more like the --pr flag in GPU: use a single flag/option to control all the scan converter choices, rather than multiple boolean flags. Will do that in a later CL.",
+      "parentUuid": "afebefcc_cbff4cb7",
       "range": {
         "startLine": 404,
         "startChar": 0,
