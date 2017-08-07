@@ -16,6 +16,7 @@
 #include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDocument.h"
+#include "SkFontStyle.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkMatrix.h"
@@ -58,10 +59,11 @@ DEF_MTNAME(SkShader)
 DEF_MTNAME(SkSurface)
 DEF_MTNAME(SkTextBlob)
 DEF_MTNAME(SkTypeface)
+DEF_MTNAME(SkFontStyle)
 
-template <typename T> T* push_new(lua_State* L) {
+template <typename T, typename... Args> T* push_new(lua_State* L, Args&&... args) {
     T* addr = (T*)lua_newuserdata(L, sizeof(T));
-    new (addr) T;
+    new (addr) T(std::forward<Args>(args)...);
     luaL_getmetatable(L, get_mtname<T>());
     lua_setmetatable(L, -2);
     return addr;
@@ -1818,6 +1820,36 @@ static const struct luaL_Reg gSkTypeface_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int lfontstyle_weight(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkFontStyle>(L, 1)->weight());
+    return 1;
+}
+
+static int lfontstyle_width(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkFontStyle>(L, 1)->width());
+    return 1;
+}
+
+static int lfontstyle_slant(lua_State* L) {
+    lua_pushnumber(L, get_ref<SkFontStyle>(L, 1)->slant());
+    return 1;
+}
+
+static int lfontstyle_gc(lua_State* L) {
+    get_obj<SkFontStyle>(L, 1)->~SkFontStyle();
+    return 0;
+}
+
+static const struct luaL_Reg gSkFontStyle_Methods[] = {
+    { "weight", lfontstyle_weight },
+    { "width", lfontstyle_width },
+    { "slant", lfontstyle_slant },
+    { "__gc", lfontstyle_gc },
+    { nullptr, nullptr }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class AutoCallLua {
 public:
     AutoCallLua(lua_State* L, const char func[], const char verb[]) : fL(L) {
@@ -1940,22 +1972,43 @@ static int lsk_newTextBlob(lua_State* L) {
 
 static int lsk_newTypeface(lua_State* L) {
     const char* name = nullptr;
-    int style = SkTypeface::kNormal;
+    SkFontStyle style;
 
     int count = lua_gettop(L);
     if (count > 0 && lua_isstring(L, 1)) {
         name = lua_tolstring(L, 1, nullptr);
-        if (count > 1 && lua_isnumber(L, 2)) {
-            style = lua_tointegerx(L, 2, nullptr) & SkTypeface::kBoldItalic;
+        if (count > 1) {
+            SkFontStyle* passedStyle = get_obj<SkFontStyle>(L, 2);
+            if (passedStyle) {
+                style = *passedStyle;
+            }
         }
     }
 
-    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, SkFontStyle::FromOldStyle(style)));
+    sk_sp<SkTypeface> face(SkTypeface::MakeFromName(name, style));
 //    SkDebugf("---- name <%s> style=%d, face=%p ref=%d\n", name, style, face, face->getRefCnt());
     if (nullptr == face) {
         face = SkTypeface::MakeDefault();
     }
     push_ref(L, std::move(face));
+    return 1;
+}
+
+static int lsk_newFontStyle(lua_State* L) {
+    int count = lua_gettop(L);
+    int weight = SkFontStyle::kNormal_Weight;
+    int width = SkFontStyle::kNormal_Width;
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    if (count >= 1 && lua_isnumber(L, 1)) {
+        weight = lua_tointegerx(L, 1, nullptr);
+    }
+    if (count >= 2 && lua_isnumber(L, 2)) {
+        width = lua_tointegerx(L, 2, nullptr);
+    }
+    if (count >= 3 && lua_isnumber(L, 3)) {
+        slant = static_cast<SkFontStyle::Slant>(lua_tointegerx(L, 3, nullptr));
+    }
+    push_new<SkFontStyle>(L, weight, width, slant);
     return 1;
 }
 
@@ -2006,6 +2059,7 @@ static void register_Sk(lua_State* L) {
     setfield_function(L, "newRasterSurface", lsk_newRasterSurface);
     setfield_function(L, "newTextBlob", lsk_newTextBlob);
     setfield_function(L, "newTypeface", lsk_newTypeface);
+    setfield_function(L, "newFontStyle", lsk_newFontStyle);
     lua_pop(L, 1);  // pop off the Sk table
 }
 
@@ -2036,6 +2090,7 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkSurface);
     REG_CLASS(L, SkTextBlob);
     REG_CLASS(L, SkTypeface);
+    REG_CLASS(L, SkFontStyle);
 }
 
 extern "C" int luaopen_skia(lua_State* L);

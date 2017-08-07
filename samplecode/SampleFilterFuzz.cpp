@@ -197,7 +197,7 @@ static SkFilterQuality make_filter_quality() {
 }
 
 static SkFontStyle make_typeface_style() {
-    return SkFontStyle::FromOldStyle(SkTypeface::kBoldItalic+1);
+    return SkFontStyle::Normal();
 }
 
 static SkPath1DPathEffect::Style make_path_1d_path_effect_style() {

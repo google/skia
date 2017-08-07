@@ -23,6 +23,7 @@
 #include "SkDropShadowImageFilter.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkFlattenableSerialization.h"
+#include "SkFontStyle.h"
 #include "SkImageSource.h"
 #include "SkLayerRasterizer.h"
 #include "SkLightingImageFilter.h"
@@ -182,9 +183,13 @@ static SkFilterQuality make_filter_quality() {
 }
 
 static SkFontStyle make_typeface_style() {
-    uint8_t i;
-    fuzz->nextRange(&i, 0, (uint8_t)SkTypeface::kBoldItalic);
-    return SkFontStyle::FromOldStyle(i);
+    uint16_t weight;
+    fuzz->nextRange(&weight, SkFontStyle::kInvisible_Weight, SkFontStyle::kExtraBlack_Weight);
+    uint8_t width;
+    fuzz->nextRange(&width, SkFontStyle::kUltraCondensed_Width, SkFontStyle::kUltraExpanded_Width);
+    uint8_t slant;
+    fuzz->nextRange(&slant, SkFontStyle::kUpright_Slant, SkFontStyle::kOblique_Slant);
+    return SkFontStyle(weight, width, static_cast<SkFontStyle::Slant>(slant));
 }
 
 static SkPath1DPathEffect::Style make_path_1d_path_effect_style() {

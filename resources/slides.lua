@@ -1,7 +1,7 @@
 gShowBounds = false
 gUseBlurInTransitions = false
 
-gPath = "/skia/trunk/resources/"
+gPath = "resources/"
 
 function load_file(file)
     local prev_path = package.path
@@ -12,17 +12,17 @@ end
 
 load_file("slides_utils")
 
-gSlides = parse_file(io.open("/skia/trunk/resources/slides_content2.lua", "r"))
+gSlides = parse_file(io.open("resources/slides_content2.lua", "r"))
 
 function make_rect(l, t, r, b)
     return { left = l, top = t, right = r, bottom = b }
 end
 
-function make_paint(typefacename, stylebits, size, color)
+function make_paint(typefacename, style, size, color)
     local paint = Sk.newPaint();
     paint:setAntiAlias(true)
     paint:setSubpixelText(true)
-    paint:setTypeface(Sk.newTypeface(typefacename, stylebits))
+    paint:setTypeface(Sk.newTypeface(typefacename, style))
     paint:setTextSize(size)
     paint:setColor(color)
     return paint
@@ -102,27 +102,29 @@ function make_tmpl(paint, extra_dy)
 end
 
 function SkiaPoint_make_template()
+    normal = Sk.newFontStyle()
+    bold = Sk.newFontStyle(700)
     local title = {
         margin_x = 30,
         margin_y = 100,
     }
-    title[1] = make_paint("Arial", 1, 45, { a=1, r=1, g=1, b=1 })
+    title[1] = make_paint("Arial", bold, 45, { a=1, r=1, g=1, b=1 })
     title[1]:setTextAlign("center")
-    title[2] = make_paint("Arial", 1, 25, { a=1, r=.75, g=.75, b=.75 })
+    title[2] = make_paint("Arial", bold, 25, { a=1, r=.75, g=.75, b=.75 })
     title[2]:setTextAlign("center")
 
     local slide = {
         margin_x = 20,
         margin_y = 25,
     }
-    slide[1] = make_tmpl(make_paint("Arial", 1, 35, { a=1, r=1, g=1, b=1 }), 18)
-    slide[2] = make_tmpl(make_paint("Arial", 0, 25, { a=1, r=1, g=1, b=1 }), 10)
-    slide[3] = make_tmpl(make_paint("Arial", 0, 20, { a=1, r=.9, g=.9, b=.9 }), 5)
+    slide[1] = make_tmpl(make_paint("Arial", bold, 35, { a=1, r=1, g=1, b=1 }), 18)
+    slide[2] = make_tmpl(make_paint("Arial", normal, 25, { a=1, r=1, g=1, b=1 }), 10)
+    slide[3] = make_tmpl(make_paint("Arial", normal, 20, { a=1, r=.9, g=.9, b=.9 }), 5)
 
     return {
         title = title,
         slide = slide,
-        codePaint = make_paint("Courier", 0, 20, { a=1, r=.9, g=.9, b=.9 }),
+        codePaint = make_paint("Courier", normal, 20, { a=1, r=.9, g=.9, b=.9 }),
     }
 end
 
