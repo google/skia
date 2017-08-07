@@ -111,9 +111,9 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
     const char* version = shaderCaps->versionDeclString();
 
     // setup vertex shader
-    GrShaderVar aPosition("a_position", kVec2f_GrSLType, GrShaderVar::kIn_TypeModifier);
-    GrShaderVar aColor("a_color", kVec3f_GrSLType, GrShaderVar::kIn_TypeModifier);
-    GrShaderVar oColor("o_color", kVec3f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar aPosition("a_position", kHalf2_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar aColor("a_color", kHalf3_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar oColor("o_color", kHalf3_GrSLType, GrShaderVar::kOut_TypeModifier);
 
     SkString vshaderTxt(version);
     aPosition.appendDecl(shaderCaps, &vshaderTxt);
@@ -131,9 +131,8 @@ GrGLuint GLCpuPosInstancedArraysBench::setupShader(const GrGLContext* ctx) {
             "}\n");
 
     // setup fragment shader
-    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
-    GrGLSLAppendDefaultFloatPrecisionDeclaration(kMedium_GrSLPrecision, *shaderCaps, &fshaderTxt);
     oColor.setTypeModifier(GrShaderVar::kIn_TypeModifier);
     oColor.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";\n");

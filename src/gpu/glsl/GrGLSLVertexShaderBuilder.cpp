@@ -18,25 +18,25 @@ void GrGLSLVertexBuilder::transformToNormalizedDeviceSpace(const GrShaderVar& po
                                                            const char* rtAdjustName) {
     // setup RT Uniform
     if (this->getProgramBuilder()->desc()->header().fSnapVerticesToPixelCenters) {
-        if (kVec3f_GrSLType == posVar.getType()) {
+        if (kHalf3_GrSLType == posVar.getType()) {
             const char* p = posVar.c_str();
-            this->codeAppendf("{float2 _posTmp = float2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
+            this->codeAppendf("{half2 _posTmp = half2(%s.x/%s.z, %s.y/%s.z);", p, p, p, p);
         } else {
-            SkASSERT(kVec2f_GrSLType == posVar.getType());
-            this->codeAppendf("{float2 _posTmp = %s;", posVar.c_str());
+            SkASSERT(kHalf2_GrSLType == posVar.getType());
+            this->codeAppendf("{half2 _posTmp = %s;", posVar.c_str());
         }
-        this->codeAppendf("_posTmp = floor(_posTmp) + float2(0.5, 0.5);"
-                          "gl_Position = float4(_posTmp.x * %s.x + %s.y,"
+        this->codeAppendf("_posTmp = floor(_posTmp) + half2(0.5, 0.5);"
+                          "gl_Position = half4(_posTmp.x * %s.x + %s.y,"
                                                "_posTmp.y * %s.z + %s.w, 0, 1);}",
                           rtAdjustName, rtAdjustName, rtAdjustName, rtAdjustName);
-    } else if (kVec3f_GrSLType == posVar.getType()) {
-        this->codeAppendf("gl_Position = float4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
+    } else if (kHalf3_GrSLType == posVar.getType()) {
+        this->codeAppendf("gl_Position = half4(dot(%s.xz, %s.xy), dot(%s.yz, %s.zw), 0, %s.z);",
                           posVar.c_str(), rtAdjustName,
                           posVar.c_str(), rtAdjustName,
                           posVar.c_str());
     } else {
-        SkASSERT(kVec2f_GrSLType == posVar.getType());
-        this->codeAppendf("gl_Position = float4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
+        SkASSERT(kHalf2_GrSLType == posVar.getType());
+        this->codeAppendf("gl_Position = half4(%s.x * %s.x + %s.y, %s.y * %s.z + %s.w, 0, 1);",
                           posVar.c_str(), rtAdjustName, rtAdjustName,
                           posVar.c_str(), rtAdjustName, rtAdjustName);
     }

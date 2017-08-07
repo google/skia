@@ -28,11 +28,10 @@ class GrCCPRQuadraticProcessor : public GrCCPRCoverageProcessor::PrimitiveProces
 public:
     GrCCPRQuadraticProcessor()
             : INHERITED(CoverageType::kShader)
-            , fCanonicalMatrix("canonical_matrix", kMat33f_GrSLType, GrShaderVar::kNonArray,
-                               kHigh_GrSLPrecision)
-            , fCanonicalDerivatives("canonical_derivatives", kMat22f_GrSLType,
-                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fCanonicalCoord(kVec4f_GrSLType) {}
+            , fCanonicalMatrix("canonical_matrix", kHighFloat3x3_GrSLType, GrShaderVar::kNonArray)
+            , fCanonicalDerivatives("canonical_derivatives", kHighFloat2x2_GrSLType,
+                                    GrShaderVar::kNonArray)
+            , fCanonicalCoord(kHighFloat4_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         varyingHandler->addVarying("canonical_coord", &fCanonicalCoord, kHigh_GrSLPrecision);
@@ -80,11 +79,11 @@ private:
 class GrCCPRQuadraticSharedEdgeProcessor : public GrCCPRQuadraticProcessor {
 public:
     GrCCPRQuadraticSharedEdgeProcessor()
-            : fXYD("xyd", kMat33f_GrSLType, GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fEdgeDistanceDerivatives("edge_distance_derivatives", kVec2f_GrSLType,
-                                       GrShaderVar::kNonArray, kHigh_GrSLPrecision)
-            , fFragCanonicalDerivatives(kMat22f_GrSLType)
-            , fEdgeDistance(kVec3f_GrSLType) {}
+            : fXYD("xyd", kHighFloat3x3_GrSLType, GrShaderVar::kNonArray)
+            , fEdgeDistanceDerivatives("edge_distance_derivatives", kHighFloat2_GrSLType,
+                                       GrShaderVar::kNonArray)
+            , fFragCanonicalDerivatives(kHighFloat2x2_GrSLType)
+            , fEdgeDistance(kHighFloat3_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);

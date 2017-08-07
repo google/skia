@@ -174,12 +174,12 @@ DEF_TEST(SkSLOperators, r) {
 DEF_TEST(SkSLMatrices, r) {
     test(r,
          "void main() {"
-         "float2x4 x = float2x4(1);"
-         "float3x2 y = float3x2(1, 0, 0, 1, float2(2, 2));"
-         "float3x4 z = x * y;"
-         "float3 v1 = float3x3(1) * float3(2);"
-         "float3 v2 = float3(2) * float3x3(1);"
-         "sk_FragColor = float4(z[0].x, v1 + v2);"
+         "highfloat2x4 x = highfloat2x4(1);"
+         "highfloat3x2 y = highfloat3x2(1, 0, 0, 1, highfloat2(2, 2));"
+         "highfloat3x4 z = x * y;"
+         "highfloat3 v1 = highfloat3x3(1) * highfloat3(2);"
+         "highfloat3 v2 = highfloat3(2) * highfloat3x3(1);"
+         "sk_FragColor = highfloat4(z[0].x, v1 + v2);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -195,13 +195,13 @@ DEF_TEST(SkSLMatrices, r) {
 DEF_TEST(SkSLInterfaceBlock, r) {
     test(r,
          "uniform testBlock {"
-         "float x;"
-         "float y[2];"
-         "layout(binding=12) float3x2 z;"
+         "half x;"
+         "half y[2];"
+         "layout(binding=12) half3x2 z;"
          "bool w;"
          "};"
          "void main() {"
-         "    sk_FragColor = float4(x, y[0], y[1], 0);"
+         "    sk_FragColor = half4(x, y[0], y[1], 0);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
@@ -303,8 +303,8 @@ DEF_TEST(SkSLVersion, r) {
 
 DEF_TEST(SkSLUsesPrecisionModifiers, r) {
     test(r,
-         "void main() { float x = 0.75; highp float y = 1; x++; y++;"
-         "sk_FragColor.rg = float2(x, y); }",
+         "void main() { half x = 0.75; highfloat y = 1; x++; y++;"
+         "sk_FragColor.rg = half2(x, y); }",
          *SkSL::ShaderCapsFactory::Default(),
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
@@ -316,15 +316,14 @@ DEF_TEST(SkSLUsesPrecisionModifiers, r) {
          "    sk_FragColor.xy = vec2(x, y);\n"
          "}\n");
     test(r,
-         "void main() { float x = 0.75; half y = 1; x++; y++;"
-         "sk_FragColor.rg = float2(x, y); }",
+         "void main() { half x = 0.75; highfloat y = 1; x++; y++;"
+         "sk_FragColor.rg = half2(x, y); }",
          *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
          "#version 400\n"
-         "precision highp float;\n"
          "out mediump vec4 sk_FragColor;\n"
          "void main() {\n"
          "    float x = 0.75;\n"
-         "    mediump float y = 1.0;\n"
+         "    highp float y = 1.0;\n"
          "    x++;\n"
          "    y++;\n"
          "    sk_FragColor.xy = vec2(x, y);\n"
@@ -1511,13 +1510,13 @@ DEF_TEST(SkSLNumberConversions, r) {
          "uint h2ui = uint(h);"
          "uint f2ui = uint(f);"
          "uint d2fui = uint(d);"
-         "float s2f = s;"
-         "float i2f = i;"
-         "float us2f = us;"
-         "float ui2f = ui;"
-         "float h2f = h;"
-         "float f2f = f;"
-         "float d2f = d;"
+         "highfloat s2f = s;"
+         "highfloat i2f = i;"
+         "highfloat us2f = us;"
+         "highfloat ui2f = ui;"
+         "highfloat h2f = h;"
+         "highfloat f2f = f;"
+         "highfloat d2f = d;"
          "double s2d = s;"
          "double i2d = i;"
          "double us2d = us;"

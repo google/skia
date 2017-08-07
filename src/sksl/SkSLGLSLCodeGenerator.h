@@ -94,7 +94,7 @@ protected:
 
     virtual void writeHeader();
 
-    virtual void writePrecisionModifier();
+    virtual bool usesPrecisionModifiers() const;
 
     virtual void writeType(const Type& type);
 
