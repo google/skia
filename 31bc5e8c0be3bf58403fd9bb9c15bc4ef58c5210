@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e50b1bfe_bb7c028f",
+        "filename": "infra/bots/recipes/ct_skps.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-08-07T17:53:36Z",
+      "side": 1,
+      "message": "can you also add num_slaves to the end here?\nnum_slaves says how many slaves the SKPs from the chromium_build + page_type are divided into to make it easy to isolate. (As discussed, this would be a good place for cipd packages. Creating packages for 1M would take a long time, but maybe that is worth the 1 time cost instead of dealing with these snapshots and local directories)",
+      "range": {
+        "startLine": 124,
+        "startChar": 41,
+        "endLine": 124,
+        "endChar": 53
+      },
+      "revId": "31bc5e8c0be3bf58403fd9bb9c15bc4ef58c5210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
