@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5778983e_73549439",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2017-08-07T15:54:12Z",
+      "side": 1,
+      "message": "The command:\n\n  make -C infra/bots test train\n\nDidn\u0027t generate any new diffs on my Mac. Does that sound correct?",
+      "revId": "8b969b9023d0910438f605f3e60d005c573815f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
