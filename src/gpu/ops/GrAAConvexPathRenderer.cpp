@@ -762,7 +762,7 @@ public:
     }
 
 private:
-    void prepareLinesOnlyDraws(Target* target) const {
+    void prepareLinesOnlyDraws(Target* target) {
         // Setup GrGeometryProcessor
         sk_sp<GrGeometryProcessor> gp(make_lines_only_gp(fHelper.compatibleWithAlphaAsCoverage(),
                                                          fPaths.back().fViewMatrix,
@@ -821,7 +821,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
 #ifndef SK_IGNORE_LINEONLY_AA_CONVEX_PATH_OPTS
         if (fLinesOnly) {
             this->prepareLinesOnlyDraws(target);

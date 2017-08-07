@@ -100,7 +100,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp = make_gp(fViewMatrix);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
