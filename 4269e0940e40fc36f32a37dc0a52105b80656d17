@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95f3a89c_c3cb0c31",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-07T14:37:10Z",
+      "side": 1,
+      "message": "nit: I think this would be much easier to write/follow if refactored to use one tri-state (disabled/enabled/forced) instead of two bools.  Doesn\u0027t have to be this CL though.",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 399,
+        "endChar": 9
+      },
+      "revId": "4269e0940e40fc36f32a37dc0a52105b80656d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afebefcc_cbff4cb7",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-07T14:37:10Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 404,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 9
+      },
+      "revId": "4269e0940e40fc36f32a37dc0a52105b80656d17",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
