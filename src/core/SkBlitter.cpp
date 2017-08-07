@@ -912,9 +912,15 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (matrix.hasPerspective()) {
         return true;
     }
-    // ... or unless the shader is raster pipeline-only.
-    if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly()) {
-        return true;
+    if (paint.getShader()) {
+#ifndef SK_SUPPORT_LEGACY_ROTATED_SHADERS
+        if (!matrix.isScaleTranslate()) {
+            return true;
+        }
+#endif
+        if (as_SB(paint.getShader())->isRasterPipelineOnly()) {
+            return true;
+        }
     }
 
     return device.colorType() != kN32_SkColorType;
