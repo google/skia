@@ -36,19 +36,6 @@ void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy,
                                                                 matrix, params));
 }
 
-void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
-                                          const SkMatrix& matrix) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
-                                                                   nullptr, matrix));
-}
-
-void GrPaint::addCoverageTextureProcessor(sk_sp<GrTextureProxy> proxy,
-                                          const SkMatrix& matrix,
-                                          const GrSamplerParams& params) {
-    this->addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy),
-                                                                   nullptr, matrix, params));
-}
-
 bool GrPaint::isConstantBlendedColor(GrColor* constantColor) const {
     // This used to do a more sophisticated analysis but now it just explicitly looks for common
     // cases.
@@ -58,7 +45,7 @@ bool GrPaint::isConstantBlendedColor(GrColor* constantColor) const {
         *constantColor = GrColor_TRANSPARENT_BLACK;
         return true;
     }
-    if (this->numColorFragmentProcessors()) {
+    if (fColorFragmentProcessorList.head()) {
         return false;
     }
     if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {
