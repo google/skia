@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0838aa7c_d90d0b59",
+        "filename": "include/private/SkSurfaceCharacterization.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-08T15:22:24Z",
+      "side": 1,
+      "message": "Maybe include GrContextThreadSafeProxy? It has the caps and the unique id of the grcontext.",
+      "revId": "f64ed013673eac6e52148ab601113943b94b997c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
