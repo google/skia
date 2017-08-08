@@ -59,6 +59,10 @@ public:
         return true;
     }
 
+    bool canUseFractForNegativeValues() const {
+        return true;
+    }
+
     bool mustForceNegatedAtanParamToFloat() const {
         return false;
     }
