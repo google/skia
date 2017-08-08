@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0d32f7e_393df21b",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-08T20:08:20Z",
+      "side": 1,
+      "message": "should we add a comment that a clear here means clear to 0",
+      "range": {
+        "startLine": 57,
+        "startChar": 7,
+        "endLine": 57,
+        "endChar": 23
+      },
+      "revId": "e9824b7cce3ee245f31a80b303c04fb1cfe3d9c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
