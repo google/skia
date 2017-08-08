@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3527b81_1cb52a5e",
+        "filename": "src/core/SkEdge.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-08-08T17:05:17Z",
+      "side": 1,
+      "message": "do all compilers know to possibly do the sortY check first, in case that is faster/more-predictable than the y compare?",
+      "range": {
+        "startLine": 377,
+        "startChar": 18,
+        "endLine": 377,
+        "endChar": 19
+      },
+      "revId": "6234babae04f6886501d7b94f34971daac2dbb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "831e4705_8e12983c",
+        "filename": "src/core/SkEdgeBuilder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-08-08T17:05:17Z",
+      "side": 1,
+      "message": "late request -- can we add dox for what these 3 types mean? I don\u0027t know what they are.",
+      "range": {
+        "startLine": 24,
+        "startChar": 14,
+        "endLine": 24,
+        "endChar": 0
+      },
+      "revId": "6234babae04f6886501d7b94f34971daac2dbb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
