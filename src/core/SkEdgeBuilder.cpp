@@ -427,6 +427,10 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, int shiftUp,
                     }
                 } break;
                 case SkPath::kCubic_Verb: {
+                    if (fEdgeType == kBezier) {
+                        this->addCubic(pts);
+                        break;
+                    }
                     SkPoint monoY[10];
                     int n = SkChopCubicAtYExtrema(pts, monoY);
                     for (int i = 0; i <= n; i++) {

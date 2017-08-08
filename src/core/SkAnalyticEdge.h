@@ -81,7 +81,7 @@ struct SkAnalyticEdge {
     inline bool updateLine(SkFixed ax, SkFixed ay, SkFixed bx, SkFixed by, SkFixed slope);
 
     // return true if we're NOT done with this edge
-    bool update(SkFixed last_y);
+    bool update(SkFixed last_y, bool sortY = true);
 
 #ifdef SK_DEBUG
     void dump() const {
@@ -124,8 +124,8 @@ struct SkAnalyticCubicEdge : public SkAnalyticEdge {
 
     SkFixed fSnappedY; // to make sure that y is increasing with smooth jump and snapping
 
-    bool setCubic(const SkPoint pts[4]);
-    bool updateCubic();
+    bool setCubic(const SkPoint pts[4], bool sortY = true);
+    bool updateCubic(bool sortY = true);
     inline void keepContinuous() {
         SkASSERT(SkAbs32(fX - SkFixedMul(fDX, fY - SnapY(fCEdge.fCy)) - fCEdge.fCx) < SK_Fixed1);
         fCEdge.fCx = fX;
@@ -223,7 +223,11 @@ struct SkCubic : public SkBezier {
     SkPoint fP3;
 
     bool set(const SkPoint pts[4]){
-        if (IsEmpty(pts[0].fY, pts[3].fY)) {
+        // We do not chop at y extrema for cubics so pts[0], pts[1], pts[2], pts[3] may not be
+        // monotonic. Therefore, we have to check the emptiness for all three pairs, instead of just
+        // checking IsEmpty(pts[0].fY, pts[3].fY).
+        if (IsEmpty(pts[0].fY, pts[1].fY) && IsEmpty(pts[1].fY, pts[2].fY) &&
+                IsEmpty(pts[2].fY, pts[3].fY)) {
             return false;
         }
         fCount = 4;

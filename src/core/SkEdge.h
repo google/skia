@@ -80,7 +80,7 @@ struct SkCubicEdge : public SkEdge {
     SkFixed fCDDDx, fCDDDy;
     SkFixed fCLastX, fCLastY;
 
-    bool setCubicWithoutUpdate(const SkPoint pts[4], int shiftUp);
+    bool setCubicWithoutUpdate(const SkPoint pts[4], int shiftUp, bool sortY = true);
     int setCubic(const SkPoint pts[4], int shiftUp);
     int updateCubic();
 };

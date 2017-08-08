@@ -21,8 +21,19 @@ class SkPath;
 class SkEdgeBuilder {
 public:
     enum EdgeType {
+        // Used in supersampling or non-AA scan coverter; it stores only integral y coordinates.
         kEdge,
+
+        // Used in Analytic AA scan converter; it uses SkFixed to store fractional y.
         kAnalyticEdge,
+
+        // Used in Delta AA scan converter; it's a super-light wrapper of SkPoint, which can then be
+        // used to construct SkAnalyticEdge (kAnalyticEdge) later. We use kBezier to save the memory
+        // allocation time (a SkBezier is much lighter than SkAnalyticEdge or SkEdge). Note that
+        // Delta AA only has to deal with one SkAnalyticEdge at a time (whereas Analytic AA has to
+        // deal with all SkAnalyticEdges at the same time). Thus for Delta AA, we only need to
+        // allocate memory for n SkBeziers and 1 SkAnalyticEdge. (Analytic AA need to allocate
+        // memory for n SkAnalyticEdges.)
         kBezier
     };
 
@@ -75,6 +86,8 @@ public:
     void addQuad(const SkPoint pts[]);
     void addCubic(const SkPoint pts[]);
     void addClipper(SkEdgeClipper*);
+
+    EdgeType edgeType() const { return fEdgeType; }
 
     int buildPoly(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
 
