@@ -39,5 +39,24 @@ namespace SkCodecAnimation {
          */
         kRestorePrevious    = 3,
     };
+
+    /*
+     *  How to blend the current frame.
+     */
+    enum class Blend {
+      /**
+       *  Blend with the prior frame. This is the typical case, supported
+       *  by all animated image types.
+       */
+      kPriorFrame,
+
+      /**
+       *  Do not blend.
+       *
+       *  This frame's pixels overwrite previous pixels "blending" with
+       *  the backgroudn color of transparent.
+       */
+      kBG,
+    };
 };
 #endif // SkCodecAnimation_DEFINED

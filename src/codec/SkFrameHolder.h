@@ -10,7 +10,6 @@
 
 #include "SkTypes.h"
 #include "SkCodecAnimation.h"
-#include "SkCodecAnimationPriv.h"
 #include "SkRect.h"
 
 /**

@@ -8,7 +8,6 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodecAnimation.h"
-#include "SkCodecAnimationPriv.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkMakeUnique.h"
@@ -307,6 +306,7 @@ bool SkWebpCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
         frameInfo->fFullyReceived = true;
         frameInfo->fAlphaType = alpha_type(frame->hasAlpha());
         frameInfo->fDisposalMethod = frame->getDisposalMethod();
+        frameInfo->fBlendSource = frame->getBlend();
     }
 
     return true;

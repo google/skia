@@ -633,6 +633,11 @@ public:
          *  How this frame should be modified before decoding the next one.
          */
         SkCodecAnimation::DisposalMethod fDisposalMethod;
+
+        /**
+         *  How to blend the current frame.
+         */
+        SkCodecAnimation::Blend fBlendSource;
     };
 
     /**
