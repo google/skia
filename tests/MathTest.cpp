@@ -671,3 +671,54 @@ DEF_TEST(GrNextSizePow2, reporter) {
 
     test_nextsizepow2(reporter, SIZE_MAX, SIZE_MAX);
 }
+
+// Largest value that can survive round trip in/out of a float
+#define SK_MaxS32_InFloat   2147483520
+#define SK_MinS32_InFloat  -2147483520
+
+static int sk_float_floor2int_saturate(float x) {
+    x = SkTMin<float>(x, SK_MaxS32_InFloat);
+    x = SkTMax<float>(x, SK_MinS32_InFloat);
+    return sk_float_floor2int(x);
+}
+
+static int sk_float_floor2int_saturate2(float x) {
+    x = sk_float_floor(x);
+    int ix = (int)x;
+    if (ix != x) {
+        if (x < 0) {
+            ix = SK_MinS32_InFloat;
+        } else {
+            ix = SK_MaxS32_InFloat;
+        }
+    }
+    return ix;
+}
+
+#include "../private/SkFloatBits.h"
+DEF_TEST(FloatSaturage, reporter) {
+    for (float x = 100; x < SK_FloatInfinity; x *= 10) {
+        int ix0 = (int)x;
+        int ix1 = sk_float_floor2int_saturate(x);
+        int ix2 = sk_float_floor2int_saturate2(x);
+        SkDebugf("x %g %d %d %d\n", x, ix0, ix1, ix2);
+    }
+
+    SkRandom rand;
+    for (int i = 0; i < 1000000; ++i) {
+        float x = SkBits2Float(rand.nextU());
+
+        if (x != x) {
+            int ix = sk_float_floor2int_saturate(x);
+            SkDebugf("NaN %d\n", ix);
+        }
+
+        int ix1 = sk_float_floor2int_saturate(x);
+        int ix2 = sk_float_floor2int_saturate2(x);
+        if (ix1 != ix2) {
+            int ix1 = sk_float_floor2int_saturate(x);
+            int ix2 = sk_float_floor2int_saturate2(x);
+            SkDebugf("%g --> %d %d\n", x, ix1, ix2);
+        }
+    }
+}
