@@ -1215,12 +1215,12 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
     }
 
     // TODO these need to be a geometry processors
-    sk_sp<GrFragmentProcessor> innerEffect(GrRRectEffect::Make(innerEdgeType, *inner));
+    gr_fp<GrFragmentProcessor> innerEffect(GrRRectEffect::Make(innerEdgeType, *inner));
     if (!innerEffect) {
         return false;
     }
 
-    sk_sp<GrFragmentProcessor> outerEffect(GrRRectEffect::Make(outerEdgeType, *outer));
+    gr_fp<GrFragmentProcessor> outerEffect(GrRRectEffect::Make(outerEdgeType, *outer));
     if (!outerEffect) {
         return false;
     }

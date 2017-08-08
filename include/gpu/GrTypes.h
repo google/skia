@@ -712,5 +712,10 @@ enum class GrSemaphoresSubmitted : int {
     kYes,
 };
 
+//////////////////////////////////////////////////////////////////////////////
+#include "SkRefCnt.h"
+// Temporary alias to declutter changes related to moving GrFragmentProcessor from shared to unique
+// ownership.
+template <typename T> using gr_fp = sk_sp<T>;
 
 #endif

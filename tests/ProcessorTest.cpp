@@ -27,7 +27,7 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrFragmentProcessor> fp) {
+    static std::unique_ptr<GrDrawOp> Make(gr_fp<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
     }
 
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    TestOp(sk_sp<GrFragmentProcessor> fp) : INHERITED(ClassID()), fProcessors(std::move(fp)) {
+    TestOp(gr_fp<GrFragmentProcessor> fp) : INHERITED(ClassID()), fProcessors(std::move(fp)) {
         this->setBounds(SkRect::MakeWH(100, 100), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
@@ -66,13 +66,13 @@ public:
         sk_sp<GrTextureProxy> fProxy;
         GrIOType fIOType;
     };
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> child) {
-        return sk_sp<GrFragmentProcessor>(new TestFP(std::move(child)));
+    static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> child) {
+        return gr_fp<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
-    static sk_sp<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
+    static gr_fp<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
                                            const SkTArray<sk_sp<GrBuffer>>& buffers,
                                            const SkTArray<Image>& images) {
-        return sk_sp<GrFragmentProcessor>(new TestFP(proxies, buffers, images));
+        return gr_fp<GrFragmentProcessor>(new TestFP(proxies, buffers, images));
     }
 
     const char* name() const override { return "test"; }
@@ -83,8 +83,8 @@ public:
         b->add32(sk_atomic_inc(&gKey));
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new TestFP(*this));
+    gr_fp<GrFragmentProcessor> clone() const override {
+        return gr_fp<GrFragmentProcessor>(new TestFP(*this));
     }
 
 private:
@@ -106,7 +106,7 @@ private:
         }
     }
 
-    TestFP(sk_sp<GrFragmentProcessor> child)
+    TestFP(gr_fp<GrFragmentProcessor> child)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         this->initClassID<TestFP>();
         this->registerChildProcessor(std::move(child));
@@ -224,7 +224,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
                     }
-                    sk_sp<GrFragmentProcessor> clone;
+                    gr_fp<GrFragmentProcessor> clone;
                     if (makeClone) {
                         clone = fp->clone();
                     }
@@ -320,7 +320,7 @@ static GrColor4f input_texel_color4f(int i, int j) {
     return GrColor4f::FromGrColor(input_texel_color(i, j));
 }
 
-void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
+void test_draw_op(GrRenderTargetContext* rtc, gr_fp<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy) {
     GrPaint paint;
     paint.addColorTextureProcessor(std::move(inputDataProxy), nullptr, SkMatrix::I());
@@ -417,7 +417,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         int timesToInvokeFactory = 5;
         // Increase the number of attempts if the FP has child FPs since optimizations likely depend
         // on child optimizations being present.
-        sk_sp<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
+        gr_fp<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
         for (int j = 0; j < fp->numChildProcessors(); ++j) {
             // This value made a reasonable trade off between time and coverage when this test was
             // written.

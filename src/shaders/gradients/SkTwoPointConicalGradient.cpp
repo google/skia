@@ -133,12 +133,12 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #include "SkGr.h"
 #include "SkTwoPointConicalGradient_gpu.h"
 
-sk_sp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
+gr_fp<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
         const AsFPArgs& args) const {
     SkASSERT(args.fContext);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
-    sk_sp<GrFragmentProcessor> inner(Gr2PtConicalGradientEffect::Make(
+    gr_fp<GrFragmentProcessor> inner(Gr2PtConicalGradientEffect::Make(
         GrGradientEffect::CreateArgs(args.fContext, this, args.fLocalMatrix, fTileMode,
                                      std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
     if (!inner) {
