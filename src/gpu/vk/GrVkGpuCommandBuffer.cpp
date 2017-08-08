@@ -219,6 +219,10 @@ void GrVkGpuCommandBuffer::discard(GrRenderTargetProxy* proxy) {
     }
 }
 
+void GrVkGpuCommandBuffer::insertEventMarker(GrRenderTargetProxy* proxy, const char* msg) {
+    // TODO: does Vulkan have a correlate?
+}
+
 void GrVkGpuCommandBuffer::onClearStencilClip(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
                                               bool insideStencilMask) {
     SkASSERT(!clip.hasWindowRectangles());

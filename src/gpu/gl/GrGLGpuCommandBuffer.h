@@ -38,6 +38,16 @@ public:
         SkASSERT(target == fRenderTarget);
     }
 
+    void insertEventMarker(GrRenderTargetProxy* proxy, const char* msg) override {
+        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(proxy->priv().peekRenderTarget());
+        if (!fRenderTarget) {
+            fRenderTarget = target;
+        }
+        SkASSERT(target == fRenderTarget);
+
+        fGpu->insertEventMarker(msg);
+    }
+
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
                       GrRenderTargetProxy*) override {
         state->doUpload(upload);

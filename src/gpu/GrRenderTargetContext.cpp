@@ -30,6 +30,7 @@
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
+#include "ops/GrDebugMarkerOp.h"
 #include "ops/GrDiscardOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawOp.h"
@@ -1445,6 +1446,12 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
     }
     return true;
 }
+
+void GrRenderTargetContext::insertEventMarker(const SkString& str) {
+    std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fRenderTargetProxy.get(), str));
+    this->getRTOpList()->addOp(std::move(op), *this->caps());
+}
+
 
 // Can 'path' be drawn as a pair of filled nested rectangles?
 static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path, SkRect rects[2]) {

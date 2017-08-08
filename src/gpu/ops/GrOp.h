@@ -172,6 +172,7 @@ protected:
         kYes,
         kNo
     };
+
     void setBounds(const SkRect& newBounds, HasAABloat aabloat, IsZeroArea zeroArea) {
         fBounds = newBounds;
         this->setBoundsFlags(aabloat, zeroArea);
@@ -180,6 +181,10 @@ protected:
                               HasAABloat aabloat, IsZeroArea zeroArea) {
         m.mapRect(&fBounds, srcBounds);
         this->setBoundsFlags(aabloat, zeroArea);
+    }
+    void makeFullScreen(GrSurfaceProxy* proxy) {
+        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
+                        HasAABloat::kNo, IsZeroArea::kNo);
     }
 
     void joinBounds(const GrOp& that) {

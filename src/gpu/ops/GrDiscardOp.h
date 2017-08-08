@@ -31,8 +31,7 @@ public:
 
 private:
     GrDiscardOp(GrRenderTargetProxy* proxy) : INHERITED(ClassID()) {
-        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+        this->makeFullScreen(proxy);
     }
 
     bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }

@@ -26,8 +26,7 @@ public:
 protected:
     GrSemaphoreOp(uint32_t classId, sk_sp<GrSemaphore> semaphore, GrRenderTargetProxy* proxy)
         : INHERITED(classId), fSemaphore(std::move(semaphore)) {
-        this->setBounds(SkRect::MakeIWH(proxy->width(), proxy->height()),
-                        HasAABloat::kNo, IsZeroArea::kNo);
+        this->makeFullScreen(proxy);
     }
 
     sk_sp<GrSemaphore> fSemaphore;

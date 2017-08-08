@@ -313,6 +313,8 @@ public:
      */
     bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore* waitSemaphores);
 
+    void insertEventMarker(const SkString&);
+
     GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
     const GrCaps* caps() const { return fContext->caps(); }
     int width() const { return fRenderTargetProxy->width(); }
