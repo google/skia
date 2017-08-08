@@ -76,6 +76,8 @@ public:
     void addCubic(const SkPoint pts[]);
     void addClipper(SkEdgeClipper*);
 
+    EdgeType edgeType() const { return fEdgeType; }
+
     int buildPoly(const SkPath& path, const SkIRect* clip, int shiftUp, bool clipToTheRight);
 
     inline void addPolyLine(SkPoint pts[], char* &edge, size_t edgeSize, char** &edgePtr,

@@ -226,21 +226,27 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
         SkAnalyticEdge* currE   = &storage;
         bool edgeSet            = false;
 
+        int originalWinding = 1;
+        bool sortY = true;
         switch (bezier->fCount) {
             case 2: {
                 edgeSet = currE->setLine(bezier->fP0, bezier->fP1);
+                originalWinding = currE->fWinding;
                 break;
             }
             case 3: {
                 SkQuad* quad = static_cast<SkQuad*>(bezier);
                 SkPoint pts[3] = {quad->fP0, quad->fP1, quad->fP2};
                 edgeSet = static_cast<SkAnalyticQuadraticEdge*>(currE)->setQuadratic(pts);
+                originalWinding = static_cast<SkAnalyticQuadraticEdge*>(currE)->fQEdge.fWinding;
                 break;
             }
             case 4: {
+                sortY = false;
                 SkCubic* cubic = static_cast<SkCubic*>(bezier);
                 SkPoint pts[4] = {cubic->fP0, cubic->fP1, cubic->fP2, cubic->fP3};
-                edgeSet = static_cast<SkAnalyticCubicEdge*>(currE)->setCubic(pts);
+                edgeSet = static_cast<SkAnalyticCubicEdge*>(currE)->setCubic(pts, sortY);
+                originalWinding = static_cast<SkAnalyticCubicEdge*>(currE)->fCEdge.fWinding;
                 break;
             }
         }
@@ -259,7 +265,9 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
             if (lowerCeil <= upperFloor + SK_Fixed1) { // only one row is affected by the currE
                 SkFixed rowHeight = currE->fLowerY - currE->fUpperY;
                 SkFixed nextX = currE->fX + SkFixedMul(currE->fDX, rowHeight);
-                add_coverage_delta_segment<true>(iy, rowHeight, currE, nextX, &result);
+                if (iy >= clipRect.fTop && iy < clipRect.fBottom) {
+                    add_coverage_delta_segment<true>(iy, rowHeight, currE, nextX, &result);
+                }
                 continue;
             }
 
@@ -296,12 +304,13 @@ void gen_alpha_deltas(const SkPath& path, const SkRegion& clipRgn, Deltas& resul
             }
 
             // last partial row
-            if (SkIntToFixed(iy) < currE->fLowerY) {
+            if (SkIntToFixed(iy) < currE->fLowerY && iy >= clipRect.fTop && iy < clipRect.fBottom) {
                 rowHeight = currE->fLowerY - SkIntToFixed(iy);
                 nextX = currE->fX + SkFixedMul(currE->fDX, rowHeight);
                 add_coverage_delta_segment<true>(iy, rowHeight, currE, nextX, &result);
             }
-        } while (currE->update(currE->fLowerY));
+        // Intended assignment to fWinding to restore the maybe-negated winding (during updateLine)
+        } while ((currE->fWinding = originalWinding) && currE->update(currE->fLowerY, sortY));
     }
 }
 
