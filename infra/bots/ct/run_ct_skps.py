@@ -65,7 +65,7 @@ def main():
     cpu_or_gpu = 'CPU'
     cpu_or_gpu_value = 'AVX2'
     if 'GPU' in args.builder:
-      config = 'gpu'
+      config = 'gl'
       cpu_or_gpu = 'GPU'
       cpu_or_gpu_value = 'GT610'
 
