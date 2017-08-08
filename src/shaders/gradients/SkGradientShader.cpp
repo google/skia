@@ -1567,16 +1567,8 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         }
         break;
     case SkShader::kMirror_TileMode:
-        fragBuilder->codeAppendf("float clamp_t = %s;", t);
-        // TODO: Is this conditional really useful?  Since the client requested kMirror,
-        // t is likely outside [0,1] most of the time so we might as well always fall through.
-        fragBuilder->codeAppendf("if (%s < 0.0 || %s > 1.0) {", t, t);
-        fragBuilder->codeAppendf("    if (mod(floor(%s), 2.0) == 0.0) {", t);
-        fragBuilder->codeAppendf("        clamp_t = fract(%s);", t);
-        fragBuilder->codeAppendf("    } else {");
-        fragBuilder->codeAppendf("        clamp_t = 1.0 - fract(%s);", t);
-        fragBuilder->codeAppendf("    }");
-        fragBuilder->codeAppendf("}");
+        fragBuilder->codeAppendf("float t_1 = %s - 1.0;", t);
+        fragBuilder->codeAppendf("float clamp_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
         break;
     }
 
