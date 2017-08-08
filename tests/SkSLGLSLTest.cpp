@@ -360,6 +360,29 @@ DEF_TEST(SkSLMinAbs, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLFractNegative, r) {
+    static constexpr char input[] =
+        "void main() {"
+        "float x = -42.0;"
+        "sk_FragColor.r = fract(x);"
+        "}";
+    static constexpr char output_default[] =
+        "#version 400\n"
+        "out vec4 sk_FragColor;\n"
+        "void main() {\n"
+        "    sk_FragColor.x = fract(-42.0);\n"
+        "}\n";
+    static constexpr char output_workaround[] =
+        "#version 400\n"
+        "out vec4 sk_FragColor;\n"
+        "void main() {\n"
+        "    sk_FragColor.x = (0.5 - sign(-42.0) * (0.5 - fract(abs(-42.0))));\n"
+        "}\n";
+
+    test(r, input, *SkSL::ShaderCapsFactory::Default(), output_default);
+    test(r, input, *SkSL::ShaderCapsFactory::CannotUseFractForNegativeValues(), output_workaround);
+}
+
 DEF_TEST(SkSLNegatedAtan, r) {
     test(r,
          "void main() { float2 x = float2(sqrt(2)); sk_FragColor.r = atan(x.x, -x.y); }",
