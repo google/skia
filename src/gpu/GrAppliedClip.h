@@ -27,6 +27,9 @@ public:
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
+    sk_sp<GrFragmentProcessor> detachClipCoverageFragmentProcessor() {
+        return std::move(fClipCoverageFP);
+    }
     bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fClipStackID; }
 
     /**
