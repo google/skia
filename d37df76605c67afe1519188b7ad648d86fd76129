@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cbe74ef_94c20398",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-08T20:52:47Z",
+      "side": 1,
+      "message": "nit: same as SkTPin\u003cfloat\u003e(x, SK_MinS32FitsInFloat, SK_MaxS32FitsInFloat) ?",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 47
+      },
+      "revId": "d37df76605c67afe1519188b7ad648d86fd76129",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
