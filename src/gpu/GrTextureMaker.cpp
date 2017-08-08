@@ -76,7 +76,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
     return result;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
+gr_fp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                         const SkMatrix& textureMatrix,
                                         const SkRect& constraintRect,
                                         FilterConstraint filterConstraint,

@@ -25,7 +25,7 @@ private:
 public:
     GrProcessorSet(GrPaint&&);
     GrProcessorSet(SkBlendMode);
-    GrProcessorSet(sk_sp<GrFragmentProcessor> colorFP);
+    GrProcessorSet(gr_fp<GrFragmentProcessor> colorFP);
     GrProcessorSet(GrProcessorSet&&);
     GrProcessorSet(const GrProcessorSet&) = delete;
     GrProcessorSet& operator=(const GrProcessorSet&) = delete;

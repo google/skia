@@ -24,7 +24,7 @@ public:
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
+    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
                                            sk_sp<GrColorSpaceXform>
                                                    colorXform,
                                            sk_sp<GrTextureProxy>
@@ -32,11 +32,11 @@ public:
                                            float innerThreshold,
                                            float outerThreshold,
                                            const SkIRect& bounds) {
-        return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
+        return gr_fp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
                 image, colorXform, mask, innerThreshold, outerThreshold, bounds));
     }
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
-    sk_sp<GrFragmentProcessor> clone() const override;
+    gr_fp<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
 
 private:

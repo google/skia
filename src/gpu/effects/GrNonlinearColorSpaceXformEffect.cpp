@@ -173,8 +173,8 @@ GrNonlinearColorSpaceXformEffect::GrNonlinearColorSpaceXformEffect(
     memcpy(fDstTransferFnCoeffs, that.fDstTransferFnCoeffs, sizeof(fDstTransferFnCoeffs));
 }
 
-sk_sp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrNonlinearColorSpaceXformEffect(*this));
+gr_fp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::clone() const {
+    return gr_fp<GrFragmentProcessor>(new GrNonlinearColorSpaceXformEffect(*this));
 }
 
 bool GrNonlinearColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -201,7 +201,7 @@ bool GrNonlinearColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) c
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrNonlinearColorSpaceXformEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::TestCreate(GrProcessorTestData* d) {
     // TODO: Generate a random variety of color spaces for this effect (it can handle wacky
     // transfer functions, etc...)
     sk_sp<SkColorSpace> srcSpace = SkColorSpace::MakeSRGBLinear();
@@ -221,7 +221,7 @@ GrGLSLFragmentProcessor* GrNonlinearColorSpaceXformEffect::onCreateGLSLInstance(
     return new GrGLNonlinearColorSpaceXformEffect();
 }
 
-sk_sp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::Make(const SkColorSpace* src,
+gr_fp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::Make(const SkColorSpace* src,
                                                                   const SkColorSpace* dst) {
     if (!src || !dst || SkColorSpace::Equals(src, dst)) {
         // No conversion possible (or necessary)
@@ -257,6 +257,6 @@ sk_sp<GrFragmentProcessor> GrNonlinearColorSpaceXformEffect::Make(const SkColorS
         }
     }
 
-    return sk_sp<GrFragmentProcessor>(new GrNonlinearColorSpaceXformEffect(
+    return gr_fp<GrFragmentProcessor>(new GrNonlinearColorSpaceXformEffect(
             ops, srcTransferFn, dstTransferFn, srcToDstMtx));
 }
