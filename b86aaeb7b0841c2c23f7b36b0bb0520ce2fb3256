@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5ebcc9a_239a2c96",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-08T12:13:20Z",
+      "side": 1,
+      "message": "Do you happen to know if we have tests for these cases with repeat and mirror tile mode? I\u0027m not sure the generated code works in those cases.",
+      "range": {
+        "startLine": 1336,
+        "startChar": 11,
+        "endLine": 1346,
+        "endChar": 13
+      },
+      "revId": "b86aaeb7b0841c2c23f7b36b0bb0520ce2fb3256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd0b5047_9df56340",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1617,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-08T12:13:20Z",
+      "side": 1,
+      "message": "Should these three lines be moved above the switch?",
+      "range": {
+        "startLine": 1614,
+        "startChar": 12,
+        "endLine": 1617,
+        "endChar": 55
+      },
+      "revId": "b86aaeb7b0841c2c23f7b36b0bb0520ce2fb3256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
