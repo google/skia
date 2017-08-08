@@ -70,7 +70,6 @@ GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
-    canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     return "";
 }

@@ -16,7 +16,6 @@ GM::GM() {
     fBGColor = SK_ColorWHITE;
     fCanvasIsDeferred = false;
     fHaveCalledOnceBeforeDraw = false;
-    fStarterMatrix.reset();
 }
 
 GM::~GM() {}
