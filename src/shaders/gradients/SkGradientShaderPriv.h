@@ -503,6 +503,14 @@ protected:
                    const TextureSamplers&);
 
 private:
+    void emitAnalyticalColor(GrGLSLFPFragmentBuilder* fragBuilder,
+                             GrGLSLUniformHandler* uniformHandler,
+                             const GrShaderCaps* shaderCaps,
+                             const GrGradientEffect&,
+                             const char* gradientTValue,
+                             const char* outputColor,
+                             const char* inputColor);
+
     enum {
         // First bit for premul before/after interp
         kPremulBeforeInterpKey  =  1,
