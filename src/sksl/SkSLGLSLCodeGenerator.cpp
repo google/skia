@@ -234,6 +234,18 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             return;
         }
     }
+    if (!fProgram.fSettings.fCaps->canUseFractForNegativeValues() && c.fFunction.fName == "fract" &&
+        c.fFunction.fBuiltin) {
+        ASSERT(c.fArguments.size() == 1);
+
+        this->write("(0.5 - sign(");
+        this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+        this->write(") * (0.5 - fract(abs(");
+        this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+        this->write("))))");
+
+        return;
+    }
     if (fProgram.fSettings.fCaps->mustForceNegatedAtanParamToFloat() &&
         c.fFunction.fName == "atan" &&
         c.fFunction.fBuiltin && c.fArguments.size() == 2 &&

@@ -1557,14 +1557,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
         break;
     case SkShader::kRepeat_TileMode:
-        if (shaderCaps->canUseFractForNegativeValues()) {
-            fragBuilder->codeAppendf("float clamp_t = fract(%s);", t);
-        } else {
-            // Tegra3 fract() sometimes yields undefined results when the arg is negative.
-            // TODO: relocate this workaround to GLSLCodeGenerator.
-            fragBuilder->codeAppendf("float clamp_t = 0.5 - sign(%s) * (0.5 - fract(abs(%s)));",
-                                     t, t);
-        }
+        fragBuilder->codeAppendf("float clamp_t = fract(%s);", t);
         break;
     case SkShader::kMirror_TileMode:
         fragBuilder->codeAppendf("float t_1 = %s - 1.0;", t);

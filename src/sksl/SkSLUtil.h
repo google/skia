@@ -206,6 +206,13 @@ public:
         return result;
     }
 
+    static sk_sp<GrShaderCaps> CannotUseFractForNegativeValues() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fCanUseFractForNegativeValues = false;
+        return result;
+    }
+
     static sk_sp<GrShaderCaps> MustForceNegatedAtanParamToFloat() {
         sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
         result->fVersionDeclString = "#version 400";
