@@ -750,7 +750,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             }
             untiledCanvas.flush();
             tiledCanvas.flush();
-            if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult, 0)) {
+            if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult, 1)) {
                 REPORTER_ASSERT_MESSAGE(reporter, false, filters.getName(i));
                 break;
             }
