@@ -22,6 +22,30 @@
       "revId": "583241a54176306b14c0af64c23e1a6c0326aea8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "773d42e2_2195a2a3",
+        "filename": "src/shaders/gradients/Sk4fGradientPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-08T13:45:16Z",
+      "side": 1,
+      "message": "Good point, will do.",
+      "parentUuid": "68f37aea_d02ac425",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 2
+      },
+      "revId": "583241a54176306b14c0af64c23e1a6c0326aea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
