@@ -143,7 +143,7 @@ sk_sp<SkTypeface> SkTypeface::MakeFromTypeface(SkTypeface* family, Style s) {
         return SkTypeface::MakeDefault(s);
     }
 
-    if (family->style() == s) {
+    if (family->fontStyle() == SkFontStyle::FromOldStyle(s)) {
         return sk_ref_sp(family);
     }
 
