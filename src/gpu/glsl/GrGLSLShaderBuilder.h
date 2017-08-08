@@ -37,23 +37,23 @@ public:
     void appendTextureLookup(SkString* out,
                              SamplerHandle,
                              const char* coordName,
-                             GrSLType coordType = kVec2f_GrSLType) const;
+                             GrSLType coordType = kHalf2_GrSLType) const;
 
     /** Version of above that appends the result to the shader code instead.*/
     void appendTextureLookup(SamplerHandle,
                              const char* coordName,
-                             GrSLType coordType = kVec2f_GrSLType,
+                             GrSLType coordType = kHalf2_GrSLType,
                              GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
 
     /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a float4. modulation and the swizzle specified by SamplerHandle must both be
-        float4 or float. If modulation is "" or nullptr it this function acts as though
+        always a half4. modulation and the swizzle specified by SamplerHandle must both be
+        half4 or half. If modulation is "" or nullptr it this function acts as though
         appendTextureLookup were called. */
     void appendTextureLookupAndModulate(const char* modulation,
                                         SamplerHandle,
                                         const char* coordName,
-                                        GrSLType coordType = kVec2f_GrSLType,
+                                        GrSLType coordType = kHalf2_GrSLType,
                                         GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
     /** Adds a helper function to facilitate color gamut transformation, and produces code that
