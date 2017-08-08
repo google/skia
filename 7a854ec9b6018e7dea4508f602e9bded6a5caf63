@@ -22,6 +22,30 @@
       "revId": "7a854ec9b6018e7dea4508f602e9bded6a5caf63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d9ba058_715ef8f2",
+        "filename": "include/codec/SkCodecAnimation.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-08-08T17:41:35Z",
+      "side": 1,
+      "message": "Thank you. :) Fixed.",
+      "parentUuid": "c028199a_7b465397",
+      "range": {
+        "startLine": 57,
+        "startChar": 14,
+        "endLine": 57,
+        "endChar": 24
+      },
+      "revId": "7a854ec9b6018e7dea4508f602e9bded6a5caf63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
