@@ -185,7 +185,7 @@ public:
     // in the render pass.
     void beginRenderPass(const GrVkGpu* gpu,
                          const GrVkRenderPass* renderPass,
-                         const VkClearValue* clearValues,
+                         const VkClearValue clearValues[],
                          const GrVkRenderTarget& target,
                          const SkIRect& bounds,
                          bool forSecondaryCB);
