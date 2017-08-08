@@ -47,8 +47,10 @@ public:
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {}
 
-    GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                            const GrGpuCommandBuffer::LoadAndStoreInfo&) override {
+    GrGpuCommandBuffer* createCommandBuffer(
+                                    GrRenderTarget*, GrSurfaceOrigin,
+                                    const GrGpuCommandBuffer::LoadAndStoreInfo&,
+                                    const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override {
         return nullptr;
     }
 
@@ -138,7 +140,7 @@ private:
         return nullptr;
     }
 
-    void clearStencil(GrRenderTarget* target) override  {}
+    void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h,
                                                     GrPixelConfig config, bool isRT) override {

@@ -371,8 +371,9 @@ public:
     // awkward workaround that goes away after MDB is complete and the render target is known from
     // the GrRenderTargetOpList.
     virtual GrGpuCommandBuffer* createCommandBuffer(
-            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) = 0;
+            GrRenderTarget*, GrSurfaceOrigin,
+            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
@@ -479,7 +480,7 @@ public:
                                                                         int width,
                                                                         int height) = 0;
     // clears target's entire stencil buffer to 0
-    virtual void clearStencil(GrRenderTarget* target) = 0;
+    virtual void clearStencil(GrRenderTarget* target, int clearValue) = 0;
 
     // Determines whether a texture will need to be rescaled in order to be used with the
     // GrSamplerParams. This variation is called when the caller will create a new texture using the

@@ -258,9 +258,10 @@ void GrVkGpu::disconnect(DisconnectType type) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
+            GrRenderTarget* rt, GrSurfaceOrigin origin,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
+            const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return new GrVkGpuCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
 }
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
@@ -1474,8 +1475,8 @@ void GrVkGpu::onFinishFlush(bool insertedSemaphore) {
     this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
-void GrVkGpu::clearStencil(GrRenderTarget* target) {
-    if (nullptr == target) {
+void GrVkGpu::clearStencil(GrRenderTarget* target, int clearValue) {
+    if (!target) {
         return;
     }
     GrStencilAttachment* stencil = target->renderTargetPriv().getStencilAttachment();
@@ -1483,7 +1484,8 @@ void GrVkGpu::clearStencil(GrRenderTarget* target) {
 
 
     VkClearDepthStencilValue vkStencilColor;
-    memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
+    vkStencilColor.depth = 0.0f;
+    vkStencilColor.stencil = clearValue;
 
     vkStencil->setImageLayout(this,
                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1971,6 +1973,7 @@ void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
 void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>& buffers,
                                            const GrVkRenderPass* renderPass,
                                            const VkClearValue* colorClear,
+                                           const VkClearValue* stencilClear,
                                            GrVkRenderTarget* target,
                                            const SkIRect& bounds) {
     const SkIRect* pBounds = &bounds;
@@ -1993,7 +1996,20 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
         pBounds = &adjustedBounds;
     }
 
-    fCurrentCmdBuffer->beginRenderPass(this, renderPass, colorClear, *target, *pBounds, true);
+#ifdef SK_DEBUG
+    uint32_t index;
+    bool result = renderPass->colorAttachmentIndex(&index);
+    SkASSERT(result && 0 == index);
+    result = renderPass->stencilAttachmentIndex(&index);
+    if (result) {
+        SkASSERT(1 == index);
+    }
+#endif
+    VkClearValue clears[2];
+    clears[0].color = colorClear->color;
+    clears[1].depthStencil = stencilClear->depthStencil;
+
+    fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
     for (int i = 0; i < buffers.count(); ++i) {
         fCurrentCmdBuffer->executeCommands(this, buffers[i]);
     }

@@ -2004,8 +2004,8 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* targ
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
-void GrGLGpu::clearStencil(GrRenderTarget* target) {
-    if (nullptr == target) {
+void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
+    if (!target) {
         return;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
@@ -2015,7 +2015,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target) {
     this->disableWindowRectangles();
 
     GL_CALL(StencilMask(0xffffffff));
-    GL_CALL(ClearStencil(0));
+    GL_CALL(ClearStencil(clearValue));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWStencilSettings.invalidate();
 }
@@ -2448,9 +2448,10 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 }
 
 GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
-        const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
-        const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this);
+        GrRenderTarget* rt, GrSurfaceOrigin,
+        const GrGpuCommandBuffer::LoadAndStoreInfo&,
+        const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return new GrGLGpuCommandBuffer(this, rt, stencilInfo);
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {

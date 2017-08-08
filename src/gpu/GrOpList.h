@@ -82,6 +82,9 @@ public:
 
     int32_t uniqueID() const { return fUniqueID; }
 
+    void setRequiresStencil() { this->setFlag(kClearStencilBuffer_Flag); }
+    bool requiresStencil() { return this->isSetFlag(kClearStencilBuffer_Flag); }
+
     /*
      * Dump out the GrOpList dependency DAG
      */
@@ -104,6 +107,8 @@ private:
 
         kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
         kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+
+        kClearStencilBuffer_Flag = 0x08 //!< Clear the SB before executing the ops
     };
 
     void setFlag(uint32_t flag) {
