@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93830e5c_d98b9d9e",
+        "filename": "src/gpu/ops/GrDebugMarkerOp.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-08T12:22:04Z",
+      "side": 1,
+      "message": "We have several ops that do this trick, should we capture it in a helper func?",
+      "revId": "06857b3aec8bec8ac1eb8c20aed91594f728270a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
