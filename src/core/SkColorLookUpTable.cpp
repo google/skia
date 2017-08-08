@@ -11,25 +11,54 @@
 
 void SkColorLookUpTable::interp(float* dst, const float* src) const {
     if (fInputChannels == 3) {
-        interp3D(dst, src);
-    } else {
-        SkASSERT(dst != src);
-        // index gets initialized as the algorithm proceeds by interpDimension.
-        // It's just there to store the choice of low/high so far.
-        int index[kMaxColorChannels];
-        for (uint8_t outputDimension = 0; outputDimension < kOutputChannels; ++outputDimension) {
-            dst[outputDimension] = interpDimension(src, fInputChannels - 1, outputDimension,
-                                                   index);
-        }
+        return this->interp3D(dst, src);
     }
+
+    Sk4f rgb;
+    switch (fInputChannels-1) {
+        case 0: rgb = this->interpDimension<0>(src); break;
+        case 1: rgb = this->interpDimension<1>(src); break;
+        case 3: rgb = this->interpDimension<3>(src); break;
+        default: SkDEBUGFAIL("oops");
+    }
+
+    rgb = Sk4f::Max(0, Sk4f::Min(rgb, 1));
+    dst[0] = rgb[0];
+    dst[1] = rgb[1];
+    dst[2] = rgb[2];
+}
+
+template <int dim>
+Sk4f SkColorLookUpTable::interpDimension(const float* src, int index, int stride) const {
+    int limit = fLimits[dim];
+    float x = src[dim] * (limit - 1);
+
+    int lo = (int)(x          ),
+        hi = (int)(x + 0.9999f);
+
+    Sk4f L = this->interpDimension<dim-1>(src, stride*lo + index, stride*limit),
+         H = this->interpDimension<dim-1>(src, stride*hi + index, stride*limit);
+
+    float t = (x - lo);
+    return (1 - t)*L + t*H;
+}
+
+template <>
+Sk4f SkColorLookUpTable::interpDimension<-1>(const float* src, int index, int stride) const {
+    return {
+        this->table()[kOutputChannels*index+0],
+        this->table()[kOutputChannels*index+1],
+        this->table()[kOutputChannels*index+2],
+        0.0f,
+    };
 }
 
 void SkColorLookUpTable::interp3D(float* dst, const float* src) const {
     SkASSERT(3 == kOutputChannels);
     // Call the src components x, y, and z.
-    const uint8_t maxX = fGridPoints[0] - 1;
-    const uint8_t maxY = fGridPoints[1] - 1;
-    const uint8_t maxZ = fGridPoints[2] - 1;
+    const uint8_t maxX = fLimits[0] - 1;
+    const uint8_t maxY = fLimits[1] - 1;
+    const uint8_t maxZ = fLimits[2] - 1;
 
     // An approximate index into each of the three dimensions of the table.
     const float x = src[0] * maxX;
@@ -55,8 +84,8 @@ void SkColorLookUpTable::interp3D(float* dst, const float* src) const {
     // Ex: Assume x = a, y = b, z = c.
     //     table[a * n001 + b * n010 + c * n100] logically equals table[a][b][c].
     const int n000 = 0;
-    const int n001 = 3 * fGridPoints[1] * fGridPoints[2];
-    const int n010 = 3 * fGridPoints[2];
+    const int n001 = 3 * fLimits[1] * fLimits[2];
+    const int n010 = 3 * fLimits[2];
     const int n011 = n001 + n010;
     const int n100 = 3;
     const int n101 = n100 + n001;
@@ -123,37 +152,4 @@ void SkColorLookUpTable::interp3D(float* dst, const float* src) const {
         // components.
         ptr++;
     }
-}
-
-float SkColorLookUpTable::interpDimension(const float* src, int inputDimension,
-                                          int outputDimension,
-                                          int index[kMaxColorChannels]) const {
-    // Base case. We've already decided whether to use the low or high point for each dimension
-    // which is stored inside of index[] where index[i] gives the point in the CLUT to use for
-    // input dimension i.
-    if (inputDimension < 0) {
-        // compute index into CLUT and look up the colour
-        int outputIndex = outputDimension;
-        int indexMultiplier = kOutputChannels;
-        for (int i = fInputChannels - 1; i >= 0; --i) {
-            outputIndex += index[i] * indexMultiplier;
-            indexMultiplier *= fGridPoints[i];
-        }
-        return table()[outputIndex];
-    }
-    // for each dimension (input channel), try both the low and high point for it
-    // and then do the same recursively for the later dimensions.
-    // Finally, we need to LERP the results. ie LERP X then LERP Y then LERP Z.
-    const float x = src[inputDimension] * (fGridPoints[inputDimension] - 1);
-    // try the low point for this dimension
-    index[inputDimension] = sk_float_floor2int(x);
-    const float diff = x - index[inputDimension];
-    // and recursively LERP all sub-dimensions with the current dimension fixed to the low point
-    const float lo = interpDimension(src, inputDimension - 1, outputDimension, index);
-    // now try the high point for this dimension
-    index[inputDimension] = sk_float_ceil2int(x);
-    // and recursively LERP all sub-dimensions with the current dimension fixed to the high point
-    const float hi = interpDimension(src, inputDimension - 1, outputDimension, index);
-    // then LERP the results based on the current dimension
-    return clamp_0_1((1 - diff) * lo + diff * hi);
 }
