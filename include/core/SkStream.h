@@ -37,8 +37,16 @@ class SkStreamMemory;
  *  no more data (at EOF or hit an error). The caller should *not* call again
  *  in hopes of fulfilling more of the request.
  */
-class SK_API SkStream : public SkNoncopyable {
+class SK_API SkStream {
 public:
+    SkStream() = default;
+
+    SkStream(const SkStream&) = delete;
+    SkStream& operator =(const SkStream&) = delete;
+
+    SkStream(SkStream&&) = default;
+    SkStream& operator =(SkStream&&) = default;
+
     virtual ~SkStream() {}
 
     /**
@@ -144,6 +152,14 @@ public:
 /** SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
 class SK_API SkStreamRewindable : public SkStream {
 public:
+    SkStreamRewindable() = default;
+
+    SkStreamRewindable(const SkStreamRewindable&) = delete;
+    SkStreamRewindable& operator =(const SkStreamRewindable&) = delete;
+
+    SkStreamRewindable(SkStreamRewindable&&) = default;
+    SkStreamRewindable& operator =(SkStreamRewindable&&) = default;
+
     bool rewind() override = 0;
     SkStreamRewindable* duplicate() const override = 0;
 };
@@ -151,6 +167,14 @@ public:
 /** SkStreamSeekable is a SkStreamRewindable for which position, seek, move, and fork are required. */
 class SK_API SkStreamSeekable : public SkStreamRewindable {
 public:
+    SkStreamSeekable() = default;
+
+    SkStreamSeekable(const SkStreamSeekable&) = delete;
+    SkStreamSeekable& operator =(const SkStreamSeekable&) = delete;
+
+    SkStreamSeekable(SkStreamSeekable&&) = default;
+    SkStreamSeekable& operator =(SkStreamSeekable&&) = default;
+
     SkStreamSeekable* duplicate() const override = 0;
 
     bool hasPosition() const override { return true; }
@@ -163,6 +187,14 @@ public:
 /** SkStreamAsset is a SkStreamSeekable for which getLength is required. */
 class SK_API SkStreamAsset : public SkStreamSeekable {
 public:
+    SkStreamAsset() = default;
+
+    SkStreamAsset(const SkStreamAsset&) = delete;
+    SkStreamAsset& operator =(const SkStreamAsset&) = delete;
+
+    SkStreamAsset(SkStreamAsset&&) = default;
+    SkStreamAsset& operator =(SkStreamAsset&&) = default;
+
     SkStreamAsset* duplicate() const override = 0;
     SkStreamAsset* fork() const override = 0;
 
@@ -173,14 +205,30 @@ public:
 /** SkStreamMemory is a SkStreamAsset for which getMemoryBase is required. */
 class SK_API SkStreamMemory : public SkStreamAsset {
 public:
+    SkStreamMemory() = default;
+
+    SkStreamMemory(const SkStreamMemory&) = delete;
+    SkStreamMemory& operator =(const SkStreamMemory&) = delete;
+
+    SkStreamMemory(SkStreamMemory&&) = default;
+    SkStreamMemory& operator =(SkStreamMemory&&) = default;
+
     SkStreamMemory* duplicate() const override = 0;
     SkStreamMemory* fork() const override = 0;
 
     const void* getMemoryBase() override = 0;
 };
 
-class SK_API SkWStream : SkNoncopyable {
+class SK_API SkWStream {
 public:
+    SkWStream() = default;
+
+    SkWStream(const SkWStream&) = delete;
+    SkWStream& operator =(const SkWStream&) = delete;
+
+    SkWStream(SkWStream&&) = default;
+    SkWStream& operator =(SkWStream&&) = default;
+
     virtual ~SkWStream();
 
     /** Called to write bytes to a SkWStream. Returns true on success
@@ -236,6 +284,12 @@ class SK_API SkNullWStream : public SkWStream {
 public:
     SkNullWStream() : fBytesWritten(0) {}
 
+    SkNullWStream(const SkNullWStream&) = delete;
+    SkNullWStream& operator =(const SkNullWStream&) = delete;
+
+    SkNullWStream(SkNullWStream&&) = default;
+    SkNullWStream& operator =(SkNullWStream&&) = default;
+
     bool write(const void*, size_t n) override { fBytesWritten += n; return true; }
     void flush() override {}
     size_t bytesWritten() const override { return fBytesWritten; }
@@ -251,6 +305,14 @@ private:
 /** A stream that wraps a C FILE* file stream. */
 class SK_API SkFILEStream : public SkStreamAsset {
 public:
+    SkFILEStream() = default;
+
+    SkFILEStream(const SkFILEStream&) = delete;
+    SkFILEStream& operator =(const SkFILEStream&) = delete;
+
+    SkFILEStream(SkFILEStream&&) = default;
+    SkFILEStream& operator =(SkFILEStream&&) = default;
+
     /** Initialize the stream by calling sk_fopen on the specified path.
      *  This internal stream will be closed in the destructor.
      */
@@ -303,6 +365,12 @@ private:
 class SK_API SkMemoryStream : public SkStreamMemory {
 public:
     SkMemoryStream();
+
+    SkMemoryStream(const SkMemoryStream&) = delete;
+    SkMemoryStream& operator =(const SkMemoryStream&) = delete;
+
+    SkMemoryStream(SkMemoryStream&&) = default;
+    SkMemoryStream& operator =(SkMemoryStream&&) = default;
 
     /** We allocate (and free) the memory. Write to it via getMemoryBase() */
     SkMemoryStream(size_t length);
@@ -368,7 +436,15 @@ private:
 
 class SK_API SkFILEWStream : public SkWStream {
 public:
+    SkFILEWStream() = default;
     SkFILEWStream(const char path[]);
+
+    SkFILEWStream(const SkFILEWStream&) = delete;
+    SkFILEWStream& operator =(const SkFILEWStream&) = delete;
+
+    SkFILEWStream(SkFILEWStream&&) = default;
+    SkFILEWStream& operator =(SkFILEWStream&&) = default;
+
     ~SkFILEWStream() override;
 
     /** Returns true if the current path could be opened.
@@ -389,6 +465,13 @@ private:
 class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
     SkDynamicMemoryWStream();
+
+    SkDynamicMemoryWStream(const SkDynamicMemoryWStream&) = delete;
+    SkDynamicMemoryWStream& operator =(const SkDynamicMemoryWStream&) = delete;
+
+    SkDynamicMemoryWStream(SkDynamicMemoryWStream&&) = default;
+    SkDynamicMemoryWStream& operator =(SkDynamicMemoryWStream&&) = default;
+
     ~SkDynamicMemoryWStream() override;
 
     bool write(const void* buffer, size_t size) override;
