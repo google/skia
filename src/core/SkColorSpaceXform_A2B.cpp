@@ -119,16 +119,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             currentChannels = 4;
             // CMYK images from JPEGs (the only format that supports it) are actually
             // inverted CMYK, so we need to invert every channel.
-            // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
-            SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
-            fn.fG =  1;
-            fn.fA =  0;
-            fn.fB =  0;
-            fn.fC = -1;
-            fn.fD =  1;
-            fn.fE =  0;
-            fn.fF =  1;
-            this->addTransferFns(fn,4);
+            fElementsPipeline.append(SkRasterPipeline::invert);
             break;
         }
         default:
