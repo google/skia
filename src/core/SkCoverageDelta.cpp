@@ -79,6 +79,9 @@ SkCoverageDeltaMask::SkCoverageDeltaMask(const SkIRect& bounds) : fBounds(bounds
     memset(fDeltaStorage, 0, (fExpandedWidth * bounds.height() + PADDING * 2) * sizeof(SkFixed));;
 }
 
+// TODO As this function is so performance-critical (and we're thinking so much about SIMD), use
+// SkOpts framework to compile multiple versions of this function so we can choose the best one
+// available at runtime.
 void SkCoverageDeltaMask::convertCoverageToAlpha(bool isEvenOdd, bool isInverse, bool isConvex) {
     SkFixed* deltaRow = &this->delta(fBounds.fLeft, fBounds.fTop);
     SkAlpha* maskRow = fMask;
@@ -117,24 +120,11 @@ void SkCoverageDeltaMask::convertCoverageToAlpha(bool isEvenOdd, bool isInverse,
                 c[j] = c[j - 1] + deltaRow[ix + j];
             }
 
-            // My SIMD CoverageToAlpha seems to be only faster with SSSE3.
-            // (On linux, even with -mavx2, my SIMD still seems to be slow...)
-            // Even with only SSSE2, it's still faster to do SIMD_WIDTH non-SIMD computations at one
-            // time (i.e., SIMD_WIDTH = 8 is faster than SIMD_WIDTH = 1 even if SK_CPU_SSE_LEVEL is
-            // less than SK_CPU_SSE_LEVEL_SSSE3). Maybe the compiler is doing some SIMD by itself.
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
             using SkNi = SkNx<SIMD_WIDTH, int>;
-
             SkNi cn = SkNi::Load(c);
             SkNi an = isConvex ? ConvexCoverageToAlpha(cn, isInverse)
                                : CoverageToAlpha(cn, isEvenOdd, isInverse);
             SkNx_cast<SkAlpha>(an).store(maskRow + ix);
-#else
-            for(int j = 0; j < SIMD_WIDTH; ++j) {
-                maskRow[ix + j] = isConvex ? ConvexCoverageToAlpha(c[j], isInverse)
-                                           : CoverageToAlpha(c[j], isEvenOdd, isInverse);
-            }
-#endif
         }
 
         // Finally, advance to the next row
