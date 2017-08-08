@@ -43,8 +43,8 @@ protected:
         this->setBounds(rect, HasAABloat::kYes, IsZeroArea::kNo);
     }
 
-    const GrPipeline* makePipeline(Target* target) const {
-        return target->makePipeline(0, &fProcessorSet);
+    const GrPipeline* makePipeline(Target* target) {
+        return target->makePipeline(0, std::move(fProcessorSet));
     }
 
     const GrGeometryProcessor* gp() const { return fGeometryProcessor.get(); }
@@ -78,7 +78,7 @@ private:
     BezierCubicTestOp(sk_sp<GrGeometryProcessor> gp, const SkRect& rect, GrColor color)
             : INHERITED(std::move(gp), rect, color, ClassID()) {}
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         QuadHelper helper;
         size_t vertexStride = this->gp()->getVertexStride();
         SkASSERT(vertexStride == sizeof(SkPoint));
@@ -253,7 +253,7 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         QuadHelper helper;
         size_t vertexStride = this->gp()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));
@@ -467,7 +467,7 @@ private:
         float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
     };
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         QuadHelper helper;
         size_t vertexStride = this->gp()->getVertexStride();
         SkASSERT(vertexStride == sizeof(Vertex));

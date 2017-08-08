@@ -225,7 +225,7 @@ private:
         return path;
     }
 
-    void draw(Target* target, const GrGeometryProcessor* gp) const {
+    void draw(Target* target, const GrGeometryProcessor* gp) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
@@ -276,7 +276,7 @@ private:
         rp->assignUniqueKeyToResource(key, allocator.vertexBuffer());
     }
 
-    void drawAA(Target* target, const GrGeometryProcessor* gp) const {
+    void drawAA(Target* target, const GrGeometryProcessor* gp) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -293,10 +293,10 @@ private:
         if (count == 0) {
             return;
         }
-        drawVertices(target, gp, allocator.vertexBuffer(), allocator.firstVertex(), count);
+        this->drawVertices(target, gp, allocator.vertexBuffer(), allocator.firstVertex(), count);
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -335,7 +335,7 @@ private:
     }
 
     void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
-                      int firstVertex, int count) const {
+                      int firstVertex, int count) {
         GrMesh mesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines : GrPrimitiveType::kTriangles);
         mesh.setNonIndexedNonInstanced(count);
         mesh.setVertexData(vb, firstVertex);

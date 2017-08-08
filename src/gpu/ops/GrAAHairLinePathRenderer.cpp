@@ -801,7 +801,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target*) const override;
+    void onPrepareDraws(Target*) override;
 
     typedef SkTArray<SkPoint, true> PtArray;
     typedef SkTArray<int, true> IntArray;
@@ -865,7 +865,7 @@ private:
 
 }  // anonymous namespace
 
-void AAHairlineOp::onPrepareDraws(Target* target) const {
+void AAHairlineOp::onPrepareDraws(Target* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
