@@ -258,8 +258,9 @@ void GrVkGpu::disconnect(DisconnectType type) {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
+            GrRenderTarget*,
             const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) {
+            const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
     return new GrVkGpuCommandBuffer(this, colorInfo, stencilInfo);
 }
 
@@ -1474,8 +1475,8 @@ void GrVkGpu::onFinishFlush(bool insertedSemaphore) {
     this->submitCommandBuffer(kSkip_SyncQueue);
 }
 
-void GrVkGpu::clearStencil(GrRenderTarget* target) {
-    if (nullptr == target) {
+void GrVkGpu::clearStencil(GrRenderTarget* target, int clearValue) {
+    if (!target) {
         return;
     }
     GrStencilAttachment* stencil = target->renderTargetPriv().getStencilAttachment();
@@ -1483,7 +1484,8 @@ void GrVkGpu::clearStencil(GrRenderTarget* target) {
 
 
     VkClearDepthStencilValue vkStencilColor;
-    memset(&vkStencilColor, 0, sizeof(VkClearDepthStencilValue));
+    vkStencilColor.depth = 0.0f;
+    vkStencilColor.stencil = clearValue;
 
     vkStencil->setImageLayout(this,
                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

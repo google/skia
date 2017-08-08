@@ -84,16 +84,29 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     }
 }
 
-static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu) {
+static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu,
+                                                                 GrRenderTarget* rt,
+                                                                 bool clearSB) {
     static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
         GrGpuCommandBuffer::LoadOp::kLoad,
         GrGpuCommandBuffer::StoreOp::kStore,
         GrColor_ILLEGAL
     };
 
+    // TODO:
+    // We would like to (at this level) only ever clear & discard. We would need
+    // to stop splitting up higher level opLists for copyOps to achieve that.
+    // Note: we would still need SB loads and stores but they would happen at a
+    // lower level (inside the VK command buffer).
+    const GrGpuCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
+        clearSB ? GrGpuCommandBuffer::LoadOp::kClear : GrGpuCommandBuffer::LoadOp::kLoad,
+        GrGpuCommandBuffer::StoreOp::kStore,
+    };
+
     std::unique_ptr<GrGpuCommandBuffer> buffer(
-                            gpu->createCommandBuffer(kBasicLoadStoreInfo,   // Color
-                                                     kBasicLoadStoreInfo)); // Stencil
+                            gpu->createCommandBuffer(rt,
+                                                     kBasicLoadStoreInfo,       // Color
+                                                     stencilLoadAndStoreInfo)); // Stencil
     return buffer;
 }
 
@@ -116,8 +129,12 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
 
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
 
-    std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(flushState->gpu());
+    std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(
+                                                    flushState->gpu(),
+                                                    fTarget.get()->priv().peekRenderTarget(),
+                                                    this->requiresStencil());
     flushState->setCommandBuffer(commandBuffer.get());
+    commandBuffer->begin();
 
     // Draw all the generated geometry.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -133,8 +150,11 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             commandBuffer.reset();
             flushState->setCommandBuffer(commandBuffer.get());
         } else if (!commandBuffer) {
-            commandBuffer = create_command_buffer(flushState->gpu());
+            commandBuffer = create_command_buffer(flushState->gpu(),
+                                                  fTarget.get()->priv().peekRenderTarget(),
+                                                  false);
             flushState->setCommandBuffer(commandBuffer.get());
+            commandBuffer->begin();
         }
 
         GrOpFlushState::DrawOpArgs opArgs {

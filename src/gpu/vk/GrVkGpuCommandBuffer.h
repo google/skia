@@ -25,10 +25,11 @@ class GrVkGpuCommandBuffer : public GrGpuCommandBuffer, private GrMesh::SendToGp
 public:
     GrVkGpuCommandBuffer(GrVkGpu* gpu,
                          const LoadAndStoreInfo& colorInfo,
-                         const LoadAndStoreInfo& stencilInfo);
+                         const StencilLoadAndStoreInfo& stencilInfo);
 
     ~GrVkGpuCommandBuffer() override;
 
+    void begin() override;
     void end() override;
 
     void discard(GrRenderTargetProxy*) override;

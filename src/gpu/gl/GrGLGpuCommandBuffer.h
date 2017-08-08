@@ -24,10 +24,20 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu), fRenderTarget(nullptr) {}
+    GrGLGpuCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt,
+                         const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
+            : fGpu(gpu)
+            , fRenderTarget(static_cast<GrGLRenderTarget*>(rt)) {
+        fClearSB = LoadOp::kClear == stencilInfo.fLoadOp;
+    }
 
     ~GrGLGpuCommandBuffer() override {}
 
+    void begin() override {
+        if (fClearSB) {
+            fGpu->clearStencil(fRenderTarget, 0x0);
+        }
+    }
     void end() override {}
 
     void discard(GrRenderTargetProxy* proxy) override {
@@ -94,6 +104,7 @@ private:
 
     GrGLGpu*                    fGpu;
     GrGLRenderTarget*           fRenderTarget;
+    bool                        fClearSB;
 
     typedef GrGpuCommandBuffer INHERITED;
 };
