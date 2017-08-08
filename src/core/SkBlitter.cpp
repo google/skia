@@ -913,7 +913,7 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
         return true;
     }
     // ... or unless the shader is raster pipeline-only.
-    if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly()) {
+    if (paint.getShader() && as_SB(paint.getShader())->isRasterPipelineOnly(matrix)) {
         return true;
     }
 
