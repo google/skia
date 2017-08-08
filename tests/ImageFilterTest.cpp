@@ -38,6 +38,7 @@
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -749,12 +750,9 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
             }
             untiledCanvas.flush();
             tiledCanvas.flush();
-            for (int y = 0; y < height; y++) {
-                int diffs = memcmp(untiledResult.getAddr32(0, y), tiledResult.getAddr32(0, y), untiledResult.rowBytes());
-                REPORTER_ASSERT_MESSAGE(reporter, !diffs, filters.getName(i));
-                if (diffs) {
-                    break;
-                }
+            if (!sk_tool_utils::equal_pixels(untiledResult, tiledResult, 0)) {
+                REPORTER_ASSERT_MESSAGE(reporter, false, filters.getName(i));
+                break;
             }
         }
     }

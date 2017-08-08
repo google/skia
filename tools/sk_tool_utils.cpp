@@ -15,6 +15,7 @@
 #include "SkFontMgr.h"
 #include "SkFontStyle.h"
 #include "SkPixelRef.h"
+#include "SkPM4f.h"
 #include "SkPoint3.h"
 #include "SkShader.h"
 #include "SkTestScalerContext.h"
@@ -505,4 +506,91 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
     }
 }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    static int scale255(float x) {
+        return sk_float_round2int(x * 255);
+    }
+
+    static unsigned diff(const SkColorType ct, const void* a, const void* b) {
+        int dr = 0,
+            dg = 0,
+            db = 0,
+            da = 0;
+        switch (ct) {
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType: {
+                SkPMColor c0 = *(const SkPMColor*)a;
+                SkPMColor c1 = *(const SkPMColor*)b;
+                dr = SkGetPackedR32(c0) - SkGetPackedR32(c1);
+                dg = SkGetPackedG32(c0) - SkGetPackedG32(c1);
+                db = SkGetPackedB32(c0) - SkGetPackedB32(c1);
+                da = SkGetPackedA32(c0) - SkGetPackedA32(c1);
+            } break;
+            case kRGB_565_SkColorType: {
+                uint16_t c0 = *(const uint16_t*)a;
+                uint16_t c1 = *(const uint16_t*)b;
+                dr = SkGetPackedR16(c0) - SkGetPackedR16(c1);
+                dg = SkGetPackedG16(c0) - SkGetPackedG16(c1);
+                db = SkGetPackedB16(c0) - SkGetPackedB16(c1);
+            } break;
+            case kARGB_4444_SkColorType: {
+                uint16_t c0 = *(const uint16_t*)a;
+                uint16_t c1 = *(const uint16_t*)b;
+                dr = SkGetPackedR4444(c0) - SkGetPackedR4444(c1);
+                dg = SkGetPackedG4444(c0) - SkGetPackedG4444(c1);
+                db = SkGetPackedB4444(c0) - SkGetPackedB4444(c1);
+                da = SkGetPackedA4444(c0) - SkGetPackedA4444(c1);
+            } break;
+            case kAlpha_8_SkColorType:
+            case kGray_8_SkColorType:
+                da = (const uint8_t*)a - (const uint8_t*)b;
+                break;
+            case kRGBA_F16_SkColorType: {
+                const SkPM4f* c0 = (const SkPM4f*)a;
+                const SkPM4f* c1 = (const SkPM4f*)b;
+                dr = scale255(c0->r() - c1->r());
+                dg = scale255(c0->g() - c1->g());
+                db = scale255(c0->b() - c1->b());
+                da = scale255(c0->a() - c1->a());
+            } break;
+            default:
+                return 0;
+        }
+        dr = SkAbs32(dr);
+        dg = SkAbs32(dg);
+        db = SkAbs32(db);
+        da = SkAbs32(da);
+        return SkMax32(dr, SkMax32(dg, SkMax32(db, da)));
+    }
+
+    bool equal_pixels(const SkPixmap& a, const SkPixmap& b, unsigned maxDiff) {
+        if (a.width() != b.width() ||
+            a.height() != b.height() ||
+            a.colorType() != b.colorType() ||
+            a.colorSpace() != b.colorSpace())
+        {
+            return false;
+        }
+
+        for (int y = 0; y < a.height(); ++y) {
+            const char* aptr = (const char*)a.addr(0, y);
+            const char* bptr = (const char*)b.addr(0, y);
+            if (memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
+                for (int x = 0; x < a.width(); ++x) {
+                    if (diff(a.colorType(), a.addr(x, y), b.addr(x, y)) > maxDiff) {
+                        return false;
+                    }
+                }
+            }
+            aptr += a.rowBytes();
+            bptr += b.rowBytes();
+        }
+        return true;
+    }
+
+    bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1, unsigned maxDiff) {
+        SkPixmap pm0, pm1;
+        return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) && equal_pixels(pm0, pm1, maxDiff);
+    }
 }  // namespace sk_tool_utils
