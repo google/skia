@@ -23,12 +23,13 @@ class GrVkSecondaryCommandBuffer;
 
 class GrVkGpuCommandBuffer : public GrGpuCommandBuffer, private GrMesh::SendToGpuImpl {
 public:
-    GrVkGpuCommandBuffer(GrVkGpu* gpu,
-                         const LoadAndStoreInfo& colorInfo,
-                         const LoadAndStoreInfo& stencilInfo);
+    GrVkGpuCommandBuffer(GrVkGpu*, GrRenderTarget*, GrSurfaceOrigin,
+                         const LoadAndStoreInfo&,
+                         const StencilLoadAndStoreInfo&);
 
     ~GrVkGpuCommandBuffer() override;
 
+    void begin() override;
     void end() override;
 
     void discard(GrRenderTargetProxy*) override;
@@ -111,6 +112,7 @@ private:
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
         VkClearValue                           fColorClearValue;
+        VkClearValue                           fStencilClearValue;
         SkRect                                 fBounds;
         bool                                   fIsEmpty;
         bool                                   fStartsWithClear;

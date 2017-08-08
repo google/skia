@@ -39,8 +39,10 @@ GrGpu* GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOption
 }
 
 
-GrGpuCommandBuffer* GrMockGpu::createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                                   const GrGpuCommandBuffer::LoadAndStoreInfo&) {
+GrGpuCommandBuffer* GrMockGpu::createCommandBuffer(
+                                            GrRenderTarget*, GrSurfaceOrigin,
+                                            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+                                            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) {
     return new GrMockGpuCommandBuffer(this);
 }
 

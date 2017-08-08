@@ -450,7 +450,6 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
             height = SkNextPow2(height);
         }
 #endif
-        bool newStencil = false;
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(width, height,
                                                                rt->numStencilSamples(), &sbKey);
         GrStencilAttachment* stencil = static_cast<GrStencilAttachment*>(
@@ -460,21 +459,14 @@ GrStencilAttachment* GrResourceProvider::attachStencilAttachment(GrRenderTarget*
             stencil = this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height);
             if (stencil) {
                 this->assignUniqueKeyToResource(sbKey, stencil);
-                newStencil = true;
             }
         }
         if (rt->renderTargetPriv().attachStencilAttachment(stencil)) {
-            if (newStencil) {
-                // Right now we're clearing the stencil attachment here after it is
-                // attached to a RT for the first time. When we start matching
-                // stencil buffers with smaller color targets this will no longer
-                // be correct because it won't be guaranteed to clear the entire
-                // sb.
-                // We used to clear down in the GL subclass using a special purpose
-                // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
-                // FBO status.
-                this->gpu()->clearStencil(rt);
-            }
+#ifdef SK_DEBUG
+            // Fill the SB with an inappropriate value. opLists that use the
+            // SB should clear it properly.
+            this->gpu()->clearStencil(rt, 0xFFFF);
+#endif
         }
     }
     return rt->renderTargetPriv().getStencilAttachment();

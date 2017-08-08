@@ -43,8 +43,10 @@ public:
         *effectiveSampleCnt = rt->numStencilSamples();
     }
 
-    GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                            const GrGpuCommandBuffer::LoadAndStoreInfo&) override;
+    GrGpuCommandBuffer* createCommandBuffer(
+                                    GrRenderTarget*, GrSurfaceOrigin,
+                                    const GrGpuCommandBuffer::LoadAndStoreInfo&,
+                                    const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
@@ -129,7 +131,7 @@ private:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
                                                                 int height) override;
-    void clearStencil(GrRenderTarget* target) override  {}
+    void clearStencil(GrRenderTarget*, int clearValue) override  {}
 
     GrBackendObject createTestingOnlyBackendTexture(void* pixels, int w, int h, GrPixelConfig,
                                                     bool isRT) override;

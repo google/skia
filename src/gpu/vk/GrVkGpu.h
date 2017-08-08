@@ -94,11 +94,12 @@ public:
                                                                 int width,
                                                                 int height) override;
 
-    void clearStencil(GrRenderTarget* target) override;
+    void clearStencil(GrRenderTarget* target, int clearValue) override;
 
     GrGpuCommandBuffer* createCommandBuffer(
-            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuCommandBuffer::LoadAndStoreInfo& stencilInfo) override;
+            GrRenderTarget*, GrSurfaceOrigin,
+            const GrGpuCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override;
 
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,
@@ -123,7 +124,7 @@ public:
 
     void submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>&,
                                       const GrVkRenderPass*,
-                                      const VkClearValue*,
+                                      const VkClearValue*, const VkClearValue*,
                                       GrVkRenderTarget*,
                                       const SkIRect& bounds);
 
