@@ -119,16 +119,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             currentChannels = 4;
             // CMYK images from JPEGs (the only format that supports it) are actually
             // inverted CMYK, so we need to invert every channel.
-            // TransferFn is y = -x + 1 for x < 1.f, otherwise 0x + 0, ie y = 1 - x for x in [0,1]
-            SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
-            fn.fG =  1;
-            fn.fA =  0;
-            fn.fB =  0;
-            fn.fC = -1;
-            fn.fD =  1;
-            fn.fE =  0;
-            fn.fF =  1;
-            this->addTransferFns(fn,4);
+            fElementsPipeline.append(SkRasterPipeline::invert);
             break;
         }
         default:
@@ -141,7 +132,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
         SkASSERT(e.inputChannels() == currentChannels);
         currentChannels = e.outputChannels();
         switch (e.type()) {
-            case SkColorSpace_A2B::Element::Type::kGammaNamed:
+            case SkColorSpace_A2B::Element::Type::kGammaNamed: {
                 if (kLinear_SkGammaNamed == e.gammaNamed()) {
                     break;
                 }
@@ -155,10 +146,14 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 }
 
                 SkCSXformPrintf("Gamma stage added: %s\n", debugGammaNamed[(int)e.gammaNamed()]);
-                SkColorSpaceTransferFn fn;
-                SkAssertResult(named_to_parametric(&fn, e.gammaNamed()));
-                this->addTransferFns(fn, currentChannels);
+                auto fn = fAlloc.make<SkColorSpaceTransferFn>();
+                SkAssertResult(named_to_parametric(fn, e.gammaNamed()));
+
+                fElementsPipeline.append(SkRasterPipeline::parametric_r, fn);
+                fElementsPipeline.append(SkRasterPipeline::parametric_g, fn);
+                fElementsPipeline.append(SkRasterPipeline::parametric_b, fn);
                 break;
+            }
             case SkColorSpace_A2B::Element::Type::kGammas: {
                 const SkGammas& gammas = e.gammas();
                 SkCSXformPrintf("Gamma stage added:");
@@ -272,12 +267,6 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             }
         }
         break;
-    }
-}
-
-void SkColorSpaceXform_A2B::addTransferFns(const SkColorSpaceTransferFn& fn, int channelCount) {
-    for (int i = 0; i < channelCount; ++i) {
-        this->addTransferFn(fn, i);
     }
 }
 
