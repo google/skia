@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68f37aea_d02ac425",
+        "filename": "src/shaders/gradients/Sk4fGradientPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-08T13:11:54Z",
+      "side": 1,
+      "message": "You might be able to avoid the need for a new enum by just using the real destination types SkPMColor and SkPM4f directly.  The number of places we now write\n\n  typename DstTraits\u003cdstType, premul\u003e::Type\n\nmakes it seem like the primary thing you want to pass around is that Type.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 2
+      },
+      "revId": "583241a54176306b14c0af64c23e1a6c0326aea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
