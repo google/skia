@@ -62,8 +62,8 @@ protected:
     }
 #endif
 
-    bool onIsRasterPipelineOnly() const override {
-        return as_SB(fProxyShader)->isRasterPipelineOnly();
+    bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override {
+        return as_SB(fProxyShader)->isRasterPipelineOnly(ctm);
     }
 
 private:

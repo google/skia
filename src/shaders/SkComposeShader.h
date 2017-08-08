@@ -45,7 +45,7 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace* dstCS, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix* localM) const override;
 
-    bool onIsRasterPipelineOnly() const override { return true; }
+    bool onIsRasterPipelineOnly(const SkMatrix&) const override { return true; }
 
 private:
     sk_sp<SkShader>     fDst;
