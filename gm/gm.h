@@ -77,9 +77,7 @@ namespace skiagm {
         // Most GMs will return the identity matrix, but some PDFs tests
         // require setting the initial transform.
         SkMatrix getInitialTransform() const {
-            SkMatrix matrix = fStarterMatrix;
-            matrix.preConcat(this->onGetInitialTransform());
-            return matrix;
+            return this->onGetInitialTransform();
         }
 
         SkColor getBGColor() const { return fBGColor; }
@@ -92,11 +90,6 @@ namespace skiagm {
         bool isCanvasDeferred() const { return fCanvasIsDeferred; }
         void setCanvasIsDeferred(bool isDeferred) {
             fCanvasIsDeferred = isDeferred;
-        }
-
-        const SkMatrix& getStarterMatrix() { return fStarterMatrix; }
-        void setStarterMatrix(const SkMatrix& matrix) {
-            fStarterMatrix = matrix;
         }
 
         bool animate(const SkAnimTimer&);
@@ -126,7 +119,6 @@ namespace skiagm {
         SkColor  fBGColor;
         bool     fCanvasIsDeferred; // work-around problem in srcmode.cpp
         bool     fHaveCalledOnceBeforeDraw;
-        SkMatrix fStarterMatrix;
     };
 
     typedef sk_tools::Registry<GM*(*)(void*)> GMRegistry;
