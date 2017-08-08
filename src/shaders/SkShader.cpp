@@ -91,7 +91,7 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
-    SkASSERT(!this->isRasterPipelineOnly());
+    SkASSERT(!this->isRasterPipelineOnly(*rec.fMatrix));
 
     return this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)
         ? this->onMakeContext(rec, alloc)
@@ -117,7 +117,7 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
     : fShader(shader), fCTM(*rec.fMatrix)
 {
     // We should never use a context for RP-only shaders.
-    SkASSERT(!shader.isRasterPipelineOnly());
+    SkASSERT(!shader.isRasterPipelineOnly(*rec.fMatrix));
     // ... or for perspective.
     SkASSERT(!rec.fMatrix->hasPerspective());
     SkASSERT(!rec.fLocalMatrix || !rec.fLocalMatrix->hasPerspective());
