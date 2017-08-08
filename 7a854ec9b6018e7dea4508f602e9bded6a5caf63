@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c028199a_7b465397",
+        "filename": "include/codec/SkCodecAnimation.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7709
+      },
+      "writtenOn": "2017-08-08T13:22:44Z",
+      "side": 1,
+      "message": "typo: background",
+      "range": {
+        "startLine": 57,
+        "startChar": 14,
+        "endLine": 57,
+        "endChar": 24
+      },
+      "revId": "7a854ec9b6018e7dea4508f602e9bded6a5caf63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
