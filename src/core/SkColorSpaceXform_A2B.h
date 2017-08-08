@@ -29,8 +29,6 @@ public:
 private:
     SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace, SkColorSpace_XYZ* dstSpace);
 
-    void addTransferFns(const SkColorSpaceTransferFn& fn, int channelCount);
-
     void addTransferFn(const SkColorSpaceTransferFn& fn, int channelIndex);
 
     bool buildTableFn(SkTableTransferFn* table);

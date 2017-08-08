@@ -587,6 +587,12 @@ STAGE(swap_rb) {
     r = b;
     b = tmp;
 }
+STAGE(invert) {
+    r = inv(r);
+    g = inv(g);
+    b = inv(b);
+    a = inv(a);
+}
 
 STAGE(move_src_dst) {
     dr = r;

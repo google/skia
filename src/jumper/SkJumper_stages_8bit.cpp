@@ -244,6 +244,9 @@ STAGE(premul) {
 STAGE(swap_rb) {
     src = swap_rb(src);
 }
+STAGE(invert) {
+    src = inv(src);
+}
 
 STAGE(load_8888) {
     auto ptr = ptr_at_xy<const uint32_t>(ctx, x,y);
