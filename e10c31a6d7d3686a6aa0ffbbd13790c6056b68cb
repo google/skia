@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2d5473ba_506a0572",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-08-08T17:33:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "05080af0_b8a73c19",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 74
+      },
+      "revId": "e10c31a6d7d3686a6aa0ffbbd13790c6056b68cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa7f2159_419660f2",
         "filename": "src/core/SkCoverageDelta.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "e10c31a6d7d3686a6aa0ffbbd13790c6056b68cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "310b1d56_177d5735",
+        "filename": "src/core/SkCoverageDelta.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-08-08T17:33:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa7f2159_419660f2",
+      "range": {
+        "startLine": 127,
+        "startChar": 6,
+        "endLine": 127,
+        "endChar": 69
+      },
+      "revId": "e10c31a6d7d3686a6aa0ffbbd13790c6056b68cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
