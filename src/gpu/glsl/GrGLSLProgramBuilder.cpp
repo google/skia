@@ -130,14 +130,21 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
 void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* coverage) {
     int transformedCoordVarsIdx = 0;
     SkString** inOut = &color;
-    for (int i = 0; i < this->pipeline().numFragmentProcessors(); ++i) {
-        if (i == this->pipeline().numColorFragmentProcessors()) {
-            inOut = &coverage;
-        }
+    int i = 0;
+    for (auto fp : GrFragmentProcessor::Series(this->pipeline().headColorFragmentProcessor())) {
         SkString output;
-        const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
-        output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output);
-        GrFragmentProcessor::Iter iter(&fp);
+        output = this->emitAndInstallFragProc(*fp, i++, transformedCoordVarsIdx, **inOut, output);
+        GrFragmentProcessor::Iter iter(fp);
+        while (const GrFragmentProcessor* fp = iter.next()) {
+            transformedCoordVarsIdx += fp->numCoordTransforms();
+        }
+        **inOut = output;
+    }
+    inOut = &coverage;
+    for (auto fp : GrFragmentProcessor::Series(this->pipeline().headCoverageFragmentProcessor())) {
+        SkString output;
+        output = this->emitAndInstallFragProc(*fp, i++, transformedCoordVarsIdx, **inOut, output);
+        GrFragmentProcessor::Iter iter(fp);
         while (const GrFragmentProcessor* fp = iter.next()) {
             transformedCoordVarsIdx += fp->numCoordTransforms();
         }
