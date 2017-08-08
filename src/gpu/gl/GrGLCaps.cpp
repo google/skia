@@ -12,6 +12,7 @@
 #include "GrGLTexture.h"
 #include "GrShaderCaps.h"
 #include "GrSurfaceProxyPriv.h"
+#include "SkJSONWriter.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 #include "instanced/GLInstancedRendering.h"
@@ -1347,6 +1348,115 @@ SkString GrGLCaps::dump() const {
     }
 
     return r;
+}
+
+void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
+
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("GL caps");
+
+    writer->beginArray("Stencil Formats");
+
+    for (int i = 0; i < fStencilFormats.count(); ++i) {
+        writer->appendString(SkStringPrintf("%d: stencil bits: %02d, total bits: %02d",
+                                            i,
+                                            fStencilFormats[i].fStencilBits,
+                                            fStencilFormats[i].fTotalBits).c_str());
+    }
+
+    writer->endArray();
+
+    static const char* kMSFBOExtStr[] = {
+        "None",
+        "Standard",
+        "Apple",
+        "IMG MS To Texture",
+        "EXT MS To Texture",
+        "MixedSamples",
+    };
+    GR_STATIC_ASSERT(0 == kNone_MSFBOType);
+    GR_STATIC_ASSERT(1 == kStandard_MSFBOType);
+    GR_STATIC_ASSERT(2 == kES_Apple_MSFBOType);
+    GR_STATIC_ASSERT(3 == kES_IMG_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(4 == kES_EXT_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(5 == kMixedSamples_MSFBOType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
+
+    static const char* kInvalidateFBTypeStr[] = {
+        "None",
+        "Discard",
+        "Invalidate",
+    };
+    GR_STATIC_ASSERT(0 == kNone_InvalidateFBType);
+    GR_STATIC_ASSERT(1 == kDiscard_InvalidateFBType);
+    GR_STATIC_ASSERT(2 == kInvalidate_InvalidateFBType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
+
+    static const char* kMapBufferTypeStr[] = {
+        "None",
+        "MapBuffer",
+        "MapBufferRange",
+        "Chromium",
+    };
+    GR_STATIC_ASSERT(0 == kNone_MapBufferType);
+    GR_STATIC_ASSERT(1 == kMapBuffer_MapBufferType);
+    GR_STATIC_ASSERT(2 == kMapBufferRange_MapBufferType);
+    GR_STATIC_ASSERT(3 == kChromium_MapBufferType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
+
+    writer->appendString("Core Profile", (fIsCoreProfile ? "YES" : "NO"));
+    writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
+    writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
+    writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
+    writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
+    writer->appendString("Unpack Row length support", (fUnpackRowLengthSupport ? "YES" : "NO"));
+    writer->appendString("Unpack Flip Y support", (fUnpackFlipYSupport ? "YES" : "NO"));
+    writer->appendString("Pack Row length support", (fPackRowLengthSupport ? "YES" : "NO"));
+    writer->appendString("Pack Flip Y support", (fPackFlipYSupport ? "YES" : "NO"));
+
+    writer->appendString("Texture Usage support", (fTextureUsageSupport ? "YES" : "NO"));
+    writer->appendString("GL_R support", (fTextureRedSupport ? "YES" : "NO"));
+    writer->appendString("Alpha8 is renderable", (fAlpha8IsRenderable ? "YES" : "NO"));
+    writer->appendString("GL_ARB_imaging support", (fImagingSupport ? "YES" : "NO"));
+    writer->appendString("Vertex array object support", (fVertexArrayObjectSupport ? "YES" : "NO"));
+    writer->appendString("Direct state access support", (fDirectStateAccessSupport ? "YES" : "NO"));
+    writer->appendString("Debug support", (fDebugSupport ? "YES" : "NO"));
+    writer->appendString("Draw indirect support", (fDrawIndirectSupport ? "YES" : "NO"));
+    writer->appendString("Multi draw indirect support", (fMultiDrawIndirectSupport ? "YES" : "NO"));
+    writer->appendString("Base instance support", (fBaseInstanceSupport ? "YES" : "NO"));
+    writer->appendString("RGBA 8888 pixel ops are slow", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
+    writer->appendString("Partial FBO read is slow", (fPartialFBOReadIsSlow ? "YES" : "NO"));
+    writer->appendString("Bind uniform location support", (fBindUniformLocationSupport ? "YES" : "NO"));
+    writer->appendString("Rectangle texture support", (fRectangleTextureSupport ? "YES" : "NO"));
+    writer->appendString("Texture swizzle support", (fTextureSwizzleSupport ? "YES" : "NO"));
+    writer->appendString("BGRA to RGBA readback conversions are slow",
+                         (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
+    writer->appendString("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
+                         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO ? "YES" : "NO");
+    writer->appendString("Intermediate texture for all updates of textures bound to FBOs",
+                         fUseDrawInsteadOfAllRenderTargetWrites ? "YES" : "NO");
+    // TODO: Use structured JSON for this data
+    writer->beginArray("configs");
+
+    for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+        writer->appendString(SkStringPrintf(
+            "  cfg: %d flags: 0x%04x, b_internal: 0x%08x s_internal: 0x%08x, e_format: "
+            "0x%08x, e_format_teximage: 0x%08x, e_type: 0x%08x, i_for_teximage: 0x%08x, "
+            "i_for_renderbuffer: 0x%08x",
+            i,
+            fConfigTable[i].fFlags,
+            fConfigTable[i].fFormats.fBaseInternalFormat,
+            fConfigTable[i].fFormats.fSizedInternalFormat,
+            fConfigTable[i].fFormats.fExternalFormat[kOther_ExternalFormatUsage],
+            fConfigTable[i].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage],
+            fConfigTable[i].fFormats.fExternalType,
+            fConfigTable[i].fFormats.fInternalFormatTexImage,
+            fConfigTable[i].fFormats.fInternalFormatRenderbuffer).c_str());
+    }
+
+    writer->endArray();
+    writer->endObject();
 }
 
 static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {

@@ -9,6 +9,7 @@
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLUtil.h"
 
+#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -154,4 +155,12 @@ void GrGLExtensions::print(const char* sep) const {
     for (int i = 0; i < cnt; ++i) {
         SkDebugf("%s%s", (*fStrings)[i].c_str(), (i < cnt - 1) ? sep : "");
     }
+}
+
+void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginArray();
+    for (int i = 0; i < fStrings->count(); ++i) {
+        writer->appendString((*fStrings)[i].c_str());
+    }
+    writer->endArray();
 }
