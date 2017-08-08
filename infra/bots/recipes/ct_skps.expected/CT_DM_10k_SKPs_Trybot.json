@@ -122,7 +122,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[START_DIR]/out/Debug",
-      "--args=cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-O1\"]"
+      "--args=cc=\"gcc-4.8\" cxx=\"g++-4.8\" extra_cflags=[\"-O1\"]"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
@@ -385,7 +385,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave1"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave1"
     ],
     "infra_step": true,
     "name": "rmtree slave1"
@@ -400,7 +400,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave1"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave1"
     ],
     "infra_step": true,
     "name": "makedirs slave1"
@@ -423,7 +423,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/8/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/9/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/10/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave1"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave1"
     ],
     "infra_step": true,
     "name": "gsutil cp"
@@ -451,7 +451,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-1.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"1\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-dm-1.isolated.gen.json"
     ],
     "infra_step": true,
@@ -465,7 +465,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave2"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave2"
     ],
     "infra_step": true,
     "name": "rmtree slave2"
@@ -480,7 +480,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave2"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave2"
     ],
     "infra_step": true,
     "name": "makedirs slave2"
@@ -503,7 +503,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/18/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/19/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/20/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave2"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave2"
     ],
     "infra_step": true,
     "name": "gsutil cp (2)"
@@ -531,7 +531,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-2.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"2\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-dm-2.isolated.gen.json"
     ],
     "infra_step": true,
@@ -545,7 +545,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave3"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave3"
     ],
     "infra_step": true,
     "name": "rmtree slave3"
@@ -560,7 +560,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave3"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave3"
     ],
     "infra_step": true,
     "name": "makedirs slave3"
@@ -583,7 +583,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/28/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/29/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/30/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave3"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave3"
     ],
     "infra_step": true,
     "name": "gsutil cp (3)"
@@ -611,7 +611,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-3.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"3\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-dm-3.isolated.gen.json"
     ],
     "infra_step": true,
@@ -625,7 +625,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave4"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave4"
     ],
     "infra_step": true,
     "name": "rmtree slave4"
@@ -640,7 +640,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave4"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave4"
     ],
     "infra_step": true,
     "name": "makedirs slave4"
@@ -663,7 +663,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/38/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/39/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/40/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave4"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave4"
     ],
     "infra_step": true,
     "name": "gsutil cp (4)"
@@ -691,7 +691,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-4.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"4\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-dm-4.isolated.gen.json"
     ],
     "infra_step": true,
@@ -705,7 +705,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave5"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave5"
     ],
     "infra_step": true,
     "name": "rmtree slave5"
@@ -720,7 +720,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave5"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave5"
     ],
     "infra_step": true,
     "name": "makedirs slave5"
@@ -743,7 +743,7 @@
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/48/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/49/*.skp",
       "gs://cluster-telemetry/swarming/skps/10k/c37e844a6f8708-eee762104c75bd/50/*.skp",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/slave5"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/slave5"
     ],
     "infra_step": true,
     "name": "gsutil cp (5)"
@@ -771,7 +771,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
+      "{\n    \"args\": [\n        \"--isolate\", \n        \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct/ct_skps.isolate\", \n        \"--isolated\", \n        \"[START_DIR]/swarming_temp_dir/skia-task-ct-dm-5.isolated\", \n        \"--config-variable\", \n        \"OS\", \n        \"linux\", \n        \"--extra-variable\", \n        \"NUM_SLAVES\", \n        \"5\", \n        \"--extra-variable\", \n        \"CONFIGURATION\", \n        \"Debug\", \n        \"--extra-variable\", \n        \"SLAVE_NUM\", \n        \"5\", \n        \"--extra-variable\", \n        \"PAGE_TYPE\", \n        \"10k\", \n        \"--extra-variable\", \n        \"BUILDER\", \n        \"Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs\", \n        \"--extra-variable\", \n        \"GIT_HASH\", \n        \"9046e2e693bb92a76e972b694580e5d17ad10748\", \n        \"--extra-variable\", \n        \"TOOL_NAME\", \n        \"dm\", \n        \"--extra-variable\", \n        \"CHROMIUM_BUILD\", \n        \"c37e844a6f8708-eee762104c75bd\"\n    ], \n    \"dir\": \"[CUSTOM_/_B_WORK]/skia/infra/bots/ct\", \n    \"version\": 1\n}",
       "[START_DIR]/swarming_temp_dir/ct-dm-5.isolated.gen.json"
     ],
     "infra_step": true,
@@ -786,10 +786,10 @@
       "/path/to/tmp/json",
       "copy",
       "{\"chromium_build\": \"c37e844a6f8708-eee762104c75bd\", \"num_slaves\": 5, \"page_type\": \"10k\"}",
-      "[CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/skps_version"
+      "[CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/skps_version"
     ],
     "infra_step": true,
-    "name": "Create [CUSTOM_/_B_WORK]/skps/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/skps_version"
+    "name": "Create [CUSTOM_/_B_WORK]/skps/c37e844a6f8708-eee762104c75bd/10k/5/skps_version"
   },
   {
     "cmd": [
@@ -837,7 +837,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
+      "ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -858,7 +858,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
+      "buildername:Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -881,9 +881,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -909,7 +909,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
+      "ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -930,7 +930,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
+      "buildername:Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -953,9 +953,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -981,7 +981,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
+      "ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1002,7 +1002,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
+      "buildername:Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1025,9 +1025,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1053,7 +1053,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
+      "ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1074,7 +1074,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
+      "buildername:Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1097,9 +1097,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1125,7 +1125,7 @@
       "--shards",
       "1",
       "--task-name",
-      "ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
+      "ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571",
       "--dump-json",
       "/path/to/tmp/json",
       "--expiration",
@@ -1146,7 +1146,7 @@
       "--tag",
       "allow_milo:1",
       "--tag",
-      "buildername:Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
+      "buildername:Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs",
       "--tag",
       "buildnumber:571",
       "--tag",
@@ -1169,9 +1169,9 @@
     "~followup_annotations": [
       "@@@STEP_TEXT@Run on OS: 'Ubuntu-14.04'@@@",
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"base_task_name\": \"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", @@@",
       "@@@STEP_LOG_LINE@json.output@  \"tasks\": {@@@",
-      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
+      "@@@STEP_LOG_LINE@json.output@    \"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {@@@",
       "@@@STEP_LOG_LINE@json.output@      \"shard_index\": 0, @@@",
       "@@@STEP_LOG_LINE@json.output@      \"task_id\": \"10000\", @@@",
       "@@@STEP_LOG_LINE@json.output@      \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"@@@",
@@ -1206,7 +1206,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-1/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1283,7 +1283,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-2/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1360,7 +1360,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-3/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1437,7 +1437,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-4/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],
@@ -1514,7 +1514,7 @@
       "--decorate",
       "--print-status-updates",
       "--json",
-      "{\"base_task_name\": \"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
+      "{\"base_task_name\": \"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\", \"tasks\": {\"ct-dm-5/Ubuntu-14.04/[dummy has/Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs/571\": {\"shard_index\": 0, \"task_id\": \"10000\", \"view_url\": \"https://chromium-swarm.appspot.com/user/task/10000\"}}}",
       "--task-summary-json",
       "/path/to/tmp/json"
     ],

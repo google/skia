@@ -969,16 +969,16 @@
       ],
       "trigger": "master"
     },
-    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs"
+        "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs"
       ]
     },
-    "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs"
+        "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs"
       ]
     },
     "Perf-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
@@ -1918,22 +1918,23 @@
         "Upload-Test-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Release"
       ]
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs"
+        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs"
       ]
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs"
-      ]
+        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs"
+      ],
+      "trigger": "weekly"
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
       "priority": 0.8,
       "tasks": [
-        "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs"
+        "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs"
       ]
     },
     "Test-Ubuntu16-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug": {
@@ -7697,10 +7698,10 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Ubuntu-14.04"
+        "os:Debian-9.1"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -7708,7 +7709,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
+        "buildername=Perf-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Release-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -7720,10 +7721,10 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
+    "Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Ubuntu-14.04"
+        "os:Debian-9.1"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -7731,7 +7732,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Perf-Ubuntu-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
+        "buildername=Perf-Ubuntu14-GCC-Golo-GPU-GT610-x86_64-Release-CT_BENCH_1k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14511,10 +14512,10 @@
       "max_attempts": 1,
       "priority": 0.8
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Ubuntu-14.04"
+        "os:Debian-9.1"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -14522,7 +14523,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
+        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14534,10 +14535,10 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Ubuntu-14.04"
+        "os:Debian-9.1"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -14545,7 +14546,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
+        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_1m_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
@@ -14557,10 +14558,10 @@
       "isolate": "ct_skps_skia.isolate",
       "priority": 0.8
     },
-    "Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
+    "Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs": {
       "dimensions": [
         "pool:SkiaCT",
-        "os:Ubuntu-14.04"
+        "os:Debian-9.1"
       ],
       "execution_timeout_ns": 86400000000000,
       "extra_args": [
@@ -14568,7 +14569,7 @@
         "../../..",
         "ct_skps",
         "repository=<(REPO)",
-        "buildername=Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
+        "buildername=Test-Ubuntu14-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_100k_SKPs",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",

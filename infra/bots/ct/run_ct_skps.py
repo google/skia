@@ -35,11 +35,18 @@ def main():
                            'isolateserver all artifacts in this dir.')
   parser.add_argument('-b', '--builder', required=True,
                       help='The name of the builder.')
+  parser.add_argument('-r', '--chromium_build', required=True,
+                      help='The chromium build used to create the SKP repo.')
+  parser.add_argument('-p', '--page_type', required=True,
+                      help='The CT page type.')
+  parser.add_argument('-n', '--num_slaves', required=True,
+                      help='Total number of slaves used to run the build.')
   args = parser.parse_args()
 
   tool_path = os.path.join(PARENT_DIR, args.tool)
-  skps_dir = os.path.join(REPOS_BASE_DIR, 'skps', args.builder,
-                          'slave%d' % args.slave_num)
+  skps_dir = os.path.join(
+      REPOS_BASE_DIR, 'skps', args.chromium_build, args.page_type,
+      args.num_slaves, 'slave%d' % args.slave_num)
   resource_path = os.path.join(SKIA_SRC_DIR, 'resources')
 
   cmd = [tool_path]
