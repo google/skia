@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0e211284_a0c55aa5",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-08T13:41:01Z",
+      "side": 1,
+      "message": "I\u0027ve added GM:gradients_interesting in https://skia-review.googlesource.com/c/30484, to exercise all the special cases -- seems to work OK.",
+      "parentUuid": "a5ebcc9a_239a2c96",
+      "range": {
+        "startLine": 1336,
+        "startChar": 11,
+        "endLine": 1346,
+        "endChar": 13
+      },
+      "revId": "b86aaeb7b0841c2c23f7b36b0bb0520ce2fb3256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd0b5047_9df56340",
         "filename": "src/shaders/gradients/SkGradientShader.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-08T12:13:20Z",
       "side": 1,
       "message": "Should these three lines be moved above the switch?",
+      "range": {
+        "startLine": 1614,
+        "startChar": 12,
+        "endLine": 1617,
+        "endChar": 55
+      },
+      "revId": "b86aaeb7b0841c2c23f7b36b0bb0520ce2fb3256",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3122eb89_31b8ecbc",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1617,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-08T13:41:01Z",
+      "side": 1,
+      "message": "You mean consolidate for all cases? That\u0027s part of the follow-up CL: https://skia-review.googlesource.com/c/31023",
+      "parentUuid": "dd0b5047_9df56340",
       "range": {
         "startLine": 1614,
         "startChar": 12,
