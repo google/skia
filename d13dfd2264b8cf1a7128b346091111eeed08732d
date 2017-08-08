@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f09a75b8_ccfc94fc",
+        "filename": "src/utils/SkJSONWriter.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-08T21:29:52Z",
+      "side": 1,
+      "message": "Might be a good idea to go on a this-\u003e hunt?  I mostly noticed scope() and this one.",
+      "range": {
+        "startLine": 262,
+        "startChar": 12,
+        "endLine": 262,
+        "endChar": 19
+      },
+      "revId": "d13dfd2264b8cf1a7128b346091111eeed08732d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
