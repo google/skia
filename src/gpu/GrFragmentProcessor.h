@@ -23,7 +23,7 @@ class GrSwizzle;
     GrCoordTransforms to receive a transformation of the local coordinates that map from local space
     to the fragment being processed.
  */
-class GrFragmentProcessor : public GrResourceIOProcessor, public GrProgramElement {
+class GrFragmentProcessor : public GrResourceIOProcessor {
 public:
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
@@ -74,23 +74,33 @@ public:
      */
     static gr_fp<GrFragmentProcessor> SwizzleOutput(gr_fp<GrFragmentProcessor>, const GrSwizzle&);
 
-    /**
-     * Returns a fragment processor that runs the passed in array of fragment processors in a
-     * series. The original input is passed to the first, the first's output is passed to the
-     * second, etc. The output of the returned processor is the output of the last processor of the
-     * series.
-     *
-     * The array elements with be moved.
-     */
-    static gr_fp<GrFragmentProcessor> RunInSeries(gr_fp<GrFragmentProcessor>*, int cnt);
+    // Helper to make RunInSeries() only be defined when all parameters are unique_ptr<FP>.
+    template <typename... FP>
+    using when_fp = sknonstd::same_type_t<gr_fp<GrFragmentProcessor>, FP...>;
 
-    ~GrFragmentProcessor() override;
+    /**
+     * Builds a fragment processor series out of a collection of
+     * std::unique_ptr<GrFragmentPocessor>s. Any of the passed FPs may already be the head of a
+     * series.
+     */
+    static inline gr_fp<GrFragmentProcessor> RunInSeries(gr_fp<GrFragmentProcessor>);
+    template <typename... FP>
+    static inline when_fp<FP...> RunInSeries(gr_fp<GrFragmentProcessor>, FP... fps);
 
     /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */
     virtual gr_fp<GrFragmentProcessor> clone() const = 0;
+
+    /** Methods to access and manipulate a FP chaining. */
+    GrFragmentProcessor* next() { return fNext.get(); }
+    const GrFragmentProcessor* next() const { return fNext.get(); }
+    void setNext(gr_fp<GrFragmentProcessor> next) {
+        SkASSERT(!fNext);
+        fNext = std::move(next);
+    }
+    gr_fp<GrFragmentProcessor> splitSeries() { return std::move(fNext); }
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
@@ -116,6 +126,15 @@ public:
     const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
 
     bool instantiate(GrResourceProvider*) const;
+
+    void markPendeningExecution() const {
+        INHERITED::addPendingIOs();
+        INHERITED::removeRefs();
+        fFlags |= kMarkedPendingExecution_Flag;
+        for (int i = 0; i < this->numChildProcessors(); ++i) {
+            this->childProcessor(i).markPendeningExecution();
+        }
+    }
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
@@ -235,6 +254,17 @@ public:
                                          &GrResourceIOProcessor::numTextureSamplers,
                                          &GrResourceIOProcessor::textureSampler>;
 
+    /**
+     * An iterator for a series of a fragment processors connected by next(). The series of fragment
+     * processors beginning with const GrFragmentProcessor* 'head' can be iterated across using a
+     * range for loop like this:
+     *     for (auto fp : GrFragmentProcessor::Series(head)) {
+     *         // ...
+     *     }
+     */
+    class SeriesIter;
+    class Series;
+
 protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,
@@ -312,12 +342,6 @@ protected:
     int registerChildProcessor(gr_fp<GrFragmentProcessor> child);
 
 private:
-    void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
-    void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
-    void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
-
-    void notifyRefCntIsZero() const final;
-
     virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {
         SkFAIL("Subclass must override this if advertising this optimization.");
         return GrColor4f::TransparentBlack();
@@ -343,7 +367,8 @@ private:
 
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
-        kUsesLocalCoords_Flag = kFirstPrivateFlag,
+        kUsesLocalCoords_Flag = kFirstPrivateFlag << 0,
+        kMarkedPendingExecution_Flag = kFirstPrivateFlag << 1
     };
 
     mutable uint32_t fFlags = 0;
@@ -354,9 +379,66 @@ private:
      * This is not SkSTArray<1, gr_fp<GrFragmentProcessor>> because this class holds strong
      * references until notifyRefCntIsZero and then it holds pending executions.
      */
-    SkSTArray<1, GrFragmentProcessor*, true> fChildProcessors;
+    SkSTArray<1, gr_fp<GrFragmentProcessor>, true> fChildProcessors;
+    gr_fp<GrFragmentProcessor> fNext;
 
     typedef GrResourceIOProcessor INHERITED;
+};
+
+gr_fp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(gr_fp<GrFragmentProcessor> fp) {
+    return fp;
+}
+
+template <typename... FP>
+GrFragmentProcessor::when_fp<FP...> GrFragmentProcessor::RunInSeries(
+        gr_fp<GrFragmentProcessor> first, FP... rest) {
+    auto firstTail = first.get();
+    if (firstTail) {
+        while (firstTail->next()) {
+            firstTail = firstTail->next();
+        }
+        firstTail->setNext(RunInSeries(std::move(rest)...));
+        return first;
+    } else {
+        return RunInSeries(std::move(rest)...);
+    }
+}
+
+class GrFragmentProcessor::SeriesIter {
+public:
+    SeriesIter() = default;
+    SeriesIter(const SeriesIter&) = default;
+    SeriesIter& operator=(const SeriesIter&) = default;
+    bool operator==(const SeriesIter& that) const { return fFP == that.fFP; }
+    bool operator!=(const SeriesIter& that) const { return fFP != that.fFP; }
+    explicit SeriesIter(const GrFragmentProcessor* fp) : fFP(fp) {}
+    const GrFragmentProcessor* operator*() const { return fFP; }
+    const GrFragmentProcessor* operator->() const { return fFP; }
+    SeriesIter& operator++() {
+        fFP = fFP->next();
+        return *this;
+    }
+    SeriesIter operator++(int) {
+        auto old = fFP;
+        fFP = fFP->next();
+        return SeriesIter(old);
+    }
+
+private:
+    const GrFragmentProcessor* fFP = nullptr;
+};
+
+class GrFragmentProcessor::Series {
+public:
+    Series() = delete;
+    Series(const SeriesIter&) = delete;
+    Series& operator=(const Series&) = delete;
+    explicit Series(const GrFragmentProcessor* fp) : fFP(fp) {}
+    SeriesIter begin() const { return SeriesIter(fFP); }
+    SeriesIter end() const { return SeriesIter(nullptr); }
+
+private:
+    const GrFragmentProcessor* fFP;
 };
 
 GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)

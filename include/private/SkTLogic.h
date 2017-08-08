@@ -98,9 +98,33 @@ template <typename D, typename S> using same_volatile_t = typename same_volatile
 template <typename D, typename S> using same_cv = copy_cv<skstd::remove_cv_t<D>, S>;
 template <typename D, typename S> using same_cv_t = typename same_cv<D, S>::type;
 
+// all_same is an extension of is_same for any number of types. A single template type parameter
+// is considered "the same".
+template <typename T, typename... Us>
+struct all_same : std::true_type {};
+template <typename T, typename U>
+struct all_same<T, U> : std::is_same<T, U> {};
+template <typename T, typename U, typename... Vs>
+struct all_same<T, U, Vs...> : std::integral_constant<bool, std::is_same<T, U>::value && all_same<U, Vs...>::value> {};
+
+// same_type_t<T, U, V, ...> is T if U, V, ... are also T, otherwise generates an error.
+template <typename T, typename... Us>
+using same_type_t = skstd::enable_if_t<all_same<T, Us...>::value, T>;
+
 }  // namespace sknonstd
 
 // Just a pithier wrapper for enable_if_t.
 #define SK_WHEN(condition, T) skstd::enable_if_t<!!(condition), T>
+
+// Compile-time unit test
+static_assert(sknonstd::all_same<int>::value, "single type is \"same\"");
+static_assert(sknonstd::all_same<bool, bool>::value, "two same types");
+static_assert(!sknonstd::all_same<int, bool>::value, "two different types");
+static_assert(sknonstd::all_same<bool, bool, bool>::value, "three same types");
+static_assert(!sknonstd::all_same<bool, bool, int>::value, "third type different");
+static_assert(!sknonstd::all_same<bool, int, bool>::value, "second type different");
+static_assert(!sknonstd::all_same<int, bool, bool>::value, "first type different");
+static_assert(!sknonstd::all_same<int, bool, char>::value, "three different types");
+static_assert(!sknonstd::all_same<int, bool, char, float>::value, "four different types");
 
 #endif

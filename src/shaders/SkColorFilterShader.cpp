@@ -69,8 +69,7 @@ gr_fp<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(const AsFPAr
         return fp1;
     }
 
-    gr_fp<GrFragmentProcessor> fpSeries[] = { std::move(fp1), std::move(fp2) };
-    return GrFragmentProcessor::RunInSeries(fpSeries, 2);
+    return GrFragmentProcessor::RunInSeries(std::move(fp1), std::move(fp2));
 }
 #endif
 

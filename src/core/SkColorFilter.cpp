@@ -126,8 +126,7 @@ public:
         if (!innerFP || !outerFP) {
             return nullptr;
         }
-        gr_fp<GrFragmentProcessor> series[] = { std::move(innerFP), std::move(outerFP) };
-        return GrFragmentProcessor::RunInSeries(series, 2);
+        return GrFragmentProcessor::RunInSeries(std::move(innerFP), std::move(outerFP));
     }
 #endif
 

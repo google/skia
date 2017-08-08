@@ -210,7 +210,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
 
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(fContext.get(), fRenderTargetContext.get(), paint, viewMatrix,
-                                     fp, producer->isAlphaOnly(), &grPaint)) {
+                                     std::move(fp), producer->isAlphaOnly(), &grPaint)) {
         return;
     }
     GrAA aa = GrBoolToAA(paint.isAntiAlias());
