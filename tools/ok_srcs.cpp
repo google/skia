@@ -42,7 +42,6 @@ struct GMStream : Stream {
         Status draw(SkCanvas* canvas) override {
             this->init();
             canvas->clear(0xffffffff);
-            canvas->concat(gm->getInitialTransform());
             gm->draw(canvas);
             return Status::OK;
         }
