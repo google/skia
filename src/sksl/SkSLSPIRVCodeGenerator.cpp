@@ -1054,11 +1054,11 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
             case Type::kScalar_Kind:
                 if (type == *fContext.fBool_Type) {
                     this->writeInstruction(SpvOpTypeBool, result, fConstantBuffer);
-                } else if (type == *fContext.fInt_Type) {
+                } else if (type == *fContext.fInt_Type || type == *fContext.fShort_Type) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
-                } else if (type == *fContext.fUInt_Type) {
+                } else if (type == *fContext.fUInt_Type || type == *fContext.fUShort_Type) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 0, fConstantBuffer);
-                } else if (type == *fContext.fFloat_Type) {
+                } else if (type == *fContext.fFloat_Type || type == *fContext.fHalf_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 32, fConstantBuffer);
                 } else if (type == *fContext.fDouble_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 64, fConstantBuffer);
