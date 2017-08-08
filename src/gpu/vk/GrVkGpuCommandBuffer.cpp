@@ -24,14 +24,44 @@
 
 void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
                            VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
-    switch (info.fLoadOp) {
-        case GrGpuCommandBuffer::LoadOp::kLoad:
+    switch (info.fLoadOp1) {
+        case GrGpuCommandBuffer::LoadOp1::kLoad:
             *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             break;
-        case GrGpuCommandBuffer::LoadOp::kClear:
+        case GrGpuCommandBuffer::LoadOp1::kClear:
             *loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             break;
-        case GrGpuCommandBuffer::LoadOp::kDiscard:
+        case GrGpuCommandBuffer::LoadOp1::kDiscard:
+            *loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            break;
+        default:
+            SK_ABORT("Invalid LoadOp");
+            *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    }
+
+    switch (info.fStoreOp) {
+        case GrGpuCommandBuffer::StoreOp::kStore:
+            *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            break;
+        case GrGpuCommandBuffer::StoreOp::kDiscard:
+            *storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            break;
+        default:
+            SK_ABORT("Invalid StoreOp");
+            *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    }
+}
+
+void get_vk_stencil_load_store_ops(const GrGpuCommandBuffer::StencilLoadAndStoreInfo& info,
+                                   VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
+    switch (info.fLoadOp2) {
+        case GrGpuCommandBuffer::LoadOp1::kLoad:
+            *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+            break;
+        case GrGpuCommandBuffer::LoadOp1::kClear:
+            *loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            break;
+        case GrGpuCommandBuffer::LoadOp1::kDiscard:
             *loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             break;
         default:
@@ -54,7 +84,7 @@ void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
 
 GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
                                            const LoadAndStoreInfo& colorInfo,
-                                           const LoadAndStoreInfo& stencilInfo)
+                                           const StencilLoadAndStoreInfo& stencilInfo)
     : fGpu(gpu)
     , fRenderTarget(nullptr)
     , fOrigin(kTopLeft_GrSurfaceOrigin)
@@ -63,7 +93,7 @@ GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
 
     get_vk_load_store_ops(colorInfo, &fVkColorLoadOp, &fVkColorStoreOp);
 
-    get_vk_load_store_ops(stencilInfo, &fVkStencilLoadOp, &fVkStencilStoreOp);
+    get_vk_stencil_load_store_ops(stencilInfo, &fVkStencilLoadOp, &fVkStencilStoreOp);
 
     fCurrentCmdInfo = -1;
 }
@@ -118,7 +148,11 @@ GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {
 GrGpu* GrVkGpuCommandBuffer::gpu() { return fGpu; }
 GrRenderTarget* GrVkGpuCommandBuffer::renderTarget() { return fRenderTarget; }
 
-void GrVkGpuCommandBuffer::end() {
+void GrVkGpuCommandBuffer::begin() {
+
+}
+
+void GrVkGpuCommandBuffer::end1() {
     if (fCurrentCmdInfo >= 0) {
         fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf()->end(fGpu);
     }

@@ -36,7 +36,7 @@ struct SkRect;
  */
 class GrGpuCommandBuffer {
 public:
-    enum class LoadOp {
+    enum class LoadOp1 {
         kLoad,
         kClear,
         kDiscard,
@@ -48,16 +48,22 @@ public:
     };
 
     struct LoadAndStoreInfo {
-        LoadOp  fLoadOp;
+        LoadOp1  fLoadOp1;
         StoreOp fStoreOp;
         GrColor fClearColor;
+    };
+
+    struct StencilLoadAndStoreInfo {
+        LoadOp1 fLoadOp2;
+        StoreOp fStoreOp;
     };
 
     GrGpuCommandBuffer() {}
     virtual ~GrGpuCommandBuffer() {}
 
+    virtual void begin() = 0;
     // Signals the end of recording to the command buffer and that it can now be submitted.
-    virtual void end() = 0;
+    virtual void end1() = 0;
 
     // Sends the command buffer off to the GPU object to execute the commands built up in the
     // buffer. The gpu object is allowed to defer execution of the commands until it is flushed.

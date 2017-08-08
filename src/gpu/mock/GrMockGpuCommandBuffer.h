@@ -20,7 +20,8 @@ public:
                       GrRenderTargetProxy*) override {}
     void discard(GrRenderTargetProxy*) override {}
     void insertEventMarker(GrRenderTargetProxy*, const char*) override {}
-    void end() override {}
+    void begin() override {}
+    void end1() override {}
 
     int numDraws() const { return fNumDraws; }
 

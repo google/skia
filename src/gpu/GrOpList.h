@@ -82,6 +82,9 @@ public:
 
     int32_t uniqueID() const { return fUniqueID; }
 
+    void setRequiresStencil() { this->setFlag(kClearStencilBuffer_Flag); }
+    bool requiresStencil() { return this->isSetFlag(kClearStencilBuffer_Flag); }
+
     /*
      * Dump out the GrOpList dependency DAG
      */
@@ -104,18 +107,20 @@ private:
 
         kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
         kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
+
+        kClearStencilBuffer_Flag = 0x08 //!< Clear the SB before executing the ops
     };
 
     void setFlag(uint32_t flag) {
-        fFlags |= flag;
+        fFlags1 |= flag;
     }
 
     void resetFlag(uint32_t flag) {
-        fFlags &= ~flag;
+        fFlags1 &= ~flag;
     }
 
     bool isSetFlag(uint32_t flag) const {
-        return SkToBool(fFlags & flag);
+        return SkToBool(fFlags1 & flag);
     }
 
     struct TopoSortTraits {
@@ -145,7 +150,7 @@ private:
     void addDependency(GrOpList* dependedOn);
 
     uint32_t              fUniqueID;
-    uint32_t              fFlags;
+    uint32_t              fFlags1;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*>  fDependencies;

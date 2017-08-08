@@ -26,7 +26,7 @@ GrOpList::GrOpList(GrResourceProvider* resourceProvider,
                    GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
     : fAuditTrail(auditTrail)
     , fUniqueID(CreateUniqueID())
-    , fFlags(0) {
+    , fFlags1(0) {
     fTarget.setProxy(sk_ref_sp(surfaceProxy), kWrite_GrIOType);
     fTarget.get()->setLastOpList(this);
 

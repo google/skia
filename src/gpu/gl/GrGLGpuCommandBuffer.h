@@ -24,11 +24,21 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuCommandBuffer(GrGLGpu* gpu) : fGpu(gpu), fRenderTarget(nullptr) {}
+    GrGLGpuCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt,
+                         const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) 
+            : fGpu1(gpu)
+            , fRenderTarget(static_cast<GrGLRenderTarget*>(rt)) {
+        fClearSB = LoadOp1::kClear == stencilInfo.fLoadOp2;
+    }
 
     ~GrGLGpuCommandBuffer() override {}
 
-    void end() override {}
+    void begin() override {
+        if (fClearSB) {
+            fGpu1->clearStencil(fRenderTarget, 0x0);
+        }
+    }
+    void end1() override {}
 
     void discard(GrRenderTargetProxy* proxy) override {
         GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(proxy->priv().peekRenderTarget());
@@ -45,7 +55,7 @@ public:
         }
         SkASSERT(target == fRenderTarget);
 
-        fGpu->insertEventMarker(msg);
+        fGpu1->insertEventMarker(msg);
     }
 
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
@@ -54,7 +64,7 @@ public:
     }
 
 private:
-    GrGpu* gpu() override { return fGpu; }
+    GrGpu* gpu() override { return fGpu1; }
     GrRenderTarget* renderTarget() override { return fRenderTarget; }
 
     void onSubmit() override {}
@@ -70,7 +80,7 @@ private:
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->draw(pipeline, primProc, mesh, dynamicStates, meshCount);
+        fGpu1->draw(pipeline, primProc, mesh, dynamicStates, meshCount);
     }
 
     void onClear(GrRenderTargetProxy* proxy, const GrFixedClip& clip, GrColor color) override {
@@ -79,7 +89,7 @@ private:
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->clear(clip, color, fRenderTarget);
+        fGpu1->clear(clip, color, fRenderTarget);
     }
 
     void onClearStencilClip(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
@@ -89,11 +99,12 @@ private:
             fRenderTarget = target;
         }
         SkASSERT(target == fRenderTarget);
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
+        fGpu1->clearStencilClip(clip, insideStencilMask, fRenderTarget);
     }
 
-    GrGLGpu*                    fGpu;
+    GrGLGpu*                    fGpu1;
     GrGLRenderTarget*           fRenderTarget;
+    bool                        fClearSB;
 
     typedef GrGpuCommandBuffer INHERITED;
 };
