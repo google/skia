@@ -37,13 +37,12 @@ public:
     };
 
     /**
-     * Defaults to a non-arry float with no precision specifier, type modifier, or layout qualifier.
+     * Defaults to a non-arry half with no type modifier or layout qualifier.
      */
     GrShaderVar()
-        : fType(kFloat_GrSLType)
+        : fType(kHalf_GrSLType)
         , fTypeModifier(kNone_TypeModifier)
         , fCount(kNonArray)
-        , fPrecision(kDefault_GrSLPrecision)
         , fUseUniformFloatArrays(USE_UNIFORM_FLOAT_ARRAYS) {
     }
 
