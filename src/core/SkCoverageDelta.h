@@ -55,21 +55,21 @@ public:
 
     SkCoverageDeltaList(SkCoverageDeltaAllocator* alloc, int top, int bottom, bool forceRLE);
 
-    inline int  top() const { return fTop; }
-    inline int  bottom() const { return fBottom; }
-    inline bool forceRLE() const { return fForceRLE; }
-    inline int  count(int y) const { this->checkY(y); return fCounts[y]; }
-    inline bool sorted(int y) const { this->checkY(y); return fSorted[y]; }
-    inline void addDelta(int x, int y, SkFixed delta) { this->push_back(y, {x, delta}); }
+    int  top() const { return fTop; }
+    int  bottom() const { return fBottom; }
+    bool forceRLE() const { return fForceRLE; }
+    int  count(int y) const { this->checkY(y); return fCounts[y]; }
+    bool sorted(int y) const { this->checkY(y); return fSorted[y]; }
 
-    inline const SkCoverageDelta& getDelta(int y, int i) const {
+    SK_ALWAYS_INLINE void addDelta(int x, int y, SkFixed delta) { this->push_back(y, {x, delta}); }
+    SK_ALWAYS_INLINE const SkCoverageDelta& getDelta(int y, int i) const {
         this->checkY(y);
         SkASSERT(i < fCounts[y]);
         return fRows[y][i];
     }
 
     // It might be better to sort right before blitting to make the memory hot
-    inline void sort(int y) {
+    void sort(int y) {
         this->checkY(y);
         if (!fSorted[y]) {
             SkTQSort(fRows[y], fRows[y] + fCounts[y] - 1);
@@ -77,23 +77,10 @@ public:
         }
     }
 
-    inline const SkAntiRect& getAntiRect() const { return fAntiRect; }
-    inline void setAntiRect(int x, int y, int width, int height,
+    const SkAntiRect& getAntiRect() const { return fAntiRect; }
+    void setAntiRect(int x, int y, int width, int height,
             SkAlpha leftAlpha, SkAlpha rightAlpha) {
         fAntiRect = {x, y, width, height, leftAlpha, rightAlpha};
-    }
-
-    inline void push_back(int y, const SkCoverageDelta& delta) {
-        this->checkY(y);
-        if (fCounts[y] == fMaxCounts[y]) {
-            fMaxCounts[y] *= 2;
-            SkCoverageDelta* newRow = fAlloc->makeArrayDefault<SkCoverageDelta>(fMaxCounts[y]);
-            memcpy(newRow, fRows[y], sizeof(SkCoverageDelta) * fCounts[y]);
-            fRows[y] = newRow;
-        }
-        SkASSERT(fCounts[y] < fMaxCounts[y]);
-        fRows[y][fCounts[y]++] = delta;
-        fSorted[y] = fSorted[y] && (fCounts[y] == 1 || delta.fX >= fRows[y][fCounts[y] - 2].fX);
     }
 
 private:
@@ -113,7 +100,20 @@ private:
     int                         fReservedCounts[RESERVED_HEIGHT];
     int                         fReservedMaxCounts[RESERVED_HEIGHT];
 
-    inline void checkY(int y) const { SkASSERT(y >= fTop && y < fBottom); }
+    void checkY(int y) const { SkASSERT(y >= fTop && y < fBottom); }
+
+    SK_ALWAYS_INLINE void push_back(int y, const SkCoverageDelta& delta) {
+        this->checkY(y);
+        if (fCounts[y] == fMaxCounts[y]) {
+            fMaxCounts[y] *= 4;
+            SkCoverageDelta* newRow = fAlloc->makeArrayDefault<SkCoverageDelta>(fMaxCounts[y]);
+            memcpy(newRow, fRows[y], sizeof(SkCoverageDelta) * fCounts[y]);
+            fRows[y] = newRow;
+        }
+        SkASSERT(fCounts[y] < fMaxCounts[y]);
+        fRows[y][fCounts[y]++] = delta;
+        fSorted[y] = fSorted[y] && (fCounts[y] == 1 || delta.fX >= fRows[y][fCounts[y] - 2].fX);
+    }
 };
 
 class SkCoverageDeltaMask {
@@ -136,24 +136,24 @@ public:
 
     SkCoverageDeltaMask(const SkIRect& bounds);
 
-    inline int              top()       const { return fBounds.fTop; }
-    inline int              bottom()    const { return fBounds.fBottom; }
-    inline SkAlpha*         getMask()         { return fMask; }
-    inline const SkIRect&   getBounds() const { return fBounds; }
+    int              top()       const { return fBounds.fTop; }
+    int              bottom()    const { return fBounds.fBottom; }
+    SkAlpha*         getMask()         { return fMask; }
+    const SkIRect&   getBounds() const { return fBounds; }
 
-    inline void             addDelta (int x, int y, SkFixed delta) { this->delta(x, y) += delta; }
-    inline SkFixed&         delta    (int x, int y) {
+    SK_ALWAYS_INLINE void addDelta (int x, int y, SkFixed delta) { this->delta(x, y) += delta; }
+    SK_ALWAYS_INLINE SkFixed& delta (int x, int y) {
         this->checkX(x);
         this->checkY(y);
         return fDeltas[this->index(x, y)];
     }
 
-    inline void setAntiRect(int x, int y, int width, int height,
+    void setAntiRect(int x, int y, int width, int height,
                             SkAlpha leftAlpha, SkAlpha rightAlpha) {
         fAntiRect = {x, y, width, height, leftAlpha, rightAlpha};
     }
 
-    inline SkMask prepareSkMask() {
+    SkMask prepareSkMask() {
         SkMask mask;
         mask.fImage     = fMask;
         mask.fBounds    = fBounds;
@@ -172,9 +172,10 @@ private:
     int         fExpandedWidth;
     SkAntiRect  fAntiRect;
 
-    inline int  index(int x, int y) const { return y * fExpandedWidth + x; }
-    inline void checkY(int y) const { SkASSERT(y >= fBounds.fTop && y < fBounds.fBottom); }
-    inline void checkX(int x) const {
+    SK_ALWAYS_INLINE int index(int x, int y) const { return y * fExpandedWidth + x; }
+
+    void checkY(int y) const { SkASSERT(y >= fBounds.fTop && y < fBounds.fBottom); }
+    void checkX(int x) const {
         SkASSERT(x >= fBounds.fLeft - PADDING && x < fBounds.fRight + PADDING);
     }
 };
@@ -192,7 +193,7 @@ static SK_ALWAYS_INLINE SkAlpha CoverageToAlpha(SkFixed coverage, bool isEvenOdd
 }
 
 template<typename T>
-static SK_ALWAYS_INLINE T CoverageToAlpha(T coverage, bool isEvenOdd, bool isInverse) {
+static SK_ALWAYS_INLINE T CoverageToAlpha(const T&  coverage, bool isEvenOdd, bool isInverse) {
     T t0(0), t255(255);
     T result;
     if (isEvenOdd) {
@@ -217,7 +218,7 @@ static SK_ALWAYS_INLINE SkAlpha ConvexCoverageToAlpha(SkFixed coverage, bool isI
 }
 
 template<typename T>
-static SK_ALWAYS_INLINE T ConvexCoverageToAlpha(T coverage, bool isInverse) {
+static SK_ALWAYS_INLINE T ConvexCoverageToAlpha(const T& coverage, bool isInverse) {
     // allTrue is not implemented
     // SkASSERT((coverage >= 0).allTrue() && (coverage <= SK_Fixed1).allTrue());
     T result = coverage.abs() >> 8;
