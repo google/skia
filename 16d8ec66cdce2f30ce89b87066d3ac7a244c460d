@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be39ed15_18c3a5fc",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 753,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-08T12:11:43Z",
+      "side": 0,
+      "message": "Let\u0027s write if (is_fuchsia || (defined(ndk) \u0026\u0026 ndk !\u003d \"\")).\n\nI suspect making this unconditional will break clients not using the Android NDK (i.e. Android itself).",
+      "range": {
+        "startLine": 753,
+        "startChar": 8,
+        "endLine": 753,
+        "endChar": 33
+      },
+      "revId": "16d8ec66cdce2f30ce89b87066d3ac7a244c460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
