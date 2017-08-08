@@ -162,6 +162,10 @@ public:
     bool mustImplementGSInvocationsWithLoop() const {
         return false;
     }
+
+    bool canUseFractForNegativeValues() const {
+        return true;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
