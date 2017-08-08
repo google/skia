@@ -229,7 +229,6 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     args.fAppliedClip = state->drawOpArgs().fAppliedClip;
     args.fCaps = &state->caps();
     args.fResourceProvider = state->resourceProvider();
-    args.fProcessors = &fProcessors;
     args.fFlags = GrAATypeIsHW(fInfo.aaType()) ? GrPipeline::kHWAntialias_Flag : 0;
     if (fAllowsSRGBInputs) {
         args.fFlags |= GrPipeline::kAllowSRGBInputs_Flag;
@@ -239,7 +238,7 @@ void InstancedOp::onExecute(GrOpFlushState* state) {
     }
     args.fProxy = state->drawOpArgs().fProxy;
     args.fDstProxy = state->drawOpArgs().fDstProxy;
-    GrPipeline pipeline(args);
+    GrPipeline pipeline(args, std::move(fProcessors));
 
     if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*state->gpu()->caps())) {
         state->gpu()->xferBarrier(pipeline.renderTarget(), barrierType);

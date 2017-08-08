@@ -558,7 +558,7 @@ private:
 
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
 
@@ -614,7 +614,7 @@ private:
 
         static const uint32_t kPipelineFlags = 0;
         const GrPipeline* pipeline =
-                target->makePipeline(kPipelineFlags, &GrProcessorSet::EmptySet());
+                target->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet());
 
         GrMesh mesh(GrPrimitiveType::kTriangles);
         mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);
