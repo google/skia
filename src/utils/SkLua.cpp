@@ -1802,7 +1802,7 @@ static int ltypeface_getFamilyName(lua_State* L) {
 }
 
 static int ltypeface_getStyle(lua_State* L) {
-    lua_pushnumber(L, (double)get_ref<SkTypeface>(L, 1)->style());
+    push_obj(L, get_ref<SkTypeface>(L, 1)->fontStyle());
     return 1;
 }
 
