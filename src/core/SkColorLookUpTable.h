@@ -8,22 +8,24 @@
 #ifndef SkColorLookUpTable_DEFINED
 #define SkColorLookUpTable_DEFINED
 
+#include "SkNx.h"
 #include "SkRefCnt.h"
 #include "SkTemplates.h"
 
+// TODO: scope inside SkColorLookUpTable
 static constexpr uint8_t kMaxColorChannels = 4;
 
 class SkColorLookUpTable : public SkRefCnt {
 public:
     static constexpr uint8_t kOutputChannels = 3;
 
-    SkColorLookUpTable(uint8_t inputChannels, const uint8_t gridPoints[kMaxColorChannels])
+    SkColorLookUpTable(uint8_t inputChannels, const uint8_t limits[kMaxColorChannels])
         : fInputChannels(inputChannels) {
         SkASSERT(inputChannels >= 1 && inputChannels <= kMaxColorChannels);
-        memcpy(fGridPoints, gridPoints, fInputChannels * sizeof(uint8_t));
+        memcpy(fLimits, limits, fInputChannels * sizeof(uint8_t));
 
         for (int i = 0; i < inputChannels; i++) {
-            SkASSERT(fGridPoints[i] > 1);
+            SkASSERT(fLimits[i] > 1);
         }
     }
 
@@ -41,9 +43,10 @@ public:
 
     int outputChannels() const { return kOutputChannels; }
 
+    // TODO: Rename to somethingBetter(int)?
     int gridPoints(int dimension) const {
         SkASSERT(dimension >= 0 && dimension < inputChannels());
-        return fGridPoints[dimension];
+        return fLimits[dimension];
     }
 
 private:
@@ -58,11 +61,11 @@ private:
     void interp3D(float* dst, const float* src) const;
 
     // recursively LERPs one dimension at a time. Used by interp() for the general case
-    float interpDimension(const float* src, int inputDimension, int outputDimension,
-                          int index[kMaxColorChannels]) const;
+    template <int dim>
+    Sk4f interpDimension(const float* src, int index=0, int stride=1) const;
 
     uint8_t fInputChannels;
-    uint8_t fGridPoints[kMaxColorChannels];
+    uint8_t fLimits[kMaxColorChannels];
 
 public:
     // Objects of this type are created in a custom fashion using sk_malloc_throw
