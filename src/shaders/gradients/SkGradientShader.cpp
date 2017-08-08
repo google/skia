@@ -1622,16 +1622,8 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * clamp_t);");
             fragBuilder->codeAppendf("float4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
-            if (!shaderCaps->canUseMinAndAbsTogether()) {
-                // The Tegra3 compiler will sometimes never return if we have
-                // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
-                fragBuilder->codeAppendf("float minAbs = abs(oneMinus2t);");
-                fragBuilder->codeAppendf("minAbs = minAbs > 1.0 ? 1.0 : minAbs;");
-                fragBuilder->codeAppendf("colorTemp += (1.0 - minAbs) * %s[1];", colors);
-            } else {
-                fragBuilder->codeAppendf("colorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * %s[1];",
-                                         colors);
-            }
+            fragBuilder->codeAppendf("colorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * %s[1];",
+                                     colors);
             fragBuilder->codeAppendf("colorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s[2];", colors);
 
             break;
