@@ -22,9 +22,10 @@
 #include "GrVkTexture.h"
 #include "SkRect.h"
 
-void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
+void get_vk_load_store_ops(GrGpuCommandBuffer::LoadOp loadOpIn,
+                           GrGpuCommandBuffer::StoreOp storeOpIn,
                            VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
-    switch (info.fLoadOp) {
+    switch (loadOpIn) {
         case GrGpuCommandBuffer::LoadOp::kLoad:
             *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             break;
@@ -39,7 +40,7 @@ void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
             *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     }
 
-    switch (info.fStoreOp) {
+    switch (storeOpIn) {
         case GrGpuCommandBuffer::StoreOp::kStore:
             *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             break;
@@ -54,16 +55,18 @@ void get_vk_load_store_ops(const GrGpuCommandBuffer::LoadAndStoreInfo& info,
 
 GrVkGpuCommandBuffer::GrVkGpuCommandBuffer(GrVkGpu* gpu,
                                            const LoadAndStoreInfo& colorInfo,
-                                           const LoadAndStoreInfo& stencilInfo)
+                                           const StencilLoadAndStoreInfo& stencilInfo)
     : fGpu(gpu)
     , fRenderTarget(nullptr)
     , fOrigin(kTopLeft_GrSurfaceOrigin)
     , fClearColor(GrColor4f::FromGrColor(colorInfo.fClearColor))
     , fLastPipelineState(nullptr) {
 
-    get_vk_load_store_ops(colorInfo, &fVkColorLoadOp, &fVkColorStoreOp);
+    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
+                          &fVkColorLoadOp, &fVkColorStoreOp);
 
-    get_vk_load_store_ops(stencilInfo, &fVkStencilLoadOp, &fVkStencilStoreOp);
+    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp,
+                          &fVkStencilLoadOp, &fVkStencilStoreOp);
 
     fCurrentCmdInfo = -1;
 }
@@ -96,6 +99,9 @@ void GrVkGpuCommandBuffer::init(GrVkRenderTarget* target, GrSurfaceOrigin origin
     cbInfo.fColorClearValue.color.float32[2] = fClearColor.fRGBA[2];
     cbInfo.fColorClearValue.color.float32[3] = fClearColor.fRGBA[3];
 
+    cbInfo.fStencilClearValue.depthStencil.depth = 0;
+    cbInfo.fStencilClearValue.depthStencil.stencil = 0;
+
     cbInfo.fBounds.setEmpty();
     cbInfo.fIsEmpty = true;
     cbInfo.fStartsWithClear = false;
@@ -117,6 +123,10 @@ GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {
 
 GrGpu* GrVkGpuCommandBuffer::gpu() { return fGpu; }
 GrRenderTarget* GrVkGpuCommandBuffer::renderTarget() { return fRenderTarget; }
+
+void GrVkGpuCommandBuffer::begin() {
+
+}
 
 void GrVkGpuCommandBuffer::end() {
     if (fCurrentCmdInfo >= 0) {
@@ -178,7 +188,9 @@ void GrVkGpuCommandBuffer::onSubmit() {
             cbInfo.fBounds.roundOut(&iBounds);
 
             fGpu->submitSecondaryCommandBuffer(cbInfo.fCommandBuffers, cbInfo.fRenderPass,
-                                               &cbInfo.fColorClearValue, fRenderTarget, iBounds);
+                                               &cbInfo.fColorClearValue,
+                                               &cbInfo.fStencilClearValue,
+                                               fRenderTarget, iBounds);
         }
     }
 }
@@ -410,6 +422,7 @@ void GrVkGpuCommandBuffer::addAdditionalRenderPass() {
     // It shouldn't matter what we set the clear color to here since we will assume loading of the
     // attachment.
     memset(&cbInfo.fColorClearValue, 0, sizeof(VkClearValue));
+    memset(&cbInfo.fStencilClearValue, 0, sizeof(VkClearValue));
     cbInfo.fBounds.setEmpty();
     cbInfo.fIsEmpty = true;
     cbInfo.fStartsWithClear = false;

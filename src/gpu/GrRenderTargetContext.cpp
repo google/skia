@@ -1761,6 +1761,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 
     if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
         appliedClip.hasStencilClip()) {
+        this->getOpList()->setRequiresStencil();
+
         // This forces instantiation of the render target.
         GrRenderTarget* rt = this->accessRenderTarget();
         if (!rt) {

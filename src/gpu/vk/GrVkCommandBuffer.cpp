@@ -384,7 +384,7 @@ void GrVkPrimaryCommandBuffer::end(const GrVkGpu* gpu) {
 
 void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
                                                const GrVkRenderPass* renderPass,
-                                               const VkClearValue* clearValues,
+                                               const VkClearValue clearValues[],
                                                const GrVkRenderTarget& target,
                                                const SkIRect& bounds,
                                                bool forSecondaryCB) {
@@ -403,7 +403,15 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     beginInfo.renderPass = renderPass->vkRenderPass();
     beginInfo.framebuffer = target.framebuffer()->framebuffer();
     beginInfo.renderArea = renderArea;
-    beginInfo.clearValueCount = renderPass->clearValueCount();
+
+    // TODO: have clearValueCount return the index of the last attachment that
+    // requires a clear instead of the number of total clears.
+    uint32_t stencilIndex;
+    if (renderPass->stencilAttachmentIndex(&stencilIndex)) {
+        beginInfo.clearValueCount = renderPass->clearValueCount() ? 2 : 0;
+    } else {
+        beginInfo.clearValueCount = renderPass->clearValueCount();
+    }
     beginInfo.pClearValues = clearValues;
 
     VkSubpassContents contents = forSecondaryCB ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS

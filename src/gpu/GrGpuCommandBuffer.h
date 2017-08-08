@@ -53,9 +53,17 @@ public:
         GrColor fClearColor;
     };
 
+    // Load-time clears of the stencil buffer are always to 0 so we don't store
+    // an 'fStencilClearValue'
+    struct StencilLoadAndStoreInfo {
+        LoadOp fLoadOp;
+        StoreOp fStoreOp;
+    };
+
     GrGpuCommandBuffer() {}
     virtual ~GrGpuCommandBuffer() {}
 
+    virtual void begin() = 0;
     // Signals the end of recording to the command buffer and that it can now be submitted.
     virtual void end() = 0;
 
