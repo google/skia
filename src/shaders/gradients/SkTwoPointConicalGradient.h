@@ -41,7 +41,7 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
-    bool onIsRasterPipelineOnly() const override { return true; }
+    bool onIsRasterPipelineOnly(const SkMatrix&) const override { return true; }
 
 private:
     enum class Type {
