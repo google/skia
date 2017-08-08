@@ -197,9 +197,8 @@ Compiler::Compiler(Flags flags)
                                     *fContext.fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
-    Modifiers::Flag ignored1;
-    std::vector<std::unique_ptr<ProgramElement>> ignored2;
-    fIRGenerator->convertProgram(String(SKSL_INCLUDE), *fTypes, &ignored1, &ignored2);
+    std::vector<std::unique_ptr<ProgramElement>> ignored;
+    fIRGenerator->convertProgram(String(SKSL_INCLUDE), *fTypes, &ignored);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     ASSERT(!fErrorCount);
 }
@@ -1132,24 +1131,22 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     fErrorCount = 0;
     fIRGenerator->start(&settings);
     std::vector<std::unique_ptr<ProgramElement>> elements;
-    Modifiers::Flag ignored;
     switch (kind) {
         case Program::kVertex_Kind:
-            fIRGenerator->convertProgram(String(SKSL_VERT_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(String(SKSL_VERT_INCLUDE), *fTypes, &elements);
             break;
         case Program::kFragment_Kind:
-            fIRGenerator->convertProgram(String(SKSL_FRAG_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(String(SKSL_FRAG_INCLUDE), *fTypes, &elements);
             break;
         case Program::kGeometry_Kind:
-            fIRGenerator->convertProgram(String(SKSL_GEOM_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(String(SKSL_GEOM_INCLUDE), *fTypes, &elements);
             break;
         case Program::kFragmentProcessor_Kind:
-            fIRGenerator->convertProgram(String(SKSL_FP_INCLUDE), *fTypes, &ignored, &elements);
+            fIRGenerator->convertProgram(String(SKSL_FP_INCLUDE), *fTypes, &elements);
             break;
     }
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
-    Modifiers::Flag defaultPrecision;
-    fIRGenerator->convertProgram(text, *fTypes, &defaultPrecision, &elements);
+    fIRGenerator->convertProgram(text, *fTypes, &elements);
     if (!fErrorCount) {
         for (auto& element : elements) {
             if (element->fKind == ProgramElement::kFunction_Kind) {
@@ -1157,7 +1154,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             }
         }
     }
-    auto result = std::unique_ptr<Program>(new Program(kind, settings, defaultPrecision, &fContext,
+    auto result = std::unique_ptr<Program>(new Program(kind, settings, &fContext,
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
                                                        fIRGenerator->fInputs));

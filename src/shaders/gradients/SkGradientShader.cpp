@@ -1361,17 +1361,15 @@ void GrGradientEffect::GLSLProcessor::emitUniforms(GrGLSLUniformHandler* uniform
                                                    const GrGradientEffect& ge) {
     if (int colorCount = color_type_to_color_count(ge.getColorType())) {
         fColorsUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag,
-                                                     kVec4f_GrSLType,
-                                                     kDefault_GrSLPrecision,
+                                                     kHalf4_GrSLType,
                                                      "Colors",
                                                      colorCount);
         if (ge.fColorType == kSingleHardStop_ColorType) {
-            fHardStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
-                                                    kDefault_GrSLPrecision, "HardStopT");
+            fHardStopT = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                    "HardStopT");
         }
     } else {
-        fFSYUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                             kFloat_GrSLType, kDefault_GrSLPrecision,
+        fFSYUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                              "GradientYCoordFS");
     }
 }
@@ -1554,21 +1552,21 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
     // First, apply tiling rules.
     switch (ge.fTileMode) {
     case SkShader::kClamp_TileMode:
-        fragBuilder->codeAppendf("float clamp_t = clamp(%s, 0.0, 1.0);", t);
+        fragBuilder->codeAppendf("half clamp_t = clamp(%s, 0.0, 1.0);", t);
         break;
     case SkShader::kRepeat_TileMode:
         if (shaderCaps->canUseFractForNegativeValues()) {
-            fragBuilder->codeAppendf("float clamp_t = fract(%s);", t);
+            fragBuilder->codeAppendf("half clamp_t = fract(%s);", t);
         } else {
             // Tegra3 fract() sometimes yields undefined results when the arg is negative.
             // TODO: relocate this workaround to GLSLCodeGenerator.
-            fragBuilder->codeAppendf("float clamp_t = 0.5 - sign(%s) * (0.5 - fract(abs(%s)));",
+            fragBuilder->codeAppendf("half clamp_t = 0.5 - sign(%s) * (0.5 - fract(abs(%s)));",
                                      t, t);
         }
         break;
     case SkShader::kMirror_TileMode:
-        fragBuilder->codeAppendf("float t_1 = %s - 1.0;", t);
-        fragBuilder->codeAppendf("float clamp_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
+        fragBuilder->codeAppendf("half t_1 = %s - 1.0;", t);
+        fragBuilder->codeAppendf("half clamp_t = abs(t_1 - 2.0 * floor(t_1 * 0.5) - 1.0);");
         break;
     }
 
@@ -1578,8 +1576,8 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         case kSingleHardStop_ColorType: {
             const char* stopT = uniformHandler->getUniformCStr(fHardStopT);
 
-            fragBuilder->codeAppend ("float4 start, end;");
-            fragBuilder->codeAppend ("float relative_t;");
+            fragBuilder->codeAppend ("half4 start, end;");
+            fragBuilder->codeAppend ("half relative_t;");
             fragBuilder->codeAppendf("if (clamp_t < %s) {", stopT);
             fragBuilder->codeAppendf("    start = %s[0];", colors);
             fragBuilder->codeAppendf("    end   = %s[1];", colors);
@@ -1589,13 +1587,13 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             fragBuilder->codeAppendf("    end   = %s[3];", colors);
             fragBuilder->codeAppendf("    relative_t = (clamp_t - %s) / (1 - %s);", stopT, stopT);
             fragBuilder->codeAppend ("}");
-            fragBuilder->codeAppend ("float4 colorTemp = mix(start, end, relative_t);");
+            fragBuilder->codeAppend ("half4 colorTemp = mix(start, end, relative_t);");
 
             break;
         }
 
         case kHardStopLeftEdged_ColorType: {
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
+            fragBuilder->codeAppendf("half4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
                                      colors);
             if (SkShader::kClamp_TileMode == ge.fTileMode) {
                 fragBuilder->codeAppendf("if (%s < 0.0) {", t);
@@ -1607,7 +1605,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         }
 
         case kHardStopRightEdged_ColorType: {
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
+            fragBuilder->codeAppendf("half4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
                                      colors);
             if (SkShader::kClamp_TileMode == ge.fTileMode) {
                 fragBuilder->codeAppendf("if (%s > 1.0) {", t);
@@ -1619,20 +1617,20 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         }
 
         case kTwo_ColorType: {
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);",
+            fragBuilder->codeAppendf("half4 colorTemp = mix(%s[0], %s[1], clamp_t);",
                                      colors, colors);
 
             break;
         }
 
         case kThree_ColorType: {
-            fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * clamp_t);");
-            fragBuilder->codeAppendf("float4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
+            fragBuilder->codeAppendf("half oneMinus2t = 1.0 - (2.0 * clamp_t);");
+            fragBuilder->codeAppendf("half4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
                                      colors);
             if (!shaderCaps->canUseMinAndAbsTogether()) {
                 // The Tegra3 compiler will sometimes never return if we have
                 // min(abs(oneMinus2t), 1.0), or do the abs first in a separate expression.
-                fragBuilder->codeAppendf("float minAbs = abs(oneMinus2t);");
+                fragBuilder->codeAppendf("half minAbs = abs(oneMinus2t);");
                 fragBuilder->codeAppendf("minAbs = minAbs > 1.0 ? 1.0 : minAbs;");
                 fragBuilder->codeAppendf("colorTemp += (1.0 - minAbs) * %s[1];", colors);
             } else {
@@ -1683,10 +1681,10 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
 
     const char* fsyuni = uniformHandler->getUniformCStr(fFSYUni);
 
-    fragBuilder->codeAppendf("float2 coord = float2(%s, %s);", gradientTValue, fsyuni);
+    fragBuilder->codeAppendf("half2 coord = half2(%s, %s);", gradientTValue, fsyuni);
     fragBuilder->codeAppendf("%s = ", outputColor);
     fragBuilder->appendTextureLookupAndModulate(inputColor, texSamplers[0], "coord",
-                                                kVec2f_GrSLType, &fColorSpaceHelper);
+                                                kHighFloat2_GrSLType, &fColorSpaceHelper);
     fragBuilder->codeAppend(";");
 }
 
