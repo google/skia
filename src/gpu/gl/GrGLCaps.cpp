@@ -1258,7 +1258,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->beginArray("Stencil Formats");
 
     for (int i = 0; i < fStencilFormats.count(); ++i) {
-        writer->beginObject();
+        writer->beginObject(nullptr, false);
         writer->appendS32("stencil bits", fStencilFormats[i].fStencilBits);
         writer->appendS32("total bits", fStencilFormats[i].fTotalBits);
         writer->endObject();
@@ -1339,7 +1339,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->beginArray("configs");
 
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        writer->beginObject();
+        writer->beginObject(nullptr, false);
         writer->appendHexU32("flags", fConfigTable[i].fFlags);
         writer->appendHexU32("b_internal", fConfigTable[i].fFormats.fBaseInternalFormat);
         writer->appendHexU32("s_internal", fConfigTable[i].fFormats.fSizedInternalFormat);

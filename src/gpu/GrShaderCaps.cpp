@@ -117,7 +117,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
         for (int p = 0; p < kGrSLPrecisionCount; ++p) {
             if (fFloatPrecisions[s][p].supported()) {
                 GrSLPrecision precision = static_cast<GrSLPrecision>(p);
-                writer->beginObject();
+                writer->beginObject(nullptr, false);
                 writer->appendString("precision", precision_to_string(precision));
                 writer->appendS32("log_low", fFloatPrecisions[s][p].fLogRangeLow);
                 writer->appendS32("log_high", fFloatPrecisions[s][p].fLogRangeHigh);
