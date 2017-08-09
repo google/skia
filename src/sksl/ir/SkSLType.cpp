@@ -80,6 +80,38 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
+    } else if (*this == *context.fHalf_Type) {
+        switch (rows) {
+            case 1:
+                switch (columns) {
+                    case 2: return *context.fHalf2_Type;
+                    case 3: return *context.fHalf3_Type;
+                    case 4: return *context.fHalf4_Type;
+                    default: ABORT("unsupported vector column count (%d)", columns);
+                }
+            case 2:
+                switch (columns) {
+                    case 2: return *context.fHalf2x2_Type;
+                    case 3: return *context.fHalf3x2_Type;
+                    case 4: return *context.fHalf4x2_Type;
+                    default: ABORT("unsupported matrix column count (%d)", columns);
+                }
+            case 3:
+                switch (columns) {
+                    case 2: return *context.fHalf2x3_Type;
+                    case 3: return *context.fHalf3x3_Type;
+                    case 4: return *context.fHalf4x3_Type;
+                    default: ABORT("unsupported matrix column count (%d)", columns);
+                }
+            case 4:
+                switch (columns) {
+                    case 2: return *context.fHalf2x4_Type;
+                    case 3: return *context.fHalf3x4_Type;
+                    case 4: return *context.fHalf4x4_Type;
+                    default: ABORT("unsupported matrix column count (%d)", columns);
+                }
+            default: ABORT("unsupported row count (%d)", rows);
+        }
     } else if (*this == *context.fDouble_Type) {
         switch (rows) {
             case 1:
