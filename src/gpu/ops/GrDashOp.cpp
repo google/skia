@@ -662,7 +662,8 @@ private:
         if (fAllowsSRGBInputs) {
             pipelineFlags |= GrPipeline::kAllowSRGBInputs_Flag;
         }
-        const GrPipeline* pipeline = target->makePipeline(pipelineFlags, std::move(fProcessorSet));
+        const GrPipeline* pipeline = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
+                                                          target->detachAppliedClip());
         helper.recordDraw(target, gp.get(), pipeline);
     }
 

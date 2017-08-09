@@ -82,6 +82,7 @@ public:
 
     bool compatibleWithAlphaAsCoverage() const { return fCompatibleWithAlphaAsCoveage; }
 
+    /** Makes a pipeline that consumes the processor set and the op's applied clip. */
     GrPipeline* makePipeline(GrMeshDrawOp::Target* target) {
         return this->internalMakePipeline(target, this->pipelineInitArgs(target));
     }
@@ -113,6 +114,7 @@ private:
     unsigned fRequiresDstTexture : 1;
     unsigned fUsesLocalCoords : 1;
     unsigned fCompatibleWithAlphaAsCoveage : 1;
+    SkDEBUGCODE(unsigned fMadePipeline : 1;)
     SkDEBUGCODE(unsigned fDidAnalysis : 1;)
 };
 
