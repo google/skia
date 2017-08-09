@@ -82,7 +82,9 @@ private:
 
         fRect.toQuad(verts);
 
-        helper.recordDraw(target, gp.get(), target->makePipeline(0, std::move(fProcessors)));
+        helper.recordDraw(
+                target, gp.get(),
+                target->makePipeline(0, std::move(fProcessors), target->detachAppliedClip()));
     }
 
     bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
