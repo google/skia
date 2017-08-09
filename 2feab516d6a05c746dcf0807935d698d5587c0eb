@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4546bce_4a30abf4",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-09T17:00:23Z",
+      "side": 1,
+      "message": "Put this in GrTypesPriv.h and use the same enum in CommandBuffer?",
+      "range": {
+        "startLine": 94,
+        "startChar": 15,
+        "endLine": 94,
+        "endChar": 21
+      },
+      "revId": "2feab516d6a05c746dcf0807935d698d5587c0eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28131ea2_1cf449c0",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-09T17:00:23Z",
+      "side": 1,
+      "message": "Does this ever happen?",
+      "range": {
+        "startLine": 222,
+        "startChar": 6,
+        "endLine": 222,
+        "endChar": 55
+      },
+      "revId": "2feab516d6a05c746dcf0807935d698d5587c0eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
