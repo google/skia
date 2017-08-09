@@ -386,8 +386,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
                     fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                                 kVec4f_GrSLType,
-                                                                 kDefault_GrSLPrecision,
+                                                                 kHalf4_GrSLType,
                                                                  "Color", &colorName);
                     this->emitChild(0, colorName, args);
                 }
