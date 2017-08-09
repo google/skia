@@ -16,6 +16,24 @@
       "revId": "512cbb2fef37db3dbe0702453a15c3ef92eb714d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62f0fc44_cb5b3ac8",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-09T19:55:45Z",
+      "side": 1,
+      "message": "Can do. I originally had it that way but (weakly) thought that moving into a value arg was more idiomatic c++11.",
+      "parentUuid": "826d676d_2fddeebc",
+      "revId": "512cbb2fef37db3dbe0702453a15c3ef92eb714d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
