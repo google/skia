@@ -91,7 +91,8 @@ struct SkJumper_Engine;
     M(xy_to_2pt_conical_linear)                                  \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)         \
     M(byte_tables) M(byte_tables_rgb)                            \
-    M(rgb_to_hsl) M(hsl_to_rgb)
+    M(rgb_to_hsl) M(hsl_to_rgb)                                  \
+    M(clut_3D) M(clut_4D)
 
 class SkRasterPipeline {
 public:
