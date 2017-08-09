@@ -206,7 +206,6 @@
   {
     "cmd": [
       "[START_DIR]\\out\\Release_x64\\dm",
-      "--undefok",
       "--resourcePath",
       "[START_DIR]\\skia\\resources",
       "--skps",
