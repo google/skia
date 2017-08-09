@@ -16,7 +16,6 @@ namespace SkSL {
     class ShaderCapsFactory;
 }
 struct GrContextOptions;
-class SkJSONWriter;
 
 class GrShaderCaps : public SkRefCnt {
 public:
@@ -69,7 +68,7 @@ public:
 
     GrShaderCaps(const GrContextOptions&);
 
-    void dumpJSON(SkJSONWriter*) const;
+    SkString dump() const;
 
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }

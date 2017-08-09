@@ -26,7 +26,6 @@
 #include "GrTracing.h"
 #include "SkConvertPixels.h"
 #include "SkGr.h"
-#include "SkJSONWriter.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
@@ -993,42 +992,4 @@ void GrContext::setResourceCacheLimits(int maxTextures, size_t maxTextureBytes) 
 void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-SkString GrContext::dump() const {
-    SkDynamicMemoryWStream stream;
-    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
-    writer.beginObject();
-
-    static const char* kBackendStr[] = {
-        "Metal",
-        "OpenGL",
-        "Vulkan",
-        "Mock",
-    };
-    GR_STATIC_ASSERT(0 == kMetal_GrBackend);
-    GR_STATIC_ASSERT(1 == kOpenGL_GrBackend);
-    GR_STATIC_ASSERT(2 == kVulkan_GrBackend);
-    GR_STATIC_ASSERT(3 == kMock_GrBackend);
-    writer.appendString("backend", kBackendStr[fBackend]);
-
-    writer.appendName("caps");
-    fCaps->dumpJSON(&writer);
-
-    writer.appendName("gpu");
-    fGpu->dumpJSON(&writer);
-
-    // Flush JSON to the memory stream
-    writer.endObject();
-    writer.flush();
-
-    // Null terminate the JSON data in the memory stream
-    stream.write8(0);
-
-    // Allocate a string big enough to hold all the data, then copy out of the stream
-    SkString result(stream.bytesWritten());
-    stream.copyToAndReset(result.writable_str());
-    return result;
 }

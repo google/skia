@@ -348,7 +348,10 @@ public:
 
     bool srgbDecodeDisableAffectsMipmaps() const { return fSRGBDecodeDisableAffectsMipmaps; }
 
-    void onDumpJSON(SkJSONWriter*) const override;
+    /**
+     * Returns a string containing the caps info.
+     */
+    SkString dump() const override;
 
     bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
     bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
