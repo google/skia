@@ -118,7 +118,6 @@
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "[START_DIR]/out/Release/dm",
-      "--undefok",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",

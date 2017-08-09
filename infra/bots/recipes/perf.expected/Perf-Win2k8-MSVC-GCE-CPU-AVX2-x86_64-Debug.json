@@ -114,7 +114,6 @@
   {
     "cmd": [
       "[START_DIR]\\out\\Debug_x64\\nanobench",
-      "--undefok",
       "-i",
       "[START_DIR]\\skia\\resources",
       "--skps",

@@ -224,7 +224,6 @@ def perf_steps(api):
   target = 'nanobench'
   args = [
       target,
-      '--undefok',   # This helps branches that may not know new flags.
       '-i',       api.flavor.device_dirs.resource_dir,
       '--skps',   api.flavor.device_dirs.skp_dir,
       '--images', api.flavor.device_path_join(

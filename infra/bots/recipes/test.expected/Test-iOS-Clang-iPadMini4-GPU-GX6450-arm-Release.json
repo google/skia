@@ -667,7 +667,6 @@
       "-s",
       "com.google.dm",
       "--args",
-      "--undefok",
       "--resourcePath",
       "resources",
       "--skps",
