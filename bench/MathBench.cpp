@@ -630,12 +630,13 @@ public:
 
     // These exist to try to stop the compiler from detecting what we doing, and throwing
     // parts away (or knowing exactly how big the loop counts are).
-    virtual void process(int) {}
+    virtual void process(unsigned) {}
     virtual int count() { return ARRAY; }
 
 protected:
     void onDraw(int loops, SkCanvas*) override {
-        int accum = 0;
+        // used unsigned to avoid undefined behavior if/when the += might overflow
+        unsigned accum = 0;
 
         for (int j = 0; j < loops; ++j) {
             int n = this->count();
