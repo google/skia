@@ -10,14 +10,16 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpace_A2B.h"
 #include "SkColorSpace_XYZ.h"
-#include "SkColorSpacePriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkICCPriv.h"
 #include "SkImageEncoder.h"
 #include "SkMatrix44.h"
 #include "SkOSFile.h"
+#include "SkRasterPipeline.h"
+#include "../src/jumper/SkJumper.h"
 
 #include "sk_tool_utils.h"
 
@@ -264,6 +266,27 @@ static int cut_size(const SkColorLookUpTable& clut, int dimOrder[4]) {
     return cutWidth < cutHeight ? cutWidth : cutHeight;
 }
 
+static void clut_interp(const SkColorLookUpTable& clut, float out[3], const float in[4]) {
+    // This is kind of a toy implementation.
+    // You generally wouldn't want to do this 1 pixel at a time.
+
+    SkJumper_ColorLookupTableCtx ctx;
+    ctx.table = clut.table();
+    for (int i = 0; i < clut.inputChannels(); i++) {
+        ctx.limits[i] = clut.gridPoints(i);
+    }
+
+    SkSTArenaAlloc<256> alloc;
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, in);
+    p.append(clut.inputChannels() == 3 ? SkRasterPipeline::clut_3D
+                                       : SkRasterPipeline::clut_4D, &ctx);
+    p.append(SkRasterPipeline::clamp_0);
+    p.append(SkRasterPipeline::clamp_1);
+    p.append(SkRasterPipeline::store_f32, &out);
+    p.run(0,0, 1,1);
+}
+
 static void draw_clut(SkCanvas* canvas, const SkColorLookUpTable& clut, int dimOrder[4]) {
     dump_clut(clut);
 
@@ -291,7 +314,7 @@ static void draw_clut(SkCanvas* canvas, const SkColorLookUpTable& clut, int dimO
                     const float w = row / (rows - 1.0f);
                     const float input[4] = {x, y, z, w};
                     float output[3];
-                    clut.interp(output, input);
+                    clut_interp(clut, output, input);
                     paint.setColor(SkColorSetRGB(255*output[0], 255*output[1], 255*output[2]));
                     canvas->drawRect(SkRect::MakeLTRB(ox + cutSize * x, oy + cutSize * y,
                                                       ox + cutSize * (x + xStep),
