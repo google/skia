@@ -9,7 +9,6 @@
 #include "GrShaderCaps.h"
 
 #include "GrContextOptions.h"
-#include "SkJSONWriter.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,36 +95,33 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
-void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
-    writer->beginObject();
+SkString GrShaderCaps::dump() const {
+    SkString r;
+    static const char* gNY[] = { "NO", "YES" };
+    r.appendf("Shader Derivative Support          : %s\n", gNY[fShaderDerivativeSupport]);
+    r.appendf("Geometry Shader Support            : %s\n", gNY[fGeometryShaderSupport]);
+    r.appendf("Path Rendering Support             : %s\n", gNY[fPathRenderingSupport]);
+    r.appendf("Dst Read In Shader Support         : %s\n", gNY[fDstReadInShaderSupport]);
+    r.appendf("Dual Source Blending Support       : %s\n", gNY[fDualSourceBlendingSupport]);
+    r.appendf("Integer Support                    : %s\n", gNY[fIntegerSupport]);
+    r.appendf("Texel Buffer Support               : %s\n", gNY[fTexelBufferSupport]);
+    r.appendf("Image Load Store Support           : %s\n", gNY[fImageLoadStoreSupport]);
 
-    writer->appendBool("Shader Derivative Support", fShaderDerivativeSupport);
-    writer->appendBool("Geometry Shader Support", fGeometryShaderSupport);
-    writer->appendBool("Path Rendering Support", fPathRenderingSupport);
-    writer->appendBool("Dst Read In Shader Support", fDstReadInShaderSupport);
-    writer->appendBool("Dual Source Blending Support", fDualSourceBlendingSupport);
-    writer->appendBool("Integer Support", fIntegerSupport);
-    writer->appendBool("Texel Buffer Support", fTexelBufferSupport);
-    writer->appendBool("Image Load Store Support", fImageLoadStoreSupport);
-
-    writer->appendBool("Variable Precision", fShaderPrecisionVaries);
+    r.appendf("Shader Float Precisions (varies: %s):\n", gNY[fShaderPrecisionVaries]);
 
     for (int s = 0; s < kGrShaderTypeCount; ++s) {
         GrShaderType shaderType = static_cast<GrShaderType>(s);
-        writer->beginArray(SkStringPrintf("%s precisions",
-                                          shader_type_to_string(shaderType)).c_str());
+        r.appendf("\t%s:\n", shader_type_to_string(shaderType));
         for (int p = 0; p < kGrSLPrecisionCount; ++p) {
             if (fFloatPrecisions[s][p].supported()) {
                 GrSLPrecision precision = static_cast<GrSLPrecision>(p);
-                writer->beginObject();
-                writer->appendString("precision", precision_to_string(precision));
-                writer->appendS32("log_low", fFloatPrecisions[s][p].fLogRangeLow);
-                writer->appendS32("log_high", fFloatPrecisions[s][p].fLogRangeHigh);
-                writer->appendS32("bits", fFloatPrecisions[s][p].fBits);
-                writer->endObject();
+                r.appendf("\t\t%s: log_low: %d log_high: %d bits: %d\n",
+                    precision_to_string(precision),
+                    fFloatPrecisions[s][p].fLogRangeLow,
+                    fFloatPrecisions[s][p].fLogRangeHigh,
+                    fFloatPrecisions[s][p].fBits);
             }
         }
-        writer->endArray();
     }
 
     static const char* kAdvBlendEqInteractionStr[] = {
@@ -140,41 +136,47 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     GR_STATIC_ASSERT(3 == kSpecificEnables_AdvBlendEqInteraction);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAdvBlendEqInteractionStr) == kLast_AdvBlendEqInteraction + 1);
 
-    writer->appendBool("FB Fetch Support", fFBFetchSupport);
-    writer->appendBool("Drops tile on zero divide", fDropsTileOnZeroDivide);
-    writer->appendBool("Bindless texture support", fBindlessTextureSupport);
-    writer->appendBool("Uses precision modifiers", fUsesPrecisionModifiers);
-    writer->appendBool("Can use any() function", fCanUseAnyFunctionInShader);
-    writer->appendBool("Can use min() and abs() together", fCanUseMinAndAbsTogether);
-    writer->appendBool("Can use fract() for negative values", fCanUseFractForNegativeValues);
-    writer->appendBool("Must force negated atan param to float", fMustForceNegatedAtanParamToFloat);
-    writer->appendBool("Must use local out color for FBFetch", fRequiresLocalOutputColorForFBFetch);
-    writer->appendBool("Must implement geo shader invocations with loop",
-                       fMustImplementGSInvocationsWithLoop);
-    writer->appendBool("Must obfuscate uniform color", fMustObfuscateUniformColor);
-    writer->appendBool("Must guard division even after explicit zero check",
-                       fMustGuardDivisionEvenAfterExplicitZeroCheck);
-    writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
-    writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
-    writer->appendBool("Multisample interpolation support", fMultisampleInterpolationSupport);
-    writer->appendBool("Sample variables support", fSampleVariablesSupport);
-    writer->appendBool("Sample mask override coverage support", fSampleMaskOverrideCoverageSupport);
-    writer->appendBool("External texture support", fExternalTextureSupport);
-    writer->appendBool("texelFetch support", fTexelFetchSupport);
-    writer->appendBool("sk_VertexID support", fVertexIDSupport);
+    r.appendf("--- GLSL-Specific ---\n");
 
-    writer->appendS32("Max VS Samplers", fMaxVertexSamplers);
-    writer->appendS32("Max GS Samplers", fMaxGeometrySamplers);
-    writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
-    writer->appendS32("Max Combined Samplers", fMaxFragmentSamplers);
-    writer->appendS32("Max VS Image Storages", fMaxVertexImageStorages);
-    writer->appendS32("Max GS Image Storages", fMaxGeometryImageStorages);
-    writer->appendS32("Max FS Image Storages", fMaxFragmentImageStorages);
-    writer->appendS32("Max Combined Image Storages", fMaxFragmentImageStorages);
-    writer->appendString("Advanced blend equation interaction",
-                         kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
-
-    writer->endObject();
+    r.appendf("FB Fetch Support: %s\n", (fFBFetchSupport ? "YES" : "NO"));
+    r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
+    r.appendf("Bindless texture support: %s\n", (fBindlessTextureSupport ? "YES" : "NO"));
+    r.appendf("Uses precision modifiers: %s\n", (fUsesPrecisionModifiers ? "YES" : "NO"));
+    r.appendf("Can use any() function: %s\n", (fCanUseAnyFunctionInShader ? "YES" : "NO"));
+    r.appendf("Can use min() and abs() together: %s\n", (fCanUseMinAndAbsTogether ? "YES" : "NO"));
+    r.appendf("Can use fract() for negative values: %s\n", (fCanUseFractForNegativeValues ?
+                                                            "YES" : "NO"));
+    r.appendf("Must force negated atan param to float: %s\n", (fMustForceNegatedAtanParamToFloat ?
+                                                               "YES" : "NO"));
+    r.appendf("Must use local out color for FBFetch: %s\n", (fRequiresLocalOutputColorForFBFetch ?
+                                                             "YES" : "NO"));
+    r.appendf("Must implement geo shader invocations with loop : %s\n",
+              (fMustImplementGSInvocationsWithLoop ? "YES" : "NO"));
+    r.appendf("Must obfuscate uniform color: %s\n", (fMustObfuscateUniformColor ? "YES" : "NO"));
+    r.appendf("Must guard division even after explicit zero check: %s\n",
+              (fMustGuardDivisionEvenAfterExplicitZeroCheck ? "YES" : "NO"));
+    r.appendf("Flat interpolation support: %s\n", (fFlatInterpolationSupport ?  "YES" : "NO"));
+    r.appendf("No perspective interpolation support: %s\n", (fNoPerspectiveInterpolationSupport ?
+                                                             "YES" : "NO"));
+    r.appendf("Multisample interpolation support: %s\n", (fMultisampleInterpolationSupport ?
+                                                          "YES" : "NO"));
+    r.appendf("Sample variables support: %s\n", (fSampleVariablesSupport ? "YES" : "NO"));
+    r.appendf("Sample mask override coverage support: %s\n", (fSampleMaskOverrideCoverageSupport ?
+                                                              "YES" : "NO"));
+    r.appendf("External texture support: %s\n", (fExternalTextureSupport ? "YES" : "NO"));
+    r.appendf("texelFetch support: %s\n", (fTexelFetchSupport ? "YES" : "NO"));
+    r.appendf("sk_VertexID support: %s\n", (fVertexIDSupport ? "YES" : "NO"));
+    r.appendf("Max VS Samplers: %d\n", fMaxVertexSamplers);
+    r.appendf("Max GS Samplers: %d\n", fMaxGeometrySamplers);
+    r.appendf("Max FS Samplers: %d\n", fMaxFragmentSamplers);
+    r.appendf("Max Combined Samplers: %d\n", fMaxFragmentSamplers);
+    r.appendf("Max VS Image Storages: %d\n", fMaxVertexImageStorages);
+    r.appendf("Max GS Image Storages: %d\n", fMaxGeometryImageStorages);
+    r.appendf("Max FS Image Storages: %d\n", fMaxFragmentImageStorages);
+    r.appendf("Max Combined Image Storages: %d\n", fMaxFragmentImageStorages);
+    r.appendf("Advanced blend equation interaction: %s\n",
+              kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
+    return r;
 }
 
 void GrShaderCaps::initSamplerPrecisionTable() {

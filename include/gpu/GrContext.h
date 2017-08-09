@@ -310,9 +310,6 @@ public:
     void dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* values) const;
     void printGpuStats() const;
 
-    /** Returns a string with detailed information about the context & GPU, in JSON format. */
-    SkString dump() const;
-
     /** Specify the TextBlob cache limit. If the current cache exceeds this limit it will purge.
         this is for testing only */
     void setTextBlobCacheLimit_ForTesting(size_t bytes);

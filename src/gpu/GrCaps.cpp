@@ -8,7 +8,6 @@
 #include "GrCaps.h"
 #include "GrContextOptions.h"
 #include "GrWindowRectangles.h"
-#include "SkJSONWriter.h"
 
 static const char* pixel_config_name(GrPixelConfig config) {
     switch (config) {
@@ -117,45 +116,44 @@ static SkString map_flags_to_string(uint32_t flags) {
     return str;
 }
 
-void GrCaps::dumpJSON(SkJSONWriter* writer) const {
-    writer->beginObject();
+SkString GrCaps::dump() const {
+    SkString r;
+    static const char* gNY[] = {"NO", "YES"};
+    r.appendf("MIP Map Support                    : %s\n", gNY[fMipMapSupport]);
+    r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
+    r.appendf("sRGB Support                       : %s\n", gNY[fSRGBSupport]);
+    r.appendf("sRGB Write Control                 : %s\n", gNY[fSRGBWriteControl]);
+    r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
+    r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
+    r.appendf("Reuse Scratch Buffers              : %s\n", gNY[fReuseScratchBuffers]);
+    r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
+    r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
+    r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
+    r.appendf("Sample Locations Support           : %s\n", gNY[fSampleLocationsSupport]);
+    r.appendf("Multisample disable support        : %s\n", gNY[fMultisampleDisableSupport]);
+    r.appendf("Instance Attrib Support            : %s\n", gNY[fInstanceAttribSupport]);
+    r.appendf("Uses Mixed Samples                 : %s\n", gNY[fUsesMixedSamples]);
+    r.appendf("Prefer client-side dynamic buffers : %s\n", gNY[fPreferClientSideDynamicBuffers]);
+    r.appendf("Full screen clear is free          : %s\n", gNY[fFullClearIsFree]);
+    r.appendf("Must clear buffer memory           : %s\n", gNY[fMustClearUploadedBufferData]);
+    r.appendf("Sample shading support             : %s\n", gNY[fSampleShadingSupport]);
+    r.appendf("Fence sync support                 : %s\n", gNY[fFenceSyncSupport]);
+    r.appendf("Cross context texture support      : %s\n", gNY[fCrossContextTextureSupport]);
 
-    writer->appendBool("MIP Map Support", fMipMapSupport);
-    writer->appendBool("NPOT Texture Tile Support", fNPOTTextureTileSupport);
-    writer->appendBool("sRGB Support", fSRGBSupport);
-    writer->appendBool("sRGB Write Control", fSRGBWriteControl);
-    writer->appendBool("sRGB Decode Disable", fSRGBDecodeDisableSupport);
-    writer->appendBool("Discard Render Target Support", fDiscardRenderTargetSupport);
-    writer->appendBool("Reuse Scratch Textures", fReuseScratchTextures);
-    writer->appendBool("Reuse Scratch Buffers", fReuseScratchBuffers);
-    writer->appendBool("Gpu Tracing Support", fGpuTracingSupport);
-    writer->appendBool("Oversized Stencil Support", fOversizedStencilSupport);
-    writer->appendBool("Texture Barrier Support", fTextureBarrierSupport);
-    writer->appendBool("Sample Locations Support", fSampleLocationsSupport);
-    writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
-    writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
-    writer->appendBool("Uses Mixed Samples", fUsesMixedSamples);
-    writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);
-    writer->appendBool("Full screen clear is free", fFullClearIsFree);
-    writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
-    writer->appendBool("Sample shading support", fSampleShadingSupport);
-    writer->appendBool("Fence sync support", fFenceSyncSupport);
-    writer->appendBool("Cross context texture support", fCrossContextTextureSupport);
-
-    writer->appendBool("Draw Instead of Clear [workaround]", fUseDrawInsteadOfClear);
-    writer->appendBool("Prefer VRAM Use over flushes [workaround]", fPreferVRAMUseOverFlushes);
+    r.appendf("Draw Instead of Clear [workaround] : %s\n", gNY[fUseDrawInsteadOfClear]);
+    r.appendf("Prefer VRAM Use over flushes [workaround] : %s\n", gNY[fPreferVRAMUseOverFlushes]);
 
     if (this->advancedBlendEquationSupport()) {
-        writer->appendHexU32("Advanced Blend Equation Blacklist", fAdvBlendEqBlacklist);
+        r.appendf("Advanced Blend Equation Blacklist  : 0x%x\n", fAdvBlendEqBlacklist);
     }
 
-    writer->appendS32("Max Vertex Attributes", fMaxVertexAttributes);
-    writer->appendS32("Max Texture Size", fMaxTextureSize);
-    writer->appendS32("Max Render Target Size", fMaxRenderTargetSize);
-    writer->appendS32("Max Color Sample Count", fMaxColorSampleCount);
-    writer->appendS32("Max Stencil Sample Count", fMaxStencilSampleCount);
-    writer->appendS32("Max Raster Samples", fMaxRasterSamples);
-    writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
+    r.appendf("Max Vertex Attributes              : %d\n", fMaxVertexAttributes);
+    r.appendf("Max Texture Size                   : %d\n", fMaxTextureSize);
+    r.appendf("Max Render Target Size             : %d\n", fMaxRenderTargetSize);
+    r.appendf("Max Color Sample Count             : %d\n", fMaxColorSampleCount);
+    r.appendf("Max Stencil Sample Count           : %d\n", fMaxStencilSampleCount);
+    r.appendf("Max Raster Samples                 : %d\n", fMaxRasterSamples);
+    r.appendf("Max Window Rectangles              : %d\n", fMaxWindowRectangles);
 
     static const char* kInstancedSupportNames[] = {
         "None",
@@ -169,7 +167,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     GR_STATIC_ASSERT(3 == (int)InstancedSupport::kMixedSampled);
     GR_STATIC_ASSERT(4 == SK_ARRAY_COUNT(kInstancedSupportNames));
 
-    writer->appendString("Instanced Support", kInstancedSupportNames[(int)fInstancedSupport]);
+    r.appendf("Instanced Support                  : %s\n",
+              kInstancedSupportNames[(int)fInstancedSupport]);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",
@@ -181,32 +180,30 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     GR_STATIC_ASSERT(2 == kAdvancedCoherent_BlendEquationSupport);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kBlendEquationSupportNames) == kLast_BlendEquationSupport + 1);
 
-    writer->appendString("Blend Equation Support",
-                         kBlendEquationSupportNames[fBlendEquationSupport]);
-    writer->appendString("Map Buffer Support", map_flags_to_string(fMapBufferFlags).c_str());
+    r.appendf("Blend Equation Support             : %s\n",
+              kBlendEquationSupportNames[fBlendEquationSupport]);
+    r.appendf("Map Buffer Support                 : %s\n",
+              map_flags_to_string(fMapBufferFlags).c_str());
 
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, false));
     SkASSERT(!this->isConfigRenderable(kUnknown_GrPixelConfig, true));
-    SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
-    writer->beginArray("configs");
-
-    for (size_t i = 1; i < kGrPixelConfigCnt; ++i) {
+    for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
-        writer->beginObject();
-        writer->appendString("name", pixel_config_name(config));
-        writer->appendBool("renderable", this->isConfigRenderable(config, false));
-        writer->appendBool("renderableMSAA", this->isConfigRenderable(config, true));
-        writer->appendBool("texturable", this->isConfigTexturable(config));
-        writer->endObject();
+        r.appendf("%s is renderable: %s, with MSAA: %s\n",
+                  pixel_config_name(config),
+                  gNY[this->isConfigRenderable(config, false)],
+                  gNY[this->isConfigRenderable(config, true)]);
     }
 
-    writer->endArray();
+    SkASSERT(!this->isConfigTexturable(kUnknown_GrPixelConfig));
 
-    this->onDumpJSON(writer);
+    for (size_t i = 1; i < kGrPixelConfigCnt; ++i)  {
+        GrPixelConfig config = static_cast<GrPixelConfig>(i);
+        r.appendf("%s is uploadable to a texture: %s\n",
+                  pixel_config_name(config),
+                  gNY[this->isConfigTexturable(config)]);
+    }
 
-    writer->appendName("shaderCaps");
-    this->shaderCaps()->dumpJSON(writer);
-
-    writer->endObject();
+    return r;
 }
