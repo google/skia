@@ -12,6 +12,7 @@
 #include "GrGLTexture.h"
 #include "GrShaderCaps.h"
 #include "GrSurfaceProxyPriv.h"
+#include "SkJSONWriter.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 #include "instanced/GLInstancedRendering.h"
@@ -1248,17 +1249,22 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-SkString GrGLCaps::dump() const {
+void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
-    SkString r = INHERITED::dump();
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("GL caps");
 
-    r.appendf("--- GL-Specific ---\n");
+    writer->beginArray("Stencil Formats");
+
     for (int i = 0; i < fStencilFormats.count(); ++i) {
-        r.appendf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
-                 i,
-                 fStencilFormats[i].fStencilBits,
-                 fStencilFormats[i].fTotalBits);
+        writer->appendString(SkStringPrintf("%d: stencil bits: %02d, total bits: %02d",
+                                            i,
+                                            fStencilFormats[i].fStencilBits,
+                                            fStencilFormats[i].fTotalBits).c_str());
     }
+
+    writer->endArray();
 
     static const char* kMSFBOExtStr[] = {
         "None",
@@ -1298,55 +1304,58 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(3 == kChromium_MapBufferType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
 
-    r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
-    r.appendf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
-    r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
-    r.appendf("Map Buffer Type: %s\n", kMapBufferTypeStr[fMapBufferType]);
-    r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
-    r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
-    r.appendf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
-    r.appendf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));
-    r.appendf("Pack Flip Y support: %s\n", (fPackFlipYSupport ? "YES": "NO"));
+    writer->appendString("Core Profile", (fIsCoreProfile ? "YES" : "NO"));
+    writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
+    writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
+    writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
+    writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
+    writer->appendString("Unpack Row length support", (fUnpackRowLengthSupport ? "YES" : "NO"));
+    writer->appendString("Unpack Flip Y support", (fUnpackFlipYSupport ? "YES" : "NO"));
+    writer->appendString("Pack Row length support", (fPackRowLengthSupport ? "YES" : "NO"));
+    writer->appendString("Pack Flip Y support", (fPackFlipYSupport ? "YES" : "NO"));
 
-    r.appendf("Texture Usage support: %s\n", (fTextureUsageSupport ? "YES": "NO"));
-    r.appendf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
-    r.appendf("Alpha8 is renderable: %s\n", (fAlpha8IsRenderable ? "YES" : "NO"));
-    r.appendf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
-    r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
-    r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
-    r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
-    r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
-    r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
-    r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
-    r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
-    r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
-    r.appendf("Rectangle texture support: %s\n", (fRectangleTextureSupport? "YES" : "NO"));
-    r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
-    r.appendf("BGRA to RGBA readback conversions are slow: %s\n",
-              (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
-    r.appendf("Intermediate texture for partial updates of unorm textures ever bound to FBOs: %s\n",
-              fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO ? "YES" : "NO");
-    r.appendf("Intermediate texture for all updates of textures bound to FBOs: %s\n",
-              fUseDrawInsteadOfAllRenderTargetWrites ? "YES" : "NO");
+    writer->appendString("Texture Usage support", (fTextureUsageSupport ? "YES" : "NO"));
+    writer->appendString("GL_R support", (fTextureRedSupport ? "YES" : "NO"));
+    writer->appendString("Alpha8 is renderable", (fAlpha8IsRenderable ? "YES" : "NO"));
+    writer->appendString("GL_ARB_imaging support", (fImagingSupport ? "YES" : "NO"));
+    writer->appendString("Vertex array object support", (fVertexArrayObjectSupport ? "YES" : "NO"));
+    writer->appendString("Direct state access support", (fDirectStateAccessSupport ? "YES" : "NO"));
+    writer->appendString("Debug support", (fDebugSupport ? "YES" : "NO"));
+    writer->appendString("Draw indirect support", (fDrawIndirectSupport ? "YES" : "NO"));
+    writer->appendString("Multi draw indirect support", (fMultiDrawIndirectSupport ? "YES" : "NO"));
+    writer->appendString("Base instance support", (fBaseInstanceSupport ? "YES" : "NO"));
+    writer->appendString("RGBA 8888 pixel ops are slow", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
+    writer->appendString("Partial FBO read is slow", (fPartialFBOReadIsSlow ? "YES" : "NO"));
+    writer->appendString("Bind uniform location support", (fBindUniformLocationSupport ? "YES" : "NO"));
+    writer->appendString("Rectangle texture support", (fRectangleTextureSupport ? "YES" : "NO"));
+    writer->appendString("Texture swizzle support", (fTextureSwizzleSupport ? "YES" : "NO"));
+    writer->appendString("BGRA to RGBA readback conversions are slow",
+                         (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
+    writer->appendString("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
+                         fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO ? "YES" : "NO");
+    writer->appendString("Intermediate texture for all updates of textures bound to FBOs",
+                         fUseDrawInsteadOfAllRenderTargetWrites ? "YES" : "NO");
+    // TODO: Use structured JSON for this data
+    writer->beginArray("configs");
 
-    r.append("Configs\n-------\n");
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        r.appendf("  cfg: %d flags: 0x%04x, b_internal: 0x%08x s_internal: 0x%08x, e_format: "
-                  "0x%08x, e_format_teximage: 0x%08x, e_type: 0x%08x, i_for_teximage: 0x%08x, "
-                  "i_for_renderbuffer: 0x%08x\n",
-                  i,
-                  fConfigTable[i].fFlags,
-                  fConfigTable[i].fFormats.fBaseInternalFormat,
-                  fConfigTable[i].fFormats.fSizedInternalFormat,
-                  fConfigTable[i].fFormats.fExternalFormat[kOther_ExternalFormatUsage],
-                  fConfigTable[i].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage],
-                  fConfigTable[i].fFormats.fExternalType,
-                  fConfigTable[i].fFormats.fInternalFormatTexImage,
-                  fConfigTable[i].fFormats.fInternalFormatRenderbuffer);
+        writer->appendString(SkStringPrintf(
+            "  cfg: %d flags: 0x%04x, b_internal: 0x%08x s_internal: 0x%08x, e_format: "
+            "0x%08x, e_format_teximage: 0x%08x, e_type: 0x%08x, i_for_teximage: 0x%08x, "
+            "i_for_renderbuffer: 0x%08x",
+            i,
+            fConfigTable[i].fFlags,
+            fConfigTable[i].fFormats.fBaseInternalFormat,
+            fConfigTable[i].fFormats.fSizedInternalFormat,
+            fConfigTable[i].fFormats.fExternalFormat[kOther_ExternalFormatUsage],
+            fConfigTable[i].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage],
+            fConfigTable[i].fFormats.fExternalType,
+            fConfigTable[i].fFormats.fInternalFormatTexImage,
+            fConfigTable[i].fFormats.fInternalFormatRenderbuffer).c_str());
     }
 
-    return r;
+    writer->endArray();
+    writer->endObject();
 }
 
 static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
