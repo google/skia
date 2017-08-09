@@ -45,6 +45,30 @@
       "revId": "2feab516d6a05c746dcf0807935d698d5587c0eb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e3ab374_169bc9fb",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-09T17:04:05Z",
+      "side": 1,
+      "message": "The discard call on SkSurface funnels down to here and we have no control on when the user calls that.",
+      "parentUuid": "28131ea2_1cf449c0",
+      "range": {
+        "startLine": 222,
+        "startChar": 6,
+        "endLine": 222,
+        "endChar": 55
+      },
+      "revId": "2feab516d6a05c746dcf0807935d698d5587c0eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
