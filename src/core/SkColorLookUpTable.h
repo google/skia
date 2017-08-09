@@ -41,11 +41,11 @@ public:
     void* operator new(size_t, void* p) { return p; }
     void operator delete(void* p) { sk_free(p); }
 
-private:
     const float* table() const {
         return SkTAddOffset<const float>(this, sizeof(SkColorLookUpTable));
     }
 
+private:
     uint8_t fInputChannels;
     uint8_t fLimits[kMaxColorChannels];
 };
