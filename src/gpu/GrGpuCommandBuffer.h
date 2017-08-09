@@ -30,17 +30,28 @@ struct SkRect;
  */
 class GrGpuCommandBuffer {
 public:
+    enum class LoadOp {
+        kLoad,
+        kClear,
+        kDiscard,
+    };
+
+    enum class StoreOp {
+        kStore,
+        kDiscard,
+    };
+
     struct LoadAndStoreInfo {
-        GrLoadOp  fLoadOp;
-        GrStoreOp fStoreOp;
-        GrColor   fClearColor;
+        LoadOp  fLoadOp;
+        StoreOp fStoreOp;
+        GrColor fClearColor;
     };
 
     // Load-time clears of the stencil buffer are always to 0 so we don't store
     // an 'fStencilClearValue'
     struct StencilLoadAndStoreInfo {
-        GrLoadOp  fLoadOp;
-        GrStoreOp fStoreOp;
+        LoadOp fLoadOp;
+        StoreOp fStoreOp;
     };
 
     GrGpuCommandBuffer(GrRenderTarget* rt, GrSurfaceOrigin origin)
