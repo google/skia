@@ -161,7 +161,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
     gr_fp<GrFragmentProcessor> colorConversionProcessor =
             GrNonlinearColorSpaceXformEffect::Make(srcColorSpace, dstColorSpace);
     if (colorConversionProcessor) {
-        paint.addColorFragmentProcessor(colorConversionProcessor);
+        paint.addColorFragmentProcessor(std::move(colorConversionProcessor));
     }
 
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

@@ -41,7 +41,7 @@ class GrXPFactory;
 class GrPaint {
 public:
     GrPaint() = default;
-    explicit GrPaint(const GrPaint&) = default;
+    explicit GrPaint(const GrPaint&);
     ~GrPaint() = default;
 
     /**

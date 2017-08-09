@@ -16,14 +16,6 @@
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 
-GrFragmentProcessor::~GrFragmentProcessor() {
-    // If we got here then our ref count must have reached zero, so we will have converted refs
-    // to pending executions for all children.
-    for (int i = 0; i < fChildProcessors.count(); ++i) {
-        fChildProcessors[i]->completedExecution();
-    }
-}
-
 bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID() ||
         !this->hasSameSamplersAndAccesses(that)) {
@@ -75,6 +67,15 @@ bool GrFragmentProcessor::instantiate(GrResourceProvider* resourceProvider) cons
     return true;
 }
 
+void GrFragmentProcessor::markPendingExecution() const {
+    INHERITED::addPendingIOs();
+    INHERITED::removeRefs();
+    fFlags |= kMarkedPendingExecution_Flag;
+    for (int i = 0; i < this->numChildProcessors(); ++i) {
+        this->childProcessor(i).markPendingExecution();
+    }
+}
+
 int GrFragmentProcessor::registerChildProcessor(gr_fp<GrFragmentProcessor> child) {
     this->combineRequiredFeatures(*child);
 
@@ -83,17 +84,9 @@ int GrFragmentProcessor::registerChildProcessor(gr_fp<GrFragmentProcessor> child
     }
 
     int index = fChildProcessors.count();
-    fChildProcessors.push_back(child.release());
+    fChildProcessors.push_back(std::move(child));
 
     return index;
-}
-
-void GrFragmentProcessor::notifyRefCntIsZero() const {
-    // See comment above GrProgramElement for a detailed explanation of why we do this.
-    for (int i = 0; i < fChildProcessors.count(); ++i) {
-        fChildProcessors[i]->addPendingExecution();
-        fChildProcessors[i]->unref();
-    }
 }
 
 bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) const {
@@ -210,7 +203,8 @@ gr_fp<GrFragmentProcessor> GrFragmentProcessor::PremulInput(gr_fp<GrFragmentProc
     if (!fp) {
         return nullptr;
     }
-    gr_fp<GrFragmentProcessor> fpPipeline[] = { PremulInputFragmentProcessor::Make(), fp};
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { PremulInputFragmentProcessor::Make(),
+                                                std::move(fp) };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
@@ -218,7 +212,8 @@ gr_fp<GrFragmentProcessor> GrFragmentProcessor::PremulOutput(gr_fp<GrFragmentPro
     if (!fp) {
         return nullptr;
     }
-    gr_fp<GrFragmentProcessor> fpPipeline[] = { fp, PremulInputFragmentProcessor::Make() };
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { std::move(fp),
+                                                PremulInputFragmentProcessor::Make() };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
@@ -226,7 +221,8 @@ gr_fp<GrFragmentProcessor> GrFragmentProcessor::UnpremulOutput(gr_fp<GrFragmentP
     if (!fp) {
         return nullptr;
     }
-    gr_fp<GrFragmentProcessor> fpPipeline[] = { fp, UnpremulInputFragmentProcessor::Make() };
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { std::move(fp),
+                                                UnpremulInputFragmentProcessor::Make() };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
@@ -289,7 +285,8 @@ gr_fp<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(gr_fp<GrFragmentPr
     if (GrSwizzle::RGBA() == swizzle) {
         return fp;
     }
-    gr_fp<GrFragmentProcessor> fpPipeline[] = { fp, SwizzleFragmentProcessor::Make(swizzle) };
+    gr_fp<GrFragmentProcessor> fpPipeline[] = { std::move(fp),
+                                                SwizzleFragmentProcessor::Make(swizzle) };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }
 
@@ -312,7 +309,7 @@ gr_fp<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulByOutput(
         PremulFragmentProcessor(gr_fp<GrFragmentProcessor> processor)
                 : INHERITED(OptFlags(processor.get())) {
             this->initClassID<PremulFragmentProcessor>();
-            this->registerChildProcessor(processor);
+            this->registerChildProcessor(std::move(processor));
         }
 
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -527,12 +524,12 @@ gr_fp<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(gr_fp<GrFragmentProc
         return nullptr;
     }
     if (1 == cnt) {
-        return series[0];
+        return std::move(series[0]);
     }
     // Run the through the series, do the invariant output processing, and look for eliminations.
     GrProcessorAnalysisColor inputColor;
     inputColor.setToUnknown();
-    GrColorFragmentProcessorAnalysis info(inputColor, sk_sp_address_as_pointer_address(series),
+    GrColorFragmentProcessorAnalysis info(inputColor, unique_ptr_address_as_pointer_address(series),
                                           cnt);
     SkTArray<gr_fp<GrFragmentProcessor>> replacementSeries;
     GrColor4f knownColor;
