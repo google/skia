@@ -1565,66 +1565,93 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
         break;
     }
 
-    // Calculate the color.
+    // Calculate the interpolation params (c0, c1, lerp factor).
+    fragBuilder->codeAppend("int c0_index, c1_index;");
+    fragBuilder->codeAppend("float lerp;");
     const char* colors = uniformHandler->getUniformCStr(fColorsUni);
     switch (ge.getColorType()) {
         case kSingleHardStop_ColorType: {
+            //   0              stopT                              1
+            // --+----------------+--------------------------------+--
+            //   |c0            c1|c2                            c3|
+
             const char* stopT = uniformHandler->getUniformCStr(fHardStopT);
 
-            fragBuilder->codeAppend ("float4 start, end;");
-            fragBuilder->codeAppend ("float relative_t;");
-            fragBuilder->codeAppendf("if (clamp_t < %s) {", stopT);
-            fragBuilder->codeAppendf("    start = %s[0];", colors);
-            fragBuilder->codeAppendf("    end   = %s[1];", colors);
-            fragBuilder->codeAppendf("    relative_t = clamp_t / %s;", stopT);
-            fragBuilder->codeAppend ("} else {");
-            fragBuilder->codeAppendf("    start = %s[2];", colors);
-            fragBuilder->codeAppendf("    end   = %s[3];", colors);
-            fragBuilder->codeAppendf("    relative_t = (clamp_t - %s) / (1 - %s);", stopT, stopT);
+            fragBuilder->codeAppend ("{");
+            fragBuilder->codeAppendf("  float stopT = %s;", stopT);
+            fragBuilder->codeAppend ("  float s = step(stopT, clamp_t);");
+            fragBuilder->codeAppend ("  c0_index = int(s * 2.0);");
+            fragBuilder->codeAppend ("  c1_index = c0_index + 1;");
+            fragBuilder->codeAppendf("  lerp = (clamp_t - s * stopT) /"
+                                             " (stopT * (1 - s * 2.0) + s);");
             fragBuilder->codeAppend ("}");
-            fragBuilder->codeAppend ("float4 colorTemp = mix(start, end, relative_t);");
 
             break;
         }
 
         case kHardStopLeftEdged_ColorType: {
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[1], %s[2], clamp_t);", colors,
-                                     colors);
-            if (SkShader::kClamp_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("if (%s < 0.0) {", t);
-                fragBuilder->codeAppendf("    colorTemp = %s[0];", colors);
-                fragBuilder->codeAppendf("}");
+            //   0                                                 1
+            // --+-------------------------------------------------+--
+            // c0|c1                                             c2|
+
+            fragBuilder->codeAppend     ("{");
+            if (ge.fTileMode == SkShader::kClamp_TileMode) {
+                fragBuilder->codeAppendf("  float s = step(0.0, %s);", t);
+                fragBuilder->codeAppend ("  c0_index = int(s * 1.0);"); // 0 | 1
+                fragBuilder->codeAppend ("  c1_index = int(s * 2.0);"); // 0 | 2
+            } else {
+                fragBuilder->codeAppend ("  c0_index = 1;");
+                fragBuilder->codeAppend ("  c1_index = 2;");
             }
+            fragBuilder->codeAppend     ("  lerp = clamp_t;");
+            fragBuilder->codeAppend     ("}");
 
             break;
         }
 
         case kHardStopRightEdged_ColorType: {
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);", colors,
-                                     colors);
-            if (SkShader::kClamp_TileMode == ge.fTileMode) {
-                fragBuilder->codeAppendf("if (%s > 1.0) {", t);
-                fragBuilder->codeAppendf("    colorTemp = %s[2];", colors);
-                fragBuilder->codeAppendf("}");
+            //   0                                                 1
+            // --+-------------------------------------------------+--
+            //   |c0                                             c1|c2
+
+            fragBuilder->codeAppend     ("{");
+            if (ge.fTileMode == SkShader::kClamp_TileMode) {
+                fragBuilder->codeAppendf("  float s = step(1.0, %s);", t);
+                fragBuilder->codeAppend ("  c0_index = 0 + int(s * 2.0);"); // 0 | 2
+                fragBuilder->codeAppend ("  c1_index = 1 + int(s * 1.0);"); // 1 | 2
+            } else {
+                fragBuilder->codeAppend ("  c0_index = 0;");
+                fragBuilder->codeAppend ("  c1_index = 1;");
             }
+            fragBuilder->codeAppend     ("  lerp = clamp_t;");
+            fragBuilder->codeAppend     ("}");
 
             break;
         }
 
         case kTwo_ColorType: {
-            fragBuilder->codeAppendf("float4 colorTemp = mix(%s[0], %s[1], clamp_t);",
-                                     colors, colors);
+            //   0                                                 1
+            // --+-------------------------------------------------+--
+            //   |c0                                             c1|
+
+            fragBuilder->codeAppend("c0_index = 0;");
+            fragBuilder->codeAppend("c1_index = 1;");
+            fragBuilder->codeAppend("lerp = clamp_t;");
 
             break;
         }
 
         case kThree_ColorType: {
-            fragBuilder->codeAppendf("float oneMinus2t = 1.0 - (2.0 * clamp_t);");
-            fragBuilder->codeAppendf("float4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s[0];",
-                                     colors);
-            fragBuilder->codeAppendf("colorTemp += (1.0 - min(abs(oneMinus2t), 1.0)) * %s[1];",
-                                     colors);
-            fragBuilder->codeAppendf("colorTemp += clamp(-oneMinus2t, 0.0, 1.0) * %s[2];", colors);
+            //   0                      0.5                        1
+            // --+-----------------------+-------------------------+--
+            //   |c0                    c1                       c2|
+
+            fragBuilder->codeAppend ("{");
+            fragBuilder->codeAppend ("  float s = step(0.5, clamp_t);");
+            fragBuilder->codeAppend ("  c0_index = 0 + int(s);"); // 0 | 1
+            fragBuilder->codeAppend ("  c1_index = 1 + int(s);"); // 1 | 2
+            fragBuilder->codeAppend ("  lerp = (clamp_t - s * 0.5) * 2.0;");
+            fragBuilder->codeAppend ("}");
 
             break;
         }
@@ -1633,6 +1660,10 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
             SkASSERT(false);
             break;
     }
+
+    // Finally, compute the interpolated color.
+    fragBuilder->codeAppendf("float4 colorTemp = mix(%s[c0_index], %s[c1_index], lerp);",
+                             colors, colors);
 
     // We could skip this step if both colors are known to be opaque. Two
     // considerations:
