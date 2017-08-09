@@ -32,8 +32,8 @@ layout(key) in int rangeType;
 }
 
 void main() {
-    float value;
-    float range;
+    half value;
+    half range;
     @switch (rangeType) {
         case 0:
             range = 1.0 / 255.0;
@@ -53,7 +53,7 @@ void main() {
         uint m = (y & 1) << 5 | (x & 1) << 4 |
                  (y & 2) << 2 | (x & 2) << 1 |
                  (y & 4) >> 1 | (x & 4) >> 2;
-        value = float(m) * 1.0 / 64.0 - 63.0 / 128.0;
+        value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
     } else {
         // Generate a random number based on the fragment position. For this
         // random number generator, we use the "GLSL rand" function
@@ -61,11 +61,11 @@ void main() {
         // the assumption that sin(<big number>) oscillates with high frequency
         // and sampling it will generate "randomness". Since we're using this
         // for rendering and not cryptography it should be OK.
-        value = fract(sin(dot(sk_FragCoord.xy, float2(12.9898, 78.233))) * 43758.5453) - .5;
+        value = fract(sin(dot(sk_FragCoord.xy, half2(12.9898, 78.233))) * 43758.5453) - .5;
     }
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
-    sk_OutColor = float4(clamp(sk_InColor.rgb + value * range, 0, sk_InColor.a), sk_InColor.a);
+    sk_OutColor = half4(clamp(sk_InColor.rgb + value * range, 0, sk_InColor.a), sk_InColor.a);
 }
 
 @test(testData) {

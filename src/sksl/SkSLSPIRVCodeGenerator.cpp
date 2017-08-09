@@ -156,21 +156,22 @@ static bool is_float(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_float(context, type.componentType());
     }
-    return type == *context.fFloat_Type || type == *context.fDouble_Type;
+    return type == *context.fFloat_Type || type == *context.fHalf_Type ||
+           type == *context.fDouble_Type;
 }
 
 static bool is_signed(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_signed(context, type.componentType());
     }
-    return type == *context.fInt_Type;
+    return type == *context.fInt_Type || type == *context.fShort_Type;
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_unsigned(context, type.componentType());
     }
-    return type == *context.fUInt_Type;
+    return type == *context.fUInt_Type || type == *context.fUShort_Type;
 }
 
 static bool is_bool(const Context& context, const Type& type) {
@@ -1054,11 +1055,11 @@ SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) 
             case Type::kScalar_Kind:
                 if (type == *fContext.fBool_Type) {
                     this->writeInstruction(SpvOpTypeBool, result, fConstantBuffer);
-                } else if (type == *fContext.fInt_Type) {
+                } else if (type == *fContext.fInt_Type || type == *fContext.fShort_Type) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
-                } else if (type == *fContext.fUInt_Type) {
+                } else if (type == *fContext.fUInt_Type || type == *fContext.fUShort_Type) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 0, fConstantBuffer);
-                } else if (type == *fContext.fFloat_Type) {
+                } else if (type == *fContext.fFloat_Type || type == *fContext.fHalf_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 32, fConstantBuffer);
                 } else if (type == *fContext.fDouble_Type) {
                     this->writeInstruction(SpvOpTypeFloat, result, 64, fConstantBuffer);
