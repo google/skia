@@ -409,6 +409,8 @@ private:
     // Must be called if bindSurfaceFBOForPixelOps was used to bind a surface for copying.
     void unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface);
 
+    void onDumpJSON(SkJSONWriter*) const override;
+
     sk_sp<GrGLContext>          fGLContext;
 
     bool createCopyProgram(GrTexture* srcTexture);
