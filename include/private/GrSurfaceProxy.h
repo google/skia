@@ -372,11 +372,11 @@ protected:
     virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
     void assign(sk_sp<GrSurface> surface);
 
-    sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt,
+    sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
                                        GrSurfaceFlags flags, bool isMipMapped,
                                        SkDestinationSurfaceColorMode mipColorMode) const;
 
-    bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
+    bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                          GrSurfaceFlags flags, bool isMipMapped,
                          SkDestinationSurfaceColorMode mipColorMode);
 
