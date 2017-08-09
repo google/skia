@@ -389,7 +389,7 @@ private:
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     // for a unit test
     friend void test_draw_op(GrRenderTargetContext*,
-                             sk_sp<GrFragmentProcessor>, sk_sp<GrTextureProxy>);
+                             gr_fp<GrFragmentProcessor>, sk_sp<GrTextureProxy>);
 
     void internalClear(const GrFixedClip&, const GrColor, bool canIgnoreClip);
 

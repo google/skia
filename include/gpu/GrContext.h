@@ -386,9 +386,9 @@ private:
      * use the specialized round-trip effects from GrConfigConversionEffect, otherwise they
      * create effects that do naive multiply or divide.
      */
-    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>,
+    gr_fp<GrFragmentProcessor> createPMToUPMEffect(gr_fp<GrFragmentProcessor>,
                                                    bool useConfigConversionEffect);
-    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>,
+    gr_fp<GrFragmentProcessor> createUPMToPMEffect(gr_fp<GrFragmentProcessor>,
                                                    bool useConfigConversionEffect);
 
     /**

@@ -54,7 +54,7 @@ protected:
 
     void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const;
+    gr_fp<GrFragmentProcessor> makeFGFrag(gr_fp<GrFragmentProcessor> bgFP) const;
 #endif
 
 private:
@@ -243,7 +243,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     }
 
     GrPaint paint;
-    sk_sp<GrFragmentProcessor> bgFP;
+    gr_fp<GrFragmentProcessor> bgFP;
 
     if (backgroundProxy) {
         SkMatrix bgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
@@ -266,7 +266,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                 -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform = GrColorSpaceXform::Make(foreground->getColorSpace(),
                                                                    outputProperties.colorSpace());
-        sk_sp<GrFragmentProcessor> foregroundFP(GrTextureDomainEffect::Make(
+        gr_fp<GrFragmentProcessor> foregroundFP(GrTextureDomainEffect::Make(
                                         std::move(foregroundProxy),
                                         std::move(fgXform), fgMatrix,
                                         GrTextureDomain::MakeTexelDomain(foreground->subset()),
@@ -274,7 +274,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                         GrSamplerParams::kNone_FilterMode));
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
-        sk_sp<GrFragmentProcessor> xferFP = this->makeFGFrag(std::move(bgFP));
+        gr_fp<GrFragmentProcessor> xferFP = this->makeFGFrag(std::move(bgFP));
 
         // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
         if (xferFP) {
@@ -307,8 +307,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                renderTargetContext->refColorSpace());
 }
 
-sk_sp<GrFragmentProcessor>
-SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
+gr_fp<GrFragmentProcessor>
+SkXfermodeImageFilter_Base::makeFGFrag(gr_fp<GrFragmentProcessor> bgFP) const {
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(bgFP), fMode);
 }
 
