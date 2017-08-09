@@ -93,7 +93,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     GrMaskFormat maskFormat = this->maskFormat();
 
     FlushInfo flushInfo;
-    flushInfo.fPipeline = target->makePipeline(fSRGBFlags, std::move(fProcessors));
+    flushInfo.fPipeline =
+            target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor =
                 this->setupDfProcessor(this->viewMatrix(),
