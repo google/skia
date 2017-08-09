@@ -338,6 +338,8 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         }
     }
 
+    renderTargetContext->setNeedsStencil();
+#if 0
     GrRenderTarget* rt = renderTargetContext->accessRenderTarget();
     if (!rt) {
         return true;
@@ -348,6 +350,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
         SkDebugf("WARNING: failed to attach stencil buffer for clip mask. Clip will be ignored.\n");
         return true;
     }
+#endif
 
     // This relies on the property that a reduced sub-rect of the last clip will contain all the
     // relevant window rectangles that were in the last clip. This subtle requirement will go away
