@@ -89,7 +89,6 @@ tests_sources = [
   "$_tests/GrAllocatorTest.cpp",
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
-  "$_tests/GrDrawTargetTest.cpp",
   "$_tests/GrMemoryPoolTest.cpp",
   "$_tests/GrMeshTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",

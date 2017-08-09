@@ -27,6 +27,7 @@
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkAutoMalloc.h"
+#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixmap.h"
@@ -208,8 +209,6 @@ GrGpu* GrGLGpu::Create(const GrGLInterface* interface, const GrContextOptions& o
     return nullptr;
 }
 
-static bool gPrintStartupSpew;
-
 GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     : GrGpu(context)
     , fGLContext(ctx)
@@ -258,26 +257,6 @@ GrGLGpu::GrGLGpu(GrGLContext* ctx, GrContext* context)
     }
 
     GrGLClearErr(this->glInterface());
-    if (gPrintStartupSpew) {
-        const GrGLubyte* vendor;
-        const GrGLubyte* renderer;
-        const GrGLubyte* version;
-        const GrGLubyte* glslVersion;
-        GL_CALL_RET(vendor, GetString(GR_GL_VENDOR));
-        GL_CALL_RET(renderer, GetString(GR_GL_RENDERER));
-        GL_CALL_RET(version, GetString(GR_GL_VERSION));
-        GL_CALL_RET(glslVersion, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
-        SkDebugf("------------------------- create GrGLGpu %p --------------\n",
-                 this);
-        SkDebugf("------ VENDOR %s\n", vendor);
-        SkDebugf("------ RENDERER %s\n", renderer);
-        SkDebugf("------ VERSION %s\n",  version);
-        SkDebugf("------ SHADING LANGUAGE VERSION %s\n", glslVersion);
-        SkDebugf("------ EXTENSIONS\n");
-        this->glContext().extensions().print();
-        SkDebugf("\n");
-        SkDebugf("%s", this->glCaps().dump().c_str());
-    }
 }
 
 GrGLGpu::~GrGLGpu() {
@@ -4423,4 +4402,25 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
             SkFAIL("Unexpected samper type");
             return 0;
     }
+}
+
+void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("GL GPU");
+
+    const GrGLubyte* str;
+    GL_CALL_RET(str, GetString(GR_GL_VERSION));
+    writer->appendString("GL_VERSION", (const char*)(str));
+    GL_CALL_RET(str, GetString(GR_GL_RENDERER));
+    writer->appendString("GL_RENDERER", (const char*)(str));
+    GL_CALL_RET(str, GetString(GR_GL_VENDOR));
+    writer->appendString("GL_VENDOR", (const char*)(str));
+    GL_CALL_RET(str, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+    writer->appendString("GL_SHADING_LANGUAGE_VERSION", (const char*)(str));
+
+    writer->appendName("extensions");
+    glInterface()->fExtensions.dumpJSON(writer);
+
+    writer->endObject();
 }

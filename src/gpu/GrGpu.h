@@ -40,6 +40,7 @@ class GrStencilAttachment;
 class GrStencilSettings;
 class GrSurface;
 class GrTexture;
+class SkJSONWriter;
 
 namespace gr_instanced {
     class InstancedOp;
@@ -458,6 +459,7 @@ public:
     };
 
     Stats* stats() { return &fStats; }
+    void dumpJSON(SkJSONWriter*) const;
 
     /** Creates a texture directly in the backend API without wrapping it in a GrTexture. This is
         only to be used for testing (particularly for testing the methods that import an externally
@@ -618,6 +620,8 @@ private:
                                          int* effectiveSampleCnt, SamplePattern*) = 0;
 
     virtual void onFinishFlush(bool insertedSemaphores) = 0;
+
+    virtual void onDumpJSON(SkJSONWriter*) const {}
 
     void resetContext() {
         this->onResetContext(fResetBits);
