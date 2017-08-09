@@ -60,6 +60,7 @@ extern void SkPDFImageDumpStats();
 
 extern bool gSkForceRasterPipelineBlitter;
 
+DECLARE_bool(undefok);
 DEFINE_string(src, "tests gm skp image", "Source types to test.");
 DEFINE_bool(nameByHash, false,
             "If true, write to FLAGS_writePath[0]/<hash>.png instead of "
@@ -979,9 +980,20 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions) {
     }
 
     // If no configs were requested (just running tests, perhaps?), then we're okay.
-    // Otherwise, make sure that at least one sink was constructed correctly. This catches
-    // the case of bots without a GPU being assigned GPU configs.
-    return (configs.count() == 0) || (gSinks.count() > 0);
+    if (configs.count() == 0 || FLAGS_config.count() == 0) {
+        return true;
+    }
+
+    // If we've been told to ignore undefined flags, we're okay.
+    if (FLAGS_undefok) {
+        return true;
+    }
+
+    // Otherwise, make sure that all specified configs have become sinks.
+    if (configs.count() != gSinks.count()) {
+        info("Invalid --config. Use --undefok to bypass this warning.");
+        return false;
+    }
 }
 
 static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
