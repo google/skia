@@ -32,7 +32,7 @@ GrClearOp::GrClearOp(const GrFixedClip& clip, GrColor color, GrSurfaceProxy* pro
 }
 
 void GrClearOp::onExecute(GrOpFlushState* state) {
-    SkASSERT(state->drawOpArgs().renderTarget());
+    SkASSERT(state->drawOpArgs().renderTarget1());
 
-    state->commandBuffer()->clear(state->drawOpArgs().fProxy, fClip, fColor);
+    state->commandBuffer()->clear(fClip, fColor);
 }

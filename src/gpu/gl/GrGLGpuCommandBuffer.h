@@ -26,8 +26,8 @@ class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
 public:
     GrGLGpuCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt,
                          const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
-            : fGpu(gpu)
-            , fRenderTarget(static_cast<GrGLRenderTarget*>(rt)) {
+            : INHERITED(rt)
+            , fGpu(gpu) {
         fClearSB = LoadOp::kClear == stencilInfo.fLoadOp;
     }
 
@@ -35,37 +35,23 @@ public:
 
     void begin() override {
         if (fClearSB) {
-            fGpu->clearStencil(fRenderTarget, 0x0);
+            fGpu->clearStencil(fRenderTarget1, 0x0);
         }
     }
     void end() override {}
 
-    void discard(GrRenderTargetProxy* proxy) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(proxy->priv().peekRenderTarget());
-        if (!fRenderTarget) {
-            fRenderTarget = target;
-        }
-        SkASSERT(target == fRenderTarget);
-    }
+    void discard() override { }
 
-    void insertEventMarker(GrRenderTargetProxy* proxy, const char* msg) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(proxy->priv().peekRenderTarget());
-        if (!fRenderTarget) {
-            fRenderTarget = target;
-        }
-        SkASSERT(target == fRenderTarget);
-
+    void insertEventMarker(const char* msg) override {
         fGpu->insertEventMarker(msg);
     }
 
-    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload,
-                      GrRenderTargetProxy*) override {
+    void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override {
         state->doUpload(upload);
     }
 
 private:
     GrGpu* gpu() override { return fGpu; }
-    GrRenderTarget* renderTarget() override { return fRenderTarget; }
 
     void onSubmit() override {}
 
@@ -75,35 +61,19 @@ private:
                 const GrPipeline::DynamicState dynamicStates[],
                 int meshCount,
                 const SkRect& bounds) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
-        if (!fRenderTarget) {
-            fRenderTarget = target;
-        }
-        SkASSERT(target == fRenderTarget);
+        SkASSERT(pipeline.renderTarget() == fRenderTarget1);
         fGpu->draw(pipeline, primProc, mesh, dynamicStates, meshCount);
     }
 
-    void onClear(GrRenderTargetProxy* proxy, const GrFixedClip& clip, GrColor color) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(proxy->priv().peekRenderTarget());
-        if (!fRenderTarget) {
-            fRenderTarget = target;
-        }
-        SkASSERT(target == fRenderTarget);
-        fGpu->clear(clip, color, fRenderTarget);
+    void onClear(const GrFixedClip& clip, GrColor color) override {
+        fGpu->clear(clip, color, fRenderTarget1);
     }
 
-    void onClearStencilClip(GrRenderTargetProxy* proxy, const GrFixedClip& clip,
-                            bool insideStencilMask) override {
-        GrGLRenderTarget* target = static_cast<GrGLRenderTarget*>(proxy->priv().peekRenderTarget());
-        if (!fRenderTarget) {
-            fRenderTarget = target;
-        }
-        SkASSERT(target == fRenderTarget);
-        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget);
+    void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {
+        fGpu->clearStencilClip(clip, insideStencilMask, fRenderTarget1);
     }
 
     GrGLGpu*                    fGpu;
-    GrGLRenderTarget*           fRenderTarget;
     bool                        fClearSB;
 
     typedef GrGpuCommandBuffer INHERITED;

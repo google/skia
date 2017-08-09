@@ -55,10 +55,9 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        SkASSERT(state->drawOpArgs().renderTarget());
+        SkASSERT(state->drawOpArgs().renderTarget1());
 
-        GrRenderTargetProxy* proxy = state->drawOpArgs().fProxy;
-        state->commandBuffer()->clearStencilClip(proxy, fClip, fInsideStencilMask);
+        state->commandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
     }
 
     const GrFixedClip fClip;
