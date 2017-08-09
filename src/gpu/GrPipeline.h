@@ -230,8 +230,7 @@ private:
 
     using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
     using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
-    using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
-    using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
+    using FragmentProcessorArray = SkAutoSTArray<8, gr_fp<const GrFragmentProcessor>>;
 
     DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;

@@ -368,7 +368,7 @@ static void test_path(GrContext* ctx,
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
     if (fp) {
-        paint.addColorFragmentProcessor(fp);
+        paint.addColorFragmentProcessor(std::move(fp));
     }
 
     GrNoClip noClip;
@@ -420,7 +420,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_16());
     SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
     gr_fp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
-    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
+    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
+              std::move(fp));
     test_path(ctx, rtc.get(), create_path_18());
     test_path(ctx, rtc.get(), create_path_19());
     test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
