@@ -27,6 +27,7 @@
 #include "GrTexturePriv.h"
 #include "GrTypes.h"
 #include "SkAutoMalloc.h"
+#include "SkJSONWriter.h"
 #include "SkMakeUnique.h"
 #include "SkMipMap.h"
 #include "SkPixmap.h"
@@ -4422,4 +4423,25 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
             SkFAIL("Unexpected samper type");
             return 0;
     }
+}
+
+void GrGLGpu::onDumpJSON(SkJSONWriter* writer) const {
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("GL GPU");
+
+    const GrGLubyte* str;
+    GL_CALL_RET(str, GetString(GR_GL_VERSION));
+    writer->appendString("GL_VERSION", (const char*)(str));
+    GL_CALL_RET(str, GetString(GR_GL_RENDERER));
+    writer->appendString("GL_RENDERER", (const char*)(str));
+    GL_CALL_RET(str, GetString(GR_GL_VENDOR));
+    writer->appendString("GL_VENDOR", (const char*)(str));
+    GL_CALL_RET(str, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+    writer->appendString("GL_SHADING_LANGUAGE_VERSION", (const char*)(str));
+
+    writer->appendName("extensions");
+    glInterface()->fExtensions.dumpJSON(writer);
+
+    writer->endObject();
 }
