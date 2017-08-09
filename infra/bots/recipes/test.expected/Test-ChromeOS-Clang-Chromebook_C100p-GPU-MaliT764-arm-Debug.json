@@ -824,7 +824,6 @@
       "-t",
       "foo@127.0.0.1",
       "/home/chronos/user/bin/dm",
-      "--undefok",
       "--resourcePath",
       "/home/chronos/user/resources",
       "--skps",

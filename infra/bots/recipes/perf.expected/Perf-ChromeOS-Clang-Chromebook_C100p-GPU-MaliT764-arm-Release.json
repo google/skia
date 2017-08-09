@@ -712,7 +712,6 @@
       "-t",
       "foo@127.0.0.1",
       "/home/chronos/user/bin/nanobench",
-      "--undefok",
       "-i",
       "/home/chronos/user/resources",
       "--skps",

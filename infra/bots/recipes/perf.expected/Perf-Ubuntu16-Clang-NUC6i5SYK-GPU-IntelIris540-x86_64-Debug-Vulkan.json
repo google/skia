@@ -119,7 +119,6 @@
       "[START_DIR]",
       "catchsegv",
       "[START_DIR]/out/Debug/nanobench",
-      "--undefok",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",

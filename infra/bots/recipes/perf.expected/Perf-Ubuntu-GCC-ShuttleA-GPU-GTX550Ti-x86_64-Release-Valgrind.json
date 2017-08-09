@@ -121,7 +121,6 @@
       "--num-callers=40",
       "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
       "[START_DIR]/out/Release/nanobench",
-      "--undefok",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",

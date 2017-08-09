@@ -690,7 +690,6 @@ def test_steps(api):
 
   args = [
     'dm',
-    '--undefok',   # This helps branches that may not know new flags.
     '--resourcePath', api.flavor.device_dirs.resource_dir,
     '--skps', api.flavor.device_dirs.skp_dir,
     '--images', api.flavor.device_path_join(
