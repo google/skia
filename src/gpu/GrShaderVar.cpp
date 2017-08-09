@@ -92,10 +92,6 @@ void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) cons
         out->append(" ");
     }
     GrSLType effectiveType = this->getType();
-    if (shaderCaps->usesPrecisionModifiers() && GrSLTypeAcceptsPrecision(effectiveType)) {
-        // Desktop GLSL has added precision qualifiers but they don't do anything.
-        out->appendf("%s ", GrGLSLPrecisionString(fPrecision));
-    }
     if (this->isArray()) {
         if (this->isUnsizedArray()) {
             out->appendf("%s %s[]",
