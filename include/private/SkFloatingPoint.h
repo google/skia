@@ -78,9 +78,25 @@ static inline float sk_float_pow(float base, float exp) {
 
 #define sk_double_isnan(a)          sk_float_isnan(a)
 
-#define sk_float_floor2int(x)   (int)sk_float_floor(x)
-#define sk_float_round2int(x)   (int)sk_float_floor((x) + 0.5f)
-#define sk_float_ceil2int(x)    (int)sk_float_ceil(x)
+#define SK_MaxS32FitsInFloat    2147483520
+#define SK_MinS32FitsInFloat    -SK_MaxS32FitsInFloat
+
+/**
+ *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
+ */
+static inline int sk_float_saturate2int(float x) {
+    x = SkTMin<float>(x, SK_MaxS32FitsInFloat);
+    x = SkTMax<float>(x, SK_MinS32FitsInFloat);
+    return (int)x;
+}
+
+#define sk_float_floor2int(x)   sk_float_saturate2int(sk_float_floor(x))
+#define sk_float_round2int(x)   sk_float_saturate2int(sk_float_floor((x) + 0.5f))
+#define sk_float_ceil2int(x)    sk_float_saturate2int(sk_float_ceil(x))
+
+#define sk_float_floor2int_no_saturate(x)   (int)sk_float_floor(x)
+#define sk_float_round2int_no_saturate(x)   (int)sk_float_floor((x) + 0.5f)
+#define sk_float_ceil2int_no_saturate(x)    (int)sk_float_ceil(x)
 
 #define sk_double_floor(x)          floor(x)
 #define sk_double_round(x)          floor((x) + 0.5)
