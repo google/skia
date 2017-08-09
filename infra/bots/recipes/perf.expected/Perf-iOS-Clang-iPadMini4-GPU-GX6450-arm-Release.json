@@ -544,7 +544,6 @@
       "-s",
       "com.google.nanobench",
       "--args",
-      "--undefok",
       "-i",
       "resources",
       "--skps",

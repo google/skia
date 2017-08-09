@@ -211,7 +211,6 @@
       "[START_DIR]",
       "catchsegv",
       "[START_DIR]/out/Release/dm",
-      "--undefok",
       "--resourcePath",
       "[START_DIR]/skia/resources",
       "--skps",
