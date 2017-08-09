@@ -113,12 +113,6 @@ public:
     // Make the renderTargetContext's GrOpList be dependent on any GrOpLists in this pipeline
     void addDependenciesTo(GrOpList* recipient, const GrCaps&) const;
 
-    int numColorFragmentProcessors() const { return fNumColorProcessors; }
-    int numCoverageFragmentProcessors() const {
-        return fFragmentProcessors.count() - fNumColorProcessors;
-    }
-    int numFragmentProcessors() const { return fFragmentProcessors.count(); }
-
     const GrXferProcessor& getXferProcessor() const {
         if (fXferProcessor) {
             return *fXferProcessor.get();
@@ -148,18 +142,12 @@ public:
         return nullptr;
     }
 
-    const GrFragmentProcessor& getColorFragmentProcessor(int idx) const {
-        SkASSERT(idx < this->numColorFragmentProcessors());
-        return *fFragmentProcessors[idx].get();
+    const GrFragmentProcessor* headColorFragmentProcessor() const {
+        return fHeadColorProcessor.get();
     }
 
-    const GrFragmentProcessor& getCoverageFragmentProcessor(int idx) const {
-        SkASSERT(idx < this->numCoverageFragmentProcessors());
-        return *fFragmentProcessors[fNumColorProcessors + idx].get();
-    }
-
-    const GrFragmentProcessor& getFragmentProcessor(int idx) const {
-        return *fFragmentProcessors[idx].get();
+    const GrFragmentProcessor* headCoverageFragmentProcessor() const {
+        return fHeadCoverageProcessor.get();
     }
 
     /// @}
@@ -230,8 +218,6 @@ private:
 
     using RenderTargetProxy = GrPendingIOResource<GrRenderTargetProxy, kWrite_GrIOType>;
     using DstTextureProxy = GrPendingIOResource<GrTextureProxy, kRead_GrIOType>;
-    using PendingFragmentProcessor = GrPendingProgramElement<const GrFragmentProcessor>;
-    using FragmentProcessorArray = SkAutoSTArray<8, PendingFragmentProcessor>;
 
     DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
@@ -242,10 +228,8 @@ private:
     const GrUserStencilSettings* fUserStencilSettings;
     uint16_t fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
-    FragmentProcessorArray fFragmentProcessors;
-
-    // This value is also the index in fFragmentProcessors where coverage processors begin.
-    int fNumColorProcessors;
+    gr_fp<GrFragmentProcessor> fHeadColorProcessor;
+    gr_fp<GrFragmentProcessor> fHeadCoverageProcessor;
 
     typedef SkRefCnt INHERITED;
 };

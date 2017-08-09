@@ -147,11 +147,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                                                              kRGBA_8888_GrPixelConfig, nullptr);
                 // We make a clone to test that copying GrFragmentProcessor::ImageStorageAccess
                 // copying works.
-                auto testFP = TestFP::Make(imageStorageTexture, mm, restrict);
-                for (auto fp : {testFP, testFP->clone()}) {
+                gr_fp<GrFragmentProcessor> fps[2];
+                fps[0] = TestFP::Make(imageStorageTexture, mm, restrict);
+                fps[1] = fps[0]->clone();
+                for (auto& fp : fps) {
                     GrPaint paint;
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-                    paint.addColorFragmentProcessor(fp);
+                    paint.addColorFragmentProcessor(std::move(fp));
                     rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
                     std::unique_ptr<uint32_t[]> readData(new uint32_t[kS * kS]);
                     SkImageInfo info = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
