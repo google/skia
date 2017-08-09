@@ -19,28 +19,14 @@ class SkColorLookUpTable : public SkRefCnt {
 public:
     static constexpr uint8_t kOutputChannels = 3;
 
-    SkColorLookUpTable(uint8_t inputChannels, const uint8_t limits[kMaxColorChannels])
-        : fInputChannels(inputChannels) {
-        SkASSERT(inputChannels >= 1 && inputChannels <= kMaxColorChannels);
-        memcpy(fLimits, limits, fInputChannels * sizeof(uint8_t));
+    SkColorLookUpTable(uint8_t inputChannels, const uint8_t limits[]);
 
-        for (int i = 0; i < inputChannels; i++) {
-            SkASSERT(fLimits[i] > 1);
-        }
-    }
+    // This always does the appropriate multilinear interpolation.
+    // We used to do tetrahedral for 3D tables, but found that was slower!
+    // src must point to fInputChannels values, one per channel.
+    void interp(float dst[3], const float src[]) const;
 
-    /**
-     *  If fInputChannels == kOutputChannels == 3, performs tetrahedral interpolation, otherwise
-     *  performs multilinear interpolation (ie LERP for n =1, bilinear for n=2, trilinear for n=3)
-     *  with fInputChannels input dimensions and kOutputChannels output dimensions.
-     *  |dst| can be |src| only when fInputChannels == kOutputChannels == 3
-     *  |dst| is the destination pixel, must have at least kOutputChannels elements.
-     *  |src| is the source pixel, must have at least fInputChannels elements.
-     */
-    void interp(float* dst, const float* src) const;
-
-    int inputChannels() const { return fInputChannels; }
-
+    int  inputChannels() const { return  fInputChannels; }
     int outputChannels() const { return kOutputChannels; }
 
     // TODO: Rename to somethingBetter(int)?
@@ -49,30 +35,19 @@ public:
         return fLimits[dimension];
     }
 
-private:
-    const float* table() const {
-        return SkTAddOffset<const float>(this, sizeof(SkColorLookUpTable));
-    }
-
-    /**
-     *  Performs tetrahedral interpolation with 3 input and 3 output dimensions.
-     *  |dst| can be |src|
-     */
-    void interp3D(float* dst, const float* src) const;
-
-    // recursively LERPs one dimension at a time. Used by interp() for the general case
-    template <int dim>
-    Sk4f interpDimension(const float* src, int index=0, int stride=1) const;
-
-    uint8_t fInputChannels;
-    uint8_t fLimits[kMaxColorChannels];
-
-public:
     // Objects of this type are created in a custom fashion using sk_malloc_throw
     // and therefore must be sk_freed.
     void* operator new(size_t size) = delete;
     void* operator new(size_t, void* p) { return p; }
     void operator delete(void* p) { sk_free(p); }
+
+private:
+    const float* table() const {
+        return SkTAddOffset<const float>(this, sizeof(SkColorLookUpTable));
+    }
+
+    uint8_t fInputChannels;
+    uint8_t fLimits[kMaxColorChannels];
 };
 
 #endif
