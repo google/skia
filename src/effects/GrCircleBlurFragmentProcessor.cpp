@@ -206,7 +206,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrResourceProvider* resource
     return blurProfile;
 }
 
-sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(GrResourceProvider* resourceProvider,
+gr_fp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(GrResourceProvider* resourceProvider,
                                                                const SkRect& circle,
                                                                float sigma) {
     float solidRadius;
@@ -216,7 +216,7 @@ sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::Make(GrResourceProvide
     if (!profile) {
         return nullptr;
     }
-    return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
+    return gr_fp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(
             circle, textureRadius, solidRadius, std::move(profile), resourceProvider));
 }
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -295,12 +295,12 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
     this->initClassID<GrCircleBlurFragmentProcessor>();
     this->addTextureSampler(&fBlurProfileSampler);
 }
-sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(*this));
+gr_fp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
+    return gr_fp<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
+gr_fp<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
     SkScalar wh = testData->fRandom->nextRangeScalar(100.f, 1000.f);
     SkScalar sigma = testData->fRandom->nextRangeF(1.f, 10.f);
