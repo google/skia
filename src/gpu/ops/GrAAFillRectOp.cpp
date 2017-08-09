@@ -228,7 +228,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
         Color color(Color::kPremulGrColorAttribute_Type);

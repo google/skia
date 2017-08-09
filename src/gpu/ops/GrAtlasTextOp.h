@@ -119,7 +119,7 @@ private:
         int fVertexOffset;
     };
 
-    void onPrepareDraws(Target* target) const override;
+    void onPrepareDraws(Target*) override;
 
     GrMaskFormat maskFormat() const {
         switch (fMaskType) {

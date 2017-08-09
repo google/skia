@@ -65,7 +65,7 @@ private:
         this->setBounds(sorted_rect(fRect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
         Color color(fColor);
@@ -82,7 +82,7 @@ private:
 
         fRect.toQuad(verts);
 
-        helper.recordDraw(target, gp.get(), target->makePipeline(0, &fProcessors));
+        helper.recordDraw(target, gp.get(), target->makePipeline(0, std::move(fProcessors)));
     }
 
     bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }

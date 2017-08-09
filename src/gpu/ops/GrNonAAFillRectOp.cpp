@@ -164,7 +164,7 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp = make_gp();
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -282,7 +282,7 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp = make_perspective_gp(
                 fViewMatrix, fHasLocalRect, fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {

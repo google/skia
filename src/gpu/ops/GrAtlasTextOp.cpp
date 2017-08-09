@@ -75,7 +75,7 @@ GrDrawOp::RequiresDstTexture GrAtlasTextOp::finalize(const GrCaps& caps,
     return analysis.requiresDstTexture() ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
 }
 
-void GrAtlasTextOp::onPrepareDraws(Target* target) const {
+void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
@@ -93,7 +93,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) const {
     GrMaskFormat maskFormat = this->maskFormat();
 
     FlushInfo flushInfo;
-    flushInfo.fPipeline = target->makePipeline(fSRGBFlags, &fProcessors);
+    flushInfo.fPipeline = target->makePipeline(fSRGBFlags, std::move(fProcessors));
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor =
                 this->setupDfProcessor(this->viewMatrix(),

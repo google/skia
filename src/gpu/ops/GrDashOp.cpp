@@ -356,7 +356,7 @@ private:
         bool fHasEndRect;
     };
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         int instanceCount = fLines.count();
         SkPaint::Cap cap = this->cap();
         bool isRoundCap = SkPaint::kRound_Cap == cap;
@@ -662,7 +662,7 @@ private:
         if (fAllowsSRGBInputs) {
             pipelineFlags |= GrPipeline::kAllowSRGBInputs_Flag;
         }
-        const GrPipeline* pipeline = target->makePipeline(pipelineFlags, &fProcessorSet);
+        const GrPipeline* pipeline = target->makePipeline(pipelineFlags, std::move(fProcessorSet));
         helper.recordDraw(target, gp.get(), pipeline);
     }
 

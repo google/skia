@@ -46,7 +46,7 @@ private:
         this->setBounds(SkRect::MakeWH(100, 100), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    void onPrepareDraws(Target* target) const override { return; }
+    void onPrepareDraws(Target* target) override { return; }
 
     bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
 

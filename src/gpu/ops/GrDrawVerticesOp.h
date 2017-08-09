@@ -58,7 +58,7 @@ private:
         kSkColor,
     };
 
-    void onPrepareDraws(Target*) const override;
+    void onPrepareDraws(Target*) override;
 
     sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute, bool* hasLocalCoordAttribute) const;
 

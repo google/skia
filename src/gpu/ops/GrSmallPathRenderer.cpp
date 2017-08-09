@@ -217,7 +217,7 @@ private:
         int fInstancesToFlush;
     };
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         int instanceCount = fShapes.count();
         const SkMatrix& ctm = this->viewMatrix();
 

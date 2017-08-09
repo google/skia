@@ -17,10 +17,9 @@
 
 #include "ops/GrOp.h"
 
-GrPipeline::GrPipeline(const InitArgs& args) {
+GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors) {
     SkASSERT(args.fProxy);
-    SkASSERT(args.fProcessors);
-    SkASSERT(args.fProcessors->isFinalized());
+    SkASSERT(processors.isFinalized());
 
     fProxy.reset(args.fProxy);
 
@@ -38,7 +37,7 @@ GrPipeline::GrPipeline(const InitArgs& args) {
 
     fUserStencilSettings = args.fUserStencil;
 
-    fXferProcessor = args.fProcessors->refXferProcessor();
+    fXferProcessor = processors.refXferProcessor();
 
     if (args.fDstProxy.proxy()) {
         if (!args.fDstProxy.proxy()->instantiate(args.fResourceProvider)) {
@@ -50,24 +49,24 @@ GrPipeline::GrPipeline(const InitArgs& args) {
     }
 
     // Copy GrFragmentProcessors from GrProcessorSet to Pipeline
-    fNumColorProcessors = args.fProcessors->numColorFragmentProcessors();
+    fNumColorProcessors = processors.numColorFragmentProcessors();
     int numTotalProcessors =
-            fNumColorProcessors + args.fProcessors->numCoverageFragmentProcessors();
+            fNumColorProcessors + processors.numCoverageFragmentProcessors();
     if (args.fAppliedClip && args.fAppliedClip->clipCoverageFragmentProcessor()) {
         ++numTotalProcessors;
     }
     fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
-    for (int i = 0; i < args.fProcessors->numColorFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
+    for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
+        const GrFragmentProcessor* fp = processors.colorFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
         if (!fp->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
 
-    for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
+    for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
+        const GrFragmentProcessor* fp = processors.coverageFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
         if (!fp->instantiate(args.fResourceProvider)) {
             this->markAsBad();

@@ -221,7 +221,7 @@ private:
         target->draw(gp, pipeline, mesh);
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         const GrPipeline* pipeline = fHelper.makePipeline(target);
 
         // Setup GrGeometryProcessor

@@ -49,7 +49,7 @@ private:
 
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         class GP : public GrGeometryProcessor {
         public:
             GP(int numAttribs) {
@@ -94,7 +94,8 @@ private:
         size_t vertexStride = gp->getVertexStride();
         SkPoint* vertices = reinterpret_cast<SkPoint*>(helper.init(target, vertexStride, 1));
         vertices->setRectFan(0.f, 0.f, 1.f, 1.f, vertexStride);
-        helper.recordDraw(target, gp.get(), target->makePipeline(0, &GrProcessorSet::EmptySet()));
+        helper.recordDraw(target, gp.get(),
+                          target->makePipeline(0, GrProcessorSet::MakeEmptySet()));
     }
 
     int fNumAttribs;

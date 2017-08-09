@@ -117,7 +117,7 @@ SkString GrDrawAtlasOp::dumpInfo() const {
     return string;
 }
 
-void GrDrawAtlasOp::onPrepareDraws(Target* target) const {
+void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor
     sk_sp<GrGeometryProcessor> gp(make_gp(this->hasColors(), this->color(), this->viewMatrix()));
 

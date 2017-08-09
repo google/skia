@@ -101,7 +101,8 @@ GrDrawOp::RequiresDstTexture GrSimpleMeshDrawOpHelper::xpRequiresDstTexture(
 }
 
 SkString GrSimpleMeshDrawOpHelper::dumpInfo() const {
-    SkString result = this->processors().dumpProcessors();
+    const GrProcessorSet& processors = fProcessors ? *fProcessors : GrProcessorSet::EmptySet();
+    SkString result = processors.dumpProcessors();
     result.append("AA Type: ");
     switch (this->aaType()) {
         case GrAAType::kNone:
@@ -125,13 +126,21 @@ GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
         GrMeshDrawOp::Target* target) const {
     GrPipeline::InitArgs args;
     args.fFlags = this->pipelineFlags();
-    args.fProcessors = &this->processors();
     args.fProxy = target->proxy();
     args.fAppliedClip = target->clip();
     args.fDstProxy = target->dstProxy();
     args.fCaps = &target->caps();
     args.fResourceProvider = target->resourceProvider();
     return args;
+}
+
+GrPipeline* GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target,
+                                                           const GrPipeline::InitArgs& args) {
+    if (fProcessors) {
+        return target->allocPipeline(args, std::move(*fProcessors));
+    } else {
+        return target->allocPipeline(args, GrProcessorSet::MakeEmptySet());
+    }
 }
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
@@ -156,10 +165,10 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
 }
 
 const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::makePipeline(
-        GrMeshDrawOp::Target* target) const {
+        GrMeshDrawOp::Target* target) {
     auto args = INHERITED::pipelineInitArgs(target);
     args.fUserStencil = fStencilSettings;
-    return target->allocPipeline(args);
+    return this->internalMakePipeline(target, args);
 }
 
 SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {

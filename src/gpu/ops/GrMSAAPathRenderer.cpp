@@ -329,7 +329,7 @@ private:
         *outQuadPointCount = quadPointCount;
     }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         if (fMaxLineVertices == 0) {
             SkASSERT(fMaxQuadVertices == 0);
             return;

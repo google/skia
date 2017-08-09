@@ -39,7 +39,6 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
                     0xffff>()
     };
     GrPipeline::InitArgs args;
-    args.fProcessors = &this->processors();
     args.fFlags = fPipelineSRGBFlags;
     if (GrAATypeIsHW(fAAType)) {
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
@@ -66,7 +65,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 //////////////////////////////////////////////////////////////////////////////
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
-    GrPipeline pipeline(this->pipelineInitArgs(*state));
+    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors());
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;
@@ -178,7 +177,7 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     sk_sp<GrPathProcessor> pathProc(
             GrPathProcessor::Create(this->color(), drawMatrix, localMatrix));
 
-    GrPipeline pipeline(this->pipelineInitArgs(*state));
+    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors());
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     if (fDraws.count() == 1) {

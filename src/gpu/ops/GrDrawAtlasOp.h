@@ -40,7 +40,7 @@ public:
     RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override;
 
 private:
-    void onPrepareDraws(Target*) const override;
+    void onPrepareDraws(Target*) override;
 
     GrColor color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fViewMatrix; }

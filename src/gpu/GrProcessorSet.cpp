@@ -13,8 +13,12 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 
 const GrProcessorSet& GrProcessorSet::EmptySet() {
-    static const GrProcessorSet gEmpty(GrProcessorSet::Empty::kEmpty);
+    static GrProcessorSet gEmpty(GrProcessorSet::Empty::kEmpty);
     return gEmpty;
+}
+
+GrProcessorSet GrProcessorSet::MakeEmptySet() {
+    return GrProcessorSet(GrProcessorSet::Empty::kEmpty);
 }
 
 GrProcessorSet::GrProcessorSet(GrPaint&& paint) : fXP(paint.getXPFactory()) {
@@ -51,6 +55,19 @@ GrProcessorSet::GrProcessorSet(sk_sp<GrFragmentProcessor> colorFP)
         , fFlags(0) {
     SkASSERT(colorFP);
     fFragmentProcessors[0] = colorFP.release();
+}
+
+GrProcessorSet::GrProcessorSet(GrProcessorSet&& that)
+        : fXP(std::move(that.fXP))
+        , fColorFragmentProcessorCnt(that.fColorFragmentProcessorCnt)
+        , fFragmentProcessorOffset(0)
+        , fFlags(that.fFlags) {
+    fFragmentProcessors.reset(that.fFragmentProcessors.count() - that.fFragmentProcessorOffset);
+    for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+        fFragmentProcessors[i] = that.fFragmentProcessors[i + that.fFragmentProcessorOffset];
+    }
+    that.fColorFragmentProcessorCnt = 0;
+    that.fFragmentProcessors.reset(0);
 }
 
 GrProcessorSet::~GrProcessorSet() {

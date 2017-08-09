@@ -138,7 +138,7 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
     return GrDefaultGeoProcFactory::Make(color, Coverage::kSolid_Type, localCoordsType, vm);
 }
 
-void GrDrawVerticesOp::onPrepareDraws(Target* target) const {
+void GrDrawVerticesOp::onPrepareDraws(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     sk_sp<GrGeometryProcessor> gp = this->makeGP(&hasColorAttribute, &hasLocalCoordsAttribute);
