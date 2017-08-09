@@ -42,11 +42,9 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        SkASSERT(state->drawOpArgs().renderTarget());
-
         //SkDebugf("%s\n", fStr.c_str());
         if (state->caps().gpuTracingSupport()) {
-            state->commandBuffer()->insertEventMarker(state->drawOpArgs().fProxy, fStr.c_str());
+            state->commandBuffer()->insertEventMarker(fStr.c_str());
         }
     }
 

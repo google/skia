@@ -99,6 +99,7 @@ public:
     struct DrawOpArgs {
         GrRenderTarget* renderTarget() const { return fProxy->priv().peekRenderTarget(); }
 
+        // TODO: do we still need the dst proxy here?
         GrRenderTargetProxy*      fProxy;
         const GrAppliedClip*      fAppliedClip;
         GrXferProcessor::DstProxy fDstProxy;

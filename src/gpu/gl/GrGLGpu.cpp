@@ -1972,7 +1972,8 @@ void GrGLGpu::disableScissor() {
     }
 }
 
-void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* target) {
+void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
+                    GrRenderTarget* target, GrSurfaceOrigin origin) {
     this->handleDirtyContext();
 
     // parent class should never let us get here with no RT
@@ -1980,7 +1981,7 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color, GrRenderTarget* targ
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
     this->flushRenderTarget(glRT, clip.scissorEnabled() ? &clip.scissorRect() : nullptr);
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT);
 
     GrGLfloat r, g, b, a;
@@ -2022,7 +2023,7 @@ void GrGLGpu::clearStencil(GrRenderTarget* target, int clearValue) {
 
 void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
                                bool insideStencilMask,
-                               GrRenderTarget* target) {
+                               GrRenderTarget* target, GrSurfaceOrigin origin) {
     SkASSERT(target);
     this->handleDirtyContext();
 
@@ -2056,7 +2057,7 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
     this->flushRenderTarget(glRT, &SkIRect::EmptyIRect());
 
-    this->flushScissor(clip.scissorState(), glRT->getViewport(), glRT->origin());
+    this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT);
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
@@ -2448,10 +2449,10 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 }
 
 GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
-        GrRenderTarget* rt, GrSurfaceOrigin,
+        GrRenderTarget* rt, GrSurfaceOrigin origin,
         const GrGpuCommandBuffer::LoadAndStoreInfo&,
         const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this, rt, stencilInfo);
+    return new GrGLGpuCommandBuffer(this, rt, origin, stencilInfo);
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {

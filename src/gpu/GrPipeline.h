@@ -237,6 +237,7 @@ private:
 
     DstTextureProxy fDstTextureProxy;
     SkIPoint fDstTextureOffset;
+    // MDB TODO: do we still need the destination proxy here?
     RenderTargetProxy fProxy;
     GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
