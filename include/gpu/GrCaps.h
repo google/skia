@@ -16,6 +16,7 @@
 
 struct GrContextOptions;
 class GrRenderTargetProxy;
+class SkJSONWriter;
 
 /**
  * Represents the capabilities of a GrContext.
@@ -24,7 +25,8 @@ class GrCaps : public SkRefCnt {
 public:
     GrCaps(const GrContextOptions&);
 
-    virtual SkString dump() const;
+    void dumpJSON(SkJSONWriter*) const;
+
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
@@ -238,6 +240,7 @@ protected:
 
 private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
+    virtual void onDumpJSON(SkJSONWriter*) const {}
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;
