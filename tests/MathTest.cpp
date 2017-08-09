@@ -671,3 +671,25 @@ DEF_TEST(GrNextSizePow2, reporter) {
 
     test_nextsizepow2(reporter, SIZE_MAX, SIZE_MAX);
 }
+
+DEF_TEST(FloatSaturate, reporter) {
+    const struct {
+        float   fFloat;
+        int     fExpectedInt;
+    } recs[] = {
+        { 0, 0 },
+        { 100.5f, 100 },
+        { (float)SK_MaxS32, SK_MaxS32FitsInFloat },
+        { (float)SK_MinS32, SK_MinS32FitsInFloat },
+        { SK_MaxS32 * 100.0f, SK_MaxS32FitsInFloat },
+        { SK_MinS32 * 100.0f, SK_MinS32FitsInFloat },
+        { SK_ScalarInfinity, SK_MaxS32FitsInFloat },
+        { SK_ScalarNegativeInfinity, SK_MinS32FitsInFloat },
+        { SK_ScalarNaN, SK_MaxS32FitsInFloat },
+    };
+
+    for (auto r : recs) {
+        int i = sk_float_saturate2int(r.fFloat);
+        REPORTER_ASSERT(reporter, r.fExpectedInt == i);
+    }
+}
