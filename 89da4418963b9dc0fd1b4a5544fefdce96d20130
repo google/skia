@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22fdea31_73bdc4b8",
+        "filename": "src/gpu/GrShaderCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-09T17:26:16Z",
+      "side": 1,
+      "message": "Should we make these be typed values rather than a string?",
+      "range": {
+        "startLine": 144,
+        "startChar": 45,
+        "endLine": 144,
+        "endChar": 65
+      },
+      "revId": "89da4418963b9dc0fd1b4a5544fefdce96d20130",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
