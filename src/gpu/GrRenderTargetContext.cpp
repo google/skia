@@ -31,7 +31,6 @@
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
 #include "ops/GrDebugMarkerOp.h"
-#include "ops/GrDiscardOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
@@ -216,18 +215,15 @@ void GrRenderTargetContext::discard() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-            GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "discard", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "discard", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
 
-    // Currently this just inserts a discard op. However, once in MDB this can remove all the
-    // previously recorded ops and change the load op to discard.
-    if (this->caps()->discardRenderTargetSupport()) {
-        std::unique_ptr<GrOp> op(GrDiscardOp::Make(fRenderTargetProxy.get()));
-        if (!op) {
-            return;
-        }
-        this->getRTOpList()->addOp(std::move(op), *this->caps());
+    // Discard calls to in-progress opLists are ignored. Calls at the start update the
+    // opLists' color & stencil load ops.
+    if (this->caps()->discardRenderTargetSupport() && this->getRTOpList()->isEmpty()) {
+        this->getRTOpList()->setColorLoadOp(GrOpList::LoadOp::kDiscard);
+        this->getRTOpList()->setStencilLoadOp(GrOpList::LoadOp::kDiscard);
     }
 }
 
@@ -1761,7 +1757,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 
     if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
         appliedClip.hasStencilClip()) {
-        this->getOpList()->setRequiresStencil();
+        this->getOpList()->setStencilLoadOp(GrOpList::LoadOp::kClear);
 
         // This forces instantiation of the render target.
         GrRenderTarget* rt = this->accessRenderTarget();

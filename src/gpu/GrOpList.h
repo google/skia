@@ -82,9 +82,6 @@ public:
 
     int32_t uniqueID() const { return fUniqueID; }
 
-    void setRequiresStencil() { this->setFlag(kClearStencilBuffer_Flag); }
-    bool requiresStencil() { return this->isSetFlag(kClearStencilBuffer_Flag); }
-
     /*
      * Dump out the GrOpList dependency DAG
      */
@@ -93,9 +90,21 @@ public:
     SkDEBUGCODE(virtual int numOps() const = 0;)
     SkDEBUGCODE(virtual int numClips() const { return 0; })
 
+    enum class LoadOp {
+        kLoad,
+        kClear,
+        kDiscard,
+    };
+
+    void setColorLoadOp(LoadOp loadOp) { fColorLoadOp = loadOp; }
+    void setStencilLoadOp(LoadOp loadOp) { fStencilLoadOp = loadOp; }
+
 protected:
     GrSurfaceProxyRef fTarget;
     GrAuditTrail*     fAuditTrail;
+
+    LoadOp            fColorLoadOp   = LoadOp::kLoad;
+    LoadOp            fStencilLoadOp = LoadOp::kLoad;
 
 private:
     friend class GrDrawingManager; // for resetFlag & TopoSortTraits
@@ -107,8 +116,6 @@ private:
 
         kWasOutput_Flag = 0x02,   //!< Flag for topological sorting
         kTempMark_Flag  = 0x04,   //!< Flag for topological sorting
-
-        kClearStencilBuffer_Flag = 0x08 //!< Clear the SB before executing the ops
     };
 
     void setFlag(uint32_t flag) {
