@@ -29,7 +29,7 @@ public:
 
     ~GrVkGpuCommandBuffer() override;
 
-    void begin() override;
+    void begin() override { }
     void end() override;
 
     void discard() override;

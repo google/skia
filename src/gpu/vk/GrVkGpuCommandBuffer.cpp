@@ -120,13 +120,6 @@ GrVkGpuCommandBuffer::~GrVkGpuCommandBuffer() {
 
 GrGpu* GrVkGpuCommandBuffer::gpu() { return fGpu; }
 
-void GrVkGpuCommandBuffer::begin() {
-    // TODO: remove this - see skbug.com/6936
-    if (VK_ATTACHMENT_LOAD_OP_CLEAR == fVkStencilLoadOp) {
-        fGpu->clearStencil(fRenderTarget, 0x0);
-    }
-}
-
 void GrVkGpuCommandBuffer::end() {
     if (fCurrentCmdInfo >= 0) {
         fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf()->end(fGpu);
@@ -173,7 +166,7 @@ void GrVkGpuCommandBuffer::onSubmit() {
         // TODO: We can't add this optimization yet since many things create a scratch texture which
         // adds the discard immediately, but then don't draw to it right away. This causes the
         // discard to be ignored and we get yelled at for loading uninitialized data. However, once
-        // MDP lands, the discard will get reordered with the rest of the draw commands and we can
+        // MDB lands, the discard will get reordered with the rest of the draw commands and we can
         // re-enable this.
 #if 0
         if (cbInfo.fIsEmpty && !cbInfo.fStartsWithClear) {
@@ -201,7 +194,7 @@ void GrVkGpuCommandBuffer::discard() {
 
     CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
     if (cbInfo.fIsEmpty) {
-        // We will change the render pass to do a clear load instead
+        // Change the render pass to do a don't-care load for both color & stencil
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                                 VK_ATTACHMENT_STORE_OP_STORE);
         GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -304,11 +297,11 @@ void GrVkGpuCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     GrColorToRGBAFloat(color, vkColor.float32);
 
     if (cbInfo.fIsEmpty && !clip.scissorEnabled()) {
-        // We will change the render pass to do a clear load instead
+        // Change the render pass to do a clear load
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                 VK_ATTACHMENT_STORE_OP_STORE);
-        GrVkRenderPass::LoadStoreOps vkStencilOps(VK_ATTACHMENT_LOAD_OP_LOAD,
-                                                  VK_ATTACHMENT_STORE_OP_STORE);
+        // Preserve the stencil buffer's load & store settings
+        GrVkRenderPass::LoadStoreOps vkStencilOps(fVkStencilLoadOp, fVkStencilStoreOp);
 
         const GrVkRenderPass* oldRP = cbInfo.fRenderPass;
 
