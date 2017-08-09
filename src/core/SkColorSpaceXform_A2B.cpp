@@ -189,27 +189,24 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             case SkColorSpace_A2B::Element::Type::kCLUT: {
                 SkCSXformPrintf("CLUT (%d -> %d) stage added\n", e.colorLUT().inputChannels(),
                                                                  e.colorLUT().outputChannels());
-                struct CallbackCtx : SkJumper_CallbackCtx {
-                    sk_sp<const SkColorLookUpTable> clut;
-                    // clut->interp() can't always safely alias its arguments,
-                    // so we allocate a second buffer to hold our results.
-                    float results[4*SkJumper_kMaxStride];
-                };
-                auto cb = fAlloc.make<CallbackCtx>();
-                cb->clut      = sk_ref_sp(&e.colorLUT());
-                cb->read_from = cb->results;
-                cb->fn        = [](SkJumper_CallbackCtx* ctx, int active_pixels) {
-                    auto c = (CallbackCtx*)ctx;
-                    for (int i = 0; i < active_pixels; i++) {
-                        // Look up red, green, and blue for this pixel using 3-4 values from rgba.
-                        c->clut->interp(c->results+4*i, c->rgba+4*i);
 
-                        // If we used 3 inputs (rgb) preserve the fourth as alpha.
-                        // If we used 4 inputs (cmyk) force alpha to 1.
-                        c->results[4*i+3] = (3 == c->clut->inputChannels()) ? c->rgba[4*i+3] : 1.0f;
-                    }
+                struct Ctx : SkJumper_ColorLookupTableCtx {
+                    sk_sp<const SkColorLookUpTable> clut;
                 };
-                fElementsPipeline.append(SkRasterPipeline::callback, cb);
+                auto ctx = fAlloc.make<Ctx>();
+                ctx->clut  = sk_ref_sp(&e.colorLUT());
+                ctx->table = ctx->clut->table();
+                for (int i = 0; i < ctx->clut->inputChannels(); i++) {
+                    ctx->limits[i] = ctx->clut->gridPoints(i);
+                }
+
+                switch  (e.colorLUT().inputChannels()) {
+                    case 3: fElementsPipeline.append(SkRasterPipeline::clut_3D, ctx); break;
+                    case 4: fElementsPipeline.append(SkRasterPipeline::clut_4D, ctx); break;
+                    default: SkDEBUGFAIL("need to handle 1 or 2 channel color lookup tables.");
+                }
+                fElementsPipeline.append(SkRasterPipeline::clamp_0);
+                fElementsPipeline.append(SkRasterPipeline::clamp_1);
                 break;
             }
             case SkColorSpace_A2B::Element::Type::kMatrix:

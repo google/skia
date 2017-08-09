@@ -121,4 +121,9 @@ struct SkJumper_UniformColorCtx {
     uint32_t rgba;
 };
 
+struct SkJumper_ColorLookupTableCtx {
+    const float* table;
+    int limits[4];
+};
+
 #endif//SkJumper_DEFINED

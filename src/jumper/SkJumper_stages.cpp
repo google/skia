@@ -1495,3 +1495,55 @@ STAGE(callback) {
     c->fn(c, tail ? tail : kStride);
     load4(c->read_from,0, &r,&g,&b,&a);
 }
+
+// Our general strategy is to recursively interpolate each dimension,
+// accumulating the index to sample at, and our current pixel stride to help accumulate the index.
+template <int dim>
+SI void color_lookup_table(const SkJumper_ColorLookupTableCtx* ctx,
+                           F& r, F& g, F& b, F a, U32 index, U32 stride) {
+    // We'd logically like to sample this dimension at x.
+    int limit = ctx->limits[dim-1];
+    F src;
+    switch(dim) {
+        case 1: src = r; break;
+        case 2: src = g; break;
+        case 3: src = b; break;
+        case 4: src = a; break;
+    }
+    F x = src * (limit - 1);
+
+    // We can't index an array by a float (darn) so we have to snap to nearby integers lo and hi.
+    U32 lo = trunc_(x          ),
+        hi = trunc_(x + 0.9999f);
+
+    // Recursively sample at lo and hi.
+    F lr = r, lg = g, lb = b,
+      hr = r, hg = g, hb = b;
+    color_lookup_table<dim-1>(ctx, lr,lg,lb,a, stride*lo + index, stride*limit);
+    color_lookup_table<dim-1>(ctx, hr,hg,hb,a, stride*hi + index, stride*limit);
+
+    // Linearly interpolate those colors based on their distance to x.
+    F t = x - cast(lo);
+    r = lerp(lr, hr, t);
+    g = lerp(lg, hg, t);
+    b = lerp(lb, hb, t);
+}
+
+// Bottom out our recursion at 0 dimensions, i.e. just return the colors at index.
+template<>
+inline void color_lookup_table<0>(const SkJumper_ColorLookupTableCtx* ctx,
+                                  F& r, F& g, F& b, F a, U32 index, U32 stride) {
+    r = gather(ctx->table, 3*index+0);
+    g = gather(ctx->table, 3*index+1);
+    b = gather(ctx->table, 3*index+2);
+}
+
+STAGE(clut_3D) {
+    color_lookup_table<3>(ctx, r,g,b,a, 0,1);
+    // This 3D color lookup table leaves alpha alone.
+}
+STAGE(clut_4D) {
+    color_lookup_table<4>(ctx, r,g,b,a, 0,1);
+    // "a" was really CMYK's K, so we just set alpha opaque.
+    a = 1.0f;
+}

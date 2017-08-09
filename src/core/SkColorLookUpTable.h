@@ -21,11 +21,6 @@ public:
 
     SkColorLookUpTable(uint8_t inputChannels, const uint8_t limits[]);
 
-    // This always does the appropriate multilinear interpolation.
-    // We used to do tetrahedral for 3D tables, but found that was slower!
-    // src must point to fInputChannels values, one per channel.
-    void interp(float dst[3], const float src[]) const;
-
     int  inputChannels() const { return  fInputChannels; }
     int outputChannels() const { return kOutputChannels; }
 
@@ -41,11 +36,11 @@ public:
     void* operator new(size_t, void* p) { return p; }
     void operator delete(void* p) { sk_free(p); }
 
-private:
     const float* table() const {
         return SkTAddOffset<const float>(this, sizeof(SkColorLookUpTable));
     }
 
+private:
     uint8_t fInputChannels;
     uint8_t fLimits[kMaxColorChannels];
 };
