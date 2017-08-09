@@ -44,7 +44,7 @@ protected:
     }
 
     const GrPipeline* makePipeline(Target* target) {
-        return target->makePipeline(0, std::move(fProcessorSet));
+        return target->makePipeline(0, std::move(fProcessorSet), target->detachAppliedClip());
     }
 
     const GrGeometryProcessor* gp() const { return fGeometryProcessor.get(); }
