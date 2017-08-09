@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "826d676d_2fddeebc",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-09T19:51:17Z",
+      "side": 1,
+      "message": "Can this be GrProcessorSet\u0026\u0026, to make it clear that we\u0027re not passing-by-value. (I know that the copy constructor is deleted, this is just so no one panics when they see the signature).",
+      "revId": "512cbb2fef37db3dbe0702453a15c3ef92eb714d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
