@@ -16,6 +16,24 @@
       "revId": "69fd008199989c5a5a96f992dcaa4089b63f490f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29d74884_87a05c51",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-09T18:07:33Z",
+      "side": 0,
+      "message": "I used it manually sometimes, but I\u0027ll happily use GrContext::dump() instead.",
+      "parentUuid": "cfa95c9b_23ff24cd",
+      "revId": "69fd008199989c5a5a96f992dcaa4089b63f490f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
