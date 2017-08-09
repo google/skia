@@ -1495,3 +1495,43 @@ STAGE(callback) {
     c->fn(c, tail ? tail : kStride);
     load4(c->read_from,0, &r,&g,&b,&a);
 }
+
+// We follow the same strategy as SkColorLookUpTable.
+template <int dim>
+SI void color_lookup_table(const SkJumper_ColorLookupTableCtx* ctx,
+                           F& r, F& g, F& b, F a, U32 index, U32 stride) {
+    int limit = ctx->limits[dim];
+    F src;
+    switch(dim) {
+        case 0: src = r; break;
+        case 1: src = g; break;
+        case 2: src = b; break;
+        case 3: src = a; break;
+    }
+    F x = src * (limit - 1);
+
+    U32 lo = trunc_(x          ),
+        hi = trunc_(x + 0.9999f);
+
+    F lr = r, lg = g, lb = b,
+      hr = r, hg = g, hb = b;
+    color_lookup_table<dim-1>(ctx, lr,lg,lb,a, stride*lo + index, stride*limit);
+    color_lookup_table<dim-1>(ctx, hr,hg,hb,a, stride*hi + index, stride*limit);
+
+    F t = x - cast(lo);
+    r = lerp(lr, hr, t);
+    g = lerp(lg, hg, t);
+    b = lerp(lb, hb, t);
+}
+
+template<>
+inline void color_lookup_table<-1>(const SkJumper_ColorLookupTableCtx* ctx,
+                                   F& r, F& g, F& b, F a, U32 index, U32 stride) {
+    r = gather(ctx->table, 3*index+0);
+    g = gather(ctx->table, 3*index+1);
+    b = gather(ctx->table, 3*index+2);
+}
+
+STAGE(clut_3D) { color_lookup_table<2>(ctx, r,g,b,a, 0,1);           }
+STAGE(clut_4D) { color_lookup_table<3>(ctx, r,g,b,a, 0,1); a = 1.0f; }
+
