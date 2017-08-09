@@ -156,21 +156,22 @@ static bool is_float(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_float(context, type.componentType());
     }
-    return type == *context.fFloat_Type || type == *context.fDouble_Type;
+    return type == *context.fFloat_Type || type == *context.fHalf_Type ||
+           type == *context.fDouble_Type;
 }
 
 static bool is_signed(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_signed(context, type.componentType());
     }
-    return type == *context.fInt_Type;
+    return type == *context.fInt_Type || type == *context.fShort_Type;
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_unsigned(context, type.componentType());
     }
-    return type == *context.fUInt_Type;
+    return type == *context.fUInt_Type || type == *context.fUShort_Type;
 }
 
 static bool is_bool(const Context& context, const Type& type) {
@@ -1046,6 +1047,22 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& type, const MemoryLayout& layout) {
+    if (type == *fContext.fHalf_Type) {
+        return this->getType(*fContext.fFloat_Type, layout);
+    }
+    if (type == *fContext.fShort_Type) {
+        return this->getType(*fContext.fInt_Type, layout);
+    }
+    if (type == *fContext.fUShort_Type) {
+        return this->getType(*fContext.fUInt_Type, layout);
+    }
+    if ((type.kind() == Type::kMatrix_Kind || type.kind() == Type::kVector_Kind) &&
+        (type.componentType() == *fContext.fHalf_Type ||
+         type.componentType() == *fContext.fShort_Type ||
+         type.componentType() == *fContext.fUInt_Type)) {
+        return this->getType(type.componentType().toCompound(fContext, type.columns(),
+                                                             type.rows()));
+    }
     String key = type.name() + to_string((int) layout.fStd);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
