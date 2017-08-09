@@ -19,16 +19,16 @@
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
     class TestFP : public GrFragmentProcessor {
     public:
-        static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                               GrSLMemoryModel mm,
-                                               GrSLRestrict restrict) {
-            return gr_fp<GrFragmentProcessor>(new TestFP(std::move(proxy), mm, restrict));
+        static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                         GrSLMemoryModel mm,
+                                                         GrSLRestrict restrict) {
+            return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(proxy), mm, restrict));
         }
 
         const char* name() const override { return "Image Load Test FP"; }
 
-        gr_fp<GrFragmentProcessor> clone() const override {
-            return gr_fp<GrFragmentProcessor>(new TestFP(*this));
+        std::unique_ptr<GrFragmentProcessor> clone() const override {
+            return std::unique_ptr<GrFragmentProcessor>(new TestFP(*this));
         }
 
     private:
@@ -147,7 +147,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageStorageLoad, reporter, ctxInfo) {
                                                              kRGBA_8888_GrPixelConfig, nullptr);
                 // We make a clone to test that copying GrFragmentProcessor::ImageStorageAccess
                 // copying works.
-                gr_fp<GrFragmentProcessor> fps[2];
+                std::unique_ptr<GrFragmentProcessor> fps[2];
                 fps[0] = TestFP::Make(imageStorageTexture, mm, restrict);
                 fps[1] = fps[0]->clone();
                 for (auto& fp : fps) {

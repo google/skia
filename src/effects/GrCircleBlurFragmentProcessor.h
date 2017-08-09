@@ -21,10 +21,10 @@ public:
     float textureRadius() const { return fTextureRadius; }
     float solidRadius() const { return fSolidRadius; }
 
-    static gr_fp<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
-                                           const SkRect& circle, float sigma);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrResourceProvider* resourceProvider,
+                                                     const SkRect& circle, float sigma);
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
-    gr_fp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
 
 private:

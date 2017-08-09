@@ -167,7 +167,7 @@ public:
      *  The returned GrFragmentProcessor should expect an unpremultiplied input color and
      *  produce a premultiplied output.
      */
-    virtual gr_fp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const;
+    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const;
 #endif
 
     /**

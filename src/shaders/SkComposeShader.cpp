@@ -125,7 +125,8 @@ bool SkComposeShader::onAppendStages(SkRasterPipeline* pipeline, SkColorSpace* d
 
 /////////////////////////////////////////////////////////////////////
 
-gr_fp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(
+        const AsFPArgs& args) const {
     if (this->isJustMode()) {
         SkASSERT(fMode != SkBlendMode::kSrc && fMode != SkBlendMode::kDst); // caught in factory
         if (fMode == SkBlendMode::kClear) {
@@ -134,11 +135,11 @@ gr_fp<GrFragmentProcessor> SkComposeShader::asFragmentProcessor(const AsFPArgs& 
         }
     }
 
-    gr_fp<GrFragmentProcessor> fpA(as_SB(fDst)->asFragmentProcessor(args));
+    std::unique_ptr<GrFragmentProcessor> fpA(as_SB(fDst)->asFragmentProcessor(args));
     if (!fpA) {
         return nullptr;
     }
-    gr_fp<GrFragmentProcessor> fpB(as_SB(fSrc)->asFragmentProcessor(args));
+    std::unique_ptr<GrFragmentProcessor> fpB(as_SB(fSrc)->asFragmentProcessor(args));
     if (!fpB) {
         return nullptr;
     }

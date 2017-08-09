@@ -255,7 +255,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor);
 
 #if GR_TEST_UTILS
-gr_fp<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
+std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;

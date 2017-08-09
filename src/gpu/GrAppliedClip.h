@@ -27,7 +27,7 @@ public:
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
     GrFragmentProcessor* clipCoverageFragmentProcessor() const { return fClipCoverageFP.get(); }
-    gr_fp<GrFragmentProcessor> detachClipCoverageFragmentProcessor() {
+    std::unique_ptr<GrFragmentProcessor> detachClipCoverageFragmentProcessor() {
         return std::move(fClipCoverageFP);
     }
     bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fClipStackID; }
@@ -51,7 +51,7 @@ public:
         fWindowRectsState.set(windows, mode);
     }
 
-    void addCoverageFP(gr_fp<GrFragmentProcessor> fp) {
+    void addCoverageFP(std::unique_ptr<GrFragmentProcessor> fp) {
         SkASSERT(!fClipCoverageFP);
         fClipCoverageFP = std::move(fp);
     }
@@ -85,7 +85,7 @@ public:
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
-    gr_fp<GrFragmentProcessor> fClipCoverageFP;
+    std::unique_ptr<GrFragmentProcessor> fClipCoverageFP;
     uint32_t                   fClipStackID = SkClipStack::kInvalidGenID;
 };
 

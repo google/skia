@@ -23,7 +23,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    gr_fp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
 #ifdef SK_DEBUGx

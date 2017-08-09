@@ -11,7 +11,8 @@
 #include "GrEllipseEffect.h"
 #include "SkRect.h"
 
-gr_fp<GrFragmentProcessor> GrOvalEffect::Make(GrPrimitiveEdgeType edgeType, const SkRect& oval) {
+std::unique_ptr<GrFragmentProcessor> GrOvalEffect::Make(GrPrimitiveEdgeType edgeType,
+                                                        const SkRect& oval) {
     if (kHairlineAA_GrProcessorEdgeType == edgeType) {
         return nullptr;
     }

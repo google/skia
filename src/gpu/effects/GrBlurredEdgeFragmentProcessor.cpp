@@ -55,7 +55,7 @@ GrBlurredEdgeFragmentProcessor::GrBlurredEdgeFragmentProcessor(
         : INHERITED(src.optimizationFlags()), fMode(src.fMode) {
     this->initClassID<GrBlurredEdgeFragmentProcessor>();
 }
-gr_fp<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
-    return gr_fp<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
+std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(*this));
 }
 #endif
