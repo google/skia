@@ -613,8 +613,8 @@ private:
         }
 
         static const uint32_t kPipelineFlags = 0;
-        const GrPipeline* pipeline =
-                target->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet());
+        const GrPipeline* pipeline = target->makePipeline(
+                kPipelineFlags, GrProcessorSet::MakeEmptySet(), target->detachAppliedClip());
 
         GrMesh mesh(GrPrimitiveType::kTriangles);
         mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1);

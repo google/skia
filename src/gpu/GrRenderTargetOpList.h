@@ -113,18 +113,15 @@ private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
     struct RecordedOp {
-        RecordedOp(std::unique_ptr<GrOp> op,
-                   const GrAppliedClip* appliedClip,
-                   const DstProxy* dstProxy)
-                : fOp(std::move(op))
-                , fAppliedClip(appliedClip) {
+        RecordedOp(std::unique_ptr<GrOp> op, GrAppliedClip* appliedClip, const DstProxy* dstProxy)
+                : fOp(std::move(op)), fAppliedClip(appliedClip) {
             if (dstProxy) {
                 fDstProxy = *dstProxy;
             }
         }
         std::unique_ptr<GrOp> fOp;
-        DstProxy              fDstProxy;
-        const GrAppliedClip*  fAppliedClip;
+        DstProxy fDstProxy;
+        GrAppliedClip* fAppliedClip;
     };
 
     // If the input op is combined with an earlier op, this returns the combined op. Otherwise, it

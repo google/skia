@@ -20,6 +20,7 @@ GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAATyp
         , fUsesLocalCoords(false)
         , fCompatibleWithAlphaAsCoveage(false) {
     SkDEBUGCODE(fDidAnalysis = false);
+    SkDEBUGCODE(fMadePipeline = false);
     if (GrAATypeIsHW(aaType)) {
         fPipelineFlags |= GrPipeline::kHWAntialias_Flag;
     }
@@ -127,7 +128,6 @@ GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
     GrPipeline::InitArgs args;
     args.fFlags = this->pipelineFlags();
     args.fProxy = target->proxy();
-    args.fAppliedClip = target->clip();
     args.fDstProxy = target->dstProxy();
     args.fCaps = &target->caps();
     args.fResourceProvider = target->resourceProvider();
@@ -136,10 +136,15 @@ GrPipeline::InitArgs GrSimpleMeshDrawOpHelper::pipelineInitArgs(
 
 GrPipeline* GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target,
                                                            const GrPipeline::InitArgs& args) {
+    // A caller really should only call this once as the processor set and applied clip get
+    // moved into the GrPipeline.
+    SkASSERT(!fMadePipeline);
+    SkDEBUGCODE(fMadePipeline = true);
     if (fProcessors) {
-        return target->allocPipeline(args, std::move(*fProcessors));
+        return target->allocPipeline(args, std::move(*fProcessors), target->detachAppliedClip());
     } else {
-        return target->allocPipeline(args, GrProcessorSet::MakeEmptySet());
+        return target->allocPipeline(args, GrProcessorSet::MakeEmptySet(),
+                                     target->detachAppliedClip());
     }
 }
 

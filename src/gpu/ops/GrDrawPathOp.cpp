@@ -44,7 +44,6 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
     }
     args.fUserStencil = &kCoverPass;
-    args.fAppliedClip = state.drawOpArgs().fAppliedClip;
     args.fProxy = state.drawOpArgs().fProxy;
     args.fCaps = &state.caps();
     args.fResourceProvider = state.resourceProvider();
@@ -65,7 +64,8 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
 //////////////////////////////////////////////////////////////////////////////
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state) {
-    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors());
+    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
+                        state->detachAppliedClip());
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
     GrStencilSettings stencil;
@@ -177,7 +177,8 @@ void GrDrawPathRangeOp::onExecute(GrOpFlushState* state) {
     sk_sp<GrPathProcessor> pathProc(
             GrPathProcessor::Create(this->color(), drawMatrix, localMatrix));
 
-    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors());
+    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
+                        state->detachAppliedClip());
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
     if (fDraws.count() == 1) {
