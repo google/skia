@@ -197,7 +197,7 @@ public:
     }
 
 private:
-    void onPrepareDraws(Target*) const override;
+    void onPrepareDraws(Target*) override;
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
@@ -246,7 +246,7 @@ private:
 
 }  // anonymous namespace
 
-void AAStrokeRectOp::onPrepareDraws(Target* target) const {
+void AAStrokeRectOp::onPrepareDraws(Target* target) {
     sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(fHelper.compatibleWithAlphaAsCoverage(),
                                                         this->viewMatrix(),
                                                         fHelper.usesLocalCoords()));

@@ -78,7 +78,7 @@ protected:
 private:
     bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
-    void onPrepareDraws(Target* target) const override {
+    void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
         // The vertex attrib order is always pos, color, local coords.
