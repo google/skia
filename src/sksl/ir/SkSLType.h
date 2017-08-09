@@ -81,18 +81,20 @@ public:
     , fFields(std::move(fields)) {}
 
     // Create a scalar type.
-    Type(String name, NumberKind numberKind)
+    Type(String name, NumberKind numberKind, int priority)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
+    , fPriority(priority)
     , fColumns(1)
     , fRows(1) {}
 
     // Create a scalar type which can be coerced to the listed types.
-    Type(String name, NumberKind numberKind, std::vector<const Type*> coercibleTypes)
+    Type(String name, NumberKind numberKind, int priority, std::vector<const Type*> coercibleTypes)
     : INHERITED(Position(), kType_Kind, std::move(name))
     , fTypeKind(kScalar_Kind)
     , fNumberKind(numberKind)
+    , fPriority(priority)
     , fCoercibleTypes(std::move(coercibleTypes))
     , fColumns(1)
     , fRows(1) {}
@@ -192,6 +194,14 @@ public:
     }
 
     /**
+     * Returns the "priority" of a number type, in order of double > float > half > int > short.
+     * When operating on two number types, the result is the higher-priority type.
+     */
+    int priority() const {
+        return fPriority;
+    }
+
+    /**
      * Returns true if an instance of this type can be freely coerced (implicitly converted) to
      * another type.
      */
@@ -286,6 +296,7 @@ private:
     const Kind fTypeKind;
     // always kNonnumeric_NumberKind for non-scalar values
     const NumberKind fNumberKind;
+    const int fPriority = -1;
     const Type* fComponentType = nullptr;
     const std::vector<const Type*> fCoercibleTypes;
     const int fColumns = -1;
