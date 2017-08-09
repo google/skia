@@ -71,7 +71,7 @@ struct SkJumper_Engine;
     M(matrix_2x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3)      \
     M(matrix_perspective)                                        \
     M(parametric_r) M(parametric_g) M(parametric_b)              \
-    M(parametric_a)                                              \
+    M(parametric_a) M(gamma)                                     \
     M(table_r) M(table_g) M(table_b) M(table_a)                  \
     M(lab_to_xyz)                                                \
     M(clamp_x)   M(mirror_x)   M(repeat_x)                       \

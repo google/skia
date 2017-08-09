@@ -7,6 +7,7 @@
 
 #include "SkColorSpaceXform_Base.h"
 #include "SkColorSpaceXformPriv.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorTable.h"
 #include "SkConvertPixels.h"
 #include "SkHalf.h"
@@ -255,9 +256,13 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         pipeline.append_from_srgb(premulState);
     } else if (isColorAware && !srcInfo.colorSpace()->gammaIsLinear()) {
         SkAssertResult(srcInfo.colorSpace()->isNumericalTransferFn(&srcFn));
-        pipeline.append(SkRasterPipeline::parametric_r, &srcFn);
-        pipeline.append(SkRasterPipeline::parametric_g, &srcFn);
-        pipeline.append(SkRasterPipeline::parametric_b, &srcFn);
+        if (is_just_gamma(srcFn)) {
+            pipeline.append(SkRasterPipeline::gamma, &srcFn.fG);
+        } else {
+            pipeline.append(SkRasterPipeline::parametric_r, &srcFn);
+            pipeline.append(SkRasterPipeline::parametric_g, &srcFn);
+            pipeline.append(SkRasterPipeline::parametric_b, &srcFn);
+        }
     }
 
     float matrix[12];
@@ -283,9 +288,13 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     } else if (isColorAware && !dstInfo.colorSpace()->gammaIsLinear()) {
         SkAssertResult(dstInfo.colorSpace()->isNumericalTransferFn(&dstFn));
         dstFn = dstFn.invert();
-        pipeline.append(SkRasterPipeline::parametric_r, &dstFn);
-        pipeline.append(SkRasterPipeline::parametric_g, &dstFn);
-        pipeline.append(SkRasterPipeline::parametric_b, &dstFn);
+        if (is_just_gamma(dstFn)) {
+            pipeline.append(SkRasterPipeline::gamma, &dstFn.fG);
+        } else {
+            pipeline.append(SkRasterPipeline::parametric_r, &dstFn);
+            pipeline.append(SkRasterPipeline::parametric_g, &dstFn);
+            pipeline.append(SkRasterPipeline::parametric_b, &dstFn);
+        }
     }
 
     if (kUnpremul_SkAlphaType == premulState && kPremul_SkAlphaType == dat &&

@@ -588,17 +588,13 @@ bool SkColorSpaceXform_XYZ<kCSM>
     }
 
     TablesContext tables;
-    SkColorSpaceTransferFn to_2dot2 = {0,0,0,0,0,0,0};
-    to_2dot2.fG = 1/2.2f;
-    to_2dot2.fA = 1;
+    float to_2dot2 = 1/2.2f;
     switch (fDstGamma) {
         case kSRGB_DstGamma:
             pipeline.append(SkRasterPipeline::to_srgb);
             break;
         case k2Dot2_DstGamma:
-            pipeline.append(SkRasterPipeline::parametric_r, &to_2dot2);
-            pipeline.append(SkRasterPipeline::parametric_g, &to_2dot2);
-            pipeline.append(SkRasterPipeline::parametric_b, &to_2dot2);
+            pipeline.append(SkRasterPipeline::gamma, &to_2dot2);
             break;
         case kTable_DstGamma:
             tables.fR = fDstGammaTables[0];

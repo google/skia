@@ -113,9 +113,12 @@ static SkColorSpaceTransferFn gamma(float g) {
 
 class SkRasterPipeline_2dot2 : public Benchmark {
 public:
+    SkRasterPipeline_2dot2(bool parametric) : fParametric(parametric) {}
+
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override {
-        return "SkRasterPipeline_2dot2";
+        return fParametric ? "SkRasterPipeline_2dot2_parametric"
+                           : "SkRasterPipeline_2dot2_gamma";
     }
 
     void onDraw(int loops, SkCanvas*) override {
@@ -126,19 +129,27 @@ public:
         SkSTArenaAlloc<256> alloc;
         SkRasterPipeline p(&alloc);
         p.append_constant_color(&alloc, c);
-        p.append(SkRasterPipeline::parametric_r, &from_2dot2);
-        p.append(SkRasterPipeline::parametric_g, &from_2dot2);
-        p.append(SkRasterPipeline::parametric_b, &from_2dot2);
-        p.append(SkRasterPipeline::parametric_r, &  to_2dot2);
-        p.append(SkRasterPipeline::parametric_g, &  to_2dot2);
-        p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
+        if (fParametric) {
+            p.append(SkRasterPipeline::parametric_r, &from_2dot2);
+            p.append(SkRasterPipeline::parametric_g, &from_2dot2);
+            p.append(SkRasterPipeline::parametric_b, &from_2dot2);
+            p.append(SkRasterPipeline::parametric_r, &  to_2dot2);
+            p.append(SkRasterPipeline::parametric_g, &  to_2dot2);
+            p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
+        } else {
+            p.append(SkRasterPipeline::gamma, &from_2dot2.fG);
+            p.append(SkRasterPipeline::gamma, &  to_2dot2.fG);
+        }
 
         while (loops --> 0) {
             p.run(0,0,N,1);
         }
     }
+private:
+    bool fParametric;
 };
-DEF_BENCH( return (new SkRasterPipeline_2dot2); )
+DEF_BENCH( return (new SkRasterPipeline_2dot2( true)); )
+DEF_BENCH( return (new SkRasterPipeline_2dot2(false)); )
 
 class SkRasterPipelineToSRGB : public Benchmark {
 public:

@@ -149,9 +149,13 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
                 auto fn = fAlloc.make<SkColorSpaceTransferFn>();
                 SkAssertResult(named_to_parametric(fn, e.gammaNamed()));
 
-                fElementsPipeline.append(SkRasterPipeline::parametric_r, fn);
-                fElementsPipeline.append(SkRasterPipeline::parametric_g, fn);
-                fElementsPipeline.append(SkRasterPipeline::parametric_b, fn);
+                if (is_just_gamma(*fn)) {
+                    fElementsPipeline.append(SkRasterPipeline::gamma, &fn->fG);
+                } else {
+                    fElementsPipeline.append(SkRasterPipeline::parametric_r, fn);
+                    fElementsPipeline.append(SkRasterPipeline::parametric_g, fn);
+                    fElementsPipeline.append(SkRasterPipeline::parametric_b, fn);
+                }
                 break;
             }
             case SkColorSpace_A2B::Element::Type::kGammas: {
@@ -236,13 +240,7 @@ SkColorSpaceXform_A2B::SkColorSpaceXform_A2B(SkColorSpace_A2B* srcSpace,
             // do nothing
             break;
         case k2Dot2Curve_SkGammaNamed: {
-            SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
-            fn.fG = 1/2.2f;
-            fn.fA = 1;
-            auto to_2dot2 = this->copy(fn);
-            fElementsPipeline.append(SkRasterPipeline::parametric_r, to_2dot2);
-            fElementsPipeline.append(SkRasterPipeline::parametric_g, to_2dot2);
-            fElementsPipeline.append(SkRasterPipeline::parametric_b, to_2dot2);
+            fElementsPipeline.append(SkRasterPipeline::gamma, this->copy(1/2.2f));
             break;
         }
         case kSRGB_SkGammaNamed:
