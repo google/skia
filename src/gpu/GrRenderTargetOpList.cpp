@@ -87,11 +87,13 @@ void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
 static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu,
                                                                  GrRenderTarget* rt,
                                                                  GrSurfaceOrigin origin,
-                                                                 bool clearSB) {
+                                                                 GrLoadOp colorLoadOp,
+                                                                 GrColor loadClearColor,
+                                                                 GrLoadOp stencilLoadOp) {
     static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
-        GrGpuCommandBuffer::LoadOp::kLoad,
-        GrGpuCommandBuffer::StoreOp::kStore,
-        GrColor_ILLEGAL
+        colorLoadOp,
+        GrStoreOp::kStore,
+        loadClearColor
     };
 
     // TODO:
@@ -100,8 +102,8 @@ static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu,
     // Note: we would still need SB loads and stores but they would happen at a
     // lower level (inside the VK command buffer).
     const GrGpuCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
-        clearSB ? GrGpuCommandBuffer::LoadOp::kClear : GrGpuCommandBuffer::LoadOp::kLoad,
-        GrGpuCommandBuffer::StoreOp::kStore,
+        stencilLoadOp,
+        GrStoreOp::kStore,
     };
 
     std::unique_ptr<GrGpuCommandBuffer> buffer(
@@ -130,11 +132,14 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
 
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
 
+    // TODO: at the very least, we want the stencil store op to always be discard (at this
+    // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget.get()->priv().peekRenderTarget(),
                                                     fTarget.get()->origin(),
-                                                    this->requiresStencil());
+                                                    fColorLoadOp, fLoadClearColor,
+                                                    fStencilLoadOp);
     flushState->setCommandBuffer(commandBuffer.get());
     commandBuffer->begin();
 
@@ -155,7 +160,8 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
             commandBuffer = create_command_buffer(flushState->gpu(),
                                                   fTarget.get()->priv().peekRenderTarget(),
                                                   fTarget.get()->origin(),
-                                                  false);
+                                                  GrLoadOp::kLoad, 0x0,
+                                                  GrLoadOp::kLoad);
             flushState->setCommandBuffer(commandBuffer.get());
             commandBuffer->begin();
         }

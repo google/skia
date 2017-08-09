@@ -23,6 +23,23 @@ using GrStdSteadyClock = std::chrono::monotonic_clock;
 using GrStdSteadyClock = std::chrono::steady_clock;
 #endif
 
+/** This enum is used to specify the load operation to be used when an
+ *  opList/GrGpuCommandBuffer begins execution.
+ */
+enum class GrLoadOp {
+    kLoad,
+    kClear,
+    kDiscard,
+};
+
+/** This enum is used to specify the store operation to be used when an
+ *  opList/GrGpuCommandBuffer ends execution.
+ */
+enum class GrStoreOp {
+    kStore,
+    kDiscard,
+};
+
 /** This enum indicates the type of antialiasing to be performed. */
 enum class GrAAType : unsigned {
     /** No antialiasing */
