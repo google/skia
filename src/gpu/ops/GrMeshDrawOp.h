@@ -67,7 +67,7 @@ private:
     void onPrepare(GrOpFlushState* state) final;
     void onExecute(GrOpFlushState* state) final;
 
-    virtual void onPrepareDraws(Target*) const = 0;
+    virtual void onPrepareDraws(Target*) = 0;
 
     // A set of contiguous draws that share a draw token and primitive processor. The draws all use
     // the op's pipeline. The meshes for the draw are stored in the fMeshes array and each

@@ -113,7 +113,7 @@ public:
     }
 
     template <typename... Args>
-    GrPipeline* allocPipeline(Args... args) {
+    GrPipeline* allocPipeline(Args&&... args) {
         return fPipelines.make<GrPipeline>(std::forward<Args>(args)...);
     }
 
@@ -244,7 +244,7 @@ public:
     }
 
     template <typename... Args>
-    GrPipeline* allocPipeline(Args... args) {
+    GrPipeline* allocPipeline(Args&&... args) {
         return this->state()->allocPipeline(std::forward<Args>(args)...);
     }
 
@@ -252,16 +252,15 @@ public:
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
      * GrAppliedClip.
      * */
-    GrPipeline* makePipeline(uint32_t pipelineFlags, const GrProcessorSet* processorSet) {
+    GrPipeline* makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet) {
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fFlags = pipelineFlags;
-        pipelineArgs.fProcessors = processorSet;
         pipelineArgs.fProxy = this->proxy();
         pipelineArgs.fAppliedClip = this->clip();
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
         pipelineArgs.fResourceProvider = this->resourceProvider();
-        return this->allocPipeline(pipelineArgs);
+        return this->allocPipeline(pipelineArgs, std::move(processorSet));
     }
 
 private:

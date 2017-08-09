@@ -76,7 +76,6 @@ public:
 
     struct InitArgs {
         uint32_t fFlags = 0;
-        const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
         GrRenderTargetProxy* fProxy = nullptr;
@@ -102,7 +101,7 @@ public:
      **/
     GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
 
-    GrPipeline(const InitArgs& args);
+    GrPipeline(const InitArgs& args, GrProcessorSet&& processors);
 
     GrPipeline(const GrPipeline&) = delete;
     GrPipeline& operator=(const GrPipeline&) = delete;
