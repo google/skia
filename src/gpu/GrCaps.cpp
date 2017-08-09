@@ -193,7 +193,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
 
     for (size_t i = 1; i < kGrPixelConfigCnt; ++i) {
         GrPixelConfig config = static_cast<GrPixelConfig>(i);
-        writer->beginObject();
+        writer->beginObject(nullptr, false);
         writer->appendString("name", pixel_config_name(config));
         writer->appendBool("renderable", this->isConfigRenderable(config, false));
         writer->appendBool("renderableMSAA", this->isConfigRenderable(config, true));
