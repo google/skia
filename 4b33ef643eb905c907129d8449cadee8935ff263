@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e648e35b_b69a7b0c",
+        "filename": "infra/bots/recipe_modules/sktest/api.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-08-09T21:59:16Z",
+      "side": 1,
+      "message": "I think this change had an unintended side-effect. All MacMini6.2 bots have an Intel GPU, so this change disabled testing instanced rendering on Mac.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 54
+      },
+      "revId": "4b33ef643eb905c907129d8449cadee8935ff263",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
