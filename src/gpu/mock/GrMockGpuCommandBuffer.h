@@ -13,13 +13,15 @@
 
 class GrMockGpuCommandBuffer : public GrGpuCommandBuffer {
 public:
-    GrMockGpuCommandBuffer(GrMockGpu* gpu) : fGpu(gpu) {}
+    GrMockGpuCommandBuffer(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin)
+            : INHERITED(rt, origin)
+            , fGpu(gpu) {
+    }
 
     GrGpu* gpu() override { return fGpu; }
-    void inlineUpload(GrOpFlushState*, GrDrawOp::DeferredUploadFn&,
-                      GrRenderTargetProxy*) override {}
-    void discard(GrRenderTargetProxy*) override {}
-    void insertEventMarker(GrRenderTargetProxy*, const char*) override {}
+    void inlineUpload(GrOpFlushState*, GrDrawOp::DeferredUploadFn&) override {}
+    void discard() override {}
+    void insertEventMarker(const char*) override {}
     void begin() override {}
     void end() override {}
 
@@ -31,10 +33,8 @@ private:
                 const GrPipeline::DynamicState[], int meshCount, const SkRect& bounds) override {
         ++fNumDraws;
     }
-    void onClear(GrRenderTargetProxy*, const GrFixedClip&, GrColor) override {}
-    void onClearStencilClip(GrRenderTargetProxy*, const GrFixedClip&,
-                            bool insideStencilMask) override {}
-    GrRenderTarget* renderTarget() override { return nullptr; }
+    void onClear(const GrFixedClip&, GrColor) override {}
+    void onClearStencilClip(const GrFixedClip&, bool insideStencilMask) override {}
 
     GrMockGpu* fGpu;
     int fNumDraws = 0;

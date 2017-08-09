@@ -131,12 +131,13 @@ public:
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLGpuCommandBuffer.
-    void clear(const GrFixedClip&, GrColor, GrRenderTarget*);
+    void clear(const GrFixedClip&, GrColor, GrRenderTarget*, GrSurfaceOrigin);
 
     // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
     // function on GrGLGpuCommandBuffer.
-    void clearStencilClip(const GrFixedClip&, bool insideStencilMask, GrRenderTarget*);
+    void clearStencilClip(const GrFixedClip&, bool insideStencilMask,
+                          GrRenderTarget*, GrSurfaceOrigin);
 
     const GrGLContext* glContextForTesting() const override {
         return &this->glContext();
