@@ -36,7 +36,8 @@ bool SkColorFilter::asComponentTable(SkBitmap*) const {
 }
 
 #if SK_SUPPORT_GPU
-gr_fp<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
+std::unique_ptr<GrFragmentProcessor> SkColorFilter::asFragmentProcessor(GrContext*,
+                                                                        SkColorSpace*) const {
     return nullptr;
 }
 #endif
@@ -119,14 +120,14 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    gr_fp<GrFragmentProcessor> asFragmentProcessor(GrContext* context,
-                                                   SkColorSpace* dstColorSpace) const override {
-        gr_fp<GrFragmentProcessor> innerFP(fInner->asFragmentProcessor(context, dstColorSpace));
-        gr_fp<GrFragmentProcessor> outerFP(fOuter->asFragmentProcessor(context, dstColorSpace));
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            GrContext* context, SkColorSpace* dstColorSpace) const override {
+        auto innerFP = fInner->asFragmentProcessor(context, dstColorSpace);
+        auto outerFP = fOuter->asFragmentProcessor(context, dstColorSpace);
         if (!innerFP || !outerFP) {
             return nullptr;
         }
-        gr_fp<GrFragmentProcessor> series[] = { std::move(innerFP), std::move(outerFP) };
+        std::unique_ptr<GrFragmentProcessor> series[] = { std::move(innerFP), std::move(outerFP) };
         return GrFragmentProcessor::RunInSeries(series, 2);
     }
 #endif
@@ -215,7 +216,8 @@ public:
     SkSRGBGammaColorFilter(Direction dir) : fDir(dir) {}
 
 #if SK_SUPPORT_GPU
-    gr_fp<GrFragmentProcessor> asFragmentProcessor(GrContext* x, SkColorSpace* cs) const override {
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrContext* x,
+                                                             SkColorSpace* cs) const override {
         // wish our caller would let us know if our input was opaque...
         GrSRGBEffect::Alpha alpha = GrSRGBEffect::Alpha::kPremul;
         switch (fDir) {

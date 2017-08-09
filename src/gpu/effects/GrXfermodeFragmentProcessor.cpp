@@ -29,11 +29,11 @@ static inline bool does_cpu_blend_impl_match_gpu(SkBlendMode mode) {
 
 class ComposeTwoFragmentProcessor : public GrFragmentProcessor {
 public:
-    static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> src,
-                                           gr_fp<GrFragmentProcessor> dst,
-                                           SkBlendMode mode) {
-        return gr_fp<GrFragmentProcessor>(new ComposeTwoFragmentProcessor(std::move(src),
-                                                                          std::move(dst), mode));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
+                                                     std::unique_ptr<GrFragmentProcessor> dst,
+                                                     SkBlendMode mode) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new ComposeTwoFragmentProcessor(std::move(src), std::move(dst), mode));
     }
 
     const char* name() const override { return "ComposeTwo"; }
@@ -50,16 +50,15 @@ public:
         return str;
     }
 
-    gr_fp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     SkBlendMode getMode() const { return fMode; }
 
 private:
-    ComposeTwoFragmentProcessor(gr_fp<GrFragmentProcessor> src,
-                                gr_fp<GrFragmentProcessor> dst,
+    ComposeTwoFragmentProcessor(std::unique_ptr<GrFragmentProcessor> src,
+                                std::unique_ptr<GrFragmentProcessor> dst,
                                 SkBlendMode mode)
-            : INHERITED(OptFlags(src.get(), dst.get(), mode))
-            , fMode(mode) {
+            : INHERITED(OptFlags(src.get(), dst.get(), mode)), fMode(mode) {
         this->initClassID<ComposeTwoFragmentProcessor>();
         SkDEBUGCODE(int shaderAChildIndex = )this->registerChildProcessor(std::move(src));
         SkDEBUGCODE(int shaderBChildIndex = )this->registerChildProcessor(std::move(dst));
@@ -182,24 +181,25 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ComposeTwoFragmentProcessor);
 
 #if GR_TEST_UTILS
-gr_fp<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(
+        GrProcessorTestData* d) {
     // Create two random frag procs.
-    gr_fp<GrFragmentProcessor> fpA(GrProcessorUnitTest::MakeChildFP(d));
-    gr_fp<GrFragmentProcessor> fpB(GrProcessorUnitTest::MakeChildFP(d));
+    std::unique_ptr<GrFragmentProcessor> fpA(GrProcessorUnitTest::MakeChildFP(d));
+    std::unique_ptr<GrFragmentProcessor> fpB(GrProcessorUnitTest::MakeChildFP(d));
 
     SkBlendMode mode;
     do {
         mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0, (int)SkBlendMode::kLastMode));
     } while (SkBlendMode::kClear == mode || SkBlendMode::kSrc == mode || SkBlendMode::kDst == mode);
-    return gr_fp<GrFragmentProcessor>(
-        new ComposeTwoFragmentProcessor(std::move(fpA), std::move(fpB), mode));
+    return std::unique_ptr<GrFragmentProcessor>(
+            new ComposeTwoFragmentProcessor(std::move(fpA), std::move(fpB), mode));
 }
 #endif
 
-gr_fp<GrFragmentProcessor> ComposeTwoFragmentProcessor::clone() const {
+std::unique_ptr<GrFragmentProcessor> ComposeTwoFragmentProcessor::clone() const {
     auto src = this->childProcessor(0).clone();
     auto dst = this->childProcessor(1).clone();
-    return gr_fp<GrFragmentProcessor>(
+    return std::unique_ptr<GrFragmentProcessor>(
             new ComposeTwoFragmentProcessor(std::move(src), std::move(dst), fMode));
 }
 
@@ -242,8 +242,10 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     }
 }
 
-gr_fp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoProcessors(
-         gr_fp<GrFragmentProcessor> src, gr_fp<GrFragmentProcessor> dst, SkBlendMode mode) {
+std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromTwoProcessors(
+        std::unique_ptr<GrFragmentProcessor> src,
+        std::unique_ptr<GrFragmentProcessor> dst,
+        SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
@@ -266,13 +268,13 @@ public:
         kSrc_Child,
     };
 
-    static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> fp, SkBlendMode mode,
-                                           Child child) {
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                     SkBlendMode mode, Child child) {
         if (!fp) {
             return nullptr;
         }
-        return gr_fp<GrFragmentProcessor>(new ComposeOneFragmentProcessor(std::move(fp),
-                                                                          mode, child));
+        return std::unique_ptr<GrFragmentProcessor>(
+                new ComposeOneFragmentProcessor(std::move(fp), mode, child));
     }
 
     const char* name() const override { return "ComposeOne"; }
@@ -290,7 +292,7 @@ public:
         return str;
     }
 
-    gr_fp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     SkBlendMode mode() const { return fMode; }
 
@@ -417,10 +419,9 @@ private:
     }
 
 private:
-    ComposeOneFragmentProcessor(gr_fp<GrFragmentProcessor> fp, SkBlendMode mode, Child child)
-            : INHERITED(OptFlags(fp.get(), mode, child))
-            , fMode(mode)
-            , fChild(child) {
+    ComposeOneFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp, SkBlendMode mode,
+                                Child child)
+            : INHERITED(OptFlags(fp.get(), mode, child)), fMode(mode), fChild(child) {
         this->initClassID<ComposeOneFragmentProcessor>();
         SkDEBUGCODE(int dstIndex =) this->registerChildProcessor(std::move(fp));
         SkASSERT(0 == dstIndex);
@@ -474,11 +475,12 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ComposeOneFragmentProcessor);
 
 #if GR_TEST_UTILS
-gr_fp<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(
+        GrProcessorTestData* d) {
     // Create one random frag procs.
     // For now, we'll prevent either children from being a shader with children to prevent the
     // possibility of an arbitrarily large tree of procs.
-    gr_fp<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
+    std::unique_ptr<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
     SkBlendMode mode;
     ComposeOneFragmentProcessor::Child child;
     do {
@@ -486,7 +488,8 @@ gr_fp<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(GrProcessorTe
         child = d->fRandom->nextBool() ? kDst_Child : kSrc_Child;
     } while (SkBlendMode::kClear == mode || (SkBlendMode::kDst == mode && child == kSrc_Child) ||
              (SkBlendMode::kSrc == mode && child == kDst_Child));
-    return gr_fp<GrFragmentProcessor>(new ComposeOneFragmentProcessor(std::move(dst), mode, child));
+    return std::unique_ptr<GrFragmentProcessor>(
+            new ComposeOneFragmentProcessor(std::move(dst), mode, child));
 }
 #endif
 
@@ -494,8 +497,8 @@ GrGLSLFragmentProcessor* ComposeOneFragmentProcessor::onCreateGLSLInstance() con
     return new GLComposeOneFragmentProcessor;
 }
 
-gr_fp<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const {
-    return gr_fp<GrFragmentProcessor>(
+std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(
             new ComposeOneFragmentProcessor(this->childProcessor(0).clone(), fMode, fChild));
 }
 
@@ -507,8 +510,8 @@ gr_fp<GrFragmentProcessor> ComposeOneFragmentProcessor::clone() const {
 // ignore the original input. This could be implemented as:
 // RunInSeries(ConstColor(GrColor_WHITE, kIgnoreInput), inputFP).
 
-gr_fp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
-    gr_fp<GrFragmentProcessor> dst, SkBlendMode mode) {
+std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
+        std::unique_ptr<GrFragmentProcessor> dst, SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
@@ -521,8 +524,8 @@ gr_fp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromDstProcessor(
     }
 }
 
-gr_fp<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcProcessor(
-    gr_fp<GrFragmentProcessor> src, SkBlendMode mode) {
+std::unique_ptr<GrFragmentProcessor> GrXfermodeFragmentProcessor::MakeFromSrcProcessor(
+        std::unique_ptr<GrFragmentProcessor> src, SkBlendMode mode) {
     switch (mode) {
         case SkBlendMode::kClear:
             return GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),

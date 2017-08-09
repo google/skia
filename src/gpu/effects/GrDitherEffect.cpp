@@ -61,14 +61,14 @@ GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
         : INHERITED(src.optimizationFlags()), fRangeType(src.fRangeType) {
     this->initClassID<GrDitherEffect>();
 }
-gr_fp<GrFragmentProcessor> GrDitherEffect::clone() const {
-    return gr_fp<GrFragmentProcessor>(new GrDitherEffect(*this));
+std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
-gr_fp<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* testData) {
+std::unique_ptr<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* testData) {
     float range = testData->fRandom->nextRangeF(0.001f, 0.05f);
-    return gr_fp<GrFragmentProcessor>(new GrDitherEffect(range));
+    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(range));
 }
 #endif
 #endif

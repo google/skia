@@ -22,14 +22,14 @@ public:
     enum class Direction { kX, kY };
 
     /// Convolve with a Gaussian kernel
-    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           Direction dir,
-                                           int halfWidth,
-                                           float gaussianSigma,
-                                           GrTextureDomain::Mode mode,
-                                           int* bounds) {
-        return gr_fp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
-            std::move(proxy), dir, halfWidth, gaussianSigma, mode, bounds));
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     Direction dir,
+                                                     int halfWidth,
+                                                     float gaussianSigma,
+                                                     GrTextureDomain::Mode mode,
+                                                     int* bounds) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(
+                std::move(proxy), dir, halfWidth, gaussianSigma, mode, bounds));
     }
 
     const float* kernel() const { return fKernel; }
@@ -44,8 +44,9 @@ public:
 
     const char* name() const override { return "GaussianConvolution"; }
 
-    gr_fp<GrFragmentProcessor> clone() const override {
-        return gr_fp<GrFragmentProcessor>(new GrGaussianConvolutionFragmentProcessor(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrGaussianConvolutionFragmentProcessor(*this));
     }
 
     // This was decided based on the min allowed value for the max texture

@@ -25,7 +25,7 @@ private:
 public:
     GrProcessorSet(GrPaint&&);
     GrProcessorSet(SkBlendMode);
-    GrProcessorSet(gr_fp<GrFragmentProcessor> colorFP);
+    GrProcessorSet(std::unique_ptr<GrFragmentProcessor> colorFP);
     GrProcessorSet(GrProcessorSet&&);
     GrProcessorSet(const GrProcessorSet&) = delete;
     GrProcessorSet& operator=(const GrProcessorSet&) = delete;
@@ -58,12 +58,12 @@ public:
         return sk_ref_sp(fXP.fProcessor);
     }
 
-    gr_fp<const GrFragmentProcessor> detachColorFragmentProcessor(int idx) {
+    std::unique_ptr<const GrFragmentProcessor> detachColorFragmentProcessor(int idx) {
         SkASSERT(idx < fColorFragmentProcessorCnt);
         return std::move(fFragmentProcessors[idx + fFragmentProcessorOffset]);
     }
 
-    gr_fp<const GrFragmentProcessor> detachCoverageFragmentProcessor(int idx) {
+    std::unique_ptr<const GrFragmentProcessor> detachCoverageFragmentProcessor(int idx) {
         return std::move(
                 fFragmentProcessors[idx + fFragmentProcessorOffset + fColorFragmentProcessorCnt]);
     }
@@ -179,7 +179,7 @@ private:
         return fXP.fFactory;
     }
 
-    SkAutoSTArray<4, gr_fp<const GrFragmentProcessor>> fFragmentProcessors;
+    SkAutoSTArray<4, std::unique_ptr<const GrFragmentProcessor>> fFragmentProcessors;
     XP fXP;
     uint8_t fColorFragmentProcessorCnt = 0;
     uint8_t fFragmentProcessorOffset = 0;

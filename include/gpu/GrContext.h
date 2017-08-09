@@ -383,10 +383,10 @@ private:
      * use the specialized round-trip effects from GrConfigConversionEffect, otherwise they
      * create effects that do naive multiply or divide.
      */
-    gr_fp<GrFragmentProcessor> createPMToUPMEffect(gr_fp<GrFragmentProcessor>,
-                                                   bool useConfigConversionEffect);
-    gr_fp<GrFragmentProcessor> createUPMToPMEffect(gr_fp<GrFragmentProcessor>,
-                                                   bool useConfigConversionEffect);
+    std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>,
+                                                             bool useConfigConversionEffect);
+    std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>,
+                                                             bool useConfigConversionEffect);
 
     /**
      * Returns true if createPMtoUPMEffect and createUPMToPMEffect will succeed for non-sRGB 8888

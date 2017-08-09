@@ -33,7 +33,8 @@ public:
     *  does so by returning a parent FP that multiplies the passed in FPs output by the parent's
     *  input alpha. The passed in FP will not receive an input color.
     */
-    static gr_fp<GrFragmentProcessor> MulOutputByInputAlpha(gr_fp<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> MulOutputByInputAlpha(
+            std::unique_ptr<GrFragmentProcessor>);
 
     /**
      *  This assumes that the input color to the returned processor will be unpremul and that the
@@ -41,38 +42,42 @@ public:
      *  The result of the returned processor is a premul of its input color modulated by the child
      *  processor's premul output.
      */
-    static gr_fp<GrFragmentProcessor> MakeInputPremulAndMulByOutput(gr_fp<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> MakeInputPremulAndMulByOutput(
+            std::unique_ptr<GrFragmentProcessor>);
 
     /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
      *  The parent will ignore its input color and instead feed the passed in color as input to the
      *  child.
      */
-    static gr_fp<GrFragmentProcessor> OverrideInput(gr_fp<GrFragmentProcessor>, GrColor4f);
+    static std::unique_ptr<GrFragmentProcessor> OverrideInput(std::unique_ptr<GrFragmentProcessor>,
+                                                              GrColor4f);
 
     /**
      *  Returns a fragment processor that premuls the input before calling the passed in fragment
      *  processor.
      */
-    static gr_fp<GrFragmentProcessor> PremulInput(gr_fp<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> PremulInput(std::unique_ptr<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then premuls
      *  the output.
      */
-    static gr_fp<GrFragmentProcessor> PremulOutput(gr_fp<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> PremulOutput(std::unique_ptr<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then unpremuls
      *  the output.
      */
-    static gr_fp<GrFragmentProcessor> UnpremulOutput(gr_fp<GrFragmentProcessor>);
+    static std::unique_ptr<GrFragmentProcessor> UnpremulOutput(
+            std::unique_ptr<GrFragmentProcessor>);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */
-    static gr_fp<GrFragmentProcessor> SwizzleOutput(gr_fp<GrFragmentProcessor>, const GrSwizzle&);
+    static std::unique_ptr<GrFragmentProcessor> SwizzleOutput(std::unique_ptr<GrFragmentProcessor>,
+                                                              const GrSwizzle&);
 
     /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
@@ -82,13 +87,14 @@ public:
      *
      * The array elements with be moved.
      */
-    static gr_fp<GrFragmentProcessor> RunInSeries(gr_fp<GrFragmentProcessor>*, int cnt);
+    static std::unique_ptr<GrFragmentProcessor> RunInSeries(std::unique_ptr<GrFragmentProcessor>*,
+                                                            int cnt);
 
     /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */
-    virtual gr_fp<GrFragmentProcessor> clone() const = 0;
+    virtual std::unique_ptr<GrFragmentProcessor> clone() const = 0;
 
     GrGLSLFragmentProcessor* createGLSLInstance() const;
 
@@ -309,7 +315,7 @@ protected:
      * processors will allow the ProgramBuilder to automatically handle their transformed coords and
      * texture accesses and mangle their uniform and output color names.
      */
-    int registerChildProcessor(gr_fp<GrFragmentProcessor> child);
+    int registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child);
 
 private:
     virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {
@@ -345,7 +351,7 @@ private:
 
     SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
 
-    SkSTArray<1, gr_fp<GrFragmentProcessor>, true> fChildProcessors;
+    SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
 
     typedef GrResourceIOProcessor INHERITED;
 };

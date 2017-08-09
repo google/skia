@@ -28,7 +28,8 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    gr_fp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrContext*,
+                                                             SkColorSpace*) const override;
 #endif
 
     void toString(SkString* str) const override;

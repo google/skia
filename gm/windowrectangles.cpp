@@ -162,7 +162,7 @@ private:
     sk_sp<GrTextureProxy> fMask;
     int fX;
     int fY;
-    gr_fp<GrFragmentProcessor> fFP;
+    std::unique_ptr<GrFragmentProcessor> fFP;
 };
 
 /**

@@ -20,11 +20,11 @@ public:
     int edgeType() const { return fEdgeType; }
     SkPoint center() const { return fCenter; }
     float radius() const { return fRadius; }
-    static gr_fp<GrFragmentProcessor> Make(int edgeType, SkPoint center, float radius) {
-        return gr_fp<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
+    static std::unique_ptr<GrFragmentProcessor> Make(int edgeType, SkPoint center, float radius) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(edgeType, center, radius));
     }
     GrCircleEffect(const GrCircleEffect& src);
-    gr_fp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleEffect"; }
 
 private:

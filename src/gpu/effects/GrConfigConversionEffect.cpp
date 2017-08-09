@@ -70,8 +70,8 @@ GrConfigConversionEffect::GrConfigConversionEffect(PMConversion pmConversion)
     this->initClassID<GrConfigConversionEffect>();
 }
 
-gr_fp<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
-    return gr_fp<GrFragmentProcessor>(new GrConfigConversionEffect(fPMConversion));
+std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(fPMConversion));
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -84,9 +84,9 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
 #if GR_TEST_UTILS
-gr_fp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
-    return gr_fp<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
+    return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
 }
 #endif
 
@@ -158,8 +158,10 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     GrPaint paint1;
     GrPaint paint2;
     GrPaint paint3;
-    gr_fp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(kToUnpremul_PMConversion));
-    gr_fp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(kToPremul_PMConversion));
+    std::unique_ptr<GrFragmentProcessor> pmToUPM(
+            new GrConfigConversionEffect(kToUnpremul_PMConversion));
+    std::unique_ptr<GrFragmentProcessor> upmToPM(
+            new GrConfigConversionEffect(kToPremul_PMConversion));
 
     paint1.addColorTextureProcessor(dataProxy, nullptr, SkMatrix::I());
     paint1.addColorFragmentProcessor(pmToUPM->clone());
@@ -199,12 +201,12 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     return true;
 }
 
-gr_fp<GrFragmentProcessor> GrConfigConversionEffect::Make(gr_fp<GrFragmentProcessor> fp,
-                                                          PMConversion pmConversion) {
+std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> fp, PMConversion pmConversion) {
     if (!fp) {
         return nullptr;
     }
-    gr_fp<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
-    gr_fp<GrFragmentProcessor> fpPipeline[] = { std::move(fp), std::move(ccFP) };
+    std::unique_ptr<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
+    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { std::move(fp), std::move(ccFP) };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }

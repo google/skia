@@ -118,7 +118,7 @@ protected:
                                        {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
 
             for (int i = 0; i < 6; ++i) {
-                gr_fp<GrFragmentProcessor> fp(
+                std::unique_ptr<GrFragmentProcessor> fp(
                         GrYUVEffect::MakeYUVToRGB(proxy[indices[i][0]],
                                                   proxy[indices[i][1]],
                                                   proxy[indices[i][2]],
@@ -247,9 +247,8 @@ protected:
 
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-            gr_fp<GrFragmentProcessor> fp(
-                GrYUVEffect::MakeYUVToRGB(proxy[0], proxy[1], proxy[2], sizes,
-                                          static_cast<SkYUVColorSpace>(space), true));
+            auto fp = GrYUVEffect::MakeYUVToRGB(proxy[0], proxy[1], proxy[2], sizes,
+                                                static_cast<SkYUVColorSpace>(space), true);
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
