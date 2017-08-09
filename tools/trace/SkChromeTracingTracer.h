@@ -10,10 +10,11 @@
 
 #include "SkEventTracer.h"
 #include "SkEventTracingPriv.h"
-#include "SkJSONCPP.h"
 #include "SkSpinlock.h"
 #include "SkString.h"
 #include "SkTHash.h"
+
+class SkJSONWriter;
 
 /**
  * A SkEventTracer implementation that logs events to JSON for viewing with chrome://tracing.
@@ -80,7 +81,7 @@ private:
 
     typedef SkTHashMap<uint64_t, const char*> BaseTypeResolver;
     TraceEvent* appendEvent(const TraceEvent&);
-    Json::Value traceEventToJson(const TraceEvent&, BaseTypeResolver* baseTypeResolver);
+    void traceEventToJson(SkJSONWriter*, const TraceEvent&, BaseTypeResolver* baseTypeResolver);
 
     SkString fFilename;
     SkSpinlock fMutex;
