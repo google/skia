@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "48c78faa_8ca2fe15",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-09T17:33:57Z",
+      "side": 1,
+      "message": "Done. I also moved GrGpuCommandBuffer\u0027s StoreOp since we will, hopefully, need it up there soon and some of the code looked goofy pulling the Load \u0026 Store ops from different places.",
+      "parentUuid": "e4546bce_4a30abf4",
+      "range": {
+        "startLine": 94,
+        "startChar": 15,
+        "endLine": 94,
+        "endChar": 21
+      },
+      "revId": "2feab516d6a05c746dcf0807935d698d5587c0eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28131ea2_1cf449c0",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 2
