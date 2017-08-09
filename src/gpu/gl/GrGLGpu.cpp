@@ -2450,9 +2450,9 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
 
 GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
         GrRenderTarget* rt, GrSurfaceOrigin origin,
-        const GrGpuCommandBuffer::LoadAndStoreInfo&,
+        const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this, rt, origin, stencilInfo);
+    return new GrGLGpuCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {
