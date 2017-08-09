@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cfa95c9b_23ff24cd",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-09T15:43:29Z",
+      "side": 0,
+      "message": "Was anyone using this? All of this information is now captured in GrContext::dump, in any case.",
+      "revId": "69fd008199989c5a5a96f992dcaa4089b63f490f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
