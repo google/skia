@@ -836,6 +836,13 @@ STAGE(parametric_g) { g = parametric(g, ctx); }
 STAGE(parametric_b) { b = parametric(b, ctx); }
 STAGE(parametric_a) { a = parametric(a, ctx); }
 
+STAGE(gamma) {
+    float G = *(const float*)ctx;
+    r = approx_powf(r,G);
+    g = approx_powf(g,G);
+    b = approx_powf(b,G);
+}
+
 STAGE(lab_to_xyz) {
     F L = r * 100.0f,
       A = g * 255.0f - 128.0f,
