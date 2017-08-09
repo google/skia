@@ -648,6 +648,8 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
     // attempt this in a situation that would require coverage AA.
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
+    fRenderTargetContext->setNeedsStencil();
+#if 0
     GrRenderTarget* rt = fRenderTargetContext->accessRenderTarget();
     if (!rt) {
         return;
@@ -658,12 +660,13 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
         SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
         return;
     }
+#endif
 
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
                                                      useHWAA,
                                                      path->getFillType(),
                                                      appliedClip.hasStencilClip(),
-                                                     stencilAttachment->bits(),
+                                                     //stencilAttachment->bits(),
                                                      appliedClip.scissorState(),
                                                      path);
     if (!op) {
@@ -1759,6 +1762,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         return SK_InvalidUniqueID;
     }
 
+    this->setNeedsStencil();
+#if 0
     if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
         appliedClip.hasStencilClip()) {
         this->getOpList()->setRequiresStencil();
@@ -1774,6 +1779,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
             return SK_InvalidUniqueID;
         }
     }
+#endif
 
     GrXferProcessor::DstProxy dstProxy;
     if (op->finalize(*this->caps(), &appliedClip) == GrDrawOp::RequiresDstTexture::kYes) {
