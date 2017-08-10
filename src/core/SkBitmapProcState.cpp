@@ -79,7 +79,11 @@ static bool valid_for_filtering(unsigned dimension) {
 }
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
+#ifdef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
     SkASSERT(!inv.hasPerspective());
+#else
+    SkASSERT(inv.isScaleTranslate());
+#endif
 
     fPixmap.reset();
     fInvMatrix = inv;
