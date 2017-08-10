@@ -185,7 +185,7 @@ private:
                 GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, args.fInputColor);
-                fragBuilder->codeAppendf("float invAlpha = %s.a <= 0.0 ? 0.0 : 1.0 / %s.a;",
+                fragBuilder->codeAppendf("half invAlpha = %s.a <= 0.0 ? 0.0 : 1.0 / %s.a;",
                                          args.fInputColor, args.fInputColor);
                 fragBuilder->codeAppendf("%s.rgb *= invAlpha;", args.fOutputColor);
             }
@@ -386,8 +386,7 @@ sk_sp<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(sk_sp<GrFragmentPr
                 void emitCode(EmitArgs& args) override {
                     const char* colorName;
                     fColorUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                                 kVec4f_GrSLType,
-                                                                 kDefault_GrSLPrecision,
+                                                                 kHalf4_GrSLType,
                                                                  "Color", &colorName);
                     this->emitChild(0, colorName, args);
                 }

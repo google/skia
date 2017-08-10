@@ -29,8 +29,8 @@ struct Symbol : public IRNode {
     , fKind(kind)
     , fName(std::move(name)) {}
 
-    const Kind fKind;
-    const String fName;
+    Kind fKind;
+    String fName;
 
     typedef IRNode INHERITED;
 };
