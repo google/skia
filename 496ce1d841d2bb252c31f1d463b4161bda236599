@@ -22,6 +22,30 @@
       "revId": "496ce1d841d2bb252c31f1d463b4161bda236599",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23e02f7b_0c6a79b0",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-08-10T17:40:03Z",
+      "side": 1,
+      "message": "In most other places, we return sk_sp\u003c\u003e if the function is a factory or may have to cons-up the value, but not for inspectors. e.g. SkPaint::getShader() returns ptr (or null).",
+      "parentUuid": "21fefff0_d2ff7747",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "496ce1d841d2bb252c31f1d463b4161bda236599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
