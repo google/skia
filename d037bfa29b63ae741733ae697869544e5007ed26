@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2237fd54_422dcac5",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T13:37:19Z",
+      "side": 1,
+      "message": "I promise that it does get removed here:\nhttps://skia-review.googlesource.com/c/32761/2/src/gpu/effects/GrXfermodeFragmentProcessor.h",
+      "parentUuid": "fc558f11_f5b287a8",
+      "revId": "d037bfa29b63ae741733ae697869544e5007ed26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76cf62a6_cc86c5cf",
         "filename": "src/gpu/effects/GrYUVEffect.h",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-10T13:08:30Z",
       "side": 1,
       "message": "Missing // REMOVE ME comment?",
+      "revId": "d037bfa29b63ae741733ae697869544e5007ed26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38fc060a_2c10ad41",
+        "filename": "src/gpu/effects/GrYUVEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T13:37:19Z",
+      "side": 1,
+      "message": "It does get removed here:\n\nhttps://skia-review.googlesource.com/c/32761/2/src/gpu/effects/GrYUVEffect.h\n\nI\u0027d like to land these three CLs as one anyway. The split is really to make reviewing possible.",
+      "parentUuid": "76cf62a6_cc86c5cf",
       "revId": "d037bfa29b63ae741733ae697869544e5007ed26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

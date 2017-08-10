@@ -16,6 +16,24 @@
       "revId": "bfd18cdd5421b6fac063bd07a96a5b9b1afa6a88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87f742c9_f828edbb",
+        "filename": "src/effects/SkLightingImageFilter.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T13:37:19Z",
+      "side": 0,
+      "message": "Indeed. This is one of the rare parts of this change that wasn\u0027t done by search/replace.",
+      "parentUuid": "01dadebb_81295c71",
+      "revId": "bfd18cdd5421b6fac063bd07a96a5b9b1afa6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
