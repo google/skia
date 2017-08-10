@@ -648,22 +648,12 @@ void GrRenderTargetContextPriv::stencilPath(const GrClip& clip,
     // attempt this in a situation that would require coverage AA.
     SkASSERT(!appliedClip.clipCoverageFragmentProcessor());
 
-    GrRenderTarget* rt = fRenderTargetContext->accessRenderTarget();
-    if (!rt) {
-        return;
-    }
-    GrStencilAttachment* stencilAttachment =
-            fRenderTargetContext->fContext->resourceProvider()->attachStencilAttachment(rt);
-    if (!stencilAttachment) {
-        SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-        return;
-    }
+    fRenderTargetContext->setNeedsStencil();
 
     std::unique_ptr<GrOp> op = GrStencilPathOp::Make(viewMatrix,
                                                      useHWAA,
                                                      path->getFillType(),
                                                      appliedClip.hasStencilClip(),
-                                                     stencilAttachment->bits(),
                                                      appliedClip.scissorState(),
                                                      path);
     if (!op) {
@@ -1763,16 +1753,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         appliedClip.hasStencilClip()) {
         this->getOpList()->setRequiresStencil();
 
-        // This forces instantiation of the render target.
-        GrRenderTarget* rt = this->accessRenderTarget();
-        if (!rt) {
-            return SK_InvalidUniqueID;
-        }
-
-        if (!fContext->resourceProvider()->attachStencilAttachment(rt)) {
-            SkDebugf("ERROR creating stencil attachment. Draw skipped.\n");
-            return SK_InvalidUniqueID;
-        }
+        this->setNeedsStencil();
     }
 
     GrXferProcessor::DstProxy dstProxy;

@@ -43,8 +43,26 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkASSERT(!fLastOpList);
 }
 
+static bool attach_stencil_if_needed(GrResourceProvider* resourceProvider,
+                                     GrSurface* surface, bool needsStencil) {
+    if (needsStencil) {
+        GrRenderTarget* rt = surface->asRenderTarget();
+        if (!rt) {
+            SkASSERT(0);
+            return false;
+        }
+
+        if (!resourceProvider->attachStencilAttachment(rt)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
-                                                GrResourceProvider* resourceProvider, int sampleCnt,
+                                                GrResourceProvider* resourceProvider,
+                                                int sampleCnt, bool needsStencil,
                                                 GrSurfaceFlags flags, bool isMipMapped,
                                                 SkDestinationSurfaceColorMode mipColorMode) const {
     GrSurfaceDesc desc;
@@ -65,8 +83,14 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     } else {
         surface.reset(resourceProvider->createTexture(desc, fBudgeted, fFlags).release());
     }
-    if (surface) {
-        surface->asTexture()->texturePriv().setMipColorMode(mipColorMode);
+    if (!surface) {
+        return nullptr;
+    }
+
+    surface->asTexture()->texturePriv().setMipColorMode(mipColorMode);
+
+    if (!attach_stencil_if_needed(resourceProvider, surface.get(), needsStencil)) {
+        return nullptr;
     }
 
     return surface;
@@ -85,14 +109,14 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     GrSurfaceFlags flags, bool isMipMapped,
+                                     bool needsStencil, GrSurfaceFlags flags, bool isMipMapped,
                                      SkDestinationSurfaceColorMode mipColorMode) {
     if (fTarget) {
-        return true;
+        return attach_stencil_if_needed(resourceProvider, fTarget, needsStencil);
     }
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, flags,
-                                                       isMipMapped, mipColorMode);
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
+                                                       flags, isMipMapped, mipColorMode);
     if (!surface) {
         return false;
     }

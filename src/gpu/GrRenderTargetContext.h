@@ -328,6 +328,8 @@ public:
 
     bool wasAbandoned() const;
 
+    void setNeedsStencil() { fRenderTargetProxy->setNeedsStencil(); }
+
     GrRenderTarget* accessRenderTarget() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation

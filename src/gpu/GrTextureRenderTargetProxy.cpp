@@ -48,8 +48,8 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
-    if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), kFlags,
-                               this->isMipMapped(), this->mipColorMode())) {
+    if (!this->instantiateImpl(resourceProvider, this->numStencilSamples(), this->needsStencil(),
+                               kFlags, this->isMipMapped(), this->mipColorMode())) {
         return false;
     }
     SkASSERT(fTarget->asRenderTarget());
@@ -63,8 +63,8 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
     static constexpr GrSurfaceFlags kFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),
-                                                       kFlags, this->isMipMapped(),
-                                                       this->mipColorMode());
+                                                       this->needsStencil(), kFlags,
+                                                       this->isMipMapped(), this->mipColorMode());
     if (!surface) {
         return nullptr;
     }

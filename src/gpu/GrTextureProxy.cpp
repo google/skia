@@ -24,8 +24,8 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf, GrSurfaceOrigin origin)
 }
 
 bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
-    if (!this->instantiateImpl(resourceProvider, 0, kNone_GrSurfaceFlags, fIsMipMapped,
-                               fMipColorMode)) {
+    if (!this->instantiateImpl(resourceProvider, 0, /* needsStencil = */ false,
+                               kNone_GrSurfaceFlags, fIsMipMapped, fMipColorMode)) {
         return false;
     }
 
@@ -34,7 +34,9 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
 }
 
 sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
-    sk_sp<GrSurface> surface= this->createSurfaceImpl(resourceProvider, 0, kNone_GrSurfaceFlags,
+    sk_sp<GrSurface> surface= this->createSurfaceImpl(resourceProvider, 0,
+                                                      /* needsStencil = */ false,
+                                                      kNone_GrSurfaceFlags,
                                                       fIsMipMapped, fMipColorMode);
     if (!surface) {
         return nullptr;
