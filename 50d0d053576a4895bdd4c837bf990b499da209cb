@@ -16,6 +16,24 @@
       "revId": "50d0d053576a4895bdd4c837bf990b499da209cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a75274_1bc8aeaa",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-10T21:16:47Z",
+      "side": 0,
+      "message": "The CL description doesn\u0027t say \"subpixel imples no hinting\", it specifically refers to \"bytecode hinting\". slight- and no-hinting are both non-bytecode hinting.",
+      "parentUuid": "e96a7f8f_da15805d",
+      "revId": "50d0d053576a4895bdd4c837bf990b499da209cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
