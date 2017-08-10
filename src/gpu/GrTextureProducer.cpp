@@ -218,7 +218,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     return kDomain_DomainMode;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
+gr_fp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
                                         sk_sp<GrTextureProxy> proxy,
                                         sk_sp<GrColorSpaceXform> colorSpaceXform,
                                         const SkMatrix& textureMatrix,

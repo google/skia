@@ -316,7 +316,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilter::onFilterImage(SkSpecialIma
         offset->fY = bounds.top();
         bounds.offset(-inputOffset);
 
-        sk_sp<GrFragmentProcessor> fp(GrMatrixConvolutionEffect::Make(std::move(inputProxy),
+        gr_fp<GrFragmentProcessor> fp(GrMatrixConvolutionEffect::Make(std::move(inputProxy),
                                                                       bounds,
                                                                       fKernelSize,
                                                                       fKernel,

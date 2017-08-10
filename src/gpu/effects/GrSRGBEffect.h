@@ -25,8 +25,8 @@ public:
     /**
      * Creates an effect that applies the sRGB transfer function (or its inverse)
      */
-    static sk_sp<GrFragmentProcessor> Make(Mode mode, Alpha alpha) {
-        return sk_sp<GrFragmentProcessor>(new GrSRGBEffect(mode, alpha));
+    static gr_fp<GrFragmentProcessor> Make(Mode mode, Alpha alpha) {
+        return gr_fp<GrFragmentProcessor>(new GrSRGBEffect(mode, alpha));
     }
 
     const char* name() const override { return "sRGB"; }
@@ -34,7 +34,7 @@ public:
     Mode mode() const { return fMode; }
     Alpha alpha() const { return fAlpha; }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    gr_fp<GrFragmentProcessor> clone() const override;
 
 private:
     GrSRGBEffect(Mode mode, Alpha);

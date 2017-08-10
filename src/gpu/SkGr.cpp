@@ -404,7 +404,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            GrRenderTargetContext* rtc,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
-                                           sk_sp<GrFragmentProcessor>* shaderProcessor,
+                                           gr_fp<GrFragmentProcessor>* shaderProcessor,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
     grPaint->setAllowSRGBInputs(rtc->isGammaCorrect());
@@ -415,7 +415,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
-    sk_sp<GrFragmentProcessor> shaderFP;
+    gr_fp<GrFragmentProcessor> shaderFP;
     if (!primColorMode || blend_requires_shader(*primColorMode)) {
         if (shaderProcessor) {
             shaderFP = *shaderProcessor;
@@ -470,7 +470,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
         if (primColorMode) {
             // There is a blend between the primitive color and the paint color. The blend considers
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
-            sk_sp<GrFragmentProcessor> processor(
+            gr_fp<GrFragmentProcessor> processor(
                 GrConstColorProcessor::Make(origColor.opaque(),
                                             GrConstColorProcessor::kIgnore_InputMode));
             processor = GrXfermodeFragmentProcessor::MakeFromSrcProcessor(std::move(processor),
@@ -510,7 +510,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                     colorFilter->filterColor(skPaint.getColor()), nullptr, nullptr));
             }
         } else {
-            sk_sp<GrFragmentProcessor> cfFP(colorFilter->asFragmentProcessor(context,
+            gr_fp<GrFragmentProcessor> cfFP(colorFilter->asFragmentProcessor(context,
                                                                              rtc->getColorSpace()));
             if (cfFP) {
                 grPaint->addColorFragmentProcessor(std::move(cfFP));
@@ -524,7 +524,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     if (maskFilter) {
         GrFragmentProcessor* mfFP;
         if (maskFilter->asFragmentProcessor(&mfFP)) {
-            grPaint->addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor>(mfFP));
+            grPaint->addCoverageFragmentProcessor(gr_fp<GrFragmentProcessor>(mfFP));
         }
     }
 
@@ -559,7 +559,7 @@ bool SkPaintToGrPaint(GrContext* context, GrRenderTargetContext* rtc, const SkPa
 bool SkPaintToGrPaintReplaceShader(GrContext* context,
                                    GrRenderTargetContext* rtc,
                                    const SkPaint& skPaint,
-                                   sk_sp<GrFragmentProcessor> shaderFP,
+                                   gr_fp<GrFragmentProcessor> shaderFP,
                                    GrPaint* grPaint) {
     if (!shaderFP) {
         return false;
@@ -574,8 +574,8 @@ bool SkPaintToGrPaintNoShader(GrContext* context,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
-    static sk_sp<GrFragmentProcessor> kNullShaderFP(nullptr);
-    static sk_sp<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
+    static gr_fp<GrFragmentProcessor> kNullShaderFP(nullptr);
+    static gr_fp<GrFragmentProcessor>* kIgnoreShader = &kNullShaderFP;
     return skpaint_to_grpaint_impl(context, rtc, skPaint, SkMatrix::I(), kIgnoreShader, nullptr,
                                    grPaint);
 }
@@ -596,10 +596,10 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
                                  GrRenderTargetContext* rtc,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
-                                 sk_sp<GrFragmentProcessor> fp,
+                                 gr_fp<GrFragmentProcessor> fp,
                                  bool textureIsAlphaOnly,
                                  GrPaint* grPaint) {
-    sk_sp<GrFragmentProcessor> shaderFP;
+    gr_fp<GrFragmentProcessor> shaderFP;
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(
@@ -608,7 +608,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
             if (!shaderFP) {
                 return false;
             }
-            sk_sp<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
+            gr_fp<GrFragmentProcessor> fpSeries[] = { std::move(shaderFP), std::move(fp) };
             shaderFP = GrFragmentProcessor::RunInSeries(fpSeries, 2);
         } else {
             shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(fp);
