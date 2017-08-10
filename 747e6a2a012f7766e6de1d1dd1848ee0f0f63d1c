@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "804f5878_b3fd01a8",
+        "filename": "src/gpu/GrPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T16:49:09Z",
+      "side": 1,
+      "message": "this could just ref the existing processors but, since that won\u0027t be possible soon, I made it clone.",
+      "range": {
+        "startLine": 23,
+        "startChar": 43,
+        "endLine": 23,
+        "endChar": 84
+      },
+      "revId": "747e6a2a012f7766e6de1d1dd1848ee0f0f63d1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
