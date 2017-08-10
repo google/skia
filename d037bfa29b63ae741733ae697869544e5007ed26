@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc558f11_f5b287a8",
+        "filename": "src/gpu/effects/GrXfermodeFragmentProcessor.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-10T13:08:30Z",
+      "side": 1,
+      "message": "// REMOVE ME?",
+      "revId": "d037bfa29b63ae741733ae697869544e5007ed26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76cf62a6_cc86c5cf",
+        "filename": "src/gpu/effects/GrYUVEffect.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-10T13:08:30Z",
+      "side": 1,
+      "message": "Missing // REMOVE ME comment?",
+      "revId": "d037bfa29b63ae741733ae697869544e5007ed26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
