@@ -62,7 +62,8 @@ bool SkImageShader::isOpaque() const {
 }
 
 bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, SkAlphaType at,
-                                         SkShader::TileMode tx, SkShader::TileMode ty) {
+                                         SkShader::TileMode tx, SkShader::TileMode ty,
+                                         const SkMatrix& localM) {
     if (ct != kN32_SkColorType) {
         return true;
     }
@@ -72,8 +73,11 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
     if (tx != ty) {
         return true;
     }
-#ifndef SK_SUPPORT_LEGACY_ROTATED_SHADERS
     if (!ctm.isScaleTranslate()) {
+        return true;
+    }
+#ifndef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
+    if (!localM.isScaleTranslate()) {
         return true;
     }
 #endif
@@ -83,7 +87,7 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
 bool SkImageShader::onIsRasterPipelineOnly(const SkMatrix& ctm) const {
     SkBitmapProvider provider(fImage.get(), nullptr);
     return IsRasterPipelineOnly(ctm, provider.info().colorType(), provider.info().alphaType(),
-                                fTileModeX, fTileModeY);
+                                fTileModeX, fTileModeY, this->getLocalMatrix());
 }
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
