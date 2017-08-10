@@ -11,6 +11,24 @@
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
 
+GrPaint::GrPaint(const GrPaint& that)
+        : fXPFactory(that.fXPFactory)
+        , fColorFragmentProcessors(that.fColorFragmentProcessors.count())
+        , fCoverageFragmentProcessors(that.fCoverageFragmentProcessors.count())
+        , fDisableOutputConversionToSRGB(that.fDisableOutputConversionToSRGB)
+        , fAllowSRGBInputs(that.fAllowSRGBInputs)
+        , fTrivial(that.fTrivial)
+        , fColor(that.fColor) {
+    for (int i = 0; i < that.fColorFragmentProcessors.count(); ++i) {
+        fColorFragmentProcessors.push_back(that.fColorFragmentProcessors[i]->clone());
+        SkASSERT(fColorFragmentProcessors[i]);
+    }
+    for (int i = 0; i < that.fCoverageFragmentProcessors.count(); ++i) {
+        fCoverageFragmentProcessors.push_back(that.fCoverageFragmentProcessors[i]->clone());
+        SkASSERT(fCoverageFragmentProcessors[i]);
+    }
+}
+
 void GrPaint::setPorterDuffXPFactory(SkBlendMode mode) {
     this->setXPFactory(GrPorterDuffXPFactory::Get(mode));
 }

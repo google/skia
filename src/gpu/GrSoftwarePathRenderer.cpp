@@ -98,20 +98,20 @@ void GrSoftwarePathRenderer::DrawAroundInvPath(GrRenderTargetContext* renderTarg
     if (devClipBounds.fTop < devPathBounds.fTop) {
         rect.iset(devClipBounds.fLeft, devClipBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fTop);
-        DrawNonAARect(renderTargetContext, GrPaint(paint), userStencilSettings, clip, SkMatrix::I(),
-                      rect, invert);
+        DrawNonAARect(renderTargetContext, GrPaint::Clone(paint), userStencilSettings, clip,
+                      SkMatrix::I(), rect, invert);
     }
     if (devClipBounds.fLeft < devPathBounds.fLeft) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fTop,
                   devPathBounds.fLeft, devPathBounds.fBottom);
-        DrawNonAARect(renderTargetContext, GrPaint(paint), userStencilSettings, clip, SkMatrix::I(),
-                      rect, invert);
+        DrawNonAARect(renderTargetContext, GrPaint::Clone(paint), userStencilSettings, clip,
+                      SkMatrix::I(), rect, invert);
     }
     if (devClipBounds.fRight > devPathBounds.fRight) {
         rect.iset(devPathBounds.fRight, devPathBounds.fTop,
                   devClipBounds.fRight, devPathBounds.fBottom);
-        DrawNonAARect(renderTargetContext, GrPaint(paint), userStencilSettings, clip, SkMatrix::I(),
-                      rect, invert);
+        DrawNonAARect(renderTargetContext, GrPaint::Clone(paint), userStencilSettings, clip,
+                      SkMatrix::I(), rect, invert);
     }
     if (devClipBounds.fBottom > devPathBounds.fBottom) {
         rect.iset(devClipBounds.fLeft, devPathBounds.fBottom,
@@ -222,7 +222,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
     }
     if (inverseFilled) {
-        DrawAroundInvPath(args.fRenderTargetContext, GrPaint(args.fPaint),
+        DrawAroundInvPath(args.fRenderTargetContext, GrPaint::Clone(args.fPaint),
                           *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix, devClipBounds,
                           unclippedDevShapeBounds);
     }

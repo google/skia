@@ -151,13 +151,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
 
     // 1) Draw texture to S32 surface (should generate/use sRGB mips)
     paint.setGammaCorrect(true);
-    s32RenderTargetContext->drawRect(noClip, GrPaint(paint), GrAA::kNo, SkMatrix::I(), rect);
+    s32RenderTargetContext->drawRect(noClip, GrPaint::Clone(paint), GrAA::kNo, SkMatrix::I(), rect);
     read_and_check_pixels(reporter, s32RenderTargetContext.get(), expectedSRGB, iiSRGBA, error,
                           "first render of sRGB");
 
     // 2) Draw texture to L32 surface (should generate/use linear mips)
     paint.setGammaCorrect(false);
-    l32RenderTargetContext->drawRect(noClip, GrPaint(paint), GrAA::kNo, SkMatrix::I(), rect);
+    l32RenderTargetContext->drawRect(noClip, GrPaint::Clone(paint), GrAA::kNo, SkMatrix::I(), rect);
 
     // Right now, this test only runs on GL (because Vulkan doesn't support legacy mip-mapping
     // skbug.com/5048). On GL, we may not have sRGB decode support. In that case, rendering sRGB
