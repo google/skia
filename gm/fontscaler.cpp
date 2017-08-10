@@ -7,6 +7,7 @@
 #include "gm.h"
 #include "sk_tool_utils.h"
 #include "SkTypeface.h"
+#include "SkFontMgr.h"
 
 namespace skiagm {
 
@@ -29,46 +30,77 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
+      SkPaint paint;
 
-        paint.setAntiAlias(true);
-        paint.setLCDRenderText(true);
-        //With freetype the default (normal hinting) can be really ugly.
-        //Most distros now set slight (vertical hinting only) in any event.
-        paint.setHinting(SkPaint::kSlight_Hinting);
+      paint.setAntiAlias(true);
+      paint.setLCDRenderText(true);
+      paint.setSubpixelText(true);
 
-        const char* text = "Hamburgefons ooo mmm";
-        const size_t textLen = strlen(text);
+      sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+      sk_sp<SkTypeface> typeface(fontMgr->matchFamilyStyle("Calibri", SkFontStyle()));
 
-        for (int j = 0; j < 2; ++j) {
-            // This used to do 6 iterations but it causes the N4 to crash in the MSAA4 config.
-            for (int i = 0; i < 5; ++i) {
-                SkScalar x = SkIntToScalar(10);
-                SkScalar y = SkIntToScalar(20);
+      const char* text = "Hamburgefons ooo mmm";
+      const size_t textLen = strlen(text);
 
-                SkAutoCanvasRestore acr(canvas, true);
-                canvas->translate(SkIntToScalar(50 + i * 230),
-                                  SkIntToScalar(20));
-                canvas->rotate(SkIntToScalar(i * 5), x, y * 10);
+      SkScalar positions[] = {0, 13.489258f, 9.666992f, 16.365234f, 11.169922f, 10.752441f,
+                              6.605469f,
+                              11.188477f,
+                              9.936035f,
+                              5.946777f,
+                              11.132813f,
+                              10.752441f,
+                              8.062012f,
+                              5.204590f,
+                              11.132813f,
+                              11.132813f,
+                              11.132813f,
+                              5.204590f,
+                              16.365234f,
+                              16.365234f,
+                              16.365234f};
 
-                {
-                    SkPaint p;
-                    p.setAntiAlias(true);
-                    SkRect r;
-                    r.set(x - SkIntToScalar(3), SkIntToScalar(15),
-                          x - SkIntToScalar(1), SkIntToScalar(280));
-                    canvas->drawRect(r, p);
-                }
+      for (int i = 0; i < textLen -1; ++i) {
+        positions[i+1] = positions[i] + positions[i+1];
+      }
 
-                for (int ps = 6; ps <= 22; ps++) {
-                    paint.setTextSize(SkIntToScalar(ps));
-                    canvas->drawText(text, textLen, x, y, paint);
-                    y += paint.getFontMetrics(nullptr);
-                }
-            }
-            canvas->translate(0, SkIntToScalar(360));
-            paint.setSubpixelText(true);
-        }
+      // paint.setTextSize(SkIntToScalar(19));
+      // printf("Subpixel true");
+      // for (size_t i = 0; i < textLen; ++i) {
+      //   SkScalar sk_width;
+      //   paint.getTextWidths(&text[i], 1, &sk_width, nullptr);
+      //   printf("width of %d: %f\n", text[i], sk_width);
+      // }
+      // paint.setSubpixelText(false);
+      // printf("Subpixel false");
+      // for (size_t i = 0; i < textLen; ++i) {
+      //   SkScalar sk_width;
+      //   paint.getTextWidths(&text[i], 1, &sk_width, nullptr);
+      //   printf("width of %d: %f\n", text[i], sk_width);
+      // }
+      // paint.setSubpixelText(true);
+
+
+      paint.setTypeface(typeface);
+      SkScalar x = SkIntToScalar(10);
+      SkScalar y = SkIntToScalar(20);
+
+      paint.setEmbeddedBitmapText(false);
+      paint.setTextSize(SkIntToScalar(19));
+      static const int subpixelSteps = 4;
+      for (int i = 0; i <= subpixelSteps; ++i) {
+        //        canvas->drawText(text, textLen, x, y, paint);
+        canvas->drawPosTextH(text, textLen, positions, y, paint);
+        canvas->translate(1.0f/(float)(subpixelSteps) * (float)i, 20);
+      }
+
+      canvas->translate(0, 40);
+      paint.setEmbeddedBitmapText(true);
+      paint.setTextSize(SkIntToScalar(19));
+      for (int i = 0; i <= subpixelSteps; ++i) {
+        //        canvas->drawText(text, textLen, x, y, paint);
+        canvas->drawPosTextH(text, textLen, positions, y, paint);
+        canvas->translate(1.0f/(float)(subpixelSteps) * (float)i, 20);
+      }
     }
 
 private:
