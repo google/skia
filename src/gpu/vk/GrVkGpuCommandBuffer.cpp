@@ -96,9 +96,6 @@ void GrVkGpuCommandBuffer::init() {
     cbInfo.fColorClearValue.color.float32[2] = fClearColor.fRGBA[2];
     cbInfo.fColorClearValue.color.float32[3] = fClearColor.fRGBA[3];
 
-    cbInfo.fStencilClearValue.depthStencil.depth = 0;
-    cbInfo.fStencilClearValue.depthStencil.stencil = 0;
-
     cbInfo.fBounds.setEmpty();
     cbInfo.fIsEmpty = true;
     cbInfo.fStartsWithClear = false;
@@ -182,9 +179,7 @@ void GrVkGpuCommandBuffer::onSubmit() {
             cbInfo.fBounds.roundOut(&iBounds);
 
             fGpu->submitSecondaryCommandBuffer(cbInfo.fCommandBuffers, cbInfo.fRenderPass,
-                                               &cbInfo.fColorClearValue,
-                                               &cbInfo.fStencilClearValue,
-                                               vkRT, iBounds);
+                                               &cbInfo.fColorClearValue, vkRT, iBounds);
         }
     }
 }
@@ -404,7 +399,6 @@ void GrVkGpuCommandBuffer::addAdditionalRenderPass() {
     // It shouldn't matter what we set the clear color to here since we will assume loading of the
     // attachment.
     memset(&cbInfo.fColorClearValue, 0, sizeof(VkClearValue));
-    memset(&cbInfo.fStencilClearValue, 0, sizeof(VkClearValue));
     cbInfo.fBounds.setEmpty();
     cbInfo.fIsEmpty = true;
     cbInfo.fStartsWithClear = false;

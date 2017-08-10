@@ -1973,7 +1973,6 @@ void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
 void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>& buffers,
                                            const GrVkRenderPass* renderPass,
                                            const VkClearValue* colorClear,
-                                           const VkClearValue* stencilClear,
                                            GrVkRenderTarget* target,
                                            const SkIRect& bounds) {
     const SkIRect* pBounds = &bounds;
@@ -2007,7 +2006,8 @@ void GrVkGpu::submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBu
 #endif
     VkClearValue clears[2];
     clears[0].color = colorClear->color;
-    clears[1].depthStencil = stencilClear->depthStencil;
+    clears[1].depthStencil.depth = 0.0f;
+    clears[1].depthStencil.stencil = 0;
 
     fCurrentCmdBuffer->beginRenderPass(this, renderPass, clears, *target, *pBounds, true);
     for (int i = 0; i < buffers.count(); ++i) {
