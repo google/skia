@@ -12,6 +12,7 @@
 #include "GrGLTexture.h"
 #include "GrShaderCaps.h"
 #include "GrSurfaceProxyPriv.h"
+#include "SkJSONWriter.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 #include "instanced/GLInstancedRendering.h"
@@ -1248,17 +1249,22 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-SkString GrGLCaps::dump() const {
+void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
-    SkString r = INHERITED::dump();
+    // We are called by the base class, which has already called beginObject(). We choose to nest
+    // all of our caps information in a named sub-object.
+    writer->beginObject("GL caps");
 
-    r.appendf("--- GL-Specific ---\n");
+    writer->beginArray("Stencil Formats");
+
     for (int i = 0; i < fStencilFormats.count(); ++i) {
-        r.appendf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
-                 i,
-                 fStencilFormats[i].fStencilBits,
-                 fStencilFormats[i].fTotalBits);
+        writer->beginObject();
+        writer->appendS32("stencil bits", fStencilFormats[i].fStencilBits);
+        writer->appendS32("total bits", fStencilFormats[i].fTotalBits);
+        writer->endObject();
     }
+
+    writer->endArray();
 
     static const char* kMSFBOExtStr[] = {
         "None",
@@ -1298,55 +1304,59 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(3 == kChromium_MapBufferType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
 
-    r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
-    r.appendf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
-    r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
-    r.appendf("Map Buffer Type: %s\n", kMapBufferTypeStr[fMapBufferType]);
-    r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
-    r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
-    r.appendf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
-    r.appendf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));
-    r.appendf("Pack Flip Y support: %s\n", (fPackFlipYSupport ? "YES": "NO"));
+    writer->appendBool("Core Profile", fIsCoreProfile);
+    writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
+    writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
+    writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
+    writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
+    writer->appendBool("Unpack Row length support", fUnpackRowLengthSupport);
+    writer->appendBool("Unpack Flip Y support", fUnpackFlipYSupport);
+    writer->appendBool("Pack Row length support", fPackRowLengthSupport);
+    writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 
-    r.appendf("Texture Usage support: %s\n", (fTextureUsageSupport ? "YES": "NO"));
-    r.appendf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
-    r.appendf("Alpha8 is renderable: %s\n", (fAlpha8IsRenderable ? "YES" : "NO"));
-    r.appendf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
-    r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
-    r.appendf("Direct state access support: %s\n", (fDirectStateAccessSupport ? "YES": "NO"));
-    r.appendf("Debug support: %s\n", (fDebugSupport ? "YES": "NO"));
-    r.appendf("Draw indirect support: %s\n", (fDrawIndirectSupport ? "YES" : "NO"));
-    r.appendf("Multi draw indirect support: %s\n", (fMultiDrawIndirectSupport ? "YES" : "NO"));
-    r.appendf("Base instance support: %s\n", (fBaseInstanceSupport ? "YES" : "NO"));
-    r.appendf("RGBA 8888 pixel ops are slow: %s\n", (fRGBA8888PixelsOpsAreSlow ? "YES" : "NO"));
-    r.appendf("Partial FBO read is slow: %s\n", (fPartialFBOReadIsSlow ? "YES" : "NO"));
-    r.appendf("Bind uniform location support: %s\n", (fBindUniformLocationSupport ? "YES" : "NO"));
-    r.appendf("Rectangle texture support: %s\n", (fRectangleTextureSupport? "YES" : "NO"));
-    r.appendf("Texture swizzle support: %s\n", (fTextureSwizzleSupport ? "YES" : "NO"));
-    r.appendf("BGRA to RGBA readback conversions are slow: %s\n",
-              (fRGBAToBGRAReadbackConversionsAreSlow ? "YES" : "NO"));
-    r.appendf("Intermediate texture for partial updates of unorm textures ever bound to FBOs: %s\n",
-              fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO ? "YES" : "NO");
-    r.appendf("Intermediate texture for all updates of textures bound to FBOs: %s\n",
-              fUseDrawInsteadOfAllRenderTargetWrites ? "YES" : "NO");
+    writer->appendBool("Texture Usage support", fTextureUsageSupport);
+    writer->appendBool("GL_R support", fTextureRedSupport);
+    writer->appendBool("Alpha8 is renderable", fAlpha8IsRenderable);
+    writer->appendBool("GL_ARB_imaging support", fImagingSupport);
+    writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
+    writer->appendBool("Direct state access support", fDirectStateAccessSupport);
+    writer->appendBool("Debug support", fDebugSupport);
+    writer->appendBool("Draw indirect support", fDrawIndirectSupport);
+    writer->appendBool("Multi draw indirect support", fMultiDrawIndirectSupport);
+    writer->appendBool("Base instance support", fBaseInstanceSupport);
+    writer->appendBool("RGBA 8888 pixel ops are slow", fRGBA8888PixelsOpsAreSlow);
+    writer->appendBool("Partial FBO read is slow", fPartialFBOReadIsSlow);
+    writer->appendBool("Bind uniform location support", fBindUniformLocationSupport);
+    writer->appendBool("Rectangle texture support", fRectangleTextureSupport);
+    writer->appendBool("Texture swizzle support", fTextureSwizzleSupport);
+    writer->appendBool("BGRA to RGBA readback conversions are slow",
+                       fRGBAToBGRAReadbackConversionsAreSlow);
+    writer->appendBool("Intermediate texture for partial updates of unorm textures ever bound to FBOs",
+                       fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO);
+    writer->appendBool("Intermediate texture for all updates of textures bound to FBOs",
+                       fUseDrawInsteadOfAllRenderTargetWrites);
 
-    r.append("Configs\n-------\n");
+    writer->beginArray("configs");
+
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
-        r.appendf("  cfg: %d flags: 0x%04x, b_internal: 0x%08x s_internal: 0x%08x, e_format: "
-                  "0x%08x, e_format_teximage: 0x%08x, e_type: 0x%08x, i_for_teximage: 0x%08x, "
-                  "i_for_renderbuffer: 0x%08x\n",
-                  i,
-                  fConfigTable[i].fFlags,
-                  fConfigTable[i].fFormats.fBaseInternalFormat,
-                  fConfigTable[i].fFormats.fSizedInternalFormat,
-                  fConfigTable[i].fFormats.fExternalFormat[kOther_ExternalFormatUsage],
-                  fConfigTable[i].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage],
-                  fConfigTable[i].fFormats.fExternalType,
-                  fConfigTable[i].fFormats.fInternalFormatTexImage,
-                  fConfigTable[i].fFormats.fInternalFormatRenderbuffer);
+        writer->beginObject();
+        writer->appendHexU32("flags", fConfigTable[i].fFlags);
+        writer->appendHexU32("b_internal", fConfigTable[i].fFormats.fBaseInternalFormat);
+        writer->appendHexU32("s_internal", fConfigTable[i].fFormats.fSizedInternalFormat);
+        writer->appendHexU32("e_format",
+                             fConfigTable[i].fFormats.fExternalFormat[kOther_ExternalFormatUsage]);
+        writer->appendHexU32(
+                "e_format_teximage",
+                fConfigTable[i].fFormats.fExternalFormat[kTexImage_ExternalFormatUsage]);
+        writer->appendHexU32("e_type", fConfigTable[i].fFormats.fExternalType);
+        writer->appendHexU32("i_for_teximage", fConfigTable[i].fFormats.fInternalFormatTexImage);
+        writer->appendHexU32("i_for_renderbuffer",
+                             fConfigTable[i].fFormats.fInternalFormatRenderbuffer);
+        writer->endObject();
     }
 
-    return r;
+    writer->endArray();
+    writer->endObject();
 }
 
 static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
