@@ -513,7 +513,7 @@ typedef enum {
 typedef struct {
     sk_codec_zero_initialized_t fZeroInitialized;
     sk_irect_t* fSubset;
-    size_t fFrameIndex;
+    int fFrameIndex;
     bool fHasPriorFrame;
     sk_transfer_function_behavior_t fPremulBehavior;
 } sk_codec_options_t;
@@ -861,8 +861,8 @@ typedef struct {
 } sk_encodedinfo_t;
 
 typedef struct {
-    size_t fRequiredFrame;
-    size_t fDuration;
+    int fRequiredFrame;
+    int fDuration;
     bool fFullyReceived;
     sk_alphatype_t fAlphaType;
 } sk_codec_frameinfo_t;

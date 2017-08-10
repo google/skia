@@ -61,7 +61,7 @@ SK_C_API sk_wstream_dynamicmemorystream_t* sk_dynamicmemorywstream_new(void);
 SK_C_API sk_stream_asset_t* sk_dynamicmemorywstream_detach_as_stream(sk_wstream_dynamicmemorystream_t* cstream);
 SK_C_API sk_data_t* sk_dynamicmemorywstream_detach_as_data(sk_wstream_dynamicmemorystream_t* cstream);
 SK_C_API void sk_dynamicmemorywstream_copy_to(sk_wstream_dynamicmemorystream_t* cstream, void* data);
-SK_C_API void sk_dynamicmemorywstream_write_to_stream(sk_wstream_dynamicmemorystream_t* cstream, sk_wstream_t* dst);
+SK_C_API bool sk_dynamicmemorywstream_write_to_stream(sk_wstream_dynamicmemorystream_t* cstream, sk_wstream_t* dst);
 SK_C_API void sk_dynamicmemorywstream_destroy(sk_wstream_dynamicmemorystream_t* cstream);
 
 ////////////////////////////////////////////////////////////////////////////////
