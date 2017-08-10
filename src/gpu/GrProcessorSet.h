@@ -42,10 +42,11 @@ public:
 
     const GrFragmentProcessor* colorFragmentProcessor(int idx) const {
         SkASSERT(idx < fColorFragmentProcessorCnt);
-        return fFragmentProcessors[idx + fFragmentProcessorOffset];
+        return fFragmentProcessors[idx + fFragmentProcessorOffset].get();
     }
     const GrFragmentProcessor* coverageFragmentProcessor(int idx) const {
-        return fFragmentProcessors[idx + fColorFragmentProcessorCnt + fFragmentProcessorOffset];
+        return fFragmentProcessors[idx + fColorFragmentProcessorCnt +
+                                   fFragmentProcessorOffset].get();
     }
 
     const GrXferProcessor* xferProcessor() const {
@@ -55,6 +56,16 @@ public:
     sk_sp<const GrXferProcessor> refXferProcessor() const {
         SkASSERT(this->isFinalized());
         return sk_ref_sp(fXP.fProcessor);
+    }
+
+    gr_fp<const GrFragmentProcessor> detachColorFragmentProcessor(int idx) {
+        SkASSERT(idx < fColorFragmentProcessorCnt);
+        return std::move(fFragmentProcessors[idx + fFragmentProcessorOffset]);
+    }
+
+    gr_fp<const GrFragmentProcessor> detachCoverageFragmentProcessor(int idx) {
+        return std::move(
+                fFragmentProcessors[idx + fFragmentProcessorOffset + fColorFragmentProcessorCnt]);
     }
 
     /** Comparisons are only legal on finalized processor sets. */
@@ -168,7 +179,7 @@ private:
         return fXP.fFactory;
     }
 
-    SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
+    SkAutoSTArray<4, gr_fp<const GrFragmentProcessor>> fFragmentProcessors;
     XP fXP;
     uint8_t fColorFragmentProcessorCnt = 0;
     uint8_t fFragmentProcessorOffset = 0;

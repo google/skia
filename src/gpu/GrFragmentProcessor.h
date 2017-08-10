@@ -23,7 +23,7 @@ class GrSwizzle;
     GrCoordTransforms to receive a transformation of the local coordinates that map from local space
     to the fragment being processed.
  */
-class GrFragmentProcessor : public GrResourceIOProcessor, public GrProgramElement {
+class GrFragmentProcessor : public GrResourceIOProcessor {
 public:
     /**
     *  In many instances (e.g. SkShader::asFragmentProcessor() implementations) it is desirable to
@@ -84,8 +84,6 @@ public:
      */
     static gr_fp<GrFragmentProcessor> RunInSeries(gr_fp<GrFragmentProcessor>*, int cnt);
 
-    ~GrFragmentProcessor() override;
-
     /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
@@ -116,6 +114,8 @@ public:
     const GrFragmentProcessor& childProcessor(int index) const { return *fChildProcessors[index]; }
 
     bool instantiate(GrResourceProvider*) const;
+
+    void markPendingExecution() const;
 
     /** Do any of the coordtransforms for this processor require local coords? */
     bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
@@ -312,12 +312,6 @@ protected:
     int registerChildProcessor(gr_fp<GrFragmentProcessor> child);
 
 private:
-    void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
-    void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
-    void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
-
-    void notifyRefCntIsZero() const final;
-
     virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {
         SkFAIL("Subclass must override this if advertising this optimization.");
         return GrColor4f::TransparentBlack();
@@ -350,11 +344,7 @@ private:
 
     SkSTArray<4, const GrCoordTransform*, true> fCoordTransforms;
 
-    /**
-     * This is not SkSTArray<1, gr_fp<GrFragmentProcessor>> because this class holds strong
-     * references until notifyRefCntIsZero and then it holds pending executions.
-     */
-    SkSTArray<1, GrFragmentProcessor*, true> fChildProcessors;
+    SkSTArray<1, gr_fp<GrFragmentProcessor>, true> fChildProcessors;
 
     typedef GrResourceIOProcessor INHERITED;
 };
