@@ -97,6 +97,8 @@ static SkString to_string(int n) {
     return str;
 }
 
+DECLARE_bool(undefok);
+
 DEFINE_int32(loops, kDefaultLoops, loops_help_txt().c_str());
 
 DEFINE_int32(samples, 10, "Number of samples to measure for each bench.");
@@ -412,8 +414,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 
 #if SK_SUPPORT_GPU
     if (const auto* gpuConfig = config->asConfigGpu()) {
-        if (!FLAGS_gpu)
+        if (!FLAGS_gpu) {
+            SkDebugf("Skipping config '%s' as requested.\n", config->getTag().c_str());
             return;
+        }
 
         const auto ctxType = gpuConfig->getContextType();
         const auto ctxOverrides = gpuConfig->getContextOverrides();
@@ -426,12 +430,13 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
                                                                   *ctx->caps());
             int supportedSampleCount = ctx->caps()->getSampleCount(sampleCount, grPixConfig);
             if (sampleCount != supportedSampleCount) {
-                SkDebugf("Configuration sample count %d is not a supported sample count.\n",
-                    sampleCount);
+                SkDebugf("Configuration '%s' sample count %d is not a supported sample count.\n",
+                         config->getTag().c_str(), sampleCount);
                 return;
             }
         } else {
-            SkDebugf("No context was available matching config type and options.\n");
+            SkDebugf("No context was available matching config '%s'.\n",
+                     config->getTag().c_str());
             return;
         }
 
@@ -454,6 +459,11 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 
     #define CPU_CONFIG(name, backend, color, alpha, colorSpace)                \
         if (config->getTag().equals(#name)) {                                  \
+            if (!FLAGS_cpu) {                                                  \
+                SkDebugf("Skipping config '%s' as requested.\n",               \
+                         config->getTag().c_str());                            \
+                return;                                                        \
+            }                                                                  \
             Config config = {                                                  \
                 SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
                 0, kBogusContextType, kBogusContextOverrides, false            \
@@ -462,23 +472,23 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
             return;                                                            \
         }
 
-    if (FLAGS_cpu) {
-        CPU_CONFIG(nonrendering, kNonRendering_Backend,
-                   kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
+    CPU_CONFIG(nonrendering, kNonRendering_Backend,
+               kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
 
-        CPU_CONFIG(8888, kRaster_Backend,
-                   kN32_SkColorType, kPremul_SkAlphaType, nullptr)
-        CPU_CONFIG(565,  kRaster_Backend,
-                   kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
-        auto srgbColorSpace = SkColorSpace::MakeSRGB();
-        CPU_CONFIG(srgb, kRaster_Backend,
-                   kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
-        auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
-        CPU_CONFIG(f16,  kRaster_Backend,
-                   kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
-    }
+    CPU_CONFIG(8888, kRaster_Backend,
+               kN32_SkColorType, kPremul_SkAlphaType, nullptr)
+    CPU_CONFIG(565,  kRaster_Backend,
+               kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
+    auto srgbColorSpace = SkColorSpace::MakeSRGB();
+    CPU_CONFIG(srgb, kRaster_Backend,
+               kN32_SkColorType,  kPremul_SkAlphaType, srgbColorSpace)
+    auto srgbLinearColorSpace = SkColorSpace::MakeSRGBLinear();
+    CPU_CONFIG(f16,  kRaster_Backend,
+               kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinearColorSpace)
 
     #undef CPU_CONFIG
+
+    SkDebugf("Unknown config '%s'.\n", config->getTag().c_str());
 }
 
 // Append all configs that are enabled and supported.
@@ -488,6 +498,17 @@ void create_configs(SkTArray<Config>* configs) {
     for (int i = 0; i < array.count(); ++i) {
         create_config(array[i].get(), configs);
     }
+
+    // If no just default configs were requested, then we're okay.
+    if (array.count() == 0 || FLAGS_config.count() == 0 ||
+        // If we've been told to ignore undefined flags, we're okay.
+        FLAGS_undefok ||
+        // Otherwise, make sure that all specified configs have been created.
+        array.count() == configs->count()) {
+        return;
+    }
+    SkDebugf("Invalid --config. Use --undefok to bypass this warning.\n");
+    exit(1);
 }
 
 // disable warning : switch statement contains default but no 'case' labels
