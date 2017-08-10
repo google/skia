@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e96a7f8f_da15805d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2017-08-10T17:07:18Z",
+      "side": 0,
+      "message": "This doesn\u0027t seem \"subpixel imples no hinting\" as stated in the CL description. This is \"subpixel and not No_Hinting implies Slight_Hinting\". It does allow both subpixel and No_Hinting. And it seems that removing this makes one layout test looks less smooth?",
+      "revId": "50d0d053576a4895bdd4c837bf990b499da209cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
