@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcec9194_f19800a8",
+        "filename": "include/gpu/GrTypes.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T13:35:52Z",
+      "side": 1,
+      "message": "This gets removed in the third CL along with the type alias at the bottom of the file.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 17
+      },
+      "revId": "5deaa1ea631c9238bcd175edc996604f2fd1ec87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fa6aa84_ae032a41",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T13:35:52Z",
+      "side": 1,
+      "message": "This abomination can get killed when we have FPs as linked lists.",
+      "range": {
+        "startLine": 624,
+        "startChar": 10,
+        "endLine": 624,
+        "endChar": 47
+      },
+      "revId": "5deaa1ea631c9238bcd175edc996604f2fd1ec87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
