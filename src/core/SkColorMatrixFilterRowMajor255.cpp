@@ -201,23 +201,21 @@ private:
 
         void emitCode(EmitArgs& args) override {
             GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-            fMatrixHandle = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                       kMat44f_GrSLType, kDefault_GrSLPrecision,
+            fMatrixHandle = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4x4_GrSLType,
                                                        "ColorMatrix");
-            fVectorHandle = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
+            fVectorHandle = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                        "ColorMatrixVector");
 
             if (nullptr == args.fInputColor) {
                 // could optimize this case, but we aren't for now.
-                args.fInputColor = "float4(1)";
+                args.fInputColor = "half4(1)";
             }
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.
-            fragBuilder->codeAppendf("\tfloat nonZeroAlpha = max(%s.a, 0.00001);\n",
+            fragBuilder->codeAppendf("\thalf nonZeroAlpha = max(%s.a, 0.00001);\n",
                                      args.fInputColor);
-            fragBuilder->codeAppendf("\t%s = %s * float4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + "
+            fragBuilder->codeAppendf("\t%s = %s * half4(%s.rgb / nonZeroAlpha, nonZeroAlpha) + "
                                      "%s;\n",
                                      args.fOutputColor,
                                      uniformHandler->getUniformCStr(fMatrixHandle),
