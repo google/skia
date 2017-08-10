@@ -53,12 +53,14 @@ public:
             , fMode(mode)
             , fState(State::kStart) {
         fScopeStack.push_back(Scope::kNone);
+        fNewlineStack.push_back(true);
     }
 
     ~SkJSONWriter() {
         this->flush();
         delete[] fBlock;
         SkASSERT(fScopeStack.count() == 1);
+        SkASSERT(fNewlineStack.count() == 1);
     }
 
     /**
@@ -85,7 +87,7 @@ public:
         if (State::kObjectValue == fState) {
             this->write(",", 1);
         }
-        this->newline();
+        this->separator(this->multiline());
         this->write("\"", 1);
         this->write(name, strlen(name));
         this->write("\":", 2);
@@ -95,12 +97,17 @@ public:
     /**
      *  Adds a new object. A name must be supplied when called between beginObject() and
      *  endObject(). Calls to beginObject() must be balanced by corresponding calls to endObject().
+     *  By default, objects are written out with one named value per line (when in kPretty mode).
+     *  This can be overridden for a particular object by passing false for multiline, this will
+     *  keep the entire object on a single line. This can help with readability in some situations.
+     *  In kFast mode, this parameter is ignored.
      */
-    void beginObject(const char* name = nullptr) {
+    void beginObject(const char* name = nullptr, bool multiline = true) {
         this->appendName(name);
         this->beginValue(true);
         this->write("{", 1);
         fScopeStack.push_back(Scope::kObject);
+        fNewlineStack.push_back(multiline);
         fState = State::kObjectBegin;
     }
 
@@ -111,9 +118,10 @@ public:
         SkASSERT(Scope::kObject == this->scope());
         SkASSERT(State::kObjectBegin == fState || State::kObjectValue == fState);
         bool emptyObject = State::kObjectBegin == fState;
+        bool wasMultiline = this->multiline();
         this->popScope();
         if (!emptyObject) {
-            this->newline();
+            this->separator(wasMultiline);
         }
         this->write("}", 1);
     }
@@ -121,12 +129,17 @@ public:
     /**
      *  Adds a new array. A name must be supplied when called between beginObject() and
      *  endObject(). Calls to beginArray() must be balanced by corresponding calls to endArray().
+     *  By default, arrays are written out with one value per line (when in kPretty mode).
+     *  This can be overridden for a particular array by passing false for multiline, this will
+     *  keep the entire array on a single line. This can help with readability in some situations.
+     *  In kFast mode, this parameter is ignored.
      */
-    void beginArray(const char* name = nullptr) {
+    void beginArray(const char* name = nullptr, bool multiline = true) {
         this->appendName(name);
         this->beginValue(true);
         this->write("[", 1);
         fScopeStack.push_back(Scope::kArray);
+        fNewlineStack.push_back(multiline);
         fState = State::kArrayBegin;
     }
 
@@ -137,9 +150,10 @@ public:
         SkASSERT(Scope::kArray == this->scope());
         SkASSERT(State::kArrayBegin == fState || State::kArrayValue == fState);
         bool emptyArray = State::kArrayBegin == fState;
+        bool wasMultiline = this->multiline();
         this->popScope();
         if (!emptyArray) {
-            this->newline();
+            this->separator(wasMultiline);
         }
         this->write("]", 1);
     }
@@ -245,7 +259,7 @@ private:
             this->write(",", 1);
         }
         if (Scope::kArray == this->scope()) {
-            this->newline();
+            this->separator(this->multiline());
         } else if (Scope::kObject == this->scope() && Mode::kPretty == fMode) {
             this->write(" ", 1);
         }
@@ -256,11 +270,15 @@ private:
         }
     }
 
-    void newline() {
+    void separator(bool multiline) {
         if (Mode::kPretty == fMode) {
-            this->write("\n", 1);
-            for (int i = 0; i < fScopeStack.count() - 1; ++i) {
-                this->write("   ", 3);
+            if (multiline) {
+                this->write("\n", 1);
+                for (int i = 0; i < fScopeStack.count() - 1; ++i) {
+                    this->write("   ", 3);
+                }
+            } else {
+                this->write(" ", 1);
             }
         }
     }
@@ -284,8 +302,14 @@ private:
         return fScopeStack.back();
     }
 
+    bool multiline() const {
+        SkASSERT(!fNewlineStack.empty());
+        return fNewlineStack.back();
+    }
+
     void popScope() {
         fScopeStack.pop_back();
+        fNewlineStack.pop_back();
         switch (this->scope()) {
             case Scope::kNone:
                 fState = State::kEnd;
@@ -310,6 +334,7 @@ private:
     Mode fMode;
     State fState;
     SkSTArray<16, Scope, true> fScopeStack;
+    SkSTArray<16, bool, true> fNewlineStack;
 };
 
 #endif
