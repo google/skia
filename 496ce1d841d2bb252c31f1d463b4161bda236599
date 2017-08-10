@@ -46,6 +46,30 @@
       "revId": "496ce1d841d2bb252c31f1d463b4161bda236599",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3115a8a6_2017af75",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-10T17:40:39Z",
+      "side": 1,
+      "message": "Oh ok.  Never mind then.",
+      "parentUuid": "23e02f7b_0c6a79b0",
+      "range": {
+        "startLine": 179,
+        "startChar": 4,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "496ce1d841d2bb252c31f1d463b4161bda236599",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
