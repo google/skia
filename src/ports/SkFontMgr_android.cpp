@@ -27,6 +27,7 @@
 #include "SkTemplates.h"
 #include "SkTypefaceCache.h"
 
+#include <algorithm>
 #include <limits>
 
 class SkData;
@@ -60,7 +61,7 @@ public:
                              const SkFontStyle& style,
                              bool isFixedPitch,
                              const SkString& familyName,
-                             const SkLanguage& lang,
+                             const SkTArray<SkLanguage, true>& lang,
                              FontVariant variantStyle)
         : INHERITED(style, isFixedPitch, familyName)
         , fPathName(pathName)
@@ -101,7 +102,7 @@ public:
     const SkString fPathName;
     int fIndex;
     const SkSTArray<4, SkFixed, true> fAxes;
-    const SkLanguage fLang;
+    const SkSTArray<4, SkLanguage, true> fLang;
     const FontVariant fVariantStyle;
     SkAutoTCallVProc<FILE, sk_fclose> fFile;
 
@@ -187,7 +188,6 @@ public:
             }
             style = SkFontStyle(weight, style.width(), slant);
 
-            const SkLanguage& lang = family.fLanguage;
             uint32_t variant = family.fVariant;
             if (kDefault_FontVariant == variant) {
                 variant = kCompact_FontVariant | kElegant_FontVariant;
@@ -210,7 +210,7 @@ public:
 
             fStyles.push_back().reset(new SkTypeface_AndroidSystem(
                     pathName, cacheFontFiles, ttcIndex, axisValues.get(), axisDefinitions.count(),
-                    style, isFixedWidth, familyName, lang, variant));
+                    style, isFixedWidth, familyName, family.fLanguages, variant));
         }
     }
 
@@ -351,7 +351,11 @@ protected:
             SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
             sk_sp<SkTypeface_AndroidSystem> face(family->matchStyle(style));
 
-            if (!langTag.isEmpty() && !face->fLang.getTag().startsWith(langTag.c_str())) {
+            if (!langTag.isEmpty() &&
+                std::none_of(face->fLang.begin(), face->fLang.end(), [&](SkLanguage lang){
+                    return lang.getTag().startsWith(langTag.c_str());
+                }))
+            {
                 continue;
             }
 

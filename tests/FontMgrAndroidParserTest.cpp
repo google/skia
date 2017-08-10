@@ -45,11 +45,13 @@ void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstE
     REPORTER_ASSERT(reporter, !fontFamilies[0]->fIsFallbackFont);
 
     // Check that the languages are all sane.
-    for (int i = 0; i < fontFamilies.count(); ++i) {
-        const SkString& lang = fontFamilies[i]->fLanguage.getTag();
-        for (size_t j = 0; j < lang.size(); ++j) {
-            int c = lang[j];
-            REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
+    for (const auto& fontFamily : fontFamilies) {
+        for (const auto& lang : fontFamily->fLanguages) {
+            const SkString& langString = lang.getTag();
+            for (size_t i = 0; i < langString.size(); ++i) {
+                int c = langString[i];
+                REPORTER_ASSERT(reporter, isALPHA(c) || isDIGIT(c) || '-' == c);
+            }
         }
     }
 
@@ -81,8 +83,12 @@ void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* label) {
             default: break;
         }
         SkDebugf("  basePath %s\n", fontFamilies[i]->fBasePath.c_str());
-        if (!fontFamilies[i]->fLanguage.getTag().isEmpty()) {
-            SkDebugf("  language %s\n", fontFamilies[i]->fLanguage.getTag().c_str());
+        if (!fontFamilies[i]->fLanguages.empty()) {
+            SkDebugf("  language");
+            for (const auto& lang : fontFamilies[i]->fLanguages) {
+                SkDebugf(" %s", lang.getTag().c_str());
+            }
+            SkDebugf("\n");
         }
         for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
