@@ -22,17 +22,16 @@
 #include "GrVkTexture.h"
 #include "SkRect.h"
 
-void get_vk_load_store_ops(GrGpuCommandBuffer::LoadOp loadOpIn,
-                           GrGpuCommandBuffer::StoreOp storeOpIn,
+void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
                            VkAttachmentLoadOp* loadOp, VkAttachmentStoreOp* storeOp) {
     switch (loadOpIn) {
-        case GrGpuCommandBuffer::LoadOp::kLoad:
+        case GrLoadOp::kLoad:
             *loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
             break;
-        case GrGpuCommandBuffer::LoadOp::kClear:
+        case GrLoadOp::kClear:
             *loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             break;
-        case GrGpuCommandBuffer::LoadOp::kDiscard:
+        case GrLoadOp::kDiscard:
             *loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             break;
         default:
@@ -41,10 +40,10 @@ void get_vk_load_store_ops(GrGpuCommandBuffer::LoadOp loadOpIn,
     }
 
     switch (storeOpIn) {
-        case GrGpuCommandBuffer::StoreOp::kStore:
+        case GrStoreOp::kStore:
             *storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             break;
-        case GrGpuCommandBuffer::StoreOp::kDiscard:
+        case GrStoreOp::kDiscard:
             *storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             break;
         default:
