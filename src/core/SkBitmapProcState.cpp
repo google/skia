@@ -80,6 +80,7 @@ static bool valid_for_filtering(unsigned dimension) {
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     SkASSERT(!inv.hasPerspective());
+    SkASSERT(inv.isScaleTranslate());
 
     fPixmap.reset();
     fInvMatrix = inv;
