@@ -6,6 +6,7 @@
  */
 
 #include "SkBuffer.h"
+#include "SkNx.h"
 #include "SkOnce.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
@@ -742,28 +743,47 @@ uint8_t SkPathRef::Iter::peek() const {
     return next <= fVerbStop ? (uint8_t) SkPath::kDone_Verb : *next;
 }
 
-#ifdef SK_DEBUG
 
-#include "SkNx.h"
-
-void SkPathRef::validate() const {
-    SkASSERT(static_cast<ptrdiff_t>(fFreeSpace) >= 0);
-    SkASSERT(reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) >= 0);
-    SkASSERT((nullptr == fPoints) == (nullptr == fVerbs));
-    SkASSERT(!(nullptr == fPoints && 0 != fFreeSpace));
-    SkASSERT(!(nullptr == fPoints && 0 != fFreeSpace));
-    SkASSERT(!(nullptr == fPoints && fPointCnt));
-    SkASSERT(!(nullptr == fVerbs && fVerbCnt));
-    SkASSERT(this->currSize() ==
-                fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt);
+bool SkPathRef::isValid() const {
+    if (static_cast<ptrdiff_t>(fFreeSpace) < 0) {
+        return false;
+    }
+    if (reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints) < 0) {
+        return false;
+    }
+    if ((nullptr == fPoints) != (nullptr == fVerbs)) {
+        return false;
+    }
+    if (nullptr == fPoints && 0 != fFreeSpace) {
+        return false;
+    }
+    if (nullptr == fPoints && 0 != fFreeSpace) {
+        return false;
+    }
+    if (nullptr == fPoints && fPointCnt) {
+        return false;
+    }
+    if (nullptr == fVerbs && fVerbCnt) {
+        return false;
+    }
+    if (this->currSize() !=
+                fFreeSpace + sizeof(SkPoint) * fPointCnt + sizeof(uint8_t) * fVerbCnt) {
+        return false;
+    }
 
     if (fIsOval || fIsRRect) {
-        // Currently we don't allow both of these to be set, even though ovals are round rects.
-        SkASSERT(fIsOval != fIsRRect);
+        // Currently we don't allow both of these to be set, even though ovals are ro
+        if (fIsOval == fIsRRect) {
+            return false;
+        }
         if (fIsOval) {
-            SkASSERT(fRRectOrOvalStartIdx < 4);
+            if (fRRectOrOvalStartIdx >= 4) {
+                return false;
+            }
         } else {
-            SkASSERT(fRRectOrOvalStartIdx < 8);
+            if (fRRectOrOvalStartIdx >= 8) {
+                return false;
+            }
         }
     }
 
@@ -787,13 +807,15 @@ void SkPathRef::validate() const {
             }
 #endif
 
-            SkASSERT(!fPoints[i].isFinite() ||
-                    (!(point < leftTop).anyTrue() && !(point > rightBot).anyTrue()));
+            if (fPoints[i].isFinite() && (point < leftTop).anyTrue() && !(point > rightBot).anyTrue())
+                return false;
             if (!fPoints[i].isFinite()) {
                 isFinite = false;
             }
         }
-        SkASSERT(SkToBool(fIsFinite) == isFinite);
+        if (SkToBool(fIsFinite) != isFinite) {
+            return false;
+        }
     }
 
 #ifdef SK_DEBUG_PATH
@@ -824,7 +846,9 @@ void SkPathRef::validate() const {
                 break;
         }
     }
-    SkASSERT(mask == fSegmentMask);
+    if (mask != fSegmentMask) {
+        return false;
+    }
 #endif // SK_DEBUG_PATH
+    return true;
 }
-#endif

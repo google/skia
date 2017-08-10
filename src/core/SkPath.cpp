@@ -2219,37 +2219,46 @@ void SkPath::dumpHex() const {
     this->dump(nullptr, false, true);
 }
 
-#ifdef SK_DEBUG
-void SkPath::validate() const {
-    SkASSERT((fFillType & ~3) == 0);
+
+bool SkPath::isValid() const {
+    if ((fFillType & ~3) != 0) {
+        return false;
+    }
 
 #ifdef SK_DEBUG_PATH
     if (!fBoundsIsDirty) {
         SkRect bounds;
 
         bool isFinite = compute_pt_bounds(&bounds, *fPathRef.get());
-        SkASSERT(SkToBool(fIsFinite) == isFinite);
+        if (SkToBool(fIsFinite) != isFinite) {
+            return false;
+        }
 
         if (fPathRef->countPoints() <= 1) {
             // if we're empty, fBounds may be empty but translated, so we can't
             // necessarily compare to bounds directly
             // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
             // be [2, 2, 2, 2]
-            SkASSERT(bounds.isEmpty());
-            SkASSERT(fBounds.isEmpty());
+            if (!bounds.isEmpty() || !fBounds.isEmpty()) {
+                return false;
+            }
         } else {
             if (bounds.isEmpty()) {
-                SkASSERT(fBounds.isEmpty());
+                if (!fBounds.isEmpty()) {
+                    return false;
+                }
             } else {
                 if (!fBounds.isEmpty()) {
-                    SkASSERT(fBounds.contains(bounds));
+                    if (!fBounds.contains(bounds)) {
+                        return false;
+                    }
                 }
             }
         }
     }
 #endif // SK_DEBUG_PATH
+    return true;
 }
-#endif // SK_DEBUG
 
 ///////////////////////////////////////////////////////////////////////////////
 
