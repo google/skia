@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c0f3dc3_2535bf6e",
+        "filename": "src/utils/SkJSONWriter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-10T13:40:08Z",
+      "side": 1,
+      "message": "So, this isn\u0027t entirely foolproof, for two reasons:\n\n1) It pollutes the global namespace when this file is included, although this header is in src, so we don\u0027t actually need to worry about client code hitting that snag.\n\n2) It\u0027s theoretically possible for someone else to include inttypes.h before us (via some chain starting with SkStream.h), and we pick up the file without the format strings.\n\nWe could fix all of that by moving the functions into a .cpp, and making sure to include inttypes.h first. Not sure it\u0027s worth it, though?",
+      "revId": "3d60140c1632706f12dec0ccee440fc74ce81fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
