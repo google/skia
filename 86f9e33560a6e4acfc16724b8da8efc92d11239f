@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "5a1ae98b_25a9dbed",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2017-08-10T17:42:24Z",
+      "side": 1,
+      "message": "I don\u0027t know the diff, so can we document why we have two versions, and how they differ?",
+      "range": {
+        "startLine": 1122,
+        "startChar": 9,
+        "endLine": 1122,
+        "endChar": 16
+      },
+      "revId": "86f9e33560a6e4acfc16724b8da8efc92d11239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f1c85e6_79bff917",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 3
