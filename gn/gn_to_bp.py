@@ -80,7 +80,7 @@ cc_library {
                 $arm_srcs
             ],
 
-            armv7_a_neon: {
+            neon: {
                 srcs: [
                     $arm_neon_srcs
                 ],
