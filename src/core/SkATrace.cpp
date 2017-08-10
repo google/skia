@@ -20,7 +20,14 @@ SkATrace::SkATrace() : fBeginSection(nullptr), fEndSection(nullptr), fIsEnabled(
         fEndSection = (decltype(fEndSection))dlsym(lib, "ATrace_endSection");
         fIsEnabled = (decltype(fIsEnabled))dlsym(lib, "ATrace_isEnabled");
     }
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    fIsEnabled = []{ return static_cast<bool>(CC_UNLIKELY(ATRACE_ENABLED())); };
+    fBeginSection = [](const char* name){ ATRACE_BEGIN(name); };
+    fEndSection = []{ ATRACE_END(); };
 #endif
+#endif
+
     if (!fIsEnabled) {
         fIsEnabled = []{ return false; };
     }
