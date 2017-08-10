@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7b4e2d7c_ab2d9049",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1122,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2017-08-10T19:16:58Z",
+      "side": 1,
+      "message": "Two different versions, you mean isValid and validate? Or do you mean validate and experimentalValidateRef?\n\nI don\u0027t know anything about experimentalValidateRef.  I\u0027m a little confused why SkPath\u0027s validation doesn\u0027t validate its path ref either, but this patch doesn\u0027t change that.\n\nIn terms of isValid vs validate, mtklein suggested to leave the validate function (and just have it assert isValid) to change fewer callsites.  SkASSERT(isValid()) is equivalent to what validate() used to do before this patch.",
+      "parentUuid": "5a1ae98b_25a9dbed",
+      "range": {
+        "startLine": 1122,
+        "startChar": 9,
+        "endLine": 1122,
+        "endChar": 16
+      },
+      "revId": "86f9e33560a6e4acfc16724b8da8efc92d11239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7f1c85e6_79bff917",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "86f9e33560a6e4acfc16724b8da8efc92d11239f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b9f1695_8f0ec7cf",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2017-08-10T19:16:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f1c85e6_79bff917",
+      "range": {
+        "startLine": 2222,
+        "startChar": 8,
+        "endLine": 2222,
+        "endChar": 21
+      },
+      "revId": "86f9e33560a6e4acfc16724b8da8efc92d11239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
