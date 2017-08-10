@@ -22,6 +22,30 @@
       "revId": "a00bd53371d03f22d2ff429b6ee2ca5dbcc63d3c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "835d5b47_7a7f9ae6",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 1123,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2017-08-10T19:58:24Z",
+      "side": 1,
+      "message": "I left them separate to not change the asserting logic in this patch, as validate and experimentalValidateRef are separate and validate() does not check the validity of the path ref.\n\nDo you want me to make validate() also validate the path ref? I think it would make the API here cleaner, but it wasn\u0027t obvious to me that was desired.",
+      "parentUuid": "47fb07cc_4e4dc0f6",
+      "range": {
+        "startLine": 1123,
+        "startChar": 8,
+        "endLine": 1123,
+        "endChar": 9
+      },
+      "revId": "a00bd53371d03f22d2ff429b6ee2ca5dbcc63d3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
