@@ -9,8 +9,7 @@
 #define SkJSONWriter_DEFINED
 
 #include "SkStream.h"
-
-#include <inttypes.h>
+#include "SkTArray.h"
 
 /**
  *  Lightweight class for writing properly structured JSON data. No random-access, everything must
@@ -182,13 +181,13 @@ public:
         }
     }
     void appendS32(int32_t value) { this->beginValue(); this->appendf("%d", value); }
-    void appendS64(int64_t value) { this->beginValue(); this->appendf("%" PRId64, value); }
+    void appendS64(int64_t value);
     void appendU32(uint32_t value) { this->beginValue(); this->appendf("%u", value); }
-    void appendU64(uint64_t value) { this->beginValue(); this->appendf("%" PRIu64, value); }
+    void appendU64(uint64_t value);
     void appendFloat(float value) { this->beginValue(); this->appendf("%f", value);; }
     void appendDouble(double value) { this->beginValue(); this->appendf("%f", value); }
     void appendHexU32(uint32_t value) { this->beginValue(); this->appendf("\"0x%x\"", value); }
-    void appendHexU64(uint64_t value) { this->beginValue(); this->appendf("\"0x%" PRIx64 "\"", value); }
+    void appendHexU64(uint64_t value);
 
 #define DEFINE_NAMED_APPEND(function, type) \
     void function(const char* name, type value) { this->appendName(name); this->function(value); }
@@ -235,20 +234,7 @@ private:
         kArrayValue,
     };
 
-    void appendf(const char* fmt, ...) {
-        const int kBufferSize = 1024;
-        char buffer[kBufferSize];
-        va_list argp;
-        va_start(argp, fmt);
-#ifdef SK_BUILD_FOR_WIN
-        int length = _vsnprintf_s(buffer, kBufferSize, _TRUNCATE, fmt, argp);
-#else
-        int length = vsnprintf(buffer, kBufferSize, fmt, argp);
-#endif
-        SkASSERT(length >= 0 && length < kBufferSize);
-        va_end(argp);
-        this->write(buffer, length);
-    }
+    void appendf(const char* fmt, ...);
 
     void beginValue(bool structure = false) {
         SkASSERT(State::kObjectName == fState ||
