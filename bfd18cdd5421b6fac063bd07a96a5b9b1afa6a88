@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d72e7e3_47ff0f8e",
+        "filename": "infra/bots/recipes/test.expected/Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T13:25:04Z",
+      "side": 0,
+      "message": "I don\u0027t understand why these were here. The bot isn\u0027t running them:\nhttps://chromium-swarm.appspot.com/task?id\u003d37e504ef0697d410\u0026refresh\u003d10",
+      "range": {
+        "startLine": 264,
+        "startChar": 6,
+        "endLine": 265,
+        "endChar": 15
+      },
+      "revId": "bfd18cdd5421b6fac063bd07a96a5b9b1afa6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
