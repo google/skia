@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e5106e0a_56ebc4db",
+        "filename": "src/codec/SkJpegCodec.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-08-10T11:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "248860a6_8067f003",
+      "range": {
+        "startLine": 126,
+        "startChar": 38,
+        "endLine": 126,
+        "endChar": 64
+      },
+      "revId": "ed019c1585308b5beee5de5e9ad0673e2be519ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "216c1684_1b985b4c",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 24
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-09T18:18:30Z",
       "side": 1,
       "message": "This is correct to change this to false, but you\u0027ll need to append \", true\" for supportsNewScanlineDecoding.",
+      "range": {
+        "startLine": 495,
+        "startChar": 50,
+        "endLine": 495,
+        "endChar": 55
+      },
+      "revId": "ed019c1585308b5beee5de5e9ad0673e2be519ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e187dd4d_542bfaa9",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 7460
+      },
+      "writtenOn": "2017-08-10T11:55:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "216c1684_1b985b4c",
       "range": {
         "startLine": 495,
         "startChar": 50,
