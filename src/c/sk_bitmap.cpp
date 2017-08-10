@@ -208,8 +208,6 @@ void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t co
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
 
-    SkAutoLockPixels alp(*bmp);
-
     switch (bmp->colorType()) {
     case kAlpha_8_SkColorType:
         copyAlpha8FromColor(1, &color, (uint8_t*)bmp->getAddr8(x, y));
@@ -234,31 +232,9 @@ bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap)
     return AsBitmap(cbitmap)->readyToDraw();
 }
 
-bool sk_bitmap_copy(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, sk_colortype_t ct)
-{
-    return AsBitmap(cbitmap)->copyTo(AsBitmap(dst), (SkColorType)ct);
-}
-
-bool sk_bitmap_can_copy_to(sk_bitmap_t* cbitmap, sk_colortype_t ct)
-{
-    return AsBitmap(cbitmap)->canCopyTo((SkColorType)ct);
-}
-
-void sk_bitmap_unlock_pixels(sk_bitmap_t* cbitmap)
-{
-    AsBitmap(cbitmap)->unlockPixels();
-}
-
-void sk_bitmap_lock_pixels(sk_bitmap_t* cbitmap)
-{
-    AsBitmap(cbitmap)->lockPixels();
-}
-
 void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
-
-    SkAutoLockPixels alp(*bmp);
 
     size_t size = bmp->height() * bmp->width();
     const void* pixels = bmp->getPixels();
@@ -288,8 +264,6 @@ void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors)
 void sk_bitmap_set_pixel_colors(sk_bitmap_t* cbitmap, const sk_color_t* colors)
 {
     SkBitmap* bmp = AsBitmap(cbitmap);
-
-    SkAutoLockPixels alp(*bmp);
 
     size_t width = bmp->width();
     size_t height = bmp->height();

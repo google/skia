@@ -9,6 +9,9 @@
 #define sk_types_priv_DEFINED
 
 #include "SkImageInfo.h"
+#include "SkCanvas.h"
+#include "SkSurface.h"
+#include "SkVertices.h"
 #include "SkBlurTypes.h"
 #include "SkDocument.h"
 #include "SkPaint.h"

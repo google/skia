@@ -640,7 +640,6 @@ typedef enum {
     SRGBA_8888_GR_PIXEL_CONFIG,
     SBGRA_8888_GR_PIXEL_CONFIG,
     RGBA_8888_SINT_GR_PIXEL_CONFIG,
-    ETC1_GR_PIXEL_CONFIG,
     RGBA_FLOAT_GR_PIXEL_CONFIG,
     RG_FLOAT_GR_PIXEL_CONFIG,
     ALPHA_HALF_GR_PIXEL_CONFIG,
@@ -719,8 +718,6 @@ typedef struct {
     int  fBufferMapThreshold;
     bool fUseDrawInsteadOfPartialRenderTargetWrite;
     bool fImmediateMode;
-    int fMaxOpCombineLookback;
-    int fMaxOpCombineLookahead;
     bool fUseShaderSwizzling;
     bool fDoManualMipmapping;
     bool fEnableInstancedRendering;
@@ -728,7 +725,9 @@ typedef struct {
     bool fRequireDecodeDisableForSRGB;
     bool fDisableGpuYUVConversion;
     bool fSuppressPathRendering;
+    bool fWireframeMode;
     gr_contextoptions_gpupathrenderers_t fGpuPathRenderers;
+    float fGlyphCacheTextureMaximumBytes;
     bool fAvoidStencilBuffers;
 } gr_context_options_t;
 
