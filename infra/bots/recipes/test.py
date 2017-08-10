@@ -33,12 +33,16 @@ def dm_flags(api, bot):
 
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test.
-  # Not Android due to :
+  # Not Android due to:
   #  - https://skia.googlesource.com/skia/+/
   #    5910ed347a638ded8cd4c06dbfda086695df1112/BUILD.gn#160
   #  - https://skia.googlesource.com/skia/+/
   #    ce06e261e68848ae21cac1052abc16bc07b961bf/tests/ProcessorTest.cpp#307
-  if 'Android' not in bot:
+  # Not MSAN due to:
+  #  - https://skia.googlesource.com/skia/+/
+  #    0ac06e47269a40c177747310a613d213c95d1d6d/infra/bots/recipe_modules/
+  #    flavor/gn_flavor.py#80
+  if 'Android' not in bot and 'MSAN' not in bot:
     args.append('--randomProcessorTest')
 
   # 32-bit desktop bots tend to run out of memory, because they have relatively
