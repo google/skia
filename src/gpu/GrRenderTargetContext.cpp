@@ -31,7 +31,6 @@
 #include "ops/GrClearOp.h"
 #include "ops/GrClearStencilClipOp.h"
 #include "ops/GrDebugMarkerOp.h"
-#include "ops/GrDiscardOp.h"
 #include "ops/GrDrawAtlasOp.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrDrawVerticesOp.h"
@@ -212,22 +211,30 @@ void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& pain
                                    y, filter, clipBounds);
 }
 
-void GrRenderTargetContext::discard() {
+void GrRenderTargetContext::discard1() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-            GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "discard", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "discard", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
 
-    // Currently this just inserts a discard op. However, once in MDB this can remove all the
-    // previously recorded ops and change the load op to discard.
-    if (this->caps()->discardRenderTargetSupport()) {
-        std::unique_ptr<GrOp> op(GrDiscardOp::Make(fRenderTargetProxy.get()));
-        if (!op) {
-            return;
+    SkDebugf("Here\n");
+    
+    // Discard calls to in-progress opLists are ignored. Calls at the start update the
+    // opLists' color & stencil load ops.
+    if (this->getRTOpList()->isEmpty()) {
+        if (this->caps()->discardRenderTargetSupport()) {
+            this->getRTOpList()->setColorLoadOp(GrLoadOp::kDiscard);
+            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kDiscard);
+        } else {
+#if 1
+            // Surely, if a discard was requested, a clear should be acceptable
+            this->getRTOpList()->setColorLoadOp(GrLoadOp::kClear);
+            this->getRTOpList()->setLoadClearColor(0x0);
+            this->getRTOpList()->setStencilLoadOp(GrLoadOp::kClear);
+#endif            
         }
-        this->getRTOpList()->addOp(std::move(op), *this->caps());
     }
 }
 
@@ -322,7 +329,8 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
         // target before the target is read.
         SkIRect clearRect = SkIRect::MakeWH(this->width(), this->height());
         if (isFull) {
-            this->discard();
+            SkDebugf("internalClear\n");
+            this->discard1();
         } else if (!clearRect.intersect(clip.scissorRect())) {
             return;
         }
@@ -1751,7 +1759,7 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 
     if (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil ||
         appliedClip.hasStencilClip()) {
-        this->getOpList()->setRequiresStencil();
+        this->getOpList()->setStencilLoadOp(GrLoadOp::kClear);
 
         this->setNeedsStencil();
     }

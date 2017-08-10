@@ -912,7 +912,8 @@ sk_sp<GrRenderTargetContext> GrContext::makeDeferredRenderTargetContext(
         return nullptr;
     }
 
-    renderTargetContext->discard();
+    SkDebugf("makeDeferredRenderTargetContext\n");
+    renderTargetContext->discard1();
 
     return renderTargetContext;
 }
