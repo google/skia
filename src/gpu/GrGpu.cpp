@@ -26,6 +26,7 @@
 #include "GrSurfacePriv.h"
 #include "GrTexturePriv.h"
 #include "GrTracing.h"
+#include "SkJSONWriter.h"
 #include "SkMathPriv.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -537,4 +538,14 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
     this->onFinishFlush((numSemaphores > 0 && this->caps()->fenceSyncSupport()));
     return this->caps()->fenceSyncSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
+}
+
+void GrGpu::dumpJSON(SkJSONWriter* writer) const {
+    writer->beginObject();
+
+    // TODO: Is there anything useful in the base class to dump here?
+
+    this->onDumpJSON(writer);
+
+    writer->endObject();
 }
