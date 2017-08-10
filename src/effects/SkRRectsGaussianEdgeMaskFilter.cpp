@@ -204,15 +204,16 @@ public:
         kSimpleCircular_Mode,
     };
 
-    static gr_fp<GrFragmentProcessor> Make(const SkRRect& first, const SkRRect& second,
-                                           SkScalar radius) {
-        return gr_fp<GrFragmentProcessor>(new RRectsGaussianEdgeFP(first, second, radius));
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkRRect& first, const SkRRect& second,
+                                                     SkScalar radius) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new RRectsGaussianEdgeFP(first, second, radius));
     }
 
     const char* name() const override { return "RRectsGaussianEdgeFP"; }
 
-    gr_fp<GrFragmentProcessor> clone() const override {
-        return gr_fp<GrFragmentProcessor>(new RRectsGaussianEdgeFP(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new RRectsGaussianEdgeFP(*this));
     }
 
     const SkRRect& first() const { return fFirst; }

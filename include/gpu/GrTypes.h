@@ -8,7 +8,6 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
-#include <memory>
 #include "SkMath.h"
 #include "SkTypes.h"
 #include "GrConfig.h"
@@ -712,10 +711,5 @@ enum class GrSemaphoresSubmitted : int {
     kNo,
     kYes,
 };
-
-//////////////////////////////////////////////////////////////////////////////
-// Temporary alias to declutter changes related to moving GrFragmentProcessor from shared to unique
-// ownership.
-template <typename T> using gr_fp = std::unique_ptr<T>;
 
 #endif

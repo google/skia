@@ -47,7 +47,7 @@ GrProcessorSet::GrProcessorSet(SkBlendMode mode)
         , fFragmentProcessorOffset(0)
         , fFlags(0) {}
 
-GrProcessorSet::GrProcessorSet(gr_fp<GrFragmentProcessor> colorFP)
+GrProcessorSet::GrProcessorSet(std::unique_ptr<GrFragmentProcessor> colorFP)
         : fFragmentProcessors(1)
         , fXP((const GrXPFactory*)nullptr)
         , fColorFragmentProcessorCnt(1)
@@ -167,7 +167,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(const GrProcessorAnalysisColor
     analysis.fCompatibleWithCoverageAsAlpha = GrProcessorAnalysisCoverage::kLCD != coverageInput;
 
     const GrFragmentProcessor* clipFP = clip ? clip->clipCoverageFragmentProcessor() : nullptr;
-    const gr_fp<const GrFragmentProcessor>* fps =
+    const std::unique_ptr<const GrFragmentProcessor>* fps =
             fFragmentProcessors.get() + fFragmentProcessorOffset;
     GrColorFragmentProcessorAnalysis colorAnalysis(
             colorInput, unique_ptr_address_as_pointer_address(fps), fColorFragmentProcessorCnt);

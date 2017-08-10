@@ -22,29 +22,29 @@ in float4x4 matrix;
 }
 
 @make {
-    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix) {
-        return gr_fp<GrFragmentProcessor>(
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                     const SkMatrix& matrix) {
+        return std::unique_ptr<GrFragmentProcessor>(
             new GrSimpleTextureEffect(std::move(proxy), std::move(colorSpaceXform), matrix,
                     GrSamplerParams(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode)));
     }
 
     /* clamp mode */
-    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
-                                           GrSamplerParams::FilterMode filterMode) {
-        return gr_fp<GrFragmentProcessor>(
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                     const SkMatrix& matrix,
+                                                     GrSamplerParams::FilterMode filterMode) {
+        return std::unique_ptr<GrFragmentProcessor>(
             new GrSimpleTextureEffect(std::move(proxy), std::move(colorSpaceXform), matrix,
                                       GrSamplerParams(SkShader::kClamp_TileMode, filterMode)));
      }
 
-    static gr_fp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
-                                           const GrSamplerParams& p) {
-        return gr_fp<GrFragmentProcessor>(
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                     const SkMatrix& matrix,
+                                                     const GrSamplerParams& p) {
+        return std::unique_ptr<GrFragmentProcessor>(
             new GrSimpleTextureEffect(std::move(proxy), std::move(colorSpaceXform), matrix, p));
     }
 }

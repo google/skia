@@ -164,17 +164,15 @@ void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 class GrDisplacementMapEffect : public GrFragmentProcessor {
 public:
-    static gr_fp<GrFragmentProcessor> Make(
-                SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
-                SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
-                sk_sp<GrTextureProxy> displacement, const SkMatrix& offsetMatrix,
-                sk_sp<GrTextureProxy> color,
-                sk_sp<GrColorSpaceXform> colorSpaceXform, const SkISize& colorDimensions) {
-        return gr_fp<GrFragmentProcessor>(
-            new GrDisplacementMapEffect(xChannelSelector, yChannelSelector, scale,
-                                        std::move(displacement),
-                                        offsetMatrix, std::move(color), std::move(colorSpaceXform),
-                                        colorDimensions));
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            SkDisplacementMapEffect::ChannelSelectorType xChannelSelector,
+            SkDisplacementMapEffect::ChannelSelectorType yChannelSelector, SkVector scale,
+            sk_sp<GrTextureProxy> displacement, const SkMatrix& offsetMatrix,
+            sk_sp<GrTextureProxy> color, sk_sp<GrColorSpaceXform> colorSpaceXform,
+            const SkISize& colorDimensions) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrDisplacementMapEffect(
+                xChannelSelector, yChannelSelector, scale, std::move(displacement), offsetMatrix,
+                std::move(color), std::move(colorSpaceXform), colorDimensions));
     }
 
     ~GrDisplacementMapEffect() override;
@@ -191,7 +189,7 @@ public:
     const GrTextureDomain& domain() const { return fDomain; }
     GrColorSpaceXform* colorSpaceXform() const { return fColorSpaceXform.get(); }
 
-    gr_fp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
     static OptimizationFlags OptimizationFlags(GrPixelConfig colorConfig);
@@ -504,8 +502,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {}
 
-gr_fp<GrFragmentProcessor> GrDisplacementMapEffect::clone() const {
-    return gr_fp<GrFragmentProcessor>(new GrDisplacementMapEffect(*this));
+std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrDisplacementMapEffect(*this));
 }
 
 bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
@@ -520,7 +518,7 @@ bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
 
 #if GR_TEST_UTILS
-gr_fp<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
     int texIdxDispl = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
                                                GrProcessorUnitTest::kAlphaTextureIdx;
     int texIdxColor = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
