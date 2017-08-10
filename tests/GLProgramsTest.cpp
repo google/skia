@@ -103,7 +103,7 @@ gr_fp<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
 class BlockInputFragmentProcessor : public GrFragmentProcessor {
 public:
     static gr_fp<GrFragmentProcessor> Make(gr_fp<GrFragmentProcessor> fp) {
-        return gr_fp<GrFragmentProcessor>(new BlockInputFragmentProcessor(fp));
+        return gr_fp<GrFragmentProcessor>(new BlockInputFragmentProcessor(std::move(fp)));
     }
 
     const char* name() const override { return "Block Input"; }
