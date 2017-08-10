@@ -261,7 +261,6 @@
       "tiles_rt-8888",
       "pic-8888",
       "glinst",
-      "glinst8",
       "--src",
       "tests",
       "gm",

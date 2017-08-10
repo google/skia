@@ -142,8 +142,8 @@ def dm_flags(api, bot):
     configs = [x.replace(old, new) for x in configs]
     # We also test non-msaa instanced.
     configs.append(new)
-  elif 'MacMini6.2' in bot and sample_count is not '':
-    configs.extend([gl_prefix + 'inst', gl_prefix + 'inst' + sample_count])
+  elif 'MacMini6.2' in bot:
+    configs.extend([gl_prefix + 'inst'])
 
   # CommandBuffer bot *only* runs the command_buffer config.
   if 'CommandBuffer' in bot:
