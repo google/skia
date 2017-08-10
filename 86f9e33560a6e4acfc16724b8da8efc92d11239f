@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f1c85e6_79bff917",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2222,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-10T17:38:53Z",
+      "side": 1,
+      "message": "We\u0027re pretty careful to always use braces for all if, for, while, etc.  Don\u0027t wanna goto fail.",
+      "range": {
+        "startLine": 2222,
+        "startChar": 8,
+        "endLine": 2222,
+        "endChar": 21
+      },
+      "revId": "86f9e33560a6e4acfc16724b8da8efc92d11239f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
