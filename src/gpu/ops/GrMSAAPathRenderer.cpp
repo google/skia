@@ -639,12 +639,15 @@ bool GrMSAAPathRenderer::internalDrawPath(GrRenderTargetContext* renderTargetCon
         bool firstPassIsStencil = stencilOnly || passes[1];
         // If we have a cover pass then we ignore the paint in the first pass and apply it in the
         // second.
-        GrPaint::MoveOrNew firstPassPaint(paint, firstPassIsStencil);
+        std::unique_ptr<GrDrawOp> op;
         if (firstPassIsStencil) {
-            firstPassPaint.paint().setXPFactory(GrDisableColorXPFactory::Get());
+            GrPaint stencilPaint;
+            stencilPaint.setXPFactory(GrDisableColorXPFactory::Get());
+            op = MSAAPathOp::Make(std::move(stencilPaint), path, aaType, viewMatrix, devBounds,
+                                  passes[0]);
+        } else {
+            op = MSAAPathOp::Make(std::move(paint), path, aaType, viewMatrix, devBounds, passes[0]);
         }
-        std::unique_ptr<GrDrawOp> op = MSAAPathOp::Make(std::move(firstPassPaint), path, aaType,
-                                                        viewMatrix, devBounds, passes[0]);
         if (!op) {
             return false;
         }

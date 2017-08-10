@@ -119,7 +119,7 @@ DEF_SIMPLE_GM_BG(texdata, canvas, 2 * S, 2 * S, SK_ColorBLACK) {
         }
         paint.addColorTextureProcessor(tContext->asTextureProxyRef(), nullptr, vm);
 
-        renderTargetContext->drawRect(clip, GrPaint(paint), GrAA::kNo, vm,
+        renderTargetContext->drawRect(clip, GrPaint::Clone(paint), GrAA::kNo, vm,
                                       SkRect::MakeWH(2 * S, 2 * S));
 
         // now update the lower right of the texture in first pass
