@@ -31,16 +31,35 @@
 #endif
 
 #if defined(__AVX2__)
+    using U8    = uint8_t  __attribute__((ext_vector_type(16)));
+    using U32   = uint32_t __attribute__((ext_vector_type(16)));
+    using U8x4  = uint8_t  __attribute__((ext_vector_type(64)));
+    using U16x4 = uint16_t __attribute__((ext_vector_type(64)));
+    using Reg   = uint8_t  __attribute__((ext_vector_type(32)));
+#else
     using U8    = uint8_t  __attribute__((ext_vector_type( 8)));
     using U32   = uint32_t __attribute__((ext_vector_type( 8)));
     using U8x4  = uint8_t  __attribute__((ext_vector_type(32)));
     using U16x4 = uint16_t __attribute__((ext_vector_type(32)));
-#else
-    using U8    = uint8_t  __attribute__((ext_vector_type( 4)));
-    using U32   = uint32_t __attribute__((ext_vector_type( 4)));
-    using U8x4  = uint8_t  __attribute__((ext_vector_type(16)));
-    using U16x4 = uint16_t __attribute__((ext_vector_type(16)));
+    using Reg   = uint8_t  __attribute__((ext_vector_type(16)));
 #endif
+
+// We double pump our math, making each U32 or U8x4 twice as wide as a native
+// vector register, and each U16x4 occupy four.
+//
+// These would be tricky to pass around directly because of ABI restrictions,
+// so we split them across two Reg to pass data between stages.  This is
+// typically only a virtual operation, with no runtime cost.
+SI U8x4 join(Reg lo, Reg hi) {
+    U8x4 u8x4;
+    memcpy((char*)&u8x4              , &lo, sizeof(Reg));
+    memcpy((char*)&u8x4 + sizeof(Reg), &hi, sizeof(Reg));
+    return u8x4;
+}
+SI void split(U8x4 u8x4, Reg* lo, Reg* hi) {
+    memcpy(lo, (char*)&u8x4              , sizeof(Reg));
+    memcpy(hi, (char*)&u8x4 + sizeof(Reg), sizeof(Reg));
+}
 
 union V {
     U32  u32;
@@ -56,7 +75,7 @@ static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 
 // Usually __builtin_convertvector() is pretty good, but sometimes we can do better.
 SI U8x4 pack(U16x4 v) {
-#if defined(__AVX2__)
+#if 0 && defined(__AVX2__)
     static_assert(sizeof(v) == 64, "");
     auto lo = unaligned_load<__m256i>((char*)&v +  0),
          hi = unaligned_load<__m256i>((char*)&v + 32);
@@ -64,7 +83,7 @@ SI U8x4 pack(U16x4 v) {
     auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
          _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
     return _mm256_packus_epi16(_02, _13);
-#elif defined(__SSE2__)
+#elif 0 && defined(__SSE2__)
     static_assert(sizeof(v) == 32, "");
     auto lo = unaligned_load<__m128i>((char*)&v +  0),
          hi = unaligned_load<__m128i>((char*)&v + 16);
@@ -90,9 +109,13 @@ SI V alpha(V v) {
 #if defined(__AVX2__)
     return __builtin_shufflevector(v.u8x4,v.u8x4,
                                     3, 3, 3, 3,  7, 7, 7, 7, 11,11,11,11, 15,15,15,15,
-                                   19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31);
+                                   19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31,
+                                   35,35,35,35, 39,39,39,39, 43,43,43,43, 47,47,47,47,
+                                   51,51,51,51, 55,55,55,55, 59,59,59,59, 63,63,63,63);
 #else
-    return __builtin_shufflevector(v.u8x4,v.u8x4, 3,3,3,3, 7,7,7,7, 11,11,11,11, 15,15,15,15);
+    return __builtin_shufflevector(v.u8x4,v.u8x4,
+                                    3, 3, 3, 3,  7, 7, 7, 7, 11,11,11,11, 15,15,15,15,
+                                   19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31);
 #endif
 }
 
@@ -102,7 +125,9 @@ SI V swap_rb(V v) {
                                     2, 1, 0, 3,  6, 5, 4, 7, 10, 9, 8,11, 14,13,12,15,
                                    18,17,16,19, 22,21,20,23, 26,25,24,27, 30,29,28,31);
 #else
-    return __builtin_shufflevector(v.u8x4,v.u8x4, 2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15);
+    return __builtin_shufflevector(v.u8x4,v.u8x4,
+                                    2, 1, 0, 3,  6, 5, 4, 7, 10, 9, 8,11, 14,13,12,15,
+                                   18,17,16,19, 22,21,20,23, 26,25,24,27, 30,29,28,31);
 #endif
 }
 
@@ -184,7 +209,7 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
-#if 1 && defined(__AVX2__)
+#if 0 && defined(__AVX2__)
     SI U32 mask(size_t tail) {
         // We go a little out of our way to avoid needing large constant values here.
 
