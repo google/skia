@@ -303,12 +303,15 @@ DEF_TEST(WritePixelsSurfaceGenID, reporter) {
 
 static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) {
     const SkIRect testRects[] = {
+#if 0        
         // entire thing
         DEV_RECT,
         // larger on all sides
         SkIRect::MakeLTRB(-10, -10, DEV_W + 10, DEV_H + 10),
+#endif
         // fully contained
         SkIRect::MakeLTRB(DEV_W / 4, DEV_H / 4, 3 * DEV_W / 4, 3 * DEV_H / 4),
+#if 0
         // outside top left
         SkIRect::MakeLTRB(-10, -10, -1, -1),
         // touching top left corner
@@ -347,6 +350,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) 
         SkIRect::MakeLTRB(3 * DEV_W / 4, 3 * DEV_H / 4, DEV_W + 10, DEV_H + 10),
         // overlapping top right and bottom right corners
         SkIRect::MakeLTRB(3 * DEV_W / 4, -10, DEV_W + 10, DEV_H + 10),
+#endif
     };
 
     SkCanvas* canvas = surface->getCanvas();
@@ -356,9 +360,11 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) 
         SkAlphaType fAlphaType;
     } gSrcConfigs[] = {
         { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
+#if 0        
         { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType },
         { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
         { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType },
+#endif        
     };
     for (size_t r = 0; r < SK_ARRAY_COUNT(testRects); ++r) {
         const SkIRect& rect = testRects[r];
@@ -390,7 +396,7 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface) 
         }
     }
 }
-DEF_TEST(WritePixels, reporter) {
+DEF_TEST(WritePixels2, reporter) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
     for (auto& tightRowBytes : { true, false }) {
         const size_t rowBytes = tightRowBytes ? info.minRowBytes() : 4 * DEV_W + 100;
