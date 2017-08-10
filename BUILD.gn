@@ -1302,6 +1302,22 @@ if (skia_enable_tools) {
     ]
   }
 
+
+  if (skia_enable_gpu && is_android) {
+    test_app("gmrunner") {
+      is_shared_library = true
+      sources = [
+        "gmrunner/gmrunner.cpp",
+      ]
+      deps = [
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+        "//third_party/native_app_glue",
+      ]
+    }
+  }
+
   if (!is_debug) {  # I've benchmarked debug code once too many times...
     test_app("monobench") {
       sources = [
