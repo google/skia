@@ -105,7 +105,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(
     return copy;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
+gr_fp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
                                         const SkMatrix& origTextureMatrix,
                                         const SkRect& origConstraintRect,
                                         FilterConstraint filterConstraint,

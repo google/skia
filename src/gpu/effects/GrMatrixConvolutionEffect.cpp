@@ -194,8 +194,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
     memcpy(fKernelOffset, that.fKernelOffset, sizeof(fKernelOffset));
 }
 
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrMatrixConvolutionEffect(*this));
+gr_fp<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
+    return gr_fp<GrFragmentProcessor>(new GrMatrixConvolutionEffect(*this));
 }
 
 void GrMatrixConvolutionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -248,7 +248,7 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 }
 
 // Static function to create a 2D convolution
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
+gr_fp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
                                                             sk_sp<GrTextureProxy> proxy,
                                                             const SkIRect& bounds,
                                                             const SkISize& kernelSize,
@@ -263,7 +263,7 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
 
     fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
 
-    return sk_sp<GrFragmentProcessor>(
+    return gr_fp<GrFragmentProcessor>(
         new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize,
                                       kernel, gain, bias, kernelOffset, tileMode, convolveAlpha));
 }
@@ -271,7 +271,7 @@ sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
+gr_fp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
