@@ -31,16 +31,35 @@
 #endif
 
 #if defined(__AVX2__)
+    using U8    = uint8_t  __attribute__((ext_vector_type(16)));
+    using U32   = uint32_t __attribute__((ext_vector_type(16)));
+    using U8x4  = uint8_t  __attribute__((ext_vector_type(64)));
+    using U16x4 = uint16_t __attribute__((ext_vector_type(64)));
+    using R     = uint8_t  __attribute__((ext_vector_type(32)));
+#else
     using U8    = uint8_t  __attribute__((ext_vector_type( 8)));
     using U32   = uint32_t __attribute__((ext_vector_type( 8)));
     using U8x4  = uint8_t  __attribute__((ext_vector_type(32)));
     using U16x4 = uint16_t __attribute__((ext_vector_type(32)));
-#else
-    using U8    = uint8_t  __attribute__((ext_vector_type( 4)));
-    using U32   = uint32_t __attribute__((ext_vector_type( 4)));
-    using U8x4  = uint8_t  __attribute__((ext_vector_type(16)));
-    using U16x4 = uint16_t __attribute__((ext_vector_type(16)));
+    using R     = uint8_t  __attribute__((ext_vector_type(16)));
 #endif
+
+// We double pump our math, making each U32 or U8x4 twice as wide as a native
+// vector register, and each U16x4 occupy four.
+//
+// These would be tricky to pass around directly because of ABI restrictions,
+// so we split them across two R to pass data between stages.  This is
+// typically only a virtual operation, with no runtime cost.
+SI U8x4 join(R lo, R hi) {
+    U8x4 u8x4;
+    memcpy((char*)&u8x4            , &lo, sizeof(R));
+    memcpy((char*)&u8x4 + sizeof(R), &hi, sizeof(R));
+    return u8x4;
+}
+SI void split(U8x4 u8x4, R* lo, R* hi) {
+    memcpy(lo, (char*)&u8x4            , sizeof(R));
+    memcpy(hi, (char*)&u8x4 + sizeof(R), sizeof(R));
+}
 
 union V {
     U32  u32;
@@ -57,18 +76,25 @@ static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 // Usually __builtin_convertvector() is pretty good, but sometimes we can do better.
 SI U8x4 pack(U16x4 v) {
 #if defined(__AVX2__)
-    static_assert(sizeof(v) == 64, "");
-    auto lo = unaligned_load<__m256i>((char*)&v +  0),
-         hi = unaligned_load<__m256i>((char*)&v + 32);
+    static_assert(sizeof(v) == 128, "");
+    auto A = unaligned_load<__m256i>((char*)&v +  0),
+         B = unaligned_load<__m256i>((char*)&v + 32),
+         C = unaligned_load<__m256i>((char*)&v + 64),
+         D = unaligned_load<__m256i>((char*)&v + 96);
 
-    auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
-         _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
-    return _mm256_packus_epi16(_02, _13);
+    auto pack = [](__m256i lo, __m256i hi) {
+        auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
+             _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
+        return _mm256_packus_epi16(_02, _13);
+    };
+    return join(pack(A,B), pack(C,D));
 #elif defined(__SSE2__)
-    static_assert(sizeof(v) == 32, "");
-    auto lo = unaligned_load<__m128i>((char*)&v +  0),
-         hi = unaligned_load<__m128i>((char*)&v + 16);
-    return _mm_packus_epi16(lo,hi);
+    static_assert(sizeof(v) == 64, "");
+    auto A = unaligned_load<__m128i>((char*)&v +  0),
+         B = unaligned_load<__m128i>((char*)&v + 16),
+         C = unaligned_load<__m128i>((char*)&v + 32),
+         D = unaligned_load<__m128i>((char*)&v + 48);
+    return join(_mm_packus_epi16(A,B), _mm_packus_epi16(C,D));
 #else
     return __builtin_convertvector(v, U8x4);
 #endif
@@ -90,9 +116,13 @@ SI V alpha(V v) {
 #if defined(__AVX2__)
     return __builtin_shufflevector(v.u8x4,v.u8x4,
                                     3, 3, 3, 3,  7, 7, 7, 7, 11,11,11,11, 15,15,15,15,
-                                   19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31);
+                                   19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31,
+                                   35,35,35,35, 39,39,39,39, 43,43,43,43, 47,47,47,47,
+                                   51,51,51,51, 55,55,55,55, 59,59,59,59, 63,63,63,63);
 #else
-    return __builtin_shufflevector(v.u8x4,v.u8x4, 3,3,3,3, 7,7,7,7, 11,11,11,11, 15,15,15,15);
+    return __builtin_shufflevector(v.u8x4,v.u8x4,
+                                    3, 3, 3, 3,  7, 7, 7, 7, 11,11,11,11, 15,15,15,15,
+                                   19,19,19,19, 23,23,23,23, 27,27,27,27, 31,31,31,31);
 #endif
 }
 
@@ -100,9 +130,13 @@ SI V swap_rb(V v) {
 #if defined(__AVX2__)
     return __builtin_shufflevector(v.u8x4,v.u8x4,
                                     2, 1, 0, 3,  6, 5, 4, 7, 10, 9, 8,11, 14,13,12,15,
-                                   18,17,16,19, 22,21,20,23, 26,25,24,27, 30,29,28,31);
+                                   18,17,16,19, 22,21,20,23, 26,25,24,27, 30,29,28,31,
+                                   34,33,32,35, 38,37,36,39, 42,41,40,43, 46,45,44,47,
+                                   50,49,48,51, 54,53,52,55, 58,57,56,59, 62,61,60,63);
 #else
-    return __builtin_shufflevector(v.u8x4,v.u8x4, 2,1,0,3, 6,5,4,7, 10,9,8,11, 14,13,12,15);
+    return __builtin_shufflevector(v.u8x4,v.u8x4,
+                                    2, 1, 0, 3,  6, 5, 4, 7, 10, 9, 8,11, 14,13,12,15,
+                                   18,17,16,19, 22,21,20,23, 26,25,24,27, 30,29,28,31);
 #endif
 }
 
@@ -110,7 +144,7 @@ struct Params {
     size_t x,y,tail;
 };
 
-using Stage = void(const Params* params, void** program, V src, V dst);
+using Stage = void(const Params* params, void** program, R src_lo, R src_hi, R dst_lo, R dst_hi);
 
 #if defined(__AVX__)
     // We really want to make sure all paths go through this function's (implicit) vzeroupper.
@@ -120,31 +154,36 @@ using Stage = void(const Params* params, void** program, V src, V dst);
 MAYBE_MSABI
 extern "C" void WRAP(start_pipeline)(size_t x, size_t y, size_t xlimit, size_t ylimit,
                                      void** program, const SkJumper_constants*) {
-    V v;
+    R r;
     auto start = (Stage*)load_and_inc(program);
     for (; y < ylimit; y++) {
         Params params = { x,y,0 };
         while (params.x + kStride <= xlimit) {
-            start(&params,program, v,v);
+            start(&params,program, r,r,r,r);
             params.x += kStride;
         }
         if (size_t tail = xlimit - params.x) {
             params.tail = tail;
-            start(&params,program, v,v);
+            start(&params,program, r,r,r,r);
         }
     }
 }
 
-extern "C" void WRAP(just_return)(const Params*, void**, V,V) {}
+extern "C" void WRAP(just_return)(const Params*, void**, R,R,R,R) {}
 
-#define STAGE(name)                                                                   \
-    SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst);   \
-    extern "C" void WRAP(name)(const Params* params, void** program, V src, V dst) {  \
-        LazyCtx ctx(program);                                                         \
-        name##_k(ctx, params->x, params->y, params->tail, src, dst);                  \
-        auto next = (Stage*)load_and_inc(program);                                    \
-        next(params,program, src,dst);                                                \
-    }                                                                                 \
+#define STAGE(name)                                                                  \
+    SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst);  \
+    extern "C" void WRAP(name)(const Params* params, void** program,                 \
+                               R src_lo, R src_hi, R dst_lo, R dst_hi) {             \
+        V src = join(src_lo, src_hi),                                                \
+          dst = join(dst_lo, dst_hi);                                                \
+        LazyCtx ctx(program);                                                        \
+        name##_k(ctx, params->x, params->y, params->tail, src, dst);                 \
+        split(src.u8x4, &src_lo, &src_hi);                                           \
+        split(dst.u8x4, &dst_lo, &dst_hi);                                           \
+        auto next = (Stage*)load_and_inc(program);                                   \
+        next(params,program, src_lo,src_hi, dst_lo,dst_hi);                          \
+    }                                                                                \
     SI void name##_k(LazyCtx ctx, size_t x, size_t y, size_t tail, V& src, V& dst)
 
 template <typename V, typename T>
@@ -153,13 +192,21 @@ SI V load(const T* src, size_t tail) {
     if (__builtin_expect(tail, 0)) {
         V v = 0;
         switch (tail) {
-            case 7: v[6] = src[6];
-            case 6: v[5] = src[5];
-            case 5: v[4] = src[4];
-            case 4: memcpy(&v, src, 4*sizeof(T)); break;
-            case 3: v[2] = src[2];
-            case 2: memcpy(&v, src, 2*sizeof(T)); break;
-            case 1: memcpy(&v, src, 1*sizeof(T)); break;
+            case 15: v[14] = src[14];
+            case 14: v[13] = src[13];
+            case 13: v[12] = src[12];
+            case 12: memcpy(&v, src, 12*sizeof(T)); break;
+            case 11: v[10] = src[10];
+            case 10: v[ 9] = src[ 9];
+            case  9: v[ 8] = src[ 8];
+            case  8: memcpy(&v, src, 8*sizeof(T)); break;
+            case  7: v[6] = src[6];
+            case  6: v[5] = src[5];
+            case  5: v[4] = src[4];
+            case  4: memcpy(&v, src, 4*sizeof(T)); break;
+            case  3: v[2] = src[2];
+            case  2: memcpy(&v, src, 2*sizeof(T)); break;
+            case  1: memcpy(&v, src, 1*sizeof(T)); break;
         }
         return v;
     }
@@ -171,20 +218,28 @@ SI void store(T* dst, V v, size_t tail) {
     __builtin_assume(tail < kStride);
     if (__builtin_expect(tail, 0)) {
         switch (tail) {
-            case 7: dst[6] = v[6];
-            case 6: dst[5] = v[5];
-            case 5: dst[4] = v[4];
-            case 4: memcpy(dst, &v, 4*sizeof(T)); break;
-            case 3: dst[2] = v[2];
-            case 2: memcpy(dst, &v, 2*sizeof(T)); break;
-            case 1: memcpy(dst, &v, 1*sizeof(T)); break;
+            case 15: dst[14] = v[14];
+            case 14: dst[13] = v[13];
+            case 13: dst[12] = v[12];
+            case 12: memcpy(dst, &v, 12*sizeof(T)); break;
+            case 11: dst[10] = v[10];
+            case 10: dst[ 9] = v[ 9];
+            case  9: dst[ 8] = v[ 8];
+            case  8: memcpy(dst, &v, 8*sizeof(T)); break;
+            case  7: dst[6] = v[6];
+            case  6: dst[5] = v[5];
+            case  5: dst[4] = v[4];
+            case  4: memcpy(dst, &v, 4*sizeof(T)); break;
+            case  3: dst[2] = v[2];
+            case  2: memcpy(dst, &v, 2*sizeof(T)); break;
+            case  1: memcpy(dst, &v, 1*sizeof(T)); break;
         }
         return;
     }
     unaligned_store(dst, v);
 }
 
-#if 1 && defined(__AVX2__)
+#if 0 && defined(__AVX2__)
     SI U32 mask(size_t tail) {
         // We go a little out of our way to avoid needing large constant values here.
 
