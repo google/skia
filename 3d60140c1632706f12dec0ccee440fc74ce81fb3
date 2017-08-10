@@ -52,6 +52,24 @@
       "revId": "3d60140c1632706f12dec0ccee440fc74ce81fb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4af3e9dc_c08f64bd",
+        "filename": "src/utils/SkJSONWriter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-10T14:25:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "beb79609_aa19341e",
+      "revId": "3d60140c1632706f12dec0ccee440fc74ce81fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
