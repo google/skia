@@ -34,6 +34,24 @@
       "revId": "3d60140c1632706f12dec0ccee440fc74ce81fb3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "beb79609_aa19341e",
+        "filename": "src/utils/SkJSONWriter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-10T14:01:29Z",
+      "side": 1,
+      "message": "Gotcha. I think I\u0027d use a cpp file just to avoid this ever coming up again. If you stick with a header you could made it somewhat more robust by including inttypes.h before SkStream.h, though if this file gets included in another file after inttypes we\u0027d have the same error again.",
+      "parentUuid": "a50dffba_6b1128a8",
+      "revId": "3d60140c1632706f12dec0ccee440fc74ce81fb3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
