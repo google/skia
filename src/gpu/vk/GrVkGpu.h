@@ -124,7 +124,7 @@ public:
 
     void submitSecondaryCommandBuffer(const SkTArray<GrVkSecondaryCommandBuffer*>&,
                                       const GrVkRenderPass*,
-                                      const VkClearValue*, const VkClearValue*,
+                                      const VkClearValue* colorClear,
                                       GrVkRenderTarget*,
                                       const SkIRect& bounds);
 

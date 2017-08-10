@@ -108,7 +108,6 @@ private:
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
         VkClearValue                           fColorClearValue;
-        VkClearValue                           fStencilClearValue;
         SkRect                                 fBounds;
         bool                                   fIsEmpty;
         bool                                   fStartsWithClear;
