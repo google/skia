@@ -44,6 +44,8 @@ const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& d
         case kCopyWrite_Type:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
+        case kTexel_Type:
+            bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
     }
     if (!desc.fDynamic) {
         bufInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;

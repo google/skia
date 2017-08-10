@@ -10,11 +10,18 @@
 #include <sstream>
 #include <string>
 
+#include "SkCommandLineFlags.h"
+
 #include "fiddle_main.h"
+
+DEFINE_double(duration, 1.0, "The total duration, in seconds, of the animation we are drawing.");
+DEFINE_double(frame, 1.0, "A double value in [0, 1] that specifies the point in animation to draw.");
 
 // Globals externed in fiddle_main.h
 SkBitmap source;
 sk_sp<SkImage> image;
+double duration; // The total duration of the animation in seconds.
+double frame;    // A value in [0, 1] of where we are in the animation.
 
 // Global used by the local impl of SkDebugf.
 std::ostringstream gTextOutput;
@@ -111,7 +118,10 @@ static SkData* encode_snapshot(const sk_sp<SkSurface>& surface) {
 
 
 
-int main() {
+int main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
+    duration = FLAGS_duration;
+    frame = FLAGS_frame;
     DrawOptions options = GetDrawOptions();
     // If textOnly then only do one type of image, otherwise the text
     // output is duplicated for each type.

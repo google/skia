@@ -7,7 +7,8 @@
 
 
 DEPS = [
-  'build/file',
+  'file',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
@@ -22,7 +23,7 @@ def RunSteps(api):
   now = api.time.utcnow()
   src_path = api.path['start_dir'].join(
       'perfdata', builder_name, 'data')
-  with api.step.context({'cwd': src_path}):
+  with api.context(cwd=src_path):
     results = api.file.glob(
         'find results',
         src_path.join('*.json'),
@@ -62,7 +63,7 @@ def GenTests(api):
                    path_config='kitchen')
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-Trybot'
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug'
   yield (
     api.test('trybot') +
     api.properties(buildername=builder,

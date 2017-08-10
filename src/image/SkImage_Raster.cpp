@@ -28,7 +28,7 @@
 // fixes https://bug.skia.org/5096
 static bool is_not_subset(const SkBitmap& bm) {
     SkASSERT(bm.pixelRef());
-    SkISize dim = bm.pixelRef()->info().dimensions();
+    SkISize dim = SkISize::Make(bm.pixelRef()->width(), bm.pixelRef()->height());
     SkASSERT(dim != bm.dimensions() || bm.pixelRefOrigin().isZero());
     return dim == bm.dimensions();
 }
@@ -109,15 +109,13 @@ public:
                                       : (uint32_t)kNeedNewImageUniqueID)
         , fBitmap(bm)
     {
-        if (bm.pixelRef()->isPreLocked()) {
-            // we only preemptively lock if there is no chance of triggering something expensive
-            // like a lazy decode or imagegenerator. PreLocked means it is flat pixels already.
-            fBitmap.lockPixels();
-        }
         SkASSERT(bitmapMayBeMutable || fBitmap.isImmutable());
     }
 
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const override;
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
+                                    SkTransferFunctionBehavior) const override;
+
+    bool onIsValid(GrContext* context) const override { return true; }
 
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override;
@@ -152,7 +150,6 @@ SkImage_Raster::SkImage_Raster(const Info& info, sk_sp<SkData> data, size_t rowB
 
     fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data.release());
     fBitmap.setImmutable();
-    fBitmap.lockPixels();
 }
 
 SkImage_Raster::~SkImage_Raster() {
@@ -307,7 +304,6 @@ sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc p
 sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode cpm) {
     bool hasColorTable = false;
     if (kIndex_8_SkColorType == bm.colorType()) {
-        SkAutoLockPixels autoLockPixels(bm);
         hasColorTable = bm.getColorTable() != nullptr;
     }
 
@@ -316,10 +312,8 @@ sk_sp<SkImage> SkMakeImageFromRasterBitmap(const SkBitmap& bm, SkCopyPixelsMode 
     }
 
     if (kAlways_SkCopyPixelsMode == cpm || (!bm.isImmutable() && kNever_SkCopyPixelsMode != cpm)) {
-        SkBitmap tmp(bm);
-        tmp.lockPixels();
         SkPixmap pmap;
-        if (tmp.getPixels() && tmp.peekPixels(&pmap)) {
+        if (bm.getPixels() && bm.peekPixels(&pmap)) {
             return SkImage::MakeRasterCopy(pmap);
         }
     } else {
@@ -351,70 +345,22 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap, LegacyBitmapMode mode) c
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline void do_color_xform_non_linear_blending(SkBitmap* dst, const SkPixmap& src) {
-    SkDEBUGCODE(SkColorSpaceTransferFn fn;);
-    SkASSERT(dst->colorSpace()->isNumericalTransferFn(&fn) &&
-             src.colorSpace()->isNumericalTransferFn(&fn));
-
-    void* dstPixels = dst->getPixels();
-    const void* srcPixels = src.addr();
-    size_t dstRowBytes = dst->rowBytes();
-    size_t srcRowBytes = src.rowBytes();
-    if (kN32_SkColorType != src.colorType()) {
-        SkAssertResult(src.readPixels(src.info().makeColorType(kN32_SkColorType), dstPixels,
-                                      dstRowBytes, 0, 0));
-
-        srcPixels = dstPixels;
-        srcRowBytes = dstRowBytes;
-    }
-
-    std::unique_ptr<SkColorSpaceXform> xform = SkColorSpaceXform_Base::New(
-            src.colorSpace(), dst->colorSpace(), SkTransferFunctionBehavior::kIgnore);
-
-    void* dstRow = dstPixels;
-    const void* srcRow = srcPixels;
-    for (int y = 0; y < dst->height(); y++) {
-        // This function assumes non-linear blending.  Which means that we must start by
-        // unpremultiplying in the gamma encoded space.
-        const void* tmpRow = srcRow;
-        if (kPremul_SkAlphaType == src.alphaType()) {
-            SkUnpremultiplyRow<false>((uint32_t*) dstRow, (const uint32_t*) srcRow, dst->width());
-            tmpRow = dstRow;
-        }
-
-        SkColorSpaceXform::ColorFormat fmt = select_xform_format(kN32_SkColorType);
-        SkAssertResult(xform->apply(fmt, dstRow, fmt, tmpRow, dst->width(), dst->alphaType()));
-
-        dstRow = SkTAddOffset<void>(dstRow, dstRowBytes);
-        srcRow = SkTAddOffset<const void>(srcRow, srcRowBytes);
-    }
-}
-
-sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target) const {
-    // Force the color type of the new image to be kN32_SkColorType.
-    // (1) This means we lose precision on F16 images.  This is necessary while this function is
-    //     used to pre-transform inputs to a legacy canvas.  Legacy canvases do not handle F16.
-    // (2) kIndex8 and kGray8 must be expanded in order perform a color space transformation.
-    // (3) Seems reasonable to expand k565 and k4444.  It's nice to avoid these color types for
-    //     clients who opt into color space support.
-    SkImageInfo dstInfo = fBitmap.info().makeColorType(kN32_SkColorType).makeColorSpace(target);
+sk_sp<SkImage> SkImage_Raster::onMakeColorSpace(sk_sp<SkColorSpace> target,
+                                                SkColorType targetColorType,
+                                                SkTransferFunctionBehavior premulBehavior) const {
+    SkImageInfo dstInfo = fBitmap.info().makeColorType(targetColorType).makeColorSpace(target);
     SkBitmap dst;
     dst.allocPixels(dstInfo);
 
     SkPixmap src;
-    SkTLazy<SkBitmap> tmp;
-    if (!fBitmap.peekPixels(&src)) {
-        tmp.init(fBitmap);
-        tmp.get()->lockPixels();
-        SkAssertResult(tmp.get()->peekPixels(&src));
-    }
+    SkAssertResult(fBitmap.peekPixels(&src));
 
     // Treat nullptr srcs as sRGB.
     if (!src.colorSpace()) {
         src.setColorSpace(SkColorSpace::MakeSRGB());
     }
 
-    do_color_xform_non_linear_blending(&dst, src);
+    SkAssertResult(dst.writePixels(src, 0, 0, premulBehavior));
     dst.setImmutable();
     return SkImage::MakeFromBitmap(dst);
 }

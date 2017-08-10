@@ -19,6 +19,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkDither.h"
+#include "sk_tool_utils.h"
 
 static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
     SkRect  r;
@@ -73,8 +74,6 @@ static void make_bm(SkBitmap* bm) {
 }
 
 static void pre_dither(const SkBitmap& bm) {
-    SkAutoLockPixels alp(bm);
-
     for (int y = 0; y < bm.height(); y++) {
         DITHER_4444_SCAN(y);
 
@@ -113,7 +112,7 @@ public:
         make_bm(&fBM);
         make_bm(&fBMPreDither);
         pre_dither(fBMPreDither);
-        fBM.copyTo(&fBM16, kARGB_4444_SkColorType);
+        sk_tool_utils::copy_to(&fBM16, kARGB_4444_SkColorType, fBM);
 
         fAngle = 0;
 

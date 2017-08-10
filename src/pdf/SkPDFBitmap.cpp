@@ -23,8 +23,6 @@ void image_get_ro_pixels(const SkImage* image, SkBitmap* dst) {
         if (dst->colorType() != kIndex_8_SkColorType) {
             return;
         }
-        // We must check to see if the bitmap has a color table.
-        SkAutoLockPixels autoLockPixels(*dst);
         if (!dst->getColorTable()) {
             // We can't use an indexed bitmap with no colortable.
             dst->reset();
@@ -149,7 +147,8 @@ static const SkBitmap& not4444(const SkBitmap& input, SkBitmap* copy) {
         return input;
     }
     // ARGB_4444 is rarely used, so we can do a wasteful tmp copy.
-    SkAssertResult(input.copyTo(copy, kN32_SkColorType));
+    copy->allocPixels(input.info().makeColorType(kN32_SkColorType));
+    SkAssertResult(input.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0));
     copy->setImmutable();
     return *copy;
 }
@@ -181,7 +180,6 @@ static void bitmap_to_pdf_pixels(const SkBitmap& bitmap, SkWStream* out) {
     }
     SkBitmap copy;
     const SkBitmap& bm = not4444(bitmap, &copy);
-    SkAutoLockPixels autoLockPixels(bm);
     SkColorType colorType = bm.colorType();
     SkAlphaType alphaType = bm.alphaType();
     switch (colorType) {
@@ -257,7 +255,6 @@ static void bitmap_alpha_to_a8(const SkBitmap& bitmap, SkWStream* out) {
     }
     SkBitmap copy;
     const SkBitmap& bm = not4444(bitmap, &copy);
-    SkAutoLockPixels autoLockPixels(bm);
     SkColorType colorType = bm.colorType();
     switch (colorType) {
         case kRGBA_8888_SkColorType:
@@ -350,7 +347,6 @@ static void emit_image_xobject(SkWStream* stream,
                                const SkPDFObjNumMap& objNumMap) {
     SkBitmap bitmap;
     image_get_ro_pixels(image, &bitmap);      // TODO(halcanary): test
-    SkAutoLockPixels autoLockPixels(bitmap);  // with malformed images.
 
     // Write to a temporary buffer to get the compressed length.
     SkDynamicMemoryWStream buffer;
@@ -360,8 +356,7 @@ static void emit_image_xobject(SkWStream* stream,
     } else {
         bitmap_to_pdf_pixels(bitmap, &deflateWStream);
     }
-    deflateWStream.finalize();  // call before detachAsStream().
-    std::unique_ptr<SkStreamAsset> asset(buffer.detachAsStream());
+    deflateWStream.finalize();  // call before buffer.bytesWritten().
 
     SkPDFDict pdfDict("XObject");
     pdfDict.insertName("Subtype", "Image");
@@ -384,11 +379,11 @@ static void emit_image_xobject(SkWStream* stream,
     }
     pdfDict.insertInt("BitsPerComponent", 8);
     pdfDict.insertName("Filter", "FlateDecode");
-    pdfDict.insertInt("Length", asset->getLength());
+    pdfDict.insertInt("Length", buffer.bytesWritten());
     pdfDict.emitObject(stream, objNumMap);
 
     pdf_stream_begin(stream);
-    stream->writeStream(asset.get(), asset->getLength());
+    buffer.writeToAndReset(stream);
     pdf_stream_end(stream);
 }
 
@@ -502,11 +497,10 @@ sk_sp<SkPDFObject> SkPDFCreateBitmapObject(sk_sp<SkImage> image,
 
     if (pixelSerializer) {
         SkBitmap bm;
-        SkAutoPixmapUnlock apu;
+        SkPixmap pmap;
         SkColorSpace* legacyColorSpace = nullptr;
-        if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) &&
-            bm.requestLock(&apu)) {
-            data.reset(pixelSerializer->encode(apu.pixmap()));
+        if (as_IB(image.get())->getROPixels(&bm, legacyColorSpace) && bm.peekPixels(&pmap)) {
+            data.reset(pixelSerializer->encode(pmap));
             if (data && SkIsJFIF(data.get(), &info)) {
                 bool yuv = info.fType == SkJFIFInfo::kYCbCr;
                 if (info.fSize == image->dimensions()) {  // Sanity check.

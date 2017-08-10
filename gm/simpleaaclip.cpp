@@ -27,7 +27,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
     // need to copy for deferred drawing test to work
     SkBitmap bm2;
 
-    bm.deepCopyTo(&bm2);
+    sk_tool_utils::copy_to(&bm2, bm.colorType(), bm);
 
     canvas->drawBitmap(bm2,
                        SK_Scalar1 * mask.fBounds.fLeft,
@@ -162,7 +162,7 @@ protected:
         int xOff = 0;
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName),
+            canvas->drawString(gOps[op].fName,
                              SkIntToScalar(75), SkIntToScalar(50),
                              textPaint);
 

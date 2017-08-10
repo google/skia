@@ -42,11 +42,15 @@ class SkDefaultEventTracer : public SkEventTracer {
 // We prefer gUserTracer if it's been set, otherwise we fall back on a default tracer;
 static SkEventTracer* gUserTracer = nullptr;
 
-void SkEventTracer::SetInstance(SkEventTracer* tracer) {
-    SkASSERT(nullptr == sk_atomic_load(&gUserTracer, sk_memory_order_acquire));
-    sk_atomic_store(&gUserTracer, tracer, sk_memory_order_release);
+bool SkEventTracer::SetInstance(SkEventTracer* tracer) {
+    SkEventTracer* expected = nullptr;
+    if (!sk_atomic_compare_exchange(&gUserTracer, &expected, tracer)) {
+        delete tracer;
+        return false;
+    }
     // An atomic load during process shutdown is probably overkill, but safe overkill.
-    atexit([]() { delete sk_atomic_load(&gUserTracer, sk_memory_order_acquire); });
+    atexit([]() { delete sk_atomic_load(&gUserTracer); });
+    return true;
 }
 
 SkEventTracer* SkEventTracer::GetInstance() {

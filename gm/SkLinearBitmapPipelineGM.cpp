@@ -115,8 +115,7 @@ static void draw_rect_fp(SkCanvas* canvas, const SkRect& r, SkColor c, const SkM
     uint32_t flags = 0;
     auto procN = SkXfermode::GetD32Proc(SkBlendMode::kSrcOver, flags);
 
-    char storage[512];
-    SkArenaAlloc allocator{storage, sizeof(storage)};
+    SkSTArenaAlloc<512> allocator;
     SkLinearBitmapPipeline pipeline{
             inv, filterQuality,
             SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,

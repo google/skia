@@ -72,18 +72,7 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               const char* coordName,
                                               GrSLType varyingType) const {
     const GrShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
-    GrSLType samplerType = sampler.getType();
-    if (samplerType == kTexture2DRectSampler_GrSLType) {
-        if (varyingType == kVec2f_GrSLType) {
-            out->appendf("texture(%s, textureSize(%s) * %s)",
-                         sampler.c_str(), sampler.c_str(), coordName);
-        } else {
-            out->appendf("texture(%s, vec3(textureSize(%s) * %s.xy, %s.z))",
-                         sampler.c_str(), sampler.c_str(), coordName, coordName);
-        }
-    } else {
-        out->appendf("texture(%s, %s)", sampler.c_str(), coordName);
-    }
+    out->appendf("texture(%s, %s)", sampler.c_str(), coordName);
     append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
 }
 
@@ -112,9 +101,17 @@ void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
     if (colorXformHelper && colorXformHelper->isValid()) {
         SkString xform;
         this->appendColorGamutXform(&xform, lookup.c_str(), colorXformHelper);
-        this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(xform)).c_str());
+        if (modulation) {
+            this->codeAppendf("%s * %s", modulation, xform.c_str());
+        } else {
+            this->codeAppendf("%s", xform.c_str());
+        }
     } else {
-        this->codeAppend((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
+        if (modulation) {
+            this->codeAppendf("%s * %s", modulation, lookup.c_str());
+        } else {
+            this->codeAppendf("%s", lookup.c_str());
+        }
     }
 }
 
@@ -154,19 +151,17 @@ void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
 }
 
 void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
-                                           SamplerHandle samplerHandle,
+                                           TexelBufferHandle texelBufferHandle,
                                            const char* coordExpr) const {
-    const GrShaderVar& sampler = fProgramBuilder->samplerVariable(samplerHandle);
+    const GrShaderVar& texelBuffer = fProgramBuilder->texelBufferVariable(texelBufferHandle);
     SkASSERT(fProgramBuilder->shaderCaps()->texelFetchSupport());
-    SkASSERT(GrSLTypeIsCombinedSamplerType(sampler.getType()));
 
-    out->appendf("texelFetch(%s, %s)", sampler.c_str(), coordExpr);
-
-    append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
+    out->appendf("texelFetch(%s, %s)", texelBuffer.c_str(), coordExpr);
 }
 
-void GrGLSLShaderBuilder::appendTexelFetch(SamplerHandle samplerHandle, const char* coordExpr) {
-    this->appendTexelFetch(&this->code(), samplerHandle, coordExpr);
+void GrGLSLShaderBuilder::appendTexelFetch(TexelBufferHandle texelBufferHandle,
+                                           const char* coordExpr) {
+    this->appendTexelFetch(&this->code(), texelBufferHandle, coordExpr);
 }
 
 void GrGLSLShaderBuilder::appendImageStorageLoad(SkString* out, ImageStorageHandle handle,

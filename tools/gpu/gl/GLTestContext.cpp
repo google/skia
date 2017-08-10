@@ -51,10 +51,13 @@ std::unique_ptr<GLFenceSync> GLFenceSync::MakeIfSupported(const sk_gpu_test::GLT
         }
         ret.reset(new GLFenceSync(ctx));
     } else {
-        if (!ctx->gl()->hasExtension("GL_APPLE_sync")) {
+        if (ctx->gl()->hasExtension("GL_APPLE_sync")) {
+            ret.reset(new GLFenceSync(ctx, "APPLE"));
+        } else if (GrGLGetVersion(ctx->gl()) >= GR_GL_VER(3, 0)) {
+            ret.reset(new GLFenceSync(ctx));
+        } else {
             return nullptr;
         }
-        ret.reset(new GLFenceSync(ctx, "APPLE"));
     }
     if (!ret->validate()) {
         ret = nullptr;

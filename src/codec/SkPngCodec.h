@@ -16,13 +16,6 @@
 #include "SkRefCnt.h"
 #include "SkSwizzler.h"
 
-// FIXME (scroggo): GOOGLE3 is currently using an outdated version of libpng,
-// so we need to work around the lack of the method png_process_data_pause.
-// This code will be unnecessary once we update GOOGLE3. It would make more
-// sense to condition this on the version of libpng being used, but we do not
-// know that here because png.h is only included by the cpp file.
-#define SK_GOOGLE3_PNG_HACK
-
 class SkStream;
 
 class SkPngCodec : public SkCodec {
@@ -31,6 +24,9 @@ public:
 
     // Assume IsPng was called and returned true.
     static SkCodec* NewFromStream(SkStream*, SkPngChunkReader* = NULL);
+
+    // FIXME (scroggo): Temporarily needed by AutoCleanPng.
+    void setIdatLength(size_t len) { fIdatLength = len; }
 
     ~SkPngCodec() override;
 
@@ -76,18 +72,6 @@ protected:
      */
     void processData();
 
-#ifdef SK_GOOGLE3_PNG_HACK
-    // In libpng 1.2.56, png_process_data_pause does not exist, so when we wanted to
-    // read the header, we may have read too far. In that case, we need to delete the
-    // png_ptr and info_ptr and recreate them. This method does that (and attaches the
-    // chunk reader.
-    bool rereadHeaderIfNecessary();
-
-    // This method sets up the new png_ptr/info_ptr (created in rereadHeaderIfNecessary)
-    // the way we set up the old one the first time in AutoCleanPng.decodeBounds's callback.
-    void rereadInfoCallback();
-#endif
-
     Result onStartIncrementalDecode(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
             const SkCodec::Options&,
             SkPMColor* ctable, int* ctableCount) override;
@@ -119,8 +103,8 @@ private:
 
     bool createColorTable(const SkImageInfo& dstInfo, int* ctableCount);
     // Helper to set up swizzler, color xforms, and color table. Also calls png_read_update_info.
-    bool initializeXforms(const SkImageInfo& dstInfo, const Options&, SkPMColor* colorPtr,
-                          int* colorCount);
+    SkCodec::Result initializeXforms(const SkImageInfo& dstInfo, const Options&,
+                                     SkPMColor* colorPtr, int* colorCount);
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options&, bool skipFormatConversion);
     void allocateStorage(const SkImageInfo& dstInfo);
     void destroyReadStruct();
@@ -134,9 +118,8 @@ private:
     SkAlphaType                    fXformAlphaType;
     int                            fXformWidth;
 
-#ifdef SK_GOOGLE3_PNG_HACK
-    bool        fNeedsToRereadHeader;
-#endif
+    size_t                         fIdatLength;
+    bool                           fDecodedIdat;
 
     typedef SkCodec INHERITED;
 };

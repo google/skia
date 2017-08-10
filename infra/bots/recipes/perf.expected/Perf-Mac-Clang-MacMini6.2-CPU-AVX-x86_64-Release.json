@@ -69,7 +69,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
       "rmtree",
       "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Release/data"
     ],
@@ -185,9 +185,9 @@
       "gitHash",
       "abc123",
       "swarming_bot_id",
-      "",
+      "skia-bot-123",
       "swarming_task_id",
-      "",
+      "123456",
       "--key",
       "arch",
       "x86_64",

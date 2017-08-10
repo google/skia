@@ -119,15 +119,12 @@ bool SkPaintToGrPaintReplaceShader(GrContext*,
                                    GrPaint* grPaint);
 
 /** Blends the SkPaint's shader (or color if no shader) with the color which specified via a
-    GrOp's GrPrimitiveProcesssor. Currently there is a bool param to indicate whether the
-    primitive color is the dst or src color to the blend in order to work around differences between
-    drawVertices and drawAtlas. */
+    GrOp's GrPrimitiveProcesssor. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
                                   GrRenderTargetContext* rtc,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
                                   SkBlendMode primColorMode,
-                                  bool primitiveIsSrc,
                                   GrPaint* grPaint);
 
 /** This is used when there is a primitive color, but the shader should be ignored. Currently,
@@ -137,7 +134,7 @@ bool SkPaintToGrPaintWithXfermode(GrContext* context,
 inline bool SkPaintToGrPaintWithPrimitiveColor(GrContext* context, GrRenderTargetContext* rtc,
                                                const SkPaint& skPaint, GrPaint* grPaint) {
     return SkPaintToGrPaintWithXfermode(context, rtc, skPaint, SkMatrix::I(), SkBlendMode::kDst,
-                                        false, grPaint);
+                                        grPaint);
 }
 
 /** This is used when there may or may not be a shader, and the caller wants to plugin a texture
@@ -212,9 +209,10 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrContext*,
 /**
  * Creates a new texture for the bitmap. Does not concern itself with cache keys or texture params.
  * The bitmap must have CPU-accessible pixels. Attempts to take advantage of faster paths for
- * compressed textures and yuv planes.
+ * yuv planes.
  */
-sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider*, const SkBitmap&);
+sk_sp<GrTextureProxy> GrUploadBitmapToTextureProxy(GrResourceProvider*, const SkBitmap&,
+                                                   SkColorSpace* dstColorSpace);
 
 sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const SkBitmap&,
                                                                SkColorSpace* dstColorSpace);
@@ -223,9 +221,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext*, const
  * Creates a new texture for the pixmap.
  */
 sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider*,
-                                                   const SkPixmap&, SkBudgeted);
-sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxyNoCheck(GrResourceProvider*,
-                                                          const SkPixmap&, SkBudgeted);
+                                                   const SkPixmap&, SkBudgeted, SkColorSpace*);
 
 /**
  * Creates a new texture populated with the mipmap levels.
@@ -273,19 +269,5 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
     format, but we want to preserve the color space of that source. This picks an appropriate format
     to use. */
 GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
-
-/**
- *  If the compressed data in the SkData is supported (as a texture format, this returns
- *  the pixel-config that should be used, and sets outStartOfDataToUpload to the ptr into
- *  the data where the actual raw data starts (skipping any header bytes).
- *
- *  If the compressed data is not supported, this returns kUnknown_GrPixelConfig, and
- *  ignores outStartOfDataToUpload.
- */
-GrPixelConfig GrIsCompressedTextureDataSupported(GrContext* ctx, SkData* data,
-                                                 int expectedW, int expectedH,
-                                                 const void** outStartOfDataToUpload);
-
-
 
 #endif

@@ -110,7 +110,7 @@ struct SkGammas : SkRefCnt {
         SkASSERT(i >= 0 && i < fChannels);
         return fType[i];
     }
-    
+
     uint8_t channels() const { return fChannels; }
 
     SkGammas(uint8_t channels)

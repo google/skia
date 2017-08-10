@@ -20,7 +20,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fSupportsCopiesAsDraws = false;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
-    fNewSecondaryCBOnPipelineChange = false;
+    fNewCBOnPipelineChange = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -28,17 +28,14 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fMipMapSupport = true;   // always available in Vulkan
     fSRGBSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
-    fTwoSidedStencilSupport = true;  // always available in Vulkan
-    fStencilWrapOpsSupport = true; // always available in Vulkan
     fDiscardRenderTargetSupport = true;
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
-    fCompressedTexSubImageSupport = false; //TODO: figure this out
     fOversizedStencilSupport = false; //TODO: figure this out
 
     fUseDrawInsteadOfClear = false;
     fFenceSyncSupport = true;   // always available in Vulkan
-    fCrossContextTextureSupport = false; // TODO: Add thread-safe memory pools so we can enable this
+    fCrossContextTextureSupport = false;
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
@@ -99,8 +96,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     if (kNvidia_VkVendor == properties.vendorID) {
-        fSupportsCopiesAsDraws = true;
         fMustSubmitCommandsBeforeCopyOp = true;
+    }
+
+    if (kQualcomm_VkVendor != properties.vendorID) {
+        fSupportsCopiesAsDraws = true;
+    }
+
+    if (fSupportsCopiesAsDraws) {
+        fCrossContextTextureSupport = true;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -145,6 +149,9 @@ void GrVkCaps::initSampleCount(const VkPhysicalDeviceProperties& properties) {
     VkSampleCountFlags stencilSamples = properties.limits.framebufferStencilSampleCounts;
 
     fMaxColorSampleCount = get_max_sample_count(colorSamples);
+    if (kImagination_VkVendor == properties.vendorID) {
+        fMaxColorSampleCount = 0;
+    }
     fMaxStencilSampleCount = get_max_sample_count(stencilSamples);
 }
 
@@ -175,15 +182,20 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
 
-    fStencilWrapOpsSupport = true;
     fOversizedStencilSupport = true;
     fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
 
     // AMD seems to have issues binding new VkPipelines inside a secondary command buffer.
     // Current workaround is to use a different secondary command buffer for each new VkPipeline.
     if (kAMD_VkVendor == properties.vendorID) {
-        fNewSecondaryCBOnPipelineChange = true;
+        fNewCBOnPipelineChange = true;
     }
+
+#if defined(SK_CPU_X86)
+    if (kImagination_VkVendor == properties.vendorID) {
+        fSRGBSupport = false;
+    }
+#endif
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {
@@ -297,24 +309,22 @@ void GrVkCaps::initConfigTable(const GrVkInterface* interface, VkPhysicalDevice 
     for (int i = 0; i < kGrPixelConfigCnt; ++i) {
         VkFormat format;
         if (GrPixelConfigToVkFormat(static_cast<GrPixelConfig>(i), &format)) {
-            fConfigTable[i].init(interface, physDev, format);
+            if (!GrPixelConfigIsSRGB(static_cast<GrPixelConfig>(i)) || fSRGBSupport) {
+                fConfigTable[i].init(interface, physDev, format);
+            }
         }
     }
-
-    // We currently do not support compressed textures in Vulkan
-    const uint16_t kFlagsToRemove = ConfigInfo::kTextureable_Flag|ConfigInfo::kRenderable_Flag;
-    fConfigTable[kETC1_GrPixelConfig].fOptimalFlags &= ~kFlagsToRemove;
-    fConfigTable[kETC1_GrPixelConfig].fLinearFlags &= ~kFlagsToRemove;
 }
 
 void GrVkCaps::ConfigInfo::InitConfigFlags(VkFormatFeatureFlags vkFlags, uint16_t* flags) {
     if (SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & vkFlags) &&
         SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT & vkFlags)) {
         *flags = *flags | kTextureable_Flag;
-    }
 
-    if (SkToBool(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT & vkFlags)) {
-        *flags = *flags | kRenderable_Flag;
+        // Ganesh assumes that all renderable surfaces are also texturable
+        if (SkToBool(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT & vkFlags)) {
+            *flags = *flags | kRenderable_Flag;
+        }
     }
 
     if (SkToBool(VK_FORMAT_FEATURE_BLIT_SRC_BIT & vkFlags)) {

@@ -21,6 +21,7 @@
 #include "SkShader.h"
 #include "SkTLazy.h"
 #include "SkWriteBuffer.h"
+#include "../jumper/SkJumper.h"
 
 #if SK_SUPPORT_GPU
 #include "GrFragmentProcessor.h"
@@ -69,10 +70,12 @@ void SkShader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse) const {
-    SkMatrix total = SkMatrix::Concat(*rec.fMatrix, fLocalMatrix);
-    if (rec.fLocalMatrix) {
-        total.preConcat(*rec.fLocalMatrix);
+bool SkShader::computeTotalInverse(const SkMatrix& ctm,
+                                   const SkMatrix* outerLocalMatrix,
+                                   SkMatrix* totalInverse) const {
+    SkMatrix total = SkMatrix::Concat(ctm, fLocalMatrix);
+    if (outerLocalMatrix) {
+        total.preConcat(*outerLocalMatrix);
     }
 
     return total.invert(totalInverse);
@@ -91,7 +94,7 @@ bool SkShader::asLuminanceColor(SkColor* colorPtr) const {
 }
 
 SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
-    if (!this->computeTotalInverse(rec, nullptr)) {
+    if (!this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {
         return nullptr;
     }
     return this->onMakeContext(rec, alloc);
@@ -100,9 +103,12 @@ SkShader::Context* SkShader::makeContext(const ContextRec& rec, SkArenaAlloc* al
 SkShader::Context::Context(const SkShader& shader, const ContextRec& rec)
     : fShader(shader), fCTM(*rec.fMatrix)
 {
+    // We should never use a context for RP-only shaders.
+    SkASSERT(!shader.isRasterPipelineOnly());
+
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
-    SkAssertResult(fShader.computeTotalInverse(rec, &fTotalInverse));
+    SkAssertResult(fShader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fTotalInverse));
     fTotalInverseClass = (uint8_t)ComputeMatrixClass(fTotalInverse);
 
     fPaintAlpha = rec.fPaint->getAlpha();
@@ -252,36 +258,21 @@ void SkShader::toString(SkString* str) const {
 }
 #endif
 
-bool SkShader::appendStages(SkRasterPipeline* pipeline,
-                            SkColorSpace* dst,
-                            SkArenaAlloc* scratch,
+bool SkShader::appendStages(SkRasterPipeline* p,
+                            SkColorSpace* dstCS,
+                            SkArenaAlloc* alloc,
                             const SkMatrix& ctm,
-                            const SkPaint& paint) const {
-    return this->onAppendStages(pipeline, dst, scratch, ctm, paint, nullptr);
+                            const SkPaint& paint,
+                            const SkMatrix* localM) const {
+    return this->onAppendStages(p, dstCS, alloc, ctm, paint, localM);
 }
 
 bool SkShader::onAppendStages(SkRasterPipeline* p,
-                              SkColorSpace* cs,
+                              SkColorSpace* dstCS,
                               SkArenaAlloc* alloc,
                               const SkMatrix& ctm,
                               const SkPaint& paint,
                               const SkMatrix* localM) const {
-    // Legacy shaders handle the paint opacity internally,
-    // but RP applies it as a separate stage.
-    SkTCopyOnFirstWrite<SkPaint> opaquePaint(paint);
-    if (paint.getAlpha() != SK_AlphaOPAQUE) {
-        opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
-    }
-
-    ContextRec rec(*opaquePaint, ctm, localM, ContextRec::kPM4f_DstType, cs);
-    if (auto* ctx = this->makeContext(rec, alloc)) {
-        p->append(SkRasterPipeline::shader_adapter, ctx);
-
-        // Legacy shaders aren't aware of color spaces. We can pretty
-        // safely assume they're in sRGB gamut.
-        return append_gamut_transform(p, alloc,
-                                      SkColorSpace::MakeSRGB().get(), cs);
-    }
     return false;
 }
 

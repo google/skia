@@ -50,19 +50,10 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
 const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndexPtr,
                                                      CanPresentFn canPresent,
                                                      GrVkInterface::GetProc getProc) {
-#ifdef SK_LINK_WITH_VULKAN
-    if (getProc == nullptr) {
-        getProc = [](const char* proc_name,
-                     VkInstance instance, VkDevice device) {
-            if (device != VK_NULL_HANDLE) {
-                return vkGetDeviceProcAddr(device, proc_name);
-            }
-            return vkGetInstanceProcAddr(instance, proc_name);
-            };
+    if (!getProc) {
+        return nullptr;
     }
-#else
-    SkASSERT(getProc != nullptr);
-#endif
+    SkASSERT(getProc);
 
     VkPhysicalDevice physDev;
     VkDevice device;
@@ -156,7 +147,11 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
         grVkDestroyInstance(inst, nullptr);
         return nullptr;
     }
-    SkASSERT(gpuCount > 0);
+    if (!gpuCount) {
+        SkDebugf("vkEnumeratePhysicalDevices returned no supported devices.\n");
+        grVkDestroyInstance(inst, nullptr);
+        return nullptr;
+    }
     // Just returning the first physical device instead of getting the whole array.
     // TODO: find best match for our needs
     gpuCount = 1;
@@ -170,7 +165,11 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     // query to get the initial queue props size
     uint32_t queueCount;
     grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
-    SkASSERT(queueCount >= 1);
+    if (!queueCount) {
+        SkDebugf("vkGetPhysicalDeviceQueueFamilyProperties returned no queues.\n");
+        grVkDestroyInstance(inst, nullptr);
+        return nullptr;
+    }
 
     SkAutoMalloc queuePropsAlloc(queueCount * sizeof(VkQueueFamilyProperties));
     // now get the actual queue props
@@ -186,10 +185,14 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
             break;
         }
     }
-    SkASSERT(graphicsQueueIndex < queueCount);
+    if (graphicsQueueIndex == queueCount) {
+        SkDebugf("Could not find any supported graphics queues.\n");
+        grVkDestroyInstance(inst, nullptr);
+        return nullptr;
+    }
 
     // iterate to find the present queue, if needed
-    uint32_t presentQueueIndex = graphicsQueueIndex;
+    uint32_t presentQueueIndex = queueCount;
     if (presentQueueIndexPtr && canPresent) {
         for (uint32_t i = 0; i < queueCount; i++) {
             if (canPresent(inst, physDev, i)) {
@@ -197,8 +200,16 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
                 break;
             }
         }
-        SkASSERT(presentQueueIndex < queueCount);
+        if (presentQueueIndex == queueCount) {
+            SkDebugf("Could not find any supported present queues.\n");
+            grVkDestroyInstance(inst, nullptr);
+            return nullptr;
+        }
         *presentQueueIndexPtr = presentQueueIndex;
+    } else {
+        // Just setting this so we end up make a single queue for graphics since there was no
+        // request for a present queue.
+        presentQueueIndex = graphicsQueueIndex;
     }
 
     extensions.initDevice(kGrVkMinimumVersion, inst, physDev);
@@ -305,12 +316,13 @@ const GrVkBackendContext* GrVkBackendContext::Create(uint32_t* presentQueueIndex
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;
     ctx->fInterface.reset(interface.release());
+    ctx->fOwnsInstanceAndDevice = true;
 
     return ctx;
 }
 
 GrVkBackendContext::~GrVkBackendContext() {
-    if (fInterface == nullptr) {
+    if (fInterface == nullptr || !fOwnsInstanceAndDevice) {
         return;
     }
 

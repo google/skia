@@ -29,13 +29,15 @@ protected:
     Display* fDisplay;
     XWindow  fWindow;
     GC       fGC;
+
+    typedef RasterWindowContext INHERITED;
 };
 
 RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display, XWindow window, int width,
                                                    int height, const DisplayParams& params)
-        : fDisplay(display)
+        : INHERITED(params)
+        , fDisplay(display)
         , fWindow(window) {
-    fDisplayParams = params;
     fGC = XCreateGC(fDisplay, fWindow, 0, nullptr);
     this->resize(width, height);
     fWidth = width;

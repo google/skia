@@ -6,10 +6,9 @@
  */
 
 #include "GrOpList.h"
-
-#include "GrRenderTargetOpList.h"
-#include "GrSurface.h"
 #include "GrSurfaceProxy.h"
+
+#include "SkAtomics.h"
 
 uint32_t GrOpList::CreateUniqueID() {
     static int32_t gUniqueID = SK_InvalidUniqueID;
@@ -22,18 +21,30 @@ uint32_t GrOpList::CreateUniqueID() {
 }
 
 GrOpList::GrOpList(GrSurfaceProxy* surfaceProxy, GrAuditTrail* auditTrail)
-    : fUniqueID(CreateUniqueID())
-    , fFlags(0)
-    , fTarget(surfaceProxy)
-    , fAuditTrail(auditTrail) {
-
-    surfaceProxy->setLastOpList(this);
+    : fAuditTrail(auditTrail)
+    , fUniqueID(CreateUniqueID())
+    , fFlags(0) {
+    fTarget.reset(surfaceProxy);
+    fTarget.get()->setLastOpList(this);
 }
 
 GrOpList::~GrOpList() {
-    if (fTarget && this == fTarget->getLastOpList()) {
-        fTarget->setLastOpList(nullptr);
+    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
+        fTarget.get()->setLastOpList(nullptr);
     }
+}
+
+bool GrOpList::instantiate(GrResourceProvider* resourceProvider) {
+    return SkToBool(fTarget.get()->instantiate(resourceProvider));
+}
+
+void GrOpList::reset() {
+    if (fTarget.get() && this == fTarget.get()->getLastOpList()) {
+        fTarget.get()->setLastOpList(nullptr);
+    }
+
+    fTarget.reset(nullptr);
+    fAuditTrail = nullptr;
 }
 
 // Add a GrOpList-based dependency
@@ -48,7 +59,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurface* dependedOn) {
+void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());
@@ -60,7 +71,7 @@ void GrOpList::addDependency(GrSurface* dependedOn) {
             this->addDependency(opList);
 
             // Can't make it closed in the self-read case
-            opList->makeClosed();
+            opList->makeClosed(caps);
         }
     }
 }
@@ -68,7 +79,8 @@ void GrOpList::addDependency(GrSurface* dependedOn) {
 #ifdef SK_DEBUG
 void GrOpList::dump() const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget ? fTarget->uniqueID().asUInt() : -1);
+    SkDebugf("node: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()
+                                                              : -1);
     SkDebugf("relies On (%d): ", fDependencies.count());
     for (int i = 0; i < fDependencies.count(); ++i) {
         SkDebugf("%d, ", fDependencies[i]->fUniqueID);

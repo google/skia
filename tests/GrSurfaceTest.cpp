@@ -10,9 +10,11 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
+#include "GrTest.h"
 #include "GrTexture.h"
 #include "GrSurfacePriv.h"
 #include "Test.h"
@@ -44,18 +46,18 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendObject backendTex = context->getGpu()->createTestingOnlyBackendTexture(
+    GrBackendObject backendTexHandle = context->getGpu()->createTestingOnlyBackendTexture(
         nullptr, 256, 256, kRGBA_8888_GrPixelConfig);
+    GrBackendTexture backendTex = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
+                                                               256,
+                                                               256,
+                                                               kRGBA_8888_GrPixelConfig,
+                                                               backendTexHandle);
 
-    GrBackendTextureDesc backendDesc;
-    backendDesc.fConfig = kRGBA_8888_GrPixelConfig;
-    backendDesc.fFlags = kRenderTarget_GrBackendTextureFlag;
-    backendDesc.fWidth = 256;
-    backendDesc.fHeight = 256;
-    backendDesc.fSampleCnt = 0;
-    backendDesc.fTextureHandle = backendTex;
     sk_sp<GrSurface> texRT2 = context->resourceProvider()->wrapBackendTexture(
-        backendDesc, kBorrow_GrWrapOwnership);
+        backendTex, kTopLeft_GrSurfaceOrigin, kRenderTarget_GrBackendTextureFlag, 0,
+        kBorrow_GrWrapOwnership);
+
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asRenderTarget());
     REPORTER_ASSERT(reporter, texRT2.get() == texRT2->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
@@ -65,7 +67,158 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(texRT2->asRenderTarget()) ==
                     static_cast<GrSurface*>(texRT2->asTexture()));
 
-    context->getGpu()->deleteTestingOnlyBackendTexture(backendTex);
+    context->getGpu()->deleteTestingOnlyBackendTexture(backendTexHandle);
 }
 
+#if 0
+// This test checks that the isConfigTexturable and isConfigRenderable are
+// consistent with createTexture's result.
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    const GrCaps* caps = context->caps();
+
+    GrPixelConfig configs[] = {
+        kUnknown_GrPixelConfig,
+        kAlpha_8_GrPixelConfig,
+        kGray_8_GrPixelConfig,
+        kRGB_565_GrPixelConfig,
+        kRGBA_4444_GrPixelConfig,
+        kRGBA_8888_GrPixelConfig,
+        kBGRA_8888_GrPixelConfig,
+        kSRGBA_8888_GrPixelConfig,
+        kSBGRA_8888_GrPixelConfig,
+        kRGBA_8888_sint_GrPixelConfig,
+        kETC1_GrPixelConfig,
+        kRGBA_float_GrPixelConfig,
+        kRG_float_GrPixelConfig,
+        kAlpha_half_GrPixelConfig,
+        kRGBA_half_GrPixelConfig,
+    };
+    SkASSERT(kGrPixelConfigCnt == SK_ARRAY_COUNT(configs));
+
+    GrSurfaceDesc desc;
+    desc.fWidth = 64;
+    desc.fHeight = 64;
+
+    for (GrPixelConfig config : configs) {
+        for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
+            desc.fFlags = kNone_GrSurfaceFlags;
+            desc.fOrigin = origin;
+            desc.fSampleCnt = 0;
+            desc.fConfig = config;
+
+            sk_sp<GrSurface> tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigTexturable(desc.fConfig,
+                                                                                      desc.fOrigin));
+
+            desc.fFlags = kRenderTarget_GrSurfaceFlag;
+            tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, false));
+
+            desc.fSampleCnt = 4;
+            tex = context->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
+            REPORTER_ASSERT(reporter, SkToBool(tex.get()) == caps->isConfigRenderable(config, true));
+        }
+    }
+}
+#endif
+
+#include "GrDrawingManager.h"
+#include "GrSurfaceProxy.h"
+#include "GrTextureContext.h"
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(InitialTextureClear, reporter, context_info) {
+    static constexpr int kSize = 100;
+    GrSurfaceDesc desc;
+    desc.fWidth = desc.fHeight = kSize;
+    std::unique_ptr<uint32_t[]> data(new uint32_t[kSize * kSize]);
+    GrContext* context = context_info.grContext();
+    for (int c = 0; c <= kLast_GrPixelConfig; ++c) {
+        desc.fConfig = static_cast<GrPixelConfig>(c);
+        if (!context_info.grContext()->caps()->isConfigTexturable(desc.fConfig)) {
+            continue;
+        }
+        desc.fFlags = kPerformInitialClear_GrSurfaceFlag;
+        for (bool rt : {false, true}) {
+            if (rt && !context->caps()->isConfigRenderable(desc.fConfig, false)) {
+                continue;
+            }
+            desc.fFlags |= rt ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+            for (bool mipped : {false, true}) {
+                desc.fIsMipMapped = mipped;
+                for (GrSurfaceOrigin origin :
+                     {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
+                    desc.fOrigin = origin;
+                    for (bool approx : {false, true}) {
+                        auto resourceProvider = context->resourceProvider();
+                        // Try directly creating the texture.
+                        // Do this twice in an attempt to hit the cache on the second time through.
+                        for (int i = 0; i < 2; ++i) {
+                            sk_sp<GrTexture> tex;
+                            if (approx) {
+                                tex = sk_sp<GrTexture>(
+                                        resourceProvider->createApproxTexture(desc, 0));
+                            } else {
+                                tex = resourceProvider->createTexture(desc, SkBudgeted::kYes);
+                            }
+                            if (!tex) {
+                                continue;
+                            }
+                            auto proxy = GrSurfaceProxy::MakeWrapped(std::move(tex));
+                            auto texCtx = context->contextPriv().makeWrappedSurfaceContext(
+                                    std::move(proxy), nullptr);
+                            SkImageInfo info = SkImageInfo::Make(
+                                    kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                            memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
+                            if (texCtx->readPixels(info, data.get(), 0, 0, 0)) {
+                                uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
+                                for (int i = 0; i < kSize * kSize; ++i) {
+                                    if (cmp != data.get()[i]) {
+                                        ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                                        break;
+                                    }
+                                }
+                            }
+                            memset(data.get(), 0xBC, kSize * kSize * sizeof(uint32_t));
+                            // Here we overwrite the texture so that the second time through we
+                            // test against recycling without reclearing.
+                            if (0 == i) {
+                                texCtx->writePixels(info, data.get(), 0, 0, 0);
+                            }
+                        }
+                        context->purgeAllUnlockedResources();
+
+                        // Try creating the texture as a deferred proxy.
+                        for (int i = 0; i < 2; ++i) {
+                            auto surfCtx = context->contextPriv().makeDeferredSurfaceContext(
+                                    desc, approx ? SkBackingFit::kApprox : SkBackingFit::kExact,
+                                    SkBudgeted::kYes);
+                            if (!surfCtx) {
+                                continue;
+                            }
+                            SkImageInfo info = SkImageInfo::Make(
+                                    kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+                            memset(data.get(), 0xAB, kSize * kSize * sizeof(uint32_t));
+                            if (surfCtx->readPixels(info, data.get(), 0, 0, 0)) {
+                                uint32_t cmp = GrPixelConfigIsOpaque(desc.fConfig) ? 0xFF000000 : 0;
+                                for (int i = 0; i < kSize * kSize; ++i) {
+                                    if (cmp != data.get()[i]) {
+                                        ERRORF(reporter, "Failed on config %d", desc.fConfig);
+                                        break;
+                                    }
+                                }
+                            }
+                            // Here we overwrite the texture so that the second time through we
+                            // test against recycling without reclearing.
+                            if (0 == i) {
+                                surfCtx->writePixels(info, data.get(), 0, 0, 0);
+                            }
+                        }
+                        context->purgeAllUnlockedResources();
+                    }
+                }
+            }
+        }
+    }
+}
 #endif

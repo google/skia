@@ -9,7 +9,6 @@
 #ifndef GrGLTypes_DEFINED
 #define GrGLTypes_DEFINED
 
-#include "GrExternalTextureData.h"
 #include "GrGLConfig.h"
 #include "SkRefCnt.h"
 
@@ -114,25 +113,12 @@ struct GrGLTextureInfo {
     GrGLuint fID;
 };
 
-class GrSemaphore;
+GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));
 
-class GrGLExternalTextureData : public GrExternalTextureData {
-public:
-    GrGLExternalTextureData(const GrGLTextureInfo& info, sk_sp<GrSemaphore> semaphore, GrContext*);
-    GrBackend getBackend() const override { return kOpenGL_GrBackend; }
-
-protected:
-    GrBackendObject getBackendObject() const override {
-        return reinterpret_cast<GrBackendObject>(&fInfo);
-    }
-    void attachToContext(GrContext*) override;
-
-    GrGLTextureInfo fInfo;
-    sk_sp<GrSemaphore> fSemaphore;
-
-    typedef GrExternalTextureData INHERITED;
+struct GrGLFramebufferInfo {
+    GrGLuint fFBOID;
 };
 
-GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLTextureInfo*));
+GR_STATIC_ASSERT(sizeof(GrBackendObject) >= sizeof(const GrGLFramebufferInfo*));
 
 #endif

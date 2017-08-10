@@ -75,12 +75,12 @@ SkImageGeneratorCG::SkImageGeneratorCG(const SkImageInfo& info, const void* imag
     , fData(SkRef(data))
 {}
 
-SkData* SkImageGeneratorCG::onRefEncodedData(GrContext* ctx) {
+SkData* SkImageGeneratorCG::onRefEncodedData() {
     return SkRef(fData.get());
 }
 
 bool SkImageGeneratorCG::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-        SkPMColor ctable[], int* ctableCount) {
+        const Options&) {
     if (kN32_SkColorType != info.colorType()) {
         // FIXME: Support other colorTypes.
         return false;

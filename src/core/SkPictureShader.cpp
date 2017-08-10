@@ -11,6 +11,7 @@
 #include "SkBitmap.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformCanvas.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
 #include "SkMatrixUtils.h"
@@ -30,38 +31,46 @@ static unsigned gBitmapSkaderKeyNamespaceLabel;
 
 struct BitmapShaderKey : public SkResourceCache::Key {
 public:
-    BitmapShaderKey(uint32_t pictureID,
+    BitmapShaderKey(sk_sp<SkColorSpace> colorSpace,
+                    uint32_t pictureID,
                     const SkRect& tile,
                     SkShader::TileMode tmx,
                     SkShader::TileMode tmy,
                     const SkSize& scale,
-                    const SkMatrix& localMatrix)
-        : fPictureID(pictureID)
+                    const SkMatrix& localMatrix,
+                    SkTransferFunctionBehavior blendBehavior)
+        : fColorSpace(std::move(colorSpace))
+        , fPictureID(pictureID)
         , fTile(tile)
         , fTmx(tmx)
         , fTmy(tmy)
-        , fScale(scale) {
+        , fScale(scale)
+        , fBlendBehavior(blendBehavior) {
 
         for (int i = 0; i < 9; ++i) {
             fLocalMatrixStorage[i] = localMatrix[i];
         }
 
-        static const size_t keySize = sizeof(fPictureID) +
+        static const size_t keySize = sizeof(fColorSpace) +
+                                      sizeof(fPictureID) +
                                       sizeof(fTile) +
                                       sizeof(fTmx) + sizeof(fTmy) +
                                       sizeof(fScale) +
-                                      sizeof(fLocalMatrixStorage);
+                                      sizeof(fLocalMatrixStorage) +
+                                      sizeof(fBlendBehavior);
         // This better be packed.
-        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - &fPictureID) == keySize);
+        SkASSERT(sizeof(uint32_t) * (&fEndOfStruct - (uint32_t*)&fColorSpace) == keySize);
         this->init(&gBitmapSkaderKeyNamespaceLabel, 0, keySize);
     }
 
 private:
-    uint32_t           fPictureID;
-    SkRect             fTile;
-    SkShader::TileMode fTmx, fTmy;
-    SkSize             fScale;
-    SkScalar           fLocalMatrixStorage[9];
+    sk_sp<SkColorSpace>        fColorSpace;
+    uint32_t                   fPictureID;
+    SkRect                     fTile;
+    SkShader::TileMode         fTmx, fTmy;
+    SkSize                     fScale;
+    SkScalar                   fLocalMatrixStorage[9];
+    SkTransferFunctionBehavior fBlendBehavior;
 
     SkDEBUGCODE(uint32_t fEndOfStruct;)
 };
@@ -98,20 +107,23 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 } // namespace
 
 SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
-                                 const SkMatrix* localMatrix, const SkRect* tile)
+                                 const SkMatrix* localMatrix, const SkRect* tile,
+                                 sk_sp<SkColorSpace> colorSpace)
     : INHERITED(localMatrix)
     , fPicture(std::move(picture))
     , fTile(tile ? *tile : fPicture->cullRect())
     , fTmx(tmx)
-    , fTmy(tmy) {
-}
+    , fTmy(tmy)
+    , fColorSpace(std::move(colorSpace))
+{}
 
 sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, TileMode tmx, TileMode tmy,
                                       const SkMatrix* localMatrix, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShader::MakeEmptyShader();
     }
-    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile));
+    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, localMatrix, tile,
+                                               nullptr));
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
@@ -215,13 +227,23 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
     const SkSize tileScale = SkSize::Make(SkIntToScalar(tileSize.width()) / fTile.width(),
                                           SkIntToScalar(tileSize.height()) / fTile.height());
 
+    // |fColorSpace| will only be set when using an SkColorSpaceXformCanvas to do pre-draw xforms.
+    // This canvas is strictly for legacy mode.  A non-null |dstColorSpace| indicates that we
+    // should perform color correct rendering and xform at draw time.
+    SkASSERT(!fColorSpace || !dstColorSpace);
+    sk_sp<SkColorSpace> keyCS = dstColorSpace ? sk_ref_sp(dstColorSpace) : fColorSpace;
+    SkTransferFunctionBehavior blendBehavior = dstColorSpace ? SkTransferFunctionBehavior::kRespect
+                                                             : SkTransferFunctionBehavior::kIgnore;
+
     sk_sp<SkShader> tileShader;
-    BitmapShaderKey key(fPicture->uniqueID(),
+    BitmapShaderKey key(std::move(keyCS),
+                        fPicture->uniqueID(),
                         fTile,
                         fTmx,
                         fTmy,
                         tileScale,
-                        this->getLocalMatrix());
+                        this->getLocalMatrix(),
+                        blendBehavior);
 
     if (!SkResourceCache::Find(key, BitmapShaderRec::Visitor, &tileShader)) {
         SkMatrix tileMatrix;
@@ -233,6 +255,10 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix, con
                                               SkImage::BitDepth::kU8, sk_ref_sp(dstColorSpace)));
         if (!tileImage) {
             return nullptr;
+        }
+
+        if (fColorSpace) {
+            tileImage = tileImage->makeColorSpace(fColorSpace, SkTransferFunctionBehavior::kIgnore);
         }
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
@@ -269,6 +295,11 @@ const {
         ctx = nullptr;
     }
     return ctx;
+}
+
+sk_sp<SkShader> SkPictureShader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return sk_sp<SkPictureShader>(new SkPictureShader(fPicture, fTmx, fTmy, &this->getLocalMatrix(),
+                                                      &fTile, xformer->dst()));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

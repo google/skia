@@ -107,14 +107,14 @@ DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
         canvas->translate(0, bmp.height() + labelPaint.getTextSize() + 15.f);
 
         constexpr char kLabelLabel[] = "localM / canvasM";
-        canvas->drawText(kLabelLabel, strlen(kLabelLabel), 0, 0, labelPaint);
+        canvas->drawString(kLabelLabel, 0, 0, labelPaint);
         canvas->translate(0, 15.f);
 
         canvas->save();
         SkScalar maxLabelW = 0;
         canvas->translate(0, kPadY / 2 + kPointSize);
         for (int lm = 0; lm < localMatrices.count(); ++lm) {
-            canvas->drawText(matrices[lm].fLabel, strlen(matrices[lm].fLabel),
+            canvas->drawString(matrices[lm].fLabel,
                              0, labelPaint.getTextSize() - 1, labelPaint);
             SkScalar labelW = labelPaint.measureText(matrices[lm].fLabel,
                                                      strlen(matrices[lm].fLabel));
@@ -132,7 +132,7 @@ DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
             for (int m = 0; m < matrices.count(); ++m) {
                 columnH = 0;
                 canvas->save();
-                canvas->drawText(matrices[m].fLabel, strlen(matrices[m].fLabel),
+                canvas->drawString(matrices[m].fLabel,
                                  0, labelPaint.getTextSize() - 1, labelPaint);
                 canvas->translate(0, kPadY / 2 + kPointSize);
                 columnH += kPadY / 2 + kPointSize;
@@ -178,8 +178,8 @@ DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
                 SkScalar y = columnH + kPadY / 2;
                 SkScalar fillX = -outlinePaint.measureText(kFillLabel, strlen(kFillLabel)) - kPadX;
                 SkScalar strokeX = kPadX;
-                canvas->drawText(kFillLabel, strlen(kFillLabel), fillX, y, labelPaint);
-                canvas->drawText(kStrokeLabel, strlen(kStrokeLabel), strokeX, y, labelPaint);
+                canvas->drawString(kFillLabel, fillX, y, labelPaint);
+                canvas->drawString(kStrokeLabel, strokeX, y, labelPaint);
             }
         }
 }

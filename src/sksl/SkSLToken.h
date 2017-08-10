@@ -78,11 +78,13 @@ struct Token {
         LOGICALANDEQ,
         SEMICOLON,
         IF,
+        STATIC_IF,
         ELSE,
         FOR,
         WHILE,
         DO,
         SWITCH,
+        STATIC_SWITCH,
         CASE,
         DEFAULT,
         RETURN,
@@ -104,6 +106,8 @@ struct Token {
         COHERENT,
         VOLATILE,
         RESTRICT,
+        BUFFER,
+        HASSIDEEFFECTS,
         STRUCT,
         LAYOUT,
         DIRECTIVE,
@@ -170,6 +174,7 @@ struct Token {
             case Token::BITWISEXOREQ: return String("^=");
             case Token::PLUSPLUS:     return String("++");
             case Token::MINUSMINUS:   return String("--");
+            case Token::COMMA:        return String(",");
             default:
                 ABORT("unsupported operator: %d\n", kind);
         }

@@ -194,7 +194,7 @@ SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
 /*
  * Chooses the best dimensions given the desired scale
  */
-SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const { 
+SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     // We set the dimensions to the largest candidate image by default.
     // Regardless of the scale request, this is the largest image that we
     // will decode.

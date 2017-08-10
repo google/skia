@@ -14,7 +14,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-class GrExternalTextureData;
 class GrTexturePriv;
 
 class GrTexture : virtual public GrSurface {
@@ -37,9 +36,14 @@ public:
 #ifdef SK_DEBUG
     void validate() const {
         this->INHERITED::validate();
-        this->validateDesc();
     }
 #endif
+
+    // These match the definitions in SkImage, for whence they came
+    typedef void* ReleaseCtx;
+    typedef void (*ReleaseProc)(ReleaseCtx);
+
+    virtual void setRelease(ReleaseProc proc, ReleaseCtx ctx) = 0;
 
     /** Access methods that are only to be used within Skia code. */
     inline GrTexturePriv texturePriv();
@@ -48,9 +52,6 @@ public:
 protected:
     GrTexture(GrGpu*, const GrSurfaceDesc&, GrSLType samplerType,
               GrSamplerParams::FilterMode highestFilterMode, bool wasMipMapDataProvided);
-
-    void validateDesc() const;
-    virtual std::unique_ptr<GrExternalTextureData> detachBackendTexture() = 0;
 
 private:
     void computeScratchKey(GrScratchKey*) const override;

@@ -217,8 +217,8 @@ public:
      *  "unknown" pixels.
      */
     static bool ComputeIsOpaque(const SkBitmap& bm) {
-        SkAutoPixmapUnlock result;
-        return bm.requestLock(&result) && result.pixmap().computeIsOpaque();
+        SkPixmap pmap;
+        return bm.peekPixels(&pmap) && pmap.computeIsOpaque();
     }
 
     /**
@@ -419,35 +419,21 @@ public:
      */
     void setPixelRef(sk_sp<SkPixelRef>, int dx, int dy);
 
-    /** Call this to ensure that the bitmap points to the current pixel address
-        in the pixelref. Balance it with a call to unlockPixels(). These calls
-        are harmless if there is no pixelref.
-    */
-    void lockPixels() const;
-    /** When you are finished access the pixel memory, call this to balance a
-        previous call to lockPixels(). This allows pixelrefs that implement
-        cached/deferred image decoding to know when there are active clients of
-        a given image.
-    */
-    void unlockPixels() const;
-
-    bool requestLock(SkAutoPixmapUnlock* result) const;
-
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels, and if required by its colortype, it has a
         non-null colortable. Returns true if all of the above are met.
     */
     bool readyToDraw() const {
         return this->getPixels() != NULL &&
-               (this->colorType() != kIndex_8_SkColorType || fColorTable);
+               (this->colorType() != kIndex_8_SkColorType || this->getColorTable());
     }
 
     /** Return the bitmap's colortable, if it uses one (i.e. colorType is
-        Index_8) and the pixels are locked.
+        Index_8).
         Otherwise returns NULL. Does not affect the colortable's
         reference count.
     */
-    SkColorTable* getColorTable() const { return fColorTable; }
+    SkColorTable* getColorTable() const;
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
         pixelref. Each time the pixels are changed (and notifyPixelsChanged
@@ -504,8 +490,7 @@ public:
      *  lower precision data than is actually in the pixel. Alpha only
      *  colortypes (e.g. kAlpha_8_SkColorType) return black with the appropriate
      *  alpha set.  The value is undefined for kUnknown_SkColorType or if x or y
-     *  are out of bounds, or if the bitmap does not have any pixels (or has not
-     *  be locked with lockPixels())..
+     *  are out of bounds, or if the bitmap does not have any pixels.
      */
     SkColor getColor(int x, int y) const {
         SkPixmap pixmap;
@@ -525,21 +510,21 @@ public:
     void* getAddr(int x, int y) const;
 
     /** Returns the address of the pixel specified by x,y for 32bit pixels.
-     *  In debug build, this asserts that the pixels are allocated and locked,
-     *  and that the colortype is 32-bit, however none of these checks are performed
+     *  In debug build, this asserts that the pixels are allocated and that the
+     *  colortype is 32-bit, however none of these checks are performed
      *  in the release build.
      */
     inline uint32_t* getAddr32(int x, int y) const;
 
     /** Returns the address of the pixel specified by x,y for 16bit pixels.
-     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  In debug build, this asserts that the pixels are allocated
      *  and that the colortype is 16-bit, however none of these checks are performed
      *  in the release build.
      */
     inline uint16_t* getAddr16(int x, int y) const;
 
     /** Returns the address of the pixel specified by x,y for 8bit pixels.
-     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  In debug build, this asserts that the pixels are allocated
      *  and that the colortype is 8-bit, however none of these checks are performed
      *  in the release build.
      */
@@ -547,7 +532,7 @@ public:
 
     /** Returns the color corresponding to the pixel specified by x,y for
      *  colortable based bitmaps.
-     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  In debug build, this asserts that the pixels are allocated,
      *  that the colortype is indexed, and that the colortable is allocated,
      *  however none of these checks are performed in the release build.
      */
@@ -565,40 +550,6 @@ public:
         @return true if the subset copy was successfully made.
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    /** Makes a deep copy of this bitmap, respecting the requested colorType,
-     *  and allocating the dst pixels on the cpu.
-     *  Returns false if either there is an error (i.e. the src does not have
-     *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
-     *  alpha, and the requested colortype does not support alpha).
-     *  @param dst The bitmap to be sized and allocated
-     *  @param ct The desired colorType for dst
-     *  @param allocator Allocator used to allocate the pixelref for the dst
-     *                   bitmap. If this is null, the standard HeapAllocator
-     *                   will be used.
-     *  @return true if the copy was made.
-     */
-    bool copyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
-
-    bool copyTo(SkBitmap* dst, Allocator* allocator) const {
-        return this->copyTo(dst, this->colorType(), allocator);
-    }
-#endif
-
-    /** Makes a deep copy of this bitmap, respecting the requested colorType.
-     *  Returns false if either there is an error (i.e. the src does not have
-     *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
-     *  alpha, and the requested colortype does not support alpha).
-     *  @param dst The bitmap to be sized and allocated
-     *  @param ct The desired colorType for dst
-     *  @return true if the copy was made.
-     */
-    bool copyTo(SkBitmap* dst, SkColorType ct) const;
-
-    bool copyTo(SkBitmap* dst) const {
-        return this->copyTo(dst, this->colorType());
-    }
 
     /**
      *  Copy the bitmap's pixels into the specified buffer (pixels + rowBytes),
@@ -638,20 +589,6 @@ public:
     bool writePixels(const SkPixmap& src) {
         return this->writePixels(src, 0, 0);
     }
-
-    /**
-     *  Returns true if this bitmap's pixels can be converted into the requested
-     *  colorType, such that copyTo() could succeed.
-     */
-    bool canCopyTo(SkColorType colorType) const;
-
-    /** Makes a deep copy of this bitmap, keeping the copied pixels
-     *  in the same domain as the source: If the src pixels are allocated for
-     *  the cpu, then so will the dst. If the src pixels are allocated on the
-     *  gpu (typically as a texture), the it will do the same for the dst.
-     *  If the request cannot be fulfilled, returns false and dst is unmodified.
-     */
-    bool deepCopyTo(SkBitmap* dst) const;
 
 #ifdef SK_BUILD_FOR_ANDROID
     bool hasHardwareMipMap() const {
@@ -693,13 +630,12 @@ public:
                       SkIPoint* offset) const;
 
     /**
-     *  If the pixels are available from this bitmap (w/o locking) return true, and fill out the
-     *  specified pixmap (if not null). If the pixels are not available (either because there are
-     *  none, or becuase accessing them would require locking or other machinary) return false and
+     *  If the pixels are available from this bitmap return true, and fill out the
+     *  specified pixmap (if not null). If there are no pixels, return false and
      *  ignore the pixmap parameter.
      *
      *  Note: if this returns true, the results (in the pixmap) are only valid until the bitmap
-     *  is changed in anyway, in which case the results are invalid.
+     *  is changed in any way, in which case the results are invalid.
      */
     bool peekPixels(SkPixmap*) const;
 
@@ -709,10 +645,9 @@ public:
     public:
         /** Allocate the pixel memory for the bitmap, given its dimensions and
             colortype. Return true on success, where success means either setPixels
-            or setPixelRef was called. The pixels need not be locked when this
-            returns. If the colortype requires a colortable, it also must be
-            installed via setColorTable. If false is returned, the bitmap and
-            colortable should be left unchanged.
+            or setPixelRef was called. If the colortype requires a colortable,
+            it also must be installed via setColorTable. If false is returned,
+            the bitmap and colortable should be left unchanged.
         */
         virtual bool allocPixelRef(SkBitmap*, SkColorTable*) = 0;
     private:
@@ -731,14 +666,6 @@ public:
     SK_TO_STRING_NONVIRT()
 
 private:
-    mutable sk_sp<SkPixelRef> fPixelRef;
-    mutable int               fPixelLockCount;
-    // These are just caches from the locked pixelref
-    mutable void*             fPixels;
-    mutable SkColorTable*     fColorTable;    // only meaningful for kIndex8
-
-    SkIPoint                  fPixelRefOrigin;
-
     enum Flags {
         kImageIsVolatile_Flag   = 0x02,
 #ifdef SK_BUILD_FOR_ANDROID
@@ -750,48 +677,27 @@ private:
 #endif
     };
 
-    SkImageInfo               fInfo;
-    uint32_t                  fRowBytes;
-    uint8_t                   fFlags;
+    sk_sp<SkPixelRef>   fPixelRef;
+    void*               fPixels;
+    SkIPoint            fPixelRefOrigin;
+    SkImageInfo         fInfo;
+    uint32_t            fRowBytes;
+    uint8_t             fFlags;
 
+    friend class SkImage_Raster;
     bool writePixels(const SkPixmap& src, int x, int y, SkTransferFunctionBehavior behavior);
-
-    bool internalCopyTo(SkBitmap* dst, SkColorType ct, Allocator*) const;
 
     /*  Unreference any pixelrefs or colortables
     */
     void freePixels();
-    void updatePixelsFromRef() const;
+    void updatePixelsFromRef();
 
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 
-    friend class SkImage_Raster;
     friend class SkReadBuffer;        // unflatten, rawpixels
     friend class SkBinaryWriteBuffer; // rawpixels
-    friend struct SkBitmapProcState;
 };
-
-class SkAutoLockPixels : SkNoncopyable {
-public:
-    SkAutoLockPixels(const SkBitmap& bm, bool doLock = true) : fBitmap(bm) {
-        fDidLock = doLock;
-        if (doLock) {
-            bm.lockPixels();
-        }
-    }
-    ~SkAutoLockPixels() {
-        if (fDidLock) {
-            fBitmap.unlockPixels();
-        }
-    }
-
-private:
-    const SkBitmap& fBitmap;
-    bool            fDidLock;
-};
-//TODO(mtklein): uncomment when 71713004 lands and Chromium's fixed.
-//#define SkAutoLockPixels(...) SK_REQUIRE_LOCAL_VAR(SkAutoLockPixels)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -820,8 +726,8 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT(fPixels);
     SkASSERT(kIndex_8_SkColorType == this->colorType());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
-    SkASSERT(fColorTable);
-    return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
+    SkASSERT(this->getColorTable());
+    return (*this->getColorTable())[*((const uint8_t*)fPixels + y * fRowBytes + x)];
 }
 
 #endif

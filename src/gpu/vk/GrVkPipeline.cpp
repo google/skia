@@ -359,22 +359,8 @@ static void setup_color_blend_state(const GrPipeline& pipeline,
     // colorBlendInfo->blendConstants is set dynamically
 }
 
-static VkCullModeFlags draw_face_to_vk_cull_mode(GrDrawFace drawFace) {
-    // Assumes that we've set the front face to be ccw
-    static const VkCullModeFlags gTable[] = {
-        VK_CULL_MODE_NONE,              // kBoth_DrawFace
-        VK_CULL_MODE_BACK_BIT,          // kCCW_DrawFace, cull back face
-        VK_CULL_MODE_FRONT_BIT,         // kCW_DrawFace, cull front face
-    };
-    GR_STATIC_ASSERT(0 == (int)GrDrawFace::kBoth);
-    GR_STATIC_ASSERT(1 == (int)GrDrawFace::kCCW);
-    GR_STATIC_ASSERT(2 == (int)GrDrawFace::kCW);
-    SkASSERT(-1 < (int)drawFace && (int)drawFace <= 2);
-
-    return gTable[(int)drawFace];
-}
-
 static void setup_raster_state(const GrPipeline& pipeline,
+                               const GrCaps* caps,
                                VkPipelineRasterizationStateCreateInfo* rasterInfo) {
     memset(rasterInfo, 0, sizeof(VkPipelineRasterizationStateCreateInfo));
     rasterInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -382,8 +368,9 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->flags = 0;
     rasterInfo->depthClampEnable = VK_FALSE;
     rasterInfo->rasterizerDiscardEnable = VK_FALSE;
-    rasterInfo->polygonMode = VK_POLYGON_MODE_FILL;
-    rasterInfo->cullMode = draw_face_to_vk_cull_mode(pipeline.getDrawFace());
+    rasterInfo->polygonMode = caps->wireframeMode() ? VK_POLYGON_MODE_LINE
+                                                    : VK_POLYGON_MODE_FILL;
+    rasterInfo->cullMode = VK_CULL_MODE_NONE;
     rasterInfo->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterInfo->depthBiasEnable = VK_FALSE;
     rasterInfo->depthBiasConstantFactor = 0.0f;
@@ -439,7 +426,7 @@ GrVkPipeline* GrVkPipeline::Create(GrVkGpu* gpu, const GrPipeline& pipeline,
     setup_color_blend_state(pipeline, &colorBlendInfo, attachmentStates);
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
-    setup_raster_state(pipeline, &rasterInfo);
+    setup_raster_state(pipeline, gpu->caps(), &rasterInfo);
 
     VkDynamicState dynamicStates[3];
     VkPipelineDynamicStateCreateInfo dynamicInfo;
@@ -539,7 +526,11 @@ static void set_dynamic_blend_constant_state(GrVkGpu* gpu,
     GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
     float floatColors[4];
     if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
-        GrColorToRGBAFloat(blendInfo.fBlendConstant, floatColors);
+        // Swizzle the blend to match what the shader will output.
+        const GrSwizzle& swizzle = gpu->caps()->shaderCaps()->configOutputSwizzle(
+                pipeline.getRenderTarget()->config());
+        GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
+        GrColorToRGBAFloat(blendConst, floatColors);
     } else {
         memset(floatColors, 0, 4 * sizeof(float));
     }

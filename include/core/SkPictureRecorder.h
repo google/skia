@@ -8,7 +8,6 @@
 #ifndef SkPictureRecorder_DEFINED
 #define SkPictureRecorder_DEFINED
 
-#include "../private/SkMiniRecorder.h"
 #include "SkBBHFactory.h"
 #include "SkPicture.h"
 #include "SkRefCnt.h"
@@ -22,6 +21,7 @@ namespace android {
 class GrContext;
 class SkCanvas;
 class SkDrawable;
+class SkMiniRecorder;
 class SkPictureRecord;
 class SkRecord;
 class SkRecorder;
@@ -116,7 +116,7 @@ private:
     sk_sp<SkBBoxHierarchy>      fBBH;
     std::unique_ptr<SkRecorder> fRecorder;
     sk_sp<SkRecord>             fRecord;
-    SkMiniRecorder              fMiniRecorder;
+    std::unique_ptr<SkMiniRecorder> fMiniRecorder;
 
     typedef SkNoncopyable INHERITED;
 };

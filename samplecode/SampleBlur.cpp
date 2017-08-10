@@ -25,7 +25,6 @@ static SkBitmap make_bitmap() {
                                      kPremul_SkAlphaType),
                    SkColorTable::Make(c, 256));
 
-    bm.lockPixels();
     const float cx = bm.width() * 0.5f;
     const float cy = bm.height() * 0.5f;
     for (int y = 0; y < bm.height(); y++) {
@@ -43,7 +42,6 @@ static SkBitmap make_bitmap() {
             p[x] = id;
         }
     }
-    bm.unlockPixels();
     return bm;
 }
 
@@ -113,13 +111,13 @@ protected:
                 SkScalar x = SkIntToScalar(70);
                 SkScalar y = SkIntToScalar(400);
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawText("Hamburgefons Style", 18, x, y, paint);
-                canvas->drawText("Hamburgefons Style", 18, x, y + SkIntToScalar(50), paint);
+                canvas->drawString("Hamburgefons Style", x, y, paint);
+                canvas->drawString("Hamburgefons Style", x, y + SkIntToScalar(50), paint);
                 paint.setMaskFilter(nullptr);
                 paint.setColor(SK_ColorWHITE);
                 x -= SkIntToScalar(2);
                 y -= SkIntToScalar(2);
-                canvas->drawText("Hamburgefons Style", 18, x, y, paint);
+                canvas->drawString("Hamburgefons Style", x, y, paint);
             }
             canvas->restore();
             flags = SkBlurMaskFilter::kHighQuality_BlurFlag;

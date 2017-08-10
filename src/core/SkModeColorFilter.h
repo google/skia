@@ -44,8 +44,13 @@ protected:
 
     void flatten(SkWriteBuffer&) const override;
 
-    bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+    void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         bool shaderIsOpaque) const override;
+
+    sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
+
+    // cache
+    SkPM4f              fPMColor4f;
 
 private:
     SkColor             fColor;

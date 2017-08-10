@@ -36,11 +36,12 @@ public:
     };
 
     SkPath();
-    SkPath(const SkPath&);
+    SkPath(const SkPath& path);
     ~SkPath();
 
-    SkPath& operator=(const SkPath&);
-    friend  SK_API bool operator==(const SkPath&, const SkPath&);
+    SkPath& operator=(const SkPath& path);
+    // mac chromium dbg requires SK_API to make operator== visible
+    friend SK_API bool operator==(const SkPath& a, const SkPath& b);
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
     }
@@ -150,7 +151,7 @@ public:
      *  changed (e.g. lineTo(), addRect(), etc.) then the cached value will be
      *  reset to kUnknown_Convexity.
      */
-    void setConvexity(Convexity);
+    void setConvexity(Convexity convexity);
 
     /**
      *  Returns true if the path is flagged as being convex. This is not a
@@ -521,17 +522,17 @@ public:
         current point on this contour. If there is no previous point, then a
         moveTo(0,0) is inserted automatically.
 
-        @param dx1   The amount to add to the x-coordinate of the last point on
+        @param x1   The amount to add to the x-coordinate of the last point on
                 this contour, to specify the 1st control point of a cubic curve
-        @param dy1   The amount to add to the y-coordinate of the last point on
+        @param y1   The amount to add to the y-coordinate of the last point on
                 this contour, to specify the 1st control point of a cubic curve
-        @param dx2   The amount to add to the x-coordinate of the last point on
+        @param x2   The amount to add to the x-coordinate of the last point on
                 this contour, to specify the 2nd control point of a cubic curve
-        @param dy2   The amount to add to the y-coordinate of the last point on
+        @param y2   The amount to add to the y-coordinate of the last point on
                 this contour, to specify the 2nd control point of a cubic curve
-        @param dx3   The amount to add to the x-coordinate of the last point on
+        @param x3   The amount to add to the x-coordinate of the last point on
                      this contour, to specify the end point of a cubic curve
-        @param dy3   The amount to add to the y-coordinate of the last point on
+        @param y3   The amount to add to the y-coordinate of the last point on
                      this contour, to specify the end point of a cubic curve
     */
     void rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -1084,7 +1085,7 @@ public:
      */
     bool contains(SkScalar x, SkScalar y) const;
 
-    void dump(SkWStream* , bool forceClose, bool dumpAsHex) const;
+    void dump(SkWStream* stream, bool forceClose, bool dumpAsHex) const;
     void dump() const;
     void dumpHex() const;
 

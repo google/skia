@@ -41,11 +41,9 @@ public:
          */
         kNone_MSFBOType = 0,
         /**
-         * OpenGL < 3.0 with GL_EXT_framebuffer_object. Doesn't allow rendering to ALPHA.
-         */
-        kEXT_MSFBOType,
-        /**
-         * OpenGL 3.0+, OpenGL ES 3.0+, and GL_ARB_framebuffer_object.
+         * OpenGL 3.0+, OpenGL ES 3.0+, GL_ARB_framebuffer_object,
+         * GL_CHROMIUM_framebuffer_multisample, GL_ANGLE_framebuffer_multisample,
+         * or GL_EXT_framebuffer_multisample
          */
         kStandard_MSFBOType,
         /**
@@ -152,8 +150,6 @@ public:
     bool getTexImageFormats(GrPixelConfig surfaceConfig, GrPixelConfig externalConfig,
                             GrGLenum* internalFormat, GrGLenum* externalFormat,
                             GrGLenum* externalType) const;
-
-    bool getCompressedTexImageFormats(GrPixelConfig surfaceConfig, GrGLenum* internalFormat) const;
 
     bool getReadPixelsFormat(GrPixelConfig surfaceConfig, GrPixelConfig externalConfig,
                              GrGLenum* externalFormat, GrGLenum* externalType) const;
@@ -287,6 +283,9 @@ public:
     /// Is there support for GL_RED and GL_R8
     bool textureRedSupport() const { return fTextureRedSupport; }
 
+    /// Is GL_ALPHA8 renderable
+    bool alpha8IsRenderable() const { return fAlpha8IsRenderable; }
+
     /// Is GL_ARB_IMAGING supported
     bool imagingSupport() const { return fImagingSupport; }
 
@@ -362,6 +361,14 @@ public:
     // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
     bool clearToBoundaryValuesIsBroken() const { return fClearToBoundaryValuesIsBroken; }
 
+    /// glClearTex(Sub)Image support
+    bool clearTextureSupport() const { return fClearTextureSupport; }
+
+    // Adreno/MSAA drops a draw on the imagefiltersbase GM if the base vertex param to
+    // glDrawArrays is nonzero.
+    // https://bugs.chromium.org/p/skia/issues/detail?id=6650
+    bool drawArraysBaseVertexIsBroken() const { return fDrawArraysBaseVertexIsBroken; }
+
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
                             bool* rectsMustMatch, bool* disallowSubrect) const override;
 
@@ -410,6 +417,7 @@ private:
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
     bool fTextureRedSupport : 1;
+    bool fAlpha8IsRenderable: 1;
     bool fImagingSupport  : 1;
     bool fVertexArrayObjectSupport : 1;
     bool fDirectStateAccessSupport : 1;
@@ -434,6 +442,8 @@ private:
     bool fSRGBDecodeDisableSupport : 1;
     bool fSRGBDecodeDisableAffectsMipmaps : 1;
     bool fClearToBoundaryValuesIsBroken : 1;
+    bool fClearTextureSupport : 1;
+    bool fDrawArraysBaseVertexIsBroken : 1;
 
     uint32_t fBlitFramebufferFlags;
 

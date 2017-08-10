@@ -26,7 +26,6 @@
 
 class GrGLBuffer;
 class GrPipeline;
-class GrNonInstancedMesh;
 class GrSwizzle;
 
 namespace gr_instanced { class GLInstancedRendering; }
@@ -147,12 +146,12 @@ public:
     void deleteFence(GrFence) const override;
 
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override;
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
-    void deleteSync(GrGLsync) const;
+    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
-    void flush() override;
+    void deleteSync(GrGLsync) const;
 
 private:
     GrGLGpu(GrGLContext* ctx, GrContext* context);
@@ -164,16 +163,22 @@ private:
 
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>& texels) override;
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc,
-                                         SkBudgeted budgeted,
-                                         const SkTArray<GrMipLevel>& texels) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                              const void* data) override;
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
-    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override;
 
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
+                                          GrSurfaceOrigin,
+                                          GrBackendTextureFlags,
+                                          int sampleCnt,
+                                          GrWrapOwnership) override;
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                    GrSurfaceOrigin origin) override;
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                             GrSurfaceOrigin,
+                                                             int sampleCnt) override;
+
+    std::unique_ptr<gr_instanced::OpAllocator> onCreateInstancedRenderingAllocator() override;
     gr_instanced::InstancedRendering* onCreateInstancedRendering() override;
 
     // Given a GrPixelConfig return the index into the stencil format array on GrGLCaps to a
@@ -247,8 +252,9 @@ private:
     // an into the index buffer. It does not account for vertices.startIndex() but rather the start
     // index is relative to the returned offset.
     void setupGeometry(const GrPrimitiveProcessor&,
-                       const GrNonInstancedMesh& mesh,
-                       size_t* indexOffsetInBytes);
+                       const GrBuffer* indexBuffer,
+                       const GrBuffer* vertexBuffer,
+                       int baseVertex);
 
     void flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSwizzle&);
 
@@ -307,7 +313,6 @@ private:
     };
 
     void flushColorWrite(bool writeColor);
-    void flushDrawFace(GrDrawFace face);
 
     // flushes the scissor. see the note on flushBoundTextureAndParams about
     // flushing the scissor after that function is called.
@@ -353,25 +358,10 @@ private:
         kWrite_UploadType,         // we are using TexSubImage2D to copy data to an existing texture
         kTransfer_UploadType,      // we are using a transfer buffer to copy data
     };
-    bool uploadTexData(const GrSurfaceDesc& desc,
-                       GrGLenum target,
-                       UploadType uploadType,
-                       int left, int top, int width, int height,
-                       GrPixelConfig dataConfig,
+    bool uploadTexData(GrPixelConfig texConfig, int texWidth, int texHeight,
+                       GrSurfaceOrigin texOrigin, GrGLenum target, UploadType uploadType, int left,
+                       int top, int width, int height, GrPixelConfig dataConfig,
                        const SkTArray<GrMipLevel>& texels);
-
-    // helper for onCreateCompressedTexture. If width and height are
-    // set to -1, then this function will use desc.fWidth and desc.fHeight
-    // for the size of the data. The isNewTexture flag should be set to true
-    // whenever a new texture needs to be created. Otherwise, we assume that
-    // the texture is already in GPU memory and that it's going to be updated
-    // with new data.
-    bool uploadCompressedTexData(const GrSurfaceDesc& desc,
-                                 GrGLenum target,
-                                 const SkTArray<GrMipLevel>& texels,
-                                 UploadType uploadType = kNewTexture_UploadType,
-                                 int left = 0, int top = 0,
-                                 int width = -1, int height = -1);
 
     bool createRenderTargetObjects(const GrSurfaceDesc&, const GrGLTextureInfo& texInfo,
                                    GrGLRenderTarget::IDDesc*);
@@ -381,9 +371,9 @@ private:
         kDst_TempFBOTarget
     };
 
-    // Binds a surface as a FBO for copying or reading. If the surface already owns an FBO ID then
-    // that ID is bound. If not the surface is temporarily bound to a FBO and that FBO is bound.
-    // This must be paired with a call to unbindSurfaceFBOForPixelOps().
+    // Binds a surface as a FBO for copying, reading, or clearing. If the surface already owns an
+    // FBO ID then that ID is bound. If not the surface is temporarily bound to a FBO and that FBO
+    // is bound. This must be paired with a call to unbindSurfaceFBOForPixelOps().
     void bindSurfaceFBOForPixelOps(GrSurface* surface, GrGLenum fboTarget, GrGLIRect* viewport,
                                    TempFBOTarget tempFBOTarget);
 
@@ -559,7 +549,6 @@ private:
     TriState                                fHWStencilTestEnabled;
 
 
-    GrDrawFace                              fHWDrawFace;
     TriState                                fHWWriteToColor;
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
     TriState                                fHWSRGBFramebuffer;

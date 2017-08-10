@@ -180,7 +180,7 @@ SkPDFDocument::SkPDFDocument(SkWStream* stream,
     , fRasterDpi(rasterDpi)
     , fMetadata(metadata)
     , fPDFA(pdfa) {
-    fCanon.setPixelSerializer(std::move(jpegEncoder));
+    fCanon.fPixelSerializer = std::move(jpegEncoder);
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -218,8 +218,10 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height,
     fPageDevice.reset(
             SkPDFDevice::Create(pageSize, fRasterDpi, this));
     fCanvas.reset(new SkPDFCanvas(fPageDevice));
-    fCanvas->clipRect(trimBox);
-    fCanvas->translate(trimBox.x(), trimBox.y());
+    if (SkRect::MakeWH(width, height) != trimBox) {
+        fCanvas->clipRect(trimBox);
+        fCanvas->translate(trimBox.x(), trimBox.y());
+    }
     return fCanvas.get();
 }
 
@@ -251,7 +253,7 @@ void SkPDFDocument::onAbort() {
 void SkPDFDocument::reset() {
     fCanvas.reset(nullptr);
     fPages.reset();
-    fCanon.reset();
+    renew(&fCanon);
     renew(&fObjectSerializer);
     fFonts.reset();
 }

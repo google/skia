@@ -18,6 +18,7 @@ class GrFragmentProcessor;
 class SkArenaAlloc;
 class SkBitmap;
 class SkColorSpace;
+class SkColorSpaceXformer;
 class SkRasterPipeline;
 
 /**
@@ -71,10 +72,9 @@ public:
     */
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[]) const = 0;
 
-    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const;
+    virtual void filterSpan4f(const SkPM4f src[], int count, SkPM4f result[]) const = 0;
 
-    bool appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                      bool shaderIsOpaque) const;
+    void appendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*, bool shaderIsOpaque) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -160,8 +160,12 @@ public:
 protected:
     SkColorFilter() {}
 
-    virtual bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
-                                bool shaderIsOpaque) const;
+    sk_sp<SkColorFilter> makeColorSpace(SkColorSpaceXformer* xformer) const {
+        return this->onMakeColorSpace(xformer);
+    }
+    virtual sk_sp<SkColorFilter> onMakeColorSpace(SkColorSpaceXformer*) const {
+        return sk_ref_sp(const_cast<SkColorFilter*>(this));
+    }
 
 private:
     /*
@@ -172,6 +176,20 @@ private:
      *  e.g. compose(filter, compose(compose(filter, filter), filter)) --> 4
      */
     virtual int privateComposedFilterCount() const { return 1; }
+
+    /*
+     *  Returns true and sets |outer| and |inner| if this is a compose color filter.
+     *  Returns false otherwise.
+     */
+    virtual bool asACompose(SkColorFilter** /*outer*/, SkColorFilter** /*inner*/) const {
+        return false;
+    }
+
+    virtual void onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
+                                bool shaderIsOpaque) const;
+
+
+    friend class SkColorSpaceXformer;
     friend class SkComposeColorFilter;
 
     typedef SkFlattenable INHERITED;

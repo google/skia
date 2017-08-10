@@ -31,7 +31,7 @@ class GrVkGpu;
 
   This is nearly identical to SkRefCntBase. The exceptions are that unref()
   takes a GrVkGpu, and any derived classes must implement freeGPUData() and
-  possibly abandonSubResources().
+  possibly abandonGPUData().
 */
 
 class GrVkResource : SkNoncopyable {
@@ -153,10 +153,12 @@ private:
      */
     virtual void freeGPUData(const GrVkGpu* gpu) const = 0;
 
-    /** Must be overridden by subclasses that themselves store GrVkResources.
-     *  Will unrefAndAbandon those resources without deleting the underlying Vk data
+    /**
+     * Called from unrefAndAbandon. Resources should do any necessary cleanup without freeing
+     * underlying Vk objects. This must be overridden by subclasses that themselves store
+     * GrVkResources since those resource will need to be unrefed.
      */
-    virtual void abandonSubResources() const {}
+    virtual void abandonGPUData() const {}
 
     /**
      *  Called when the ref count goes to 0. Will free Vk resources.
@@ -175,7 +177,7 @@ private:
      *  Internal_dispose without freeing Vk resources. Used when we've lost context.
      */
     void internal_dispose() const {
-        this->abandonSubResources();
+        this->abandonGPUData();
 #ifdef SK_TRACE_VK_RESOURCES
         fTrace.remove(this);
 #endif

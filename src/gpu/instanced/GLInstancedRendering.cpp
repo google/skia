@@ -15,12 +15,13 @@
 
 namespace gr_instanced {
 
-class GLInstancedRendering::GLOp final : public InstancedRendering::Op {
+class GLInstancedOp final : public InstancedOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GLOp(GLInstancedRendering* instRendering, GrPaint&& paint)
-            : INHERITED(ClassID(), std::move(paint), instRendering) {}
+    GLInstancedOp(GLOpAllocator* alloc, GrPaint&& paint)
+        : INHERITED(ClassID(), std::move(paint), alloc) {
+    }
     int numGLCommands() const { return 1 + fNumChangesInGeometry; }
 
 private:
@@ -29,7 +30,7 @@ private:
 
     friend class GLInstancedRendering;
 
-    typedef Op INHERITED;
+    typedef InstancedOp INHERITED;
 };
 
 GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCaps) {
@@ -43,10 +44,10 @@ GrCaps::InstancedSupport GLInstancedRendering::CheckSupport(const GrGLCaps& glCa
 }
 
 GLInstancedRendering::GLInstancedRendering(GrGLGpu* gpu)
-    : INHERITED(gpu),
-      fVertexArrayID(0),
-      fGLDrawCmdsInfo(0),
-      fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
+    : INHERITED(gpu)
+    , fVertexArrayID(0)
+    , fGLDrawCmdsInfo(0)
+    , fInstanceAttribsBufferUniqueId(SK_InvalidUniqueID) {
     SkASSERT(GrCaps::InstancedSupport::kNone != this->gpu()->caps()->instancedSupport());
 }
 
@@ -61,8 +62,8 @@ inline GrGLGpu* GLInstancedRendering::glGpu() const {
     return static_cast<GrGLGpu*>(this->gpu());
 }
 
-std::unique_ptr<InstancedRendering::Op> GLInstancedRendering::makeOp(GrPaint&& paint) {
-    return std::unique_ptr<Op>(new GLOp(this, std::move(paint)));
+std::unique_ptr<InstancedOp> GLOpAllocator::makeOp(GrPaint&& paint) {
+    return std::unique_ptr<InstancedOp>(new GLInstancedOp(this, std::move(paint)));
 }
 
 void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
@@ -71,8 +72,8 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
     iter.init(this->trackedOps(), OpList::Iter::kHead_IterStart);
     int numGLInstances = 0;
     int numGLDrawCmds = 0;
-    while (Op* o = iter.get()) {
-        GLOp* op = static_cast<GLOp*>(o);
+    while (InstancedOp* o = iter.get()) {
+        GLInstancedOp* op = (GLInstancedOp*) o;
         iter.next();
 
         numGLInstances += op->fNumDraws;
@@ -152,14 +153,14 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
 
     // Generate the instance and draw-indirect buffer contents based on the tracked ops.
     iter.init(this->trackedOps(), OpList::Iter::kHead_IterStart);
-    while (Op* o = iter.get()) {
-        GLOp* op = static_cast<GLOp*>(o);
+    while (InstancedOp* o = iter.get()) {
+        GLInstancedOp* op = static_cast<GLInstancedOp*>(o);
         iter.next();
 
         op->fEmulatedBaseInstance = baseInstanceSupport ? 0 : glInstancesIdx;
         op->fGLDrawCmdsIdx = glDrawCmdsIdx;
 
-        const Op::Draw* draw = op->fHeadDraw;
+        const InstancedOp::Draw* draw = op->fHeadDraw;
         SkASSERT(draw);
         do {
             int instanceCount = 0;
@@ -201,7 +202,7 @@ void GLInstancedRendering::onBeginFlush(GrResourceProvider* rp) {
 }
 
 void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProcessor& instProc,
-                                  const Op* baseOp) {
+                                  const InstancedOp* baseOp) {
     if (!fDrawIndirectBuffer && !fGLDrawCmdsInfo) {
         return; // beginFlush was not successful.
     }
@@ -214,7 +215,7 @@ void GLInstancedRendering::onDraw(const GrPipeline& pipeline, const InstanceProc
     }
 
     const GrGLCaps& glCaps = this->glGpu()->glCaps();
-    const GLOp* op = static_cast<const GLOp*>(baseOp);
+    const GLInstancedOp* op = static_cast<const GLInstancedOp*>(baseOp);
     int numCommands = op->numGLCommands();
 
 #if GR_GL_LOG_INSTANCED_OPS

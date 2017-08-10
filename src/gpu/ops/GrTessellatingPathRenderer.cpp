@@ -313,10 +313,8 @@ private:
 
     void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
                       int firstVertex, int count) const {
-        GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType
-                                                              : kTriangles_GrPrimitiveType;
-        GrMesh mesh;
-        mesh.init(primitiveType, vb, firstVertex, count);
+        GrMesh mesh(TESSELLATOR_WIREFRAME ? kLines_GrPrimitiveType : kTriangles_GrPrimitiveType);
+        mesh.setVertices(vb, count, firstVertex);
         target->draw(gp, this->pipeline(), mesh);
     }
 
@@ -378,7 +376,7 @@ bool GrTessellatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(TesselatingPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPath(random);

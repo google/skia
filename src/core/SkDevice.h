@@ -15,6 +15,7 @@
 
 class SkBitmap;
 class SkDrawFilter;
+struct SkDrawShadowRec;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -234,12 +235,15 @@ protected:
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
     virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
+    virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
+
     // default implementation unrolls the blob runs.
     virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                               const SkPaint& paint, SkDrawFilter* drawFilter);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                           const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
+                           const SkPoint texCoords[4], SkBlendMode, bool interpColorsLinearly,
+                           const SkPaint& paint);
 
     // default implementation calls drawPath
     virtual void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
@@ -258,7 +262,8 @@ protected:
     virtual void drawTextRSXform(const void* text, size_t len, const SkRSXform[],
                                  const SkPaint&);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
+    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
+                             SkImage* clipImage, const SkMatrix& clipMatrix);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
     virtual sk_sp<SkSpecialImage> snapSpecial();

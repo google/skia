@@ -68,7 +68,7 @@ public:
         kTernary_Precedence        = 15,
         kAssignment_Precedence     = 16,
         kSequence_Precedence       = 17,
-        kTopLevel_Precedence       = 18
+        kTopLevel_Precedence       = kSequence_Precedence
     };
 
     GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
@@ -144,6 +144,8 @@ private:
     void writeFloatLiteral(const FloatLiteral& f);
 
     void writeStatement(const Statement& s);
+
+    void writeStatements(const std::vector<std::unique_ptr<Statement>>& statements);
 
     void writeBlock(const Block& b);
 

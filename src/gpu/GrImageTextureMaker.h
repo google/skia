@@ -17,8 +17,7 @@ class SkImageCacherator;
     is kAllow the image's ID is used for the cache key. */
 class GrImageTextureMaker : public GrTextureMaker {
 public:
-    GrImageTextureMaker(GrContext* context, SkImageCacherator* cacher, const SkImage* client,
-                        SkImage::CachingHint chint);
+    GrImageTextureMaker(GrContext* context, const SkImage* client, SkImage::CachingHint chint);
 
 protected:
     // TODO: consider overriding this, for the case where the underlying generator might be

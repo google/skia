@@ -36,8 +36,8 @@ protected:
         const char* str2 = "XYZ";
         paint.setColor(0xFFFFFFFF);
         paint.setTextSize(64);
-        canvas.drawText(str1, strlen(str1), 10, 55, paint);
-        canvas.drawText(str2, strlen(str2), 10, 110, paint);
+        canvas.drawString(str1, 10, 55, paint);
+        canvas.drawString(str2, 10, 110, paint);
     }
 
     SkISize onISize() override {

@@ -21,6 +21,10 @@ public:
         : fInputChannels(inputChannels) {
         SkASSERT(inputChannels >= 1 && inputChannels <= kMaxColorChannels);
         memcpy(fGridPoints, gridPoints, fInputChannels * sizeof(uint8_t));
+
+        for (int i = 0; i < inputChannels; i++) {
+            SkASSERT(fGridPoints[i] > 1);
+        }
     }
 
     /**
@@ -36,7 +40,7 @@ public:
     int inputChannels() const { return fInputChannels; }
 
     int outputChannels() const { return kOutputChannels; }
-    
+
     int gridPoints(int dimension) const {
         SkASSERT(dimension >= 0 && dimension < inputChannels());
         return fGridPoints[dimension];

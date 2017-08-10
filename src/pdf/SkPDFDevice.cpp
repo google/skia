@@ -104,12 +104,12 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
 static SkImageSubset make_image_subset(const SkBitmap& bitmap) {
     SkASSERT(!bitmap.drawsNothing());
     SkIRect subset = bitmap.getSubset();
-    SkAutoLockPixels autoLockPixels(bitmap);
     SkASSERT(bitmap.pixelRef());
     SkBitmap tmp;
-    tmp.setInfo(bitmap.pixelRef()->info(), bitmap.rowBytes());
+    SkImageInfo pixelRefInfo =
+            bitmap.info().makeWH(bitmap.pixelRef()->width(), bitmap.pixelRef()->height());
+    tmp.setInfo(pixelRefInfo, bitmap.rowBytes());
     tmp.setPixelRef(sk_ref_sp(bitmap.pixelRef()), 0, 0);
-    tmp.lockPixels();
     auto img = SkImage::MakeFromBitmap(tmp);
     if (img) {
         SkASSERT(!bitmap.isImmutable() || img->uniqueID() == bitmap.getGenerationID());
@@ -209,6 +209,7 @@ bool apply_clip(SkClipOp op, const SkPath& u, const SkPath& v, SkPath* r)  {
             return Op(u, v, kDifference_SkPathOp, r);
         case SkClipOp::kIntersect:
             return Op(u, v, kIntersect_SkPathOp, r);
+#ifdef SK_SUPPORT_DEPRECATED_CLIPOPS
         case SkClipOp::kUnion_deprecated:
             return Op(u, v, kUnion_SkPathOp, r);
         case SkClipOp::kXOR_deprecated:
@@ -218,6 +219,7 @@ bool apply_clip(SkClipOp op, const SkPath& u, const SkPath& v, SkPath* r)  {
         case SkClipOp::kReplace_deprecated:
             *r = v;
             return true;
+#endif
         default:
             return false;
     }
@@ -519,7 +521,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
             SkPoint transformedPoint;
             this->ctm().mapXY(rect.x(), rect.y(), &transformedPoint);
-            fNamedDestinations.emplace_back(value, transformedPoint);
+            fNamedDestinations.emplace_back(NamedDestination{sk_ref_sp(value), transformedPoint});
         }
         return;
     }
@@ -536,9 +538,9 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
         return;
     }
     if (!strcmp(SkAnnotationKeys::URL_Key(), key)) {
-        fLinkToURLs.emplace_back(transformedRect, value);
+        fLinkToURLs.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
     } else if (!strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
-        fLinkToDestinations.emplace_back(transformedRect, value);
+        fLinkToDestinations.emplace_back(RectWithData{transformedRect, sk_ref_sp(value)});
     }
 }
 
@@ -1480,15 +1482,15 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
     SkScalar scalarY = SkIntToScalar(y);
     for (const RectWithData& l : pdfDevice->fLinkToURLs) {
         SkRect r = l.rect.makeOffset(scalarX, scalarY);
-        fLinkToURLs.emplace_back(r, l.data.get());
+        fLinkToURLs.emplace_back(RectWithData{r, l.data});
     }
     for (const RectWithData& l : pdfDevice->fLinkToDestinations) {
         SkRect r = l.rect.makeOffset(scalarX, scalarY);
-        fLinkToDestinations.emplace_back(r, l.data.get());
+        fLinkToDestinations.emplace_back(RectWithData{r, l.data});
     }
     for (const NamedDestination& d : pdfDevice->fNamedDestinations) {
         SkPoint p = d.point + SkPoint::Make(scalarX, scalarY);
-        fNamedDestinations.emplace_back(d.nameData.get(), p);
+        fNamedDestinations.emplace_back(NamedDestination{d.nameData, p});
     }
 
     if (pdfDevice->isContentEmpty()) {
@@ -1704,10 +1706,8 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
                                   &content.entry()->fContent);
     SkPDFUtils::DrawFormXObject(xObjectIndex, &content.entry()->fContent);
 
-    // Call makeNoSmaskGraphicState() instead of
-    // SkPDFGraphicState::MakeNoSmaskGraphicState so that the canon
-    // can deduplicate.
-    sMaskGS = fDocument->canon()->makeNoSmaskGraphicState();
+    sMaskGS = SkPDFUtils::GetCachedT(&fDocument->canon()->fNoSmaskGraphicState,
+                                     &SkPDFGraphicState::MakeNoSmaskGraphicState);
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &content.entry()->fContent);
 }
@@ -1984,13 +1984,11 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
     sk_sp<SkPDFGraphicState> newGraphicState;
     if (color == paint.getColor()) {
-        newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), paint));
+        newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), paint);
     } else {
         SkPaint newPaint = paint;
         newPaint.setColor(color);
-        newGraphicState.reset(
-                SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), newPaint));
+        newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(fDocument->canon(), newPaint);
     }
     int resourceIndex = addGraphicStateResource(newGraphicState.get());
     entry->fGraphicStateIndex = resourceIndex;
@@ -2028,8 +2026,7 @@ int SkPDFDevice::addXObjectResource(SkPDFObject* xObject) {
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
-    sk_sp<SkPDFFont> newFont(
-            SkPDFFont::GetFontResource(fDocument->canon(), typeface, glyphID));
+    sk_sp<SkPDFFont> newFont = SkPDFFont::GetFontResource(fDocument->canon(), typeface, glyphID);
     if (!newFont) {
         return -1;
     }
@@ -2178,19 +2175,20 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
     }
 
     SkBitmapKey key = imageSubset.getKey();
-    sk_sp<SkPDFObject> pdfimage = fDocument->canon()->findPDFBitmap(key);
+    sk_sp<SkPDFObject>* pdfimagePtr = fDocument->canon()->fPDFBitmapMap.find(key);
+    sk_sp<SkPDFObject> pdfimage = pdfimagePtr ? *pdfimagePtr : nullptr;
     if (!pdfimage) {
         sk_sp<SkImage> img = imageSubset.makeImage();
         if (!img) {
             return;
         }
-        pdfimage = SkPDFCreateBitmapObject(
-                std::move(img), fDocument->canon()->getPixelSerializer());
+        pdfimage =
+                SkPDFCreateBitmapObject(std::move(img), fDocument->canon()->fPixelSerializer.get());
         if (!pdfimage) {
             return;
         }
         fDocument->serialize(pdfimage);  // serialize images early.
-        fDocument->canon()->addPDFBitmap(key, pdfimage);
+        fDocument->canon()->fPDFBitmapMap.set(key, pdfimage);
     }
     // TODO(halcanary): addXObjectResource() should take a sk_sp<SkPDFObject>
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(pdfimage.get()),
@@ -2202,9 +2200,11 @@ void SkPDFDevice::internalDrawImage(const SkMatrix& origMatrix,
 #include "SkSpecialImage.h"
 #include "SkImageFilter.h"
 
-void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y,
-                              const SkPaint& paint) {
+void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPaint& paint,
+                              SkImage* clipImage, const SkMatrix& clipMatrix) {
     SkASSERT(!srcImg->isTextureBacked());
+
+    //TODO: clipImage support
 
     SkBitmap resultBM;
 

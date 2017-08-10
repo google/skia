@@ -22,7 +22,7 @@
 
 class GrShaderVar;
 class GrGLSLVaryingHandler;
-class GrGLSLExpr4;
+class SkString;
 class GrShaderCaps;
 
 typedef SkSTArray<8, GrGLSLFragmentProcessor*, true> GrGLSLFragProcs;
@@ -31,6 +31,7 @@ class GrGLSLProgramBuilder {
 public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
+    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
     using ImageStorageHandle = GrGLSLUniformHandler::ImageStorageHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
@@ -51,6 +52,10 @@ public:
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const {
         return this->uniformHandler()->samplerSwizzle(handle);
+    }
+
+    const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const {
+        return this->uniformHandler()->texelBufferVariable(handle);
     }
 
     const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const {
@@ -110,7 +115,7 @@ protected:
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 
-    bool emitAndInstallProcs(GrGLSLExpr4* inputColor, GrGLSLExpr4* inputCoverage);
+    bool emitAndInstallProcs();
 
     void cleanupFragmentProcessors();
 
@@ -140,28 +145,29 @@ private:
     };
 
     // Generates a possibly mangled name for a stage variable and writes it to the fragment shader.
-    // If GrGLSLExpr4 has a valid name then it will use that instead
-    void nameExpression(GrGLSLExpr4*, const char* baseName);
+    void nameExpression(SkString*, const char* baseName);
 
     void emitAndInstallPrimProc(const GrPrimitiveProcessor&,
-                                GrGLSLExpr4* outputColor,
-                                GrGLSLExpr4* outputCoverage);
-    void emitAndInstallFragProcs(GrGLSLExpr4* colorInOut, GrGLSLExpr4* coverageInOut);
-    void emitAndInstallFragProc(const GrFragmentProcessor&,
-                                int index,
-                                int transformedCoordVarsIdx,
-                                const GrGLSLExpr4& input,
-                                GrGLSLExpr4* output);
-    void emitAndInstallXferProc(const GrGLSLExpr4& colorIn, const GrGLSLExpr4& coverageIn);
+                                SkString* outputColor,
+                                SkString* outputCoverage);
+    void emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
+    SkString emitAndInstallFragProc(const GrFragmentProcessor&,
+                                    int index,
+                                    int transformedCoordVarsIdx,
+                                    const SkString& input,
+                                    SkString output);
+    void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     void emitSamplersAndImageStorages(const GrResourceIOProcessor& processor,
                                       SkTArray<SamplerHandle>* outTexSamplerHandles,
-                                      SkTArray<SamplerHandle>* outBufferSamplerHandles,
+                                      SkTArray<TexelBufferHandle>* outTexelBufferHandles,
                                       SkTArray<ImageStorageHandle>* outImageStorageHandles);
     SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
                               GrShaderFlags visibility);
+    TexelBufferHandle emitTexelBuffer(GrPixelConfig, const char* name, GrShaderFlags visibility);
     ImageStorageHandle emitImageStorage(const GrResourceIOProcessor::ImageStorageAccess&,
                                         const char* name);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
+    void updateSamplerCounts(GrShaderFlags visibility);
     bool checkSamplerCounts();
     bool checkImageStorageCounts();
 
@@ -171,6 +177,8 @@ private:
     void verify(const GrFragmentProcessor&);
 #endif
 
+    // These are used to check that we don't excede the allowable number of resources in a shader.
+    // The sampler counts include both normal texure samplers as well as texel buffers.
     int                         fNumVertexSamplers;
     int                         fNumGeometrySamplers;
     int                         fNumFragmentSamplers;

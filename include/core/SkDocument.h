@@ -176,8 +176,6 @@ public:
     // DEPRECATED; TODO(mattleibow): we should remove this function.
     static sk_sp<SkDocument> MakeXPS(SkWStream*, SkScalar) { return nullptr; }
 #endif
-    // DEPRECATED; TODO(halcanary): remove this function after Chromium switches to new API.
-    static sk_sp<SkDocument> MakeXPS(SkWStream*) { return nullptr; }
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw

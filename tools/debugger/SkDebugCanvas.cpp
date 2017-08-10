@@ -58,17 +58,6 @@ protected:
         this->SkCanvas::onDrawPicture(picture, matrix, paint);
     }
 
-    void onDrawShadowedPicture(const SkPicture* picture,
-                               const SkMatrix* matrix,
-                               const SkPaint* paint,
-                               const SkShadowParams& params) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-        this->SkCanvas::onDrawShadowedPicture(picture, matrix, paint, params);
-#else
-        this->SkCanvas::onDrawPicture(picture, matrix, paint);
-#endif
-    }
-
 private:
     bool fOverdrawViz;
     bool fOverrideFilterQuality;
@@ -148,41 +137,6 @@ int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     }
     return layer;
 }
-
-#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
-class SkDebugClipVisitor : public SkCanvas::ClipVisitor {
-public:
-    SkDebugClipVisitor(SkCanvas* canvas) : fCanvas(canvas) {}
-
-    void clipRect(const SkRect& r, SkClipOp, bool doAA) override {
-        SkPaint p;
-        p.setColor(SK_ColorRED);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setAntiAlias(doAA);
-        fCanvas->drawRect(r, p);
-    }
-    void clipRRect(const SkRRect& rr, SkClipOp, bool doAA) override {
-        SkPaint p;
-        p.setColor(SK_ColorGREEN);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setAntiAlias(doAA);
-        fCanvas->drawRRect(rr, p);
-    }
-    void clipPath(const SkPath& path, SkClipOp, bool doAA) override {
-        SkPaint p;
-        p.setColor(SK_ColorBLUE);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setAntiAlias(doAA);
-        fCanvas->drawPath(path, p);
-    }
-
-protected:
-    SkCanvas* fCanvas;
-
-private:
-    typedef SkCanvas::ClipVisitor INHERITED;
-};
-#endif
 
 // set up the saveLayer commands so that the active ones
 // return true in their 'active' method
@@ -290,25 +244,6 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         filterCanvas.restore();
     }
 
-#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
-    if (fMegaVizMode) {
-        filterCanvas.save();
-        // nuke the CTM
-        filterCanvas.resetMatrix();
-        // turn off clipping
-        if (!windowRect.isEmpty()) {
-            SkRect r = windowRect;
-            r.outset(SK_Scalar1, SK_Scalar1);
-            filterCanvas.clipRect(r, kReplace_SkClipOp);
-        }
-        // visualize existing clips
-        SkDebugClipVisitor visitor(&filterCanvas);
-
-        filterCanvas.replayClips(&visitor);
-
-        filterCanvas.restore();
-    }
-#endif
     if (pathOpsMode) {
         this->resetClipStackData();
         const SkClipStack* clipStack = nullptr;//HACK filterCanvas.getClipStack();
@@ -352,7 +287,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         // drawn offscreen
         GrRenderTargetContext* rtc =
                 originalCanvas->internal_private_accessTopLayerRenderTargetContext();
-        GrGpuResource::UniqueID rtID = rtc->accessRenderTarget()->uniqueID();
+        GrSurfaceProxy::UniqueID proxyID = rtc->asSurfaceProxy()->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::OpInfo> childrenBounds;
@@ -366,8 +301,7 @@ void SkDebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
         for (int i = 0; i < childrenBounds.count(); i++) {
-            SkASSERT(childrenBounds[i].sameDecision(rtID, rtc->asSurfaceProxy()->uniqueID()));
-            if (childrenBounds[i].fResourceUniqueID != rtID) {
+            if (childrenBounds[i].fProxyUniqueID != proxyID) {
                 // offscreen draw, ignore for now
                 continue;
             }
@@ -600,16 +534,6 @@ void SkDebugCanvas::onDrawPicture(const SkPicture* picture,
     this->addDrawCommand(new SkEndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
 }
 
-void SkDebugCanvas::onDrawShadowedPicture(const SkPicture* picture,
-                                          const SkMatrix* matrix,
-                                          const SkPaint* paint,
-                                          const SkShadowParams& params) {
-    this->addDrawCommand(new SkBeginDrawShadowedPictureCommand(picture, matrix, paint, params));
-    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-    picture->playback(this);
-    this->addDrawCommand(new SkEndDrawShadowedPictureCommand(SkToBool(matrix) || SkToBool(paint)));
-}
-
 void SkDebugCanvas::onDrawPoints(PointMode mode, size_t count,
                                  const SkPoint pts[], const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPointsCommand(mode, count, pts, paint));
@@ -694,13 +618,6 @@ SkCanvas::SaveLayerStrategy SkDebugCanvas::getSaveLayerStrategy(const SaveLayerR
 void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->addDrawCommand(new SkSetMatrixCommand(matrix));
     this->INHERITED::didSetMatrix(matrix);
-}
-
-void SkDebugCanvas::didTranslateZ(SkScalar z) {
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    this->addDrawCommand(new SkTranslateZCommand(z));
-    this->INHERITED::didTranslateZ(z);
-#endif
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {

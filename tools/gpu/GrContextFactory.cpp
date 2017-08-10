@@ -162,9 +162,11 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                                                  glShareContext).release();
                     break;
 #endif
+#ifndef SK_NO_COMMAND_BUFFER
                 case kCommandBuffer_ContextType:
                     glCtx = CommandBufferGLTestContext::Create(glShareContext);
                     break;
+#endif
 #if SK_MESA
                 case kMESA_ContextType:
                     glCtx = CreateMesaGLTestContext(glShareContext);
@@ -189,16 +191,14 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             break;
         }
 #ifdef SK_VULKAN
-        case kVulkan_GrBackend:
-            if (masterContext) {
-                // Shared contexts not supported yet
-                return ContextInfo();
-            }
+        case kVulkan_GrBackend: {
+            VkTestContext* vkSharedContext = masterContext
+                    ? static_cast<VkTestContext*>(masterContext->fTestContext) : nullptr;
             SkASSERT(kVulkan_ContextType == type);
             if (ContextOverrides::kRequireNVPRSupport & overrides) {
                 return ContextInfo();
             }
-            testCtx.reset(CreatePlatformVkTestContext());
+            testCtx.reset(CreatePlatformVkTestContext(vkSharedContext));
             if (!testCtx) {
                 return ContextInfo();
             }
@@ -214,6 +214,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
             }
             backendContext = testCtx->backendContext();
             break;
+        }
 #endif
         default:
             return ContextInfo();

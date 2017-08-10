@@ -14,6 +14,7 @@
 #include "GrPendingProgramElement.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
+#include "GrRect.h"
 #include "GrScissorState.h"
 #include "GrUserStencilSettings.h"
 #include "GrWindowRectsState.h"
@@ -46,16 +47,29 @@ public:
          * the 3D API.
          */
         kHWAntialias_Flag = 0x1,
-
         /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
         kSnapVerticesToPixelCenters_Flag = 0x2,
+        /** Disables conversion to sRGB from linear when writing to a sRGB destination. */
+        kDisableOutputConversionToSRGB_Flag = 0x4,
+        /** Allows conversion from sRGB to linear when reading from processor's sRGB texture. */
+        kAllowSRGBInputs_Flag = 0x8,
     };
+
+    static uint32_t SRGBFlagsFromPaint(const GrPaint& paint) {
+        uint32_t flags = 0;
+        if (paint.getAllowSRGBInputs()) {
+            flags |= kAllowSRGBInputs_Flag;
+        }
+        if (paint.getDisableOutputConversionToSRGB()) {
+            flags |= kDisableOutputConversionToSRGB_Flag;
+        }
+        return flags;
+    }
 
     struct InitArgs {
         uint32_t fFlags = 0;
-        GrDrawFace fDrawFace = GrDrawFace::kBoth;
         const GrProcessorSet* fProcessors = nullptr;  // Must be finalized
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrAppliedClip* fAppliedClip = nullptr;
@@ -75,6 +89,8 @@ public:
      * a call to init().
      **/
     GrPipeline(GrRenderTarget*, SkBlendMode);
+
+    GrPipeline(const InitArgs& args) { this->init(args); }
 
     /** (Re)initializes a pipeline. After initialization the pipeline can be used. */
     void init(const InitArgs&);
@@ -107,10 +123,7 @@ public:
             return false;
         }
         if (a.xferBarrierType(caps)) {
-            return aBounds.fRight <= bBounds.fLeft ||
-                   aBounds.fBottom <= bBounds.fTop ||
-                   bBounds.fRight <= aBounds.fLeft ||
-                   bBounds.fBottom <= aBounds.fTop;
+            return !GrRectsTouchOrOverlap(aBounds, bBounds);
         }
         return true;
     }
@@ -122,7 +135,7 @@ public:
 
     // Make the renderTarget's GrOpList (if it exists) be dependent on any
     // GrOpLists in this pipeline
-    void addDependenciesTo(GrRenderTarget* rt) const;
+    void addDependenciesTo(GrRenderTargetProxy*) const;
 
     int numColorFragmentProcessors() const { return fNumColorProcessors; }
     int numCoverageFragmentProcessors() const {
@@ -199,6 +212,7 @@ public:
     bool isStencilEnabled() const {
         return SkToBool(fFlags & kStencilEnabled_Flag);
     }
+    bool isBad() const { return SkToBool(fFlags & kIsBad_Flag); }
 
     GrXferBarrierType xferBarrierType(const GrCaps& caps) const {
         if (fDstTexture.get() && fDstTexture.get() == fRenderTarget.get()->asTexture()) {
@@ -207,21 +221,15 @@ public:
         return this->getXferProcessor().xferBarrierType(caps);
     }
 
-    /**
-     * Gets whether the target is drawing clockwise, counterclockwise,
-     * or both faces.
-     * @return the current draw face(s).
-     */
-    GrDrawFace getDrawFace() const { return static_cast<GrDrawFace>(fDrawFace); }
-
 private:
+    void markAsBad() { fFlags |= kIsBad_Flag; }
+
     /** This is a continuation of the public "Flags" enum. */
     enum PrivateFlags {
-        kDisableOutputConversionToSRGB_Flag = 0x4,
-        kAllowSRGBInputs_Flag = 0x8,
         kUsesDistanceVectorField_Flag = 0x10,
         kHasStencilClip_Flag = 0x20,
         kStencilEnabled_Flag = 0x40,
+        kIsBad_Flag = 0x80,
     };
 
     using RenderTarget = GrPendingIOResource<GrRenderTarget, kWrite_GrIOType>;
@@ -235,7 +243,6 @@ private:
     GrScissorState fScissorState;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
-    uint16_t fDrawFace;
     uint16_t fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
     FragmentProcessorArray fFragmentProcessors;

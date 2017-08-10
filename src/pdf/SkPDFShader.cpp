@@ -737,7 +737,7 @@ static bool split_perspective(const SkMatrix in, SkMatrix* affine,
     return true;
 }
 
-sk_sp<SkPDFArray> SkPDFShader::MakeRangeObject() {
+static sk_sp<SkPDFArray> make_range_object() {
     auto range = sk_make_sp<SkPDFArray>();
     range->reserve(6);
     range->appendInt(0);
@@ -933,14 +933,11 @@ static sk_sp<SkPDFDict> make_function_shader(SkPDFCanon* canon,
         
         pdfShader->insertObject("Domain", domain);
 
-        // Call canon->makeRangeObject() instead of
-        // SkPDFShader::MakeRangeObject() so that the canon can
-        // deduplicate.
-        std::unique_ptr<SkStreamAsset> functionStream(
-                functionCode.detachAsStream());
-        sk_sp<SkPDFStream> function = make_ps_function(std::move(functionStream),
-                                                       std::move(domain),
-                                                       canon->makeRangeObject());
+        std::unique_ptr<SkStreamAsset> functionStream(functionCode.detachAsStream());
+        sk_sp<SkPDFArray> rangeObject =
+                SkPDFUtils::GetCachedT(&canon->fRangeObject, &make_range_object);
+        sk_sp<SkPDFStream> function = make_ps_function(std::move(functionStream), std::move(domain),
+                                                       std::move(rangeObject));
         pdfShader->insertObjRef("Function", std::move(function));
     }
 
@@ -962,7 +959,6 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
                                             SkBitmap image) {
     SkASSERT(state.fBitmapKey ==
              (SkBitmapKey{image.getSubset(), image.getGenerationID()}));
-    SkAutoLockPixels SkAutoLockPixels(image);
 
     // The image shader pattern cell will be drawn into a separate device
     // in pattern cell space (no scaling on the bitmap, though there may be

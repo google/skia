@@ -190,7 +190,7 @@ private:
             return;
         }
         const GrBuffer* vertexBuffer;
-        GrMesh mesh;
+        GrMesh mesh(kTriangles_GrPrimitiveType);
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -208,8 +208,8 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer, firstVertex,
-                         firstIndex, vertexCount, indexCount);
+        mesh.setIndexed(indexBuffer, indexCount, firstIndex);
+        mesh.setVertices(vertexBuffer, vertexCount, firstVertex);
         target->draw(gp, this->pipeline(), mesh);
     }
 
@@ -324,7 +324,7 @@ private:
 bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAALinearizingConvexPathRenderer::onDrawPath");
-    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
+    SkASSERT(GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType());
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(!args.fShape->style().pathEffect());
 
@@ -353,7 +353,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);
     SkPath path = GrTest::TestPathConvex(random);

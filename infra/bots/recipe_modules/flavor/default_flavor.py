@@ -111,7 +111,7 @@ class DefaultFlavorUtils(object):
       raise ValueError('For builders who do not have attached devices, copying '
                        'from host to device is undefined and only allowed if '
                        'host_path and device_path are the same (%s vs %s).' % (
-                       str(host_dir), str(device_dir)))  # pragma: no cover
+                       str(host_dir), str(device_dir)))
 
   def copy_directory_contents_to_host(self, device_dir, host_dir):
     """Like shutil.copytree(), but for copying from a connected device."""
@@ -121,13 +121,13 @@ class DefaultFlavorUtils(object):
       raise ValueError('For builders who do not have attached devices, copying '
                        'from device to host is undefined and only allowed if '
                        'host_path and device_path are the same (%s vs %s).' % (
-                       str(host_dir), str(device_dir)))  # pragma: no cover
+                       str(host_dir), str(device_dir)))
 
   def copy_file_to_device(self, host_path, device_path):
     """Like shutil.copyfile, but for copying to a connected device."""
     # For "normal" builders who don't have an attached device, we expect
     # host_dir and device_dir to be the same.
-    if str(host_path) != str(device_path):  # pragma: no cover
+    if str(host_path) != str(device_path):
       raise ValueError('For builders who do not have attached devices, copying '
                        'from host to device is undefined and only allowed if '
                        'host_path and device_path are the same (%s vs %s).' % (

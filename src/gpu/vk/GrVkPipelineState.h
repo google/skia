@@ -19,6 +19,7 @@
 #include "vk/GrVkDefines.h"
 
 class GrPipeline;
+class GrVkBufferView;
 class GrVkCommandBuffer;
 class GrVkDescriptorPool;
 class GrVkDescriptorSet;
@@ -92,52 +93,16 @@ private:
                       GrVkPipeline* pipeline,
                       VkPipelineLayout layout,
                       const GrVkDescriptorSetManager::Handle& samplerDSHandle,
+                      const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
                       const BuiltinUniformHandles& builtinUniformHandles,
                       const UniformInfoArray& uniforms,
-                      uint32_t vertexUniformSize,
+                      uint32_t geometryUniformSize,
                       uint32_t fragmentUniformSize,
                       uint32_t numSamplers,
+                      uint32_t numTexelBuffers,
                       GrGLSLPrimitiveProcessor* geometryProcessor,
                       GrGLSLXferProcessor* xferProcessor,
                       const GrGLSLFragProcs& fragmentProcessors);
-
-    // Each pool will manage one type of descriptor. Thus each descriptor set we use will all be of
-    // one VkDescriptorType.
-    struct DescriptorPoolManager {
-        DescriptorPoolManager(VkDescriptorSetLayout layout, VkDescriptorType type,
-                              uint32_t descCount, GrVkGpu* gpu)
-            : fDescLayout(layout)
-            , fDescType(type)
-            , fDescCountPerSet(descCount)
-            , fCurrentDescriptorCount(0)
-            , fPool(nullptr) {
-            SkASSERT(descCount < kMaxDescLimit >> 2);
-            fMaxDescriptors = fDescCountPerSet << 2;
-            this->getNewPool(gpu);
-        }
-
-        ~DescriptorPoolManager() {
-            SkASSERT(!fDescLayout);
-            SkASSERT(!fPool);
-        }
-
-        void getNewDescriptorSet(GrVkGpu* gpu, VkDescriptorSet* ds);
-
-        void freeGPUResources(const GrVkGpu* gpu);
-        void abandonGPUResources();
-
-        VkDescriptorSetLayout  fDescLayout;
-        VkDescriptorType       fDescType;
-        uint32_t               fDescCountPerSet;
-        uint32_t               fMaxDescriptors;
-        uint32_t               fCurrentDescriptorCount;
-        GrVkDescriptorPool*    fPool;
-
-    private:
-        static const uint32_t kMaxDescLimit = 1 << 10;
-
-        void getNewPool(GrVkGpu* gpu);
-    };
 
     void writeUniformBuffers(const GrVkGpu* gpu);
 
@@ -145,6 +110,10 @@ private:
             GrVkGpu* gpu,
             const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings,
             bool allowSRGBInputs);
+
+    void writeTexelBuffers(
+            GrVkGpu* gpu,
+            const SkTArray<const GrResourceIOProcessor::BufferAccess*>& bufferAccesses);
 
     /**
     * We use the RT's size and origin to adjust from Skia device space to vulkan normalized device
@@ -197,26 +166,26 @@ private:
     // descriptor pool alive through the draw, the descritor sets will also stay alive. Thus we do
     // not need a GrVkResource versions of VkDescriptorSet. We hold on to these in the
     // GrVkPipelineState since we update the descriptor sets and bind them at separate times;
-    VkDescriptorSet fDescriptorSets[2];
+    VkDescriptorSet fDescriptorSets[3];
 
-    // Once we move samplers over to use the resource provider for descriptor sets we will not need
-    // the above array and instead just use GrVkDescriptorSet like the uniform one here.
     const GrVkDescriptorSet* fUniformDescriptorSet;
     const GrVkDescriptorSet* fSamplerDescriptorSet;
+    const GrVkDescriptorSet* fTexelBufferDescriptorSet;
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
+    const GrVkDescriptorSetManager::Handle fTexelBufferDSHandle;
 
-    // Meta data so we know which descriptor sets we are using and need to bind.
-    int fStartDS;
-    int fDSCount;
-
-    std::unique_ptr<GrVkUniformBuffer> fVertexUniformBuffer;
+    std::unique_ptr<GrVkUniformBuffer> fGeometryUniformBuffer;
     std::unique_ptr<GrVkUniformBuffer> fFragmentUniformBuffer;
 
     // GrVkResources used for sampling textures
     SkTDArray<GrVkSampler*> fSamplers;
     SkTDArray<const GrVkImageView*> fTextureViews;
     SkTDArray<const GrVkResource*> fTextures;
+
+    // GrVkResource used for TexelBuffers
+    SkTDArray<const GrVkBufferView*> fBufferViews;
+    SkTDArray<const GrVkResource*> fTexelBuffers;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;
@@ -232,6 +201,7 @@ private:
     GrVkPipelineStateDataManager fDataManager;
 
     int fNumSamplers;
+    int fNumTexelBuffers;
 
     friend class GrVkPipelineStateBuilder;
 };

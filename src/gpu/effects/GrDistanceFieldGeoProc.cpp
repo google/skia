@@ -163,7 +163,7 @@ public:
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
             fragBuilder->codeAppend(
-                "float val = clamp(distance + afwidth / (2.0 * afwidth), 0.0, 1.0);");
+                "float val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
         } else {
             fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
         }
@@ -203,9 +203,10 @@ public:
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
         GrTexture* atlas = gp.textureSampler(0).texture();
-        SkASSERT(atlas);
-        b->add32(atlas->width());
-        b->add32(atlas->height());
+        if (atlas) {
+            b->add32(atlas->width());
+            b->add32(atlas->height());
+        }
     }
 
 private:
@@ -418,7 +419,7 @@ public:
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
             fragBuilder->codeAppend(
-                "float val = clamp(distance + afwidth / (2.0 * afwidth), 0.0, 1.0);");
+                "float val = clamp((distance + afwidth) / (2.0 * afwidth), 0.0, 1.0);");
         } else {
             fragBuilder->codeAppend("float val = smoothstep(-afwidth, afwidth, distance);");
         }
@@ -711,17 +712,14 @@ public:
         // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want distance
         // mapped linearly to coverage, so use a linear step:
         if (isGammaCorrect) {
-            fragBuilder->codeAppend("vec4 val = "
-                "vec4(clamp(distance + vec3(afwidth) / vec3(2.0 * afwidth), 0.0, 1.0), 1.0);");
+            fragBuilder->codeAppendf("%s = "
+                "vec4(clamp((distance + vec3(afwidth)) / vec3(2.0 * afwidth), 0.0, 1.0), 1.0);",
+                args.fOutputCoverage);
         } else {
-            fragBuilder->codeAppend(
-                "vec4 val = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);");
+            fragBuilder->codeAppendf(
+                "%s = vec4(smoothstep(vec3(-afwidth), vec3(afwidth), distance), 1.0);",
+                args.fOutputCoverage);
         }
-
-        // set alpha to be max of rgb coverage
-        fragBuilder->codeAppend("val.a = max(max(val.r, val.g), val.b);");
-
-        fragBuilder->codeAppendf("%s = val;", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& processor,
@@ -759,9 +757,10 @@ public:
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
         GrTexture* atlas = gp.textureSampler(0).texture();
-        SkASSERT(atlas);
-        b->add32(atlas->width());
-        b->add32(atlas->height());
+        if (atlas) {
+            b->add32(atlas->width());
+            b->add32(atlas->height());
+        }
     }
 
 private:

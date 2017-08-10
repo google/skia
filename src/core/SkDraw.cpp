@@ -4,23 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #define __STDC_LIMIT_MACROS
 
-#include "SkDraw.h"
-
 #include "SkArenaAlloc.h"
+#include "SkAutoBlitterChoose.h"
 #include "SkBlendModePriv.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkColorShader.h"
 #include "SkDevice.h"
 #include "SkDeviceLooper.h"
+#include "SkDraw.h"
+#include "SkDrawProcs.h"
 #include "SkFindAndPlaceGlyph.h"
-#include "SkFixed.h"
-#include "SkLocalMatrixShader.h"
 #include "SkMaskFilter.h"
 #include "SkMatrix.h"
+#include "SkMatrixUtils.h"
 #include "SkPaint.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
@@ -34,49 +34,11 @@
 #include "SkTemplates.h"
 #include "SkTextMapStateProc.h"
 #include "SkTLazy.h"
-#include "SkUnPreMultiply.h"
 #include "SkUtils.h"
-#include "SkVertState.h"
-
-#include "SkBitmapProcShader.h"
-#include "SkDrawProcs.h"
-#include "SkMatrixUtils.h"
-
-//#define TRACE_BITMAP_DRAWS
 
 // Helper function to fix code gen bug on ARM64.
 // See SkFindAndPlaceGlyph.h for more details.
 void FixGCC49Arm64Bug(int v) { }
-
-/** Helper for allocating small blitters on the stack.
- */
-class SkAutoBlitterChoose : SkNoncopyable {
-public:
-    SkAutoBlitterChoose() {
-        fBlitter = nullptr;
-    }
-    SkAutoBlitterChoose(const SkPixmap& dst, const SkMatrix& matrix,
-                        const SkPaint& paint, bool drawCoverage = false) {
-        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
-    }
-
-    SkBlitter*  operator->() { return fBlitter; }
-    SkBlitter*  get() const { return fBlitter; }
-
-    void choose(const SkPixmap& dst, const SkMatrix& matrix,
-                const SkPaint& paint, bool drawCoverage = false) {
-        SkASSERT(!fBlitter);
-        fBlitter = SkBlitter::Choose(dst, matrix, paint, &fAlloc, drawCoverage);
-    }
-
-private:
-    // Owned by fAlloc, which will handle the delete.
-    SkBlitter*          fBlitter;
-
-    char fStorage[kSkBlitterContextSize];
-    SkArenaAlloc fAlloc{fStorage};
-};
-#define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
 static SkPaint make_paint_with_image(
     const SkPaint& origPaint, const SkBitmap& bitmap, SkMatrix* matrix = nullptr) {
@@ -1170,11 +1132,10 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
         int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
-        SkAutoPixmapUnlock result;
-        if (!bitmap.requestLock(&result)) {
+        SkPixmap pmap;
+        if (!bitmap.peekPixels(&pmap)) {
             return;
         }
-        const SkPixmap& pmap = result.pixmap();
         SkMask  mask;
         mask.fBounds.set(ix, iy, ix + pmap.width(), iy + pmap.height());
         mask.fFormat = SkMask::kA8_Format;
@@ -1290,16 +1251,14 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.
         //
-        SkAutoPixmapUnlock unlocker;
-        if (!bitmap.requestLock(&unlocker)) {
+        SkPixmap pmap;
+        if (!bitmap.peekPixels(&pmap)) {
             return;
         }
-        const SkPixmap& pmap = unlocker.pixmap();
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
         int iy = SkScalarRoundToInt(matrix.getTranslateY());
         if (clipHandlesSprite(*fRC, ix, iy, pmap)) {
-            char storage[kSkBlitterContextSize];
-            SkArenaAlloc allocator{storage};
+            SkSTArenaAlloc<kSkBlitterContextSize> allocator;
             // blitter will be owned by the allocator.
             SkBlitter* blitter = SkBlitter::ChooseSprite(fDst, *paint, pmap, ix, iy, &allocator);
             if (blitter) {
@@ -1348,16 +1307,14 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     SkPaint paint(origPaint);
     paint.setStyle(SkPaint::kFill_Style);
 
-    SkAutoPixmapUnlock unlocker;
-    if (!bitmap.requestLock(&unlocker)) {
+    SkPixmap pmap;
+    if (!bitmap.peekPixels(&pmap)) {
         return;
     }
-    const SkPixmap& pmap = unlocker.pixmap();
 
     if (nullptr == paint.getColorFilter() && clipHandlesSprite(*fRC, x, y, pmap)) {
         // blitter will be owned by the allocator.
-        char storage[kSkBlitterContextSize];
-        SkArenaAlloc allocator{storage};
+        SkSTArenaAlloc<kSkBlitterContextSize> allocator;
         SkBlitter* blitter = SkBlitter::ChooseSprite(fDst, paint, pmap, x, y, &allocator);
         if (blitter) {
             SkScan::FillIRect(bounds, *fRC, blitter);
@@ -1384,6 +1341,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkPaintPriv.h"
 #include "SkScalerContext.h"
 #include "SkGlyphCache.h"
 #include "SkTextToPathIter.h"
@@ -1401,7 +1359,8 @@ bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
     }
 
     SkMatrix textM;
-    return SkPaint::TooBigToUseCache(ctm, *paint.setTextMatrix(&textM));
+    SkPaintPriv::MakeTextMatrix(&textM, paint);
+    return SkPaint::TooBigToUseCache(ctm, textM);
 }
 
 void SkDraw::drawText_asPaths(const char text[], size_t byteLength, SkScalar x, SkScalar y,
@@ -1671,399 +1630,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
 #pragma warning ( pop )
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-
-static SkScan::HairRCProc ChooseHairProc(bool doAntiAlias) {
-    return doAntiAlias ? SkScan::AntiHairLine : SkScan::HairLine;
-}
-
-static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
-                              const SkPoint texs[], SkMatrix* matrix) {
-    SkPoint src[3], dst[3];
-
-    src[0] = texs[state.f0];
-    src[1] = texs[state.f1];
-    src[2] = texs[state.f2];
-    dst[0] = verts[state.f0];
-    dst[1] = verts[state.f1];
-    dst[2] = verts[state.f2];
-    return matrix->setPolyToPoly(src, dst, 3);
-}
-
-class SkTriColorShader : public SkShader {
-public:
-    SkTriColorShader();
-
-    class TriColorShaderContext : public SkShader::Context {
-    public:
-        TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
-        ~TriColorShaderContext() override;
-        void shadeSpan(int x, int y, SkPMColor dstC[], int count) override;
-
-    private:
-        bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
-
-        SkMatrix    fDstToUnit;
-        SkPMColor   fColors[3];
-        bool fSetup;
-
-        typedef SkShader::Context INHERITED;
-    };
-
-    struct TriColorShaderData {
-        const SkPoint* pts;
-        const SkColor* colors;
-        const VertState *state;
-    };
-
-    SK_TO_STRING_OVERRIDE()
-
-    // For serialization.  This will never be called.
-    Factory getFactory() const override { sk_throw(); return nullptr; }
-
-    // Supply setup data to context from drawing setup
-    void bindSetupData(TriColorShaderData* setupData) { fSetupData = setupData; }
-
-    // Take the setup data from context when needed.
-    TriColorShaderData* takeSetupData() {
-        TriColorShaderData *data = fSetupData;
-        fSetupData = NULL;
-        return data;
-    }
-
-protected:
-    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
-        return alloc->make<TriColorShaderContext>(*this, rec);
-    }
-
-private:
-    TriColorShaderData *fSetupData;
-
-    typedef SkShader INHERITED;
-};
-
-bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const SkColor colors[],
-                                                    int index0, int index1, int index2) {
-
-    fColors[0] = SkPreMultiplyColor(colors[index0]);
-    fColors[1] = SkPreMultiplyColor(colors[index1]);
-    fColors[2] = SkPreMultiplyColor(colors[index2]);
-
-    SkMatrix m, im;
-    m.reset();
-    m.set(0, pts[index1].fX - pts[index0].fX);
-    m.set(1, pts[index2].fX - pts[index0].fX);
-    m.set(2, pts[index0].fX);
-    m.set(3, pts[index1].fY - pts[index0].fY);
-    m.set(4, pts[index2].fY - pts[index0].fY);
-    m.set(5, pts[index0].fY);
-    if (!m.invert(&im)) {
-        return false;
-    }
-    // We can't call getTotalInverse(), because we explicitly don't want to look at the localmatrix
-    // as our interators are intrinsically tied to the vertices, and nothing else.
-    SkMatrix ctmInv;
-    if (!this->getCTM().invert(&ctmInv)) {
-        return false;
-    }
-    // TODO replace INV(m) * INV(ctm) with INV(ctm * m)
-    fDstToUnit.setConcat(im, ctmInv);
-    return true;
-}
-
-#include "SkColorPriv.h"
-#include "SkComposeShader.h"
-
-static int ScalarTo256(SkScalar v) {
-    return static_cast<int>(SkScalarPin(v, 0, 1) * 256 + 0.5);
-}
-
-SkTriColorShader::SkTriColorShader()
-    : INHERITED(NULL)
-    , fSetupData(NULL) {}
-
-SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorShader& shader,
-                                                               const ContextRec& rec)
-    : INHERITED(shader, rec)
-    , fSetup(false) {}
-
-SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
-
-void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
-    SkTriColorShader* parent = static_cast<SkTriColorShader*>(const_cast<SkShader*>(&fShader));
-    TriColorShaderData* set = parent->takeSetupData();
-    if (set) {
-        fSetup = setup(set->pts, set->colors, set->state->f0, set->state->f1, set->state->f2);
-    }
-
-    if (!fSetup) {
-        // Invalid matrices. Not checked before so no need to assert.
-        return;
-    }
-
-    const int alphaScale = Sk255To256(this->getPaintAlpha());
-
-    SkPoint src;
-
-    for (int i = 0; i < count; i++) {
-        fDstToUnit.mapXY(SkIntToScalar(x), SkIntToScalar(y), &src);
-        x += 1;
-
-        int scale1 = ScalarTo256(src.fX);
-        int scale2 = ScalarTo256(src.fY);
-        int scale0 = 256 - scale1 - scale2;
-        if (scale0 < 0) {
-            if (scale1 > scale2) {
-                scale2 = 256 - scale1;
-            } else {
-                scale1 = 256 - scale2;
-            }
-            scale0 = 0;
-        }
-
-        if (256 != alphaScale) {
-            scale0 = SkAlphaMul(scale0, alphaScale);
-            scale1 = SkAlphaMul(scale1, alphaScale);
-            scale2 = SkAlphaMul(scale2, alphaScale);
-        }
-
-        dstC[i] = SkAlphaMulQ(fColors[0], scale0) +
-                  SkAlphaMulQ(fColors[1], scale1) +
-                  SkAlphaMulQ(fColors[2], scale2);
-    }
-}
-
-#ifndef SK_IGNORE_TO_STRING
-void SkTriColorShader::toString(SkString* str) const {
-    str->append("SkTriColorShader: (");
-
-    this->INHERITED::toString(str);
-
-    str->append(")");
-}
-#endif
-
-namespace {
-
-// Similar to SkLocalMatrixShader, but composes the local matrix with the CTM (instead
-// of composing with the inherited local matrix):
-//
-//   rec' = {rec.ctm x localMatrix, rec.localMatrix}
-//
-// (as opposed to rec' = {rec.ctm, rec.localMatrix x localMatrix})
-//
-class SkLocalInnerMatrixShader final : public SkShader {
-public:
-    SkLocalInnerMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
-    : INHERITED(&localMatrix)
-    , fProxyShader(std::move(proxy)) {}
-
-    Factory getFactory() const override {
-        SkASSERT(false);
-        return nullptr;
-    }
-
-protected:
-    void flatten(SkWriteBuffer&) const override {
-        SkASSERT(false);
-    }
-
-    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
-        SkMatrix adjustedCTM = SkMatrix::Concat(*rec.fMatrix, this->getLocalMatrix());
-        ContextRec newRec(rec);
-        newRec.fMatrix = &adjustedCTM;
-        return fProxyShader->makeContext(newRec, alloc);
-    }
-
-    bool onAppendStages(SkRasterPipeline* p, SkColorSpace* cs, SkArenaAlloc* alloc,
-                        const SkMatrix& ctm, const SkPaint& paint,
-                        const SkMatrix* localM) const override {
-        // We control the shader graph ancestors, so we know there's no local matrix being
-        // injected before this.
-        SkASSERT(!localM);
-
-        SkMatrix adjustedCTM = SkMatrix::Concat(ctm, this->getLocalMatrix());
-        return fProxyShader->appendStages(p, cs, alloc, adjustedCTM, paint);
-    }
-
-private:
-    sk_sp<SkShader> fProxyShader;
-
-    typedef SkShader INHERITED;
-};
-
-sk_sp<SkShader> MakeTextureShader(const VertState& state, const SkPoint verts[],
-                                         const SkPoint texs[], const SkPaint& paint,
-                                         SkColorSpace* dstColorSpace,
-                                         SkArenaAlloc* alloc) {
-    SkASSERT(paint.getShader());
-
-    const auto& p0 = texs[state.f0],
-                p1 = texs[state.f1],
-                p2 = texs[state.f2];
-
-    if (p0 != p1 || p0 != p2) {
-        // Common case (non-collapsed texture coordinates).
-        // Map the texture to vertices using a local transform.
-
-        // We cannot use a plain SkLocalMatrix shader, because we need the texture matrix
-        // to compose next to the CTM.
-        SkMatrix localMatrix;
-        return texture_to_matrix(state, verts, texs, &localMatrix)
-            ? alloc->makeSkSp<SkLocalInnerMatrixShader>(paint.refShader(), localMatrix)
-            : nullptr;
-    }
-
-    // Collapsed texture coordinates special case.
-    // The texture is a solid color, sampled at the given point.
-    SkMatrix shaderInvLocalMatrix;
-    SkAssertResult(paint.getShader()->getLocalMatrix().invert(&shaderInvLocalMatrix));
-
-    const auto sample       = SkPoint::Make(0.5f, 0.5f);
-    const auto mappedSample = shaderInvLocalMatrix.mapXY(sample.x(), sample.y()),
-               mappedPoint  = shaderInvLocalMatrix.mapXY(p0.x(), p0.y());
-    const auto localMatrix  = SkMatrix::MakeTrans(mappedSample.x() - mappedPoint.x(),
-                                                  mappedSample.y() - mappedPoint.y());
-
-    SkShader::ContextRec rec(paint, SkMatrix::I(), &localMatrix,
-                             SkShader::ContextRec::kPMColor_DstType, dstColorSpace);
-    auto* ctx = paint.getShader()->makeContext(rec, alloc);
-    if (!ctx) {
-        return nullptr;
-    }
-
-    SkPMColor pmColor;
-    ctx->shadeSpan(SkScalarFloorToInt(sample.x()), SkScalarFloorToInt(sample.y()), &pmColor, 1);
-
-    // no need to keep this temp context around.
-    alloc->reset();
-
-    return alloc->makeSkSp<SkColorShader>(SkUnPreMultiply::PMColorToColor(pmColor));
-}
-
-} // anonymous ns
-
-void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
-                          const SkPoint vertices[], const SkPoint textures[],
-                          const SkColor colors[], SkBlendMode bmode,
-                          const uint16_t indices[], int indexCount,
-                          const SkPaint& paint) const {
-    SkASSERT(0 == count || vertices);
-
-    // abort early if there is nothing to draw
-    if (count < 3 || (indices && indexCount < 3) || fRC->isEmpty()) {
-        return;
-    }
-
-    // transform out vertices into device coordinates
-    SkAutoSTMalloc<16, SkPoint> storage(count);
-    SkPoint* devVerts = storage.get();
-    fMatrix->mapPoints(devVerts, vertices, count);
-
-    /*
-        We can draw the vertices in 1 of 4 ways:
-
-        - solid color (no shader/texture[], no colors[])
-        - just colors (no shader/texture[], has colors[])
-        - just texture (has shader/texture[], no colors[])
-        - colors * texture (has shader/texture[], has colors[])
-
-        Thus for texture drawing, we need both texture[] and a shader.
-    */
-
-    auto triShader = sk_make_sp<SkTriColorShader>();
-    SkPaint p(paint);
-
-    SkShader* shader = p.getShader();
-    if (nullptr == shader) {
-        // if we have no shader, we ignore the texture coordinates
-        textures = nullptr;
-    } else if (nullptr == textures) {
-        // if we don't have texture coordinates, ignore the shader
-        p.setShader(nullptr);
-        shader = nullptr;
-    }
-
-    // setup the custom shader (if needed)
-    if (colors) {
-        if (nullptr == textures) {
-            // just colors (no texture)
-            p.setShader(triShader);
-        } else {
-            // colors * texture
-            SkASSERT(shader);
-            p.setShader(SkShader::MakeComposeShader(triShader, sk_ref_sp(shader), bmode));
-        }
-    }
-
-    SkAutoBlitterChoose blitter(fDst, *fMatrix, p);
-    // Abort early if we failed to create a shader context.
-    if (blitter->isNullBlitter()) {
-        return;
-    }
-
-    // setup our state and function pointer for iterating triangles
-    VertState       state(count, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(vmode);
-
-    if (textures || colors) {
-        SkTriColorShader::TriColorShaderData verticesSetup = { vertices, colors, &state };
-
-        while (vertProc(&state)) {
-            auto* blitterPtr = blitter.get();
-
-            // We're going to allocate at most
-            //
-            //   * one SkLocalMatrixShader OR one SkColorShader
-            //   * one SkComposeShader
-            //   * one SkAutoBlitterChoose
-            //
-            static constexpr size_t kAllocSize =
-                sizeof(SkAutoBlitterChoose) + sizeof(SkComposeShader) +
-                SkTMax(sizeof(SkLocalInnerMatrixShader), sizeof(SkColorShader));
-            char allocBuffer[kAllocSize];
-            SkArenaAlloc alloc(allocBuffer);
-
-            if (textures) {
-                sk_sp<SkShader> texShader = MakeTextureShader(state, vertices, textures, paint,
-                                                              fDst.colorSpace(), &alloc);
-                if (texShader) {
-                    SkPaint localPaint(p);
-                    localPaint.setShader(colors
-                        ? alloc.makeSkSp<SkComposeShader>(triShader, std::move(texShader), bmode)
-                        : std::move(texShader));
-
-                    blitterPtr = alloc.make<SkAutoBlitterChoose>(fDst, *fMatrix, localPaint)->get();
-                    if (blitterPtr->isNullBlitter()) {
-                        continue;
-                    }
-                }
-            }
-            if (colors) {
-                triShader->bindSetupData(&verticesSetup);
-            }
-
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
-            SkScan::FillTriangle(tmp, *fRC, blitterPtr);
-            triShader->bindSetupData(nullptr);
-        }
-    } else {
-        // no colors[] and no texture, stroke hairlines with paint's color.
-        SkScan::HairRCProc hairProc = ChooseHairProc(paint.isAntiAlias());
-        const SkRasterClip& clip = *fRC;
-        while (vertProc(&state)) {
-            SkPoint array[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
-            };
-            hairProc(array, 4, clip, blitter.get());
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
 

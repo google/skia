@@ -6,10 +6,8 @@
  */
 
 #include "SkRecord.h"
+#include "SkImage.h"
 #include <algorithm>
-
-SkRecord::SkRecord()
-    : fCount(0), fReserved(0), fAlloc(8/*first malloc at 256 bytes*/) {}
 
 SkRecord::~SkRecord() {
     Destroyer destroyer;
@@ -25,9 +23,8 @@ void SkRecord::grow() {
 }
 
 size_t SkRecord::bytesUsed() const {
-    return sizeof(SkRecord)
-         + fReserved * sizeof(Record)
-         + fAlloc.approxBytesAllocated();
+    size_t bytes = fApproxBytesAllocated + sizeof(SkRecord);
+    return bytes;
 }
 
 void SkRecord::defrag() {

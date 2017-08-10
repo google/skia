@@ -196,10 +196,8 @@ void GrGLMagnifierEffect::emitCode(EmitArgs& args) {
                                      &fColorSpaceHelper);
     fragBuilder->codeAppend(";\n");
 
-    fragBuilder->codeAppendf("\t\t%s = output_color;", args.fOutputColor);
-    SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
-    fragBuilder->codeAppend(modulate.c_str());
+    fragBuilder->codeAppendf("\t\t%s = output_color;\n", args.fOutputColor);
+    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }
 
 void GrGLMagnifierEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -389,7 +387,6 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
         return nullptr;
     }
 
-    SkAutoLockPixels alp(inputBM);
     SkASSERT(inputBM.getPixels());
     if (!inputBM.getPixels() || inputBM.width() <= 0 || inputBM.height() <= 0) {
         return nullptr;
@@ -401,8 +398,6 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
-
-    SkAutoLockPixels dstLock(dst);
 
     SkColor* dptr = dst.getAddr32(0, 0);
     int dstWidth = dst.width(), dstHeight = dst.height();

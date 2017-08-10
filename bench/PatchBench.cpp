@@ -322,3 +322,39 @@ DEF_BENCH( return new LoopPatchBench(SkVector::Make(3.0f, 3.0f),
                                         PatchBench::kTexCoords_VertexMode); )
 DEF_BENCH( return new LoopPatchBench(SkVector::Make(3.0f, 3.0f),
                                         PatchBench::kBoth_VertexMode); )
+
+//////////////////////////////////////////////
+#include "SkPatchUtils.h"
+
+class PatchUtilsBench : public Benchmark {
+    SkString    fName;
+    const bool  fLinearInterp;
+public:
+    PatchUtilsBench(bool linearInterp) : fLinearInterp(linearInterp) {
+        fName.printf("patchutils_%s", linearInterp ? "linear" : "legacy");
+    }
+
+    const char* onGetName() override { return fName.c_str(); }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        const SkColor colors[] = { 0xFF000000, 0xFF00FF00, 0xFF0000FF, 0xFFFF0000 };
+        const SkPoint pts[] = {
+            { 0, 0 }, { 10, 0 }, { 20, 0 }, { 30, 0 },
+            { 30,10}, { 30,20 }, { 30,30 }, { 20,30 },
+            { 10,30}, { 0, 30 }, { 0, 20 }, { 0, 10 },
+        };
+        const SkPoint tex[] = {
+            { 0, 0 }, { 10, 0 }, { 10, 10 }, { 0, 10 },
+        };
+
+        for (int i = 0; i < 100*loops; ++i) {
+            SkPatchUtils::MakeVertices(pts, colors, tex, 20, 20, fLinearInterp);
+        }
+    }
+};
+DEF_BENCH( return new PatchUtilsBench(false); )
+DEF_BENCH( return new PatchUtilsBench(true); )

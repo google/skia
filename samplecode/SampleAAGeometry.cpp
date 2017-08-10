@@ -6,6 +6,7 @@
  */
 
 #include "SampleCode.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGeometry.h"
 #include "SkIntersections.h"
@@ -606,8 +607,8 @@ struct UniControl {
         canvas->drawLine(fBounds.fLeft - 5, fYLo, fBounds.fRight + 5, fYLo, paints.fIndicator);
         SkString label;
         label.printf("%0.3g", fValLo);
-        canvas->drawText(label.c_str(), label.size(), fBounds.fLeft + 5, fYLo - 5, paints.fValue);
-        canvas->drawText(fName.c_str(), fName.size(), fBounds.fLeft, fBounds.bottom() + 11,
+        canvas->drawString(label, fBounds.fLeft + 5, fYLo - 5, paints.fValue);
+        canvas->drawString(fName, fBounds.fLeft, fBounds.bottom() + 11,
                 paints.fLabel);
     }
 };
@@ -634,7 +635,7 @@ struct BiControl : public UniControl {
         if (yPos < fYLo + 10) {
             yPos = fYLo + 10;
         }
-        canvas->drawText(label.c_str(), label.size(), fBounds.fLeft + 5, yPos - 5, paints.fValue);
+        canvas->drawString(label, fBounds.fLeft + 5, yPos - 5, paints.fValue);
         SkRect fill = { fBounds.fLeft, fYLo, fBounds.fRight, yPos };
         canvas->drawRect(fill, paints.fFill);
     }
@@ -1055,15 +1056,15 @@ public:
         SkVector bisect = { (lastV.fX + nextV.fX) / 2, (lastV.fY + nextV.fY) / 2 };
         bisect.setLength(fWidthControl.fValLo * 2);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt.fX, pt.fY, pt.fX + bisect.fX, pt.fY + bisect.fY, fSkeletonPaint);
+            canvas->drawLine(pt, pt + bisect, fSkeletonPaint);
         }
         lastV.setLength(fWidthControl.fValLo);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt.fX, pt.fY, pt.fX - lastV.fY, pt.fY + lastV.fX, fSkeletonPaint);
+            canvas->drawLine(pt, {pt.fX - lastV.fY, pt.fY + lastV.fX}, fSkeletonPaint);
         }
         nextV.setLength(fWidthControl.fValLo);
         if (fBisectButton.enabled()) {
-            canvas->drawLine(pt.fX, pt.fY, pt.fX + nextV.fY, pt.fY - nextV.fX, fSkeletonPaint);
+            canvas->drawLine(pt, {pt.fX + nextV.fY, pt.fY - nextV.fX}, fSkeletonPaint);
         }
         if (fJoinButton.enabled()) {
             SkScalar r = fWidthControl.fValLo;
@@ -1116,8 +1117,8 @@ public:
                         SkPoint maxPt = SkEvalQuadAt(pts, t);
                         SkVector tangent = SkEvalQuadTangentAt(pts, t);
                         tangent.setLength(fWidthControl.fValLo * 2);
-                        canvas->drawLine(maxPt.fX, maxPt.fY,
-                                maxPt.fX + tangent.fY, maxPt.fY - tangent.fX, fSkeletonPaint);
+                        canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
+                                         fSkeletonPaint);
                     }
                     } break;
                 case SkPath::kConic_Verb:
@@ -1162,8 +1163,8 @@ public:
                         SkVector tangent;
                         SkEvalCubicAt(pts, tMax[tIndex], &maxPt, &tangent, NULL);
                         tangent.setLength(fWidthControl.fValLo * 2);
-                        canvas->drawLine(maxPt.fX, maxPt.fY,
-                                maxPt.fX + tangent.fY, maxPt.fY - tangent.fX, fSkeletonPaint);
+                        canvas->drawLine(maxPt, {maxPt.fX + tangent.fY, maxPt.fY - tangent.fX},
+                                         fSkeletonPaint);
                     }
                     } break;
                 case SkPath::kClose_Verb:
@@ -1819,11 +1820,11 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
     SkScalar bottomOffset = this->height() - 10;
     for (int index = kKeyCommandCount - 1; index >= 0; --index) {
         bottomOffset -= 15;
-        canvas->drawText(kKeyCommandList[index].fDescriptionL,
-                strlen(kKeyCommandList[index].fDescriptionL), this->width() - 160, bottomOffset,
+        canvas->drawString(kKeyCommandList[index].fDescriptionL,
+                this->width() - 160, bottomOffset,
                 fLegendLeftPaint);
-        canvas->drawText(kKeyCommandList[index].fDescriptionR,
-                strlen(kKeyCommandList[index].fDescriptionR), this->width() - 20, bottomOffset,
+        canvas->drawString(kKeyCommandList[index].fDescriptionR,
+                this->width() - 20, bottomOffset,
                 fLegendRightPaint);
     }
 }

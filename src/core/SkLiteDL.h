@@ -14,6 +14,7 @@
 #include "SkDrawable.h"
 #include "SkRect.h"
 #include "SkTDArray.h"
+#include "SkTemplates.h"
 
 class SkLiteDL final {
 public:
@@ -29,7 +30,8 @@ public:
 #endif
 
     void save();
-    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, SkCanvas::SaveLayerFlags);
+    void saveLayer(const SkRect*, const SkPaint*, const SkImageFilter*, const SkImage*,
+                   const SkMatrix*, SkCanvas::SaveLayerFlags);
     void restore();
 
     void    concat (const SkMatrix&);
@@ -54,8 +56,6 @@ public:
     void drawAnnotation     (const SkRect&, const char*, SkData*);
     void drawDrawable       (SkDrawable*, const SkMatrix*);
     void drawPicture        (const SkPicture*, const SkMatrix*, const SkPaint*);
-    void drawShadowedPicture(const SkPicture*, const SkMatrix*,
-                             const SkPaint*, const SkShadowParams& params);
 
     void drawText       (const void*, size_t, SkScalar, SkScalar, const SkPaint&);
     void drawPosText    (const void*, size_t, const SkPoint[], const SkPaint&);
@@ -77,6 +77,7 @@ public:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&);
     void drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
                    SkBlendMode, const SkRect*, const SkPaint*);
+    void drawShadowRec(const SkPath&, const SkDrawShadowRec&);
 
 private:
     template <typename T, typename... Args>

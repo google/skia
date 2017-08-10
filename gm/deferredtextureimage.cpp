@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "gm.h"
+#include "SkImage.h"
 #include "SkMipMap.h"
 #include "Resources.h"
 
@@ -16,7 +17,9 @@
 // Helper function that uploads the given SkImage using MakeFromDeferredTextureImageData and then
 // draws the uploaded version at the specified coordinates.
 static void DrawDeferredTextureImageData(SkCanvas* canvas,
-                                         SkImage::DeferredTextureImageUsageParams* params) {
+                                         const char* resourceName,
+                                         SkImage::DeferredTextureImageUsageParams* params,
+                                         SkColorType dstColorType) {
     GrContext* context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
@@ -26,14 +29,14 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
 
 
 
-    sk_sp<SkImage> encodedImage = GetResourceAsImage("mandrill_512.png");
+    sk_sp<SkImage> encodedImage = GetResourceAsImage(resourceName);
     if (!encodedImage) {
         SkDebugf("\nCould not load resource.\n");
         return;
     }
 
     size_t requiredMemoryInBytes = encodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
+        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace(), dstColorType);
     if (requiredMemoryInBytes == 0) {
         SkDebugf("\nCould not create DeferredTextureImageData.\n");
         return;
@@ -42,7 +45,7 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
     std::vector<uint8_t> memory;
     memory.resize(requiredMemoryInBytes);
     encodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace());
+        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace(), dstColorType);
     sk_sp<SkImage> uploadedEncodedImage = SkImage::MakeFromDeferredTextureImageData(
         context, memory.data(), SkBudgeted::kNo);
 
@@ -51,14 +54,14 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
 
 
     SkBitmap bitmap;
-    if (!GetResourceAsBitmap("mandrill_512.png", &bitmap)) {
+    if (!GetResourceAsBitmap(resourceName, &bitmap)) {
         SkDebugf("\nCould not decode resource.\n");
         return;
     }
     sk_sp<SkImage> decodedImage = SkImage::MakeFromBitmap(bitmap);
 
     requiredMemoryInBytes = decodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
+        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace(), dstColorType);
     if (requiredMemoryInBytes == 0) {
         SkDebugf("\nCould not create DeferredTextureImageData.\n");
         return;
@@ -66,15 +69,16 @@ static void DrawDeferredTextureImageData(SkCanvas* canvas,
 
     memory.resize(requiredMemoryInBytes);
     decodedImage->getDeferredTextureImageData(
-        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace());
+        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace(), dstColorType);
     sk_sp<SkImage> uploadedDecodedImage = SkImage::MakeFromDeferredTextureImageData(
         context, memory.data(), SkBudgeted::kNo);
 
-    canvas->drawImage(uploadedDecodedImage, 512 + 20, 10);
+    canvas->drawImage(uploadedDecodedImage, encodedImage->width() + 20, 10);
 }
 
 static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
-                                               SkImage::DeferredTextureImageUsageParams* params) {
+                                               SkImage::DeferredTextureImageUsageParams* params,
+                                               SkColorType dstColorType) {
     GrContext* context = canvas->getGrContext();
     if (!context) {
         skiagm::GM::DrawGpuOnlyMessage(canvas);
@@ -87,7 +91,7 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
 
     int mipLevelCount = SkMipMap::ComputeLevelCount(image->width(), image->height());
     size_t requiredMemoryInBytes = image->getDeferredTextureImageData(
-        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace());
+        *proxy, params, 1, nullptr, canvas->imageInfo().colorSpace(), dstColorType);
     if (requiredMemoryInBytes == 0) {
         SkDebugf("\nCould not create DeferredTextureImageData.\n");
         return;
@@ -96,7 +100,7 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
     std::vector<uint8_t> memory;
     memory.resize(requiredMemoryInBytes);
     image->getDeferredTextureImageData(
-        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace());
+        *proxy, params, 1, memory.data(), canvas->imageInfo().colorSpace(), dstColorType);
     sk_sp<SkImage> uploadedImage = SkImage::MakeFromDeferredTextureImageData(
         context, memory.data(), SkBudgeted::kNo);
 
@@ -144,13 +148,19 @@ static void DrawDeferredTextureImageMipMapTree(SkCanvas* canvas, SkImage* image,
 DEF_SIMPLE_GM(deferred_texture_image_none, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kNone_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, &params);
+    DrawDeferredTextureImageData(canvas, "mandrill_512.png", &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_low, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kLow_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, &params);
+    DrawDeferredTextureImageData(canvas, "mandrill_512.png", &params, kN32_SkColorType);
+}
+
+DEF_SIMPLE_GM(deferred_texture_image_low_dithered, canvas, 180 + 180 + 30, 180 + 20) {
+    auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
+                                                           kLow_SkFilterQuality, 0);
+    DrawDeferredTextureImageData(canvas, "dog.jpg", &params, kARGB_4444_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_encoded, canvas, 512 + 512 + 30, 1110) {
@@ -162,7 +172,7 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_encoded, canvas, 512 + 512 + 30, 111
 
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
                                                            kMedium_SkFilterQuality, 0);
-    DrawDeferredTextureImageMipMapTree(canvas, encodedImage.get(), &params);
+    DrawDeferredTextureImageMipMapTree(canvas, encodedImage.get(), &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_decoded, canvas, 512 + 512 + 30, 1110) {
@@ -175,13 +185,13 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_decoded, canvas, 512 + 512 + 30, 111
 
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
                                                            kMedium_SkFilterQuality, 0);
-    DrawDeferredTextureImageMipMapTree(canvas, decodedImage.get(), &params);
+    DrawDeferredTextureImageMipMapTree(canvas, decodedImage.get(), &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_high, canvas, 512 + 512 + 30, 512 + 20) {
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(1.f, 1.f),
                                                            kHigh_SkFilterQuality, 0);
-    DrawDeferredTextureImageData(canvas, &params);
+    DrawDeferredTextureImageData(canvas, "mandrill_512.png", &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_encoded_indexed, canvas, 128 + 128 + 30, 340) {
@@ -193,7 +203,7 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_encoded_indexed, canvas, 128 + 128 +
 
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
                                                            kMedium_SkFilterQuality, 0);
-    DrawDeferredTextureImageMipMapTree(canvas, encodedImage.get(), &params);
+    DrawDeferredTextureImageMipMapTree(canvas, encodedImage.get(), &params, kN32_SkColorType);
 }
 
 DEF_SIMPLE_GM(deferred_texture_image_medium_decoded_indexed, canvas, 128 + 128 + 30, 340) {
@@ -206,7 +216,7 @@ DEF_SIMPLE_GM(deferred_texture_image_medium_decoded_indexed, canvas, 128 + 128 +
 
     auto params = SkImage::DeferredTextureImageUsageParams(SkMatrix::MakeScale(0.25f, 0.25f),
                                                            kMedium_SkFilterQuality, 0);
-    DrawDeferredTextureImageMipMapTree(canvas, decodedImage.get(), &params);
+    DrawDeferredTextureImageMipMapTree(canvas, decodedImage.get(), &params, kN32_SkColorType);
 }
 
 #endif

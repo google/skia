@@ -39,7 +39,7 @@ public:
         void*  src_ctx = src;
         void*  dst_ctx = dst;
 
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &src_ctx);
         p.append_from_srgb(kUnpremul_SkAlphaType);
         p.append(SkRasterPipeline::scale_u8, &mask_ctx);
@@ -66,27 +66,92 @@ public:
 DEF_BENCH( return (new SkRasterPipelineBench< true>); )
 DEF_BENCH( return (new SkRasterPipelineBench<false>); )
 
-class SkRasterPipelineLegacyBench : public Benchmark {
+class SkRasterPipelineCompileVsRunBench : public Benchmark {
 public:
+    explicit SkRasterPipelineCompileVsRunBench(bool compile) : fCompile(compile) {}
     bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
     const char* onGetName() override {
-        return "SkRasterPipeline_legacy";
+        return fCompile ? "SkRasterPipeline_compile"
+                        : "SkRasterPipeline_run";
     }
 
     void onDraw(int loops, SkCanvas*) override {
         void*  src_ctx = src;
         void*  dst_ctx = dst;
 
-        SkRasterPipeline p;
+        SkRasterPipeline_<256> p;
         p.append(SkRasterPipeline::load_8888, &dst_ctx);
         p.append(SkRasterPipeline::move_src_dst);
         p.append(SkRasterPipeline::load_8888, &src_ctx);
         p.append(SkRasterPipeline::srcover);
         p.append(SkRasterPipeline::store_8888, &dst_ctx);
 
+        if (fCompile) {
+            auto fn = p.compile();
+            while (loops --> 0) {
+                fn(0,N);
+            }
+        } else {
+            while (loops --> 0) {
+                p.run(0,N);
+            }
+        }
+    }
+private:
+    bool fCompile;
+};
+DEF_BENCH( return (new SkRasterPipelineCompileVsRunBench(true )); )
+DEF_BENCH( return (new SkRasterPipelineCompileVsRunBench(false)); )
+
+static SkColorSpaceTransferFn gamma(float g) {
+    SkColorSpaceTransferFn fn = {0,0,0,0,0,0,0};
+    fn.fG = g;
+    fn.fA = 1;
+    return fn;
+}
+
+class SkRasterPipeline_2dot2 : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    const char* onGetName() override {
+        return "SkRasterPipeline_2dot2";
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkColor4f c = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+        SkColorSpaceTransferFn from_2dot2 = gamma(  2.2f),
+                                 to_2dot2 = gamma(1/2.2f);
+        SkRasterPipeline_<256> p;
+        p.append(SkRasterPipeline::constant_color, &c);
+        p.append(SkRasterPipeline::parametric_r, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_g, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_b, &from_2dot2);
+        p.append(SkRasterPipeline::parametric_r, &  to_2dot2);
+        p.append(SkRasterPipeline::parametric_g, &  to_2dot2);
+        p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
+
         while (loops --> 0) {
             p.run(0,N);
         }
     }
 };
-DEF_BENCH( return (new SkRasterPipelineLegacyBench); )
+DEF_BENCH( return (new SkRasterPipeline_2dot2); )
+
+class SkRasterPipelineToSRGB : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    const char* onGetName() override {
+        return "SkRasterPipeline_to_srgb";
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        SkRasterPipeline_<256> p;
+        p.append(SkRasterPipeline::to_srgb);
+
+        while (loops --> 0) {
+            p.run(0,N);
+        }
+    }
+};
+DEF_BENCH( return (new SkRasterPipelineToSRGB); )

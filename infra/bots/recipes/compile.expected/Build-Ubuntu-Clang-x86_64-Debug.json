@@ -24,6 +24,66 @@
   },
   {
     "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
@@ -32,14 +92,13 @@
       "--patch_root",
       "skia",
       "--revision_mapping_file",
-      "{\"skia\": \"got_revision\"}",
+      "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123",
-      "--output_manifest"
+      "skia@abc123"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
@@ -99,7 +158,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-Clang-x86_64-Debug/Debug",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-O1\"] extra_ldflags=[\"-fuse-ld=lld\"] target_cpu=\"x86_64\""
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] target_cpu=\"x86_64\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

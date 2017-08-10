@@ -6,7 +6,7 @@
  */
 
 #include "SkLumaColorFilter.h"
-
+#include "SkPM4f.h"
 #include "SkColorPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkString.h"
@@ -17,8 +17,7 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #endif
 
-void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
-                                   SkPMColor dst[]) const {
+void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count, SkPMColor dst[]) const {
     for (int i = 0; i < count; ++i) {
         SkPMColor c = src[i];
 
@@ -37,12 +36,30 @@ void SkLumaColorFilter::filterSpan(const SkPMColor src[], int count,
     }
 }
 
-bool SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
+void SkLumaColorFilter::filterSpan4f(const SkPM4f src[], int count, SkPM4f dst[]) const {
+    for (int i = 0; i < count; ++i) {
+        /*
+         * While LuminanceToAlpha is defined to operate on un-premultiplied
+         * inputs, due to the final alpha scaling it can be computed based on
+         * premultipled components:
+         *
+         *   LumA = (k1 * r / a + k2 * g / a + k3 * b / a) * a
+         *   LumA = (k1 * r + k2 * g + k3 * b)
+         */
+        dst[i].fVec[SkPM4f::R] = 0;
+        dst[i].fVec[SkPM4f::G] = 0;
+        dst[i].fVec[SkPM4f::B] = 0;
+        dst[i].fVec[SkPM4f::A] = src[i].r() * SK_LUM_COEFF_R +
+                                 src[i].g() * SK_LUM_COEFF_G +
+                                 src[i].b() * SK_LUM_COEFF_B;
+    }
+}
+
+void SkLumaColorFilter::onAppendStages(SkRasterPipeline* p,
                                        SkColorSpace* dst,
                                        SkArenaAlloc* scratch,
                                        bool shaderIsOpaque) const {
     p->append(SkRasterPipeline::luminance_to_alpha);
-    return true;
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {

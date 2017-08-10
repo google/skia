@@ -41,9 +41,6 @@ public:
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
 
-    virtual bool onReadYUV8Planes(const SkISize sizes[3], void* const planes[3],
-                                  const size_t rowBytes[3], SkYUVColorSpace colorSpace) const;
-
     virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                               int srcX, int srcY, CachingHint) const = 0;
 
@@ -73,12 +70,15 @@ public:
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&) const = 0;
 
-    // If a ctx is specified, then only gpu-specific formats are requested.
-    virtual SkData* onRefEncoded(GrContext*) const { return nullptr; }
+    virtual SkData* onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(SkBitmap*, LegacyBitmapMode) const;
 
+    // True for picture-backed and codec-backed
     virtual bool onIsLazyGenerated() const { return false; }
+
+    // True only for generators that operate directly on gpu (e.g. picture-generators)
+    virtual bool onCanLazyGenerateOnGPU() const { return false; }
 
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
@@ -86,10 +86,13 @@ public:
         fAddedToCache.store(true);
     }
 
+    virtual bool onIsValid(GrContext*) const = 0;
+
     virtual bool onPinAsTexture(GrContext*) const { return false; }
     virtual void onUnpinAsTexture(GrContext*) const {}
 
-    virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>) const = 0;
+    virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
+                                            SkTransferFunctionBehavior) const = 0;
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.

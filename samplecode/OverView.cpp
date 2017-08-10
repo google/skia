@@ -167,7 +167,7 @@ void OverView::onDraw(SkCanvas* canvas) {
     for (int i = 0; i < fCount; ++i) {
         if (draw_this_name(fNames[i], fMatchStr)) {
             canvas->drawRect(this->bounds(loc), paint);
-            canvas->drawText(fNames[i].c_str(), fNames[i].size(), loc.x(), loc.y(), fNamePaint);
+            canvas->drawString(fNames[i], loc.x(), loc.y(), fNamePaint);
             this->next(&loc);
         }
     }

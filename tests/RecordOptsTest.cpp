@@ -190,10 +190,20 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
 
     // saveLayer w/ backdrop should NOT go away
     sk_sp<SkImageFilter> filter(SkBlurImageFilter::Make(3, 3, nullptr));
-    recorder.saveLayer({ nullptr, nullptr, filter.get(), 0});
+    recorder.saveLayer({ nullptr, nullptr, filter.get(), nullptr, nullptr, 0});
         recorder.drawRect(draw, opaqueDrawPaint);
     recorder.restore();
     assert_savelayer_draw_restore(r, &record, 18, false);
+
+    // saveLayer w/ clip mask should also NOT go away
+    {
+        sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(10, 10));
+        recorder.saveLayer({ nullptr, nullptr, nullptr, surface->makeImageSnapshot().get(),
+                             nullptr, 0});
+            recorder.drawRect(draw, opaqueDrawPaint);
+        recorder.restore();
+        assert_savelayer_draw_restore(r, &record, 21, false);
+    }
 }
 #endif
 
@@ -265,10 +275,12 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
                             for (size_t m = 0; m < SK_ARRAY_COUNT(secondPaints); ++m) {
                                 bool innerNoOped = !secondBounds[k] && !secondPaints[m] && !innerF;
 
-                                recorder.saveLayer({firstBounds[i], firstPaints[j], outerF, 0});
+                                recorder.saveLayer({firstBounds[i], firstPaints[j], outerF,
+                                                    nullptr, nullptr, 0});
                                 recorder.save();
                                 recorder.clipRect(clip);
-                                recorder.saveLayer({secondBounds[k], secondPaints[m], innerF, 0});
+                                recorder.saveLayer({secondBounds[k], secondPaints[m], innerF,
+                                                    nullptr, nullptr, 0});
                                 recorder.restore();
                                 recorder.restore();
                                 recorder.restore();

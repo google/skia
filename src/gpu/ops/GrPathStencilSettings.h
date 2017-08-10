@@ -49,11 +49,7 @@ static constexpr GrUserStencilSettings gInvEOColorPass(
 
 ////// Winding
 
-// when we have separate stencil we increment front faces / decrement back faces
-// when we don't have wrap incr and decr we use the stencil test to simulate
-// them.
-
-static constexpr GrUserStencilSettings gWindStencilSeparateWithWrap(
+static constexpr GrUserStencilSettings gWindStencilPass (
     GrUserStencilSettings::StaticInitSeparate<
         0xffff,                                0xffff,
         GrUserStencilTest::kAlwaysIfInClip,    GrUserStencilTest::kAlwaysIfInClip,
@@ -62,66 +58,6 @@ static constexpr GrUserStencilSettings gWindStencilSeparateWithWrap(
         GrUserStencilOp::kKeep,                GrUserStencilOp::kKeep,
         0xffff,                                0xffff>()
 );
-
-// if inc'ing the max value, invert to make 0
-// if dec'ing zero invert to make all ones.
-// we can't avoid touching the stencil on both passing and
-// failing, so we can't resctrict ourselves to the clip.
-static constexpr GrUserStencilSettings gWindStencilSeparateNoWrap(
-    GrUserStencilSettings::StaticInitSeparate<
-        0xffff,                                0x0000,
-        GrUserStencilTest::kEqual,             GrUserStencilTest::kEqual,
-        0xffff,                                0xffff,
-        GrUserStencilOp::kInvert,              GrUserStencilOp::kInvert,
-        GrUserStencilOp::kIncMaybeClamp,       GrUserStencilOp::kDecMaybeClamp,
-        0xffff,                                0xffff>()
-);
-
-// When there are no separate faces we do two passes to setup the winding rule
-// stencil. First we draw the front faces and inc, then we draw the back faces
-// and dec. These are same as the above two split into the incrementing and
-// decrementing passes.
-static constexpr GrUserStencilSettings gWindSingleStencilWithWrapInc(
-    GrUserStencilSettings::StaticInit<
-        0xffff,
-        GrUserStencilTest::kAlwaysIfInClip,
-        0xffff,
-        GrUserStencilOp::kIncWrap,
-        GrUserStencilOp::kKeep,
-        0xffff>()
-);
-
-static constexpr GrUserStencilSettings gWindSingleStencilWithWrapDec(
-    GrUserStencilSettings::StaticInit<
-        0xffff,
-        GrUserStencilTest::kAlwaysIfInClip,
-        0xffff,
-        GrUserStencilOp::kDecWrap,
-        GrUserStencilOp::kKeep,
-        0xffff>()
-);
-
-static constexpr GrUserStencilSettings gWindSingleStencilNoWrapInc(
-    GrUserStencilSettings::StaticInit<
-        0xffff,
-        GrUserStencilTest::kEqual,
-        0xffff,
-        GrUserStencilOp::kInvert,
-        GrUserStencilOp::kIncMaybeClamp,
-        0xffff>()
-);
-
-static constexpr GrUserStencilSettings gWindSingleStencilNoWrapDec(
-    GrUserStencilSettings::StaticInit<
-        0x0000,
-        GrUserStencilTest::kEqual,
-        0xffff,
-        GrUserStencilOp::kInvert,
-        GrUserStencilOp::kDecMaybeClamp,
-        0xffff>()
-);
-
-// Color passes are the same whether we use the two-sided stencil or two passes
 
 static constexpr GrUserStencilSettings gWindColorPass(
     GrUserStencilSettings::StaticInit<

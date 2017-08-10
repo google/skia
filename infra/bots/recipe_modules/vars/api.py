@@ -28,7 +28,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
     self.slave_dir = self.m.path['start_dir']
     self.checkout_root = self.slave_dir
-    self.default_env = self.m.step.get_from_context('env', {})
+    self.default_env = self.m.context.env
     self.default_env['CHROME_HEADLESS'] = '1'
     self.default_env['PATH'] = self.m.path.pathsep.join([
         self.default_env.get('PATH', '%(PATH)s'),
@@ -40,10 +40,10 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     # Compile bots keep a persistent checkout.
     self.persistent_checkout = (self.is_compile_bot or
                                 'RecreateSKPs' in self.builder_name or
+                                'UpdateMetaConfig' in self.builder_name or
                                 '-CT_' in self.builder_name or
                                 'Presubmit' in self.builder_name or
                                 'InfraTests' in self.builder_name or
-                                'BundleRecipes' in self.builder_name or
                                 self.builder_name == "Housekeeper-PerCommit")
     if self.persistent_checkout:
       if 'Win' in self.builder_name:
@@ -94,7 +94,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     if 'CommandBuffer' in self.builder_name:
       self.need_chromium_checkout = True
       self.gclient_env['GYP_CHROMIUM_NO_ACTION'] = '0'
-    if 'RecreateSKPs' in self.builder_name:  # pragma: no cover
+    if 'RecreateSKPs' in self.builder_name:
       self.need_chromium_checkout = True
       self.gclient_env['CPPFLAGS'] = (
           '-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1')

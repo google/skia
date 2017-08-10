@@ -18,6 +18,9 @@ differences (for instance, you always use "in" and "out", and skslc will handle
 translating them to "varying" and "attribute" as appropriate). Be aware of the
 following differences between SkSL and GLSL:
 
+* "@if" and "@switch" are static versions of if and switch. They behave exactly
+  the same as if and switch in all respects other than it being a compile-time
+  error to use a non-constant expression as a test.
 * GLSL caps can be referenced via the syntax 'sk_Caps.<name>', e.g.
   sk_Caps.sampleVariablesSupport. The value will be a constant boolean or int,
   as appropriate. As SkSL supports constant folding and branch elimination, this

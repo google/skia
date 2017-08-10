@@ -59,7 +59,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
 
     paint.setAntiAlias(true);
     const char* name = sk_tool_utils::colortype_name(bm.colorType());
-    canvas->drawText(name, strlen(name), x, SkIntToScalar(bm.height())*scale*5/8,
+    canvas->drawString(name, x, SkIntToScalar(bm.height())*scale*5/8,
                      paint);
     canvas->translate(SkIntToScalar(48), 0);
 
@@ -78,9 +78,9 @@ public:
 
     FilterView() {
         make_bm(&fBM8);
-        fBM8.copyTo(&fBM4444, kARGB_4444_SkColorType);
-        fBM8.copyTo(&fBM16, kRGB_565_SkColorType);
-        fBM8.copyTo(&fBM32, kN32_SkColorType);
+        sk_tool_utils::copy_to(&fBM4444, kARGB_4444_SkColorType, fBM8);
+        sk_tool_utils::copy_to(&fBM16, kRGB_565_SkColorType, fBM8);
+        sk_tool_utils::copy_to(&fBM32, kN32_SkColorType, fBM8);
 
         this->setBGColor(0xFFDDDDDD);
     }

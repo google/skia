@@ -240,7 +240,7 @@ public:
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
     // We use this color vs the SkPaint color because it has the colorfilter applied.
-    void initReusableBlob(SkColor filteredColor, const SkMatrix& viewMatrix, SkScalar x,
+    void initReusableBlob(GrColor filteredColor, const SkMatrix& viewMatrix, SkScalar x,
                           SkScalar y) {
         fFilteredPaintColor = filteredColor;
         this->setupViewMatrix(viewMatrix, x, y);
@@ -530,7 +530,7 @@ private:
     SkMatrix fInitialViewMatrix;
     SkMatrix fInitialViewMatrixInverse;
     size_t fSize;
-    SkColor fFilteredPaintColor;
+    GrColor fFilteredPaintColor;
     SkScalar fInitialX;
     SkScalar fInitialY;
 

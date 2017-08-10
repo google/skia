@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkMask.h"
 #include "SkPaint.h"
+#include "SkPixmap.h"
 #include "SkStrokeRec.h"
 #include "SkVertices.h"
 
@@ -96,6 +97,8 @@ public:
                            SkMask* mask, SkMask::CreateMode mode,
                            SkStrokeRec::InitStyle style);
 
+    void drawDevMask(const SkMask& mask, const SkPaint&) const;
+
     enum RectType {
         kHair_RectType,
         kFill_RectType,
@@ -122,7 +125,6 @@ public:
                                     const SkPaint&, const SkSurfaceProps*) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
-    void    drawDevMask(const SkMask& mask, const SkPaint&) const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,

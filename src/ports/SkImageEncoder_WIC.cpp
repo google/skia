@@ -70,7 +70,9 @@ bool SkEncodeImageWithWIC(SkWStream* stream, const SkPixmap& pixmap,
 
     // First convert to BGRA if necessary.
     SkBitmap bitmap;
-    if (!bitmapOrig.copyTo(&bitmap, kBGRA_8888_SkColorType)) {
+    if (!bitmap.tryAllocPixels(bitmapOrig.info().makeColorType(kBGRA_8888_SkColorType)) ||
+        !bitmapOrig.readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 0, 0))
+    {
         return false;
     }
 

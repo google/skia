@@ -110,7 +110,7 @@ public:
     inline bool isNinePatch() const { return kNinePatch_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
-    bool allCornersCircular() const;
+    bool allCornersCircular(SkScalar tolerance = SK_ScalarNearlyZero) const;
 
     SkScalar width() const { return fRect.width(); }
     SkScalar height() const { return fRect.height(); }

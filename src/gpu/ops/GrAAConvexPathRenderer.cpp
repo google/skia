@@ -812,11 +812,9 @@ private:
 
             extract_verts(tess, verts, vertexStride, fColor, idxs, canTweakAlphaForCoverage);
 
-            GrMesh mesh;
-            mesh.initIndexed(kTriangles_GrPrimitiveType,
-                             vertexBuffer, indexBuffer,
-                             firstVertex, firstIndex,
-                             tess.numPts(), tess.numIndices());
+            GrMesh mesh(kTriangles_GrPrimitiveType);
+            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex);
+            mesh.setVertices(vertexBuffer, tess.numPts(), firstVertex);
             target->draw(gp.get(), this->pipeline(), mesh);
         }
     }
@@ -899,15 +897,15 @@ private:
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, &draws, verts, idxs);
 
-            GrMesh mesh;
+            GrMesh mesh(kTriangles_GrPrimitiveType);
 
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                mesh.initIndexed(kTriangles_GrPrimitiveType, vertexBuffer, indexBuffer,
-                                 firstVertex, firstIndex, draw.fVertexCnt, draw.fIndexCnt);
+                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex);
+                mesh.setVertices(vertexBuffer, draw.fVertexCnt, firstVertex);
                 target->draw(quadProcessor.get(), this->pipeline(), mesh);
-                firstVertex += draw.fVertexCnt;
                 firstIndex += draw.fIndexCnt;
+                firstVertex += draw.fVertexCnt;
             }
         }
     }
@@ -967,7 +965,7 @@ private:
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(!args.fRenderTargetContext->isUnifiedMultisampled());
+    SkASSERT(GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType());
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;
@@ -990,7 +988,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 #if GR_TEST_UTILS
 
-DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAConvexPathOp) {
     GrColor color = GrRandomColor(random);
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     SkPath path = GrTest::TestPathConvex(random);

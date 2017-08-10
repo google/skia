@@ -27,10 +27,27 @@ public:
     bool   willPlayBackBitmaps()  const override { return false; }
 };
 
+// Calculate conservative bounds for each type of draw op that can be its own mini picture.
+// These are fairly easy because we know they can't be affected by any matrix or saveLayers.
+static SkRect adjust_for_paint(SkRect bounds, const SkPaint& paint) {
+    return paint.canComputeFastBounds() ? paint.computeFastBounds(bounds, &bounds)
+                                        : SkRect::MakeLargest();
+}
+static SkRect bounds(const DrawRect& op) {
+    return adjust_for_paint(op.rect, op.paint);
+}
+static SkRect bounds(const DrawPath& op) {
+    return op.path.isInverseFillType() ? SkRect::MakeLargest()
+                                       : adjust_for_paint(op.path.getBounds(), op.paint);
+}
+static SkRect bounds(const DrawTextBlob& op) {
+    return adjust_for_paint(op.blob->bounds().makeOffset(op.x, op.y), op.paint);
+}
+
 template <typename T>
 class SkMiniPicture final : public SkPicture {
 public:
-    SkMiniPicture(SkRect cull, T* op) : fCull(cull) {
+    SkMiniPicture(const SkRect* cull, T* op) : fCull(cull ? *cull : bounds(*op)) {
         memcpy(&fOp, op, sizeof(fOp));  // We take ownership of op's guts.
     }
 
@@ -59,7 +76,7 @@ SkMiniRecorder::~SkMiniRecorder() {
     if (fState != State::kEmpty) {
         // We have internal state pending.
         // Detaching then deleting a picture is an easy way to clean up.
-        (void)this->detachAsPicture(SkRect::MakeEmpty());
+        (void)this->detachAsPicture(nullptr);
     }
     SkASSERT(fState == State::kEmpty);
 }
@@ -84,7 +101,7 @@ bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, c
 #undef TRY_TO_STORE
 
 
-sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect& cull) {
+sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect* cull) {
 #define CASE(Type)              \
     case State::k##Type:        \
         fState = State::kEmpty; \

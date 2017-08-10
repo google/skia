@@ -425,27 +425,25 @@ void GrVkGpuCommandBuffer::inlineUpload(GrOpFlushState* state, GrDrawOp::Deferre
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpuCommandBuffer::bindGeometry(const GrPrimitiveProcessor& primProc,
-                                        const GrNonInstancedMesh& mesh) {
-    CommandBufferInfo& cbInfo = fCommandBufferInfos[fCurrentCmdInfo];
+                                        const GrBuffer* indexBuffer,
+                                        const GrBuffer* vertexBuffer) {
+    GrVkSecondaryCommandBuffer* currCmdBuf = fCommandBufferInfos[fCurrentCmdInfo].currentCmdBuf();
     // There is no need to put any memory barriers to make sure host writes have finished here.
     // When a command buffer is submitted to a queue, there is an implicit memory barrier that
     // occurs for all host writes. Additionally, BufferMemoryBarriers are not allowed inside of
     // an active RenderPass.
-    SkASSERT(!mesh.vertexBuffer()->isCPUBacked());
-    GrVkVertexBuffer* vbuf;
-    vbuf = (GrVkVertexBuffer*)mesh.vertexBuffer();
-    SkASSERT(vbuf);
-    SkASSERT(!vbuf->isMapped());
+    SkASSERT(vertexBuffer);
+    SkASSERT(!vertexBuffer->isCPUBacked());
+    SkASSERT(!vertexBuffer->isMapped());
 
-    cbInfo.currentCmdBuf()->bindVertexBuffer(fGpu, vbuf);
+    currCmdBuf->bindVertexBuffer(fGpu, static_cast<const GrVkVertexBuffer*>(vertexBuffer));
 
-    if (mesh.isIndexed()) {
-        SkASSERT(!mesh.indexBuffer()->isCPUBacked());
-        GrVkIndexBuffer* ibuf = (GrVkIndexBuffer*)mesh.indexBuffer();
-        SkASSERT(ibuf);
-        SkASSERT(!ibuf->isMapped());
+    if (indexBuffer) {
+        SkASSERT(indexBuffer);
+        SkASSERT(!indexBuffer->isMapped());
+        SkASSERT(!indexBuffer->isCPUBacked());
 
-        cbInfo.currentCmdBuf()->bindIndexBuffer(fGpu, ibuf);
+        currCmdBuf->bindIndexBuffer(fGpu, static_cast<const GrVkIndexBuffer*>(indexBuffer));
     }
 }
 
@@ -467,7 +465,7 @@ sk_sp<GrVkPipelineState> GrVkGpuCommandBuffer::prepareDrawState(
 
     if (!cbInfo.fIsEmpty &&
         fLastPipelineState && fLastPipelineState != pipelineState.get() &&
-        fGpu->vkCaps().newSecondaryCBOnPipelineChange()) {
+        fGpu->vkCaps().newCBOnPipelineChange()) {
         this->addAdditionalCommandBuffer();
     }
     fLastPipelineState = pipelineState.get();
@@ -551,44 +549,44 @@ void GrVkGpuCommandBuffer::onDraw(const GrPipeline& pipeline,
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
-        GrMesh::Iterator iter;
-        const GrNonInstancedMesh* nonIdxMesh = iter.init(mesh);
-        do {
-            if (nonIdxMesh->primitiveType() != primitiveType) {
-                // Technically we don't have to call this here (since there is a safety check in
-                // pipelineState:setData but this will allow for quicker freeing of resources if the
-                // pipelineState sits in a cache for a while.
-                pipelineState->freeTempResources(fGpu);
-                SkDEBUGCODE(pipelineState = nullptr);
-                primitiveType = nonIdxMesh->primitiveType();
-                pipelineState = this->prepareDrawState(pipeline,
-                                                       primProc,
-                                                       primitiveType);
-                if (!pipelineState) {
-                    return;
-                }
+        if (mesh.primitiveType() != primitiveType) {
+            // Technically we don't have to call this here (since there is a safety check in
+            // pipelineState:setData but this will allow for quicker freeing of resources if the
+            // pipelineState sits in a cache for a while.
+            pipelineState->freeTempResources(fGpu);
+            SkDEBUGCODE(pipelineState = nullptr);
+            primitiveType = mesh.primitiveType();
+            pipelineState = this->prepareDrawState(pipeline,
+                                                   primProc,
+                                                   primitiveType);
+            if (!pipelineState) {
+                return;
             }
-            SkASSERT(pipelineState);
-            this->bindGeometry(primProc, *nonIdxMesh);
+        }
 
-            if (nonIdxMesh->isIndexed()) {
+        SkASSERT(pipelineState);
+        this->bindGeometry(primProc, mesh.indexBuffer(), mesh.vertexBuffer());
+
+        if (mesh.isIndexed()) {
+            for (const GrMesh::PatternBatch batch : mesh) {
                 cbInfo.currentCmdBuf()->drawIndexed(fGpu,
-                                                   nonIdxMesh->indexCount(),
-                                                   1,
-                                                   nonIdxMesh->startIndex(),
-                                                   nonIdxMesh->startVertex(),
-                                                   0);
-            } else {
-                cbInfo.currentCmdBuf()->draw(fGpu,
-                                            nonIdxMesh->vertexCount(),
-                                            1,
-                                            nonIdxMesh->startVertex(),
-                                            0);
+                                                    mesh.indexCount() * batch.fRepeatCount,
+                                                    1,
+                                                    mesh.baseIndex(),
+                                                    batch.fBaseVertex,
+                                                    0);
+                cbInfo.fIsEmpty = false;
+                fGpu->stats()->incNumDraws();
             }
+        } else {
+            cbInfo.currentCmdBuf()->draw(fGpu,
+                                         mesh.vertexCount(),
+                                         1,
+                                         mesh.baseVertex(),
+                                         0);
             cbInfo.fIsEmpty = false;
-
             fGpu->stats()->incNumDraws();
-        } while ((nonIdxMesh = iter.next()));
+        }
     }
 
     // Update command buffer bounds

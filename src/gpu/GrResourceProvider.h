@@ -12,6 +12,7 @@
 #include "GrGpu.h"
 #include "GrPathRange.h"
 
+class GrBackendRenderTarget;
 class GrPath;
 class GrRenderTarget;
 class GrSingleOwner;
@@ -49,7 +50,6 @@ public:
      */
     sk_sp<GrTextureProxy> createMipMappedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                                  const GrMipLevel* texels, int mipLevelCount,
-                                                 uint32_t flags = 0,
                                                  SkDestinationSurfaceColorMode mipColorMode =
                                                         SkDestinationSurfaceColorMode::kLegacy);
 
@@ -71,8 +71,9 @@ public:
 
     /** Create an exact fit texture with no initial data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                   uint32_t flags = 0);
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&, SkBudgeted, uint32_t flags = 0);
+
+    sk_sp<GrTextureProxy> createTextureProxy(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces
@@ -85,7 +86,10 @@ public:
      *
      * @return GrTexture object or NULL on failure.
      */
-    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTextureDesc& desc,
+    sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex,
+                                        GrSurfaceOrigin origin,
+                                        GrBackendTextureFlags flags,
+                                        int sampleCnt,
                                         GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     /**
@@ -97,14 +101,14 @@ public:
      *
      * @return GrRenderTarget object or NULL on failure.
      */
-    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTargetDesc& desc);
+    sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&, GrSurfaceOrigin);
 
     static const int kMinScratchTextureSize;
 
     /**
-     * Either finds and refs, or creates an index buffer for instanced drawing with a specific
-     * pattern if the index buffer is not found. If the return is non-null, the caller owns
-     * a ref on the returned GrBuffer.
+     * Either finds and refs, or creates an index buffer with a repeating pattern for drawing
+     * contiguous vertices of a repeated mesh. If the return is non-null, the caller owns a ref on
+     * the returned GrBuffer.
      *
      * @param pattern     the pattern of indices to repeat
      * @param patternSize size in bytes of the pattern
@@ -114,7 +118,7 @@ public:
      *
      * @return The index buffer if successful, otherwise nullptr.
      */
-    const GrBuffer* findOrCreateInstancedIndexBuffer(const uint16_t* pattern,
+    const GrBuffer* findOrCreatePatternedIndexBuffer(const uint16_t* pattern,
                                                      int patternSize,
                                                      int reps,
                                                      int vertCount,
@@ -122,7 +126,7 @@ public:
         if (GrBuffer* buffer = this->findAndRefTByUniqueKey<GrBuffer>(key)) {
             return buffer;
         }
-        return this->createInstancedIndexBuffer(pattern, patternSize, reps, vertCount, key);
+        return this->createPatternedIndexBuffer(pattern, patternSize, reps, vertCount, key);
     }
 
     /**
@@ -199,7 +203,9 @@ public:
       *
       * @return GrRenderTarget object or NULL on failure.
       */
-     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTextureDesc& desc);
+     sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                            GrSurfaceOrigin origin,
+                                                            int sampleCnt);
 
     /**
      * Assigns a unique key to a resource. If the key is associated with another resource that
@@ -245,6 +251,12 @@ private:
 
     GrTexture* refScratchTexture(const GrSurfaceDesc&, uint32_t scratchTextureFlags);
 
+    /*
+     * Try to find an existing scratch texture that exactly matches 'desc'. If successful
+     * update the budgeting accordingly.
+     */
+    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&, SkBudgeted, uint32_t flags);
+
     GrResourceCache* cache() { return fCache; }
     const GrResourceCache* cache() const { return fCache; }
 
@@ -256,7 +268,7 @@ private:
         return !SkToBool(fCache);
     }
 
-    const GrBuffer* createInstancedIndexBuffer(const uint16_t* pattern,
+    const GrBuffer* createPatternedIndexBuffer(const uint16_t* pattern,
                                                int patternSize,
                                                int reps,
                                                int vertCount,

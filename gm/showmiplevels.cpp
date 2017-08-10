@@ -93,7 +93,6 @@ public:
 
     static void apply_gamma(const SkBitmap& bm) {
         return; // below is our experiment for sRGB correction
-        bm.lockPixels();
         for (int y = 0; y < bm.height(); ++y) {
             for (int x = 0; x < bm.width(); ++x) {
                 SkPMColor c = *bm.getAddr32(x, y);
@@ -121,7 +120,7 @@ protected:
 
     static void DrawAndFrame(SkCanvas* canvas, const SkBitmap& orig, SkScalar x, SkScalar y) {
         SkBitmap bm;
-        orig.copyTo(&bm);
+        sk_tool_utils::copy_to(&bm, orig.colorType(), orig);
         apply_gamma(bm);
 
         canvas->drawBitmap(bm, x, y, nullptr);
@@ -136,7 +135,6 @@ protected:
         SkScalar y = 4;
 
         SkPixmap prevPM;
-        baseBM.lockPixels();
         baseBM.peekPixels(&prevPM);
 
         SkDestinationSurfaceColorMode colorMode = SkDestinationSurfaceColorMode::kLegacy;
@@ -181,7 +179,6 @@ protected:
         };
 
         SkPixmap basePM;
-        orig.lockPixels();
         orig.peekPixels(&basePM);
         for (auto method : methods) {
             canvas->translate(orig.width()/2 + 8.0f, 0);
@@ -221,7 +218,14 @@ void copy_to(SkBitmap* dst, SkColorType dstColorType, const SkBitmap& src) {
         return sk_tool_utils::copy_to_g8(dst, src);
     }
 
-    src.copyTo(dst, dstColorType);
+    const SkBitmap* srcPtr = &src;
+    SkBitmap tmp(src);
+    if (kRGB_565_SkColorType == dstColorType) {
+        tmp.setAlphaType(kOpaque_SkAlphaType);
+        srcPtr = &tmp;
+    }
+
+    sk_tool_utils::copy_to(dst, dstColorType, *srcPtr);
 }
 
 /**

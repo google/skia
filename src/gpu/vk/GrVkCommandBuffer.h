@@ -40,7 +40,7 @@ public:
                          BarrierType barrierType,
                          void* barrier) const;
 
-    void bindVertexBuffer(GrVkGpu* gpu, GrVkVertexBuffer* vbuffer) {
+    void bindVertexBuffer(GrVkGpu* gpu, const GrVkVertexBuffer* vbuffer) {
         VkBuffer vkBuffer = vbuffer->buffer();
         // TODO: once vbuffer->offset() no longer always returns 0, we will need to track the offset
         // to know if we can skip binding or not.
@@ -57,7 +57,7 @@ public:
         }
     }
 
-    void bindIndexBuffer(GrVkGpu* gpu, GrVkIndexBuffer* ibuffer) {
+    void bindIndexBuffer(GrVkGpu* gpu, const GrVkIndexBuffer* ibuffer) {
         VkBuffer vkBuffer = ibuffer->buffer();
         // TODO: once ibuffer->offset() no longer always returns 0, we will need to track the offset
         // to know if we can skip binding or not.
@@ -173,7 +173,7 @@ private:
 
     void freeGPUData(const GrVkGpu* gpu) const override;
     virtual void onFreeGPUData(const GrVkGpu* gpu) const = 0;
-    void abandonSubResources() const override;
+    void abandonGPUData() const override;
 
     virtual void onReset(GrVkGpu* gpu) {}
 

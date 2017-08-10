@@ -240,6 +240,12 @@ SkCanvas::SaveLayerStrategy SkPipeCanvas::getSaveLayerStrategy(const SaveLayerRe
     if (rec.fBackdrop) {
         extra |= kHasBackdrop_SaveLayerMask;
     }
+    if (rec.fClipMask) {
+        extra |= kHasClipMask_SaveLayerMask;
+    }
+    if (rec.fClipMatrix) {
+        extra |= kHasClipMatrix_SaveLayerMask;
+    }
 
     writer.write32(pack_verb(SkPipeVerb::kSaveLayer, extra));
     if (rec.fBounds) {
@@ -251,6 +257,13 @@ SkCanvas::SaveLayerStrategy SkPipeCanvas::getSaveLayerStrategy(const SaveLayerRe
     if (rec.fBackdrop) {
         writer.writeFlattenable(rec.fBackdrop);
     }
+    if (rec.fClipMask) {
+        writer.writeImage(rec.fClipMask);
+    }
+    if (rec.fClipMatrix) {
+        writer.writeMatrix(*rec.fClipMatrix);
+    }
+
     return kNoLayer_SaveLayerStrategy;
 }
 

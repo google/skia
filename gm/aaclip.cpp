@@ -65,6 +65,7 @@ DEF_SIMPLE_GM(dont_clip_to_layer, canvas, 120, 120) {
     canvas->saveLayer(rec);
     do_draw(canvas, r);
     canvas->restore();
+    canvas->restore();
 
     canvas->restore();  // red-layer
 }

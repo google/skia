@@ -276,9 +276,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("\t\t\tcoord.%s = min(highBound, coord.%s);", dir, dir);
     }
     fragBuilder->codeAppend("\t\t}\n");
-    SkString modulate;
-    GrGLSLMulVarBy4f(&modulate, args.fOutputColor, args.fInputColor);
-    fragBuilder->codeAppend(modulate.c_str());
+    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
 }
 
 void GrGLMorphologyEffect::GenKey(const GrProcessor& proc,
@@ -621,8 +619,6 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         return nullptr;
     }
 
-    SkAutoLockPixels inputLock(inputBM), dstLock(dst);
-
     SkMorphologyImageFilter::Proc procX, procY;
 
     if (kDilate_Op == this->op()) {
@@ -638,8 +634,6 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
         if (!tmp.tryAllocPixels(info)) {
             return nullptr;
         }
-
-        SkAutoLockPixels tmpLock(tmp);
 
         call_proc_X(procX, inputBM, &tmp, width, srcBounds);
         SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());

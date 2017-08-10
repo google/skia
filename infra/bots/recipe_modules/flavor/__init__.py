@@ -3,10 +3,10 @@
 # found in the LICENSE file.
 
 DEPS = [
-  'build/adb',
-  'build/file',
   'builder_name_schema',
   'depot_tools/bot_update',
+  'file',
+  'recipe_engine/context',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
@@ -16,7 +16,3 @@ DEPS = [
   'run',
   'vars',
 ]
-
-
-# TODO(borenet): Add coverage
-DISABLE_STRICT_COVERAGE = True

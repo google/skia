@@ -36,19 +36,11 @@ void GrPipeline::init(const InitArgs& args) {
     if (args.fProcessors->usesDistanceVectorField()) {
         fFlags |= kUsesDistanceVectorField_Flag;
     }
-    if (args.fProcessors->disableOutputConversionToSRGB()) {
-        fFlags |= kDisableOutputConversionToSRGB_Flag;
-    }
-    if (args.fProcessors->allowSRGBInputs()) {
-        fFlags |= kAllowSRGBInputs_Flag;
-    }
     if (!args.fUserStencil->isDisabled(fFlags & kHasStencilClip_Flag)) {
         fFlags |= kStencilEnabled_Flag;
     }
 
     fUserStencilSettings = args.fUserStencil;
-
-    fDrawFace = static_cast<int16_t>(args.fDrawFace);
 
     fXferProcessor = args.fProcessors->refXferProcessor();
 
@@ -70,35 +62,52 @@ void GrPipeline::init(const InitArgs& args) {
     for (int i = 0; i < args.fProcessors->numColorFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->colorFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
+        if (fp->isBad()) {
+            this->markAsBad();
+        }
     }
 
     for (int i = 0; i < args.fProcessors->numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         const GrFragmentProcessor* fp = args.fProcessors->coverageFragmentProcessor(i);
         fFragmentProcessors[currFPIdx].reset(fp);
+        if (fp->isBad()) {
+            this->markAsBad();
+        }
     }
     if (args.fAppliedClip) {
         if (const GrFragmentProcessor* fp = args.fAppliedClip->clipCoverageFragmentProcessor()) {
             fFragmentProcessors[currFPIdx].reset(fp);
+            if (fp->isBad()) {
+                this->markAsBad();
+            }
         }
     }
 }
 
-static void add_dependencies_for_processor(const GrFragmentProcessor* proc, GrRenderTarget* rt) {
+// MDB TODO: re-enable when TextureSamplers store texture proxies
+#if 0
+static void add_dependencies_for_processor(const GrFragmentProcessor* proc,
+                                           GrRenderTargetProxy* rtp) {
     GrFragmentProcessor::TextureAccessIter iter(proc);
     while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
-        SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(sampler->texture());
+        SkASSERT(rtp->getLastOpList());
+        rtp->getLastOpList()->addDependency(sampler->texture());
     }
 }
+#endif
 
-void GrPipeline::addDependenciesTo(GrRenderTarget* rt) const {
+void GrPipeline::addDependenciesTo(GrRenderTargetProxy* rtp) const {
+    // MDB TODO: re-enable when TextureSamplers store texture proxies
+#if 0
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
-        add_dependencies_for_processor(fFragmentProcessors[i].get(), rt);
+        add_dependencies_for_processor(fFragmentProcessors[i].get(), rtp);
     }
+#endif
 
     if (fDstTexture) {
-        SkASSERT(rt->getLastOpList());
-        rt->getLastOpList()->addDependency(fDstTexture.get());
+        //SkASSERT(rtp->getLastOpList());
+        // MDB TODO: re-enable when TextureSamplers store texture proxies
+        //rtp->getLastOpList()->addDependency(fDstTexture.get());
     }
 }
 
@@ -107,7 +116,6 @@ GrPipeline::GrPipeline(GrRenderTarget* rt, SkBlendMode blendmode)
         , fScissorState()
         , fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
-        , fDrawFace(static_cast<uint16_t>(GrDrawFace::kBoth))
         , fFlags()
         , fXferProcessor(GrPorterDuffXPFactory::MakeNoCoverageXP(blendmode))
         , fFragmentProcessors()
@@ -124,8 +132,7 @@ bool GrPipeline::AreEqual(const GrPipeline& a, const GrPipeline& b) {
         a.fScissorState != b.fScissorState ||
         a.fWindowRectsState != b.fWindowRectsState ||
         a.fFlags != b.fFlags ||
-        a.fUserStencilSettings != b.fUserStencilSettings ||
-        a.fDrawFace != b.fDrawFace) {
+        a.fUserStencilSettings != b.fUserStencilSettings) {
         return false;
     }
 

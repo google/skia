@@ -11,7 +11,6 @@
 #include "GrTypes.h"
 #include "GrTypesPriv.h"
 #include "GrBlend.h"
-#include "GrShaderVar.h"
 #include "GrShaderCaps.h"
 #include "SkRefCnt.h"
 #include "SkString.h"
@@ -27,7 +26,6 @@ public:
     GrCaps(const GrContextOptions&);
 
     virtual SkString dump() const;
-
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
@@ -45,11 +43,8 @@ public:
      * Is there support for enabling/disabling sRGB writes for sRGB-capable color buffers?
      */
     bool srgbWriteControl() const { return fSRGBWriteControl; }
-    bool twoSidedStencilSupport() const { return fTwoSidedStencilSupport; }
-    bool stencilWrapOpsSupport() const { return  fStencilWrapOpsSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
-    bool compressedTexSubImageSupport() const { return fCompressedTexSubImageSupport; }
     bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
@@ -163,7 +158,7 @@ public:
 
     int maxWindowRectangles() const { return fMaxWindowRectangles; }
 
-    virtual bool isConfigTexturable(GrPixelConfig config) const = 0;
+    virtual bool isConfigTexturable(GrPixelConfig) const = 0;
     virtual bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const = 0;
     virtual bool canConfigBeImageStorage(GrPixelConfig config) const = 0;
 
@@ -181,6 +176,8 @@ public:
     /** True in environments that will issue errors if memory uploaded to buffers
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
+
+    bool wireframeMode() const { return fWireframeMode; }
 
     bool sampleShadingSupport() const { return fSampleShadingSupport; }
 
@@ -210,13 +207,10 @@ protected:
     bool fMipMapSupport                              : 1;
     bool fSRGBSupport                                : 1;
     bool fSRGBWriteControl                           : 1;
-    bool fTwoSidedStencilSupport                     : 1;
-    bool fStencilWrapOpsSupport                      : 1;
     bool fDiscardRenderTargetSupport                 : 1;
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;
-    bool fCompressedTexSubImageSupport               : 1;
     bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
@@ -265,7 +259,8 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
 
     bool fSuppressPrints : 1;
-    bool fImmediateFlush: 1;
+    bool fImmediateFlush : 1;
+    bool fWireframeMode  : 1;
 
     typedef SkRefCnt INHERITED;
 };

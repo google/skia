@@ -33,23 +33,22 @@ private:
     using DstTexture = GrXferProcessor::DstTexture;
 
 public:
-    /** Options for GrRenderTargetOpList behavior. */
-    struct Options {
-        int fMaxOpCombineLookback = -1;
-        int fMaxOpCombineLookahead = -1;
-    };
-
-    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrResourceProvider*,
-                         GrAuditTrail*, const Options&);
+    GrRenderTargetOpList(GrRenderTargetProxy*, GrGpu*, GrAuditTrail*);
 
     ~GrRenderTargetOpList() override;
 
-    void makeClosed() override {
-        INHERITED::makeClosed();
+    void makeClosed(const GrCaps& caps) override {
+        if (this->isClosed()) {
+            return;
+        }
 
         fLastFullClearOp = nullptr;
-        this->forwardCombine();
+        this->forwardCombine(caps);
+
+        INHERITED::makeClosed(caps);
     }
+
+    bool isEmpty() const { return fRecordedOps.empty(); }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -66,11 +65,6 @@ public:
     void prepareOps(GrOpFlushState* flushState) override;
     bool executeOps(GrOpFlushState* flushState) override;
 
-    /**
-     * Gets the capabilities of the draw target.
-     */
-    const GrCaps* caps() const { return fGpu->caps(); }
-
     uint32_t addOp(std::unique_ptr<GrOp> op, GrRenderTargetContext* renderTargetContext) {
         this->recordOp(std::move(op), renderTargetContext, nullptr, nullptr);
         return this->uniqueID();
@@ -85,9 +79,6 @@ public:
     /** Clears the entire render target */
     void fullClear(GrRenderTargetContext*, GrColor color);
 
-    /** Discards the contents render target. */
-    void discard(GrRenderTargetContext*);
-
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
      * reserved vertex/index data (as though a draw call was made). The src pixels
@@ -99,7 +90,7 @@ public:
      * limitations.
      */
     bool copySurface(GrResourceProvider* resourceProvider,
-                     GrSurfaceProxy* dst,
+                     GrRenderTargetContext* dst,
                      GrSurfaceProxy* src,
                      const SkIRect& srcRect,
                      const SkIPoint& dstPoint);
@@ -113,26 +104,23 @@ public:
 
     SkDEBUGCODE(void dump() const override;)
 
-    SkDEBUGCODE(void validateTargetsSingleRenderTarget() const;)
+    SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
+    SkDEBUGCODE(int numClips() const override { return fNumClips; })
 
 private:
     friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
 
     struct RecordedOp {
         RecordedOp(std::unique_ptr<GrOp> op,
-                   GrRenderTarget* rt,
                    const GrAppliedClip* appliedClip,
                    const DstTexture* dstTexture)
                 : fOp(std::move(op))
-                , fRenderTarget(rt)
                 , fAppliedClip(appliedClip) {
             if (dstTexture) {
                 fDstTexture = *dstTexture;
             }
         }
         std::unique_ptr<GrOp> fOp;
-        // TODO: These ops will all to target the same render target and this won't be needed.
-        GrPendingIOResource<GrRenderTarget, kWrite_GrIOType> fRenderTarget;
         DstTexture fDstTexture;
         const GrAppliedClip* fAppliedClip;
     };
@@ -142,31 +130,28 @@ private:
     GrOp* recordOp(std::unique_ptr<GrOp>, GrRenderTargetContext*, GrAppliedClip* = nullptr,
                    const DstTexture* = nullptr);
 
-    void forwardCombine();
+    void forwardCombine(const GrCaps&);
 
     // If this returns true then b has been merged into a's op.
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
-                           const DstTexture* bDstTexture);
+                           const DstTexture* bDstTexture, const GrCaps&);
 
     GrClearOp* fLastFullClearOp = nullptr;
     GrGpuResource::UniqueID fLastFullClearResourceID = GrGpuResource::UniqueID::InvalidID();
     GrSurfaceProxy::UniqueID fLastFullClearProxyID = GrSurfaceProxy::UniqueID::InvalidID();
-
-    GrGpu* fGpu;
-    GrResourceProvider* fResourceProvider;
-
-    int fMaxOpLookback;
-    int fMaxOpLookahead;
 
     std::unique_ptr<gr_instanced::InstancedRendering> fInstancedRendering;
 
     int32_t fLastClipStackGenID;
     SkIRect fLastDevClipBounds;
 
-    SkSTArray<256, RecordedOp, true> fRecordedOps;
+    // For ops/opList we have mean: 5 stdDev: 28
+    SkSTArray<5, RecordedOp, true> fRecordedOps;
 
-    char fClipAllocatorStorage[4096];
-    SkArenaAlloc fClipAllocator;
+    // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
+    // Gather statistics to determine the correct size.
+    SkArenaAlloc fClipAllocator{4096};
+    SkDEBUGCODE(int          fNumClips;)
 
     typedef GrOpList INHERITED;
 };

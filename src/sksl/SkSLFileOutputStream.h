@@ -9,6 +9,7 @@
 #define SKSL_FILEOUTPUTSTREAM
 
 #include "SkSLOutputStream.h"
+#include "SkSLUtil.h"
 #include <stdio.h>
 
 namespace SkSL {
@@ -19,7 +20,7 @@ public:
         fFile = fopen(name, "w");
     }
 
-    ~FileOutputStream() {
+    ~FileOutputStream() override {
         ASSERT(!fOpen);
     }
 

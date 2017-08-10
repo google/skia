@@ -31,11 +31,14 @@ protected:
     SkAutoMalloc fSurfaceMemory;
     sk_sp<SkSurface> fBackbufferSurface;
     HWND fWnd;
+
+private:
+    typedef RasterWindowContext INHERITED;
 };
 
 RasterWindowContext_win::RasterWindowContext_win(HWND wnd, const DisplayParams& params)
-        : fWnd(wnd) {
-    fDisplayParams = params;
+    : INHERITED(params)
+    , fWnd(wnd) {
     RECT rect;
     GetWindowRect(wnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);

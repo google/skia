@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
+#include "SkShader.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 
@@ -71,14 +72,14 @@ protected:
         for (int i = 0; i < loops; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
-            canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
+            canvas->drawString(fText, x, y, paint);
         }
 
         paint.setTextSize(SkIntToScalar(48));
         for (int i = 0; i < loops / 4 ; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
-            canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
+            canvas->drawString(fText, x, y, paint);
         }
     }
 

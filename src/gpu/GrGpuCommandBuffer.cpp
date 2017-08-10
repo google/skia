@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrFixedClip.h"
 #include "GrGpu.h"
+#include "GrMesh.h"
 #include "GrPrimitiveProcessor.h"
 #include "GrRenderTarget.h"
 #include "SkRect.h"
@@ -36,15 +37,25 @@ void GrGpuCommandBuffer::clearStencilClip(GrRenderTarget* rt, const GrFixedClip&
 
 bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
                               const GrPrimitiveProcessor& primProc,
-                              const GrMesh* mesh,
+                              const GrMesh meshes[],
                               int meshCount,
                               const SkRect& bounds) {
+#ifdef SK_DEBUG
+    for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(SkToBool(primProc.numAttribs()) == SkToBool(meshes[i].vertexBuffer()));
+    }
+#endif
+
+    if (pipeline.isBad() || primProc.isBad()) {
+        return false;
+    }
+
     SkASSERT(pipeline.isInitialized());
     if (primProc.numAttribs() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();
         return false;
     }
-    this->onDraw(pipeline, primProc, mesh, meshCount, bounds);
+    this->onDraw(pipeline, primProc, meshes, meshCount, bounds);
     return true;
 }
 

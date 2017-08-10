@@ -65,13 +65,13 @@ protected:
         SkScalar vertMargin = 10;
 
         SkBitmap src;
-        src.allocN32Pixels(40, 40);
+        src.allocN32Pixels(40, 40, kOpaque_SkAlphaType);
         SkCanvas canvasTmp(src);
 
         draw_checks(&canvasTmp, 40, 40);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
-            src.copyTo(&fDst[i], gColorTypes[i]);
+            sk_tool_utils::copy_to(&fDst[i], gColorTypes[i], src);
         }
 
         canvas->clear(sk_tool_utils::color_to_565(0xFFDDDDDD));
@@ -101,7 +101,7 @@ protected:
             SkScalar textWidth = paint.measureText(name, strlen(name));
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = paint.getFontSpacing() / SkScalar(2);
-            canvas->drawText(name, strlen(name), x, y, paint);
+            canvas->drawString(name, x, y, paint);
 
             // Draw destination bitmap
             canvas->translate(0, vertOffset);

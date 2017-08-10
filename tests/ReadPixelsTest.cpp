@@ -123,23 +123,7 @@ static void fill_src_canvas(SkCanvas* canvas) {
     canvas->restore();
 }
 
-#if SK_SUPPORT_GPU
-static void fill_src_texture(GrContext* context, GrTextureProxy* proxy) {
-    SkBitmap bmp = make_src_bitmap();
-    bmp.lockPixels();
-
-    SkDEBUGCODE(bool result =) context->contextPriv().writeSurfacePixels(
-                                                            proxy, nullptr,
-                                                            0, 0, DEV_W, DEV_H,
-                                                            kSkia8888_GrPixelConfig, nullptr,
-                                                            bmp.getPixels(), bmp.rowBytes());
-    SkASSERT(result);
-    bmp.unlockPixels();
-}
-#endif
-
 static void fill_dst_bmp_with_init_data(SkBitmap* bitmap) {
-    SkAutoLockPixels alp(*bitmap);
     int w = bitmap->width();
     int h = bitmap->height();
     intptr_t pixels = reinterpret_cast<intptr_t>(bitmap->getPixels());
@@ -199,7 +183,6 @@ static bool check_read(skiatest::Reporter* reporter,
     if (!clippedSrcRect.intersect(srcRect)) {
         clippedSrcRect.setEmpty();
     }
-    SkAutoLockPixels alp(bitmap);
     if (kAlpha_8_SkColorType == ct) {
         for (int by = 0; by < bh; ++by) {
             for (int bx = 0; bx < bw; ++bx) {
@@ -262,8 +245,7 @@ static bool check_read(skiatest::Reporter* reporter,
 enum BitmapInit {
     kFirstBitmapInit = 0,
 
-    kNoPixels_BitmapInit = kFirstBitmapInit,
-    kTight_BitmapInit,
+    kTight_BitmapInit = kFirstBitmapInit,
     kRowBytes_BitmapInit,
     kRowBytesOdd_BitmapInit,
 
@@ -285,10 +267,7 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
                         SkAlphaType at) {
     SkImageInfo info = SkImageInfo::Make(rect.width(), rect.height(), ct, at);
     size_t rowBytes = 0;
-    bool alloc = true;
     switch (init) {
-        case kNoPixels_BitmapInit:
-            alloc = false;
         case kTight_BitmapInit:
             break;
         case kRowBytes_BitmapInit:
@@ -301,12 +280,7 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
             SkASSERT(0);
             break;
     }
-
-    if (alloc) {
-        bitmap->allocPixels(info, rowBytes);
-    } else {
-        bitmap->setInfo(info, rowBytes);
-    }
+    bitmap->allocPixels(info, rowBytes);
 }
 
 static const struct {
@@ -385,7 +359,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
                     fill_dst_bmp_with_init_data(&bmp);
                 }
                 uint32_t idBefore = surface->generationID();
-                bool success = canvas->readPixels(&bmp, srcRect.fLeft, srcRect.fTop);
+                bool success = canvas->readPixels(bmp, srcRect.fLeft, srcRect.fTop);
                 uint32_t idAfter = surface->generationID();
 
                 // we expect to succeed when the read isn't fully clipped
@@ -405,21 +379,6 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
                     // failed then our bitmap should still not have pixels
                     REPORTER_ASSERT(reporter, bmp.isNull());
                 }
-            }
-            // check the old webkit version of readPixels that clips the
-            // bitmap size
-            SkBitmap wkbmp;
-            bool success = canvas->readPixels(srcRect, &wkbmp);
-            SkIRect clippedRect = DEV_RECT;
-            if (clippedRect.intersect(srcRect)) {
-                REPORTER_ASSERT(reporter, success);
-                REPORTER_ASSERT(reporter, kN32_SkColorType == wkbmp.colorType());
-                REPORTER_ASSERT(reporter, kPremul_SkAlphaType == wkbmp.alphaType());
-                check_read(reporter, wkbmp, clippedRect.fLeft,
-                           clippedRect.fTop, true, false,
-                           kN32_SkColorType, kPremul_SkAlphaType);
-            } else {
-                REPORTER_ASSERT(reporter, !success);
             }
         }
     }
@@ -443,8 +402,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Gpu, reporter, ctxInfo) {
 
 #if SK_SUPPORT_GPU
 static void test_readpixels_texture(skiatest::Reporter* reporter,
-                                    GrContext* context, sk_sp<GrTextureProxy> proxy) {
-    fill_src_texture(context, proxy.get());
+                                    sk_sp<GrSurfaceContext> sContext) {
     for (size_t rect = 0; rect < SK_ARRAY_COUNT(gReadPixelsTestRects); ++rect) {
         const SkIRect& srcRect = gReadPixelsTestRects[rect];
         for (BitmapInit bmi = kFirstBitmapInit; bmi <= kLast_BitmapInit; bmi = nextBMI(bmi)) {
@@ -459,19 +417,13 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                 // Try doing the read directly from a non-renderable texture
                 if (startsWithPixels) {
                     fill_dst_bmp_with_init_data(&bmp);
-                    GrPixelConfig dstConfig = SkImageInfo2GrPixelConfig(bmp.info(),
-                                                                        *context->caps());
                     uint32_t flags = 0;
                     if (gReadPixelsConfigs[c].fAlphaType == kUnpremul_SkAlphaType) {
                         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
                     }
-                    bmp.lockPixels();
-                    bool success = context->contextPriv().readSurfacePixels(
-                                                       proxy.get(), nullptr,
-                                                       srcRect.fLeft, srcRect.fTop, bmp.width(),
-                                                       bmp.height(), dstConfig, nullptr,
-                                                       bmp.getPixels(), bmp.rowBytes(), flags);
-                    bmp.unlockPixels();
+                    bool success = sContext->readPixels(bmp.info(), bmp.getPixels(),
+                                                        bmp.rowBytes(),
+                                                        srcRect.fLeft, srcRect.fTop, flags);
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop,
                                success, true,
                                gReadPixelsConfigs[c].fColorType, gReadPixelsConfigs[c].fAlphaType);
@@ -480,7 +432,12 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
         }
     }
 }
+
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkBitmap bmp = make_src_bitmap();
+
     // On the GPU we will also try reading back from a non-renderable texture.
     for (auto origin : {kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin}) {
         for (auto flags : {kNone_GrSurfaceFlags, kRenderTarget_GrSurfaceFlag}) {
@@ -490,10 +447,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
             desc.fHeight = DEV_H;
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = origin;
-            sk_sp<GrTexture> texture =
-                    ctxInfo.grContext()->resourceProvider()->createTexture(desc, SkBudgeted::kNo);
-            test_readpixels_texture(reporter, ctxInfo.grContext(),
-                                    GrSurfaceProxy::MakeWrapped(std::move(texture)));
+
+            sk_sp<GrTextureProxy> proxy = GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                       desc, SkBudgeted::kNo,
+                                                                       bmp.getPixels(),
+                                                                       bmp.rowBytes());
+
+            sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
+                                                                        std::move(proxy), nullptr);
+
+            test_readpixels_texture(reporter, std::move(sContext));
         }
     }
 }
@@ -567,7 +530,7 @@ static const void* five_reference_pixels(SkColorType colorType) {
 
 static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
                             const SkImageInfo& srcInfo) {
-    if (!SkImageInfoIsValid(srcInfo)) {
+    if (!SkImageInfoIsValidRenderingCS(srcInfo)) {
         return;
     }
 

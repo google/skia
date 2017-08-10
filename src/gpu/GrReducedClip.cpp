@@ -704,7 +704,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
     for (ElementList::Iter iter(fElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
         GrAAType aaType = GrAAType::kNone;
-        if (element->isAA() && renderTargetContext->isStencilBufferMultisampled()) {
+        if (element->isAA() && GrFSAAType::kNone != renderTargetContext->fsaaType()) {
             aaType = GrAAType::kMSAA;
         }
 

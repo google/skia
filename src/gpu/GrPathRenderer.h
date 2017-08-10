@@ -160,9 +160,9 @@ public:
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
         SkASSERT(!(canArgs.fAAType == GrAAType::kMSAA &&
-                   !args.fRenderTargetContext->isUnifiedMultisampled()));
+                   GrFSAAType::kUnifiedMSAA != args.fRenderTargetContext->fsaaType()));
         SkASSERT(!(canArgs.fAAType == GrAAType::kMixedSamples &&
-                   !args.fRenderTargetContext->isStencilBufferMultisampled()));
+                   GrFSAAType::kMixedSamples != args.fRenderTargetContext->fsaaType()));
         SkASSERT(this->canDrawPath(canArgs));
         if (!args.fUserStencilSettings->isUnused()) {
             SkPath path;

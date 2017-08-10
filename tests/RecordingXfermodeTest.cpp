@@ -7,6 +7,7 @@
 
 #include "Test.h"
 
+#include "../include/core/SkBitmap.h"
 #include "../include/core/SkCanvas.h"
 #include "../include/core/SkPicture.h"
 #include "../include/core/SkStream.h"

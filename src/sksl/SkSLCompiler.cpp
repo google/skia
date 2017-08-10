@@ -14,9 +14,12 @@
 #include "SkSLParser.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLExpression.h"
+#include "ir/SkSLExpressionStatement.h"
 #include "ir/SkSLIntLiteral.h"
 #include "ir/SkSLModifiersDeclaration.h"
+#include "ir/SkSLNop.h"
 #include "ir/SkSLSymbolTable.h"
+#include "ir/SkSLTernaryExpression.h"
 #include "ir/SkSLUnresolvedFunction.h"
 #include "ir/SkSLVarDeclarations.h"
 
@@ -207,8 +210,8 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                               DefinitionMap* definitions) {
     switch (node.fKind) {
         case BasicBlock::Node::kExpression_Kind: {
-            ASSERT(node.fExpression);
-            const Expression* expr = (Expression*) node.fExpression->get();
+            ASSERT(node.expression());
+            const Expression* expr = (Expression*) node.expression()->get();
             switch (expr->fKind) {
                 case Expression::kBinary_Kind: {
                     BinaryExpression* b = (BinaryExpression*) expr;
@@ -240,9 +243,17 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
                                        p->fOperand.get(),
                                        (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
                                        definitions);
-
                     }
                     break;
+                }
+                case Expression::kVariableReference_Kind: {
+                    const VariableReference* v = (VariableReference*) expr;
+                    if (v->fRefKind != VariableReference::kRead_RefKind) {
+                        this->addDefinition(
+                                       v,
+                                       (std::unique_ptr<Expression>*) &fContext.fDefined_Expression,
+                                       definitions);
+                    }
                 }
                 default:
                     break;
@@ -250,12 +261,12 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             break;
         }
         case BasicBlock::Node::kStatement_Kind: {
-            const Statement* stmt = (Statement*) node.fStatement;
+            const Statement* stmt = (Statement*) node.statement()->get();
             if (stmt->fKind == Statement::kVarDeclarations_Kind) {
                 VarDeclarationsStatement* vd = (VarDeclarationsStatement*) stmt;
-                for (VarDeclaration& decl : vd->fDeclaration->fVars) {
-                    if (decl.fValue) {
-                        (*definitions)[decl.fVar] = &decl.fValue;
+                for (const auto& decl : vd->fDeclaration->fVars) {
+                    if (decl->fValue) {
+                        (*definitions)[decl->fVar] = &decl->fValue;
                     }
                 }
             }
@@ -308,12 +319,12 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
     for (const auto& block : cfg.fBlocks) {
         for (const auto& node : block.fNodes) {
             if (node.fKind == BasicBlock::Node::kStatement_Kind) {
-                ASSERT(node.fStatement);
-                const Statement* s = node.fStatement;
+                ASSERT(node.statement());
+                const Statement* s = node.statement()->get();
                 if (s->fKind == Statement::kVarDeclarations_Kind) {
                     const VarDeclarationsStatement* vd = (const VarDeclarationsStatement*) s;
-                    for (const VarDeclaration& decl : vd->fDeclaration->fVars) {
-                        result[decl.fVar] = nullptr;
+                    for (const auto& decl : vd->fDeclaration->fVars) {
+                        result[decl->fVar] = nullptr;
                     }
                 }
             }
@@ -322,20 +333,656 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
     return result;
 }
 
-void Compiler::scanCFG(const FunctionDefinition& f) {
-    CFG cfg = CFGGenerator().getCFG(f);
+/**
+ * Returns true if assigning to this lvalue has no effect.
+ */
+static bool is_dead(const Expression& lvalue) {
+    switch (lvalue.fKind) {
+        case Expression::kVariableReference_Kind:
+            return ((VariableReference&) lvalue).fVariable.dead();
+        case Expression::kSwizzle_Kind:
+            return is_dead(*((Swizzle&) lvalue).fBase);
+        case Expression::kFieldAccess_Kind:
+            return is_dead(*((FieldAccess&) lvalue).fBase);
+        case Expression::kIndex_Kind: {
+            const IndexExpression& idx = (IndexExpression&) lvalue;
+            return is_dead(*idx.fBase) && !idx.fIndex->hasSideEffects();
+        }
+        default:
+            ABORT("invalid lvalue: %s\n", lvalue.description().c_str());
+    }
+}
 
-    // compute the data flow
-    cfg.fBlocks[cfg.fStart].fBefore = compute_start_state(cfg);
+/**
+ * Returns true if this is an assignment which can be collapsed down to just the right hand side due
+ * to a dead target and lack of side effects on the left hand side.
+ */
+static bool dead_assignment(const BinaryExpression& b) {
+    if (!Token::IsAssignment(b.fOperator)) {
+        return false;
+    }
+    return is_dead(*b.fLeft);
+}
+
+void Compiler::computeDataFlow(CFG* cfg) {
+    cfg->fBlocks[cfg->fStart].fBefore = compute_start_state(*cfg);
     std::set<BlockId> workList;
-    for (BlockId i = 0; i < cfg.fBlocks.size(); i++) {
+    for (BlockId i = 0; i < cfg->fBlocks.size(); i++) {
         workList.insert(i);
     }
     while (workList.size()) {
         BlockId next = *workList.begin();
         workList.erase(workList.begin());
-        this->scanCFG(&cfg, next, &workList);
+        this->scanCFG(cfg, next, &workList);
     }
+}
+
+/**
+ * Attempts to replace the expression pointed to by iter with a new one (in both the CFG and the
+ * IR). If the expression can be cleanly removed, returns true and updates the iterator to point to
+ * the newly-inserted element. Otherwise updates only the IR and returns false (and the CFG will
+ * need to be regenerated).
+ */
+bool try_replace_expression(BasicBlock* b,
+                            std::vector<BasicBlock::Node>::iterator* iter,
+                            std::unique_ptr<Expression>* newExpression) {
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    if (!b->tryRemoveExpression(iter)) {
+        *target = std::move(*newExpression);
+        return false;
+    }
+    *target = std::move(*newExpression);
+    return b->tryInsertExpression(iter, target);
+}
+
+/**
+ * Returns true if the expression is a constant numeric literal with the specified value, or a
+ * constant vector with all elements equal to the specified value.
+ */
+bool is_constant(const Expression& expr, double value) {
+    switch (expr.fKind) {
+        case Expression::kIntLiteral_Kind:
+            return ((IntLiteral&) expr).fValue == value;
+        case Expression::kFloatLiteral_Kind:
+            return ((FloatLiteral&) expr).fValue == value;
+        case Expression::kConstructor_Kind: {
+            Constructor& c = (Constructor&) expr;
+            if (c.fType.kind() == Type::kVector_Kind && c.isConstant()) {
+                for (int i = 0; i < c.fType.columns(); ++i) {
+                    if (!is_constant(c.getVecComponent(i), value)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+        default:
+            return false;
+    }
+}
+
+/**
+ * Collapses the binary expression pointed to by iter down to just the right side (in both the IR
+ * and CFG structures).
+ */
+void delete_left(BasicBlock* b,
+                 std::vector<BasicBlock::Node>::iterator* iter,
+                 bool* outUpdated,
+                 bool* outNeedsRescan) {
+    *outUpdated = true;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    ASSERT((*target)->fKind == Expression::kBinary_Kind);
+    BinaryExpression& bin = (BinaryExpression&) **target;
+    bool result;
+    if (bin.fOperator == Token::EQ) {
+        result = b->tryRemoveLValueBefore(iter, bin.fLeft.get());
+    } else {
+        result = b->tryRemoveExpressionBefore(iter, bin.fLeft.get());
+    }
+    *target = std::move(bin.fRight);
+    if (!result) {
+        *outNeedsRescan = true;
+        return;
+    }
+    if (*iter == b->fNodes.begin()) {
+        *outNeedsRescan = true;
+        return;
+    }
+    --(*iter);
+    if ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+        (*iter)->expression() != &bin.fRight) {
+        *outNeedsRescan = true;
+        return;
+    }
+    *iter = b->fNodes.erase(*iter);
+    ASSERT((*iter)->expression() == target);
+}
+
+/**
+ * Collapses the binary expression pointed to by iter down to just the left side (in both the IR and
+ * CFG structures).
+ */
+void delete_right(BasicBlock* b,
+                  std::vector<BasicBlock::Node>::iterator* iter,
+                  bool* outUpdated,
+                  bool* outNeedsRescan) {
+    *outUpdated = true;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    ASSERT((*target)->fKind == Expression::kBinary_Kind);
+    BinaryExpression& bin = (BinaryExpression&) **target;
+    if (!b->tryRemoveExpressionBefore(iter, bin.fRight.get())) {
+        *target = std::move(bin.fLeft);
+        *outNeedsRescan = true;
+        return;
+    }
+    *target = std::move(bin.fLeft);
+    if (*iter == b->fNodes.begin()) {
+        *outNeedsRescan = true;
+        return;
+    }
+    --(*iter);
+    if (((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
+        (*iter)->expression() != &bin.fLeft)) {
+        *outNeedsRescan = true;
+        return;
+    }
+    *iter = b->fNodes.erase(*iter);
+    ASSERT((*iter)->expression() == target);
+}
+
+/**
+ * Constructs the specified type using a single argument.
+ */
+static std::unique_ptr<Expression> construct(const Type& type, std::unique_ptr<Expression> v) {
+    std::vector<std::unique_ptr<Expression>> args;
+    args.push_back(std::move(v));
+    auto result = std::unique_ptr<Expression>(new Constructor(Position(), type, std::move(args)));
+    return result;
+}
+
+/**
+ * Used in the implementations of vectorize_left and vectorize_right. Given a vector type and an
+ * expression x, deletes the expression pointed to by iter and replaces it with <type>(x).
+ */
+static void vectorize(BasicBlock* b,
+                      std::vector<BasicBlock::Node>::iterator* iter,
+                      const Type& type,
+                      std::unique_ptr<Expression>* otherExpression,
+                      bool* outUpdated,
+                      bool* outNeedsRescan) {
+    ASSERT((*(*iter)->expression())->fKind == Expression::kBinary_Kind);
+    ASSERT(type.kind() == Type::kVector_Kind);
+    ASSERT((*otherExpression)->fType.kind() == Type::kScalar_Kind);
+    *outUpdated = true;
+    std::unique_ptr<Expression>* target = (*iter)->expression();
+    if (!b->tryRemoveExpression(iter)) {
+        *target = construct(type, std::move(*otherExpression));
+        *outNeedsRescan = true;
+    } else {
+        *target = construct(type, std::move(*otherExpression));
+        if (!b->tryInsertExpression(iter, target)) {
+            *outNeedsRescan = true;
+        }
+    }
+}
+
+/**
+ * Given a binary expression of the form x <op> vec<n>(y), deletes the right side and vectorizes the
+ * left to yield vec<n>(x).
+ */
+static void vectorize_left(BasicBlock* b,
+                           std::vector<BasicBlock::Node>::iterator* iter,
+                           bool* outUpdated,
+                           bool* outNeedsRescan) {
+    BinaryExpression& bin = (BinaryExpression&) **(*iter)->expression();
+    vectorize(b, iter, bin.fRight->fType, &bin.fLeft, outUpdated, outNeedsRescan);
+}
+
+/**
+ * Given a binary expression of the form vec<n>(x) <op> y, deletes the left side and vectorizes the
+ * right to yield vec<n>(y).
+ */
+static void vectorize_right(BasicBlock* b,
+                            std::vector<BasicBlock::Node>::iterator* iter,
+                            bool* outUpdated,
+                            bool* outNeedsRescan) {
+    BinaryExpression& bin = (BinaryExpression&) **(*iter)->expression();
+    vectorize(b, iter, bin.fLeft->fType, &bin.fRight, outUpdated, outNeedsRescan);
+}
+
+// Mark that an expression which we were writing to is no longer being written to
+void clear_write(const Expression& expr) {
+    switch (expr.fKind) {
+        case Expression::kVariableReference_Kind: {
+            ((VariableReference&) expr).setRefKind(VariableReference::kRead_RefKind);
+            break;
+        }
+        case Expression::kFieldAccess_Kind:
+            clear_write(*((FieldAccess&) expr).fBase);
+            break;
+        case Expression::kSwizzle_Kind:
+            clear_write(*((Swizzle&) expr).fBase);
+            break;
+        case Expression::kIndex_Kind:
+            clear_write(*((IndexExpression&) expr).fBase);
+            break;
+        default:
+            ABORT("shouldn't be writing to this kind of expression\n");
+            break;
+    }
+}
+
+void Compiler::simplifyExpression(DefinitionMap& definitions,
+                                  BasicBlock& b,
+                                  std::vector<BasicBlock::Node>::iterator* iter,
+                                  std::unordered_set<const Variable*>* undefinedVariables,
+                                  bool* outUpdated,
+                                  bool* outNeedsRescan) {
+    Expression* expr = (*iter)->expression()->get();
+    ASSERT(expr);
+    if ((*iter)->fConstantPropagation) {
+        std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
+        if (optimized) {
+            *outUpdated = true;
+            if (!try_replace_expression(&b, iter, &optimized)) {
+                *outNeedsRescan = true;
+                return;
+            }
+            ASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+            expr = (*iter)->expression()->get();
+        }
+    }
+    switch (expr->fKind) {
+        case Expression::kVariableReference_Kind: {
+            const Variable& var = ((VariableReference*) expr)->fVariable;
+            if (var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
+                (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
+                (*undefinedVariables).insert(&var);
+                this->error(expr->fPosition,
+                            "'" + var.fName + "' has not been assigned");
+            }
+            break;
+        }
+        case Expression::kTernary_Kind: {
+            TernaryExpression* t = (TernaryExpression*) expr;
+            if (t->fTest->fKind == Expression::kBoolLiteral_Kind) {
+                // ternary has a constant test, replace it with either the true or
+                // false branch
+                if (((BoolLiteral&) *t->fTest).fValue) {
+                    (*iter)->setExpression(std::move(t->fIfTrue));
+                } else {
+                    (*iter)->setExpression(std::move(t->fIfFalse));
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+            }
+            break;
+        }
+        case Expression::kBinary_Kind: {
+            BinaryExpression* bin = (BinaryExpression*) expr;
+            if (dead_assignment(*bin)) {
+                delete_left(&b, iter, outUpdated, outNeedsRescan);
+                break;
+            }
+            // collapse useless expressions like x * 1 or x + 0
+            if (((bin->fLeft->fType.kind()  != Type::kScalar_Kind) &&
+                 (bin->fLeft->fType.kind()  != Type::kVector_Kind)) ||
+                ((bin->fRight->fType.kind() != Type::kScalar_Kind) &&
+                 (bin->fRight->fType.kind() != Type::kVector_Kind))) {
+                break;
+            }
+            switch (bin->fOperator) {
+                case Token::STAR:
+                    if (is_constant(*bin->fLeft, 1)) {
+                        if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
+                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            // vec4(1) * x -> vec4(x)
+                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 1 * x -> x
+                            // 1 * vec4(x) -> vec4(x)
+                            // vec4(1) * vec4(x) -> vec4(x)
+                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    else if (is_constant(*bin->fLeft, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // 0 * vec4(x) -> vec4(0)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 0 * x -> 0
+                            // vec4(0) * x -> vec4(0)
+                            // vec4(0) * vec4(x) -> vec4(0)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    else if (is_constant(*bin->fRight, 1)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x * vec4(1) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x * 1 -> x
+                            // vec4(x) * 1 -> vec4(x)
+                            // vec4(x) * vec4(1) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    else if (is_constant(*bin->fRight, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
+                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            // vec4(x) * 0 -> vec4(0)
+                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x * 0 -> 0
+                            // x * vec4(0) -> vec4(0)
+                            // vec4(x) * vec4(0) -> vec4(0)
+                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    break;
+                case Token::PLUS:
+                    if (is_constant(*bin->fLeft, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
+                            bin->fRight->fType.kind() == Type::kScalar_Kind) {
+                            // vec4(0) + x -> vec4(x)
+                            vectorize_right(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 0 + x -> x
+                            // 0 + vec4(x) -> vec4(x)
+                            // vec4(0) + vec4(x) -> vec4(x)
+                            delete_left(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    } else if (is_constant(*bin->fRight, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x + vec4(0) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x + 0 -> x
+                            // vec4(x) + 0 -> vec4(x)
+                            // vec4(x) + vec4(0) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    break;
+                case Token::MINUS:
+                    if (is_constant(*bin->fRight, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x - vec4(0) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x - 0 -> x
+                            // vec4(x) - 0 -> vec4(x)
+                            // vec4(x) - vec4(0) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    break;
+                case Token::SLASH:
+                    if (is_constant(*bin->fRight, 1)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // x / vec4(1) -> vec4(x)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // x / 1 -> x
+                            // vec4(x) / 1 -> vec4(x)
+                            // vec4(x) / vec4(1) -> vec4(x)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    } else if (is_constant(*bin->fLeft, 0)) {
+                        if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
+                            bin->fRight->fType.kind() == Type::kVector_Kind) {
+                            // 0 / vec4(x) -> vec4(0)
+                            vectorize_left(&b, iter, outUpdated, outNeedsRescan);
+                        } else {
+                            // 0 / x -> 0
+                            // vec4(0) / x -> vec4(0)
+                            // vec4(0) / vec4(x) -> vec4(0)
+                            delete_right(&b, iter, outUpdated, outNeedsRescan);
+                        }
+                    }
+                    break;
+                case Token::PLUSEQ:
+                    if (is_constant(*bin->fRight, 0)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::MINUSEQ:
+                    if (is_constant(*bin->fRight, 0)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::STAREQ:
+                    if (is_constant(*bin->fRight, 1)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                case Token::SLASHEQ:
+                    if (is_constant(*bin->fRight, 1)) {
+                        clear_write(*bin->fLeft);
+                        delete_right(&b, iter, outUpdated, outNeedsRescan);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        default:
+            break;
+    }
+}
+
+
+// returns true if this statement could potentially execute a break at the current level (we ignore
+// nested loops and switches, since any breaks inside of them will merely break the loop / switch)
+static bool contains_break(Statement& s) {
+    switch (s.fKind) {
+        case Statement::kBlock_Kind:
+            for (const auto& sub : ((Block&) s).fStatements) {
+                if (contains_break(*sub)) {
+                    return true;
+                }
+            }
+            return false;
+        case Statement::kBreak_Kind:
+            return true;
+        case Statement::kIf_Kind: {
+            const IfStatement& i = (IfStatement&) s;
+            return contains_break(*i.fIfTrue) || (i.fIfFalse && contains_break(*i.fIfFalse));
+        }
+        default:
+            return false;
+    }
+}
+
+// Returns a block containing all of the statements that will be run if the given case matches
+// (which, owing to the statements being owned by unique_ptrs, means the switch itself will be
+// broken by this call and must then be discarded).
+// Returns null (and leaves the switch unmodified) if no such simple reduction is possible, such as
+// when break statements appear inside conditionals.
+static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase* c) {
+    bool capturing = false;
+    std::vector<std::unique_ptr<Statement>*> statementPtrs;
+    for (const auto& current : s->fCases) {
+        if (current.get() == c) {
+            capturing = true;
+        }
+        if (capturing) {
+            for (auto& stmt : current->fStatements) {
+                if (stmt->fKind == Statement::kBreak_Kind) {
+                    capturing = false;
+                    break;
+                }
+                if (contains_break(*stmt)) {
+                    return nullptr;
+                }
+                statementPtrs.push_back(&stmt);
+            }
+            if (!capturing) {
+                break;
+            }
+        }
+    }
+    std::vector<std::unique_ptr<Statement>> statements;
+    for (const auto& s : statementPtrs) {
+        statements.push_back(std::move(*s));
+    }
+    return std::unique_ptr<Statement>(new Block(Position(), std::move(statements)));
+}
+
+void Compiler::simplifyStatement(DefinitionMap& definitions,
+                                 BasicBlock& b,
+                                 std::vector<BasicBlock::Node>::iterator* iter,
+                                 std::unordered_set<const Variable*>* undefinedVariables,
+                                 bool* outUpdated,
+                                 bool* outNeedsRescan) {
+    Statement* stmt = (*iter)->statement()->get();
+    switch (stmt->fKind) {
+        case Statement::kVarDeclarations_Kind: {
+            VarDeclarations& vd = *((VarDeclarationsStatement&) *stmt).fDeclaration;
+            for (auto varIter = vd.fVars.begin(); varIter != vd.fVars.end(); ) {
+                const auto& varDecl = **varIter;
+                if (varDecl.fVar->dead() &&
+                    (!varDecl.fValue ||
+                     !varDecl.fValue->hasSideEffects())) {
+                    if (varDecl.fValue) {
+                        ASSERT((*iter)->statement()->get() == stmt);
+                        if (!b.tryRemoveExpressionBefore(iter, varDecl.fValue.get())) {
+                            *outNeedsRescan = true;
+                        }
+                    }
+                    varIter = vd.fVars.erase(varIter);
+                    *outUpdated = true;
+                } else {
+                    ++varIter;
+                }
+            }
+            if (vd.fVars.size() == 0) {
+                (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+            }
+            break;
+        }
+        case Statement::kIf_Kind: {
+            IfStatement& i = (IfStatement&) *stmt;
+            if (i.fTest->fKind == Expression::kBoolLiteral_Kind) {
+                // constant if, collapse down to a single branch
+                if (((BoolLiteral&) *i.fTest).fValue) {
+                    ASSERT(i.fIfTrue);
+                    (*iter)->setStatement(std::move(i.fIfTrue));
+                } else {
+                    if (i.fIfFalse) {
+                        (*iter)->setStatement(std::move(i.fIfFalse));
+                    } else {
+                        (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                    }
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+                break;
+            }
+            if (i.fIfFalse && i.fIfFalse->isEmpty()) {
+                // else block doesn't do anything, remove it
+                i.fIfFalse.reset();
+                *outUpdated = true;
+                *outNeedsRescan = true;
+            }
+            if (!i.fIfFalse && i.fIfTrue->isEmpty()) {
+                // if block doesn't do anything, no else block
+                if (i.fTest->hasSideEffects()) {
+                    // test has side effects, keep it
+                    (*iter)->setStatement(std::unique_ptr<Statement>(
+                                                      new ExpressionStatement(std::move(i.fTest))));
+                } else {
+                    // no if, no else, no test side effects, kill the whole if
+                    // statement
+                    (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+            }
+            break;
+        }
+        case Statement::kSwitch_Kind: {
+            SwitchStatement& s = (SwitchStatement&) *stmt;
+            if (s.fValue->isConstant()) {
+                // switch is constant, replace it with the case that matches
+                bool found = false;
+                SwitchCase* defaultCase = nullptr;
+                for (const auto& c : s.fCases) {
+                    if (!c->fValue) {
+                        defaultCase = c.get();
+                        continue;
+                    }
+                    ASSERT(c->fValue->fKind == s.fValue->fKind);
+                    found = c->fValue->compareConstant(fContext, *s.fValue);
+                    if (found) {
+                        std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
+                        if (newBlock) {
+                            (*iter)->setStatement(std::move(newBlock));
+                            break;
+                        } else {
+                            if (s.fIsStatic) {
+                                this->error(s.fPosition,
+                                            "static switch contains non-static conditional break");
+                                s.fIsStatic = false;
+                            }
+                            return; // can't simplify
+                        }
+                    }
+                }
+                if (!found) {
+                    // no matching case. use default if it exists, or kill the whole thing
+                    if (defaultCase) {
+                        std::unique_ptr<Statement> newBlock = block_for_case(&s, defaultCase);
+                        if (newBlock) {
+                            (*iter)->setStatement(std::move(newBlock));
+                        } else {
+                            if (s.fIsStatic) {
+                                this->error(s.fPosition,
+                                            "static switch contains non-static conditional break");
+                                s.fIsStatic = false;
+                            }
+                            return; // can't simplify
+                        }
+                    } else {
+                        (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                    }
+                }
+                *outUpdated = true;
+                *outNeedsRescan = true;
+            }
+            break;
+        }
+        case Statement::kExpression_Kind: {
+            ExpressionStatement& e = (ExpressionStatement&) *stmt;
+            ASSERT((*iter)->statement()->get() == &e);
+            if (!e.fExpression->hasSideEffects()) {
+                // Expression statement with no side effects, kill it
+                if (!b.tryRemoveExpressionBefore(iter, e.fExpression.get())) {
+                    *outNeedsRescan = true;
+                }
+                ASSERT((*iter)->statement()->get() == stmt);
+                (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
+                *outUpdated = true;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void Compiler::scanCFG(FunctionDefinition& f) {
+    CFG cfg = CFGGenerator().getCFG(f);
+    this->computeDataFlow(&cfg);
 
     // check for unreachable code
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
@@ -344,10 +991,10 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
             Position p;
             switch (cfg.fBlocks[i].fNodes[0].fKind) {
                 case BasicBlock::Node::kStatement_Kind:
-                    p = cfg.fBlocks[i].fNodes[0].fStatement->fPosition;
+                    p = (*cfg.fBlocks[i].fNodes[0].statement())->fPosition;
                     break;
                 case BasicBlock::Node::kExpression_Kind:
-                    p = (*cfg.fBlocks[i].fNodes[0].fExpression)->fPosition;
+                    p = (*cfg.fBlocks[i].fNodes[0].expression())->fPosition;
                     break;
             }
             this->error(p, String("unreachable"));
@@ -357,31 +1004,60 @@ void Compiler::scanCFG(const FunctionDefinition& f) {
         return;
     }
 
-    // check for undefined variables, perform constant propagation
+    // check for dead code & undefined variables, perform constant propagation
+    std::unordered_set<const Variable*> undefinedVariables;
+    bool updated;
+    bool needsRescan = false;
+    do {
+        if (needsRescan) {
+            cfg = CFGGenerator().getCFG(f);
+            this->computeDataFlow(&cfg);
+            needsRescan = false;
+        }
+
+        updated = false;
+        for (BasicBlock& b : cfg.fBlocks) {
+            DefinitionMap definitions = b.fBefore;
+
+            for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
+                if (iter->fKind == BasicBlock::Node::kExpression_Kind) {
+                    this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
+                                             &needsRescan);
+                } else {
+                    this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
+                                             &needsRescan);
+                }
+                if (needsRescan) {
+                    break;
+                }
+                this->addDefinitions(*iter, &definitions);
+            }
+        }
+    } while (updated);
+    ASSERT(!needsRescan);
+
+    // verify static ifs & switches
     for (BasicBlock& b : cfg.fBlocks) {
         DefinitionMap definitions = b.fBefore;
-        for (BasicBlock::Node& n : b.fNodes) {
-            if (n.fKind == BasicBlock::Node::kExpression_Kind) {
-                ASSERT(n.fExpression);
-                Expression* expr = n.fExpression->get();
-                if (n.fConstantPropagation) {
-                    std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator,
-                                                                                    definitions);
-                    if (optimized) {
-                        n.fExpression->reset(optimized.release());
-                        expr = n.fExpression->get();
-                    }
-                }
-                if (expr->fKind == Expression::kVariableReference_Kind) {
-                    const Variable& var = ((VariableReference*) expr)->fVariable;
-                    if (var.fStorage == Variable::kLocal_Storage &&
-                        !definitions[&var]) {
-                        this->error(expr->fPosition,
-                                    "'" + var.fName + "' has not been assigned");
-                    }
+
+        for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
+            if (iter->fKind == BasicBlock::Node::kStatement_Kind) {
+                const Statement& s = **iter->statement();
+                switch (s.fKind) {
+                    case Statement::kIf_Kind:
+                        if (((const IfStatement&) s).fIsStatic) {
+                            this->error(s.fPosition, "static if has non-static test");
+                        }
+                        break;
+                    case Statement::kSwitch_Kind:
+                        if (((const SwitchStatement&) s).fIsStatic) {
+                            this->error(s.fPosition, "static switch has non-static test");
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
-            this->addDefinitions(n, &definitions);
         }
     }
 

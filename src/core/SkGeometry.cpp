@@ -531,30 +531,34 @@ int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
     return count + 1;
 }
 
-// See http://http.developer.nvidia.com/GPUGems3/gpugems3_ch25.html (from the book GPU Gems 3)
-// discr(I) = d0^2 * (3*d1^2 - 4*d0*d2)
+// See "Resolution Independent Curve Rendering using Programmable Graphics Hardware"
+// https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
+// discr(I) = 3*d2^2 - 4*d1*d3
 // Classification:
-// discr(I) > 0        Serpentine
-// discr(I) = 0        Cusp
-// discr(I) < 0        Loop
-// d0 = d1 = 0         Quadratic
-// d0 = d1 = d2 = 0    Line
-// p0 = p1 = p2 = p3   Point
-static SkCubicType classify_cubic(const SkPoint p[4], const SkScalar d[3]) {
-    if (p[0] == p[1] && p[0] == p[2] && p[0] == p[3]) {
-        return kPoint_SkCubicType;
-    }
-    const SkScalar discr = d[0] * d[0] * (3.f * d[1] * d[1] - 4.f * d[0] * d[2]);
-    if (discr > SK_ScalarNearlyZero) {
-        return kSerpentine_SkCubicType;
-    } else if (discr < -SK_ScalarNearlyZero) {
-        return kLoop_SkCubicType;
-    } else {
-        if (SkScalarAbs(d[0]) < SK_ScalarNearlyZero && SkScalarAbs(d[1]) < SK_ScalarNearlyZero) {
-            return ((SkScalarAbs(d[2]) < SK_ScalarNearlyZero) ? kLine_SkCubicType
-                                                              : kQuadratic_SkCubicType);
+// d1 != 0, discr(I) > 0        Serpentine
+// d1 != 0, discr(I) < 0        Loop
+// d1 != 0, discr(I) = 0        Cusp (with inflection at infinity)
+// d1 = 0, d2 != 0              Cusp (with cusp at infinity)
+// d1 = d2 = 0, d3 != 0         Quadratic
+// d1 = d2 = d3 = 0             Line or Point
+static SkCubicType classify_cubic(SkScalar d[4]) {
+    if (!SkScalarNearlyZero(d[1])) {
+        d[0] = 3 * d[2] * d[2] - 4 * d[1] * d[3];
+        if (d[0] > 0) {
+            return SkCubicType::kSerpentine;
+        } else if (d[0] < 0) {
+            return SkCubicType::kLoop;
         } else {
-            return kCusp_SkCubicType;
+            SkASSERT(0 == d[0]); // Detect NaN.
+            return SkCubicType::kLocalCusp;
+        }
+    } else {
+        if (!SkScalarNearlyZero(d[2])) {
+            return SkCubicType::kInfiniteCusp;
+        } else if (!SkScalarNearlyZero(d[3])) {
+            return SkCubicType::kQuadratic;
+        } else {
+            return SkCubicType::kLineOrPoint;
         }
     }
 }
@@ -577,7 +581,7 @@ static SkScalar calc_dot_cross_cubic(const SkPoint& p0, const SkPoint& p1, const
 // a2 = p1 . (p0 x p3)
 // a3 = p2 . (p1 x p0)
 // Places the values of d1, d2, d3 in array d passed in
-static void calc_cubic_inflection_func(const SkPoint p[4], SkScalar d[3]) {
+static void calc_cubic_inflection_func(const SkPoint p[4], SkScalar d[4]) {
     SkScalar a1 = calc_dot_cross_cubic(p[0], p[3], p[2]);
     SkScalar a2 = calc_dot_cross_cubic(p[1], p[0], p[3]);
     SkScalar a3 = calc_dot_cross_cubic(p[2], p[1], p[0]);
@@ -586,19 +590,22 @@ static void calc_cubic_inflection_func(const SkPoint p[4], SkScalar d[3]) {
     SkScalar max = SkScalarAbs(a1);
     max = SkMaxScalar(max, SkScalarAbs(a2));
     max = SkMaxScalar(max, SkScalarAbs(a3));
-    max = 1.f/max;
-    a1 = a1 * max;
-    a2 = a2 * max;
-    a3 = a3 * max;
+    if (0 != max) {
+        max = 1.f/max;
+        a1 = a1 * max;
+        a2 = a2 * max;
+        a3 = a3 * max;
+    }
 
-    d[2] = 3.f * a3;
-    d[1] = d[2] - a2;
-    d[0] = d[1] - a2 + a1;
+    d[3] = 3.f * a3;
+    d[2] = d[3] - a2;
+    d[1] = d[2] - a2 + a1;
+    d[0] = 0;
 }
 
-SkCubicType SkClassifyCubic(const SkPoint src[4], SkScalar d[3]) {
+SkCubicType SkClassifyCubic(const SkPoint src[4], SkScalar d[4]) {
     calc_cubic_inflection_func(src, d);
-    return classify_cubic(src, d);
+    return classify_cubic(d);
 }
 
 template <typename T> void bubble_sort(T array[], int count) {

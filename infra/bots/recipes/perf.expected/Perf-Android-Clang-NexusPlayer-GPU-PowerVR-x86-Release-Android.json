@@ -2,69 +2,6 @@
   {
     "cmd": [
       "adb",
-      "reboot"
-    ],
-    "cwd": "[START_DIR]/skia",
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "rebooting device"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "\nimport subprocess\nimport sys\nimport time\n\nkicks = 0\nwhile True:\n\n  times = 0\n  while times < 30:\n    print 'Waiting for the device to be connected and ready.'\n    try:\n      times += 1\n      output = subprocess.check_output(['adb', 'shell',\n                                        'getprop', 'sys.boot_completed'])\n      if '1' in output:\n        print 'Connected'\n        sys.exit(0)\n    except subprocess.CalledProcessError:\n      # no device connected/authorized yet\n      pass\n    time.sleep(5)\n  if kicks >= 3:\n    break\n  print 'Giving the device a \"kick\" by trying to reboot it.'\n  kicks += 1\n  print subprocess.check_output(['adb', 'reboot'])\n\nprint 'Timed out waiting for device'\nsys.exit(1)\n"
-    ],
-    "env": {
-      "BUILDTYPE": "Release",
-      "CHROME_HEADLESS": "1",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
-    },
-    "infra_step": true,
-    "name": "wait for device",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@kicks = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@while True:@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@  times = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@  while times < 30:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print 'Waiting for the device to be connected and ready.'@@@",
-      "@@@STEP_LOG_LINE@python.inline@    try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      times += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@      output = subprocess.check_output(['adb', 'shell',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                        'getprop', 'sys.boot_completed'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@      if '1' in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        print 'Connected'@@@",
-      "@@@STEP_LOG_LINE@python.inline@        sys.exit(0)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    except subprocess.CalledProcessError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      # no device connected/authorized yet@@@",
-      "@@@STEP_LOG_LINE@python.inline@      pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@    time.sleep(5)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if kicks >= 3:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    break@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print 'Giving the device a \"kick\" by trying to reboot it.'@@@",
-      "@@@STEP_LOG_LINE@python.inline@  kicks += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print subprocess.check_output(['adb', 'reboot'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@print 'Timed out waiting for device'@@@",
-      "@@@STEP_LOG_LINE@python.inline@sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
-  },
-  {
-    "cmd": [
-      "adb",
       "shell",
       "mkdir",
       "-p",
@@ -639,7 +576,7 @@
       "python",
       "-u",
       "\nimport shutil\nimport sys\nshutil.copy(sys.argv[1], sys.argv[2])\n",
-      "set -x; /data/local/tmp/nanobench --undefok -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --nocpu --pre_log --images --gpuStatsDump true --useThermalManager 1,1,10,1000 --scales 1.0 1.1 --config 8888 nonrendering hwui f16 srgb gles --match ~blurroundrect ~patch_grid ~desk_carsvg ~desk_unicodetable ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id \"\" swarming_task_id \"\" --key arch x86 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value PowerVR extra_config Android model NexusPlayer os Android; echo $? >/data/local/tmp/rc",
+      "set -x; /data/local/tmp/nanobench --undefok -i /sdcard/revenge_of_the_skiabot/resources --skps /sdcard/revenge_of_the_skiabot/skps --images /sdcard/revenge_of_the_skiabot/images/nanobench --svgs /sdcard/revenge_of_the_skiabot/svgs --nocpu --pre_log --images --gpuStatsDump true --useThermalManager 1,1,10,1000 --scales 1.0 1.1 --config 8888 nonrendering hwui f16 srgb gles --match ~blurroundrect ~patch_grid ~desk_carsvg ~desk_unicodetable ~inc0.gif ~inc1.gif ~incInterlaced.gif ~inc0.jpg ~incGray.jpg ~inc0.wbmp ~inc1.wbmp ~inc0.webp ~inc1.webp ~inc0.ico ~inc1.ico ~inc0.png ~inc1.png ~inc2.png ~inc12.png ~inc13.png ~inc14.png ~inc0.webp ~inc1.webp --outResultsFile /sdcard/revenge_of_the_skiabot/perf/nanobench_abc123_1337000001.json --properties gitHash abc123 swarming_bot_id skia-bot-123 swarming_task_id 123456 --key arch x86 compiler Clang cpu_or_gpu GPU cpu_or_gpu_value PowerVR extra_config Android model NexusPlayer os Android; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/nanobench.sh"
     ],
     "env": {

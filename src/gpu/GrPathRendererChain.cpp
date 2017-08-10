@@ -60,8 +60,7 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
         fChain.push_back(sk_make_sp<GrTessellatingPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kDefault) {
-        fChain.push_back(sk_make_sp<GrDefaultPathRenderer>(caps.twoSidedStencilSupport(),
-                                                           caps.stencilWrapOpsSupport()));
+        fChain.push_back(sk_make_sp<GrDefaultPathRenderer>());
     }
 }
 

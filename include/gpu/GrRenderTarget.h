@@ -30,28 +30,28 @@ public:
     const GrRenderTarget* asRenderTarget() const  override { return this; }
 
     // GrRenderTarget
-    bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
+    bool isStencilBufferMultisampled() const { return fSampleCnt > 0; }
 
-    /**
-     * For our purposes, "Mixed Sampled" means the stencil buffer is multisampled but the color
-     * buffer is not.
-     */
-    bool isMixedSampled() const { return fFlags & Flags::kMixedSampled; }
-
-    /**
-     * "Unified Sampled" means the stencil and color buffers are both multisampled.
-     */
-    bool isUnifiedMultisampled() const { return fDesc.fSampleCnt > 0 && !this->isMixedSampled(); }
+    GrFSAAType fsaaType() const {
+        if (!fSampleCnt) {
+            SkASSERT(!(fFlags & Flags::kMixedSampled));
+            return GrFSAAType::kNone;
+        }
+        return (fFlags & Flags::kMixedSampled) ? GrFSAAType::kMixedSamples
+                                               : GrFSAAType::kUnifiedMSAA;
+    }
 
     /**
      * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
      */
-    int numStencilSamples() const { return fDesc.fSampleCnt; }
+    int numStencilSamples() const { return fSampleCnt; }
 
     /**
      * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
-    int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
+    int numColorSamples() const {
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
+    }
 
     /**
      * Call to indicate the multisample contents were modified such that the
@@ -135,6 +135,7 @@ private:
     friend class GrRenderTargetPriv;
     friend class GrRenderTargetProxy; // for Flags
 
+    int                   fSampleCnt;
     GrStencilAttachment*  fStencilAttachment;
     uint8_t               fMultisampleSpecsID;
     Flags                 fFlags;

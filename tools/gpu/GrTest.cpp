@@ -6,22 +6,25 @@
  */
 
 #include "GrTest.h"
-
+#include <algorithm>
+#include "GrBackendSurface.h"
 #include "GrContextOptions.h"
+#include "GrContextPriv.h"
 #include "GrDrawOpAtlas.h"
 #include "GrDrawingManager.h"
 #include "GrGpuResourceCacheAccess.h"
 #include "GrPipelineBuilder.h"
+#include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
-
+#include "GrSurfaceContextPriv.h"
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
-
+#include "ops/GrMeshDrawOp.h"
 #include "text/GrAtlasGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 
@@ -53,6 +56,18 @@ void SetupAlwaysEvictAtlas(GrContext* context) {
     configs[kARGB_GrMaskFormat].fPlotHeight = dim;
 
     context->setTextContextAtlasSizes_ForTesting(configs);
+}
+
+GrBackendTexture CreateBackendTexture(GrBackend backend, int width, int height,
+                                      GrPixelConfig config, GrBackendObject handle) {
+    if (kOpenGL_GrBackend == backend) {
+        GrGLTextureInfo* glInfo = (GrGLTextureInfo*)(handle);
+        return GrBackendTexture(width, height, config, *glInfo);
+    } else {
+        SkASSERT(kVulkan_GrBackend == backend);
+        GrVkImageInfo* vkInfo = (GrVkImageInfo*)(handle);
+        return GrBackendTexture(width, height, *vkInfo);
+    }
 }
 };
 
@@ -238,8 +253,9 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
     if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
         return SK_InvalidUniqueID;
     }
-    SkDEBUGCODE(fRenderTargetContext->validate();) GR_AUDIT_TRAIL_AUTO_FRAME(
-            fRenderTargetContext->fAuditTrail, "GrRenderTargetContext::testingOnly_addMeshDrawOp");
+    SkDEBUGCODE(fRenderTargetContext->validate());
+    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+                              "GrRenderTargetContext::testingOnly_addLegacyMeshDrawOp");
 
     GrPipelineBuilder pipelineBuilder(std::move(paint), aaType);
     if (uss) {
@@ -249,6 +265,17 @@ uint32_t GrRenderTargetContextPriv::testingOnly_addLegacyMeshDrawOp(
 
     return fRenderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), GrNoClip(),
                                                      std::move(op));
+}
+
+uint32_t GrRenderTargetContextPriv::testingOnly_addDrawOp(std::unique_ptr<GrDrawOp> op) {
+    ASSERT_SINGLE_OWNER
+    if (fRenderTargetContext->drawingManager()->wasAbandoned()) {
+        return SK_InvalidUniqueID;
+    }
+    SkDEBUGCODE(fRenderTargetContext->validate());
+    GR_AUDIT_TRAIL_AUTO_FRAME(fRenderTargetContext->fAuditTrail,
+                              "GrRenderTargetContext::testingOnly_addDrawOp");
+    return fRenderTargetContext->addDrawOp(GrNoClip(), std::move(op));
 }
 
 #undef ASSERT_SINGLE_OWNER
@@ -270,7 +297,7 @@ class GrPipeline;
 class MockCaps : public GrCaps {
 public:
     explicit MockCaps(const GrContextOptions& options) : INHERITED(options) {}
-    bool isConfigTexturable(GrPixelConfig config) const override { return false; }
+    bool isConfigTexturable(GrPixelConfig) const override { return false; }
     bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const override { return false; }
     bool canConfigBeImageStorage(GrPixelConfig) const override { return false; }
     bool initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -304,7 +331,7 @@ public:
 
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {
-        *effectiveSampleCnt = rt->desc().fSampleCnt;
+        *effectiveSampleCnt = rt->numStencilSamples();
     }
 
     GrGpuCommandBuffer* createCommandBuffer(const GrGpuCommandBuffer::LoadAndStoreInfo&,
@@ -317,11 +344,11 @@ public:
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
     void deleteFence(GrFence) const override {}
-    void flush() override {}
 
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override { return nullptr; }
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override {}
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
+    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
 private:
     void onResetContext(uint32_t resetBits) override {}
@@ -333,20 +360,22 @@ private:
         return nullptr;
     }
 
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
-                                         const SkTArray<GrMipLevel>& texels) override {
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
+                                          GrSurfaceOrigin,
+                                          GrBackendTextureFlags,
+                                          int sampleCnt,
+                                          GrWrapOwnership) override {
         return nullptr;
     }
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override {
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                    GrSurfaceOrigin) override {
         return nullptr;
     }
 
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                             GrSurfaceOrigin,
+                                                             int sampleCnt) override {
         return nullptr;
     }
 
@@ -416,4 +445,102 @@ void GrContext::initMockContext() {
     // these objects are required for any of tests that use this context. TODO: make stop allocating
     // resources in the buffer pools.
     fDrawingManager->abandon();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
+    fContext->flush();
+    fContext->fDrawingManager->testingOnly_removeOnFlushCallbackObject(cb);
+}
+
+void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
+    int n = std::find(fOnFlushCBObjects.begin(), fOnFlushCBObjects.end(), cb) -
+            fOnFlushCBObjects.begin();
+    SkASSERT(n < fOnFlushCBObjects.count());
+    fOnFlushCBObjects.removeShuffle(n);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+#define DRAW_OP_TEST_EXTERN(Op) \
+    extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
+
+#define LEGACY_MESH_DRAW_OP_TEST_EXTERN(Op) \
+    extern std::unique_ptr<GrLegacyMeshDrawOp> Op##__Test(SkRandom*, GrContext*);
+
+#define DRAW_OP_TEST_ENTRY(Op) Op##__Test
+
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAConvexPathOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFillRectOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFillRectOpLocalMatrix);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp)
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAHairlineOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(AnalyticRectOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(DashOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(DefaultPathOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(GrDrawAtlasOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(SmallPathOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(TesselatingPathOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(TextBlobOp);
+LEGACY_MESH_DRAW_OP_TEST_EXTERN(VerticesOp);
+
+DRAW_OP_TEST_EXTERN(CircleOp)
+DRAW_OP_TEST_EXTERN(DIEllipseOp);
+DRAW_OP_TEST_EXTERN(EllipseOp);
+DRAW_OP_TEST_EXTERN(NonAAFillRectOp)
+DRAW_OP_TEST_EXTERN(RRectOp);
+
+void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
+    GrContext* context = renderTargetContext->surfPriv().getContext();
+    using MakeTestLegacyMeshDrawOpFn = std::unique_ptr<GrLegacyMeshDrawOp>(SkRandom*, GrContext*);
+    static constexpr MakeTestLegacyMeshDrawOpFn* gLegacyFactories[] = {
+        DRAW_OP_TEST_ENTRY(AAConvexPathOp),
+        DRAW_OP_TEST_ENTRY(AAFillRectOp),
+        DRAW_OP_TEST_ENTRY(AAFillRectOpLocalMatrix),
+        DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
+        DRAW_OP_TEST_ENTRY(AAHairlineOp),
+        DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
+        DRAW_OP_TEST_ENTRY(AnalyticRectOp),
+        DRAW_OP_TEST_ENTRY(DashOp),
+        DRAW_OP_TEST_ENTRY(DefaultPathOp),
+        DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
+        DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
+        DRAW_OP_TEST_ENTRY(SmallPathOp),
+        DRAW_OP_TEST_ENTRY(TesselatingPathOp),
+        DRAW_OP_TEST_ENTRY(TextBlobOp),
+        DRAW_OP_TEST_ENTRY(VerticesOp)
+    };
+
+    using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
+    static constexpr MakeDrawOpFn* gFactories[] = {
+        DRAW_OP_TEST_ENTRY(CircleOp),
+        DRAW_OP_TEST_ENTRY(DIEllipseOp),
+        DRAW_OP_TEST_ENTRY(EllipseOp),
+        DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
+        DRAW_OP_TEST_ENTRY(RRectOp),
+    };
+
+    static constexpr size_t kTotal = SK_ARRAY_COUNT(gLegacyFactories) + SK_ARRAY_COUNT(gFactories);
+
+    uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
+    if (index < SK_ARRAY_COUNT(gLegacyFactories)) {
+        const GrUserStencilSettings* uss = GrGetRandomStencil(random, context);
+        // We don't use kHW because we will hit an assertion if the render target is not
+        // multisampled
+        static constexpr GrAAType kAATypes[] = {GrAAType::kNone, GrAAType::kCoverage};
+        GrAAType aaType = kAATypes[random->nextULessThan(SK_ARRAY_COUNT(kAATypes))];
+        bool snapToCenters = random->nextBool();
+        auto op = gLegacyFactories[index](random, context);
+        SkASSERT(op);
+        renderTargetContext->priv().testingOnly_addLegacyMeshDrawOp(
+                std::move(paint), aaType, std::move(op), uss, snapToCenters);
+    } else {
+        auto op = gFactories[index - SK_ARRAY_COUNT(gLegacyFactories)](
+                std::move(paint), random, context, renderTargetContext->fsaaType());
+        SkASSERT(op);
+        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+    }
 }

@@ -6,27 +6,25 @@
  * found in the LICENSE file.
  */
 
+#include "GrBackendSurface.h"
 #include "GrContext.h"
-#include "SkSurface.h"
+#include "GrRenderTarget.h"
 #include "GLWindowContext.h"
 
 #include "gl/GrGLDefines.h"
-
 #include "gl/GrGLUtil.h"
-#include "GrRenderTarget.h"
-#include "GrContext.h"
 
 #include "SkCanvas.h"
 #include "SkImage_Base.h"
 #include "SkMathPriv.h"
+#include "SkSurface.h"
 
 namespace sk_app {
 
 GLWindowContext::GLWindowContext(const DisplayParams& params)
-    : WindowContext()
+    : WindowContext(params)
     , fBackendContext(nullptr)
     , fSurface(nullptr) {
-    fDisplayParams = params;
     fDisplayParams.fMSAASampleCount = fDisplayParams.fMSAASampleCount ?
                                       GrNextPow2(fDisplayParams.fMSAASampleCount) :
                                       0;
@@ -64,7 +62,7 @@ void GLWindowContext::destroyContext() {
         fContext->unref();
         fContext = nullptr;
     }
-    
+
     fBackendContext.reset(nullptr);
 
     this->onDestroyContext();
@@ -73,18 +71,21 @@ void GLWindowContext::destroyContext() {
 sk_sp<SkSurface> GLWindowContext::getBackbufferSurface() {
     if (nullptr == fSurface) {
         if (fContext) {
-            GrBackendRenderTargetDesc desc;
-            desc.fWidth = this->fWidth;
-            desc.fHeight = this->fHeight;
-            desc.fConfig = fPixelConfig;
-            desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-            desc.fSampleCnt = fSampleCount;
-            desc.fStencilBits = fStencilBits;
+            GrGLFramebufferInfo fbInfo;
             GrGLint buffer;
-            GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer));
-            desc.fRenderTargetHandle = buffer;
+            GR_GL_CALL(fBackendContext.get(), GetIntegerv(GR_GL_FRAMEBUFFER_BINDING,
+                                                          &buffer));
+            fbInfo.fFBOID = buffer;
 
-            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
+            GrBackendRenderTarget backendRT(fWidth,
+                                            fHeight,
+                                            fSampleCount,
+                                            fStencilBits,
+                                            fPixelConfig,
+                                            fbInfo);
+
+            fSurface = SkSurface::MakeFromBackendRenderTarget(fContext, backendRT,
+                                                              kBottomLeft_GrSurfaceOrigin,
                                                               fDisplayParams.fColorSpace,
                                                               &fSurfaceProps);
         }

@@ -134,6 +134,7 @@ public:
     void toggleRendering();
     void toggleSlideshow();
     void toggleFPS();
+    void resetFPS();
     void showOverview();
     void toggleDistanceFieldFonts();
     void setPixelGeometry(int pixelGeometryIndex);
@@ -213,6 +214,8 @@ private:
     bool fUseDeferredCanvas;
     WallTimer fTimer;
     double fMeasureFPS_Time;
+    double fCumulativeFPS_Time;
+    int    fCumulativeFPS_Count;
     bool fMagnify;
     int fTilingMode;
 

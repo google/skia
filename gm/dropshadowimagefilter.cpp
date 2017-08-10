@@ -45,7 +45,7 @@ static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> im
     paint.setTextAlign(SkPaint::kCenter_Align);
     canvas->save();
     canvas->clipRect(r);
-    canvas->drawText("Text", 4, r.centerX(), r.centerY(), paint);
+    canvas->drawString("Text", r.centerX(), r.centerY(), paint);
     canvas->restore();
 }
 

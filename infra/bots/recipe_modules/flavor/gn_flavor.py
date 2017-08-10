@@ -44,6 +44,8 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if compiler == 'Clang' and os == 'Ubuntu':
       cc  = clang_linux + '/bin/clang'
       cxx = clang_linux + '/bin/clang++'
+      extra_cflags .append('-B%s/bin' % clang_linux)
+      extra_ldflags.append('-B%s/bin' % clang_linux)
       extra_ldflags.append('-fuse-ld=lld')
     elif compiler == 'Clang':
       cc, cxx = 'clang', 'clang++'
@@ -74,6 +76,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     if extra_config == 'GDI':
       args['skia_use_gdi'] = 'true'
     if extra_config == 'MSAN':
+      args['skia_enable_gpu']     = 'false'
       args['skia_use_fontconfig'] = 'false'
     if extra_config == 'ASAN':
       args['skia_enable_spirv_validation'] = 'false'
@@ -124,7 +127,7 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    with self.m.step.context({'cwd': self.m.vars.skia_dir}):
+    with self.m.context(cwd=self.m.vars.skia_dir):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
       self._run('ninja', [ninja, '-C', self.out_dir])
@@ -168,12 +171,12 @@ class GNFlavorUtils(default_flavor.DefaultFlavorUtils):
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [self.m.vars.slave_dir] + [str(x) for x in cmd]
-      with self.m.step.context({'cwd': self.m.vars.skia_dir, 'env': env}):
+      with self.m.context(cwd=self.m.vars.skia_dir, env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,
                  infra_step=False)
 
     else:
-      with self.m.step.context({'env': env}):
+      with self.m.context(env=env):
         self._run(name, cmd)

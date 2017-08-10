@@ -12,12 +12,13 @@
 #include "GrColor.h"
 #include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
-#include "GrProcessorSet.h"
+#include "GrProcessorAnalysis.h"
 #include "GrTexture.h"
 #include "GrTypes.h"
 
-class GrShaderCaps;
 class GrGLSLXferProcessor;
+class GrProcessorSet;
+class GrShaderCaps;
 
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
@@ -152,6 +153,8 @@ public:
      */
     bool hasSecondaryOutput() const;
 
+    bool isLCD() const { return fIsLCD; }
+
     /** Returns true if this and other processor conservatively draw identically. It can only return
         true when the two processor are of the same subclass (i.e. they return the same object from
         from getFactory()).
@@ -159,7 +162,7 @@ public:
         A return value of true from isEqual() should not be used to test whether the processor would
         generate the same shader code. To test for identical code generation use getGLSLProcessorKey
       */
-    
+
     bool isEqual(const GrXferProcessor& that) const {
         if (this->classID() != that.classID()) {
             return false;
@@ -170,12 +173,15 @@ public:
         if (this->fDstReadUsesMixedSamples != that.fDstReadUsesMixedSamples) {
             return false;
         }
+        if (fIsLCD != that.fIsLCD) {
+            return false;
+        }
         return this->onIsEqual(that);
     }
 
 protected:
     GrXferProcessor();
-    GrXferProcessor(bool willReadDstColor, bool hasMixedSamples);
+    GrXferProcessor(bool willReadDstColor, bool hasMixedSamples, GrProcessorAnalysisCoverage);
 
 private:
     /**
@@ -200,8 +206,9 @@ private:
 
     virtual bool onIsEqual(const GrXferProcessor&) const = 0;
 
-    bool                    fWillReadDstColor;
-    bool                    fDstReadUsesMixedSamples;
+    bool fWillReadDstColor;
+    bool fDstReadUsesMixedSamples;
+    bool fIsLCD;
 
     typedef GrFragmentProcessor INHERITED;
 };

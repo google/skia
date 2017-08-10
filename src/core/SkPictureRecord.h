@@ -164,12 +164,6 @@ protected:
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
 
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    void didTranslateZ(SkScalar) override;
-#else
-    void didTranslateZ(SkScalar);
-#endif
-
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
 
     void onDrawText(const void* text, size_t, SkScalar x, SkScalar y, const SkPaint&) override;
@@ -203,6 +197,7 @@ protected:
                          const SkPaint*) override;
     void onDrawImageLattice(const SkImage*, const SkCanvas::Lattice& lattice, const SkRect& dst,
                             const SkPaint*) override;
+    void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
     void onClipRect(const SkRect&, SkClipOp, ClipEdgeStyle) override;
@@ -211,14 +206,6 @@ protected:
     void onClipRegion(const SkRegion&, SkClipOp) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
-                               const SkPaint*, const SkShadowParams& params) override;
-#else
-    void onDrawShadowedPicture(const SkPicture*, const SkMatrix*,
-                               const SkPaint*, const SkShadowParams& params);
-#endif
 
     void onDrawDrawable(SkDrawable*, const SkMatrix*) override;
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;

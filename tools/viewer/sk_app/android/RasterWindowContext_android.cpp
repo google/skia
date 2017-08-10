@@ -32,11 +32,13 @@ private:
     ANativeWindow* fNativeWindow = nullptr;
     ANativeWindow_Buffer fBuffer;
     ARect fBounds;
+
+    typedef RasterWindowContext INHERITED;
 };
 
 RasterWindowContext_android::RasterWindowContext_android(ANativeWindow* window,
-                                                         const DisplayParams& params) {
-    fDisplayParams = params;
+                                                         const DisplayParams& params)
+    : INHERITED(params) {
     fNativeWindow = window;
     fWidth = ANativeWindow_getWidth(fNativeWindow);
     fHeight = ANativeWindow_getHeight(fNativeWindow);

@@ -140,7 +140,7 @@ DEF_SIMPLE_GM(arccirclegap, canvas, 250, 250) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawCircle(c.fX, c.fY, radius, paint);
+    canvas->drawCircle(c, radius, paint);
     SkPath path;
     path.moveTo(288.88884710654133f, -280.26680862609f);
     path.arcTo(0, 0, -39.00216443306411f, 400.6058925796476f, radius);
@@ -156,7 +156,7 @@ DEF_SIMPLE_GM(largecircle, canvas, 250, 250) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawCircle(c.fX, c.fY, radius, paint);
+    canvas->drawCircle(c, radius, paint);
 }
 
 DEF_SIMPLE_GM(crbug_640176, canvas, 250, 250) {

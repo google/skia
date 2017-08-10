@@ -123,6 +123,14 @@ static inline void alpha8_to_gray8(SkBitmap* bitmap) {
 }
 
 Error BRDSrc::draw(SkCanvas* canvas) const {
+    if (canvas->imageInfo().colorSpace() &&
+            kRGBA_F16_SkColorType != canvas->imageInfo().colorType()) {
+        // SkAndroidCodec uses legacy premultiplication and blending.  Therefore, we only
+        // run these tests on legacy canvases.
+        // We allow an exception for F16, since Android uses F16.
+        return Error::Nonfatal("Skip testing to color correct canvas.");
+    }
+
     SkColorType colorType = canvas->imageInfo().colorType();
     if (kRGB_565_SkColorType == colorType &&
             CodecSrc::kGetFromCanvas_DstColorType != fDstColorType) {
@@ -318,6 +326,16 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
     }
 
     switch (bitmap.colorType()) {
+        case kRGBA_F16_SkColorType:
+            for (int y = 0; y < bitmap.height(); y++) {
+                void* row = bitmap.getAddr(0, y);
+                SkRasterPipeline_<256> p;
+                p.append(SkRasterPipeline::load_f16, &row);
+                p.append(SkRasterPipeline::premul);
+                p.append(SkRasterPipeline::store_f16, &row);
+                p.run(0, bitmap.width());
+            }
+            break;
         case kN32_SkColorType:
             for (int y = 0; y < bitmap.height(); y++) {
                 uint32_t* row = (uint32_t*) bitmap.getAddr(0, y);
@@ -356,7 +374,8 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             *decodeInfo = decodeInfo->makeColorType(kGray_8_SkColorType);
             break;
         case CodecSrc::kNonNative8888_Always_DstColorType:
-            if (kRGB_565_SkColorType == canvasColorType) {
+            if (kRGB_565_SkColorType == canvasColorType
+                    || kRGBA_F16_SkColorType == canvasColorType) {
                 return false;
             }
 #ifdef SK_PMCOLOR_IS_RGBA
@@ -372,11 +391,6 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
             }
 
             if (kRGBA_F16_SkColorType == canvasColorType) {
-                if (kUnpremul_SkAlphaType == dstAlphaType) {
-                    // Testing kPremul is enough for adequate coverage of F16 decoding.
-                    return false;
-                }
-
                 sk_sp<SkColorSpace> linearSpace =
                         as_CSB(decodeInfo->colorSpace())->makeLinearGamma();
                 *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
@@ -439,6 +453,8 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
     int colorCount = 256;
 
     SkCodec::Options options;
+    options.fPremulBehavior = canvas->imageInfo().colorSpace() ?
+            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
     if (kCodecZeroInit_Mode == fMode) {
         memset(pixels.get(), 0, size.height() * rowBytes);
         options.fZeroInitialized = SkCodec::kYes_ZeroInitialized;
@@ -465,11 +481,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
             // Used to cache a frame that future frames will depend on.
             SkAutoMalloc priorFramePixels;
-            size_t cachedFrame = SkCodec::kNone;
-            for (size_t i = 0; i < frameInfos.size(); i++) {
+            int cachedFrame = SkCodec::kNone;
+            for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
                 options.fFrameIndex = i;
                 // Check for a prior frame
-                const size_t reqFrame = frameInfos[i].fRequiredFrame;
+                const int reqFrame = frameInfos[i].fRequiredFrame;
                 if (reqFrame != SkCodec::kNone && reqFrame == cachedFrame
                         && priorFramePixels.get()) {
                     // Copy into pixels
@@ -489,6 +505,18 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                 switch (result) {
                     case SkCodec::kSuccess:
                     case SkCodec::kIncompleteInput: {
+                        // If the next frame depends on this one, store it in priorFrame.
+                        // It is possible that we may discard a frame that future frames depend on,
+                        // but the codec will simply redecode the discarded frame.
+                        // Do this before calling draw_to_canvas, which premultiplies in place. If
+                        // we're decoding to unpremul, we want to pass the unmodified frame to the
+                        // codec for decoding the next frame.
+                        if (static_cast<size_t>(i+1) < frameInfos.size()
+                                && frameInfos[i+1].fRequiredFrame == i) {
+                            memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
+                            cachedFrame = i;
+                        }
+
                         SkAutoCanvasRestore acr(canvas, true);
                         const int xTranslate = (i % factor) * decodeInfo.width();
                         const int yTranslate = (i / factor) * decodeInfo.height();
@@ -510,13 +538,6 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     default:
                         return SkStringPrintf("Couldn't getPixels for frame %i in %s.",
                                               i, fPath.c_str());
-                }
-
-                // If a future frame depends on this one, store it in priorFrame.
-                // (Note that if i+1 does *not* depend on i, then no future frame can.)
-                if (i+1 < frameInfos.size() && frameInfos[i+1].fRequiredFrame == i) {
-                    memcpy(priorFramePixels.reset(safeSize), pixels.get(), safeSize);
-                    cachedFrame = i;
                 }
             }
             break;
@@ -557,7 +578,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             bool useOldScanlineMethod = !useIncremental && !ico;
             if (useIncremental || ico) {
                 if (SkCodec::kSuccess == codec->startIncrementalDecode(decodeInfo, dst,
-                        rowBytes, nullptr, colorPtr, &colorCount)) {
+                        rowBytes, &options, colorPtr, &colorCount)) {
                     int rowsDecoded;
                     if (SkCodec::kIncompleteInput == codec->incrementalDecode(&rowsDecoded)) {
                         codec->fillIncompleteImage(decodeInfo, dst, rowBytes,
@@ -603,7 +624,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             void* dst = pixels.get();
 
             // Decode odd stripes
-            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, nullptr, colorPtr,
+            if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options, colorPtr,
                                                                 &colorCount)) {
                 return "Could not start scanline decoder";
             }
@@ -658,13 +679,11 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             // align with the jpeg block sizes and it will sometimes not.  This allows us
             // to test interestingly different code paths in the implementation.
             const int tileSize = 36;
-
-            SkCodec::Options opts;
             SkIRect subset;
             for (int x = 0; x < width; x += tileSize) {
                 subset = SkIRect::MakeXYWH(x, 0, SkTMin(tileSize, width - x), height);
-                opts.fSubset = &subset;
-                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &opts,
+                options.fSubset = &subset;
+                if (SkCodec::kSuccess != codec->startScanlineDecode(decodeInfo, &options,
                         colorPtr, &colorCount)) {
                     return "Could not start scanline decoder.";
                 }
@@ -692,8 +711,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
             const int w = SkAlign2(W / divisor);
             const int h = SkAlign2(H / divisor);
             SkIRect subset;
-            SkCodec::Options opts;
-            opts.fSubset = &subset;
+            options.fSubset = &subset;
             SkBitmap subsetBm;
             // We will reuse pixel memory from bitmap.
             void* dst = pixels.get();
@@ -717,7 +735,7 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
                     SkImageInfo subsetBitmapInfo = bitmapInfo.makeWH(scaledW, scaledH);
                     size_t subsetRowBytes = subsetBitmapInfo.minRowBytes();
                     const SkCodec::Result result = codec->getPixels(decodeInfo, dst, subsetRowBytes,
-                            &opts, colorPtr, &colorCount);
+                            &options, colorPtr, &colorCount);
                     switch (result) {
                         case SkCodec::kSuccess:
                         case SkCodec::kIncompleteInput:
@@ -798,6 +816,14 @@ bool AndroidCodecSrc::veto(SinkFlags flags) const {
 }
 
 Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
+    if (canvas->imageInfo().colorSpace() &&
+            kRGBA_F16_SkColorType != canvas->imageInfo().colorType()) {
+        // SkAndroidCodec uses legacy premultiplication and blending.  Therefore, we only
+        // run these tests on legacy canvases.
+        // We allow an exception for F16, since Android uses F16.
+        return Error::Nonfatal("Skip testing to color correct canvas.");
+    }
+
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
@@ -947,13 +973,14 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     // Test various color and alpha types on CPU
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
 
+    SkImageGenerator::Options options;
+    options.fBehavior = canvas->imageInfo().colorSpace() ?
+            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
+
     int bpp = SkColorTypeBytesPerPixel(decodeInfo.colorType());
     size_t rowBytes = decodeInfo.width() * bpp;
     SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
-    SkPMColor colorPtr[256];
-    int colorCount = 256;
-
-    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, colorPtr, &colorCount)) {
+    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
         SkString err =
                 SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
 
@@ -967,6 +994,8 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
         return err;
     }
 
+    SkPMColor colorPtr[256];
+    int colorCount = 256;
     draw_to_canvas(canvas, decodeInfo, pixels.get(), rowBytes, colorPtr, colorCount,
                    CodecSrc::kGetFromCanvas_DstColorType);
     return "";
@@ -1263,14 +1292,10 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
 
 DEFINE_bool(imm, false, "Run gpu configs in immediate mode.");
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
-DEFINE_int32(opLookback, -1, "Maximum GrOp lookback for combining, negative means default.");
-DEFINE_int32(opLookahead, -1, "Maximum GrOp lookahead for combining, negative means default.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
     GrContextOptions grOptions;
     grOptions.fImmediateMode = FLAGS_imm;
-    grOptions.fMaxOpCombineLookback = FLAGS_opLookback;
-    grOptions.fMaxOpCombineLookahead = FLAGS_opLookahead;
 
     src.modifyGrContextOptions(&grOptions);
 
@@ -1306,7 +1331,7 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         canvas->getGrContext()->dumpGpuStats(log);
     }
     dst->allocPixels(info);
-    canvas->readPixels(dst, 0, 0);
+    canvas->readPixels(*dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
@@ -1567,7 +1592,6 @@ Error ViaUpright::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
     canvas.drawBitmap(*bitmap, 0, 0, &paint);
 
     *bitmap = uprighted;
-    bitmap->lockPixels();
     return "";
 }
 
@@ -1869,7 +1893,7 @@ Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
         if (fColorSpin) {
             SkBitmap pixels;
             pixels.allocPixels(canvas->imageInfo());
-            canvas->readPixels(&pixels, 0, 0);
+            canvas->readPixels(pixels, 0, 0);
             for (int y = 0; y < pixels.height(); y++) {
                 for (int x = 0; x < pixels.width(); x++) {
                     uint32_t pixel = *pixels.getAddr32(x, y);

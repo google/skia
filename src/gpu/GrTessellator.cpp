@@ -959,20 +959,27 @@ void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Comparato
 }
 
 void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Comparator& c) {
-    if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
-                                 !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
-        merge_edges_above(edge, edge->fPrevEdgeAbove, activeEdges, c);
-    } else if (edge->fNextEdgeAbove && (edge->fTop == edge->fNextEdgeAbove->fTop ||
-                                        !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
-        merge_edges_above(edge, edge->fNextEdgeAbove, activeEdges, c);
+    for (;;) {
+        if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
+                                     !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
+            merge_edges_above(edge, edge->fPrevEdgeAbove, activeEdges, c);
+        } else if (edge->fNextEdgeAbove && (edge->fTop == edge->fNextEdgeAbove->fTop ||
+                                            !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
+            merge_edges_above(edge, edge->fNextEdgeAbove, activeEdges, c);
+        } else if (edge->fPrevEdgeBelow && (edge->fBottom == edge->fPrevEdgeBelow->fBottom ||
+                                     !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
+            merge_edges_below(edge, edge->fPrevEdgeBelow, activeEdges, c);
+        } else if (edge->fNextEdgeBelow && (edge->fBottom == edge->fNextEdgeBelow->fBottom ||
+                                            !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
+            merge_edges_below(edge, edge->fNextEdgeBelow, activeEdges, c);
+        } else {
+            break;
+        }
     }
-    if (edge->fPrevEdgeBelow && (edge->fBottom == edge->fPrevEdgeBelow->fBottom ||
-                                 !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
-        merge_edges_below(edge, edge->fPrevEdgeBelow, activeEdges, c);
-    } else if (edge->fNextEdgeBelow && (edge->fBottom == edge->fNextEdgeBelow->fBottom ||
-                                        !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
-        merge_edges_below(edge, edge->fNextEdgeBelow, activeEdges, c);
-    }
+    SkASSERT(!edge->fPrevEdgeAbove || edge->fPrevEdgeAbove->isLeftOf(edge->fTop));
+    SkASSERT(!edge->fPrevEdgeBelow || edge->fPrevEdgeBelow->isLeftOf(edge->fBottom));
+    SkASSERT(!edge->fNextEdgeAbove || edge->fNextEdgeAbove->isRightOf(edge->fTop));
+    SkASSERT(!edge->fNextEdgeBelow || edge->fNextEdgeBelow->isRightOf(edge->fBottom));
 }
 
 void split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Comparator& c, SkArenaAlloc& alloc);
@@ -1267,6 +1274,11 @@ void simplify(const VertexList& vertices, Comparator& c, SkArenaAlloc& alloc) {
         do {
             restartChecks = false;
             find_enclosing_edges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            if (rightEnclosingEdge && !rightEnclosingEdge->isRightOf(v)) {
+                split_edge(rightEnclosingEdge, v, &activeEdges, c, alloc);
+                restartChecks = true;
+                continue;
+            }
             if (v->fFirstEdgeBelow) {
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
                     if (check_for_intersection(edge, leftEnclosingEdge, &activeEdges, c, alloc)) {
@@ -1395,7 +1407,6 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
             }
             for (Edge* e = v->fFirstEdgeAbove; e != v->fLastEdgeAbove; e = e->fNextEdgeAbove) {
                 Edge* rightEdge = e->fNextEdgeAbove;
-                SkASSERT(rightEdge->isRightOf(e->fTop));
                 remove_edge(e, &activeEdges);
                 if (e->fRightPoly) {
                     e->fRightPoly->addEdge(e, Poly::kLeft_Side, alloc);
@@ -1829,11 +1840,11 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
                                 isLinear, &outerMesh);
     SkPath::FillType fillType = antialias ? SkPath::kWinding_FillType : path.getFillType();
     int count = count_points(polys, fillType);
-    if (0 == count) {
-        return 0;
-    }
     if (antialias) {
         count += count_outer_mesh_points(outerMesh);
+    }
+    if (0 == count) {
+        return 0;
     }
 
     void* verts = vertexAllocator->lock(count);

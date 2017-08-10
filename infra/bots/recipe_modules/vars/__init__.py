@@ -5,6 +5,7 @@
 DEPS = [
   'builder_name_schema',
   'depot_tools/bot_update',
+  'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -12,7 +13,3 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
 ]
-
-
-# TODO(borenet): Add coverage
-DISABLE_STRICT_COVERAGE = True

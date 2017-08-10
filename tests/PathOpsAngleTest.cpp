@@ -239,8 +239,7 @@ static CircleData circleDataSet[] = {
 static const int circleDataSetSize = (int) SK_ARRAY_COUNT(circleDataSet);
 
 DEF_TEST(PathOpsAngleCircle, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
@@ -432,8 +431,7 @@ struct FourPoints {
 };
 
 DEF_TEST(PathOpsAngleAfter, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);
@@ -445,7 +443,7 @@ DEF_TEST(PathOpsAngleAfter, reporter) {
             contour.reset();
             for (int index3 = 0; index3 < 3; ++index3) {
                 IntersectData& data = dataArray[index2 + index3];
-                SkPoint* temp = (SkPoint*) SkOpTAllocator<FourPoints>::Allocate(&allocator);
+                SkPoint* temp = (SkPoint*) allocator.make<FourPoints>();
                 for (int idx2 = 0; idx2 < data.fPtCount; ++idx2) {
                     temp[idx2] = data.fPts.fPts[idx2].asSkPoint();
                 }
@@ -485,7 +483,7 @@ void SkOpSegment::debugAddAngle(double startT, double endT) {
             : this->addT(startT);
     SkOpPtT* endPtT = endT == 0 ? fHead.ptT() : endT == 1 ? fTail.ptT()
             : this->addT(endT);
-    SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(this->globalState()->allocator());
+    SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
     SkOpSpanBase* startSpan = &fHead;
     while (startSpan->ptT() != startPtT) {
         startSpan = startSpan->upCast()->next();
@@ -505,8 +503,7 @@ void SkOpSegment::debugAddAngle(double startT, double endT) {
 }
 
 DEF_TEST(PathOpsAngleAllOnOneSide, reporter) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);
+    SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contour;
     SkOpGlobalState state(&contour, &allocator  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr));
     contour.init(&state, false, false);

@@ -5,7 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpaceXformer.h"
 #include "SkSweepGradient.h"
+
+#include <algorithm>
+#include <cmath>
+
+#include "SkPM4fPriv.h"
+#include "SkRasterPipeline.h"
 
 static SkMatrix translate(SkScalar dx, SkScalar dy) {
     SkMatrix matrix;
@@ -54,6 +61,14 @@ SkShader::Context* SkSweepGradient::onMakeContext(
 SkSweepGradient::SweepGradientContext::SweepGradientContext(
         const SkSweepGradient& shader, const ContextRec& rec)
     : INHERITED(shader, rec) {}
+
+bool SkSweepGradient::isRasterPipelineOnly() const {
+#ifdef SK_LEGACY_SWEEP_GRADIENT
+    return false;
+#else
+    return true;
+#endif
+}
 
 //  returns angle in a circle [0..2PI) -> [0..255]
 static unsigned SkATan2_255(float y, float x) {
@@ -257,6 +272,13 @@ sk_sp<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(const AsFPArgs& 
 
 #endif
 
+sk_sp<SkShader> SkSweepGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    SkSTArray<8, SkColor> xformedColors(fColorCount);
+    xformer->apply(xformedColors.begin(), fOrigColors, fColorCount);
+    return SkGradientShader::MakeSweep(fCenter.fX, fCenter.fY, xformedColors.begin(), fOrigPos,
+                                       fColorCount, fGradFlags, &this->getLocalMatrix());
+}
+
 #ifndef SK_IGNORE_TO_STRING
 void SkSweepGradient::toString(SkString* str) const {
     str->append("SkSweepGradient: (");
@@ -271,4 +293,14 @@ void SkSweepGradient::toString(SkString* str) const {
 
     str->append(")");
 }
+
+bool SkSweepGradient::adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                                  SkMatrix* matrix,
+                                                  SkRasterPipeline* p) const {
+    matrix->postTranslate(-fCenter.fX, -fCenter.fY);
+    p->append(SkRasterPipeline::xy_to_unit_angle);
+
+    return true;
+}
+
 #endif

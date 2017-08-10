@@ -7,6 +7,7 @@
 
 #include "gm.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPictureRecorder.h"
 
 static sk_sp<SkPicture> make_picture() {

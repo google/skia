@@ -21,7 +21,6 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kSRGBA_8888_GrPixelConfig: return "SRGBA8888";
         case kSBGRA_8888_GrPixelConfig: return "SBGRA8888";
         case kRGBA_8888_sint_GrPixelConfig: return "RGBA8888_sint";
-        case kETC1_GrPixelConfig: return "ETC1";
         case kRGBA_float_GrPixelConfig: return "RGBAFloat";
         case kRG_float_GrPixelConfig: return "RGFloat";
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
@@ -36,13 +35,10 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fNPOTTextureTileSupport = false;
     fSRGBSupport = false;
     fSRGBWriteControl = false;
-    fTwoSidedStencilSupport = false;
-    fStencilWrapOpsSupport = false;
     fDiscardRenderTargetSupport = false;
     fReuseScratchTextures = true;
     fReuseScratchBuffers = true;
     fGpuTracingSupport = false;
-    fCompressedTexSubImageSupport = false;
     fOversizedStencilSupport = false;
     fTextureBarrierSupport = false;
     fSampleLocationsSupport = false;
@@ -74,6 +70,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 
     fSuppressPrints = options.fSuppressPrints;
     fImmediateFlush = options.fImmediateMode;
+    fWireframeMode = options.fWireframeMode;
     fBufferMapThreshold = options.fBufferMapThreshold;
     fUseDrawInsteadOfPartialRenderTargetWrite = options.fUseDrawInsteadOfPartialRenderTargetWrite;
     fUseDrawInsteadOfAllRenderTargetWrites = false;
@@ -127,13 +124,10 @@ SkString GrCaps::dump() const {
     r.appendf("NPOT Texture Tile Support          : %s\n", gNY[fNPOTTextureTileSupport]);
     r.appendf("sRGB Support                       : %s\n", gNY[fSRGBSupport]);
     r.appendf("sRGB Write Control                 : %s\n", gNY[fSRGBWriteControl]);
-    r.appendf("Two Sided Stencil Support          : %s\n", gNY[fTwoSidedStencilSupport]);
-    r.appendf("Stencil Wrap Ops  Support          : %s\n", gNY[fStencilWrapOpsSupport]);
     r.appendf("Discard Render Target Support      : %s\n", gNY[fDiscardRenderTargetSupport]);
     r.appendf("Reuse Scratch Textures             : %s\n", gNY[fReuseScratchTextures]);
     r.appendf("Reuse Scratch Buffers              : %s\n", gNY[fReuseScratchBuffers]);
     r.appendf("Gpu Tracing Support                : %s\n", gNY[fGpuTracingSupport]);
-    r.appendf("Compressed Update Support          : %s\n", gNY[fCompressedTexSubImageSupport]);
     r.appendf("Oversized Stencil Support          : %s\n", gNY[fOversizedStencilSupport]);
     r.appendf("Texture Barrier Support            : %s\n", gNY[fTextureBarrierSupport]);
     r.appendf("Sample Locations Support           : %s\n", gNY[fSampleLocationsSupport]);

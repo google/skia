@@ -29,8 +29,7 @@ public:
      * which is unmodified by this function and clipping which will be enabled.
      */
     GrPipelineBuilder(GrPaint&& paint, GrAAType aaType)
-            : fFlags(0x0)
-            , fDrawFace(GrDrawFace::kBoth)
+            : fFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fUserStencilSettings(&GrUserStencilSettings::kUnused)
             , fProcessors(std::move(paint)) {
         if (GrAATypeIsHW(aaType)) {
@@ -107,31 +106,14 @@ public:
 
     /// @}
 
-    ///////////////////////////////////////////////////////////////////////////
-    /// @name Face Culling
-    ////
-
-    /**
-     * Controls whether clockwise, counterclockwise, or both faces are drawn.
-     * @param face  the face(s) to draw.
-     */
-    void setDrawFace(GrDrawFace face) {
-        SkASSERT(GrDrawFace::kInvalid != face);
-        fDrawFace = face;
-    }
-
-    /// @}
-
     void getPipelineInitArgs(GrPipeline::InitArgs* args) const {
         args->fFlags = fFlags;
         args->fUserStencil = fUserStencilSettings;
-        args->fDrawFace = fDrawFace;
         args->fProcessors = &fProcessors;
     }
 
 private:
     uint32_t fFlags;
-    GrDrawFace fDrawFace;
     const GrUserStencilSettings* fUserStencilSettings;
     GrProcessorSet fProcessors;
 };

@@ -84,7 +84,12 @@ static bool on_mouse_handler(int x, int y, Window::InputState state, uint32_t mo
     } else if (Window::kUp_InputState == state) {
         io.MouseDown[0] = false;
     }
-    return true;
+    if (io.WantCaptureMouse) {
+        return true;
+    } else {
+        Viewer* viewer = reinterpret_cast<Viewer*>(userData);
+        return viewer->onMouse(x, y, state, modifiers);
+    }
 }
 
 static bool on_mouse_wheel_handler(float delta, uint32_t modifiers, void* userData) {
@@ -280,7 +285,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
     if (FLAGS_atrace) {
-        SkEventTracer::SetInstance(new SkATrace());
+        SkAssertResult(SkEventTracer::SetInstance(new SkATrace()));
     }
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
@@ -426,8 +431,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkPixmap pmap(info, pixels, info.minRowBytes());
     SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
     auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    auto fontShader = fontImage->makeShader(SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
-                                            &localMatrix);
+    auto fontShader = fontImage->makeShader(&localMatrix);
     fImGuiFontPaint.setShader(fontShader);
     fImGuiFontPaint.setColor(SK_ColorWHITE);
     fImGuiFontPaint.setFilterQuality(kLow_SkFilterQuality);
@@ -435,9 +439,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     auto gamutImage = GetResourceAsImage("gamut.png");
     if (gamutImage) {
-        auto gamutShader = gamutImage->makeShader(SkShader::kClamp_TileMode,
-                                                  SkShader::kClamp_TileMode);
-        fImGuiGamutPaint.setShader(gamutShader);
+        fImGuiGamutPaint.setShader(gamutImage->makeShader());
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
     fImGuiGamutPaint.setFilterQuality(kLow_SkFilterQuality);
@@ -693,6 +695,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     // Switching from OpenGL to Vulkan in the same window is problematic at this point on
     // Windows, so we just delete the window and recreate it.
     if (sk_app::Window::kVulkan_BackendType == fBackendType) {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
         delete fWindow;
         fWindow = Window::CreateNativeWindow(nullptr);
 
@@ -706,6 +709,7 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
         fWindow->registerMouseWheelFunc(on_mouse_wheel_handler, this);
         fWindow->registerKeyFunc(on_key_handler, this);
         fWindow->registerCharFunc(on_char_handler, this);
+        fWindow->setRequestedDisplayParams(params);
     }
 #endif
 
@@ -861,6 +865,27 @@ bool Viewer::onTouch(intptr_t owner, Window::InputState state, float x, float y)
         }
         case Window::kMove_InputState: {
             fGesture.touchMoved(castedOwner, touchPoint.fX, touchPoint.fY);
+            break;
+        }
+    }
+    fWindow->inval();
+    return true;
+}
+
+bool Viewer::onMouse(float x, float y, Window::InputState state, uint32_t modifiers) {
+
+    SkPoint touchPoint = fDefaultMatrixInv.mapXY(x, y);
+    switch (state) {
+        case Window::kUp_InputState: {
+            fGesture.touchEnd(nullptr);
+            break;
+        }
+        case Window::kDown_InputState: {
+            fGesture.touchBegin(nullptr, touchPoint.fX, touchPoint.fY);
+            break;
+        }
+        case Window::kMove_InputState: {
+            fGesture.touchMoved(nullptr, touchPoint.fX, touchPoint.fY);
             break;
         }
     }
@@ -1025,6 +1050,10 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 if (ctx && ImGui::Checkbox("Instanced Rendering", inst)) {
                     paramsChanged = true;
                 }
+                bool* wire = &params.fGrContextOptions.fWireframeMode;
+                if (ctx && ImGui::Checkbox("Wireframe Mode", wire)) {
+                    paramsChanged = true;
+                }
 
                 if (ctx) {
                     int sampleCount = fWindow->sampleCount();
@@ -1152,8 +1181,7 @@ void Viewer::drawImGui(SkCanvas* canvas) {
             static int zoomFactor = 4;
             ImGui::SliderInt("Scale", &zoomFactor, 1, 16);
 
-            zoomImagePaint.setShader(fLastImage->makeShader(SkShader::kClamp_TileMode,
-                                                            SkShader::kClamp_TileMode));
+            zoomImagePaint.setShader(fLastImage->makeShader());
             zoomImagePaint.setColor(SK_ColorWHITE);
 
             // Zoom by shrinking the corner UVs towards the mouse cursor

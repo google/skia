@@ -39,6 +39,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPoint3.h"
 #include "SkRandom.h"
+#include "SkRegion.h"
 #include "SkTableColorFilter.h"
 #include "SkTileImageFilter.h"
 #include "SkTypeface.h"
@@ -239,7 +240,7 @@ static void make_g_bitmap(SkBitmap& bitmap) {
     paint.setColor(0xFF884422);
     paint.setTextSize(SkIntToScalar(kBitmapSize/2));
     const char* str = "g";
-    canvas.drawText(str, strlen(str), SkIntToScalar(kBitmapSize/8),
+    canvas.drawString(str, SkIntToScalar(kBitmapSize/8),
                     SkIntToScalar(kBitmapSize/4), paint);
 }
 
@@ -325,7 +326,7 @@ static void drawSomething(SkCanvas* canvas) {
     canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
     paint.setColor(SK_ColorBLACK);
     paint.setTextSize(SkIntToScalar(kBitmapSize/3));
-    canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
+    canvas->drawString("Picture", SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
 }
 
 static sk_sp<SkColorFilter> make_color_filter() {

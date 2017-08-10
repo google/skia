@@ -217,8 +217,7 @@ extern void (*gVerboseFinalize)();
 
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
-    char storage[4096];
-    SkArenaAlloc allocator(storage);  // FIXME: add a constant expression here, tune
+    SkSTArenaAlloc<4096> allocator;  // FIXME: add a constant expression here, tune
     SkOpContour contour;
     SkOpContourHead* contourList = static_cast<SkOpContourHead*>(&contour);
     SkOpGlobalState globalState(contourList, &allocator

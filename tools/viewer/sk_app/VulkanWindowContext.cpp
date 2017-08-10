@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 #include "SkAutoMalloc.h"
@@ -30,7 +31,9 @@ namespace sk_app {
 VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
                                          CreateVkSurfaceFn createVkSurface,
                                          CanPresentFn canPresent)
-    : WindowContext()
+    : WindowContext(params)
+    , fCreateVkSurfaceFn(createVkSurface)
+    , fCanPresentFn(canPresent)
     , fSurface(VK_NULL_HANDLE)
     , fSwapchain(VK_NULL_HANDLE)
     , fImages(nullptr)
@@ -38,9 +41,13 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     , fSurfaces(nullptr)
     , fCommandPool(VK_NULL_HANDLE)
     , fBackbuffers(nullptr) {
+    this->initializeContext();
+}
 
+void VulkanWindowContext::initializeContext() {
     // any config code here (particularly for msaa)?
-    fBackendContext.reset(GrVkBackendContext::Create(&fPresentQueueIndex, canPresent));
+    fBackendContext.reset(GrVkBackendContext::Create(vkGetInstanceProcAddr, vkGetDeviceProcAddr,
+                                                     &fPresentQueueIndex, fCanPresentFn));
 
     if (!(fBackendContext->fExtensions & kKHR_surface_GrVkExtensionFlag) ||
         !(fBackendContext->fExtensions & kKHR_swapchain_GrVkExtensionFlag)) {
@@ -62,9 +69,9 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
     GET_DEV_PROC(QueuePresentKHR);
 
     fContext = GrContext::Create(kVulkan_GrBackend, (GrBackendContext) fBackendContext.get(),
-                                 params.fGrContextOptions);
+                                 fDisplayParams.fGrContextOptions);
 
-    fSurface = createVkSurface(instance);
+    fSurface = fCreateVkSurfaceFn(instance);
     if (VK_NULL_HANDLE == fSurface) {
         fBackendContext.reset(nullptr);
         return;
@@ -79,7 +86,7 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
         return;
     }
 
-    if (!this->createSwapchain(-1, -1, params)) {
+    if (!this->createSwapchain(-1, -1, fDisplayParams)) {
         this->destroyContext();
         return;
     }
@@ -175,8 +182,8 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     auto srgbColorSpace = SkColorSpace::MakeSRGB();
     bool wantSRGB = srgbColorSpace == params.fColorSpace;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
-        GrPixelConfig config;
-        if (GrVkFormatToPixelConfig(surfaceFormats[i].format, &config) &&
+        GrPixelConfig config = GrVkFormatToPixelConfig(surfaceFormats[i].format);
+        if (kUnknown_GrPixelConfig != config &&
             GrPixelConfigIsSRGB(config) == wantSRGB) {
             surfaceFormat = surfaceFormats[i].format;
             colorSpace = surfaceFormats[i].colorSpace;
@@ -250,7 +257,8 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
 }
 
 void VulkanWindowContext::createBuffers(VkFormat format) {
-    GrVkFormatToPixelConfig(format, &fPixelConfig);
+    fPixelConfig = GrVkFormatToPixelConfig(format);
+    SkASSERT(kUnknown_GrPixelConfig != fPixelConfig);
 
     fGetSwapchainImagesKHR(fBackendContext->fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
@@ -263,7 +271,6 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
     for (uint32_t i = 0; i < fImageCount; ++i) {
         fImageLayouts[i] = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        GrBackendRenderTargetDesc desc;
         GrVkImageInfo info;
         info.fImage = fImages[i];
         info.fAlloc = { VK_NULL_HANDLE, 0, 0, 0 };
@@ -271,17 +278,14 @@ void VulkanWindowContext::createBuffers(VkFormat format) {
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
         info.fLevelCount = 1;
-        desc.fWidth = fWidth;
-        desc.fHeight = fHeight;
-        desc.fConfig = fPixelConfig;
-        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-        desc.fSampleCnt = fSampleCount;
-        desc.fStencilBits = fStencilBits;
-        desc.fRenderTargetHandle = (GrBackendObject) &info;
 
-        fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(fContext, desc,
-                                                              fDisplayParams.fColorSpace,
-                                                              &fSurfaceProps);
+        GrBackendTexture backendTex(fWidth, fHeight, info);
+
+        fSurfaces[i] = SkSurface::MakeFromBackendTextureAsRenderTarget(fContext, backendTex,
+                                                                       kTopLeft_GrSurfaceOrigin,
+                                                                       fSampleCount,
+                                                                       fDisplayParams.fColorSpace,
+                                                                       &fSurfaceProps);
     }
 
     // create the command pool for the command buffers

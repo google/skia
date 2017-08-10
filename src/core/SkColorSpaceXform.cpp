@@ -1137,13 +1137,25 @@ bool SkColorSpaceXform::apply(ColorFormat dstColorFormat, void* dst, ColorFormat
                                                      alphaType);
 }
 
+bool SkColorSpaceXform::Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* dst,
+                              SkColorSpace* srcCS, ColorFormat srcFormat, const void* src,
+                              int count, AlphaOp op) {
+    SkAlphaType at;
+    switch (op) {
+        case kPreserve_AlphaOp:    at = kUnpremul_SkAlphaType; break;
+        case kPremul_AlphaOp:      at = kPremul_SkAlphaType;   break;
+        case kSrcIsOpaque_AlphaOp: at = kOpaque_SkAlphaType;   break;
+    }
+    return New(srcCS, dstCS)->apply(dstFormat, dst, srcFormat, src, count, at);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <ColorSpaceMatch kCSM>
 bool SkColorSpaceXform_XYZ<kCSM>
 ::applyPipeline(ColorFormat dstColorFormat, void* dst, ColorFormat srcColorFormat,
                 const void* src, int len, SkAlphaType alphaType) const {
-    SkRasterPipeline pipeline;
+    SkRasterPipeline_<256> pipeline;
 
     LoadTablesContext loadTables;
     switch (srcColorFormat) {
@@ -1244,12 +1256,17 @@ bool SkColorSpaceXform_XYZ<kCSM>
     }
 
     TablesContext tables;
+    SkColorSpaceTransferFn to_2dot2 = {0,0,0,0,0,0,0};
+    to_2dot2.fG = 1/2.2f;
+    to_2dot2.fA = 1;
     switch (fDstGamma) {
         case kSRGB_DstGamma:
             pipeline.append(SkRasterPipeline::to_srgb);
             break;
         case k2Dot2_DstGamma:
-            pipeline.append(SkRasterPipeline::to_2dot2);
+            pipeline.append(SkRasterPipeline::parametric_r, &to_2dot2);
+            pipeline.append(SkRasterPipeline::parametric_g, &to_2dot2);
+            pipeline.append(SkRasterPipeline::parametric_b, &to_2dot2);
             break;
         case kTable_DstGamma:
             tables.fR = fDstGammaTables[0];

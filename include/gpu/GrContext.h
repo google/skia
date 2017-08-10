@@ -138,6 +138,11 @@ public:
     void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
 
     /**
+     *  Gets the number of bytes in the cache consumed by purgeable (e.g. unlocked) resources.
+     */
+    size_t getResourceCachePurgeableBytes() const;
+
+    /**
      *  Specify the GPU resource cache limits. If the current cache exceeds either
      *  of these, it will be purged (LRU) to keep the cache within these limits.
      *
@@ -183,25 +188,13 @@ public:
      */
     int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
 
-    /**
-     * Create both a GrRenderTarget and a matching GrRenderTargetContext to wrap it.
-     * We guarantee that "asTexture" will succeed for renderTargetContexts created
-     * via this entry point.
+    /*
+     * Create a new render target context backed by a deferred-style
+     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
+     * renderTargetContexts created via this entry point.
      */
-    sk_sp<GrRenderTargetContext> makeRenderTargetContext(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
-                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted = SkBudgeted::kYes);
-
-    // Create a new render target context as above but have it backed by a deferred-style
-    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContext(
-                                                 SkBackingFit fit, 
+                                                 SkBackingFit fit,
                                                  int width, int height,
                                                  GrPixelConfig config,
                                                  sk_sp<SkColorSpace> colorSpace,
@@ -215,18 +208,6 @@ public:
      * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
      * SRGB-ness will be preserved.
      */
-    sk_sp<GrRenderTargetContext> makeRenderTargetContextWithFallback(
-                                                 SkBackingFit fit,
-                                                 int width, int height,
-                                                 GrPixelConfig config,
-                                                 sk_sp<SkColorSpace> colorSpace,
-                                                 int sampleCnt = 0,
-                                                 GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-                                                 const SkSurfaceProps* surfaceProps = nullptr,
-                                                 SkBudgeted budgeted = SkBudgeted::kYes);
-
-    // Create a new render target context as above but have it backed by a deferred-style
-    // GrRenderTargetProxy rather than one that is backed by an actual GrRenderTarget
     sk_sp<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
                                                  SkBackingFit fit,
                                                  int width, int height,
@@ -313,8 +294,8 @@ private:
 
     bool                                    fDisableGpuYUVConversion;
     bool                                    fDidTestPMConversions;
-    int                                     fPMToUPMConversion;
-    int                                     fUPMToPMConversion;
+    // true if the PM/UPM conversion succeeded; false otherwise
+    bool                                    fPMUPMConversionsRoundTrip;
 
     // In debug builds we guard against improper thread handling
     // This guard is passed to the GrDrawingManager and, from there to all the
@@ -334,6 +315,8 @@ private:
 
     GrAuditTrail                            fAuditTrail;
 
+    GrBackend                               fBackend;
+
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
@@ -344,18 +327,20 @@ private:
     void initCommon(const GrContextOptions&);
 
     /**
-     * These functions create premul <-> unpremul effects if it is possible to generate a pair
-     * of effects that make a readToUPM->writeToPM->readToUPM cycle invariant. Otherwise, they
-     * return NULL. They also can perform a swizzle as part of the draw.
+     * These functions create premul <-> unpremul effects. If the second argument is 'true', they
+     * use the specialized round-trip effects from GrConfigConversionEffect, otherwise they
+     * create effects that do naive multiply or divide.
      */
-    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
-    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>, GrPixelConfig);
-    /** Called before either of the above two functions to determine the appropriate fragment
-        processors for conversions. */
-    void testPMConversionsIfNecessary(uint32_t flags);
-    /** Returns true if we've determined that createPMtoUPMEffect and createUPMToPMEffect will
-        succeed for the passed in config. Otherwise we fall back to SW conversion. */
-    bool validPMUPMConversionExists(GrPixelConfig) const;
+    sk_sp<GrFragmentProcessor> createPMToUPMEffect(sk_sp<GrFragmentProcessor>,
+                                                   bool useConfigConversionEffect);
+    sk_sp<GrFragmentProcessor> createUPMToPMEffect(sk_sp<GrFragmentProcessor>,
+                                                   bool useConfigConversionEffect);
+
+    /**
+     * Returns true if createPMtoUPMEffect and createUPMToPMEffect will succeed for non-sRGB 8888
+     * configs. In other words, did we find a pair of round-trip preserving conversion effects?
+     */
+    bool validPMUPMConversionExists();
 
     /**
      * A callback similar to the above for use by the TextBlobCache

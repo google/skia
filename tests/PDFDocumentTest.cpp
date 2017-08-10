@@ -161,7 +161,7 @@ DEF_TEST(SkPDF_document_skbug_4734, r) {
     canvas->translate(20.0f, 10.0f);
     canvas->rotate(30.0f);
     const char text[] = "HELLO";
-    canvas->drawText(text, strlen(text), 0, 0, SkPaint());
+    canvas->drawString(text, 0, 0, SkPaint());
 }
 
 static bool contains(const uint8_t* result, size_t size, const char expectation[]) {

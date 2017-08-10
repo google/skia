@@ -21,7 +21,7 @@
 
 static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkPaint& paint) {
-    canvas->drawText(text.c_str(), text.size(), x, y, paint);
+    canvas->drawString(text, x, y, paint);
     return x + paint.measureText(text.c_str(), text.size());
 }
 

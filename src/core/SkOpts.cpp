@@ -43,8 +43,8 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkChecksum_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
-#include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
+#include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
 
 namespace SkOpts {
@@ -82,9 +82,11 @@ namespace SkOpts {
 
     DEFINE_DEFAULT(srcover_srgb_srgb);
 
-    DEFINE_DEFAULT(hash_fn);
+    DEFINE_DEFAULT(memset16);
+    DEFINE_DEFAULT(memset32);
+    DEFINE_DEFAULT(memset64);
 
-    DEFINE_DEFAULT(run_pipeline);
+    DEFINE_DEFAULT(hash_fn);
 
     DEFINE_DEFAULT(convolve_vertically);
     DEFINE_DEFAULT(convolve_horizontally);

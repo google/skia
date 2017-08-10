@@ -53,21 +53,25 @@
 // For arrays of non-POD objects there is a per array overhead of typically 8 bytes. There is an
 // addition overhead when switching from POD data to non-POD data of typically 8 bytes.
 //
+// You can track memory use by adding SkArenaAlloc::kTrack as the last parameter to any constructor.
+//
+//   char storage[someNumber];
+//   SkArenaAlloc alloc{storage, SkArenaAlloc::kTrack};
+//
+// This will print out a line for every destructor or reset call that has the total memory
+// allocated, the total slop (the unused portion of a block), and the slop of the last block.
+//
 // If additional blocks are needed they are increased exponentially. This strategy bounds the
 // recursion of the RunDtorsOnBlock to be limited to O(log size-of-memory). Block size grow using
 // the Fibonacci sequence which means that for 2^32 memory there are 48 allocations, and for 2^48
 // there are 71 allocations.
 class SkArenaAlloc {
 public:
-    SkArenaAlloc(char* block, size_t size, size_t extraSize = 0);
+    enum Tracking {kDontTrack, kTrack};
+    SkArenaAlloc(char* block, size_t size, size_t, Tracking tracking = kDontTrack);
 
-    template <size_t kSize>
-    SkArenaAlloc(char (&block)[kSize], size_t extraSize = kSize)
-        : SkArenaAlloc(block, kSize, extraSize)
-    {}
-
-    SkArenaAlloc(size_t extraSize)
-        : SkArenaAlloc(nullptr, 0, extraSize)
+    SkArenaAlloc(size_t extraSize, Tracking tracking = kDontTrack)
+        : SkArenaAlloc(nullptr, 0, extraSize, tracking)
     {}
 
     ~SkArenaAlloc();
@@ -150,7 +154,15 @@ private:
 
     void ensureSpace(uint32_t size, uint32_t alignment);
 
-    char* allocObject(uint32_t size, uint32_t alignment);
+    char* allocObject(uint32_t size, uint32_t alignment) {
+        uintptr_t mask = alignment - 1;
+        char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        if ((ptrdiff_t)size > fEnd - objStart) {
+            this->ensureSpace(size, alignment);
+            objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        }
+        return objStart;
+    }
 
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
 
@@ -197,9 +209,28 @@ private:
     char* const    fFirstBlock;
     const uint32_t fFirstSize;
     const uint32_t fExtraSize;
+
+    // Track some useful stats. Track stats if fTotalSlop is >= 0;
+    uint32_t       fTotalAlloc { 0};
+    int32_t        fTotalSlop  {-1};
+
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
     // allocated is fFib0 * fExtraSize. Using 2 ^ n * fExtraSize had too much slop for Android.
     uint32_t       fFib0 {1}, fFib1 {1};
+};
+
+// Helper for defining allocators with inline/reserved storage.
+// For argument declarations, stick to the base type (SkArenaAlloc).
+template <size_t InlineStorageSize>
+class SkSTArenaAlloc : public SkArenaAlloc {
+public:
+    explicit SkSTArenaAlloc(size_t extraSize = InlineStorageSize, Tracking tracking = kDontTrack)
+        : INHERITED(fInlineStorage, InlineStorageSize, extraSize, tracking) {}
+
+private:
+    char fInlineStorage[InlineStorageSize];
+
+    using INHERITED = SkArenaAlloc;
 };
 
 #endif//SkFixedAlloc_DEFINED

@@ -44,6 +44,25 @@ public:
         RestorePrevious_DisposalMethod  = 3,
     };
 
+    /**
+     * How to blend the current frame.
+     */
+    enum class Blend {
+        /**
+         *  Blend with the prior frame. This is the typical case, supported
+         *  by all animated image types.
+         */
+        kPriorFrame,
+
+        /**
+         *  Do not blend.
+         *
+         *  This frames pixels overwrite previous pixels "blending" with
+         *  the background color of transparent.
+         */
+        kBG,
+    };
+
 private:
     SkCodecAnimation();
 };

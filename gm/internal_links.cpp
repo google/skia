@@ -64,7 +64,7 @@ private:
         sk_tool_utils::set_portable_typeface(&paint);
         paint.setTextSize(SkIntToScalar(25));
         paint.setColor(SK_ColorBLACK);
-        canvas->drawText(text, strlen(text), x, y, paint);
+        canvas->drawString(text, x, y, paint);
     }
 
     typedef GM INHERITED;

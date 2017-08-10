@@ -28,7 +28,7 @@ struct WhileStatement : public Statement {
     }
 
     std::unique_ptr<Expression> fTest;
-    const std::unique_ptr<Statement> fStatement;
+    std::unique_ptr<Statement> fStatement;
 
     typedef Statement INHERITED;
 };

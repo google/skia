@@ -7,8 +7,9 @@ import math
 
 
 DEPS = [
-  'build/file',
   'depot_tools/gsutil',
+  'file',
+  'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -18,7 +19,7 @@ DEPS = [
   'ct',
   'flavor',
   'run',
-  'swarming',
+  'skia_swarming',
   'vars',
 ]
 
@@ -37,7 +38,7 @@ TOOL_TO_DEFAULT_SKPS_PER_SLAVE = {
 }
 
 # The SKP repository to use.
-DEFAULT_SKPS_CHROMIUM_BUILD = 'fad657e-276e633'
+DEFAULT_SKPS_CHROMIUM_BUILD = 'c37e844a6f8708-eee762104c75bd'
 
 
 def RunSteps(api):
@@ -82,7 +83,7 @@ def RunSteps(api):
   api.run.copy_build_products(
       api.flavor.out_dir,
       isolate_dir)
-  api.swarming.setup(
+  api.skia_swarming.setup(
       infrabots_dir.join('tools', 'luci-go'),
       swarming_rev='')
 
@@ -102,7 +103,7 @@ def RunSteps(api):
       download_skps_link)
 
   # Delete swarming_temp_dir to ensure it starts from a clean slate.
-  api.run.rmtree(api.swarming.swarming_temp_dir)
+  api.run.rmtree(api.skia_swarming.swarming_temp_dir)
 
   num_per_slave = api.properties.get(
       'num_per_slave',
@@ -165,7 +166,7 @@ def RunSteps(api):
         'CONFIGURATION': api.vars.configuration,
         'BUILDER': buildername,
     }
-    api.swarming.create_isolated_gen_json(
+    api.skia_swarming.create_isolated_gen_json(
         isolate_path, isolate_dir, 'linux', 'ct-%s-%s' % (skia_tool, slave_num),
         extra_variables, blacklist=blacklist_skps)
 
@@ -185,7 +186,7 @@ def RunSteps(api):
   tasks_to_swarm_hashes = []
   for slave_start_num in xrange(1, ct_num_slaves+1, max_slaves_to_batcharchive):
     m = min(max_slaves_to_batcharchive, ct_num_slaves)
-    batcharchive_output = api.swarming.batcharchive(
+    batcharchive_output = api.skia_swarming.batcharchive(
         targets=['ct-' + skia_tool + '-%s' % num for num in range(
             slave_start_num, slave_start_num + m)])
     tasks_to_swarm_hashes.extend(batcharchive_output)
@@ -196,7 +197,7 @@ def RunSteps(api):
   dimensions={'os': 'Ubuntu-14.04', 'cpu': 'x86-64', 'pool': 'Chrome'}
   if 'GPU' in buildername:
     dimensions['gpu'] = '10de:104a'
-  tasks = api.swarming.trigger_swarming_tasks(
+  tasks = api.skia_swarming.trigger_swarming_tasks(
       tasks_to_swarm_hashes, dimensions=dimensions, io_timeout=40*60)
 
   # Now collect all tasks.
@@ -204,16 +205,16 @@ def RunSteps(api):
   failed_tasks = []
   for task in tasks:
     try:
-      api.swarming.collect_swarming_task(task)
+      api.skia_swarming.collect_swarming_task(task)
 
       if skia_tool == 'nanobench':
-        output_dir = api.swarming.tasks_output_dir.join(
+        output_dir = api.skia_swarming.tasks_output_dir.join(
             task.title).join('0')
         utc = api.time.utcnow()
         gs_dest_dir = 'ct/%s/%d/%02d/%02d/%02d/' % (
             ct_page_type, utc.year, utc.month, utc.day, utc.hour)
         for json_output in api.file.listdir('output dir', output_dir):
-          with api.step.context({'env': env}):
+          with api.context(env=env):
             api.gsutil.upload(
                 name='upload json output',
                 source=output_dir.join(json_output),
@@ -421,7 +422,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs-Trybot'
+  builder = 'Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_DM_10k_SKPs'
   yield(
     api.test('CT_DM_10k_SKPs_Trybot') +
     api.properties(
@@ -440,7 +441,7 @@ def GenTests(api):
   )
 
   builder = ('Test-Ubuntu-GCC-GCE-CPU-AVX2-x86_64-Debug-CT_IMG_DECODE_'
-             '10k_SKPs_Trybot')
+             '10k_SKPs')
   yield(
     api.test('CT_IMG_DECODE_10k_SKPs_Trybot') +
     api.properties(

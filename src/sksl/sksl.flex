@@ -45,6 +45,8 @@ false { return SkSL::Token::FALSE_LITERAL; }
 
 if { return SkSL::Token::IF; }
 
+@if { return SkSL::Token::STATIC_IF; }
+
 else { return SkSL::Token::ELSE; }
 
 for { return SkSL::Token::FOR; }
@@ -54,6 +56,8 @@ while { return SkSL::Token::WHILE; }
 do { return SkSL::Token::DO; }
 
 switch { return SkSL::Token::SWITCH; }
+
+@switch { return SkSL::Token::STATIC_SWITCH; }
 
 case { return SkSL::Token::CASE; }
 
@@ -96,6 +100,10 @@ coherent { return SkSL::Token::COHERENT; }
 volatile { return SkSL::Token::VOLATILE; }
 
 restrict { return SkSL::Token::RESTRICT; }
+
+buffer { return SkSL::Token::BUFFER; }
+
+sk_has_side_effects { return SkSL::Token::HASSIDEEFFECTS; }
 
 struct { return SkSL::Token::STRUCT; }
 

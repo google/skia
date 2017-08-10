@@ -47,9 +47,7 @@ public:
         fragBuilder->codeAppend("float d = length(shadowParams.xy);");
         fragBuilder->codeAppend("float distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("float radius = shadowParams.w;");
-        
-        fragBuilder->codeAppend("float factor = 1.0 - clamp(distance/radius, 0.0, 1.0);");
+        fragBuilder->codeAppend("float factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
         fragBuilder->codeAppendf("%s = vec4(factor);",
                                  args.fOutputCoverage);

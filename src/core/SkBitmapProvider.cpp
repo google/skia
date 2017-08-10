@@ -7,7 +7,6 @@
 
 #include "SkBitmapProvider.h"
 #include "SkImage_Base.h"
-#include "SkImageCacherator.h"
 #include "SkPixelRef.h"
 
 int SkBitmapProvider::width() const {

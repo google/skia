@@ -45,18 +45,46 @@ struct GrVkBackendContext : public SkRefCnt {
     uint32_t                   fExtensions;
     uint32_t                   fFeatures;
     sk_sp<const GrVkInterface> fInterface;
+    /**
+     * Controls whether this object destroys the instance and device upon destruction. The default
+     * is temporarily 'true' to avoid breaking existing clients but will be changed to 'false'.
+     */
+    bool                       fOwnsInstanceAndDevice = true;
 
     using CanPresentFn = std::function<bool(VkInstance, VkPhysicalDevice,
                                             uint32_t queueFamilyIndex)>;
 
-    // Helper function to create the default Vulkan objects needed by the GrVkGpu object
-    // If getProc is NULL, a default getProc will be constructed if we are statically linking
-    // against Vulkan.
-    // If presentQueueIndex is non-NULL, will try to set up presentQueue as part of device
-    // creation using the platform-specific canPresent() function.
+    /**
+     * Helper function to create the Vulkan objects needed for a Vulkan-backed GrContext.
+     * Note that the version that uses the unified "GetProc" instead of separate "GetInstanceProc"
+     * and "GetDeviceProc" functions will be removed.
+     *
+     * If presentQueueIndex is non-NULL, will try to set up presentQueue as part of device
+     * creation using the platform-specific canPresent() function.
+     *
+     * This will set fOwnsInstanceAndDevice to 'true'. If it is subsequently set to 'false' then
+     * the client owns the lifetime of the created VkDevice and VkInstance.
+     */
     static const GrVkBackendContext* Create(uint32_t* presentQueueIndex = nullptr,
                                             CanPresentFn = CanPresentFn(),
                                             GrVkInterface::GetProc getProc = nullptr);
+
+    static const GrVkBackendContext* Create(const GrVkInterface::GetInstanceProc& getInstanceProc,
+                                            const GrVkInterface::GetDeviceProc& getDeviceProc,
+                                            uint32_t* presentQueueIndex = nullptr,
+                                            CanPresentFn canPresent = CanPresentFn()) {
+        if (!getInstanceProc || !getDeviceProc) {
+            return nullptr;
+        }
+        auto getProc = [&getInstanceProc, &getDeviceProc](const char* proc_name,
+                                                          VkInstance instance, VkDevice device) {
+            if (device != VK_NULL_HANDLE) {
+                return getDeviceProc(device, proc_name);
+            }
+            return getInstanceProc(instance, proc_name);
+        };
+        return Create(presentQueueIndex, canPresent, getProc);
+    }
 
     ~GrVkBackendContext() override;
 };

@@ -19,9 +19,10 @@ public:
     enum {
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
+        kTexelBufferDescSet = 2,
     };
     enum {
-        kVertexBinding = 0,
+        kGeometryBinding = 0,
         kFragBinding = 1,
     };
 
@@ -46,9 +47,9 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fCurrentVertexUBOOffset(0)
-        , fCurrentFragmentUBOOffset(0)
-        , fCurrentSamplerBinding(0) {
+        , fTexelBuffers(kUniformsPerBlock)
+        , fCurrentGeometryUBOOffset(0)
+        , fCurrentFragmentUBOOffset(0) {
     }
 
     UniformHandle internalAddUniformArray(uint32_t visibility,
@@ -76,6 +77,17 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
+    TexelBufferHandle addTexelBuffer(uint32_t visibility, GrSLPrecision,
+                                     const char* name) override;
+
+    int numTexelBuffers() const { return fTexelBuffers.count(); }
+    const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const override {
+        return fTexelBuffers[handle.toIndex()].fVariable;
+    }
+    uint32_t texelBufferVisibility(TexelBufferHandle handle) const {
+        return fTexelBuffers[handle.toIndex()].fVisibility;
+    }
+
     ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType,  GrImageStorageFormat,
                                        GrSLMemoryModel, GrSLRestrict, GrIOType,
                                        const char* name) override {
@@ -91,7 +103,7 @@ private:
 
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
-    bool hasVertexUniforms() const { return fCurrentVertexUBOOffset > 0; }
+    bool hasGeometryUniforms() const { return fCurrentGeometryUBOOffset > 0; }
     bool hasFragmentUniforms() const { return fCurrentFragmentUBOOffset > 0; }
 
 
@@ -103,10 +115,10 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfoArray    fTexelBuffers;
 
-    uint32_t            fCurrentVertexUBOOffset;
+    uint32_t            fCurrentGeometryUBOOffset;
     uint32_t            fCurrentFragmentUBOOffset;
-    uint32_t            fCurrentSamplerBinding;
 
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;

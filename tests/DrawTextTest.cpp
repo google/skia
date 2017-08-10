@@ -37,9 +37,6 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     const int xOff = itest.fLeft - iref.fLeft;
     const int yOff = itest.fTop - iref.fTop;
 
-    SkAutoLockPixels alpRef(ref);
-    SkAutoLockPixels alpTest(test);
-
     for (int y = 0; y < test.height(); ++y) {
         for (int x = 0; x < test.width(); ++x) {
             SkColor testColor = test.getColor(x, y);
@@ -123,11 +120,11 @@ DEF_TEST(DrawText_weirdCoordinates, r) {
     SkScalar oddballs[] = { 0.0f, (float)INFINITY, (float)NAN, 34359738368.0f };
 
     for (auto x : oddballs) {
-        canvas->drawText("a", 1, +x, 0.0f, SkPaint());
-        canvas->drawText("a", 1, -x, 0.0f, SkPaint());
+        canvas->drawString("a", +x, 0.0f, SkPaint());
+        canvas->drawString("a", -x, 0.0f, SkPaint());
     }
     for (auto y : oddballs) {
-        canvas->drawText("a", 1, 0.0f, +y, SkPaint());
-        canvas->drawText("a", 1, 0.0f, -y, SkPaint());
+        canvas->drawString("a", 0.0f, +y, SkPaint());
+        canvas->drawString("a", 0.0f, -y, SkPaint());
     }
 }

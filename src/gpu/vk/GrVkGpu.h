@@ -22,7 +22,6 @@
 #include "vk/GrVkDefines.h"
 
 class GrPipeline;
-class GrNonInstancedMesh;
 
 class GrVkBufferImpl;
 class GrVkPipeline;
@@ -43,6 +42,8 @@ public:
                          GrContext* context);
 
     ~GrVkGpu() override;
+
+    void disconnect(DisconnectType) override;
 
     const GrVkInterface* vkInterface() const { return fBackendContext->fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
@@ -126,17 +127,17 @@ public:
                                       GrVkRenderTarget*,
                                       const SkIRect& bounds);
 
-    void finishOpList() override;
+    void finishFlush() override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
 
     sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore() override;
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override;
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
 
-    void flush() override;
+    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     void generateMipmap(GrVkTexture* tex);
 
@@ -154,6 +155,7 @@ public:
         kVertexBuffer_Heap,
         kIndexBuffer_Heap,
         kUniformBuffer_Heap,
+        kTexelBuffer_Heap,
         kCopyReadBuffer_Heap,
         kCopyWriteBuffer_Heap,
 
@@ -169,18 +171,22 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
+    void destroyResources();
+
     GrTexture* onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                const SkTArray<GrMipLevel>&) override;
 
-    GrTexture* onCreateCompressedTexture(const GrSurfaceDesc& desc, SkBudgeted,
-                                         const SkTArray<GrMipLevel>&) override { return NULL; }
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&,
+                                          GrSurfaceOrigin,
+                                          GrBackendTextureFlags,
+                                          int sampleCnt,
+                                          GrWrapOwnership) override;
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&,
+                                                    GrSurfaceOrigin) override;
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTextureDesc&, GrWrapOwnership) override;
-
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) override;
-    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTextureDesc&) override {
-        return nullptr;
-    }
+    sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
+                                                             GrSurfaceOrigin,
+                                                             int sampleCnt) override;
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
@@ -243,7 +249,7 @@ private:
                               GrPixelConfig dataConfig,
                               const SkTArray<GrMipLevel>&);
 
-    void resolveImage(GrVkRenderTarget* dst,
+    void resolveImage(GrSurface* dst,
                       GrVkRenderTarget* src,
                       const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
@@ -278,6 +284,10 @@ private:
     // compiler used for compiling sksl into spirv. We only want to create the compiler once since
     // there is significant overhead to the first compile of any compiler.
     SkSL::Compiler* fCompiler;
+
+    // We need a bool to track whether or not we've already disconnected all the gpu resources from
+    // vulkan context.
+    bool fDisconnected;
 
     typedef GrGpu INHERITED;
 };

@@ -19,11 +19,13 @@
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu, const GrSurfaceDesc& desc, Flags flags,
                                GrStencilAttachment* stencil)
-    : INHERITED(gpu, desc)
-    , fStencilAttachment(stencil)
-    , fMultisampleSpecsID(0)
-    , fFlags(flags) {
-    SkASSERT(!(fFlags & Flags::kMixedSampled) || fDesc.fSampleCnt > 0);
+        : INHERITED(gpu, desc)
+        , fSampleCnt(desc.fSampleCnt)
+        , fStencilAttachment(stencil)
+        , fMultisampleSpecsID(0)
+        , fFlags(flags) {
+    SkASSERT(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+    SkASSERT(!(fFlags & Flags::kMixedSampled) || fSampleCnt > 0);
     SkASSERT(!(fFlags & Flags::kWindowRectsSupport) || gpu->caps()->maxWindowRectangles() > 0);
     fResolveRect.setLargestInverted();
 }
@@ -60,10 +62,6 @@ void GrRenderTarget::onRelease() {
 
 void GrRenderTarget::onAbandon() {
     SkSafeSetNull(fStencilAttachment);
-
-    // The contents of this renderTarget are gone/invalid. It isn't useful to point back
-    // the creating opList.
-    this->setLastOpList(nullptr);
 
     INHERITED::onAbandon();
 }

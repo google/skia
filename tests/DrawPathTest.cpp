@@ -26,7 +26,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     int y = SkScalarRoundToInt(r.top());
 
     // check that the pixel in question starts as transparent (by the surface)
-    if (canvas->readPixels(&output, x, y)) {
+    if (canvas->readPixels(output, x, y)) {
         REPORTER_ASSERT(reporter, 0 == pixel[0]);
     } else {
         REPORTER_ASSERT_MESSAGE(reporter, false, "readPixels failed");
@@ -39,7 +39,7 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     canvas->drawRect(r, paint);
 
     // Now check that it is BLACK
-    if (canvas->readPixels(&output, x, y)) {
+    if (canvas->readPixels(output, x, y)) {
         // don't know what swizzling PMColor did, but white should always
         // appear the same.
         REPORTER_ASSERT(reporter, 0xFFFFFFFF == pixel[0]);

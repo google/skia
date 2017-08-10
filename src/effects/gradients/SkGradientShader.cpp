@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include <algorithm>
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkGradientShaderPriv.h"
@@ -12,8 +13,10 @@
 #include "SkLinearGradient.h"
 #include "SkMallocPixelRef.h"
 #include "SkRadialGradient.h"
-#include "SkTwoPointConicalGradient.h"
 #include "SkSweepGradient.h"
+#include "SkTwoPointConicalGradient.h"
+#include "../../jumper/SkJumper.h"
+
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags
@@ -347,6 +350,197 @@ void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
     memcpy(colorDst, colorsTemp.get(), count * sizeof(SkColor));
 }
 
+static void add_stop_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f Fs, SkPM4f Bs) {
+    (ctx->fs[0])[stop] = Fs.r();
+    (ctx->fs[1])[stop] = Fs.g();
+    (ctx->fs[2])[stop] = Fs.b();
+    (ctx->fs[3])[stop] = Fs.a();
+    (ctx->bs[0])[stop] = Bs.r();
+    (ctx->bs[1])[stop] = Bs.g();
+    (ctx->bs[2])[stop] = Bs.b();
+    (ctx->bs[3])[stop] = Bs.a();
+}
+
+static void add_const_color(SkJumper_GradientCtx* ctx, size_t stop, SkPM4f color) {
+    add_stop_color(ctx, stop, SkPM4f::FromPremulRGBA(0,0,0,0), color);
+}
+
+// Calculate a factor F and a bias B so that color = F*t + B when t is in range of
+// the stop. Assume that the distance between stops is 1/gapCount.
+static void init_stop_evenly(
+    SkJumper_GradientCtx* ctx, float gapCount, size_t stop, SkPM4f c_l, SkPM4f c_r) {
+    // Clankium's GCC 4.9 targeting ARMv7 is barfing when we use Sk4f math here, so go scalar...
+    SkPM4f Fs = {{
+        (c_r.r() - c_l.r()) * gapCount,
+        (c_r.g() - c_l.g()) * gapCount,
+        (c_r.b() - c_l.b()) * gapCount,
+        (c_r.a() - c_l.a()) * gapCount,
+    }};
+    SkPM4f Bs = {{
+        c_l.r() - Fs.r()*(stop/gapCount),
+        c_l.g() - Fs.g()*(stop/gapCount),
+        c_l.b() - Fs.b()*(stop/gapCount),
+        c_l.a() - Fs.a()*(stop/gapCount),
+    }};
+    add_stop_color(ctx, stop, Fs, Bs);
+}
+
+// For each stop we calculate a bias B and a scale factor F, such that
+// for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
+static void init_stop_pos(
+    SkJumper_GradientCtx* ctx, size_t stop, float t_l, float t_r, SkPM4f c_l, SkPM4f c_r) {
+    // See note about Clankium's old compiler in init_stop_evenly().
+    SkPM4f Fs = {{
+        (c_r.r() - c_l.r()) / (t_r - t_l),
+        (c_r.g() - c_l.g()) / (t_r - t_l),
+        (c_r.b() - c_l.b()) / (t_r - t_l),
+        (c_r.a() - c_l.a()) / (t_r - t_l),
+    }};
+    SkPM4f Bs = {{
+        c_l.r() - Fs.r()*t_l,
+        c_l.g() - Fs.g()*t_l,
+        c_l.b() - Fs.b()*t_l,
+        c_l.a() - Fs.a()*t_l,
+    }};
+    ctx->ts[stop] = t_l;
+    add_stop_color(ctx, stop, Fs, Bs);
+}
+
+bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
+                                          SkColorSpace* dstCS,
+                                          SkArenaAlloc* alloc,
+                                          const SkMatrix& ctm,
+                                          const SkPaint& paint,
+                                          const SkMatrix* localM) const {
+    SkMatrix matrix;
+    if (!this->computeTotalInverse(ctm, localM, &matrix)) {
+        return false;
+    }
+
+    SkRasterPipeline_<256> subclass;
+    if (!this->adjustMatrixAndAppendStages(alloc, &matrix, &subclass)) {
+        return false;
+    }
+
+    auto* m = alloc->makeArrayDefault<float>(9);
+    if (matrix.asAffine(m)) {
+        p->append(SkRasterPipeline::matrix_2x3, m);
+    } else {
+        matrix.get9(m);
+        p->append(SkRasterPipeline::matrix_perspective, m);
+    }
+
+    p->extend(subclass);
+
+    switch(fTileMode) {
+        case kMirror_TileMode: p->append(SkRasterPipeline::mirror_x_1); break;
+        case kRepeat_TileMode: p->append(SkRasterPipeline::repeat_x_1); break;
+        case kClamp_TileMode:
+            if (!fOrigPos) {
+                // We clamp only when the stops are evenly spaced.
+                // If not, there may be hard stops, and clamping ruins hard stops at 0 and/or 1.
+                // In that case, we must make sure we're using the general "gradient" stage,
+                // which is the only stage that will correctly handle unclamped t.
+                p->append(SkRasterPipeline::clamp_x_1);
+            }
+    }
+
+    const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
+    auto prepareColor = [premulGrad, dstCS, this](int i) {
+        SkColor4f c = dstCS ? to_colorspace(fOrigColors4f[i], fColorSpace.get(), dstCS)
+                            : SkColor4f_from_SkColor(fOrigColors[i], nullptr);
+        return premulGrad ? c.premul()
+                          : SkPM4f::From4f(Sk4f::Load(&c));
+    };
+
+    // The two-stop case with stops at 0 and 1.
+    if (fColorCount == 2 && fOrigPos == nullptr) {
+        const SkPM4f c_l = prepareColor(0),
+            c_r = prepareColor(1);
+
+        // See F and B below.
+        auto* f_and_b = alloc->makeArrayDefault<SkPM4f>(2);
+        f_and_b[0] = SkPM4f::From4f(c_r.to4f() - c_l.to4f());
+        f_and_b[1] = c_l;
+
+        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, f_and_b);
+    } else {
+        auto* ctx = alloc->make<SkJumper_GradientCtx>();
+
+        // Note: In order to handle clamps in search, the search assumes a stop conceptully placed
+        // at -inf. Therefore, the max number of stops is fColorCount+1.
+        for (int i = 0; i < 4; i++) {
+            // Allocate at least at for the AVX2 gather from a YMM register.
+            ctx->fs[i] = alloc->makeArray<float>(std::max(fColorCount+1, 8));
+            ctx->bs[i] = alloc->makeArray<float>(std::max(fColorCount+1, 8));
+        }
+
+        if (fOrigPos == nullptr) {
+            // Handle evenly distributed stops.
+
+            size_t stopCount = fColorCount;
+            float gapCount = stopCount - 1;
+
+            SkPM4f c_l = prepareColor(0);
+            for (size_t i = 0; i < stopCount - 1; i++) {
+                SkPM4f c_r = prepareColor(i + 1);
+                init_stop_evenly(ctx, gapCount, i, c_l, c_r);
+                c_l = c_r;
+            }
+            add_const_color(ctx, stopCount - 1, c_l);
+
+            ctx->stopCount = stopCount;
+            p->append(SkRasterPipeline::evenly_spaced_gradient, ctx);
+        } else {
+            // Handle arbitrary stops.
+
+            ctx->ts = alloc->makeArray<float>(fColorCount+1);
+
+            // Remove the dummy stops inserted by SkGradientShaderBase::SkGradientShaderBase
+            // because they are naturally handled by the search method.
+            int firstStop;
+            int lastStop;
+            if (fColorCount > 2) {
+                firstStop = fOrigColors4f[0] != fOrigColors4f[1] ? 0 : 1;
+                lastStop = fOrigColors4f[fColorCount - 2] != fOrigColors4f[fColorCount - 1]
+                           ? fColorCount - 1 : fColorCount - 2;
+            } else {
+                firstStop = 0;
+                lastStop = 1;
+            }
+
+            size_t stopCount = 0;
+            float  t_l = fOrigPos[firstStop];
+            SkPM4f c_l = prepareColor(firstStop);
+            add_const_color(ctx, stopCount++, c_l);
+            // N.B. lastStop is the index of the last stop, not one after.
+            for (int i = firstStop; i < lastStop; i++) {
+                float  t_r = fOrigPos[i + 1];
+                SkPM4f c_r = prepareColor(i + 1);
+                if (t_l < t_r) {
+                    init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
+                    stopCount += 1;
+                }
+                t_l = t_r;
+                c_l = c_r;
+            }
+
+            ctx->ts[stopCount] = t_l;
+            add_const_color(ctx, stopCount++, c_l);
+
+            ctx->stopCount = stopCount;
+            p->append(SkRasterPipeline::gradient, ctx);
+        }
+    }
+
+    if (!premulGrad && !this->colorsAreOpaque()) {
+        p->append(SkRasterPipeline::premul);
+    }
+
+    return true;
+}
+
+
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque;
 }
@@ -607,7 +801,6 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
 void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
     const bool interpInPremul = SkToBool(fGradFlags &
                                          SkGradientShader::kInterpolateColorsInPremul_Flag);
-    bitmap->lockPixels();
     SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
     uint32_t* pixelsS32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
 
@@ -657,7 +850,6 @@ void SkGradientShaderBase::initLinearBitmap(SkBitmap* bitmap) const {
         prevIndex = nextIndex;
     }
     SkASSERT(prevIndex == kCache32Count - 1);
-    bitmap->unlockPixels();
 }
 
 /*
@@ -1175,7 +1367,7 @@ GrGradientEffect::ColorType GrGradientEffect::determineColorType(
             } else if (SkScalarNearlyEqual(shader.fOrigPos[0], 0.0f) &&
                        SkScalarNearlyEqual(shader.fOrigPos[1], 1.0f) &&
                        SkScalarNearlyEqual(shader.fOrigPos[2], 1.0f)) {
-                
+
                 return kHardStopRightEdged_ColorType;
             }
         }
@@ -1371,7 +1563,7 @@ uint32_t GrGradientEffect::GLSLProcessor::GenBaseGradientKey(const GrProcessor& 
     } else if (GrGradientEffect::kHardStopRightEdged_ColorType == e.getColorType()) {
         key |= kHardStopZeroOneOneKey;
     }
-   
+
     if (SkShader::TileMode::kClamp_TileMode == e.fTileMode) {
         key |= kClampTileMode;
     } else if (SkShader::TileMode::kRepeat_TileMode == e.fTileMode) {
@@ -1436,8 +1628,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (ge.fColorSpaceXform) {
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
-            fragBuilder->codeAppendf("%s = %s;", outputColor,
-                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 
             break;
         }
@@ -1475,8 +1666,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (ge.fColorSpaceXform) {
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
-            fragBuilder->codeAppendf("%s = %s;", outputColor,
-                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 
             break;
         }
@@ -1514,8 +1704,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
             if (ge.fColorSpaceXform) {
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
-            fragBuilder->codeAppendf("%s = %s;", outputColor,
-                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 
             break;
         }
@@ -1541,8 +1730,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
 
-            fragBuilder->codeAppendf("%s = %s;", outputColor,
-                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 
             break;
         }
@@ -1573,8 +1761,7 @@ void GrGradientEffect::GLSLProcessor::emitColor(GrGLSLFPFragmentBuilder* fragBui
                 fragBuilder->codeAppend("colorTemp.rgb = clamp(colorTemp.rgb, 0, colorTemp.a);");
             }
 
-            fragBuilder->codeAppendf("%s = %s;", outputColor,
-                                     (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
+            fragBuilder->codeAppendf("%s = %s * colorTemp;", outputColor, inputColor);
 
             break;
         }

@@ -261,6 +261,58 @@ static SkPath create_path_17() {
     return path;
 }
 
+// A shape with a vertex collinear to the right hand edge.
+// This messes up find_enclosing_edges.
+static SkPath create_path_18() {
+    SkPath path;
+    path.moveTo(80, 20);
+    path.lineTo(80, 60);
+    path.lineTo(20, 60);
+    path.moveTo(80, 50);
+    path.lineTo(80, 80);
+    path.lineTo(20, 80);
+    return path;
+}
+
+// Exercises the case where an edge becomes collinear with *two* of its
+// adjacent neighbour edges after splitting.
+// This is a reduction from
+// http://mooooo.ooo/chebyshev-sine-approximation/horner_ulp.svg
+static SkPath create_path_19() {
+    SkPath path;
+    path.moveTo(  351.99298095703125,         348.23046875);
+    path.lineTo(  351.91876220703125,         347.33984375);
+    path.lineTo(  351.91876220703125,          346.1953125);
+    path.lineTo(  351.90313720703125,           347.734375);
+    path.lineTo(  351.90313720703125,          346.1328125);
+    path.lineTo(  351.87579345703125,         347.93359375);
+    path.lineTo(  351.87579345703125,           345.484375);
+    path.lineTo(  351.86407470703125,          347.7890625);
+    path.lineTo(  351.86407470703125,          346.2109375);
+    path.lineTo(  351.84844970703125,   347.63763427734375);
+    path.lineTo(  351.84454345703125,   344.19232177734375);
+    path.lineTo(  351.78204345703125,    346.9483642578125);
+    path.lineTo( 351.758636474609375,      347.18310546875);
+    path.lineTo(  351.75469970703125,               346.75);
+    path.lineTo(  351.75469970703125,            345.46875);
+    path.lineTo(         352.5546875,            345.46875);
+    path.lineTo(        352.55078125,         347.01953125);
+    path.lineTo(  351.75079345703125,   347.02313232421875);
+    path.lineTo(  351.74688720703125,   346.15203857421875);
+    path.lineTo(  351.74688720703125,  347.646148681640625);
+    path.lineTo(         352.5390625,         346.94140625);
+    path.lineTo(  351.73907470703125,   346.94268798828125);
+    path.lineTo(  351.73516845703125,   344.48565673828125);
+    path.lineTo(          352.484375,         346.73828125);
+    path.lineTo(  351.68438720703125,    346.7401123046875);
+    path.lineTo(         352.4765625,           346.546875);
+    path.lineTo(  351.67657470703125,   346.54937744140625);
+    path.lineTo(        352.47265625,         346.75390625);
+    path.lineTo(  351.67266845703125,  346.756622314453125);
+    path.lineTo(  351.66876220703125,  345.612091064453125);
+    return path;
+}
+
 static sk_sp<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
@@ -303,7 +355,8 @@ static void test_path(GrContext* ctx,
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
 
-    sk_sp<GrRenderTargetContext> rtc(ctx->makeRenderTargetContext(SkBackingFit::kApprox,
+    sk_sp<GrRenderTargetContext> rtc(ctx->makeDeferredRenderTargetContext(
+                                                                  SkBackingFit::kApprox,
                                                                   800, 800,
                                                                   kRGBA_8888_GrPixelConfig,
                                                                   nullptr,
@@ -334,5 +387,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
     sk_sp<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
     test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage, fp);
+    test_path(ctx, rtc.get(), create_path_18());
+    test_path(ctx, rtc.get(), create_path_19());
 }
 #endif

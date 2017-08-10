@@ -236,6 +236,10 @@ void SkColor4Shader::toString(SkString* str) const {
 }
 #endif
 
+sk_sp<SkShader> SkColor4Shader::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    return SkShader::MakeColorShader(xformer->apply(fCachedByteColor));
+}
+
 sk_sp<SkShader> SkShader::MakeColorShader(const SkColor4f& color, sk_sp<SkColorSpace> space) {
     if (!SkScalarsAreFinite(color.vec(), 4)) {
         return nullptr;
@@ -318,8 +322,7 @@ bool SkColorShader::onAppendStages(SkRasterPipeline* p,
                                    const SkMatrix*) const {
     auto color = scratch->make<SkPM4f>(SkPM4f_from_SkColor(fColor, dst));
     p->append(SkRasterPipeline::constant_color, color);
-    return append_gamut_transform(p, scratch,
-                                  SkColorSpace::MakeSRGB().get(), dst);
+    return true;
 }
 
 bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
@@ -328,7 +331,7 @@ bool SkColor4Shader::onAppendStages(SkRasterPipeline* p,
                                     const SkMatrix&,
                                     const SkPaint&,
                                     const SkMatrix*) const {
-    auto color = scratch->make<SkPM4f>(fColor4.premul());
+    auto color = scratch->make<SkPM4f>(to_colorspace(fColor4, fColorSpace.get(), dst).premul());
     p->append(SkRasterPipeline::constant_color, color);
-    return append_gamut_transform(p, scratch, fColorSpace.get(), dst);
+    return true;
 }

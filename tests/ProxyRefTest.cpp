@@ -31,7 +31,6 @@ int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
 
 int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
     if (fTarget) {
-        SkASSERT(!fPendingReads);
         return fTarget->fPendingReads;
     }
 
@@ -40,7 +39,6 @@ int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
 
 int32_t GrIORefProxy::getPendingWriteCnt_TestOnly() const {
     if (fTarget) {
-        SkASSERT(!fPendingWrites);
         return fTarget->fPendingWrites;
     }
 
@@ -76,7 +74,8 @@ static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
     desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     return GrSurfaceProxy::MakeDeferred(context->resourceProvider(), desc,
-                                        SkBackingFit::kApprox, SkBudgeted::kYes);
+                                        SkBackingFit::kApprox, SkBudgeted::kYes,
+                                        GrResourceProvider::kNoPendingIO_Flag);
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrContext* context) {
@@ -190,6 +189,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         }
     }
 }
+
 #endif
 
 #endif

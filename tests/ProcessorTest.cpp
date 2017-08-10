@@ -9,6 +9,7 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
+#include <random>
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrGpuResource.h"
@@ -20,7 +21,6 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "ops/GrNonAAFillRectOp.h"
 #include "ops/GrTestMeshDrawOp.h"
-#include <random>
 
 namespace {
 class TestOp : public GrTestMeshDrawOp {
@@ -47,8 +47,8 @@ private:
 class TestFP : public GrFragmentProcessor {
 public:
     struct Image {
-        Image(sk_sp<GrTexture> texture, GrIOType ioType) : fTexture(texture), fIOType(ioType) {}
-        sk_sp<GrTexture> fTexture;
+        Image(sk_sp<GrTextureProxy> proxy, GrIOType ioType) : fProxy(proxy), fIOType(ioType) {}
+        sk_sp<GrTextureProxy> fProxy;
         GrIOType fIOType;
     };
     static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> child) {
@@ -82,8 +82,9 @@ private:
             this->addBufferAccess(&fBuffers.emplace_back(kRGBA_8888_GrPixelConfig, buffer.get()));
         }
         for (const Image& image : images) {
-            this->addImageStorageAccess(&fImages.emplace_back(
-                    image.fTexture, image.fIOType, GrSLMemoryModel::kNone, GrSLRestrict::kNo));
+            fImages.emplace_back(image.fProxy, image.fIOType,
+                                 GrSLMemoryModel::kNone, GrSLRestrict::kNo);
+            this->addImageStorageAccess(context->resourceProvider(), &fImages.back());
         }
     }
 
@@ -137,21 +138,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     desc.fHeight = 10;
 
     for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-        sk_sp<GrRenderTargetContext> renderTargetContext(context->makeRenderTargetContext(
+        sk_sp<GrRenderTargetContext> renderTargetContext(context->makeDeferredRenderTargetContext(
                 SkBackingFit::kApprox, 1, 1, kRGBA_8888_GrPixelConfig, nullptr));
         {
             bool texelBufferSupport = context->caps()->shaderCaps()->texelBufferSupport();
             bool imageLoadStoreSupport = context->caps()->shaderCaps()->imageLoadStoreSupport();
             sk_sp<GrTextureProxy> proxy1(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
-                                                                      desc,
-                                                                      SkBackingFit::kExact,
+                                                                      desc, SkBackingFit::kExact,
                                                                       SkBudgeted::kYes));
-            sk_sp<GrTexture> texture2 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
-            sk_sp<GrTexture> texture3 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
-            sk_sp<GrTexture> texture4 =
-                    context->resourceProvider()->createTexture(desc, SkBudgeted::kYes);
+            sk_sp<GrTextureProxy> proxy2(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                      desc, SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
+            sk_sp<GrTextureProxy> proxy3(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                      desc, SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
+            sk_sp<GrTextureProxy> proxy4(GrSurfaceProxy::MakeDeferred(context->resourceProvider(),
+                                                                      desc, SkBackingFit::kExact,
+                                                                      SkBudgeted::kYes));
             sk_sp<GrBuffer> buffer(texelBufferSupport
                                            ? context->resourceProvider()->createBuffer(
                                                      1024, GrBufferType::kTexel_GrBufferType,
@@ -166,9 +169,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     buffers.push_back(buffer);
                 }
                 if (imageLoadStoreSupport) {
-                    images.emplace_back(texture2, GrIOType::kRead_GrIOType);
-                    images.emplace_back(texture3, GrIOType::kWrite_GrIOType);
-                    images.emplace_back(texture4, GrIOType::kRW_GrIOType);
+                    images.emplace_back(proxy2, GrIOType::kRead_GrIOType);
+                    images.emplace_back(proxy3, GrIOType::kWrite_GrIOType);
+                    images.emplace_back(proxy4, GrIOType::kRW_GrIOType);
                 }
                 std::unique_ptr<GrLegacyMeshDrawOp> op(TestOp::Make());
                 GrPaint paint;
@@ -196,17 +199,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             }
 
             if (imageLoadStoreSupport) {
-                testingOnly_getIORefCnts(texture2.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                testingOnly_getIORefCnts(texture3.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
 
-                testingOnly_getIORefCnts(texture4.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 1 == readCnt);
                 REPORTER_ASSERT(reporter, 1 == writeCnt);
@@ -227,17 +230,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
             }
 
             if (texelBufferSupport) {
-                testingOnly_getIORefCnts(texture2.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                testingOnly_getIORefCnts(texture3.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
 
-                testingOnly_getIORefCnts(texture4.get(), &refCnt, &readCnt, &writeCnt);
+                testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
                 REPORTER_ASSERT(reporter, 1 == refCnt);
                 REPORTER_ASSERT(reporter, 0 == readCnt);
                 REPORTER_ASSERT(reporter, 0 == writeCnt);
@@ -266,11 +269,11 @@ void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
                                    nullptr, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    GrPipelineBuilder pb(std::move(paint), GrAAType::kNone);
-    auto op =
-            GrNonAAFillRectOp::Make(GrColor_WHITE, SkMatrix::I(),
-                                    SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr);
-    rtc->addLegacyMeshDrawOp(std::move(pb), GrNoClip(), std::move(op));
+
+    auto op = GrNonAAFillRectOp::Make(std::move(paint), SkMatrix::I(),
+                                      SkRect::MakeWH(rtc->width(), rtc->height()), nullptr, nullptr,
+                                      GrAAType::kNone);
+    rtc->addDrawOp(GrNoClip(), std::move(op));
 }
 
 #include "SkCommandLineFlags.h"
@@ -290,7 +293,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     // hard-code that value here:
     SkRandom random(seed);
 
-    sk_sp<GrRenderTargetContext> rtc = context->makeRenderTargetContext(
+    sk_sp<GrRenderTargetContext> rtc = context->makeDeferredRenderTargetContext(
             SkBackingFit::kExact, 256, 256, kRGBA_8888_GrPixelConfig, nullptr);
     GrSurfaceDesc desc;
     desc.fWidth = 256;
@@ -350,6 +353,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         }
         for (int j = 0; j < timesToInvokeFactory; ++j) {
             fp = FPFactory::MakeIdx(i, &testData);
+            if (fp->isBad()) {
+                continue;
+            }
+
             if (!fp->hasConstantOutputForConstantInput() && !fp->preservesOpaqueInput() &&
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;

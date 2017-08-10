@@ -8,6 +8,7 @@
 
 DEPS = [
   'core',
+  'recipe_engine/context',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -49,7 +50,7 @@ def RunSteps(api):
 
   try:
     for target in build_targets:
-      with api.step.context({'env': env}):
+      with api.context(env=env):
         api.flavor.compile(target)
     api.run.copy_build_products(
         api.flavor.out_dir,
@@ -87,6 +88,7 @@ TEST_BUILDERS = [
   'Build-Ubuntu-Clang-mipsel-Debug-Android',
   'Build-Ubuntu-Clang-x86_64-Debug',
   'Build-Ubuntu-Clang-x86_64-Debug-ASAN',
+  'Build-Ubuntu-Clang-x86_64-Debug-MSAN',
   'Build-Ubuntu-Clang-x86_64-Release-Mini',
   'Build-Ubuntu-Clang-x86_64-Release-Vulkan',
   'Build-Ubuntu-GCC-arm-Release-Chromecast',
@@ -177,6 +179,7 @@ def GenTests(api):
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
+          patch_repo='https://skia.googlesource.com/skia.git',
           patch_set=1,
           patch_storage='gerrit') +
       api.properties.tryserver(
@@ -199,6 +202,7 @@ def GenTests(api):
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
           patch_issue=500,
+          patch_repo='https://skia.googlesource.com/skia.git',
           patch_set=1,
           patch_storage='gerrit') +
       api.properties.tryserver(

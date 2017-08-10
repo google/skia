@@ -42,7 +42,7 @@ private:
     bool vertical_line(const SkEdge* edge);
     bool vertical_line(const SkAnalyticEdge* edge);
 
-    SkArenaAlloc        fAlloc;
+    SkSTArenaAlloc<512> fAlloc;
     SkTDArray<void*>    fList;
 
     /*

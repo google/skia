@@ -24,30 +24,39 @@ public:
     const GrRenderTargetProxy* asRenderTargetProxy() const override { return this; }
 
     // Actually instantiate the backing rendertarget, if necessary.
-    GrRenderTarget* instantiate(GrResourceProvider* resourceProvider);
+    GrSurface* instantiate(GrResourceProvider* resourceProvider) override;
+    GrRenderTarget* instantiateRenderTarget(GrResourceProvider* resourceProvider) {
+        if (auto surf = this->instantiate(resourceProvider)) {
+            return surf->asRenderTarget();
+        }
+        return nullptr;
+    }
 
-    bool isStencilBufferMultisampled() const { return fDesc.fSampleCnt > 0; }
-
-    /**
-     * For our purposes, "Mixed Sampled" means the stencil buffer is multisampled but the color
-     * buffer is not.
-     */
-    bool isMixedSampled() const { return fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled; }
-
-    /**
-     * "Unified Sampled" means the stencil and color buffers are both multisampled.
-     */
-    bool isUnifiedMultisampled() const { return fDesc.fSampleCnt > 0 && !this->isMixedSampled(); }
+    GrFSAAType fsaaType() const {
+        if (!fSampleCnt) {
+            SkASSERT(!(fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled));
+            return GrFSAAType::kNone;
+        }
+        return (fRenderTargetFlags & GrRenderTarget::Flags::kMixedSampled)
+                       ? GrFSAAType::kMixedSamples
+                       : GrFSAAType::kUnifiedMSAA;
+    }
 
     /**
      * Returns the number of samples/pixel in the stencil buffer (Zero if non-MSAA).
      */
-    int numStencilSamples() const { return fDesc.fSampleCnt; }
+    int numStencilSamples() const { return fSampleCnt; }
 
     /**
      * Returns the number of samples/pixel in the color buffer (Zero if non-MSAA or mixed sampled).
      */
-    int numColorSamples() const { return this->isMixedSampled() ? 0 : fDesc.fSampleCnt; }
+    int numColorSamples() const {
+        return GrFSAAType::kMixedSamples == this->fsaaType() ? 0 : fSampleCnt;
+    }
+
+    int worstCaseWidth() const;
+
+    int worstCaseHeight() const;
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
@@ -67,8 +76,9 @@ protected:
     GrRenderTargetProxy(sk_sp<GrSurface>);
 
 private:
-    size_t onGpuMemorySize() const override;
+    size_t onUninstantiatedGpuMemorySize() const override;
 
+    int fSampleCnt;
     // For wrapped render targets the actual GrRenderTarget is stored in the GrIORefProxy class.
     // For deferred proxies that pointer is filled in when we need to instantiate the
     // deferred resource.

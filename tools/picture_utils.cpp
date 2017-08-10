@@ -26,7 +26,6 @@ namespace sk_tools {
             return;
         }
 
-        SkAutoLockPixels lock(bitmap);
         for (int y = 0; y < bitmap.height(); y++) {
             for (int x = 0; x < bitmap.width(); x++) {
                 *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
@@ -87,7 +86,6 @@ namespace sk_tools {
             bitmap.colorSpace() == srgbColorSpace.get()) {
             // These are premul sRGB 8-bit pixels in SkPMColor order.
             // We want unpremul sRGB 8-bit pixels in RGBA order.  We'll get there via floats.
-            bitmap.lockPixels();
             auto px = (const uint32_t*)bitmap.getPixels();
             if (!px) {
                 return nullptr;
@@ -105,7 +103,6 @@ namespace sk_tools {
         } else if (bitmap.colorType() == kRGBA_F16_SkColorType) {
             // These are premul linear half-float pixels in RGBA order.
             // We want unpremul sRGB 8-bit pixels in RGBA order.  We'll get there via floats.
-            bitmap.lockPixels();
             auto px = (const uint64_t*)bitmap.getPixels();
             if (!px) {
                 return nullptr;
@@ -129,7 +126,7 @@ namespace sk_tools {
             // Convert smaller formats up to premul linear 8-bit (in SkPMColor order).
             if (bitmap.colorType() != kN32_SkColorType) {
                 SkBitmap n32;
-                if (!bitmap.copyTo(&n32, kN32_SkColorType)) {
+                if (!sk_tool_utils::copy_to(&n32, kN32_SkColorType, bitmap)) {
                     return nullptr;
                 }
                 bitmap = n32;

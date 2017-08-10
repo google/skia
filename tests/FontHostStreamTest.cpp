@@ -39,9 +39,6 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     const int xOff = itest.fLeft - iref.fLeft;
     const int yOff = itest.fTop - iref.fTop;
 
-    SkAutoLockPixels alpRef(ref);
-    SkAutoLockPixels alpTest(test);
-
     for (int y = 0; y < test.height(); ++y) {
         for (int x = 0; x < test.width(); ++x) {
             SkColor testColor = test.getColor(x, y);
@@ -85,7 +82,7 @@ DEF_TEST(FontHostStream, reporter) {
 
         // Test: origTypeface and streamTypeface from orig data draw the same
         drawBG(&origCanvas);
-        origCanvas.drawText("A", 1, point.fX, point.fY, paint);
+        origCanvas.drawString("A", point.fX, point.fY, paint);
 
         sk_sp<SkTypeface> typeface(paint.getTypeface() ? paint.refTypeface()
                                                        : SkTypeface::MakeDefault());

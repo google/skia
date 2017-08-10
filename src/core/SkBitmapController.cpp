@@ -85,9 +85,16 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     return false;
 #endif
 
-    if (kN32_SkColorType != provider.info().colorType() || !cache_size_okay(provider, fInvMatrix) ||
-        fInvMatrix.hasPerspective())
-    {
+    bool supported = false;
+    switch (provider.info().colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            supported = true;
+            break;
+        default:
+            break;
+    }
+    if (!supported || !cache_size_okay(provider, fInvMatrix) || fInvMatrix.hasPerspective()) {
         return false; // can't handle the reqeust
     }
 
@@ -116,7 +123,6 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
     if (fCanShadeHQ) {
         fQuality = kHigh_SkFilterQuality;
         SkAssertResult(provider.asBitmap(&fResultBitmap));
-        fResultBitmap.lockPixels();
         return true;
     }
 
@@ -129,15 +135,15 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
         if (!provider.asBitmap(&orig)) {
             return false;
         }
-        SkAutoPixmapUnlock src;
-        if (!orig.requestLock(&src)) {
+        SkPixmap src;
+        if (!orig.peekPixels(&src)) {
             return false;
         }
 
         SkPixmap dst;
         SkBitmapCache::RecPtr rec;
-        const SkImageInfo info = SkImageInfo::MakeN32(desc.fScaledWidth, desc.fScaledHeight,
-                                                      src.pixmap().alphaType());
+        const SkImageInfo info = SkImageInfo::Make(desc.fScaledWidth, desc.fScaledHeight,
+                                                   src.colorType(), src.alphaType());
         if (provider.isVolatile()) {
             if (!fResultBitmap.tryAllocPixels(info)) {
                 return false;
@@ -151,7 +157,7 @@ bool SkDefaultBitmapControllerState::processHQRequest(const SkBitmapProvider& pr
                 return false;
             }
         }
-        if (!SkBitmapScaler::Resize(dst, src.pixmap(), kHQ_RESIZE_METHOD)) {
+        if (!SkBitmapScaler::Resize(dst, src, kHQ_RESIZE_METHOD)) {
             return false; // we failed to create fScaledBitmap
         }
         if (rec) {
@@ -241,8 +247,6 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapPro
         SkASSERT(fResultBitmap.getPixels());
     } else {
         (void)provider.asBitmap(&fResultBitmap);
-        fResultBitmap.lockPixels();
-        // lock may fail to give us pixels
     }
     SkASSERT(fCanShadeHQ || fQuality <= kLow_SkFilterQuality);
 

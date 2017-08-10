@@ -68,7 +68,7 @@ void SkSVGLine::onDraw(SkCanvas* canvas, const SkSVGLengthContext& lctx,
     SkPoint p0, p1;
     std::tie(p0, p1) = this->resolve(lctx);
 
-    canvas->drawLine(p0.x(), p0.y(), p1.x(), p1.y(), paint);
+    canvas->drawLine(p0, p1, paint);
 }
 
 SkPath SkSVGLine::onAsPath(const SkSVGRenderContext& ctx) const {

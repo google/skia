@@ -24,6 +24,109 @@
   },
   {
     "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://chromium.googlesource.com/chromium/src.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git remote set-url (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git fetch (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "origin/lkgr"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git reset (2)"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/src",
+    "infra_step": true,
+    "name": "git clean (2)"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
@@ -32,7 +135,7 @@
       "--patch_root",
       "skia",
       "--revision_mapping_file",
-      "{\"skia\": \"got_revision\"}",
+      "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--output_json",
@@ -40,8 +143,7 @@
       "--revision",
       "skia@abc123",
       "--revision",
-      "src@origin/lkgr",
-      "--output_manifest"
+      "src@origin/lkgr"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
@@ -124,8 +226,12 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/src",
     "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
       "CPPFLAGS": "-DSK_ALLOW_CROSSPROCESS_PICTUREIMAGEFILTERS=1",
-      "GYP_GENERATORS": "ninja"
+      "GYP_GENERATORS": "ninja",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "GN"
   },
@@ -137,13 +243,19 @@
       "chrome"
     ],
     "cwd": "[CUSTOM_/_B_WORK]/src",
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
     "name": "Build Chrome"
   },
   {
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
       "rmtree",
       "[START_DIR]/skp_output"
     ],
@@ -185,8 +297,10 @@
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {
+      "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "PATH": "RECIPE_PACKAGE_REPO[depot_tools]:%(PATH)s"
+      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "Recreate SKPs"
   },

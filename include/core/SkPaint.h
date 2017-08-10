@@ -49,13 +49,14 @@ public:
     SkPaint(SkPaint&& paint);
     ~SkPaint();
 
-    SkPaint& operator=(const SkPaint&);
-    SkPaint& operator=(SkPaint&&);
+    SkPaint& operator=(const SkPaint& paint);
+    SkPaint& operator=(SkPaint&& paint);
 
     /** operator== may give false negatives: two paints that draw equivalently
         may return false.  It will never give false positives: two paints that
         are not equivalent always return false.
     */
+    // cc_unittests requires SK_API to make operator== visible
     SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
     friend bool operator!=(const SkPaint& a, const SkPaint& b) {
         return !(a == b);
@@ -66,8 +67,8 @@ public:
      */
     uint32_t getHash() const;
 
-    void flatten(SkWriteBuffer&) const;
-    void unflatten(SkReadBuffer&);
+    void flatten(SkWriteBuffer& buffer) const;
+    void unflatten(SkReadBuffer& buffer);
 
     /** Restores the paint to its initial settings.
     */
@@ -100,7 +101,7 @@ public:
     */
     enum Flags {
         kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
-        kDither_Flag          = 0x04,   //!< mask to enable dithering
+        kDither_Flag          = 0x04,   //!< mask to enable dithering. see setDither()
         kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
         kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
         kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
@@ -154,9 +155,12 @@ public:
         return SkToBool(this->getFlags() & kDither_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kDither_Flag bit
-        @param dither   true to enable dithering, false to disable it
-        */
+    /**
+     *  Helper for setFlags(), setting or clearing the kDither_Flag bit
+     *  @param dither   true to enable dithering, false to disable it
+     *
+     *  Note: gradients ignore this setting and always dither.
+     */
     void setDither(bool dither);
 
     /** Helper for getFlags(), returning true if kLinearText_Flag bit is set
@@ -231,7 +235,7 @@ public:
      *  X values, and drawText will places its glyphs vertically rather than
      *  horizontally.
      */
-    void setVerticalText(bool);
+    void setVerticalText(bool verticalText);
 
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
@@ -482,7 +486,7 @@ public:
      *  If shader is not NULL, its reference count is incremented.
      *  @param shader   May be NULL. The shader to be installed in the paint
      */
-    void setShader(sk_sp<SkShader>);
+    void setShader(sk_sp<SkShader> shader);
 
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
         count is not changed.
@@ -497,7 +501,7 @@ public:
         If filter is not NULL, its reference count is incremented.
         @param filter   May be NULL. The filter to be installed in the paint
     */
-    void setColorFilter(sk_sp<SkColorFilter>);
+    void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
     SkBlendMode getBlendMode() const { return (SkBlendMode)fBlendMode; }
     bool isSrcOver() const { return (SkBlendMode)fBlendMode == SkBlendMode::kSrcOver; }
@@ -521,7 +525,7 @@ public:
                         paint
         @return         effect
     */
-    void setPathEffect(sk_sp<SkPathEffect>);
+    void setPathEffect(sk_sp<SkPathEffect> pathEffect);
 
     /** Get the paint's maskfilter object.
         <p />
@@ -541,7 +545,7 @@ public:
                             the paint
         @return             maskfilter
     */
-    void setMaskFilter(sk_sp<SkMaskFilter>);
+    void setMaskFilter(sk_sp<SkMaskFilter> maskFilter);
 
     // These attributes are for text/fonts
 
@@ -564,7 +568,7 @@ public:
                         paint
         @return         typeface
     */
-    void setTypeface(sk_sp<SkTypeface>);
+    void setTypeface(sk_sp<SkTypeface> typeface);
 
     /** Get the paint's rasterizer (or NULL).
         <p />
@@ -585,11 +589,11 @@ public:
                           the paint.
         @return           rasterizer
     */
-    void setRasterizer(sk_sp<SkRasterizer>);
+    void setRasterizer(sk_sp<SkRasterizer> rasterizer);
 
     SkImageFilter* getImageFilter() const { return fImageFilter.get(); }
     sk_sp<SkImageFilter> refImageFilter() const;
-    void setImageFilter(sk_sp<SkImageFilter>);
+    void setImageFilter(sk_sp<SkImageFilter> imageFilter);
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
@@ -608,9 +612,9 @@ public:
      *  incremented.
      *  @param looper May be NULL. The new looper to be installed in the paint.
      */
-    void setDrawLooper(sk_sp<SkDrawLooper>);
+    void setDrawLooper(sk_sp<SkDrawLooper> drawLooper);
 
-    void setLooper(sk_sp<SkDrawLooper>);
+    void setLooper(sk_sp<SkDrawLooper> drawLooper);
 
     enum Align {
         kLeft_Align,
@@ -983,6 +987,8 @@ public:
      }
      */
     const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
+        // Things like stroking, etc... will do math on the bounds rect, assuming that it's sorted.
+        SkASSERT(orig.isSorted());
         SkPaint::Style style = this->getStyle();
         // ultra fast-case: filling with no effects that affect geometry
         if (kFill_Style == style) {
@@ -1006,29 +1012,15 @@ public:
     // Take the style explicitly, so the caller can force us to be stroked
     // without having to make a copy of the paint just to change that field.
     const SkRect& doComputeFastBounds(const SkRect& orig, SkRect* storage,
-                                      Style) const;
+                                      Style style) const;
 
-    /**
-     *  Return a matrix that applies the paint's text values: size, scale, skew
-     */
-    static SkMatrix* SetTextMatrix(SkMatrix* matrix, SkScalar size,
-                                   SkScalar scaleX, SkScalar skewX) {
-        matrix->setScale(size * scaleX, size);
-        if (skewX) {
-            matrix->postSkew(skewX, 0);
-        }
-        return matrix;
-    }
 
-    SkMatrix* setTextMatrix(SkMatrix* matrix) const {
-        return SetTextMatrix(matrix, fTextSize, fTextScaleX, fTextSkewX);
-    }
-
-    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
 
     SK_TO_STRING_NONVIRT()
 
 private:
+    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
+
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;
     sk_sp<SkShader>       fShader;

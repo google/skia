@@ -12,6 +12,13 @@
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
 
+// Sometimes we need to make sure externally facing functions are called with MS' ABI, not System V.
+#if defined(JUMPER) && defined(WIN)
+    #define MAYBE_MSABI __attribute__((ms_abi))
+#else
+    #define MAYBE_MSABI
+#endif
+
 #if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
     // To reduce SkJumper's dependency on the Android NDK,
     // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
@@ -41,21 +48,11 @@
     #include <stdint.h>
 #endif
 
-// SkJumper_stages.cpp has some unusual constraints on what constants it can use.
-//
-// If the constant is baked into the instruction, that's ok.
-// If the constant is synthesized through code, that's ok.
-// If the constant is loaded from memory, that's no good.
-//
-// We offer a couple facilities to get at any other constants you need:
-//   - the C() function usually constrains constants to be directly baked into an instruction; or
-//   - the _i and _f user-defined literal operators call C() for you in a prettier way; or
-//   - you can load values from this struct.
-
 static const int SkJumper_kMaxStride = 8;
 
 struct SkJumper_constants {
-    float iota[SkJumper_kMaxStride];   //  0,1,2,3,4,...
+    float    iota_F  [SkJumper_kMaxStride];   //  0,1,2,3,4,...
+    uint32_t iota_U32[SkJumper_kMaxStride];   //  0,1,2,3,4,...
 };
 
 struct SkJumper_GatherCtx {
@@ -72,6 +69,42 @@ struct SkJumper_SamplerCtx {
     float     fy[SkJumper_kMaxStride];
     float scalex[SkJumper_kMaxStride];
     float scaley[SkJumper_kMaxStride];
+};
+
+struct SkJumper_CallbackCtx {
+    MAYBE_MSABI void (*fn)(SkJumper_CallbackCtx* self, int active_pixels/*<= SkJumper_kMaxStride*/);
+
+    // When called, fn() will have our active pixels available in rgba.
+    // When fn() returns, the pipeline will read back those active pixels from read_from.
+    float rgba[4*SkJumper_kMaxStride];
+    float* read_from = rgba;
+};
+
+struct SkJumper_LoadTablesCtx {
+    const void* src;
+    const float *r, *g, *b;
+};
+
+struct SkJumper_TableCtx {
+    const float* table;
+    int          size;
+};
+
+// This should line up with the memory layout of SkColorSpaceTransferFn.
+struct SkJumper_ParametricTransferFunction {
+    float G, A,B,C,D,E,F;
+};
+
+struct SkJumper_DitherCtx {
+    const int* y;
+    float rate;
+};
+
+struct SkJumper_GradientCtx {
+    size_t stopCount;
+    float* fs[4];
+    float* bs[4];
+    float* ts;
 };
 
 #endif//SkJumper_DEFINED

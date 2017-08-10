@@ -151,6 +151,12 @@ void SkReadBuffer::readPoint(SkPoint* point) {
     point->fY = fReader.readScalar();
 }
 
+void SkReadBuffer::readPoint3(SkPoint3* point) {
+    point->fX = fReader.readScalar();
+    point->fY = fReader.readScalar();
+    point->fZ = fReader.readScalar();
+}
+
 void SkReadBuffer::readMatrix(SkMatrix* matrix) {
     fReader.readMatrix(matrix);
 }

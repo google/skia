@@ -14,6 +14,7 @@
 
 class GrFragmentProcessor;
 class SkArenaAlloc;
+class SkColorSpaceXformer;
 
 class SkLocalMatrixShader : public SkShader {
 public:
@@ -50,11 +51,19 @@ protected:
     bool onAppendStages(SkRasterPipeline*, SkColorSpace*, SkArenaAlloc*,
                         const SkMatrix&, const SkPaint&, const SkMatrix*) const override;
 
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override {
+        return fProxyShader->makeColorSpace(xformer)->makeWithLocalMatrix(this->getLocalMatrix());
+    }
+
 #ifdef SK_SUPPORT_LEGACY_SHADER_ISABITMAP
     bool onIsABitmap(SkBitmap* bitmap, SkMatrix* matrix, TileMode* mode) const override {
         return fProxyShader->isABitmap(bitmap, matrix, mode);
     }
 #endif
+
+    bool isRasterPipelineOnly() const final {
+        return fProxyShader->isRasterPipelineOnly();
+    }
 
 private:
     sk_sp<SkShader> fProxyShader;

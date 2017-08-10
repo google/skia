@@ -75,7 +75,7 @@ protected:
         paint.setTextSize(16);
         paint.setTextAlign(SkPaint::kCenter_Align);
         paint.setLCDRenderText(true);
-        canvas->drawText(fLabel.c_str(), fLabel.size(), r.centerX(), r.fTop + 0.68f * r.height(), paint);
+        canvas->drawString(fLabel, r.centerX(), r.fTop + 0.68f * r.height(), paint);
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {

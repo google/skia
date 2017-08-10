@@ -238,7 +238,7 @@ private:
 
                 GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
                 SkString dstColor("dstColor");
-                this->emitChild(0, nullptr, &dstColor, args);
+                this->emitChild(0, &dstColor, args);
 
                 fKUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType,
                                                          kDefault_GrSLPrecision, "k");
@@ -431,7 +431,6 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
         if (!img->getROPixels(&srcBM)) {
             return;
         }
-        srcBM.lockPixels();
         if (!srcBM.peekPixels(&src)) {
             return;
         }

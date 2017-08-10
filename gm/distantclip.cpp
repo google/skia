@@ -8,6 +8,7 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 

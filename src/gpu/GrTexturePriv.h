@@ -8,7 +8,6 @@
 #ifndef GrTexturePriv_DEFINED
 #define GrTexturePriv_DEFINED
 
-#include "GrExternalTextureData.h"
 #include "GrTexture.h"
 
 /** Class that adds methods to GrTexture that are only intended for use internal to Skia.
@@ -18,18 +17,6 @@
     implemented privately in GrTexture with a inline public method here). */
 class GrTexturePriv {
 public:
-    void setFlag(GrSurfaceFlags flags) {
-        fTexture->fDesc.fFlags = fTexture->fDesc.fFlags | flags;
-    }
-
-    void resetFlag(GrSurfaceFlags flags) {
-        fTexture->fDesc.fFlags = fTexture->fDesc.fFlags & ~flags;
-    }
-
-    bool isSetFlag(GrSurfaceFlags flags) const {
-        return 0 != (fTexture->fDesc.fFlags & flags);
-    }
-
     void dirtyMipMaps(bool mipMapsDirty) {
         fTexture->dirtyMipMaps(mipMapsDirty);
     }
@@ -68,18 +55,13 @@ public:
     }
     SkDestinationSurfaceColorMode mipColorMode() const { return fTexture->fMipColorMode; }
 
-    /**
-     *  Return the native bookkeeping data for this texture, and detach the backend object from
-     *  this GrTexture. It's lifetime will no longer be managed by Ganesh, and this GrTexture will
-     *  no longer refer to it. Leaves this GrTexture in an orphan state.
-     */
-    std::unique_ptr<GrExternalTextureData> detachBackendTexture() {
-        return fTexture->detachBackendTexture();
-    }
-
     static void ComputeScratchKey(const GrSurfaceDesc&, GrScratchKey*);
 
 private:
+    static void ComputeScratchKey(GrPixelConfig config, int width, int height,
+                                  GrSurfaceOrigin origin, bool isRenderTarget, int sampleCnt,
+                                  bool isMipMapped, GrScratchKey* key);
+
     GrTexturePriv(GrTexture* texture) : fTexture(texture) { }
     GrTexturePriv(const GrTexturePriv& that) : fTexture(that.fTexture) { }
     GrTexturePriv& operator=(const GrTexturePriv&); // unimpl

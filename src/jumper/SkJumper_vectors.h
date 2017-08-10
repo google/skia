@@ -34,7 +34,8 @@
     SI F   floor_(F v)          { return floorf(v); }
     SI F   rcp   (F v)          { return 1.0f / v; }
     SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
-    SI U32 round (F v, F scale) { return (uint32_t)lrintf(v*scale); }
+    SI F    sqrt_(F v)          { return sqrtf(v); }
+    SI U32 round (F v, F scale) { return (uint32_t)(v*scale + 0.5f); }
     SI U16 pack(U32 v)          { return (U16)v; }
     SI U8  pack(U16 v)          { return  (U8)v; }
 
@@ -43,6 +44,11 @@
     template <typename T>
     SI T gather(const T* p, U32 ix) { return p[ix]; }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         *r = ptr[0];
         *g = ptr[1];
@@ -67,16 +73,6 @@
         ptr[1] = g;
         ptr[2] = b;
         ptr[3] = a;
-    }
-
-    SI F from_half(U16 h) {
-        if ((int16_t)h < 0x0400) { h = 0; }   // Flush denorm and negative to zero.
-        return bit_cast<F>(h << 13)           // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000));  // then fix up the exponent.
-    }
-    SI U16 to_half(F f) {
-        return bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-            >> 13;                                                // then line up the mantissa.
     }
 
 #elif defined(__aarch64__)
@@ -99,6 +95,7 @@
     SI F   floor_(F v)                           { return vrndmq_f32(v);           }
     SI F   rcp   (F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rsqrt (F v) { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
+    SI F    sqrt_(F v)                           { return vsqrtq_f32(v); }
     SI U32 round (F v, F scale)                  { return vcvtnq_u32_f32(v*scale); }
     SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
@@ -110,6 +107,12 @@
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        uint16x4x3_t rgb = vld3_u16(ptr);
+        *r = rgb.val[0];
+        *g = rgb.val[1];
+        *b = rgb.val[2];
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba = vld4_u16(ptr);
         *r = rgba.val[0];
@@ -131,9 +134,6 @@
     SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
         vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
     }
-
-    SI F from_half(U16 h) { return vcvt_f32_f16(h); }
-    SI U16 to_half(F   f) { return vcvt_f16_f32(f); }
 
 #elif defined(__arm__)
     #if defined(__thumb2__) || !defined(__ARM_ARCH_7A__) || !defined(__ARM_VFPV4__)
@@ -160,11 +160,18 @@
     SI U16 pack(U32 v)                         { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)                         { return __builtin_convertvector(v,  U8); }
 
+    SI F sqrt_(F v) {
+        auto e = vrsqrte_f32(v);  // Estimate and two refinement steps for e = rsqrt(v).
+        e *= vrsqrts_f32(v,e*e);
+        e *= vrsqrts_f32(v,e*e);
+        return v*e;               // sqrt(v) == v*rsqrt(v).
+    }
+
     SI F if_then_else(I32 c, F t, F e) { return vbsl_f32((U32)c,t,e); }
 
     SI F floor_(F v) {
         F roundtrip = vcvt_f32_s32(vcvt_s32_f32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
+        return roundtrip - if_then_else(roundtrip > v, 1, 0);
     }
 
     template <typename T>
@@ -172,6 +179,14 @@
         return {p[ix[0]], p[ix[1]]};
     }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        uint16x4x3_t rgb;
+        rgb = vld3_lane_u16(ptr + 0, rgb, 0);
+        rgb = vld3_lane_u16(ptr + 3, rgb, 1);
+        *r = unaligned_load<U16>(rgb.val+0);
+        *g = unaligned_load<U16>(rgb.val+1);
+        *b = unaligned_load<U16>(rgb.val+2);
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba;
         rgba = vld4_lane_u16(ptr + 0, rgba, 0);
@@ -203,15 +218,6 @@
         vst4_f32(ptr, (float32x2x4_t{{r,g,b,a}}));
     }
 
-    SI F from_half(U16 h) {
-        auto v = widen_cast<uint16x4_t>(h);
-        return vget_low_f32(vcvt_f32_f16(v));
-    }
-    SI U16 to_half(F f) {
-        auto v = widen_cast<float32x4_t>(f);
-        uint16x4_t h = vcvt_f16_f32(v);
-        return unaligned_load<U16>(&h);
-    }
 
 #elif defined(__AVX__)
     #include <immintrin.h>
@@ -239,6 +245,7 @@
     SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
     SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
     SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
+    SI F    sqrt_(F v)          { return _mm256_sqrt_ps (v);    }
     SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
@@ -269,6 +276,46 @@
         }
     #endif
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        __m128i _0,_1,_2,_3,_4,_5,_6,_7;
+        if (__builtin_expect(tail,0)) {
+            auto load_rgb = [](const uint16_t* src) {
+                auto v = _mm_cvtsi32_si128(*(const uint32_t*)src);
+                return _mm_insert_epi16(v, src[2], 2);
+            };
+            if (tail > 0) { _0 = load_rgb(ptr +  0); }
+            if (tail > 1) { _1 = load_rgb(ptr +  3); }
+            if (tail > 2) { _2 = load_rgb(ptr +  6); }
+            if (tail > 3) { _3 = load_rgb(ptr +  9); }
+            if (tail > 4) { _4 = load_rgb(ptr + 12); }
+            if (tail > 5) { _5 = load_rgb(ptr + 15); }
+            if (tail > 6) { _6 = load_rgb(ptr + 18); }
+        } else {
+            // Load 0+1, 2+3, 4+5 normally, and 6+7 backed up 4 bytes so we don't run over.
+            auto _01 =                _mm_loadu_si128((const __m128i*)(ptr +  0))    ;
+            auto _23 =                _mm_loadu_si128((const __m128i*)(ptr +  6))    ;
+            auto _45 =                _mm_loadu_si128((const __m128i*)(ptr + 12))    ;
+            auto _67 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 16)), 4);
+            _0 = _01; _1 = _mm_srli_si128(_01, 6),
+            _2 = _23; _3 = _mm_srli_si128(_23, 6),
+            _4 = _45; _5 = _mm_srli_si128(_45, 6),
+            _6 = _67; _7 = _mm_srli_si128(_67, 6);
+        }
+
+        auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
+             _13 = _mm_unpacklo_epi16(_1, _3),
+             _46 = _mm_unpacklo_epi16(_4, _6),
+             _57 = _mm_unpacklo_epi16(_5, _7);
+
+        auto rg0123 = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
+             bx0123 = _mm_unpackhi_epi16(_02, _13),  // b0 b1 b2 b3 xx xx xx xx
+             rg4567 = _mm_unpacklo_epi16(_46, _57),
+             bx4567 = _mm_unpackhi_epi16(_46, _57);
+
+        *r = _mm_unpacklo_epi64(rg0123, rg4567);
+        *g = _mm_unpackhi_epi64(rg0123, rg4567);
+        *b = _mm_unpacklo_epi64(bx0123, bx4567);
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         __m128i _01, _23, _45, _67;
         if (__builtin_expect(tail,0)) {
@@ -386,29 +433,6 @@
         }
     }
 
-    SI F from_half(U16 h) {
-    #if defined(__AVX2__)
-        return _mm256_cvtph_ps(h);
-    #else
-        // This technique would slow down ~10x for denorm inputs, so we flush them to zero.
-        // With a signed comparison this conveniently also flushes negative half floats to zero.
-        h = _mm_andnot_si128(_mm_cmplt_epi16(h, _mm_set1_epi32(0x04000400_i)), h);
-
-        U32 w = _mm256_setr_m128i(_mm_unpacklo_epi16(h, _mm_setzero_si128()),
-                                  _mm_unpackhi_epi16(h, _mm_setzero_si128()));
-        return bit_cast<F>(w << 13)             // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
-    #endif
-    }
-    SI U16 to_half(F f) {
-    #if defined(__AVX2__)
-        return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
-    #else
-        return pack(bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-                    >> 13);                                            // then line up the mantissa.
-    #endif
-    }
-
 #elif defined(__SSE2__)
     #include <immintrin.h>
 
@@ -424,8 +448,9 @@
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
     SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
-    SI F   rcp  (F v)          { return _mm_rcp_ps  (v);    }
-    SI F   rsqrt(F v)          { return _mm_rsqrt_ps(v);    }
+    SI F   rcp   (F v)         { return _mm_rcp_ps  (v);    }
+    SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
+    SI F    sqrt_(F v)         { return _mm_sqrt_ps (v);    }
     SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
@@ -453,7 +478,7 @@
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1.0_f, 0);
+        return roundtrip - if_then_else(roundtrip > v, 1, 0);
     #endif
     }
 
@@ -462,6 +487,27 @@
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
 
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        // Load slightly weirdly to make sure we don't load past the end of 4x48 bits.
+        auto _01 =                _mm_loadu_si128((const __m128i*)(ptr + 0))    ,
+             _23 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 4)), 4);
+
+        // Each _N holds R,G,B for pixel N in its lower 3 lanes (upper 5 are ignored).
+        auto _0 = _01, _1 = _mm_srli_si128(_01, 6),
+             _2 = _23, _3 = _mm_srli_si128(_23, 6);
+
+        // De-interlace to R,G,B.
+        auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
+             _13 = _mm_unpacklo_epi16(_1, _3);  // r1 r3 g1 g3 b1 b3 xx xx
+
+        auto R = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
+             G = _mm_srli_si128(R, 8),
+             B = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 xx xx xx xx
+
+        *r = unaligned_load<U16>(&R);
+        *g = unaligned_load<U16>(&G);
+        *b = unaligned_load<U16>(&B);
+    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         auto _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
              _23 = _mm_loadu_si128(((__m128i*)ptr) + 1);
@@ -502,21 +548,6 @@
         _mm_storeu_ps(ptr+ 8, b);
         _mm_storeu_ps(ptr+12, a);
     }
-
-    SI F from_half(U16 h) {
-        auto v = widen_cast<__m128i>(h);
-
-        // Same deal as AVX: flush denorms and negatives to zero.
-        v = _mm_andnot_si128(_mm_cmplt_epi16(v, _mm_set1_epi32(0x04000400_i)), v);
-
-        U32 w = _mm_unpacklo_epi16(v, _mm_setzero_si128());
-        return bit_cast<F>(w << 13)             // Line up the mantissa,
-             * bit_cast<F>(U32(0x77800000_i));  // then fix up the exponent.
-    }
-    SI U16 to_half(F f) {
-        return pack(bit_cast<U32>(f * bit_cast<F>(U32(0x07800000_i)))  // Fix up the exponent,
-                    >> 13);                                            // then line up the mantissa.
-    }
 #endif
 
 // We need to be a careful with casts.
@@ -534,6 +565,11 @@
     SI U32 expand(U8  v) { return (U32)v; }
 #endif
 
+template <typename V>
+SI V if_then_else(I32 c, V t, V e) {
+    return bit_cast<V>(if_then_else(c, bit_cast<F>(t), bit_cast<F>(e)));
+}
+
 SI U16 bswap(U16 x) {
 #if defined(JUMPER) && defined(__SSE2__) && !defined(__AVX__)
     // Somewhat inexplicably Clang decides to do (x<<8) | (x>>8) in 32-bit lanes
@@ -545,5 +581,82 @@ SI U16 bswap(U16 x) {
     return (x<<8) | (x>>8);
 #endif
 }
+
+SI F fract(F v) { return v - floor_(v); }
+
+// See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
+SI F approx_log2(F x) {
+    // e - 127 is a fair approximation of log2(x) in its own right...
+    F e = cast(bit_cast<U32>(x)) * (1.0f / (1<<23));
+
+    // ... but using the mantissa to refine its error is _much_ better.
+    F m = bit_cast<F>((bit_cast<U32>(x) & 0x007fffff) | 0x3f000000);
+    return e
+         - 124.225514990f
+         -   1.498030302f * m
+         -   1.725879990f / (0.3520887068f + m);
+}
+SI F approx_pow2(F x) {
+    F f = fract(x);
+    return bit_cast<F>(round(1.0f * (1<<23),
+                             x + 121.274057500f
+                               -   1.490129070f * f
+                               +  27.728023300f / (4.84252568f - f)));
+}
+
+SI F approx_powf(F x, F y) {
+    return approx_pow2(approx_log2(x) * y);
+}
+
+SI F from_half(U16 h) {
+#if defined(JUMPER) && defined(__aarch64__)
+    return vcvt_f32_f16(h);
+
+#elif defined(JUMPER) && defined(__arm__)
+    auto v = widen_cast<uint16x4_t>(h);
+    return vget_low_f32(vcvt_f32_f16(v));
+
+#elif defined(JUMPER) && defined(__AVX2__)
+    return _mm256_cvtph_ps(h);
+
+#else
+    // Remember, a half is 1-5-10 (sign-exponent-mantissa) with 15 exponent bias.
+    U32 sem = expand(h),
+        s   = sem & 0x8000,
+         em = sem ^ s;
+
+    // Convert to 1-8-23 float with 127 bias, flushing denorm halfs (including zero) to zero.
+    auto denorm = (I32)em < 0x0400;      // I32 comparison is often quicker, and always safe here.
+    return if_then_else(denorm, F(0)
+                              , bit_cast<F>( (s<<16) + (em<<13) + ((127-15)<<23) ));
+#endif
+}
+
+SI U16 to_half(F f) {
+#if defined(JUMPER) && defined(__aarch64__)
+    return vcvt_f16_f32(f);
+
+#elif defined(JUMPER) && defined(__arm__)
+    auto v = widen_cast<float32x4_t>(f);
+    uint16x4_t h = vcvt_f16_f32(v);
+    return unaligned_load<U16>(&h);
+
+#elif defined(JUMPER) && defined(__AVX2__)
+    return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
+
+#else
+    // Remember, a float is 1-8-23 (sign-exponent-mantissa) with 127 exponent bias.
+    U32 sem = bit_cast<U32>(f),
+        s   = sem & 0x80000000,
+         em = sem ^ s;
+
+    // Convert to 1-5-10 half with 15 bias, flushing denorm halfs (including zero) to zero.
+    auto denorm = (I32)em < 0x38800000;  // I32 comparison is often quicker, and always safe here.
+    return pack(if_then_else(denorm, U32(0)
+                                   , (s>>16) + (em>>13) - ((127-15)<<10)));
+#endif
+}
+
+
 
 #endif//SkJumper_vectors_DEFINED

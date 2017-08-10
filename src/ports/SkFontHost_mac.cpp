@@ -62,6 +62,10 @@
 // Set to make glyph bounding boxes visible.
 #define SK_SHOW_TEXT_BLIT_COVERAGE 0
 
+CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
+    return face ? (CTFontRef)face->internal_private_getCTFontRef() : nullptr;
+}
+
 class SkScalerContext_Mac;
 
 struct CFSafeRelease {
@@ -522,11 +526,12 @@ protected:
                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
-    SkAdvancedTypefaceMetrics* onGetAdvancedTypefaceMetrics(
-            PerGlyphInfo, const uint32_t* glyphIDs, uint32_t glyphIDsCount) const override;
+    std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     int onCharsToGlyphs(const void* chars, Encoding,
                         uint16_t glyphs[], int glyphCount) const override;
     int onCountGlyphs() const override;
+
+    void* onGetCTFontRef() const override { return (void*)fFontRef.get(); }
 
 private:
     bool fIsLocalStream;
@@ -536,7 +541,7 @@ private:
 
 static bool find_by_CTFontRef(SkTypeface* cached, void* context) {
     CTFontRef self = (CTFontRef)context;
-    CTFontRef other = ((SkTypeface_Mac*)cached)->fFontRef.get();
+    CTFontRef other = (CTFontRef)cached->internal_private_getCTFontRef();
 
     return CFEqual(self, other);
 }
@@ -652,12 +657,6 @@ static SkTypeface* create_from_name(const char familyName[], const SkFontStyle& 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-extern CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face);
-CTFontRef SkTypeface_GetCTFontRef(const SkTypeface* face) {
-    const SkTypeface_Mac* macface = (const SkTypeface_Mac*)face;
-    return macface ? macface->fFontRef.get() : nullptr;
-}
 
 /*  This function is visible on the outside. It first searches the cache, and if
  *  not found, returns a new entry (after adding it to the cache).
@@ -779,7 +778,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
 {
     AUTO_CG_LOCK();
 
-    CTFontRef ctFont = static_cast<SkTypeface_Mac*>(this->getTypeface())->fFontRef.get();
+    CTFontRef ctFont = (CTFontRef)this->getTypeface()->internal_private_getCTFontRef();
     CFIndex numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
     fGlyphCount = SkToU16(numGlyphs);
@@ -1491,17 +1490,14 @@ static void CFStringToSkString(CFStringRef src, SkString* dst) {
     dst->resize(strlen(dst->c_str()));
 }
 
-SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
-        PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) const {
+std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics() const {
 
     AUTO_CG_LOCK();
 
     UniqueCFRef<CTFontRef> ctFont =
             ctfont_create_exact_copy(fFontRef.get(), CTFontGetUnitsPerEm(fFontRef.get()), nullptr);
 
-    SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
+    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
 
     {
         UniqueCFRef<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont.get()));
@@ -1524,9 +1520,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
 
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont.get());
 
-    if (perGlyphInfo & kToUnicode_PerGlyphInfo) {
-        populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
-    }
+    populate_glyph_to_unicode(ctFont.get(), glyphCount, &info->fGlyphToUnicode);
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
     // fonts always have both glyf and loca tables. At the least, this is what
@@ -1848,8 +1842,8 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
 {
     // The CGFont variation data does not contain the tag.
 
-    // This call always returns nullptr on 10.10 and under for CGFontCreateWithDataProvider fonts.
-    // When this happens, there is no API to provide the tag.
+    // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
+    // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
     UniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
     if (!ctAxes) {
         return -1;
@@ -2362,14 +2356,17 @@ protected:
     }
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
+        if (!familyName) {
+            return nullptr;
+        }
         UniqueCFRef<CFStringRef> cfName = make_CFString(familyName);
         return CreateSet(cfName.get());
     }
 
     SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                   const SkFontStyle& fontStyle) const override {
-        sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
-        return sset->matchStyle(fontStyle);
+                                   const SkFontStyle& style) const override {
+        UniqueCFRef<CTFontDescriptorRef> desc = create_descriptor(familyName, style);
+        return create_from_desc(desc.get());
     }
 
     SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
@@ -2425,8 +2422,8 @@ protected:
         // CTFont variation dictionary runs into bugs. So use the CTFont variation data
         // to match names to tags to create the appropriate CGFont.
         UniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr));
-        // This call always returns nullptr on 10.10 and under.
-        // When this happens, there is no API to provide the tag.
+        // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
+        // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
         UniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct.get()));
         if (!ctAxes) {
             return nullptr;

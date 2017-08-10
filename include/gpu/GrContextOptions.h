@@ -40,11 +40,6 @@ struct GrContextOptions {
         immediately. Intended to ease debugging. */
     bool fImmediateMode = false;
 
-    /** For debugging, override the default maximum look-back or look-ahead window for GrOp
-        combining. */
-    int fMaxOpCombineLookback = -1;
-    int fMaxOpCombineLookahead = -1;
-
     /** Force us to do all swizzling manually in the shader and don't rely on extensions to do
         swizzling. */
     bool fUseShaderSwizzling = false;
@@ -84,6 +79,11 @@ struct GrContextOptions {
     bool fSuppressPathRendering = false;
 
     /**
+     * Render everything in wireframe
+     */
+    bool fWireframeMode = false;
+
+    /**
      * Allows the client to include or exclude specific GPU path renderers.
      */
     enum class GpuPathRenderers {
@@ -105,6 +105,11 @@ struct GrContextOptions {
     };
 
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
+
+    /**
+     * The maximum size of cache textures used for Skia's Glyph cache.
+     */
+    float fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
     /**
      * Bugs on certain drivers cause stencil buffers to leak. This flag causes Skia to avoid

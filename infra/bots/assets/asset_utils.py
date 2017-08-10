@@ -122,7 +122,7 @@ class CIPDStore(object):
         '--in', target_dir,
         '--tag', TAG_PROJECT_SKIA,
         '--tag', TAG_VERSION_TMPL % version,
-        '--compression-level', '0',
+        '--compression-level', '1',
     ])
 
   def download(self, name, version, target_dir):

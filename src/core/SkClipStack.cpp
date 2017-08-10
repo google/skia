@@ -70,27 +70,6 @@ bool SkClipStack::Element::operator== (const Element& element) const {
     }
 }
 
-#ifdef SK_SUPPORT_OBSOLETE_REPLAYCLIP
-void SkClipStack::Element::replay(SkCanvasClipVisitor* visitor) const {
-    static const SkRect kEmptyRect = { 0, 0, 0, 0 };
-
-    switch (fType) {
-        case kPath_Type:
-            visitor->clipPath(this->getPath(), this->getOp(), this->isAA());
-            break;
-        case kRRect_Type:
-            visitor->clipRRect(this->getRRect(), this->getOp(), this->isAA());
-            break;
-        case kRect_Type:
-            visitor->clipRect(this->getRect(), this->getOp(), this->isAA());
-            break;
-        case kEmpty_Type:
-            visitor->clipRect(kEmptyRect, kIntersect_SkClipOp, false);
-            break;
-    }
-}
-#endif
-
 void SkClipStack::Element::invertShapeFillType() {
     switch (fType) {
         case kRect_Type:

@@ -20,16 +20,6 @@
 #include "SkSurface.h"
 #include "SkUtils.h"
 
-void SkAutoPixmapUnlock::reset(const SkPixmap& pm, void (*unlock)(void*), void* ctx) {
-    SkASSERT(pm.addr() != nullptr);
-
-    this->unlock();
-    fPixmap = pm;
-    fUnlockProc = unlock;
-    fUnlockContext = ctx;
-    fIsLocked = true;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkPixmap::reset() {

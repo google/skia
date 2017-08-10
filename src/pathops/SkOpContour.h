@@ -45,8 +45,8 @@ public:
     }
 
     SkOpSegment& appendSegment() {
-        SkOpSegment* result = fCount++
-            ? SkOpTAllocator<SkOpSegment>::Allocate(this->globalState()->allocator()) : &fHead;
+        SkOpSegment* result = fCount++ ? this->globalState()->allocator()->make<SkOpSegment>()
+                                       : &fHead;
         result->setPrev(fTail);
         if (fTail) {
             fTail->setNext(result);
@@ -391,7 +391,7 @@ protected:
 class SkOpContourHead : public SkOpContour {
 public:
     SkOpContour* appendContour() {
-        SkOpContour* contour = SkOpTAllocator<SkOpContour>::New(this->globalState()->allocator());
+        SkOpContour* contour = this->globalState()->allocator()->make<SkOpContour>();
         contour->setNext(nullptr);
         SkOpContour* prev = this;
         SkOpContour* next;

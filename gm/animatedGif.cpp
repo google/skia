@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
@@ -26,7 +27,7 @@ namespace {
         SkPaint paint;
         SkRect bounds;
         paint.measureText(errorText.c_str(), errorText.size(), &bounds);
-        canvas->drawText(errorText.c_str(), errorText.size(), kOffset, bounds.height() + kOffset,
+        canvas->drawString(errorText, kOffset, bounds.height() + kOffset,
                          paint);
     }
 }
@@ -34,9 +35,9 @@ namespace {
 class AnimatedGifGM : public skiagm::GM {
 private:
     std::unique_ptr<SkCodec>        fCodec;
-    size_t                          fFrame;
+    int                             fFrame;
     double                          fNextUpdate;
-    size_t                          fTotalFrames;
+    int                             fTotalFrames;
     std::vector<SkCodec::FrameInfo> fFrameInfos;
     std::vector<SkBitmap>           fFrames;
 
@@ -53,12 +54,14 @@ private:
             SkCodec::Options opts;
             opts.fFrameIndex = frameIndex;
             opts.fHasPriorFrame = false;
-            const size_t requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
+            const int requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
             if (requiredFrame != SkCodec::kNone) {
-                SkASSERT(requiredFrame < fFrames.size());
+                SkASSERT(requiredFrame >= 0
+                         && static_cast<size_t>(requiredFrame) < fFrames.size());
                 SkBitmap& requiredBitmap = fFrames[requiredFrame];
                 // For simplicity, do not try to cache old frames
-                if (requiredBitmap.getPixels() && requiredBitmap.copyTo(&bm)) {
+                if (requiredBitmap.getPixels() &&
+                        sk_tool_utils::copy_to(&bm, requiredBitmap.colorType(), requiredBitmap)) {
                     opts.fHasPriorFrame = true;
                 }
             }
@@ -101,7 +104,7 @@ private:
         canvas->clear(SK_ColorWHITE);
         if (this->initCodec()) {
             SkAutoCanvasRestore acr(canvas, true);
-            for (size_t frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
+            for (int frameIndex = 0; frameIndex < fTotalFrames; frameIndex++) {
                 this->drawFrame(canvas, frameIndex);
                 canvas->translate(SkIntToScalar(fCodec->getInfo().width()), 0);
             }

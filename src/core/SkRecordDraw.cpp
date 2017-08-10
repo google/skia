@@ -6,6 +6,7 @@
  */
 
 #include "SkRecordDraw.h"
+#include "SkImage.h"
 #include "SkPatchUtils.h"
 
 void SkRecordDraw(const SkRecord& record,
@@ -77,6 +78,8 @@ DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
                                                  r.paint,
                                                  r.backdrop.get(),
+                                                 r.clipMask.get(),
+                                                 r.clipMatrix,
                                                  r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
 DRAW(Concat, concat(r.matrix));
@@ -86,12 +89,6 @@ DRAW(ClipPath, clipPath(r.path, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRect, clipRect(r.rect, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRegion, clipRegion(r.region, r.op));
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(TranslateZ, SkCanvas::translateZ(r.z));
-#else
-template <> void Draw::draw(const TranslateZ& r) { }
-#endif
 
 DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
 DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
@@ -115,13 +112,6 @@ DRAW(DrawPaint, drawPaint(r.paint));
 DRAW(DrawPath, drawPath(r.path, r.paint));
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint));
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
-
-#ifdef SK_EXPERIMENTAL_SHADOWING
-DRAW(DrawShadowedPicture, drawShadowedPicture(r.picture.get(), &r.matrix, r.paint, r.params));
-#else
-template <> void Draw::draw(const DrawShadowedPicture& r) { }
-#endif
-
 DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
 DRAW(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
 DRAW(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
@@ -135,6 +125,7 @@ DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint));
+DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec));
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW
 
@@ -302,7 +293,6 @@ private:
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
     void trackBounds(const Concat&)            { this->pushControl(); }
     void trackBounds(const Translate&)         { this->pushControl(); }
-    void trackBounds(const TranslateZ&)        { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }
     void trackBounds(const ClipPath&)          { this->pushControl(); }
@@ -466,13 +456,11 @@ private:
         }
     }
 
-    Bounds bounds(const DrawPicture& op) const {
-        SkRect dst = op.picture->cullRect();
-        op.matrix.mapRect(&dst);
-        return this->adjustAndMap(dst, op.paint);
+    Bounds bounds(const DrawShadowRec& op) const {
+        return this->adjustAndMap(op.path.getBounds(), nullptr);
     }
 
-    Bounds bounds(const DrawShadowedPicture& op) const {
+    Bounds bounds(const DrawPicture& op) const {
         SkRect dst = op.picture->cullRect();
         op.matrix.mapRect(&dst);
         return this->adjustAndMap(dst, op.paint);

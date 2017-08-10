@@ -24,9 +24,15 @@
 template <typename T,
           bool (*LESS)(const T&, const T&),
           int* (*INDEX)(const T&) = (int* (*)(const T&))nullptr>
-class SkTDPQueue : public SkNoncopyable {
+class SkTDPQueue {
 public:
     SkTDPQueue() {}
+
+    SkTDPQueue(SkTDPQueue&&) = default;
+    SkTDPQueue& operator =(SkTDPQueue&&) = default;
+
+    SkTDPQueue(const SkTDPQueue&) = delete;
+    SkTDPQueue& operator=(const SkTDPQueue&) = delete;
 
     /** Number of items in the queue. */
     int count() const { return fArray.count(); }
@@ -188,8 +194,6 @@ private:
     }
 
     SkTDArray<T> fArray;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 #endif

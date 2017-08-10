@@ -106,9 +106,11 @@ public:
                                                                  GrPrimitiveType,
                                                                  const GrVkRenderPass& renderPass);
 
-    void getSamplerDescriptorSetHandle(const GrVkUniformHandler&,
+    void getSamplerDescriptorSetHandle(VkDescriptorType type,
+                                       const GrVkUniformHandler&,
                                        GrVkDescriptorSetManager::Handle* handle);
-    void getSamplerDescriptorSetHandle(const SkTArray<uint32_t>& visibilities,
+    void getSamplerDescriptorSetHandle(VkDescriptorType type,
+                                       const SkTArray<uint32_t>& visibilities,
                                        GrVkDescriptorSetManager::Handle* handle);
 
     // Returns the compatible VkDescriptorSetLayout to use for uniform buffers. The caller does not
@@ -255,7 +257,7 @@ private:
     // Cache of GrVkPipelineStates
     PipelineStateCache* fPipelineStateCache;
 
-    SkSTArray<4, GrVkDescriptorSetManager, true> fDescriptorSetManagers;
+    SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
 };

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "effects/GrXfermodeFragmentProcessor.h"
+#include "GrXfermodeFragmentProcessor.h"
 
+#include "GrConstColorProcessor.h"
 #include "GrFragmentProcessor.h"
-#include "effects/GrConstColorProcessor.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLBlend.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -415,7 +415,7 @@ public:
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
         SkString childColor("child");
-        this->emitChild(0, nullptr, &childColor, args);
+        this->emitChild(0, &childColor, args);
 
         const char* inputColor = args.fInputColor;
         // We don't try to optimize for this case at all

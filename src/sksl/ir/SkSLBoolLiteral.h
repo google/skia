@@ -25,8 +25,17 @@ struct BoolLiteral : public Expression {
         return String(fValue ? "true" : "false");
     }
 
+    bool hasSideEffects() const override {
+        return false;
+    }
+
     bool isConstant() const override {
         return true;
+    }
+
+    bool compareConstant(const Context& context, const Expression& other) const override {
+        BoolLiteral& b = (BoolLiteral&) other;
+        return fValue == b.fValue;
     }
 
     const bool fValue;

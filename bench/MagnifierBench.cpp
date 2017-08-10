@@ -6,6 +6,7 @@
  */
 
 #include "Benchmark.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkRandom.h"

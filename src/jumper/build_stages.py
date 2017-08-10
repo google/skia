@@ -11,8 +11,9 @@ import sys
 
 clang   = sys.argv[1] if len(sys.argv) > 1 else 'clang-4.0'
 objdump = sys.argv[2] if len(sys.argv) > 2 else 'gobjdump'
+ccache  = sys.argv[3] if len(sys.argv) > 3 else 'ccache'
 
-clang = ['ccache', clang, '-x', 'c++']
+clang = [ccache, clang, '-x', 'c++']
 
 
 cflags = ['-std=c++11', '-Os', '-DJUMPER',
@@ -66,13 +67,11 @@ subprocess.check_call(clang + cflags + vfp4 +
                       ['-o', 'vfp4.o'])
 
 def parse_object_file(dot_o, directive, target=None):
-  globl, hidden, label, comment = '.globl', 'HIDDEN', ':', '// '
+  globl, hidden, label, comment, align = \
+      '.globl', 'HIDDEN', ':', '// ', 'BALIGN'
   if 'win' in dot_o:
-    globl, hidden, label, comment = 'PUBLIC', '', ' LABEL PROC', '; '
-
-  dehex = lambda h: '0x'+h
-  if directive != '.long':
-    dehex = lambda h: str(int(h,16))
+    globl, hidden, label, comment, align = \
+        'PUBLIC', '', ' LABEL PROC', '; ', 'ALIGN '
 
   cmd = [objdump]
   if target:
@@ -80,13 +79,28 @@ def parse_object_file(dot_o, directive, target=None):
 
   # Look for sections we know we can't handle.
   section_headers = subprocess.check_output(cmd + ['-h', dot_o])
-  for snippet in ['.literal', '.const', '.rodata']:
+  for snippet in ['.rodata']:
     if snippet in section_headers:
       print >>sys.stderr, 'Found %s in section.' % snippet
       assert snippet not in section_headers
 
+  if directive == '.long':
+    disassemble = ['-d', dot_o]
+    dehex = lambda h: '0x'+h
+  else:
+    # x86-64... as long as we're using %rip-relative addressing,
+    # literal sections should be fine to just dump in with .text.
+    disassemble = ['-d',               # DO NOT USE -D.
+                   '-z',               # Print zero bytes instead of ...
+                   '--insn-width=11',
+                   '-j', '.text',
+                   '-j', '.literal4',
+                   '-j', '.literal16',
+                   '-j', '.const',
+                   dot_o]
+    dehex = lambda h: str(int(h,16))
+
   # Ok.  Let's disassemble.
-  disassemble = ['-d', '--insn-width=10', dot_o]
   for line in subprocess.check_output(cmd + disassemble).split('\n'):
     line = line.strip()
 
@@ -97,13 +111,25 @@ def parse_object_file(dot_o, directive, target=None):
     m = re.match('''[0-9a-f]+ <_?(.*)>:''', line)
     if m:
       print
-      if hidden:
-        print hidden + ' _' + m.group(1)
-      print globl + ' _' + m.group(1)
-      print '_' + m.group(1) + label
+      sym = m.group(1)
+      if sym.startswith('.literal'):  # .literal4, .literal16, etc
+        print sym.replace('.literal', align)
+      elif sym.startswith('.const'):  # 32-byte constants
+        print align + '32'
+      elif not sym.startswith('sk_'):
+        print >>sys.stderr, "build_stages.py can't handle '%s' (yet?)." % sym
+        assert sym.startswith('sk_')
+      else:  # a stage function
+        if hidden:
+          print hidden + ' _' + sym
+        print globl + ' _' + sym
+        if 'win' not in dot_o:
+          print 'FUNCTION(_' + sym + ')'
+        print '_' + sym + label
       continue
 
     columns = line.split('\t')
+   #print >>sys.stderr, columns
     code = columns[1]
     if len(columns) >= 4:
       inst = columns[2]
@@ -130,24 +156,36 @@ print '''# Copyright 2017 Google Inc.
 '''
 print '#if defined(__MACH__)'
 print '    #define HIDDEN .private_extern'
+print '    #define FUNCTION(name)'
+print '    #define BALIGN4  .align 2'
+print '    #define BALIGN16 .align 4'
+print '    #define BALIGN32 .align 5'
 print '#else'
-print '    #define HIDDEN .hidden'
 print '    .section .note.GNU-stack,"",%progbits'
+print '    #define HIDDEN .hidden'
+print '    #define FUNCTION(name) .type name,%function'
+print '    #define BALIGN4  .balign 4'
+print '    #define BALIGN16 .balign 16'
+print '    #define BALIGN32 .balign 32'
 print '#endif'
 
 print '.text'
 print '#if defined(__aarch64__)'
-print '.balign 4'
+print 'BALIGN4'
 parse_object_file('aarch64.o', '.long')
 
 print '#elif defined(__arm__)'
-print '.balign 4'
+print 'BALIGN4'
 parse_object_file('vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
+print 'BALIGN32'
 parse_object_file('hsw.o',   '.byte')
+print 'BALIGN32'
 parse_object_file('avx.o',   '.byte')
+print 'BALIGN32'
 parse_object_file('sse41.o', '.byte')
+print 'BALIGN32'
 parse_object_file('sse2.o',  '.byte')
 
 print '#endif'
@@ -163,10 +201,14 @@ print '''; Copyright 2017 Google Inc.
 '''
 
 print 'IFDEF RAX'
-print '_text SEGMENT'
+print "_text32 SEGMENT ALIGN(32) 'CODE'"
+print 'ALIGN 32'
 parse_object_file('win_hsw.o',   'DB')
+print 'ALIGN 32'
 parse_object_file('win_avx.o',   'DB')
+print 'ALIGN 32'
 parse_object_file('win_sse41.o', 'DB')
+print 'ALIGN 32'
 parse_object_file('win_sse2.o',  'DB')
 print 'ENDIF'
 print 'END'

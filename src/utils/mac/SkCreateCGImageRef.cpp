@@ -110,9 +110,10 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
     SkBitmap* copy;
     if (upscaleTo32) {
         copy = new SkBitmap;
-        // here we make a ceep copy of the pixels, since CG won't take our
+        // here we make a deep copy of the pixels, since CG won't take our
         // 565 directly
-        bm.copyTo(copy, kN32_SkColorType);
+        copy->allocPixels(bm.info().makeColorType(kN32_SkColorType));
+        bm.readPixels(copy->info(), copy->getPixels(), copy->rowBytes(), 0, 0);
     } else {
         copy = new SkBitmap(bm);
     }
@@ -134,9 +135,6 @@ CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
     const size_t s = bitmap->getSize();
 
     // our provider "owns" the bitmap*, and will take care of deleting it
-    // we initially lock it, so we can access the pixels. The bitmap will be deleted in the release
-    // proc, which will in turn unlock the pixels
-    bitmap->lockPixels();
     CGDataProviderRef dataRef = CGDataProviderCreateWithData(bitmap, bitmap->getPixels(), s,
                                                              SkBitmap_ReleaseInfo);
 

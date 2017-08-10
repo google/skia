@@ -25,15 +25,17 @@ public:
 
     SkString dumpInfo() const override {
         SkString string;
-        string.printf("src: (proxyID: %d, rtID: %d), dst: (proxyID: %d, rtID: %d), "
-                      "srcRect: [L: %d, T: %d, R: %d, B: %d], dstPt: [X: %d, Y: %d]",
+        string.append(INHERITED::dumpInfo());
+        string.printf("src: (proxyID: %d, rtID: %d), dst: (proxyID: %d, rtID: %d),\n"
+                      "srcRect: [L: %d, T: %d, R: %d, B: %d], dstPt: [X: %d, Y: %d]\n",
                       fSrcProxyID.asUInt(), fSrc.get()->uniqueID().asUInt(),
                       fDstProxyID.asUInt(), fDst.get()->uniqueID().asUInt(),
                       fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.fRight, fSrcRect.fBottom,
                       fDstPoint.fX, fDstPoint.fY);
-        string.append(INHERITED::dumpInfo());
         return string;
     }
+
+    bool needsCommandBufferIsolation() const override { return true; }
 
 private:
     GrCopySurfaceOp(GrSurface* dst, GrSurface* src,
@@ -57,13 +59,8 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        if (!state->commandBuffer()) {
-            state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
-        } else {
-            // Currently we are not sending copies through the GrGpuCommandBuffer. See comment in
-            // renderTargetUniqueID().
-            SkASSERT(false);
-        }
+        SkASSERT(!state->commandBuffer());
+        state->gpu()->copySurface(fDst.get(), fSrc.get(), fSrcRect, fDstPoint);
     }
 
     // MDB TODO: remove the proxy IDs once the GrSurfaceProxy carries the ref since they will

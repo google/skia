@@ -87,9 +87,9 @@ enum DrawType {
     DRAW_DRAWABLE_MATRIX,
     DRAW_TEXT_RSXFORM,
 
-    TRANSLATE_Z,
+    TRANSLATE_Z, // deprecated (M60)
 
-    DRAW_SHADOWED_PICTURE_LIGHTS,
+    DRAW_SHADOW_REC,
     DRAW_IMAGE_LATTICE,
     DRAW_ARC,
     DRAW_REGION,
@@ -122,6 +122,8 @@ enum SaveLayerRecFlatFlags {
     SAVELAYERREC_HAS_PAINT      = 1 << 1,
     SAVELAYERREC_HAS_BACKDROP   = 1 << 2,
     SAVELAYERREC_HAS_FLAGS      = 1 << 3,
+    SAVELAYERREC_HAS_CLIPMASK   = 1 << 4,
+    SAVELAYERREC_HAS_CLIPMATRIX = 1 << 5,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

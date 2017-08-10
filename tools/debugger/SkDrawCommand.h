@@ -8,6 +8,7 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkTLazy.h"
 #include "SkPath.h"
@@ -24,7 +25,6 @@ class SkDrawCommand {
 public:
     enum OpType {
         kBeginDrawPicture_OpType,
-        kBeginDrawShadowedPicture_OpType,
         kClipPath_OpType,
         kClipRegion_OpType,
         kClipRect_OpType,
@@ -54,14 +54,12 @@ public:
         kDrawTextRSXform_OpType,
         kDrawVertices_OpType,
         kEndDrawPicture_OpType,
-        kEndDrawShadowedPicture_OpType,
         kRestore_OpType,
         kSave_OpType,
         kSaveLayer_OpType,
         kSetMatrix_OpType,
-        kTranslateZ_OpType,
 
-        kLast_OpType = kTranslateZ_OpType
+        kLast_OpType = kSetMatrix_OpType
     };
 
     static const int kOpTypeCount = kLast_OpType + 1;
@@ -496,39 +494,6 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
-class SkBeginDrawShadowedPictureCommand : public SkDrawCommand {
-public:
-    SkBeginDrawShadowedPictureCommand(const SkPicture* picture,
-                                      const SkMatrix* matrix,
-                                      const SkPaint* paint,
-                                      const SkShadowParams& params);
-
-    void execute(SkCanvas* canvas) const override;
-    bool render(SkCanvas* canvas) const override;
-
-private:
-    sk_sp<const SkPicture>        fPicture;
-    SkTLazy<SkMatrix>             fMatrix;
-    SkTLazy<SkPaint>              fPaint;
-#ifdef SK_EXPERIMENTAL_SHADOWING
-    SkShadowParams                fShadowParams;
-#endif
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkEndDrawShadowedPictureCommand : public SkDrawCommand {
-public:
-    SkEndDrawShadowedPictureCommand(bool restore);
-
-    void execute(SkCanvas* canvas) const override;
-
-private:
-    bool fRestore;
-
-    typedef SkDrawCommand INHERITED;
-};
-
 class SkDrawPointsCommand : public SkDrawCommand {
 public:
     SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count, const SkPoint pts[],
@@ -793,19 +758,6 @@ public:
 private:
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;
-
-    typedef SkDrawCommand INHERITED;
-};
-
-class SkTranslateZCommand : public SkDrawCommand {
-public:
-    SkTranslateZCommand(SkScalar);
-    void execute(SkCanvas* canvas) const override;
-    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
-    static SkTranslateZCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
-
-private:
-    SkScalar fZTranslate;
 
     typedef SkDrawCommand INHERITED;
 };

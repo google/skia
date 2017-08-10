@@ -116,12 +116,20 @@ void SkValidatingReadBuffer::readColor4f(SkColor4f* color) {
     const void* ptr = this->skip(sizeof(SkColor4f));
     if (!fError) {
         memcpy(color, ptr, sizeof(SkColor4f));
+    } else {
+        *color = SkColor4f::FromColor(SK_ColorBLACK);
     }
 }
 
 void SkValidatingReadBuffer::readPoint(SkPoint* point) {
     point->fX = this->readScalar();
     point->fY = this->readScalar();
+}
+
+void SkValidatingReadBuffer::readPoint3(SkPoint3* point) {
+    point->fX = this->readScalar();
+    point->fY = this->readScalar();
+    point->fZ = this->readScalar();
 }
 
 void SkValidatingReadBuffer::readMatrix(SkMatrix* matrix) {
@@ -139,6 +147,8 @@ void SkValidatingReadBuffer::readIRect(SkIRect* rect) {
     const void* ptr = this->skip(sizeof(SkIRect));
     if (!fError) {
         memcpy(rect, ptr, sizeof(SkIRect));
+    } else {
+        rect->setEmpty();
     }
 }
 
@@ -146,6 +156,8 @@ void SkValidatingReadBuffer::readRect(SkRect* rect) {
     const void* ptr = this->skip(sizeof(SkRect));
     if (!fError) {
         memcpy(rect, ptr, sizeof(SkRect));
+    } else {
+        rect->setEmpty();
     }
 }
 

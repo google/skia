@@ -20,10 +20,13 @@
 #include "SkImageEncoderPriv.h"
 #include "SkMD5.h"
 #include "SkOSPath.h"
+#include "SkJpegEncoder.h"
 #include "SkPngChunkReader.h"
+#include "SkPngEncoder.h"
 #include "SkRandom.h"
 #include "SkStream.h"
 #include "SkStreamPriv.h"
+#include "SkWebpEncoder.h"
 #include "Test.h"
 
 #include "png.h"
@@ -38,7 +41,6 @@
 #endif
 
 static void md5(const SkBitmap& bm, SkMD5::Digest* digest) {
-    SkAutoLockPixels autoLockPixels(bm);
     SkASSERT(bm.getPixels());
     SkMD5 md5;
     size_t rowLen = bm.info().bytesPerPixel() * bm.width();
@@ -72,7 +74,6 @@ static void test_info(skiatest::Reporter* r, Codec* codec, const SkImageInfo& in
                       SkCodec::Result expectedResult, const SkMD5::Digest* goodDigest) {
     SkBitmap bm;
     bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
@@ -98,7 +99,6 @@ static void test_incremental_decode(skiatest::Reporter* r, SkCodec* codec, const
         const SkMD5::Digest& goodDigest) {
     SkBitmap bm;
     bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
 
     REPORTER_ASSERT(r, SkCodec::kSuccess == codec->startIncrementalDecode(info, bm.getPixels(),
                                                                           bm.rowBytes()));
@@ -157,7 +157,6 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
 
     REPORTER_ASSERT(r, info.dimensions() == size);
     bm.allocPixels(info);
-    SkAutoLockPixels autoLockPixels(bm);
 
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == expectedResult);
@@ -174,7 +173,6 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
             // Decoding to 565 should succeed.
             SkBitmap bm565;
             bm565.allocPixels(info565);
-            SkAutoLockPixels alp(bm565);
 
             // This will allow comparison even if the image is incomplete.
             bm565.eraseColor(SK_ColorBLACK);
@@ -199,7 +197,6 @@ static void test_codec(skiatest::Reporter* r, Codec* codec, SkBitmap& bm, const 
         SkImageInfo grayInfo = codec->getInfo();
         SkBitmap grayBm;
         grayBm.allocPixels(grayInfo);
-        SkAutoLockPixels alp(grayBm);
 
         grayBm.eraseColor(SK_ColorBLACK);
 
@@ -442,7 +439,6 @@ static void check(skiatest::Reporter* r,
                 SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
         SkBitmap bm;
         bm.allocPixels(info);
-        SkAutoLockPixels autoLockPixels(bm);
         REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
         compare_to_good_digest(r, codecDigest, bm);
 
@@ -857,7 +853,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
 
     if (decodedBm.colorType() != bm.colorType()) {
         SkBitmap tmp;
-        bool success = decodedBm.copyTo(&tmp, bm.colorType());
+        bool success = sk_tool_utils::copy_to(&tmp, bm.colorType(), decodedBm);
         REPORTER_ASSERT(r, success);
         if (!success) {
             return;
@@ -1454,37 +1450,9 @@ DEF_TEST(Codec_rowsDecoded, r) {
     REPORTER_ASSERT(r, rowsDecoded == 0);
 }
 
-static void test_invalid_images(skiatest::Reporter* r, const char* path, bool shouldSucceed) {
-    SkBitmap bitmap;
-    const bool success = GetResourceAsBitmap(path, &bitmap);
-    REPORTER_ASSERT(r, success == shouldSucceed);
-}
-
-DEF_TEST(Codec_InvalidImages, r) {
-    // ASAN will complain if there is an issue.
-    test_invalid_images(r, "invalid_images/int_overflow.ico", false);
-    test_invalid_images(r, "invalid_images/skbug5887.gif", true);
-    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", false);
-}
-
-DEF_TEST(Codec_InvalidBmp, r) {
-    // These files report values that have caused problems with SkFILEStreams.
-    // They are invalid, and should not create SkCodecs.
-    for (auto* bmp : { "b33651913.bmp", "b34778578.bmp" } ) {
-        SkString path = SkOSPath::Join("invalid_images", bmp);
-        path = GetResourcePath(path.c_str());
-        std::unique_ptr<SkFILEStream> stream(new SkFILEStream(path.c_str()));
-        if (!stream->isValid()) {
-            return;
-        }
-
-        std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
-        REPORTER_ASSERT(r, !codec);
-    }
-}
-
-DEF_TEST(Codec_InvalidRLEBmp, r) {
-    auto* stream = GetResourceAsStream("invalid_images/b33251605.bmp");
+static void test_invalid_images(skiatest::Reporter* r, const char* path,
+                                SkCodec::Result expectedResult) {
+    auto* stream = GetResourceAsStream(path);
     if (!stream) {
         return;
     }
@@ -1492,7 +1460,36 @@ DEF_TEST(Codec_InvalidRLEBmp, r) {
     std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream));
     REPORTER_ASSERT(r, codec);
 
-    test_info(r, codec.get(), codec->getInfo(), SkCodec::kIncompleteInput, nullptr);
+    test_info(r, codec.get(), codec->getInfo().makeColorType(kN32_SkColorType), expectedResult,
+              nullptr);
+}
+
+DEF_TEST(Codec_InvalidImages, r) {
+    // ASAN will complain if there is an issue.
+    test_invalid_images(r, "invalid_images/skbug5887.gif", SkCodec::kIncompleteInput);
+    test_invalid_images(r, "invalid_images/many-progressive-scans.jpg", SkCodec::kInvalidInput);
+    test_invalid_images(r, "invalid_images/b33251605.bmp", SkCodec::kIncompleteInput);
+    test_invalid_images(r, "invalid_images/bad_palette.png", SkCodec::kInvalidInput);
+}
+
+static void test_invalid_header(skiatest::Reporter* r, const char* path) {
+    SkString resourcePath = GetResourcePath(path);
+    std::unique_ptr<SkFILEStream> stream(new SkFILEStream(resourcePath.c_str()));
+    if (!stream->isValid()) {
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromStream(stream.release()));
+    REPORTER_ASSERT(r, !codec);
+}
+
+DEF_TEST(Codec_InvalidHeader, r) {
+    test_invalid_header(r, "invalid_images/int_overflow.ico");
+
+    // These files report values that have caused problems with SkFILEStreams.
+    // They are invalid, and should not create SkCodecs.
+    test_invalid_header(r, "invalid_images/b33651913.bmp");
+    test_invalid_header(r, "invalid_images/b34778578.bmp");
 }
 
 DEF_TEST(Codec_InvalidAnimated, r) {
@@ -1515,7 +1512,7 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 
     auto frameInfos = codec->getFrameInfo();
     SkCodec::Options opts;
-    for (size_t i = 0; i < frameInfos.size(); i++) {
+    for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
         opts.fFrameIndex = i;
         opts.fHasPriorFrame = frameInfos[i].fRequiredFrame == i - 1;
         auto result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &opts);
@@ -1530,16 +1527,21 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 }
 
 static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          const SkEncodeOptions& opts, SkEncodedImageFormat format) {
+                          SkTransferFunctionBehavior unpremulBehavior,
+                          SkEncodedImageFormat format) {
+    SkPngEncoder::Options pngOptions;
+    SkWebpEncoder::Options webpOptions;
+    pngOptions.fUnpremulBehavior = unpremulBehavior;
+    webpOptions.fUnpremulBehavior = unpremulBehavior;
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkEncodeImageAsPNG(stream, pixmap, opts);
+            SkPngEncoder::Encode(stream, pixmap, pngOptions);
             break;
         case SkEncodedImageFormat::kJPEG:
-            SkEncodeImageAsJPEG(stream, pixmap, opts);
+            SkJpegEncoder::Encode(stream, pixmap, SkJpegEncoder::Options());
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkEncodeImageAsWEBP(stream, pixmap, opts);
+            SkWebpEncoder::Encode(stream, pixmap, webpOptions);
             break;
         default:
             SkASSERT(false);
@@ -1557,9 +1559,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     SkPixmap pixmap;
     srgbBitmap.peekPixels(&pixmap);
     SkDynamicMemoryWStream srgbBuf;
-    SkEncodeOptions opts;
-    opts.fUnpremulBehavior = unpremulBehavior;
-    encode_format(&srgbBuf, pixmap, opts, format);
+    encode_format(&srgbBuf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::NewFromData(srgbData));
     REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
@@ -1569,7 +1569,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                    SkColorSpace::kDCIP3_D65_Gamut);
     pixmap.setColorSpace(p3);
-    encode_format(&p3Buf, pixmap, opts, format);
+    encode_format(&p3Buf, pixmap, unpremulBehavior, format);
     sk_sp<SkData> p3Data = p3Buf.detachAsData();
     std::unique_ptr<SkCodec> p3Codec(SkCodec::NewFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());

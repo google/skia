@@ -9,6 +9,7 @@
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProcState.h"
 #include "SkColor.h"
+#include "SkColorSpaceXformer.h"
 #include "SkEmptyShader.h"
 #include "SkLightingShader.h"
 #include "SkMathPriv.h"
@@ -83,6 +84,7 @@ public:
 protected:
     void flatten(SkWriteBuffer&) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
 
 private:
     sk_sp<SkShader> fDiffuseShader;
@@ -167,7 +169,7 @@ public:
             fragBuilder->codeAppendf("vec4 diffuseColor = %s;", args.fInputColor);
 
             SkString dstNormalName("dstNormal");
-            this->emitChild(0, nullptr, &dstNormalName, args);
+            this->emitChild(0, &dstNormalName, args);
 
             fragBuilder->codeAppendf("vec3 normal = %s.xyz;", dstNormalName.c_str());
 
@@ -453,6 +455,13 @@ SkShader::Context* SkLightingShaderImpl::onMakeContext(
     }
 
     return alloc->make<LightingShaderContext>(*this, rec, diffuseContext, normalProvider, nullptr);
+}
+
+sk_sp<SkShader> SkLightingShaderImpl::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
+    sk_sp<SkShader> xformedDiffuseShader =
+            fDiffuseShader ? xformer->apply(fDiffuseShader.get()) : nullptr;
+    return SkLightingShader::Make(std::move(xformedDiffuseShader), fNormalSource,
+                                  fLights->makeColorSpace(xformer));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

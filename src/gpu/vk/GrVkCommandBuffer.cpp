@@ -50,7 +50,7 @@ void GrVkCommandBuffer::freeGPUData(const GrVkGpu* gpu) const {
     this->onFreeGPUData(gpu);
 }
 
-void GrVkCommandBuffer::abandonSubResources() const {
+void GrVkCommandBuffer::abandonGPUData() const {
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->unrefAndAbandon();
     }

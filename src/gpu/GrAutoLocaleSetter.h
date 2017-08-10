@@ -54,7 +54,7 @@ public:
             name = nullptr;
         }
 #endif
-        fLocale = newlocale(LC_ALL, name, 0);
+        fLocale = newlocale(LC_ALL_MASK, name, 0);
         if (fLocale) {
             fOldLocale = uselocale(fLocale);
         } else {

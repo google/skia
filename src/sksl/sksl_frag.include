@@ -14,7 +14,7 @@ layout(builtin=9999) vec4 gl_LastFragColor;
 layout(builtin=9999) vec4 gl_LastFragColorARM;
 layout(builtin=9999) int gl_SampleMaskIn[1];
 layout(builtin=9999) out int gl_SampleMask[1];
-layout(builtin=9999) vec4 gl_SecondaryFragColorEXT;
+layout(builtin=9999) out vec4 gl_SecondaryFragColorEXT;
 
 layout(location=0,index=0,builtin=10001) out vec4 sk_FragColor;
 

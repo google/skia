@@ -16,12 +16,7 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     SkString(src), settings);
-    if (program) {
-        SkSL::String ignored;
-        compiler.toSPIRV(*program, &ignored);
-    }
+    compiler.convertProgram(SkSL::Program::kFragment_Kind, SkString(src), settings);
     SkSL::String skError(error);
     if (compiler.errorText() != skError) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
@@ -38,8 +33,6 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkString(src), settings);
     REPORTER_ASSERT(r, program);
-    SkSL::String ignored;
-    REPORTER_ASSERT(r, compiler.toSPIRV(*program, &ignored));
 }
 
 DEF_TEST(SkSLUndefinedSymbol, r) {
@@ -125,6 +118,9 @@ DEF_TEST(SkSLConstructorTypeMismatch, r) {
     test_failure(r,
                  "struct foo { int x; } foo; void main() { vec2 x = vec2(foo); }",
                  "error: 1: 'foo' is not a valid parameter to 'vec2' constructor\n1 error\n");
+    test_failure(r,
+                 "void main() { mat2 x = mat2(true); }",
+                 "error: 1: expected 'float', but found 'bool'\n1 error\n");
 }
 
 DEF_TEST(SkSLConstructorArgumentCount, r) {
@@ -402,15 +398,6 @@ DEF_TEST(SkSLBadCap, r) {
                  "error: 1: unknown capability flag 'bugFreeDriver'\n1 error\n");
 }
 
-DEF_TEST(SkSLBadOffset, r) {
-    test_failure(r,
-                 "struct Bad { layout (offset = 5) int x; } bad; void main() { bad.x = 5; }",
-                 "error: 1: offset of field 'x' must be a multiple of 4\n1 error\n");
-    test_failure(r,
-                 "struct Bad { int x; layout (offset = 0) int y; } bad; void main() { bad.x = 5; }",
-                 "error: 1: offset of field 'y' must be at least 4\n1 error\n");
-}
-
 DEF_TEST(SkSLDivByZero, r) {
     test_failure(r,
                  "int x = 1 / 0;",
@@ -454,6 +441,52 @@ DEF_TEST(SkSLDuplicateCase, r) {
     test_failure(r,
                  "void main() { switch (1) { case 0: case 1: case 0: break; } }",
                  "error: 1: duplicate case value\n1 error\n");
+}
+
+DEF_TEST(SkSLFieldAfterRuntimeArray, r) {
+    test_failure(r,
+                 "buffer broken { float x[]; float y; };",
+                 "error: 1: only the last entry in an interface block may be a runtime-sized "
+                 "array\n1 error\n");
+}
+
+DEF_TEST(SkSLStaticIf, r) {
+    test_success(r,
+                 "void main() { float x = 5; float y = 10;"
+                 "@if (x < y) { sk_FragColor = vec4(1); } }");
+    test_failure(r,
+                 "void main() { float x = sqrt(25); float y = 10;"
+                 "@if (x < y) { sk_FragColor = vec4(1); } }",
+                 "error: 1: static if has non-static test\n1 error\n");
+}
+
+DEF_TEST(SkSLStaticSwitch, r) {
+    test_success(r,
+                 "void main() {"
+                 "int x = 1;"
+                 "@switch (x) {"
+                 "case 1: sk_FragColor = vec4(1); break;"
+                 "default: sk_FragColor = vec4(0);"
+                 "}"
+                 "}");
+    test_failure(r,
+                 "void main() {"
+                 "int x = int(sqrt(1));"
+                 "@switch (x) {"
+                 "case 1: sk_FragColor = vec4(1); break;"
+                 "default: sk_FragColor = vec4(0);"
+                 "}"
+                 "}",
+                 "error: 1: static switch has non-static test\n1 error\n");
+    test_failure(r,
+                 "void main() {"
+                 "int x = 1;"
+                 "@switch (x) {"
+                 "case 1: sk_FragColor = vec4(1); if (sqrt(0) < sqrt(1)) break;"
+                 "default: sk_FragColor = vec4(0);"
+                 "}"
+                 "}",
+                 "error: 1: static switch contains non-static conditional break\n1 error\n");
 }
 
 #endif

@@ -270,7 +270,7 @@ SkCodec* SkJpegCodec::NewFromStream(SkStream* stream) {
 SkCodec* SkJpegCodec::NewFromStream(SkStream* stream, sk_sp<SkColorSpace> defaultColorSpace) {
     std::unique_ptr<SkStream> streamDeleter(stream);
     SkCodec* codec = nullptr;
-    if (ReadHeader(stream,  &codec, nullptr, std::move(defaultColorSpace))) {
+    if (ReadHeader(stream, &codec, nullptr, std::move(defaultColorSpace))) {
         // Codec has taken ownership of the stream, we do not need to delete it
         SkASSERT(codec);
         streamDeleter.release();

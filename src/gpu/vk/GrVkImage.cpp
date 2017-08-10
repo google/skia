@@ -20,7 +20,7 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         default:
-            SkASSERT(GrVkFormatToPixelConfig(format, nullptr));
+            SkASSERT(kUnknown_GrPixelConfig != GrVkFormatToPixelConfig(format));
             return VK_IMAGE_ASPECT_COLOR_BIT;
     }
 }
@@ -152,11 +152,23 @@ void GrVkImage::abandonImage() {
     }
 }
 
+void GrVkImage::setResourceRelease(ReleaseProc proc, ReleaseCtx ctx) {
+    // Forward the release proc on to GrVkImage::Resource
+    fResource->setRelease(proc, ctx);
+}
+
 void GrVkImage::Resource::freeGPUData(const GrVkGpu* gpu) const {
+    SkASSERT(!fReleaseProc);
     VK_CALL(gpu, DestroyImage(gpu->device(), fImage, nullptr));
     bool isLinear = (VK_IMAGE_TILING_LINEAR == fImageTiling);
     GrVkMemory::FreeImageMemory(gpu, isLinear, fAlloc);
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(const GrVkGpu* gpu) const {
+    this->invokeReleaseProc();
 }
+
+void GrVkImage::BorrowedResource::abandonGPUData() const {
+    this->invokeReleaseProc();
+}
+

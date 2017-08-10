@@ -26,7 +26,10 @@ import (
 )
 
 const (
-	BUNDLE_RECIPES_NAME = "Housekeeper-PerCommit-BundleRecipes"
+	BUNDLE_RECIPES_NAME  = "Housekeeper-PerCommit-BundleRecipes"
+	ISOLATE_SKIMAGE_NAME = "Housekeeper-PerCommit-IsolateSkImage"
+	ISOLATE_SKP_NAME     = "Housekeeper-PerCommit-IsolateSKP"
+	ISOLATE_SVG_NAME     = "Housekeeper-PerCommit-IsolateSVG"
 
 	DEFAULT_OS       = DEFAULT_OS_LINUX
 	DEFAULT_OS_LINUX = "Ubuntu-14.04"
@@ -86,27 +89,31 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 		return "Build-Ubuntu-GCC-x86_64-Release-Shared"
 	} else if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
-		ec := parts["extra_config"]
-		ec = strings.TrimSuffix(ec, "_Skpbench")
-		ec = strings.TrimSuffix(ec, "_AbandonGpuContext")
-		ec = strings.TrimSuffix(ec, "_PreAbandonGpuContext")
-		if ec == "Valgrind" {
-			// skia:6267
-			ec = ""
+		ec := []string{}
+		if val := parts["extra_config"]; val != "" {
+			ec = strings.Split(val, "_")
+			ignore := []string{"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "ReleaseAndAbandonGpuContext"}
+			keep := make([]string, 0, len(ec))
+			for _, part := range ec {
+				if !util.In(part, ignore) {
+					keep = append(keep, part)
+				}
+			}
+			ec = keep
 		}
 		if task_os == "Android" {
-			if ec == "Vulkan" {
-				ec = "Android_Vulkan"
+			if !util.In("Android", ec) {
+				ec = append([]string{"Android"}, ec...)
 			}
 			task_os = "Ubuntu"
 		} else if task_os == "Chromecast" {
 			task_os = "Ubuntu"
-			ec = "Chromecast"
+			ec = append([]string{"Chromecast"}, ec...)
 		} else if strings.Contains(task_os, "ChromeOS") {
-			ec = "Chromebook_ARM_GLES"
+			ec = append([]string{"Chromebook", "ARM", "GLES"}, ec...)
 			task_os = "Ubuntu"
 		} else if task_os == "iOS" {
-			ec = task_os
+			ec = append([]string{task_os}, ec...)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
@@ -120,8 +127,8 @@ func deriveCompileTaskName(jobName string, parts map[string]string) string {
 			"target_arch":   parts["arch"],
 			"configuration": parts["configuration"],
 		}
-		if ec != "" {
-			jobNameMap["extra_config"] = ec
+		if len(ec) > 0 {
+			jobNameMap["extra_config"] = strings.Join(ec, "_")
 		}
 		name, err := jobNameSchema.MakeJobName(jobNameMap)
 		if err != nil {
@@ -147,10 +154,11 @@ func swarmDimensions(parts map[string]string) []string {
 			"Ubuntu":     DEFAULT_OS_LINUX,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Win":        "Windows-2008ServerR2-SP1",
-			"Win10":      "Windows-10-14393",
+			"Win10":      "Windows-10-15063",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
+			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
-			"iOS":        "iOS-9.3.1",
+			"iOS":        "iOS-10.3.1",
 		}[os]
 		// Chrome Golo has a different Windows image.
 		if parts["model"] == "Golo" && os == "Win10" {
@@ -172,6 +180,9 @@ func swarmDimensions(parts map[string]string) []string {
 		} else if strings.Contains(parts["os"], "iOS") {
 			d["device"] = map[string]string{
 				"iPadMini4": "iPad5,1",
+				"iPhone6":   "iPhone7,2",
+				"iPhone7":   "iPhone9,1",
+				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			d["gpu"] = "none"
@@ -185,7 +196,9 @@ func swarmDimensions(parts map[string]string) []string {
 				// dimensions to ensure that we correctly target machines which we know
 				// have AVX2 support.
 				d["cpu"] = "x86-64"
-				d["os"] = "Windows-2008ServerR2-SP1"
+				if parts["model"] != "GCE" {
+					glog.Fatalf("Please double-check that %q supports AVX2 and update this assertion.", parts["model"])
+				}
 			}
 		} else {
 			gpu, ok := GPU_MAPPING[parts["cpu_or_gpu_value"]]
@@ -227,16 +240,11 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "bundle_recipes",
-			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
 			fmt.Sprintf("buildername=%s", BUNDLE_RECIPES_NAME),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
-			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
-			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
-			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
-			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
 		},
 		Isolate:  "bundle_recipes.isolate",
-		Priority: 0.95,
+		Priority: 0.7,
 	})
 	return BUNDLE_RECIPES_NAME
 }
@@ -246,6 +254,63 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 func useBundledRecipes(parts map[string]string) bool {
 	// Use bundled recipes for all test/perf tasks.
 	return true
+}
+
+type isolateAssetCfg struct {
+	isolateFile string
+	cipdPkg     string
+}
+
+var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
+	ISOLATE_SKIMAGE_NAME: {
+		isolateFile: "isolate_skimage.isolate",
+		cipdPkg:     "skimage",
+	},
+	ISOLATE_SKP_NAME: {
+		isolateFile: "isolate_skp.isolate",
+		cipdPkg:     "skp",
+	},
+	ISOLATE_SVG_NAME: {
+		isolateFile: "isolate_svg.isolate",
+		cipdPkg:     "svg",
+	},
+}
+
+// bundleRecipes generates the task to bundle and isolate the recipes.
+func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset(ISOLATE_ASSET_MAPPING[name].cipdPkg),
+		},
+		Dimensions: linuxGceDimensions(),
+		Isolate:    ISOLATE_ASSET_MAPPING[name].isolateFile,
+		Priority:   0.7,
+	})
+	return name
+}
+
+// getIsolatedCIPDDeps returns the slice of Isolate_* tasks a given task needs.
+// This allows us to  save time on I/O bound bots, like the RPIs.
+func getIsolatedCIPDDeps(parts map[string]string) []string {
+	deps := []string{}
+	// Only do this on the RPIs for now. Other, faster machines shouldn't see much
+	// benefit and we don't need the extra complexity, for now
+	rpiOS := []string{"Android", "ChromeOS", "iOS"}
+
+	if o := parts["os"]; strings.Contains(o, "Chromecast") {
+		// Chromecasts don't have enough disk space to fit all of the content,
+		// so we do a subset of the skps.
+		deps = append(deps, ISOLATE_SKP_NAME)
+	} else if e := parts["extra_config"]; strings.Contains(e, "Skpbench") {
+		// Skpbench only needs skps
+		deps = append(deps, ISOLATE_SKP_NAME)
+	} else if util.In(o, rpiOS) {
+		deps = append(deps, ISOLATE_SKP_NAME)
+		deps = append(deps, ISOLATE_SVG_NAME)
+		deps = append(deps, ISOLATE_SKIMAGE_NAME)
+	}
+
+	return deps
 }
 
 // compile generates a compile task. Returns the name of the last task in the
@@ -267,6 +332,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	} else if strings.Contains(name, "Chromecast") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("cast_toolchain"))
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 	} else if strings.Contains(name, "Chromebook") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
@@ -308,6 +374,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -328,7 +395,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 // dependency.
 func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages:     []*specs.CipdPackage{},
+		CipdPackages:     []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dimensions:       linuxGceDimensions(),
 		ExecutionTimeout: 4 * time.Hour,
 		ExtraArgs: []string{
@@ -337,6 +404,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -344,6 +412,30 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 		IoTimeout: 40 * time.Minute,
 		Isolate:   "compile_skia.isolate",
 		Priority:  0.8,
+	})
+	return name
+}
+
+// updateMetaConfig generates a UpdateMetaConfig task. Returns the name of the
+// last task in the generated chain of tasks, which the Job should add as a
+// dependency.
+func updateMetaConfig(b *specs.TasksCfgBuilder, name string) string {
+	b.MustAddTask(name, &specs.TaskSpec{
+		CipdPackages: []*specs.CipdPackage{},
+		Dimensions:   linuxGceDimensions(),
+		ExtraArgs: []string{
+			"--workdir", "../../..", "update_meta_config",
+			fmt.Sprintf("repository=%s", specs.PLACEHOLDER_REPO),
+			fmt.Sprintf("buildername=%s", name),
+			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
+			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
+			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
+			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
+			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
+		},
+		Isolate:  "meta_config.isolate",
+		Priority: 0.8,
 	})
 	return name
 }
@@ -361,6 +453,7 @@ func ctSKPs(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -385,6 +478,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -399,7 +493,7 @@ func housekeeper(b *specs.TasksCfgBuilder, name, compileTaskName string) string 
 // generated chain of tasks, which the Job should add as a dependency.
 func infra(b *specs.TasksCfgBuilder, name string) string {
 	b.MustAddTask(name, &specs.TaskSpec{
-		CipdPackages: []*specs.CipdPackage{},
+		CipdPackages: []*specs.CipdPackage{b.MustGetCipdPackageFromAsset("go")},
 		Dimensions:   linuxGceDimensions(),
 		ExtraArgs: []string{
 			"--workdir", "../../..", "infra",
@@ -407,6 +501,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -446,6 +541,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -462,6 +558,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		} else {
 			s.Isolate = "test_skia_bundled_unix.isolate"
 		}
+	}
+	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
+		s.Dependencies = append(s.Dependencies, deps...)
 	}
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
@@ -484,6 +583,7 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("buildername=%s", name),
 				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -531,6 +631,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 			fmt.Sprintf("buildername=%s", name),
 			fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 			fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+			fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 			fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 			fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 			fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -543,6 +644,10 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	if useBundledRecipes(parts) {
 		s.Dependencies = append(s.Dependencies, BUNDLE_RECIPES_NAME)
 	}
+	if deps := getIsolatedCIPDDeps(parts); len(deps) > 0 {
+		s.Dependencies = append(s.Dependencies, deps...)
+	}
+
 	if strings.Contains(parts["extra_config"], "Valgrind") {
 		s.ExecutionTimeout = 9 * time.Hour
 		s.Expiration = 48 * time.Hour
@@ -564,6 +669,7 @@ func perf(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 				fmt.Sprintf("buildername=%s", name),
 				fmt.Sprintf("swarm_out_dir=%s", specs.PLACEHOLDER_ISOLATED_OUTDIR),
 				fmt.Sprintf("revision=%s", specs.PLACEHOLDER_REVISION),
+				fmt.Sprintf("patch_repo=%s", specs.PLACEHOLDER_PATCH_REPO),
 				fmt.Sprintf("patch_storage=%s", specs.PLACEHOLDER_PATCH_STORAGE),
 				fmt.Sprintf("patch_issue=%s", specs.PLACEHOLDER_ISSUE),
 				fmt.Sprintf("patch_set=%s", specs.PLACEHOLDER_PATCHSET),
@@ -586,6 +692,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, bundleRecipes(b))
 	}
 
+	// Isolate CIPD assets.
+	if _, ok := ISOLATE_ASSET_MAPPING[name]; ok {
+		deps = append(deps, isolateCIPDAsset(b, name))
+	}
+
 	parts, err := jobNameSchema.ParseJobName(name)
 	if err != nil {
 		glog.Fatal(err)
@@ -594,6 +705,11 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	// RecreateSKPs.
 	if strings.Contains(name, "RecreateSKPs") {
 		deps = append(deps, recreateSKPs(b, name))
+	}
+
+	// UpdateMetaConfig bot.
+	if strings.Contains(name, "UpdateMetaConfig") {
+		deps = append(deps, updateMetaConfig(b, name))
 	}
 
 	// CT bots.
@@ -622,6 +738,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		name != "Housekeeper-PerCommit-BundleRecipes" &&
 		name != "Housekeeper-PerCommit-InfraTests" &&
 		!strings.Contains(name, "RecreateSKPs") &&
+		!strings.Contains(name, "UpdateMetaConfig") &&
 		!strings.Contains(name, "-CT_") {
 		compile(b, compileTaskName, compileTaskParts)
 	}
@@ -632,18 +749,17 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	}
 
 	// Common assets needed by the remaining bots.
-	pkgs := []*specs.CipdPackage{
-		b.MustGetCipdPackageFromAsset("skimage"),
-		b.MustGetCipdPackageFromAsset("skp"),
-		b.MustGetCipdPackageFromAsset("svg"),
-	}
-	if strings.Contains(name, "Chromecast") {
-		// Chromecasts don't have enough disk space to fit all of the content,
-		// so we do a subset of the skps.
+
+	pkgs := []*specs.CipdPackage{}
+
+	if deps := getIsolatedCIPDDeps(parts); len(deps) == 0 {
 		pkgs = []*specs.CipdPackage{
+			b.MustGetCipdPackageFromAsset("skimage"),
 			b.MustGetCipdPackageFromAsset("skp"),
+			b.MustGetCipdPackageFromAsset("svg"),
 		}
 	}
+
 	if strings.Contains(name, "Ubuntu") && strings.Contains(name, "SAN") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_linux"))
 	}
@@ -655,12 +771,6 @@ func process(b *specs.TasksCfgBuilder, name string) {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_release"))
 		} else {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
-		}
-	}
-	// Skpbench only needs skps
-	if strings.Contains(name, "Skpbench") {
-		pkgs = []*specs.CipdPackage{
-			b.MustGetCipdPackageFromAsset("skp"),
 		}
 	}
 
@@ -680,6 +790,9 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		TaskSpecs: deps,
 	}
 	if name == "Housekeeper-Nightly-RecreateSKPs_Canary" {
+		j.Trigger = "nightly"
+	}
+	if name == "Housekeeper-Nightly-UpdateMetaConfig" {
 		j.Trigger = "nightly"
 	}
 	if name == "Housekeeper-Weekly-RecreateSKPs" {

@@ -12,24 +12,17 @@
 #include "SkShadowUtils.h"
 
 void draw_shadow(SkCanvas* canvas, const SkPath& path, int height, SkColor color, SkPoint3 lightPos,
-                 SkScalar lightR, bool isAmbient, uint32_t flags, SkResourceCache* cache) {
+                 SkScalar lightR, bool isAmbient, uint32_t flags) {
     SkScalar ambientAlpha = isAmbient ? .5f : 0.f;
     SkScalar spotAlpha = isAmbient ? 0.f : .5f;
     SkShadowUtils::DrawShadow(canvas, path, height, lightPos, lightR, ambientAlpha, spotAlpha,
-                              color, flags, cache);
+                              color, flags);
 }
 
 static constexpr int kW = 800;
 static constexpr int kH = 800;
 
-DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
-    // SkShadowUtils uses a cache of SkVertices meshes. The vertices are created in a local
-    // coordinate system and then translated when reused. The coordinate system depends on
-    // parameters to the generating draw. If other threads are hitting the cache while this GM is
-    // running then we may have different cache behavior leading to slight rendering differences.
-    // To avoid that we use our own isolated cache rather than the global cache.
-    SkResourceCache cache(1 << 20);
-
+void draw_paths(SkCanvas* canvas, bool hideOccluders) {
     SkTArray<SkPath> paths;
     paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
     SkRRect oddRRect;
@@ -41,9 +34,13 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
     paths.push_back().addOval(SkRect::MakeWH(20, 60));
 
     static constexpr SkScalar kPad = 15.f;
-    static constexpr SkPoint3 kLightPos = {250, 400, 500};
     static constexpr SkScalar kLightR = 100.f;
     static constexpr SkScalar kHeight = 50.f;
+
+    // transform light position relative to canvas to handle tiling
+    SkPoint lightXY = canvas->getTotalMatrix().mapXY(250, 400);
+    SkPoint3 lightPos = { lightXY.fX, lightXY.fY, 500 };
+
     canvas->translate(3 * kPad, 3 * kPad);
     canvas->save();
     SkScalar x = 0;
@@ -54,7 +51,7 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
     m->setRotate(33.f, 25.f, 25.f);
     m->postScale(1.2f, 0.8f, 25.f, 25.f);
     for (auto& m : matrices) {
-        for (auto flags : {kNone_ShadowFlag, kTransparentOccluder_ShadowFlag}) {
+        for (auto flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
             for (const auto& path : paths) {
                 SkRect postMBounds = path.getBounds();
                 m.mapRect(&postMBounds);
@@ -70,17 +67,27 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
 
                 canvas->save();
                 canvas->concat(m);
-                draw_shadow(canvas, path, kHeight, SK_ColorRED, kLightPos, kLightR, true, flags,
-                            &cache);
-                draw_shadow(canvas, path, kHeight, SK_ColorBLUE, kLightPos, kLightR, false, flags,
-                            &cache);
+                draw_shadow(canvas, path, kHeight, SK_ColorRED, lightPos, kLightR, true, flags);
+                draw_shadow(canvas, path, kHeight, SK_ColorBLUE, lightPos, kLightR, false, flags);
 
                 // Draw the path outline in green on top of the ambient and spot shadows.
                 SkPaint paint;
-                paint.setColor(SK_ColorGREEN);
                 paint.setAntiAlias(true);
-                paint.setStyle(SkPaint::kStroke_Style);
-                paint.setStrokeWidth(0);
+                if (hideOccluders) {
+                    if (SkToBool(flags & kTransparentOccluder_ShadowFlag)) {
+                        paint.setColor(SK_ColorCYAN);
+                    } else {
+                        paint.setColor(SK_ColorGREEN);
+                    }
+                    paint.setStyle(SkPaint::kStroke_Style);
+                    paint.setStrokeWidth(0);
+                } else {
+                    paint.setColor(SK_ColorLTGRAY);
+                    if (SkToBool(flags & kTransparentOccluder_ShadowFlag)) {
+                        paint.setAlpha(128);
+                    }
+                    paint.setStyle(SkPaint::kFill_Style);
+                }
                 canvas->drawPath(path, paint);
                 canvas->restore();
 
@@ -98,7 +105,15 @@ DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
         SkPaint paint;
         paint.setColor(SK_ColorBLACK);
         paint.setAntiAlias(true);
-        canvas->drawCircle(kLightPos.fX, kLightPos.fY, kLightR / 10.f, paint);
+        canvas->drawCircle(lightPos.fX, lightPos.fY, kLightR / 10.f, paint);
         canvas->restore();
     }
+}
+
+DEF_SIMPLE_GM(shadow_utils, canvas, kW, kH) {
+    draw_paths(canvas, true);
+}
+
+DEF_SIMPLE_GM(shadow_utils_occl, canvas, kW, kH) {
+    draw_paths(canvas, false);
 }

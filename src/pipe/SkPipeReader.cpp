@@ -244,6 +244,14 @@ static void saveLayer_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
     if (extra & kHasBackdrop_SaveLayerMask) {
         backdrop = reader.readImageFilter();
     }
+    sk_sp<SkImage> clipMask;
+    if (extra & kHasClipMask_SaveLayerMask) {
+        clipMask = reader.readImage();
+    }
+    SkMatrix clipMatrix;
+    if (extra & kHasClipMatrix_SaveLayerMask) {
+        reader.readMatrix(&clipMatrix);
+    }
     SkCanvas::SaveLayerFlags flags = (SkCanvas::SaveLayerFlags)(extra & kFlags_SaveLayerMask);
 
     // unremap this wacky flag
@@ -251,7 +259,8 @@ static void saveLayer_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanva
         flags |= (1 << 31);//SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag;
     }
 
-    canvas->saveLayer(SkCanvas::SaveLayerRec(bounds, paint, backdrop.get(), flags));
+    canvas->saveLayer(SkCanvas::SaveLayerRec(bounds, paint, backdrop.get(), clipMask.get(),
+                      (extra & kHasClipMatrix_SaveLayerMask) ? &clipMatrix : nullptr, flags));
 }
 
 static void restore_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {

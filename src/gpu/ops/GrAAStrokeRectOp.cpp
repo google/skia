@@ -262,9 +262,9 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) const {
 
     const sk_sp<const GrBuffer> indexBuffer(
             GetIndexBuffer(target->resourceProvider(), this->miterStroke()));
-    InstancedHelper helper;
+    PatternHelper helper(kTriangles_GrPrimitiveType);
     void* vertices =
-            helper.init(target, kTriangles_GrPrimitiveType, vertexStride, indexBuffer.get(),
+            helper.init(target, vertexStride, indexBuffer.get(),
                         verticesPerInstance, indicesPerInstance, instanceCount);
     if (!vertices || !indexBuffer) {
         SkDebugf("Could not allocate vertices\n");
@@ -312,7 +312,7 @@ const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvi
         // clang-format on
         GR_STATIC_ASSERT(SK_ARRAY_COUNT(gMiterIndices) == kMiterIndexCnt);
         GR_DEFINE_STATIC_UNIQUE_KEY(gMiterIndexBufferKey);
-        return resourceProvider->findOrCreateInstancedIndexBuffer(
+        return resourceProvider->findOrCreatePatternedIndexBuffer(
                 gMiterIndices, kMiterIndexCnt, kNumMiterRectsInIndexBuffer, kMiterVertexCnt,
                 gMiterIndexBufferKey);
     } else {
@@ -377,7 +377,7 @@ const GrBuffer* AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvi
         GR_STATIC_ASSERT(SK_ARRAY_COUNT(gBevelIndices) == kBevelIndexCnt);
 
         GR_DEFINE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
-        return resourceProvider->findOrCreateInstancedIndexBuffer(
+        return resourceProvider->findOrCreatePatternedIndexBuffer(
                 gBevelIndices, kBevelIndexCnt, kNumBevelRectsInIndexBuffer, kBevelVertexCnt,
                 gBevelIndexBufferKey);
     }
@@ -593,7 +593,7 @@ std::unique_ptr<GrLegacyMeshDrawOp> Make(GrColor color,
 
 #include "GrDrawOpTest.h"
 
-DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
+GR_LEGACY_MESH_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     bool miterStroke = random->nextBool();
 
     // Create either a empty rect or a non-empty rect.

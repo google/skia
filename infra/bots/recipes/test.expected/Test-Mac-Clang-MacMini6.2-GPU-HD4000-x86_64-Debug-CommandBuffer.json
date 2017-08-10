@@ -69,7 +69,7 @@
     "cmd": [
       "python",
       "-u",
-      "RECIPE_MODULE[build::file]/resources/fileutil.py",
+      "RECIPE_MODULE[skia::file]/resources/fileutil.py",
       "rmtree",
       "[CUSTOM_[SWARM_OUT_DIR]]/dm"
     ],
@@ -221,9 +221,9 @@
       "builder",
       "Test-Mac-Clang-MacMini6.2-GPU-HD4000-x86_64-Debug-CommandBuffer",
       "swarming_bot_id",
-      "",
+      "skia-bot-123",
       "swarming_task_id",
-      "",
+      "123456",
       "--svgs",
       "[START_DIR]/svg",
       "--key",
@@ -352,6 +352,10 @@
       "inc14.png",
       "_",
       "image",
+      "gen_platf",
+      "testimgari.jpg",
+      "_",
+      "image",
       "_",
       "interlaced1.png",
       "_",
@@ -441,7 +445,9 @@
       "_",
       "image",
       "_",
-      ".SRW"
+      ".SRW",
+      "--match",
+      "~HalfFloatAlphaTextureTest"
     ],
     "env": {
       "BUILDTYPE": "Debug",

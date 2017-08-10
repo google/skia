@@ -15,13 +15,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureOpList::GrTextureOpList(GrTextureProxy* tex, GrGpu* gpu, GrAuditTrail* auditTrail)
-    : INHERITED(tex, auditTrail)
-    , fGpu(SkRef(gpu)) {
+GrTextureOpList::GrTextureOpList(GrTextureProxy* proxy, GrAuditTrail* auditTrail)
+    : INHERITED(proxy, auditTrail) {
 }
 
 GrTextureOpList::~GrTextureOpList() {
-    fGpu->unref();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,10 +40,11 @@ void GrTextureOpList::dump() const {
                     clippedBounds.fBottom);
     }
 }
+
 #endif
 
 void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
-    // MDB TODO: add SkASSERT(this->isClosed());
+    SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
     for (int i = 0; i < fRecordedOps.count(); ++i) {
@@ -66,16 +65,17 @@ bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
         fRecordedOps[i]->execute(flushState);
     }
 
-    fGpu->finishOpList();
     return true;
 }
 
 void GrTextureOpList::reset() {
     fRecordedOps.reset();
+    INHERITED::reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// MDB TODO: fuse with GrRenderTargetOpList::copySurface
 bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
                                   GrSurfaceProxy* dst,
                                   GrSurfaceProxy* src,
@@ -89,21 +89,17 @@ bool GrTextureOpList::copySurface(GrResourceProvider* resourceProvider,
     this->addDependency(src);
 #endif
 
-    // See the comment in GrRenderTargetOpList about why we pass the invalid ID here.
-    this->recordOp(std::move(op),
-                   GrGpuResource::UniqueID::InvalidID(),
-                   GrSurfaceProxy::UniqueID::InvalidID());
+    this->recordOp(std::move(op));
     return true;
 }
 
-void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op,
-                               GrGpuResource::UniqueID resourceUniqueID,
-                               GrSurfaceProxy::UniqueID proxyUniqueID) {
+void GrTextureOpList::recordOp(std::unique_ptr<GrOp> op) {
+    SkASSERT(fTarget.get());
     // A closed GrOpList should never receive new/more ops
     SkASSERT(!this->isClosed());
 
-    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), resourceUniqueID, proxyUniqueID);
-    GrOP_INFO("Re-Recording (%s, B%u)\n"
+    GR_AUDIT_TRAIL_ADD_OP(fAuditTrail, op.get(), fTarget.get()->uniqueID());
+    GrOP_INFO("Re-Recording (%s, opID: %u)\n"
         "\tBounds LRTB (%f, %f, %f, %f)\n",
         op->name(),
         op->uniqueID(),

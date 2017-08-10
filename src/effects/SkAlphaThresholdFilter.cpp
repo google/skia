@@ -198,8 +198,6 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
         return nullptr;
     }
 
-    SkAutoLockPixels inputLock(inputBM);
-
     if (!inputBM.getPixels() || inputBM.width() <= 0 || inputBM.height() <= 0) {
         return nullptr;
     }
@@ -217,8 +215,6 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(SkSpecialImage* 
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
-
-    SkAutoLockPixels dstLock(dst);
 
     U8CPU innerThreshold = (U8CPU)(fInnerThreshold * 0xFF);
     U8CPU outerThreshold = (U8CPU)(fOuterThreshold * 0xFF);

@@ -11,6 +11,7 @@
 #if SK_SUPPORT_GPU
 #include <thread>
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrGpu.h"
 #include "GrGpuResourceCacheAccess.h"
@@ -66,7 +67,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheCache, reporter, ctxInfo) {
 
     for (int i = 0; i < 100; ++i) {
         canvas->drawBitmap(src, 0, 0);
-        canvas->readPixels(size, &readback);
+        canvas->readPixels(readback, 0, 0);
 
         // "modify" the src texture
         src.notifyPixelsChanged();
@@ -211,64 +212,53 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
         return;
     }
 
-    GrBackendObject texHandles[3];
+    GrBackendObject texHandles[2];
     static const int kW = 100;
     static const int kH = 100;
 
     texHandles[0] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
     texHandles[1] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
-    texHandles[2] = gpu->createTestingOnlyBackendTexture(nullptr, kW, kH, kRGBA_8888_GrPixelConfig);
 
     context->resetContext();
 
-    GrBackendTextureDesc desc;
-    desc.fConfig = kBGRA_8888_GrPixelConfig;
-    desc.fWidth = kW;
-    desc.fHeight = kH;
-
-    desc.fTextureHandle = texHandles[0];
+    GrBackendTexture backendTex1 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
+                                                                kW,
+                                                                kH,
+                                                                kRGBA_8888_GrPixelConfig,
+                                                                texHandles[0]);
     sk_sp<GrTexture> borrowed(context->resourceProvider()->wrapBackendTexture(
-                              desc, kBorrow_GrWrapOwnership));
+                              backendTex1, kTopLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 0,
+                              kBorrow_GrWrapOwnership));
 
-    desc.fTextureHandle = texHandles[1];
+    GrBackendTexture backendTex2 = GrTest::CreateBackendTexture(context->contextPriv().getBackend(),
+                                                                kW,
+                                                                kH,
+                                                                kRGBA_8888_GrPixelConfig,
+                                                                texHandles[1]);
     sk_sp<GrTexture> adopted(context->resourceProvider()->wrapBackendTexture(
-                             desc, kAdopt_GrWrapOwnership));
+                             backendTex2, kTopLeft_GrSurfaceOrigin, kNone_GrBackendTextureFlag, 0,
+                             kAdopt_GrWrapOwnership));
 
-    desc.fTextureHandle = texHandles[2];
-    sk_sp<GrTexture> adoptedAndCached(context->resourceProvider()->wrapBackendTexture(
-                                      desc, kAdoptAndCache_GrWrapOwnership));
-
-    REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr &&
-                              adoptedAndCached != nullptr);
-    if (!borrowed || !adopted || !adoptedAndCached) {
+    REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
+    if (!borrowed || !adopted) {
         return;
     }
 
     borrowed.reset(nullptr);
     adopted.reset(nullptr);
-    adoptedAndCached.reset(nullptr);
 
     context->flush();
 
     bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[0]);
     bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[1]);
-    bool adoptedAndCachedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[2]);
 
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
-    REPORTER_ASSERT(reporter, adoptedAndCachedIsAlive); // Still alive because it's in the cache
 
     gpu->deleteTestingOnlyBackendTexture(texHandles[0], !borrowedIsAlive);
     gpu->deleteTestingOnlyBackendTexture(texHandles[1], !adoptedIsAlive);
-    // We can't delete texHandles[2] - we've given control of the lifetime to the context/cache
 
     context->resetContext();
-
-    // Purge the cache. This should force texHandles[2] to be deleted
-    context->getResourceCache()->purgeAllUnlocked();
-    adoptedAndCachedIsAlive = gpu->isTestingOnlyBackendTexture(texHandles[2]);
-    REPORTER_ASSERT(reporter, !adoptedAndCachedIsAlive);
-    gpu->deleteTestingOnlyBackendTexture(texHandles[2], !adoptedAndCachedIsAlive);
 }
 
 class TestResource : public GrGpuResource {
@@ -463,11 +453,15 @@ static void test_budgeting(skiatest::Reporter* reporter) {
             new TestResource(context->getGpu(), SkBudgeted::kNo);
     unbudgeted->setSize(13);
 
-    // Make sure we can't add a unique key to the wrapped resource
+    // Make sure we can add a unique key to the wrapped resource
     GrUniqueKey uniqueKey2;
     make_unique_key<0>(&uniqueKey2, 1);
     wrapped->resourcePriv().setUniqueKey(uniqueKey2);
-    REPORTER_ASSERT(reporter, nullptr == cache->findAndRefUniqueResource(uniqueKey2));
+    GrGpuResource* wrappedViaKey = cache->findAndRefUniqueResource(uniqueKey2);
+    REPORTER_ASSERT(reporter, wrappedViaKey != nullptr);
+
+    // Remove the extra ref we just added.
+    wrappedViaKey->unref();
 
     // Make sure sizes are as we expect
     REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
@@ -477,6 +471,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() ==
                               cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Our refs mean that the resources are non purgeable.
     cache->purgeAllUnlocked();
@@ -487,43 +482,51 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() ==
                               cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Unreffing the wrapped resource should free it right away.
     wrapped->unref();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
                               unbudgeted->gpuMemorySize() == cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Now try freeing the budgeted resources first
     wrapped = TestResource::CreateWrapped(context->getGpu());
     scratch->setSize(12);
     unique->unref();
+    REPORTER_ASSERT(reporter, 11 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() +
                               unbudgeted->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     scratch->unref();
+    REPORTER_ASSERT(reporter, 12 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() + wrapped->gpuMemorySize() ==
                               cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     wrapped->unref();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     unbudgeted->unref();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 }
 
 static void test_unbudgeted(skiatest::Reporter* reporter) {
@@ -549,6 +552,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 10 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 10 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 10 == cache->getPurgeableBytes());
 
     unique = new TestResource(context->getGpu());
     unique->setSize(11);
@@ -558,6 +562,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     size_t large = 2 * cache->getResourceBytes();
     unbudgeted = new TestResource(context->getGpu(), SkBudgeted::kNo, large);
@@ -565,30 +570,35 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     unbudgeted->unref();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     wrapped = TestResource::CreateWrapped(context->getGpu(), large);
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 + large == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     wrapped->unref();
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 2 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 }
 
 // This method can't be static because it needs to friended in GrGpuResource::CacheAccess.
@@ -615,6 +625,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
         REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
         REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+        REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
         // Once it is unrefed, it should become available as scratch.
         resource->unref();
@@ -622,6 +633,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
         REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
         REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
         REPORTER_ASSERT(reporter, size == cache->getBudgetedResourceBytes());
+        REPORTER_ASSERT(reporter, size == cache->getPurgeableBytes());
         resource = static_cast<TestResource*>(cache->findAndRefScratchResource(key, TestResource::kDefaultSize, 0));
         REPORTER_ASSERT(reporter, resource);
         REPORTER_ASSERT(reporter, resource->resourcePriv().getScratchKey() == key);
@@ -639,6 +651,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
             REPORTER_ASSERT(reporter, size == cache->getResourceBytes());
             REPORTER_ASSERT(reporter, 1 == cache->getBudgetedResourceCount());
             REPORTER_ASSERT(reporter, size == cache->getBudgetedResourceBytes());
+            REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
             REPORTER_ASSERT(reporter, !resource->resourcePriv().getScratchKey().isValid());
             REPORTER_ASSERT(reporter, !resource->cacheAccess().isScratch());
             REPORTER_ASSERT(reporter, SkBudgeted::kYes == resource->resourcePriv().isBudgeted());
@@ -649,6 +662,7 @@ void test_unbudgeted_to_scratch(skiatest::Reporter* reporter);
             REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
             REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
             REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
+            REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
         }
     }
 }
@@ -1375,6 +1389,7 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
     }
 
     REPORTER_ASSERT(reporter, TestResource::NumAlive() == 2 * kResourceCnt);
+    REPORTER_ASSERT(reporter, cache->getPurgeableBytes() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceBytes() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceCount() == 2 * kResourceCnt);
     REPORTER_ASSERT(reporter, cache->getResourceBytes() == 2 * kResourceCnt);
@@ -1390,6 +1405,7 @@ static void test_large_resource_count(skiatest::Reporter* reporter) {
 
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, TestResource::NumAlive() == 0);
+    REPORTER_ASSERT(reporter, cache->getPurgeableBytes() == 0);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceBytes() == 0);
     REPORTER_ASSERT(reporter, cache->getBudgetedResourceCount() == 0);
     REPORTER_ASSERT(reporter, cache->getResourceBytes() == 0);

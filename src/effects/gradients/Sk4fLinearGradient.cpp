@@ -351,16 +351,10 @@ private:
     void compute_interval_props(SkScalar t) {
         SkASSERT(in_range(t, fInterval->fT0, fInterval->fT1));
 
-        fZeroRamp     = fIsVertical || fInterval->fZeroRamp;
-        fCc           = DstTraits<dstType, premul>::load(fInterval->fCb);
-
-        if (fInterval->fZeroRamp) {
-            fDcDx = 0;
-        } else {
-            const Sk4f dC = DstTraits<dstType, premul>::load(fInterval->fCg);
-            fCc           = fCc + dC * Sk4f(t);
-            fDcDx         = dC * fDx;
-        }
+        const Sk4f dc = DstTraits<dstType, premul>::load(fInterval->fCg);
+                  fCc = DstTraits<dstType, premul>::load(fInterval->fCb) + dc * Sk4f(t);
+                fDcDx = dc * fDx;
+            fZeroRamp = fIsVertical || (dc == 0).allTrue();
     }
 
     void init_average_props() {
@@ -377,10 +371,8 @@ private:
             //
             //   Avg += C * (t1 - t0)
             //
-            auto c = DstTraits<dstType, premul>::load(i->fCb);
-            if (!i->fZeroRamp) {
-                c = c + DstTraits<dstType, premul>::load(i->fCg) * (i->fT0 + i->fT1) * 0.5f;
-            }
+            const auto c = DstTraits<dstType, premul>::load(i->fCb)
+                         + DstTraits<dstType, premul>::load(i->fCg) * (i->fT0 + i->fT1) * 0.5f;
             fCc = fCc + c * (i->fT1 - i->fT0);
         }
     }

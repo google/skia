@@ -8,15 +8,16 @@
 #ifndef GrRenderTargetContext_DEFINED
 #define GrRenderTargetContext_DEFINED
 
+#include "../private/GrInstancedPipelineInfo.h"
+#include "../private/GrRenderTargetProxy.h"
 #include "GrColor.h"
 #include "GrContext.h"
 #include "GrPaint.h"
 #include "GrSurfaceContext.h"
+#include "GrTypesPriv.h"
 #include "GrXferProcessor.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
-#include "../private/GrInstancedPipelineInfo.h"
-#include "../private/GrRenderTargetProxy.h"
 
 class GrClip;
 class GrDrawingManager;
@@ -31,6 +32,7 @@ class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
 class SkDrawFilter;
+struct SkDrawShadowRec;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
@@ -152,21 +154,19 @@ public:
                    const GrStyle& style);
 
     /**
-     * Draw a roundrect using a paint and a shadow shader. This is separate from drawRRect
-     * because it uses different underlying geometry and GeometryProcessor
+     * Use a fast method to render the ambient and spot shadows for a path.
+     * Will return false if not possible for the given path.
      *
      * @param paint        describes how to color pixels.
      * @param viewMatrix   transformation matrix
-     * @param rrect        the roundrect to draw
-     * @param blurRadius   amount of shadow blur to apply (in device space)
-     * @param style        style to apply to the rrect. Currently path effects are not allowed.
+     * @param path         the path to shadow
+     * @param rec          parameters for shadow rendering
      */
-    void drawShadowRRect(const GrClip&,
-                         GrPaint&&,
-                         const SkMatrix& viewMatrix,
-                         const SkRRect& rrect,
-                         SkScalar blurRadius,
-                         const GrStyle& style);
+    bool drawFastShadow(const GrClip&,
+                        GrPaint&&,
+                        const SkMatrix& viewMatrix,
+                        const SkPath& path,
+                        const SkDrawShadowRec& rec);
 
     /**
      * Shortcut for filling a SkPath consisting of nested rrects using a paint. The result is
@@ -341,18 +341,13 @@ public:
      */
     void prepareForExternalIO();
 
-    bool isStencilBufferMultisampled() const {
-        return fRenderTargetProxy->isStencilBufferMultisampled();
-    }
-    bool isUnifiedMultisampled() const { return fRenderTargetProxy->isUnifiedMultisampled(); }
-    bool hasMixedSamples() const { return fRenderTargetProxy->isMixedSampled(); }
-
+    GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
     const GrCaps* caps() const { return fContext->caps(); }
-    const GrSurfaceDesc& desc() const { return fRenderTargetProxy->desc(); }
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
     GrPixelConfig config() const { return fRenderTargetProxy->config(); }
     int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
+    int numStencilSamples() const { return fRenderTargetProxy->numStencilSamples(); }
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     GrColorSpaceXform* getColorXformFromSRGB() const { return fColorXformFromSRGB.get(); }
     GrSurfaceOrigin origin() const { return fRenderTargetProxy->origin(); }
@@ -362,7 +357,7 @@ public:
     GrRenderTarget* accessRenderTarget() {
         // TODO: usage of this entry point needs to be reduced and potentially eliminated
         // since it ends the deferral of the GrRenderTarget's allocation
-        return fRenderTargetProxy->instantiate(fContext->resourceProvider());
+        return fRenderTargetProxy->instantiateRenderTarget(fContext->resourceProvider());
     }
 
     GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }
@@ -391,17 +386,8 @@ protected:
     SkDEBUGCODE(void validate() const;)
 
 private:
-    inline GrAAType decideAAType(GrAA aa, bool allowMixedSamples = false) {
-        if (GrAA::kNo == aa) {
-            return GrAAType::kNone;
-        }
-        if (this->isUnifiedMultisampled()) {
-            return GrAAType::kMSAA;
-        }
-        if (allowMixedSamples && this->isStencilBufferMultisampled()) {
-            return GrAAType::kMixedSamples;
-        }
-        return GrAAType::kCoverage;
+    inline GrAAType chooseAAType(GrAA aa, GrAllowMixedSamples allowMixedSamples) {
+        return GrChooseAAType(aa, this->fsaaType(), allowMixedSamples);
     }
 
     friend class GrAtlasTextBlob;               // for access to add[Mesh]DrawOp
@@ -479,7 +465,7 @@ private:
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpList should only ever be accessed via 'getOpList'.
-    GrRenderTargetOpList*             fOpList;
+    sk_sp<GrRenderTargetOpList>       fOpList;
     GrInstancedPipelineInfo           fInstancedPipelineInfo;
 
     sk_sp<GrColorSpaceXform>          fColorXformFromSRGB;

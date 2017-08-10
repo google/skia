@@ -68,7 +68,7 @@ public:
     // number of vertex attributes is too large).
     bool draw(const GrPipeline&,
               const GrPrimitiveProcessor&,
-              const GrMesh*,
+              const GrMesh[],
               int meshCount,
               const SkRect& bounds);
 

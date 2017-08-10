@@ -402,7 +402,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setBlendMode(SkBlendMode::kXor);
         paint.setColorFilter(lightingFilter);
-        canvas->drawLine(start.fX, start.fY, stop.fX, stop.fY, paint); // should not be green
+        canvas->drawLine(start, stop, paint); // should not be green
         paint.setBlendMode(SkBlendMode::kSrcOver);
         paint.setColorFilter(nullptr);
 
@@ -544,7 +544,7 @@ protected:
                                     gLightingColors[index].fAdd));
 #endif
 
-            canvas->drawText(str.c_str(), str.size(), x, y, paint);
+            canvas->drawString(str, x, y, paint);
             SkRect  oval = { x, y - SkIntToScalar(40), x + SkIntToScalar(40), y };
             paint.setStyle(SkPaint::kStroke_Style);
             canvas->drawOval(oval, paint);

@@ -90,7 +90,7 @@ protected:
         labelPaint.setColor(0xFFFFFFFF);
         labelPaint.setTextSize(12.0f);
 
-        canvas->drawText(label.c_str(), label.size(), 0, kLabelHeight - 6.0f, labelPaint);
+        canvas->drawString(label, 0, kLabelHeight - 6.0f, labelPaint);
     }
 
     SkString fName;

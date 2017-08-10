@@ -15,8 +15,8 @@ SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
 {}
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                 SkPMColor ctable[], int* ctableCount) {
-    if (kUnknown_SkColorType == info.colorType()) {
+                                 const Options* opts) {
+    if (kUnknown_SkColorType == info.colorType() || kIndex_8_SkColorType == info.colorType()) {
         return false;
     }
     if (nullptr == pixels) {
@@ -26,27 +26,6 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
         return false;
     }
 
-    if (kIndex_8_SkColorType == info.colorType()) {
-        if (nullptr == ctable || nullptr == ctableCount) {
-            return false;
-        }
-    } else {
-        if (ctableCount) {
-            *ctableCount = 0;
-        }
-        ctableCount = nullptr;
-        ctable = nullptr;
-    }
-
-    const bool success = this->onGetPixels(info, pixels, rowBytes, ctable, ctableCount);
-    if (success && ctableCount) {
-        SkASSERT(*ctableCount >= 0 && *ctableCount <= 256);
-    }
-    return success;
-}
-
-bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                 const Options* opts) {
     Options defaultOpts;
     if (!opts) {
         opts = &defaultOpts;
@@ -55,11 +34,7 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
 }
 
 bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-    SkASSERT(kIndex_8_SkColorType != info.colorType());
-    if (kIndex_8_SkColorType == info.colorType()) {
-        return false;
-    }
-    return this->getPixels(info, pixels, rowBytes, nullptr, nullptr);
+    return this->getPixels(info, pixels, rowBytes, nullptr);
 }
 
 bool SkImageGenerator::queryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
@@ -103,17 +78,6 @@ sk_sp<GrTextureProxy> SkImageGenerator::onGenerateTexture(GrContext*, const SkIm
     return nullptr;
 }
 #endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-SkData* SkImageGenerator::onRefEncodedData(GrContext* ctx) {
-    return nullptr;
-}
-
-bool SkImageGenerator::onGetPixels(const SkImageInfo& info, void* dst, size_t rb,
-                                   SkPMColor* colors, int* colorCount) {
-    return false;
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

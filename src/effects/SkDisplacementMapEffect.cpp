@@ -388,7 +388,6 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         return nullptr;
     }
 
-    SkAutoLockPixels colorLock(colorBM), displLock(displBM);
     if (!colorBM.getPixels() || !displBM.getPixels()) {
         return nullptr;
     }
@@ -400,8 +399,6 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
     if (!dst.tryAllocPixels(info)) {
         return nullptr;
     }
-
-    SkAutoLockPixels dstLock(dst);
 
     computeDisplacement(fXChannelSelector, fYChannelSelector, scale, &dst,
                         displBM, colorOffset - displOffset, colorBM, colorBounds);

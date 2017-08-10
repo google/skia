@@ -210,7 +210,7 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(
 
 std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVarDeclarations& decl,
                                                                      Variable::Storage storage) {
-    std::vector<VarDeclaration> variables;
+    std::vector<std::unique_ptr<VarDeclaration>> variables;
     const Type* baseType = this->convertType(*decl.fType);
     if (!baseType) {
         return nullptr;
@@ -254,6 +254,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
                 return nullptr;
             }
             value = this->coerce(std::move(value), *type);
+            var->fWriteCount = 1;
         }
         if (storage == Variable::kGlobal_Storage && varDecl.fName == String("sk_FragColor") &&
             (*fSymbolTable)[varDecl.fName]) {
@@ -265,7 +266,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTVa
             Variable* old = (Variable*) (*fSymbolTable)[varDecl.fName];
             old->fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(var.get(), std::move(sizes), std::move(value));
+            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
+                                                      std::move(value)));
             fSymbolTable->add(varDecl.fName, std::move(var));
         }
     }
@@ -309,7 +311,7 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTIfStatement& s) {
                                                         fSymbolTable));
         }
     }
-    return std::unique_ptr<Statement>(new IfStatement(s.fPosition, std::move(test),
+    return std::unique_ptr<Statement>(new IfStatement(s.fPosition, s.fIsStatic, std::move(test),
                                                       std::move(ifTrue), std::move(ifFalse)));
 }
 
@@ -427,8 +429,8 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTSwitchStatement& 
         cases.emplace_back(new SwitchCase(c->fPosition, std::move(caseValue),
                                           std::move(statements)));
     }
-    return std::unique_ptr<Statement>(new SwitchStatement(s.fPosition, std::move(value),
-                                                          std::move(cases)));
+    return std::unique_ptr<Statement>(new SwitchStatement(s.fPosition, s.fIsStatic,
+                                                          std::move(value), std::move(cases)));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(
@@ -542,7 +544,8 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
                 }
                 if (match) {
                     if (*returnType != other->fReturnType) {
-                        FunctionDeclaration newDecl(f.fPosition, f.fName, parameters, *returnType);
+                        FunctionDeclaration newDecl(f.fPosition, f.fModifiers, f.fName, parameters,
+                                                    *returnType);
                         fErrors.error(f.fPosition, "functions '" + newDecl.description() +
                                                    "' and '" + other->description() +
                                                    "' differ only in return type");
@@ -570,6 +573,7 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
     if (!decl) {
         // couldn't find an existing declaration
         auto newDecl = std::unique_ptr<FunctionDeclaration>(new FunctionDeclaration(f.fPosition,
+                                                                                    f.fModifiers,
                                                                                     f.fName,
                                                                                     parameters,
                                                                                     *returnType));
@@ -590,6 +594,8 @@ std::unique_ptr<FunctionDefinition> IRGenerator::convertFunction(const ASTFuncti
         if (!body) {
             return nullptr;
         }
+        // conservatively assume all user-defined functions have side effects
+        ((Modifiers&) decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
         return std::unique_ptr<FunctionDefinition>(new FunctionDefinition(f.fPosition, *decl,
                                                                           std::move(body)));
     }
@@ -600,6 +606,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
     std::shared_ptr<SymbolTable> old = fSymbolTable;
     AutoSymbolTable table(this);
     std::vector<Type::Field> fields;
+    bool haveRuntimeArray = false;
     for (size_t i = 0; i < intf.fDeclarations.size(); i++) {
         std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
                                                                          *intf.fDeclarations[i],
@@ -608,18 +615,28 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTInte
             return nullptr;
         }
         for (const auto& var : decl->fVars) {
-            fields.push_back(Type::Field(var.fVar->fModifiers, var.fVar->fName,
-                                         &var.fVar->fType));
-            if (var.fValue) {
+            if (haveRuntimeArray) {
+                fErrors.error(decl->fPosition,
+                              "only the last entry in an interface block may be a runtime-sized "
+                              "array");
+            }
+            fields.push_back(Type::Field(var->fVar->fModifiers, var->fVar->fName,
+                                         &var->fVar->fType));
+            if (var->fValue) {
                 fErrors.error(decl->fPosition,
                               "initializers are not permitted on interface block fields");
             }
-            if (var.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
-                                               Modifiers::kOut_Flag |
-                                               Modifiers::kUniform_Flag |
-                                               Modifiers::kConst_Flag)) {
+            if (var->fVar->fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                                Modifiers::kOut_Flag |
+                                                Modifiers::kUniform_Flag |
+                                                Modifiers::kBuffer_Flag |
+                                                Modifiers::kConst_Flag)) {
                 fErrors.error(decl->fPosition,
                               "interface block fields may not have storage qualifiers");
+            }
+            if (var->fVar->fType.kind() == Type::kArray_Kind &&
+                var->fVar->fType.columns() == -1) {
+                haveRuntimeArray = true;
             }
         }
     }
@@ -900,10 +917,15 @@ static bool determine_binary_type(const Context& context,
         case Token::MINUS:   // fall through
         case Token::MINUSEQ: // fall through
         case Token::SLASH:   // fall through
-        case Token::SLASHEQ:
+        case Token::SLASHEQ: // fall through
             isLogical = false;
             validMatrixOrVectorOp = true;
             break;
+        case Token::COMMA:
+            *outLeftType = &left;
+            *outRightType = &right;
+            *outResultType = &right;
+            return true;
         default:
             isLogical = false;
             validMatrixOrVectorOp = false;
@@ -944,6 +966,9 @@ static bool determine_binary_type(const Context& context,
 std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                       Token::Kind op,
                                                       const Expression& right) const {
+    if (!left.isConstant() || !right.isConstant()) {
+        return nullptr;
+    }
     // Note that we expressly do not worry about precision and overflow here -- we use the maximum
     // precision to calculate the results and hope the result makes sense. The plan is to move the
     // Skia caps into SkSL, so we have access to all of them including the precisions of the various
@@ -967,9 +992,9 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
         int64_t leftVal  = ((IntLiteral&) left).fValue;
         int64_t rightVal = ((IntLiteral&) right).fValue;
         switch (op) {
-            case Token::PLUS:       return RESULT(Int,  +);
-            case Token::MINUS:      return RESULT(Int,  -);
-            case Token::STAR:       return RESULT(Int,  *);
+            case Token::PLUS:       return RESULT(Int, +);
+            case Token::MINUS:      return RESULT(Int, -);
+            case Token::STAR:       return RESULT(Int, *);
             case Token::SLASH:
                 if (rightVal) {
                     return RESULT(Int, /);
@@ -1010,13 +1035,55 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                 }
                 fErrors.error(right.fPosition, "division by zero");
                 return nullptr;
-            case Token::EQEQ:       return RESULT(Bool,  ==);
-            case Token::NEQ:        return RESULT(Bool,  !=);
-            case Token::GT:         return RESULT(Bool,  >);
-            case Token::GTEQ:       return RESULT(Bool,  >=);
-            case Token::LT:         return RESULT(Bool,  <);
-            case Token::LTEQ:       return RESULT(Bool,  <=);
+            case Token::EQEQ:       return RESULT(Bool, ==);
+            case Token::NEQ:        return RESULT(Bool, !=);
+            case Token::GT:         return RESULT(Bool, >);
+            case Token::GTEQ:       return RESULT(Bool, >=);
+            case Token::LT:         return RESULT(Bool, <);
+            case Token::LTEQ:       return RESULT(Bool, <=);
             default:                return nullptr;
+        }
+    }
+    if (left.fType.kind() == Type::kVector_Kind &&
+        left.fType.componentType() == *fContext.fFloat_Type &&
+        left.fType == right.fType) {
+        ASSERT(left.fKind  == Expression::kConstructor_Kind);
+        ASSERT(right.fKind == Expression::kConstructor_Kind);
+        std::vector<std::unique_ptr<Expression>> args;
+        #define RETURN_VEC_COMPONENTWISE_RESULT(op)                                    \
+            for (int i = 0; i < left.fType.columns(); i++) {                           \
+                float value = ((Constructor&) left).getFVecComponent(i) op             \
+                              ((Constructor&) right).getFVecComponent(i);              \
+                args.emplace_back(new FloatLiteral(fContext, Position(), value));      \
+            }                                                                          \
+            return std::unique_ptr<Expression>(new Constructor(Position(), left.fType, \
+                                                               std::move(args)));
+        switch (op) {
+            case Token::EQEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                            left.compareConstant(fContext, right)));
+            case Token::NEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                           !left.compareConstant(fContext, right)));
+            case Token::PLUS:  RETURN_VEC_COMPONENTWISE_RESULT(+);
+            case Token::MINUS: RETURN_VEC_COMPONENTWISE_RESULT(-);
+            case Token::STAR:  RETURN_VEC_COMPONENTWISE_RESULT(*);
+            case Token::SLASH: RETURN_VEC_COMPONENTWISE_RESULT(/);
+            default:           return nullptr;
+        }
+    }
+    if (left.fType.kind() == Type::kMatrix_Kind &&
+        right.fType.kind() == Type::kMatrix_Kind &&
+        left.fKind == right.fKind) {
+        switch (op) {
+            case Token::EQEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                            left.compareConstant(fContext, right)));
+            case Token::NEQ:
+                return std::unique_ptr<Expression>(new BoolLiteral(fContext, Position(),
+                                                           !left.compareConstant(fContext, right)));
+            default:
+                return nullptr;
         }
     }
     #undef RESULT
@@ -1112,6 +1179,37 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(
                                                              std::move(ifFalse)));
 }
 
+// scales the texture coordinates by the texture size for sampling rectangle textures.
+// For vec2 coordinates, implements the transformation:
+//     texture(sampler, coord) -> texture(sampler, textureSize(sampler) * coord)
+// For vec3 coordinates, implements the transformation:
+//     texture(sampler, coord) -> texture(sampler, vec3(textureSize(sampler), 1.0) * coord))
+void IRGenerator::fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments) {
+    ASSERT(arguments.size() == 2);
+    ASSERT(arguments[0]->fType == *fContext.fSampler2DRect_Type);
+    ASSERT(arguments[0]->fKind == Expression::kVariableReference_Kind);
+    const Variable& sampler = ((VariableReference&) *arguments[0]).fVariable;
+    const Symbol* textureSizeSymbol = (*fSymbolTable)["textureSize"];
+    ASSERT(textureSizeSymbol->fKind == Symbol::kFunctionDeclaration_Kind);
+    const FunctionDeclaration& textureSize = (FunctionDeclaration&) *textureSizeSymbol;
+    std::vector<std::unique_ptr<Expression>> sizeArguments;
+    sizeArguments.emplace_back(new VariableReference(Position(), sampler));
+    std::unique_ptr<Expression> vec2Size = call(Position(), textureSize, std::move(sizeArguments));
+    const Type& type = arguments[1]->fType;
+    std::unique_ptr<Expression> scale;
+    if (type == *fContext.fVec2_Type) {
+        scale = std::move(vec2Size);
+    } else {
+        ASSERT(type == *fContext.fVec3_Type);
+        std::vector<std::unique_ptr<Expression>> vec3Arguments;
+        vec3Arguments.push_back(std::move(vec2Size));
+        vec3Arguments.emplace_back(new FloatLiteral(fContext, Position(), 1.0));
+        scale.reset(new Constructor(Position(), *fContext.fVec3_Type, std::move(vec3Arguments)));
+    }
+    arguments[1].reset(new BinaryExpression(Position(), std::move(scale), Token::STAR,
+                                            std::move(arguments[1]), type));
+}
+
 std::unique_ptr<Expression> IRGenerator::call(Position position,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
@@ -1146,8 +1244,13 @@ std::unique_ptr<Expression> IRGenerator::call(Position position,
             return nullptr;
         }
         if (arguments[i] && (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag)) {
-            this->markWrittenTo(*arguments[i], true);
+            this->markWrittenTo(*arguments[i], 
+                                function.fParameters[i]->fModifiers.fFlags & Modifiers::kIn_Flag);
         }
+    }
+    if (function.fBuiltin && function.fName == "texture" &&
+        arguments[0]->fType == *fContext.fSampler2DRect_Type) {
+        this->fixRectSampling(arguments);
     }
     return std::unique_ptr<FunctionCall>(new FunctionCall(position, *returnType, function,
                                                           std::move(arguments)));

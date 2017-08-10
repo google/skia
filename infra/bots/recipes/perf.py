@@ -10,8 +10,10 @@ import calendar
 
 
 DEPS = [
-  'build/file',
   'core',
+  'env',
+  'file',
+  'flavor',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
@@ -20,7 +22,6 @@ DEPS = [
   'recipe_engine/step',
   'recipe_engine/time',
   'run',
-  'flavor',
   'vars',
 ]
 
@@ -149,6 +150,14 @@ def nanobench_flags(bot):
     match.append('~hardstop') # skia:6037
   if 'ANGLE' in bot and any('msaa' in x for x in configs):
     match.append('~native_image_to_raster_surface')  # skia:6457
+  if 'ANGLE' in bot and 'Radeon' in bot:
+    # skia:6534
+    match.append('~shapes_mixed_10000_32x33')
+    match.append('~shapes_rrect_10000_32x32')
+    match.append('~shapes_oval_10000_32x33')
+  if 'ANGLE' in bot and 'GTX960' in bot and 'Release' in bot:
+    # skia:6534
+    match.append('~shapes_mixed_10000_32x33')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -228,10 +237,18 @@ def perf_steps(api):
     # Due to limited disk space, run a watered down perf run on Chromecast.
     args = [
       target,
-       '-i', api.flavor.device_dirs.resource_dir,
-       '--images', api.flavor.device_path_join(
-            api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
-       '--svgs',  api.flavor.device_dirs.svg_dir,
+      '--config',
+      'gles',
+      '-i', api.flavor.device_dirs.resource_dir,
+      '--images', api.flavor.device_path_join(
+          api.flavor.device_dirs.resource_dir, 'color_wheel.jpg'),
+      '--svgs',  api.flavor.device_dirs.svg_dir,
+      '--pre_log',
+      '--match', # skia:6581
+      '~matrixconvolution',
+      '~blur_image_filter',
+      '~blur_0.01',
+      '~GM_animated-image-blurs',
     ]
 
   if api.vars.upload_perf_results:
@@ -249,7 +266,7 @@ def perf_steps(api):
       if not k in keys_blacklist:
         args.extend([k, api.vars.builder_cfg[k]])
 
-  env = api.step.get_from_context('env', {})
+  env = {}
   if 'Ubuntu16' in api.vars.builder_name:
     # The vulkan in this asset name simply means that the graphics driver
     # supports Vulkan. It is also the driver used for GL code.
@@ -274,10 +291,11 @@ def perf_steps(api):
       })
 
   # See skia:2789.
-  if '_AbandonGpuContext' in api.vars.builder_cfg.get('extra_config', ''):
+  extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
+  if 'AbandonGpuContext' in extra_config_parts:
     args.extend(['--abandonGpuContext', '--nocpu'])
 
-  with api.step.context({'env': env}):
+  with api.env(env):
     api.run(api.flavor.step, target, cmd=args,
             abort_on_failure=False)
 
@@ -291,10 +309,11 @@ def perf_steps(api):
 
 def RunSteps(api):
   api.core.setup()
-  env = api.step.get_from_context('env', {})
+  env = {}
   if 'iOS' in api.vars.builder_name:
     env['IOS_BUNDLE_ID'] = 'com.google.nanobench'
-  with api.step.context({'env': env}):
+    env['IOS_MOUNT_POINT'] = api.vars.slave_dir.join('mnt_iosdevice')
+  with api.env(env):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
@@ -325,9 +344,10 @@ TEST_BUILDERS = [
   '_AbandonGpuContext'),
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-Vulkan',
   'Perf-Ubuntu16-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release',
+  'Perf-Win10-MSVC-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-ANGLE',
   'Perf-Win10-MSVC-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-Vulkan',
-  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Debug-ANGLE',
+  'Perf-Win10-MSVC-ShuttleC-GPU-GTX960-x86_64-Release-ANGLE',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Debug',
   'Perf-Win2k8-MSVC-GCE-CPU-AVX2-x86_64-Release',
   'Perf-iOS-Clang-iPadMini4-GPU-GX6450-arm-Release'
@@ -349,7 +369,11 @@ def GenTests(api):
           api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
                                      'skp', 'VERSION'),
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-      )
+      ) +
+      api.step_data('get swarming bot id',
+          stdout=api.raw_io.output('skia-bot-123')) +
+      api.step_data('get swarming task id',
+          stdout=api.raw_io.output('123456'))
     )
     if 'Win' in builder:
       test += api.platform('win', 64)

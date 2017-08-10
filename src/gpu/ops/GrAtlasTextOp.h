@@ -64,7 +64,7 @@ public:
     static std::unique_ptr<GrAtlasTextOp> MakeDistanceField(
             int glyphCount, GrAtlasGlyphCache* fontCache,
             const GrDistanceFieldAdjustTable* distanceAdjustTable,
-            bool useGammaCorrectDistanceTable, SkColor filteredColor, bool isLCD, bool useBGR) {
+            bool useGammaCorrectDistanceTable, GrColor filteredColor, bool isLCD, bool useBGR) {
         std::unique_ptr<GrAtlasTextOp> op(new GrAtlasTextOp);
 
         op->fFontCache = fontCache;
@@ -150,7 +150,7 @@ private:
     // TODO just use class params
     // TODO trying to figure out why lcd is so whack
     sk_sp<GrGeometryProcessor> setupDfProcessor(GrResourceProvider*,
-                                                const SkMatrix& viewMatrix, SkColor filteredColor,
+                                                const SkMatrix& viewMatrix, GrColor filteredColor,
                                                 GrColor color, sk_sp<GrTextureProxy> proxy) const;
 
     GrColor fColor;
@@ -175,7 +175,7 @@ private:
 
     // Distance field properties
     sk_sp<const GrDistanceFieldAdjustTable> fDistanceAdjustTable;
-    SkColor fFilteredColor;
+    GrColor fFilteredColor;
     bool fUseGammaCorrectDistanceTable;
 
     friend class GrBlobRegenHelper;  // Needs to trigger flushes

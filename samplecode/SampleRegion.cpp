@@ -226,7 +226,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(20));
         paint.setColor(hilite ? SK_ColorRED : 0x40FF0000);
-        canvas->drawText(text, strlen(text), loc.fX, loc.fY, paint);
+        canvas->drawString(text, loc.fX, loc.fY, paint);
     }
 
     void drawPredicates(SkCanvas* canvas, const SkPoint pts[]) {
@@ -373,7 +373,7 @@ protected:
         canvas->translate(0, SkIntToScalar(200));
 
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
-            canvas->drawText(gOps[op].fName, strlen(gOps[op].fName), SkIntToScalar(75), SkIntToScalar(50), textPaint);
+            canvas->drawString(gOps[op].fName, SkIntToScalar(75), SkIntToScalar(50), textPaint);
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);
 

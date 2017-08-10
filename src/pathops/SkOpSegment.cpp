@@ -244,9 +244,8 @@ bool SkOpSegment::addExpanded(double newT, const SkOpSpanBase* test, bool* start
 }
 
 // Please keep this in sync with debugAddT()
-SkOpPtT* SkOpSegment::addT(double t) {
+SkOpPtT* SkOpSegment::addT(double t, const SkPoint& pt) {
     debugValidate();
-    SkPoint pt = this->ptAtT(t);
     SkOpSpanBase* spanBase = &fHead;
     do {
         SkOpPtT* result = spanBase->ptT();
@@ -274,6 +273,10 @@ SkOpPtT* SkOpSegment::addT(double t) {
     return nullptr;  // we never get here, but need this to satisfy compiler
 }
 
+SkOpPtT* SkOpSegment::addT(double t) {
+    return addT(t, this->ptAtT(t));
+}
+
 void SkOpSegment::calcAngles() {
     bool activePrior = !fHead.isCanceled();
     if (activePrior && !fHead.simple()) {
@@ -283,8 +286,7 @@ void SkOpSegment::calcAngles() {
     SkOpSpanBase* spanBase = fHead.next();
     while (spanBase != &fTail) {
         if (activePrior) {
-            SkOpAngle* priorAngle = SkOpTAllocator<SkOpAngle>::Allocate(
-                    this->globalState()->allocator());
+            SkOpAngle* priorAngle = this->globalState()->allocator()->make<SkOpAngle>();
             priorAngle->set(spanBase, prior);
             spanBase->setFromAngle(priorAngle);
         }
@@ -292,8 +294,7 @@ void SkOpSegment::calcAngles() {
         bool active = !span->isCanceled();
         SkOpSpanBase* next = span->next();
         if (active) {
-            SkOpAngle* angle = SkOpTAllocator<SkOpAngle>::Allocate(
-                    this->globalState()->allocator());
+            SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
             angle->set(span, next);
             span->setToAngle(angle);
         }

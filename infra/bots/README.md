@@ -41,10 +41,18 @@ need to run gen_tasks.go to regenerate tasks.json:
 
 	$ go run infra/bots/gen_tasks.go
 
+Or:
+
+	$ cd infra/bots; make train
+
 There is also a test mode which performs sanity-checks and verifies that
 tasks.json is unchanged:
 
 	$ go run infra/bots/gen_tasks.go --test
+
+Or:
+
+	$ cd infra/bots; make test
 
 
 Recipes

@@ -16,6 +16,15 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
+// This method parallels GrTextureProxy::highestFilterMode
+static inline GrSamplerParams::FilterMode highest_filter_mode(GrPixelConfig config) {
+    if (GrPixelConfigIsSint(config)) {
+        // We only ever want to nearest-neighbor sample signed int textures.
+        return GrSamplerParams::kNone_FilterMode;
+    }
+    return GrSamplerParams::kMipMap_FilterMode;
+}
+
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
@@ -24,7 +33,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          const GrVkImageView* view)
     : GrSurface(gpu, desc)
     , GrVkImage(info, GrVkImage::kNot_Wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
@@ -39,7 +48,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
@@ -54,7 +63,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          GrVkImage::Wrapped wrapped)
     : GrSurface(gpu, desc)
     , GrVkImage(info, wrapped)
-    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerParams::kMipMap_FilterMode,
+    , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
                 desc.fIsMipMapped)
     , fTextureView(view)
     , fLinearTextureView(nullptr) {
@@ -96,13 +105,9 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
         return nullptr;
     }
 
-    if (kAdoptAndCache_GrWrapOwnership == ownership) {
-        return sk_sp<GrVkTexture>(new GrVkTexture(gpu, SkBudgeted::kYes, desc, *info, imageView));
-    } else {
-        GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership
-                ? GrVkImage::kBorrowed_Wrapped : GrVkImage::kAdopted_Wrapped;
-        return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, *info, imageView, wrapped));
-    }
+    GrVkImage::Wrapped wrapped = kBorrow_GrWrapOwnership == ownership
+            ? GrVkImage::kBorrowed_Wrapped : GrVkImage::kAdopted_Wrapped;
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, kWrapped, desc, *info, imageView, wrapped));
 }
 
 GrVkTexture::~GrVkTexture() {
@@ -147,12 +152,6 @@ GrBackendObject GrVkTexture::getTextureHandle() const {
     return (GrBackendObject)&fInfo;
 }
 
-std::unique_ptr<GrExternalTextureData> GrVkTexture::detachBackendTexture() {
-    // Not supported on Vulkan yet
-    // TODO: Add thread-safe memory pools, and implement this.
-    return nullptr;
-}
-
 GrVkGpu* GrVkTexture::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
@@ -187,7 +186,7 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
         return false;
     }
 
-    bool renderTarget = SkToBool(fDesc.fFlags & kRenderTarget_GrSurfaceFlag);
+    bool renderTarget = SkToBool(this->asRenderTarget());
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     if (renderTarget) {
@@ -198,8 +197,8 @@ bool GrVkTexture::reallocForMipmap(GrVkGpu* gpu, uint32_t mipLevels) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = fInfo.fFormat;
-    imageDesc.fWidth = fDesc.fWidth;
-    imageDesc.fHeight = fDesc.fHeight;
+    imageDesc.fWidth = this->width();
+    imageDesc.fHeight = this->height();
     imageDesc.fLevels = mipLevels;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;

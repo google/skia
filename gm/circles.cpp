@@ -150,7 +150,7 @@ protected:
         SkPaint giantPaint;
         giantPaint.setAntiAlias(true);
         giantPaint.setColor(0x80808080);
-        canvas->drawCircle(giantCenter.fX, giantCenter.fY, giantRadius, giantPaint);
+        canvas->drawCircle(giantCenter, giantRadius, giantPaint);
 
         SkRandom rand;
         canvas->translate(20 * SK_Scalar1, 20 * SK_Scalar1);

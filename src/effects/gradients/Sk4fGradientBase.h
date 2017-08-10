@@ -33,7 +33,6 @@ struct Sk4fGradientInterval {
     //   C = fCb + t * fCg;
     SkPM4f   fCb, fCg;
     SkScalar fT0, fT1;
-    bool     fZeroRamp;
 };
 
 class Sk4fGradientIntervalBuffer {

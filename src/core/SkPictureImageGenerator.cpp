@@ -7,6 +7,7 @@
 
 #include "SkImage_Base.h"
 #include "SkCanvas.h"
+#include "SkColorSpaceXformCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -58,20 +59,25 @@ SkPictureImageGenerator::SkPictureImageGenerator(const SkImageInfo& info, sk_sp<
 }
 
 bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                                          SkPMColor ctable[], int* ctableCount) {
-    if (ctable || ctableCount) {
+                                          const Options& opts) {
+    bool useXformCanvas =
+            SkTransferFunctionBehavior::kIgnore == opts.fBehavior && info.colorSpace();
+
+    SkImageInfo canvasInfo = useXformCanvas ? info.makeColorSpace(nullptr) : info;
+    std::unique_ptr<SkCanvas> canvas = SkCanvas::MakeRasterDirect(canvasInfo, pixels, rowBytes);
+    if (!canvas) {
         return false;
     }
+    canvas->clear(0);
 
-    SkBitmap bitmap;
-    if (!bitmap.installPixels(info, pixels, rowBytes)) {
-        return false;
+    SkCanvas* canvasPtr = canvas.get();
+    std::unique_ptr<SkCanvas> xformCanvas;
+    if (useXformCanvas) {
+        xformCanvas = SkCreateColorSpaceXformCanvas(canvas.get(), info.refColorSpace());
+        canvasPtr = xformCanvas.get();
     }
 
-    bitmap.eraseColor(SK_ColorTRANSPARENT);
-    SkCanvas canvas(bitmap, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
-    canvas.drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
-
+    canvasPtr->drawPicture(fPicture, &fMatrix, fPaint.getMaybeNull());
     return true;
 }
 

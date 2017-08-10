@@ -12,12 +12,16 @@
 #include "GrPaint.h"
 #include "GrProcessorAnalysis.h"
 #include "SkTemplates.h"
+#include "GrXferProcessor.h"
 
 class GrAppliedClip;
-class GrXferProcessor;
 class GrXPFactory;
 
 class GrProcessorSet : private SkNoncopyable {
+private:
+    // Arbitrary constructor arg for empty set and analysis
+    enum class Empty { kEmpty };
+
 public:
     GrProcessorSet(GrPaint&& paint);
 
@@ -49,10 +53,6 @@ public:
     }
 
     bool usesDistanceVectorField() const { return SkToBool(fFlags & kUseDistanceVectorField_Flag); }
-    bool disableOutputConversionToSRGB() const {
-        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
-    }
-    bool allowSRGBInputs() const { return SkToBool(fFlags & kAllowSRGBInputs_Flag); }
 
     /** Comparisons are only legal on finalized processor sets. */
     bool operator==(const GrProcessorSet& that) const;
@@ -84,6 +84,14 @@ public:
         }
 
     private:
+        constexpr Analysis(Empty)
+                : fUsesLocalCoords(false)
+                , fCompatibleWithCoverageAsAlpha(true)
+                , fRequiresDstTexture(false)
+                , fCanCombineOverlappedStencilAndCover(true)
+                , fRequiresBarrierBetweenOverlappingDraws(false)
+                , fIsInitialized(true)
+                , fInputColorType(kOriginal_InputColorType) {}
         enum InputColorType : uint32_t {
             kOriginal_InputColorType,
             kOverridden_InputColorType,
@@ -126,19 +134,20 @@ public:
 
     bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 
+    static const GrProcessorSet& EmptySet();
+    static constexpr const Analysis EmptySetAnalysis() { return Analysis(Empty::kEmpty); }
+
 private:
+    GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}
+
     // This absurdly large limit allows Analysis and this to pack fields together.
     static constexpr int kMaxColorProcessors = UINT8_MAX;
 
-    enum Flags : uint16_t {
-        kUseDistanceVectorField_Flag = 0x1,
-        kDisableOutputConversionToSRGB_Flag = 0x2,
-        kAllowSRGBInputs_Flag = 0x4,
-        kFinalized_Flag = 0x8
-    };
+    enum Flags : uint16_t { kUseDistanceVectorField_Flag = 0x1, kFinalized_Flag = 0x2 };
 
     union XP {
         XP(const GrXPFactory* factory) : fFactory(factory) {}
+        XP(const GrXferProcessor* processor) : fProcessor(processor) {}
         const GrXPFactory* fFactory;
         const GrXferProcessor* fProcessor;
     };
@@ -150,7 +159,7 @@ private:
 
     SkAutoSTArray<4, const GrFragmentProcessor*> fFragmentProcessors;
     XP fXP;
-    uint8_t fColorFragmentProcessorCnt;
+    uint8_t fColorFragmentProcessorCnt = 0;
     uint8_t fFragmentProcessorOffset = 0;
     uint8_t fFlags;
 };

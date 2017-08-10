@@ -24,6 +24,66 @@
   },
   {
     "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
@@ -32,14 +92,13 @@
       "--patch_root",
       "skia",
       "--revision_mapping_file",
-      "{\"skia\": \"got_revision\"}",
+      "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123",
-      "--output_manifest"
+      "skia@abc123"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
@@ -78,7 +137,37 @@
   },
   {
     "cmd": [
+      "[START_DIR]/go/go/bin/go",
+      "version"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "go version"
+  },
+  {
+    "cmd": [
       "go",
+      "version"
+    ],
+    "env": {
+      "BUILDTYPE": "Release",
+      "CHROME_HEADLESS": "1",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "SKIA_OUT": "[START_DIR]/out"
+    },
+    "name": "env go version"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -87,8 +176,9 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs",
@@ -99,7 +189,7 @@
   },
   {
     "cmd": [
-      "go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -108,8 +198,9 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs (attempt 2)",
@@ -120,7 +211,7 @@
   },
   {
     "cmd": [
-      "go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -129,8 +220,9 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs (attempt 3)",
@@ -141,7 +233,7 @@
   },
   {
     "cmd": [
-      "go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -150,8 +242,9 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs (attempt 4)",
@@ -162,7 +255,7 @@
   },
   {
     "cmd": [
-      "go",
+      "[START_DIR]/go/go/bin/go",
       "get",
       "-u",
       "-t",
@@ -171,8 +264,9 @@
     "env": {
       "BUILDTYPE": "Release",
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[CUSTOM_/_B_WORK]/gopath",
-      "PATH": "%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
+      "GOPATH": "[START_DIR]/gopath",
+      "GOROOT": "[START_DIR]/go/go",
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:%(PATH)s:RECIPE_PACKAGE_REPO[depot_tools]",
       "SKIA_OUT": "[START_DIR]/out"
     },
     "name": "update go pkgs (attempt 5)",

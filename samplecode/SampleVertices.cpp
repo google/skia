@@ -30,11 +30,9 @@ static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkPMColor color1 = SkPreMultiplyARGB(0x40, 0xff, 0x00, 0xff);
     bm.allocN32Pixels(size->fX, size->fY);
     bm.eraseColor(color0);
-    bm.lockPixels();
     uint32_t* pixels = (uint32_t*) bm.getPixels();
     pixels[0] = pixels[2] = color0;
     pixels[1] = pixels[3] = color1;
-    bm.unlockPixels();
 
     return SkShader::MakeBitmapShader(bm, SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode);
 }

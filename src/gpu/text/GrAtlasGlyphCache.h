@@ -11,9 +11,9 @@
 #include "GrCaps.h"
 #include "GrDrawOpAtlas.h"
 #include "GrGlyph.h"
+#include "SkArenaAlloc.h"
 #include "SkGlyphCache.h"
 #include "SkTDynamicHash.h"
-#include "SkVarAlloc.h"
 
 class GrAtlasGlyphCache;
 class GrGpu;
@@ -85,7 +85,7 @@ public:
 private:
     SkTDynamicHash<GrGlyph, GrGlyph::PackedID> fCache;
     SkAutoDescriptor fFontScalerKey;
-    SkVarAlloc fPool;
+    SkArenaAlloc fPool{512};
 
     GrAtlasGlyphCache* fAtlasGlyphCache;
     int fAtlasedGlyphs;
@@ -110,7 +110,7 @@ private:
  */
 class GrAtlasGlyphCache {
 public:
-    GrAtlasGlyphCache(GrContext*);
+    GrAtlasGlyphCache(GrContext*, float maxTextureBytes);
     ~GrAtlasGlyphCache();
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.

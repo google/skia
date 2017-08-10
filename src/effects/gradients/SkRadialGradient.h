@@ -36,6 +36,11 @@ protected:
     SkRadialGradient(SkReadBuffer& buffer);
     void flatten(SkWriteBuffer& buffer) const override;
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+    sk_sp<SkShader> onMakeColorSpace(SkColorSpaceXformer* xformer) const override;
+    
+    bool adjustMatrixAndAppendStages(SkArenaAlloc* alloc,
+                                     SkMatrix* matrix,
+                                     SkRasterPipeline* p) const final;
 
 private:
     const SkPoint fCenter;

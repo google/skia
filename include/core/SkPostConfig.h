@@ -131,11 +131,20 @@
 #  define SK_DUMP_GOOGLE3_STACK()
 #endif
 
+#ifdef SK_BUILD_FOR_WIN
+// permits visual studio to follow error back to source
+#define SK_DUMP_LINE_FORMAT(message) \
+    SkDebugf("%s(%d): fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#else
+#define SK_DUMP_LINE_FORMAT(message) \
+    SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message)
+#endif
+
 #ifndef SK_ABORT
 #  define SK_ABORT(message) \
     do { \
        SkNO_RETURN_HINT(); \
-       SkDebugf("%s:%d: fatal error: \"%s\"\n", __FILE__, __LINE__, message); \
+       SK_DUMP_LINE_FORMAT(message); \
        SK_DUMP_GOOGLE3_STACK(); \
        sk_abort_no_print(); \
     } while (false)
@@ -246,14 +255,6 @@
 #if !defined(SK_ATTR_DEPRECATED)
    // FIXME: we ignore msg for now...
 #  define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
-#endif
-
-#if !defined(SK_ATTR_EXTERNALLY_DEPRECATED)
-#  if !defined(SK_INTERNAL)
-#    define SK_ATTR_EXTERNALLY_DEPRECATED(msg) SK_ATTR_DEPRECATED(msg)
-#  else
-#    define SK_ATTR_EXTERNALLY_DEPRECATED(msg)
-#  endif
 #endif
 
 /**

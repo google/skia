@@ -14,6 +14,7 @@
 
 #include "Resources.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 #include <initializer_list>
 #include <vector>
@@ -31,20 +32,53 @@ static void write_bm(const char* name, const SkBitmap& bm) {
     }
 }
 
+DEF_TEST(Codec_trunc, r) {
+    sk_sp<SkData> data(GetResourceAsData("box.gif"));
+    if (!data) {
+        return;
+    }
+    data = SkData::MakeSubset(data.get(), 0, 23);
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(data));
+    codec->getFrameInfo();
+}
+
+// 565 does not support alpha, but there is no reason for it not to support an
+// animated image with a frame that has alpha but then blends onto an opaque
+// frame making the result opaque. Test that we can decode such a frame.
+DEF_TEST(Codec_565, r) {
+    sk_sp<SkData> data(GetResourceAsData("blendBG.webp"));
+    if (!data) {
+        return;
+    }
+    std::unique_ptr<SkCodec> codec(SkCodec::NewFromData(std::move(data)));
+    auto info = codec->getInfo().makeColorType(kRGB_565_SkColorType);
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    SkCodec::Options options;
+    options.fFrameIndex = 1;
+    options.fHasPriorFrame = false;
+
+    const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(),
+                                         &options, nullptr, nullptr);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+}
+
+
 DEF_TEST(Codec_frames, r) {
     #define kOpaque     kOpaque_SkAlphaType
     #define kUnpremul   kUnpremul_SkAlphaType
     static const struct {
         const char*              fName;
-        size_t                   fFrameCount;
+        int                      fFrameCount;
         // One less than fFramecount, since the first frame is always
         // independent.
-        std::vector<size_t>      fRequiredFrames;
+        std::vector<int>         fRequiredFrames;
         // Same, since the first frame should match getInfo.
         std::vector<SkAlphaType> fAlphaTypes;
         // The size of this one should match fFrameCount for animated, empty
         // otherwise.
-        std::vector<size_t>      fDurations;
+        std::vector<int>         fDurations;
         int                      fRepetitionCount;
     } gRecs[] = {
         { "alphabetAnim.gif", 13,
@@ -89,6 +123,12 @@ DEF_TEST(Codec_frames, r) {
         { "mandrill.wbmp", 1, {}, {}, {}, 0 },
         { "randPixels.bmp", 1, {}, {}, {}, 0 },
         { "yellow_rose.webp", 1, {}, {}, {}, 0 },
+        { "webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque, kOpaque },
+            { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite },
+        { "blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
+                               3, 3 },
+            { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
+            { 525, 500, 525, 437, 609, 729, 444 }, 7 },
     };
     #undef kOpaque
     #undef kUnpremul
@@ -119,14 +159,14 @@ DEF_TEST(Codec_frames, r) {
                       rec.fName, rec.fRepetitionCount, repetitionCount);
         }
 
-        const size_t expected = rec.fFrameCount;
-        if (rec.fRequiredFrames.size() + 1 != expected) {
+        const int expected = rec.fFrameCount;
+        if (rec.fRequiredFrames.size() + 1 != static_cast<size_t>(expected)) {
             ERRORF(r, "'%s' has wrong number entries in fRequiredFrames; expected: %i\tactual: %i",
                    rec.fName, expected, rec.fRequiredFrames.size() + 1);
             continue;
         }
 
-        if (rec.fDurations.size() != expected) {
+        if (rec.fDurations.size() != static_cast<size_t>(expected)) {
             ERRORF(r, "'%s' has wrong number entries in fDurations; expected: %i\tactual: %i",
                    rec.fName, expected, rec.fDurations.size());
             continue;
@@ -141,7 +181,7 @@ DEF_TEST(Codec_frames, r) {
             // Re-create the codec to reset state and test parsing.
             codec.reset(SkCodec::NewFromData(data));
 
-            size_t frameCount;
+            int frameCount;
             std::vector<SkCodec::FrameInfo> frameInfos;
             switch (mode) {
                 case TestMode::kVector:
@@ -165,7 +205,7 @@ DEF_TEST(Codec_frames, r) {
                 continue;
             }
 
-            for (size_t i = 0; i < frameCount; i++) {
+            for (int i = 0; i < frameCount; i++) {
                 SkCodec::FrameInfo frameInfo;
                 switch (mode) {
                     case TestMode::kVector:
@@ -182,17 +222,6 @@ DEF_TEST(Codec_frames, r) {
                            rec.fName, i, rec.fDurations[i], frameInfo.fDuration);
                 }
 
-                if (0 == i) {
-                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNone);
-                    REPORTER_ASSERT(r, frameInfo.fAlphaType == codec->getInfo().alphaType());
-                    continue;
-                }
-
-                if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
-                    ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
-                           rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
-                }
-
                 auto to_string = [](SkAlphaType type) {
                     switch (type) {
                         case kUnpremul_SkAlphaType:
@@ -204,11 +233,18 @@ DEF_TEST(Codec_frames, r) {
                     }
                 };
 
-                auto expectedAlpha = rec.fAlphaTypes[i-1];
+                auto expectedAlpha = 0 == i ? codec->getInfo().alphaType() : rec.fAlphaTypes[i-1];
                 auto alpha = frameInfo.fAlphaType;
                 if (expectedAlpha != alpha) {
                     ERRORF(r, "%s's frame %i has wrong alpha type! expected: %s\tactual: %s",
                            rec.fName, i, to_string(expectedAlpha), to_string(alpha));
+                }
+
+                if (0 == i) {
+                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNone);
+                } else if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
+                    ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
+                           rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
                 }
             }
 
@@ -226,13 +262,14 @@ DEF_TEST(Codec_frames, r) {
             std::vector<SkBitmap> cachedFrames(frameCount);
             const auto& info = codec->getInfo().makeColorType(kN32_SkColorType);
 
-            auto decode = [&](SkBitmap* bm, bool cached, size_t index) {
+            auto decode = [&](SkBitmap* bm, bool cached, int index) {
                 bm->allocPixels(info);
                 if (cached) {
                     // First copy the pixels from the cached frame
-                    const size_t requiredFrame = frameInfos[index].fRequiredFrame;
+                    const int requiredFrame = frameInfos[index].fRequiredFrame;
                     if (requiredFrame != SkCodec::kNone) {
-                        const bool success = cachedFrames[requiredFrame].copyTo(bm);
+                        const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
+                                cachedFrames[requiredFrame]);
                         REPORTER_ASSERT(r, success);
                     }
                 }
@@ -244,7 +281,7 @@ DEF_TEST(Codec_frames, r) {
                 REPORTER_ASSERT(r, result == SkCodec::kSuccess);
             };
 
-            for (size_t i = 0; i < frameCount; i++) {
+            for (int i = 0; i < frameCount; i++) {
                 SkBitmap& cachedFrame = cachedFrames[i];
                 decode(&cachedFrame, true, i);
                 SkBitmap uncachedFrame;

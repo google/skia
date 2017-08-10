@@ -5,35 +5,53 @@
  * found in the LICENSE file.
  */
 
-#include "SkOpts.h"
 #include "SkRasterPipeline.h"
 
-SkRasterPipeline::SkRasterPipeline() {}
+SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
+    this->reset();
+}
+void SkRasterPipeline::reset() {
+    fStages      = nullptr;
+    fNumStages   = 0;
+    fSlotsNeeded = 1;  // We always need one extra slot for just_return().
+}
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage != from_srgb);
-    fStages.push_back({stage, ctx});
+    this->unchecked_append(stage, ctx);
+}
+void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
+    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
+    fNumStages   += 1;
+    fSlotsNeeded += ctx ? 2 : 1;
 }
 
 void SkRasterPipeline::extend(const SkRasterPipeline& src) {
-    fStages.insert(fStages.end(),
-                   src.fStages.begin(), src.fStages.end());
-}
-
-void SkRasterPipeline::run(size_t x, size_t n) const {
-    if (!fStages.empty()) {
-        if (this->run_with_jumper(x, n)) {
-            return;
-        }
-        SkOpts::run_pipeline(x,n, fStages.data(), SkToInt(fStages.size()));
+    if (src.empty()) {
+        return;
     }
+    auto stages = fAlloc->makeArrayDefault<StageList>(src.fNumStages);
+
+    int n = src.fNumStages;
+    const StageList* st = src.fStages;
+    while (n --> 1) {
+        stages[n]      = *st;
+        stages[n].prev = &stages[n-1];
+        st = st->prev;
+    }
+    stages[0]      = *st;
+    stages[0].prev = fStages;
+
+    fStages = &stages[src.fNumStages - 1];
+    fNumStages   += src.fNumStages;
+    fSlotsNeeded += src.fSlotsNeeded - 1;  // Don't double count just_returns().
 }
 
 void SkRasterPipeline::dump() const {
-    SkDebugf("SkRasterPipeline, %d stages\n", SkToInt(fStages.size()));
-    for (auto&& st : fStages) {
+    SkDebugf("SkRasterPipeline, %d stages (in reverse)\n", fNumStages);
+    for (auto st = fStages; st; st = st->prev) {
         const char* name = "";
-        switch (st.stage) {
+        switch (st->stage) {
         #define M(x) case x: name = #x; break;
             SK_RASTER_PIPELINE_STAGES(M)
         #undef M
@@ -52,9 +70,7 @@ void SkRasterPipeline::dump() const {
 // This is an annoying problem with no known good solution.  So apply the clamp hammer.
 
 void SkRasterPipeline::append_from_srgb(SkAlphaType at) {
-    //this->append(from_srgb);
-    fStages.push_back({from_srgb, nullptr});
-
+    this->unchecked_append(from_srgb, nullptr);
     if (at == kPremul_SkAlphaType) {
         this->append(SkRasterPipeline::clamp_a);
     }

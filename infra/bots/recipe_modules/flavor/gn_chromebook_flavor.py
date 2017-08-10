@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 from recipe_engine import recipe_api
 
 import default_flavor
@@ -31,28 +32,28 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
 
     self._bin_dir = self.m.vars.chromeos_homedir + 'bin'
 
-  def _get_remote_ip(self):
-    ssh_info = self.m.run(self.m.python.inline, 'read chromeos ip',
-                          program="""
-    import os
-    SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')
-    with open(SSH_MACHINE_FILE, 'r') as f:
-      print f.read()
-    """,
-    stdout=self.m.raw_io.output(),
-    infra_step=True).stdout
+  @property
+  def user_ip(self):
+    if not self._user_ip:
+      ssh_info = self.m.run(self.m.python.inline, 'read chromeos ip',
+                            program="""
+      import os
+      SSH_MACHINE_FILE = os.path.expanduser('~/ssh_machine.json')
+      with open(SSH_MACHINE_FILE, 'r') as f:
+        print f.read()
+      """,
+      stdout=self.m.raw_io.output(),
+      infra_step=True).stdout
 
-    self._user_ip = json.loads(ssh_info).get(u'user_ip', 'ERROR')
+      self._user_ip = json.loads(ssh_info).get(u'user_ip', 'ERROR')
+    return self._user_ip
 
   def _ssh(self, title, *cmd, **kwargs):
-    if not self._user_ip:
-      self._get_remote_ip()
-
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
 
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', self._user_ip] + list(cmd)
+               '-t', '-t', self.user_ip] + list(cmd)
 
     return self._run(title, ssh_cmd, **kwargs)
 
@@ -94,7 +95,7 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4'),
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
                                 'arm-linux-gnueabihf'),
-       '-DMESA_EGL_NO_X11_HEADERS',
+      '-DMESA_EGL_NO_X11_HEADERS',
     ]
 
     extra_ldflags = [
@@ -134,13 +135,8 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     ninja = 'ninja.exe' if 'Win' in os else 'ninja'
     gn = self.m.vars.skia_dir.join('bin', gn)
 
-    context = {
-      'cwd': self.m.vars.skia_dir,
-      'env': {
-          'LD_LIBRARY_PATH': sysroot_dir.join('lib'),
-      }
-    }
-    with self.m.step.context(context):
+    with self.m.context(cwd=self.m.vars.skia_dir,
+                        env={'LD_LIBRARY_PATH': sysroot_dir.join('lib')}):
       self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
       self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
       self._run('ninja', [ninja, '-C', self.out_dir, 'nanobench', 'dm'])
@@ -150,20 +146,18 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     self._ssh('rm %s' % path, 'rm', '-rf', path)
     self._ssh('mkdir %s' % path, 'mkdir', '-p', path)
 
-  def read_file_on_device(self, path):
-    # To avoid failure if file doesn't exist.
-    self._ssh('touch %s' % path, 'touch', path)
-    return self._ssh('read %s' % path,
-                     'cat', path, stdout=self.m.raw_io.output()).stdout
+  def read_file_on_device(self, path, **kwargs):
+    rv = self._ssh('read %s' % path,
+                   'cat', path, stdout=self.m.raw_io.output(),
+                   **kwargs)
+    return rv.stdout.rstrip() if rv and rv.stdout else None
 
   def remove_file_on_device(self, path):
     # use -f to silently return if path doesn't exist
     self._ssh('rm %s' % path, 'rm', '-f', path)
 
   def _prefix_device_path(self, device_path):
-    if not self._user_ip:
-      self._get_remote_ip() #pragma:nocover
-    return '%s:%s' % (self._user_ip, device_path)
+    return '%s:%s' % (self.user_ip, device_path)
 
   def copy_file_to_device(self, host_path, device_path):
     device_path = self._prefix_device_path(device_path)

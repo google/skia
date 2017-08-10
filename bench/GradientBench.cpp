@@ -35,6 +35,7 @@ static const SkColor gColors[] = {
 };
 
 static const SkColor gShallowColors[] = { 0xFF555555, 0xFF444444 };
+static const SkScalar gPos[] = {0.25f, 0.75f};
 
 // We have several special-cases depending on the number (and spacing) of colors, so
 // try to exercise those here.
@@ -43,6 +44,7 @@ static const GradData gGradData[] = {
     { 50, gColors, nullptr, "_hicolor" }, // many color gradient
     { 3, gColors, nullptr, "_3color" },
     { 2, gShallowColors, nullptr, "_shallow" },
+    { 2, gColors, gPos, "_pos" },
 };
 
 /// Ignores scale
@@ -281,6 +283,8 @@ DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkShader::kC
                                     kRect_GeomType, 1, true); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkShader::kClamp_TileMode,
                                     kRect_GeomType, 1, true); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[4], SkShader::kClamp_TileMode,
+                                    kRect_GeomType, 1, true); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkShader::kRepeat_TileMode,
                                     kRect_GeomType, 1, true); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkShader::kRepeat_TileMode,
@@ -297,6 +301,7 @@ DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkShader::kM
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0]); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2]); )
+DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[4]); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[0], SkShader::kRepeat_TileMode); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[1], SkShader::kRepeat_TileMode); )
 DEF_BENCH( return new GradientBench(kLinear_GradType, gGradData[2], SkShader::kRepeat_TileMode); )

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "SkDiscardableMemory.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkImageGenerator.h"
+#include "SkDiscardableMemory.h"
+#include "SkMakeUnique.h"
 #include "SkMalloc.h"
 #include "SkMutex.h"
-#include "SkOnce.h"
 #include "SkTInternalLList.h"
+#include "SkTemplates.h"
 
 // Note:
 // A PoolDiscardableMemory is memory that is counted in a pool.
@@ -27,13 +27,13 @@ class PoolDiscardableMemory;
  */
 class DiscardableMemoryPool : public SkDiscardableMemoryPool {
 public:
-    /**
-     *  Without mutex, will be not be thread safe.
-     */
-    DiscardableMemoryPool(size_t budget, SkBaseMutex* mutex = nullptr);
+    DiscardableMemoryPool(size_t budget);
     ~DiscardableMemoryPool() override;
 
-    SkDiscardableMemory* create(size_t bytes) override;
+    std::unique_ptr<SkDiscardableMemory> make(size_t bytes);
+    SkDiscardableMemory* create(size_t bytes) override {
+        return this->make(bytes).release();  // TODO: change API
+    }
 
     size_t getRAMUsed() override;
     void setRAMBudget(size_t budget) override;
@@ -53,7 +53,7 @@ public:
     #endif  // SK_LAZY_CACHE_STATS
 
 private:
-    SkBaseMutex* fMutex;
+    SkMutex      fMutex;
     size_t       fBudget;
     size_t       fUsed;
     SkTInternalLList<PoolDiscardableMemory> fList;
@@ -61,7 +61,7 @@ private:
     /** Function called to free memory if needed */
     void dumpDownTo(size_t budget);
     /** called by DiscardableMemoryPool upon destruction */
-    void free(PoolDiscardableMemory* dm);
+    void removeFromPool(PoolDiscardableMemory* dm);
     /** called by DiscardableMemoryPool::lock() */
     bool lock(PoolDiscardableMemory* dm);
     /** called by DiscardableMemoryPool::unlock() */
@@ -78,8 +78,7 @@ private:
  */
 class PoolDiscardableMemory : public SkDiscardableMemory {
 public:
-    PoolDiscardableMemory(DiscardableMemoryPool* pool,
-                            void* pointer, size_t bytes);
+    PoolDiscardableMemory(sk_sp<DiscardableMemoryPool> pool, SkAutoFree pointer, size_t bytes);
     ~PoolDiscardableMemory() override;
     bool lock() override;
     void* data() override;
@@ -87,29 +86,24 @@ public:
     friend class DiscardableMemoryPool;
 private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(PoolDiscardableMemory);
-    DiscardableMemoryPool* const fPool;
+    sk_sp<DiscardableMemoryPool> fPool;
     bool                         fLocked;
-    void*                        fPointer;
+    SkAutoFree                   fPointer;
     const size_t                 fBytes;
 };
 
-PoolDiscardableMemory::PoolDiscardableMemory(DiscardableMemoryPool* pool,
-                                             void* pointer,
+PoolDiscardableMemory::PoolDiscardableMemory(sk_sp<DiscardableMemoryPool> pool,
+                                             SkAutoFree pointer,
                                              size_t bytes)
-    : fPool(pool)
-    , fLocked(true)
-    , fPointer(pointer)
-    , fBytes(bytes) {
+        : fPool(std::move(pool)), fLocked(true), fPointer(std::move(pointer)), fBytes(bytes) {
     SkASSERT(fPool != nullptr);
     SkASSERT(fPointer != nullptr);
     SkASSERT(fBytes > 0);
-    fPool->ref();
 }
 
 PoolDiscardableMemory::~PoolDiscardableMemory() {
     SkASSERT(!fLocked); // contract for SkDiscardableMemory
-    fPool->free(this);
-    fPool->unref();
+    fPool->removeFromPool(this);
 }
 
 bool PoolDiscardableMemory::lock() {
@@ -119,7 +113,7 @@ bool PoolDiscardableMemory::lock() {
 
 void* PoolDiscardableMemory::data() {
     SkASSERT(fLocked); // contract for SkDiscardableMemory
-    return fPointer;
+    return fPointer.get();
 }
 
 void PoolDiscardableMemory::unlock() {
@@ -129,10 +123,8 @@ void PoolDiscardableMemory::unlock() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DiscardableMemoryPool::DiscardableMemoryPool(size_t budget,
-                                             SkBaseMutex* mutex)
-    : fMutex(mutex)
-    , fBudget(budget)
+DiscardableMemoryPool::DiscardableMemoryPool(size_t budget)
+    : fBudget(budget)
     , fUsed(0) {
     #if SK_LAZY_CACHE_STATS
     fCacheHits = 0;
@@ -147,20 +139,17 @@ DiscardableMemoryPool::~DiscardableMemoryPool() {
 }
 
 void DiscardableMemoryPool::dumpDownTo(size_t budget) {
-    if (fMutex != nullptr) {
-        fMutex->assertHeld();
-    }
+    fMutex.assertHeld();
     if (fUsed <= budget) {
         return;
     }
-    typedef SkTInternalLList<PoolDiscardableMemory>::Iter Iter;
+    using Iter = SkTInternalLList<PoolDiscardableMemory>::Iter;
     Iter iter;
     PoolDiscardableMemory* cur = iter.init(fList, Iter::kTail_IterStart);
     while ((fUsed > budget) && (cur)) {
         if (!cur->fLocked) {
             PoolDiscardableMemory* dm = cur;
             SkASSERT(dm->fPointer != nullptr);
-            sk_free(dm->fPointer);
             dm->fPointer = nullptr;
             SkASSERT(fUsed >= dm->fBytes);
             fUsed -= dm->fBytes;
@@ -174,25 +163,23 @@ void DiscardableMemoryPool::dumpDownTo(size_t budget) {
     }
 }
 
-SkDiscardableMemory* DiscardableMemoryPool::create(size_t bytes) {
-    void* addr = sk_malloc_flags(bytes, 0);
+std::unique_ptr<SkDiscardableMemory> DiscardableMemoryPool::make(size_t bytes) {
+    SkAutoFree addr(sk_malloc_flags(bytes, 0));
     if (nullptr == addr) {
         return nullptr;
     }
-    PoolDiscardableMemory* dm = new PoolDiscardableMemory(this, addr, bytes);
+    auto dm = skstd::make_unique<PoolDiscardableMemory>(sk_ref_sp(this), std::move(addr), bytes);
     SkAutoMutexAcquire autoMutexAcquire(fMutex);
-    fList.addToHead(dm);
+    fList.addToHead(dm.get());
     fUsed += bytes;
     this->dumpDownTo(fBudget);
-    return dm;
+    return std::move(dm);
 }
 
-void DiscardableMemoryPool::free(PoolDiscardableMemory* dm) {
+void DiscardableMemoryPool::removeFromPool(PoolDiscardableMemory* dm) {
     SkAutoMutexAcquire autoMutexAcquire(fMutex);
     // This is called by dm's destructor.
     if (dm->fPointer != nullptr) {
-        sk_free(dm->fPointer);
-        dm->fPointer = nullptr;
         SkASSERT(fUsed >= dm->fBytes);
         fUsed -= dm->fBytes;
         fList.remove(dm);
@@ -242,18 +229,13 @@ void DiscardableMemoryPool::dumpPool() {
 
 }  // namespace
 
-SkDiscardableMemoryPool* SkDiscardableMemoryPool::Create(size_t size, SkBaseMutex* mutex) {
-    return new DiscardableMemoryPool(size, mutex);
+sk_sp<SkDiscardableMemoryPool> SkDiscardableMemoryPool::Make(size_t size) {
+    return sk_make_sp<DiscardableMemoryPool>(size);
 }
 
-SK_DECLARE_STATIC_MUTEX(gMutex);
-
 SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool() {
-    static SkOnce once;
-    static SkDiscardableMemoryPool* global;
-    once([]{
-        global = SkDiscardableMemoryPool::Create(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE,
-                                                 &gMutex);
-    });
+    // Intentionally leak this global pool.
+    static SkDiscardableMemoryPool* global =
+            new DiscardableMemoryPool(SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE);
     return global;
 }

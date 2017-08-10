@@ -19,7 +19,7 @@
 
 #include "SkDistanceFieldGen.h"
 
-#include "ops/GrRectOpFactory.h"
+#include "ops/GrNonAAFillRectOp.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -173,12 +173,10 @@ void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
     SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
-    std::unique_ptr<GrLegacyMeshDrawOp> op = GrRectOpFactory::MakeNonAAFill(
-            paint.getColor(), SkMatrix::I(), dstRect, nullptr, &invert);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
             resourceProvider, std::move(proxy), nullptr, maskMatrix,
             GrSamplerParams::kNone_FilterMode));
-    GrPipelineBuilder pipelineBuilder(std::move(paint), GrAAType::kNone);
-    pipelineBuilder.setUserStencil(&userStencilSettings);
-    renderTargetContext->addLegacyMeshDrawOp(std::move(pipelineBuilder), clip, std::move(op));
+    renderTargetContext->addDrawOp(
+            clip, GrNonAAFillRectOp::Make(std::move(paint), SkMatrix::I(), dstRect, nullptr,
+                                          &invert, GrAAType::kNone, &userStencilSettings));
 }

@@ -14,7 +14,6 @@
 
 #include "vk/GrVkDefines.h"
 
-class GrNonInstancedVertices;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrStencilSettings;

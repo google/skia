@@ -53,13 +53,15 @@ namespace SkOpts {
     // If nsrc < ndst, we loop over src to create a pattern.
     extern void (*srcover_srgb_srgb)(uint32_t* dst, const uint32_t* src, int ndst, int nsrc);
 
+    extern void (*memset16)(uint16_t[], uint16_t, int);
+    extern void (*memset32)(uint32_t[], uint32_t, int);
+    extern void (*memset64)(uint64_t[], uint64_t, int);
+
     // The fastest high quality 32-bit hash we can provide on this platform.
     extern uint32_t (*hash_fn)(const void*, size_t, uint32_t seed);
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
-
-    extern void (*run_pipeline)(size_t, size_t, const SkRasterPipeline::Stage*, int);
 
     extern void (*convolve_vertically)(const SkConvolutionFilter1D::ConvolutionFixed* filter_values,
                                        int filter_length, unsigned char* const* source_data_rows,

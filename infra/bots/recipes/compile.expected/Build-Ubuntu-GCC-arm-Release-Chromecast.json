@@ -24,6 +24,66 @@
   },
   {
     "cmd": [
+      "git",
+      "remote",
+      "set-url",
+      "origin",
+      "https://skia.googlesource.com/skia.git"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git remote set-url"
+  },
+  {
+    "cmd": [
+      "git",
+      "fetch"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git fetch"
+  },
+  {
+    "cmd": [
+      "git",
+      "reset",
+      "--hard",
+      "abc123"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git reset"
+  },
+  {
+    "cmd": [
+      "git",
+      "clean",
+      "-d",
+      "-f"
+    ],
+    "cwd": "[CUSTOM_/_B_WORK]/skia",
+    "infra_step": true,
+    "name": "git clean"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport os\nimport sys\nos.remove(sys.argv[1])\n",
+      "[CUSTOM_/_B_WORK]/.gclient_entries"
+    ],
+    "infra_step": true,
+    "name": "remove [CUSTOM_/_B_WORK]/.gclient_entries",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.remove(sys.argv[1])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
@@ -32,14 +92,13 @@
       "--patch_root",
       "skia",
       "--revision_mapping_file",
-      "{\"skia\": \"got_revision\"}",
+      "{\"got_revision\": \"skia\"}",
       "--git-cache-dir",
       "[CUSTOM_/_B_CACHE]",
       "--output_json",
       "/path/to/tmp/json",
       "--revision",
-      "skia@abc123",
-      "--output_manifest"
+      "skia@abc123"
     ],
     "cwd": "[CUSTOM_/_B_WORK]",
     "env": {
@@ -97,7 +156,7 @@
       "[CUSTOM_/_B_WORK]/skia/bin/gn",
       "gen",
       "[CUSTOM_/_B_WORK]/skia/out/Build-Ubuntu-GCC-arm-Release-Chromecast/Release",
-      "--args=ar=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-gcc\" cxx=\"[START_DIR]/cast_toolchain/bin/armv7a-cros-linux-gnueabi-g++\" extra_cflags=[\"-g0\"] extra_ldflags=[\"-static-libstdc++\", \"-static-libgcc\"] is_debug=false skia_enable_gpu=false skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\""
+      "--args=ar=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-ar\" cc=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-gcc\" cxx=\"[START_DIR]/cast_toolchain/armv7a/bin/armv7a-cros-linux-gnueabi-g++\" extra_cflags=[\"-I[START_DIR]/chromebook_arm_gles/include\", \"-DMESA_EGL_NO_X11_HEADERS\", \"-DEGL_NO_IMAGE_EXTERNAL\", \"-DSK_NO_COMMAND_BUFFER\", \"-Wno-error=unused-function\", \"-g0\"] extra_ldflags=[\"-static-libstdc++\", \"-static-libgcc\", \"-L[START_DIR]/cast_toolchain/armv7a/lib\"] is_debug=false skia_enable_gpu=true skia_use_egl=true skia_use_fontconfig=false skia_use_icu=false skia_use_system_freetype2=false target_cpu=\"arm\""
     ],
     "cwd": "[CUSTOM_/_B_WORK]/skia",
     "env": {

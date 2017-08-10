@@ -164,6 +164,7 @@ private:
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTVarDeclarationStatement& s);
     std::unique_ptr<Statement> convertWhile(const ASTWhileStatement& w);
 
+    void fixRectSampling(std::vector<std::unique_ptr<Expression>>& arguments);
     void checkValid(const Expression& expr);
     void markWrittenTo(const Expression& expr, bool readWrite);
 

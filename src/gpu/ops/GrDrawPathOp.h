@@ -40,6 +40,7 @@ protected:
     GrColor color() const { return fInputColor; }
     GrPathRendering::FillType fillType() const { return fFillType; }
     const GrProcessorSet& processors() const { return fProcessorSet; }
+    uint32_t pipelineSRGBFlags() const { return fPipelineSRGBFlags; }
     void initPipeline(const GrOpFlushState&, GrPipeline*);
     const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
                                                         const GrAppliedClip* clip) {
@@ -58,10 +59,11 @@ private:
 
     SkMatrix fViewMatrix;
     GrColor fInputColor;
-    GrProcessorSet fProcessorSet;
     GrProcessorSet::Analysis fAnalysis;
     GrPathRendering::FillType fFillType;
     GrAAType fAAType;
+    uint32_t fPipelineSRGBFlags;
+    GrProcessorSet fProcessorSet;
 
     typedef GrDrawOp INHERITED;
 };
