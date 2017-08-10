@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd2ddbcd_2d904395",
+        "filename": "src/core/SkATrace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-10T19:37:57Z",
+      "side": 1,
+      "message": "move up to the top of this function and then use\n\n#elif defined(SK_BUILD_FOR_ANDROID)",
+      "revId": "cd65bf1c1a64d0d65aa3b74eb21619a1640343f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
