@@ -311,7 +311,8 @@ public:
 
     void addGenIDChangeListener(GenIDChangeListener* listener);
 
-    SkDEBUGCODE(void validate() const;)
+    bool isValid() const;
+    SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
 
 private:
     enum SerializationOffsets {

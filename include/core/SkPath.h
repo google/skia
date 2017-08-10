@@ -1119,7 +1119,9 @@ public:
     static const int kPathRefGenIDBitCnt = 32;
 #endif
 
-    SkDEBUGCODE(void validate() const;)
+    bool isValid() const;
+    bool pathRefIsValid() const { return fPathRef->isValid(); }
+    SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
     SkDEBUGCODE(void experimentalValidateRef() const { fPathRef->validate(); } )
 
 private:
