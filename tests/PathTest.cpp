@@ -4467,6 +4467,7 @@ static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {
     surface->getCanvas()->drawPath(path, paint);
 }
 
+#if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
 static void test_skbug_6947() {
     SkPath path;
     SkPoint points[] =
@@ -4506,6 +4507,7 @@ static void test_skbug_6947() {
     paint.setAntiAlias(true);
     surface->getCanvas()->drawPath(path, paint);
 }
+#endif
 
 static void test_interp(skiatest::Reporter* reporter) {
     SkPath p1, p2, out;
@@ -4579,7 +4581,9 @@ DEF_TEST(Paths, reporter) {
     test_mask_overflow();
     test_path_crbugskia6003();
     test_fuzz_crbug_668907();
+#if !defined(SK_SUPPORT_LEGACY_DELTA_AA)
     test_skbug_6947();
+#endif
 
     SkSize::Make(3, 4);
 
