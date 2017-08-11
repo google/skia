@@ -29,7 +29,8 @@ public:
     static sk_sp<SkColorFilter> Make();
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrContext*,
+                                                             SkColorSpace*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

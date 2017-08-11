@@ -26,8 +26,8 @@ public:
     };
     static const int kInputModeCnt = kLastInputMode + 1;
 
-    static sk_sp<GrFragmentProcessor> Make(GrColor4f color, InputMode mode) {
-        return sk_sp<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
+    static std::unique_ptr<GrFragmentProcessor> Make(GrColor4f color, InputMode mode) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
     }
 
     const char* name() const override { return "Color"; }
@@ -38,7 +38,7 @@ public:
         return str;
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     GrColor4f color() const { return fColor; }
 

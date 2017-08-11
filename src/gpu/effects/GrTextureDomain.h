@@ -153,17 +153,17 @@ protected:
  */
 class GrTextureDomainEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
-                                           sk_sp<GrColorSpaceXform>,
-                                           const SkMatrix&,
-                                           const SkRect& domain,
-                                           GrTextureDomain::Mode,
-                                           GrSamplerParams::FilterMode filterMode);
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+                                                     sk_sp<GrColorSpaceXform>,
+                                                     const SkMatrix&,
+                                                     const SkRect& domain,
+                                                     GrTextureDomain::Mode,
+                                                     GrSamplerParams::FilterMode filterMode);
 
     const char* name() const override { return "TextureDomain"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrTextureDomainEffect(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new GrTextureDomainEffect(*this));
     }
 
     SkString dumpInfo() const override {
@@ -207,9 +207,9 @@ private:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
-                                           const SkIRect& subset,
-                                           const SkIPoint& deviceSpaceOffset);
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+                                                     const SkIRect& subset,
+                                                     const SkIPoint& deviceSpaceOffset);
 
     const char* name() const override { return "GrDeviceSpaceTextureDecalFragmentProcessor"; }
 
@@ -223,7 +223,7 @@ public:
         return str;
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
     TextureSampler fTextureSampler;

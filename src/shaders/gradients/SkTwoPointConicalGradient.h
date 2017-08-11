@@ -19,7 +19,7 @@ public:
 
     SkShader::GradientType asAGradient(GradientInfo* info) const  override;
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
     bool isOpaque() const override;
 

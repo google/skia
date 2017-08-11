@@ -85,7 +85,7 @@ GrSRGBEffect::GrSRGBEffect(Mode mode, Alpha alpha)
     this->initClassID<GrSRGBEffect>();
 }
 
-sk_sp<GrFragmentProcessor> GrSRGBEffect::clone() const { return Make(fMode, fAlpha); }
+std::unique_ptr<GrFragmentProcessor> GrSRGBEffect::clone() const { return Make(fMode, fAlpha); }
 
 bool GrSRGBEffect::onIsEqual(const GrFragmentProcessor& s) const {
     const GrSRGBEffect& other = s.cast<GrSRGBEffect>();
@@ -119,7 +119,7 @@ GrColor4f GrSRGBEffect::constantOutputForConstantInput(GrColor4f color) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSRGBEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrSRGBEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrSRGBEffect::TestCreate(GrProcessorTestData* d) {
     Mode testMode = static_cast<Mode>(d->fRandom->nextRangeU(0, 1));
     return GrSRGBEffect::Make(testMode, Alpha::kPremul);
 }

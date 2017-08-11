@@ -142,16 +142,16 @@ public:
     enum class Direction { kX, kY };
     enum class Type { kErode, kDilate };
 
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy, Direction dir, int radius,
-                                           Type type) {
-        return sk_sp<GrFragmentProcessor>(
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy, Direction dir,
+                                                     int radius, Type type) {
+        return std::unique_ptr<GrFragmentProcessor>(
                 new GrMorphologyEffect(std::move(proxy), dir, radius, type, nullptr));
     }
 
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy, Direction dir, int radius,
-                                           Type type, const float bounds[2]) {
-        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(std::move(proxy),
-                                                                 dir, radius, type, bounds));
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy, Direction dir,
+                                                     int radius, Type type, const float bounds[2]) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrMorphologyEffect(std::move(proxy), dir, radius, type, bounds));
     }
 
     Type type() const { return fType; }
@@ -163,8 +163,8 @@ public:
 
     const char* name() const override { return "Morphology"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrMorphologyEffect(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new GrMorphologyEffect(*this));
     }
 
 private:
@@ -382,7 +382,7 @@ bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);

@@ -10,9 +10,9 @@
 
 #if GR_TEST_UTILS
 
-sk_sp<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcessorTestData* data) {
+std::unique_ptr<GrFragmentProcessor> GrProcessorUnitTest::MakeChildFP(GrProcessorTestData* data) {
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-    sk_sp<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp;
     do {
         fp = GrFragmentProcessorTestFactory::Make(data);
         SkASSERT(fp);

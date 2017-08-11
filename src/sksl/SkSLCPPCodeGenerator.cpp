@@ -543,8 +543,10 @@ void CPPCodeGenerator::writeClone() {
             this->writef("    this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
         }
         this->write("}\n");
-        this->writef("sk_sp<GrFragmentProcessor> %s::clone() const {\n", fFullName.c_str());
-        this->writef("    return sk_sp<GrFragmentProcessor>(new %s(*this));\n", fFullName.c_str());
+        this->writef("std::unique_ptr<GrFragmentProcessor> %s::clone() const {\n",
+                     fFullName.c_str());
+        this->writef("    return std::unique_ptr<GrFragmentProcessor>(new %s(*this));\n",
+                     fFullName.c_str());
         this->write("}\n");
     }
 }
@@ -552,12 +554,13 @@ void CPPCodeGenerator::writeClone() {
 void CPPCodeGenerator::writeTest() {
     const Section* test = fSectionAndParameterHelper.getSection(TEST_CODE_SECTION);
     if (test) {
-        this->writef("GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
-                     "#if GR_TEST_UTILS\n"
-                     "sk_sp<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
-                     fFullName.c_str(),
-                     fFullName.c_str(),
-                     test->fArgument.c_str());
+        this->writef(
+                "GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
+                "#if GR_TEST_UTILS\n"
+                "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
+                fFullName.c_str(),
+                fFullName.c_str(),
+                test->fArgument.c_str());
         this->writeSection(TEST_CODE_SECTION);
         this->write("}\n"
                     "#endif\n");

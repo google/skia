@@ -35,7 +35,7 @@ enum {
 
 /** This allows parent FPs to implement a test create with known leaf children in order to avoid
 creating an unbounded FP tree which may overflow various shader limits. */
-sk_sp<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
+std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
 
 }
 
@@ -117,7 +117,7 @@ private:
     static SkTArray<GrProcessorTestFactory<ProcessorSmartPtr>*, true>* GetFactories();
 };
 
-using GrFragmentProcessorTestFactory = GrProcessorTestFactory<sk_sp<GrFragmentProcessor>>;
+using GrFragmentProcessorTestFactory = GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
 using GrGeometryProcessorTestFactory = GrProcessorTestFactory<sk_sp<GrGeometryProcessor>>;
 
 class GrXPFactoryTestFactory : private SkNoncopyable {
@@ -151,7 +151,7 @@ private:
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                        \
     static GrFragmentProcessorTestFactory gTestFactory SK_UNUSED; \
-    static sk_sp<GrFragmentProcessor> TestCreate(GrProcessorTestData*);
+    static std::unique_ptr<GrFragmentProcessor> TestCreate(GrProcessorTestData*);
 
 #define GR_DECLARE_XP_FACTORY_TEST                                                                 \
     static GrXPFactoryTestFactory gTestFactory SK_UNUSED;                                          \
@@ -175,7 +175,7 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                                                         \
-    static sk_sp<GrFragmentProcessor> TestCreate(GrProcessorTestData*);
+    static std::unique_ptr<GrFragmentProcessor> TestCreate(GrProcessorTestData*);
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestCreate function so that

@@ -80,12 +80,13 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
     this->addTextureSampler(&fImage);
     this->addCoordTransform(&fImageCoordTransform);
 }
-sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrSimpleTextureEffect(*this));
+std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(GrProcessorTestData* testData) {
+std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
+        GrProcessorTestData* testData) {
     int texIdx = testData->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                                : GrProcessorUnitTest::kAlphaTextureIdx;
     static const SkShader::TileMode kTileModes[] = {

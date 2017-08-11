@@ -218,13 +218,13 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
     return kDomain_DomainMode;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
-                                        sk_sp<GrTextureProxy> proxy,
-                                        sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                        const SkMatrix& textureMatrix,
-                                        DomainMode domainMode,
-                                        const SkRect& domain,
-                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
+std::unique_ptr<GrFragmentProcessor> GrTextureProducer::CreateFragmentProcessorForDomainAndFilter(
+        sk_sp<GrTextureProxy> proxy,
+        sk_sp<GrColorSpaceXform> colorSpaceXform,
+        const SkMatrix& textureMatrix,
+        DomainMode domainMode,
+        const SkRect& domain,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic) {
     SkASSERT(kTightCopy_DomainMode != domainMode);
     if (filterOrNullForBicubic) {
         if (kDomain_DomainMode == domainMode) {

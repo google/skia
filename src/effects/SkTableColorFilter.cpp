@@ -86,7 +86,8 @@ public:
     sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const override;
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(GrContext*, SkColorSpace*) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrContext*,
+                                                             SkColorSpace*) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()
@@ -330,7 +331,7 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::makeComposed(sk_sp<SkColorFilter> inne
 
 class ColorTableEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(GrContext* context, const SkBitmap& bitmap);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrContext* context, const SkBitmap& bitmap);
 
     ~ColorTableEffect() override;
 
@@ -339,7 +340,7 @@ public:
     const GrTextureStripAtlas* atlas() const { return fAtlas; }
     int atlasRow() const { return fRow; }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -443,7 +444,8 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBitmap& bitmap) {
+std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
+                                                            const SkBitmap& bitmap) {
     GrTextureStripAtlas::Desc desc;
     desc.fWidth  = bitmap.width();
     desc.fHeight = 128;
@@ -467,7 +469,7 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context, const SkBi
         return nullptr;
     }
 
-    return sk_sp<GrFragmentProcessor>(new ColorTableEffect(std::move(proxy), atlas, row));
+    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(std::move(proxy), atlas, row));
 }
 
 ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy, GrTextureStripAtlas* atlas, int row)
@@ -485,9 +487,9 @@ ColorTableEffect::~ColorTableEffect() {
     }
 }
 
-sk_sp<GrFragmentProcessor> ColorTableEffect::clone() const {
+std::unique_ptr<GrFragmentProcessor> ColorTableEffect::clone() const {
     fAtlas->lockRow(fRow);
-    return sk_sp<GrFragmentProcessor>(
+    return std::unique_ptr<GrFragmentProcessor>(
             new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy()), fAtlas, fRow));
 }
 
@@ -515,7 +517,7 @@ bool ColorTableEffect::onIsEqual(const GrFragmentProcessor& other) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) {
     int flags = 0;
     uint8_t luts[256][4];
     do {
@@ -537,14 +539,14 @@ sk_sp<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTestData* d) 
         (flags & (1 << 3)) ? luts[3] : nullptr
     ));
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
-    sk_sp<GrFragmentProcessor> fp = filter->asFragmentProcessor(d->context(), colorSpace.get());
+    auto fp = filter->asFragmentProcessor(d->context(), colorSpace.get());
     SkASSERT(fp);
     return fp;
 }
 #endif
 
-sk_sp<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* context,
-                                                                    SkColorSpace*) const {
+std::unique_ptr<GrFragmentProcessor> SkTable_ColorFilter::asFragmentProcessor(GrContext* context,
+                                                                              SkColorSpace*) const {
     SkBitmap bitmap;
     this->asComponentTable(&bitmap);
 

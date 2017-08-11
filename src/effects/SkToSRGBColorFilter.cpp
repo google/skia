@@ -86,8 +86,8 @@ void SkToSRGBColorFilter::toString(SkString* str) const {
 #endif
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(GrContext*,
-                                                                    SkColorSpace*) const {
+std::unique_ptr<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(GrContext*,
+                                                                              SkColorSpace*) const {
     return GrNonlinearColorSpaceXformEffect::Make(fSrcColorSpace.get(),
                                                   SkColorSpace::MakeSRGB().get());
 }

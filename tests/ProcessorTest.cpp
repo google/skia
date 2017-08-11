@@ -27,7 +27,7 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "TestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(sk_sp<GrFragmentProcessor> fp) {
+    static std::unique_ptr<GrDrawOp> Make(std::unique_ptr<GrFragmentProcessor> fp) {
         return std::unique_ptr<GrDrawOp>(new TestOp(std::move(fp)));
     }
 
@@ -42,7 +42,8 @@ public:
     }
 
 private:
-    TestOp(sk_sp<GrFragmentProcessor> fp) : INHERITED(ClassID()), fProcessors(std::move(fp)) {
+    TestOp(std::unique_ptr<GrFragmentProcessor> fp)
+            : INHERITED(ClassID()), fProcessors(std::move(fp)) {
         this->setBounds(SkRect::MakeWH(100, 100), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
@@ -66,13 +67,13 @@ public:
         sk_sp<GrTextureProxy> fProxy;
         GrIOType fIOType;
     };
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> child) {
-        return sk_sp<GrFragmentProcessor>(new TestFP(std::move(child)));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child) {
+        return std::unique_ptr<GrFragmentProcessor>(new TestFP(std::move(child)));
     }
-    static sk_sp<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
-                                           const SkTArray<sk_sp<GrBuffer>>& buffers,
-                                           const SkTArray<Image>& images) {
-        return sk_sp<GrFragmentProcessor>(new TestFP(proxies, buffers, images));
+    static std::unique_ptr<GrFragmentProcessor> Make(const SkTArray<sk_sp<GrTextureProxy>>& proxies,
+                                                     const SkTArray<sk_sp<GrBuffer>>& buffers,
+                                                     const SkTArray<Image>& images) {
+        return std::unique_ptr<GrFragmentProcessor>(new TestFP(proxies, buffers, images));
     }
 
     const char* name() const override { return "test"; }
@@ -83,8 +84,8 @@ public:
         b->add32(sk_atomic_inc(&gKey));
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new TestFP(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new TestFP(*this));
     }
 
 private:
@@ -106,7 +107,7 @@ private:
         }
     }
 
-    TestFP(sk_sp<GrFragmentProcessor> child)
+    TestFP(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kNone_OptimizationFlags), fSamplers(4), fBuffers(4), fImages(4) {
         this->initClassID<TestFP>();
         this->registerChildProcessor(std::move(child));
@@ -224,7 +225,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
                     }
-                    sk_sp<GrFragmentProcessor> clone;
+                    std::unique_ptr<GrFragmentProcessor> clone;
                     if (makeClone) {
                         clone = fp->clone();
                     }
@@ -320,7 +321,7 @@ static GrColor4f input_texel_color4f(int i, int j) {
     return GrColor4f::FromGrColor(input_texel_color(i, j));
 }
 
-void test_draw_op(GrRenderTargetContext* rtc, sk_sp<GrFragmentProcessor> fp,
+void test_draw_op(GrRenderTargetContext* rtc, std::unique_ptr<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy) {
     GrPaint paint;
     paint.addColorTextureProcessor(std::move(inputDataProxy), nullptr, SkMatrix::I());
@@ -417,7 +418,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
         int timesToInvokeFactory = 5;
         // Increase the number of attempts if the FP has child FPs since optimizations likely depend
         // on child optimizations being present.
-        sk_sp<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
+        std::unique_ptr<GrFragmentProcessor> fp = FPFactory::MakeIdx(i, &testData);
         for (int j = 0; j < fp->numChildProcessors(); ++j) {
             // This value made a reasonable trade off between time and coverage when this test was
             // written.
@@ -433,7 +434,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 !fp->compatibleWithCoverageAsAlpha()) {
                 continue;
             }
-            test_draw_op(rtc.get(), fp, inputTexture);
+
+            // Since we transfer away ownership of the original FP, we make a clone.
+            auto clone = fp->clone();
+
+            test_draw_op(rtc.get(), std::move(fp), inputTexture);
             memset(readData.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
             rtc->readPixels(SkImageInfo::Make(kRenderSize, kRenderSize, kRGBA_8888_SkColorType,
                                               kPremul_SkAlphaType),
@@ -441,20 +446,20 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             bool passing = true;
             if (0) {  // Useful to see what FPs are being tested.
                 SkString children;
-                for (int c = 0; c < fp->numChildProcessors(); ++c) {
+                for (int c = 0; c < clone->numChildProcessors(); ++c) {
                     if (!c) {
                         children.append("(");
                     }
-                    children.append(fp->childProcessor(c).name());
-                    children.append(c == fp->numChildProcessors() - 1 ? ")" : ", ");
+                    children.append(clone->name());
+                    children.append(c == clone->numChildProcessors() - 1 ? ")" : ", ");
                 }
-                SkDebugf("%s %s\n", fp->name(), children.c_str());
+                SkDebugf("%s %s\n", clone->name(), children.c_str());
             }
             for (int y = 0; y < kRenderSize && passing; ++y) {
                 for (int x = 0; x < kRenderSize && passing; ++x) {
                     GrColor input = input_texel_color(x, y);
                     GrColor output = readData.get()[y * kRenderSize + x];
-                    if (fp->compatibleWithCoverageAsAlpha()) {
+                    if (clone->compatibleWithCoverageAsAlpha()) {
                         // A modulating processor is allowed to modulate either the input color or
                         // just the input alpha.
                         bool legalColorModulation =
@@ -471,14 +476,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             ERRORF(reporter,
                                    "\"Modulating\" processor %s made color/alpha value larger. "
                                    "Input: 0x%08x, Output: 0x%08x.",
-                                   fp->name(), input, output);
+                                   clone->name(), input, output);
                             passing = false;
                         }
                     }
                     GrColor4f input4f = input_texel_color4f(x, y);
                     GrColor4f output4f = GrColor4f::FromGrColor(output);
                     GrColor4f expected4f;
-                    if (fp->hasConstantOutputForConstantInput(input4f, &expected4f)) {
+                    if (clone->hasConstantOutputForConstantInput(input4f, &expected4f)) {
                         float rDiff = fabsf(output4f.fRGBA[0] - expected4f.fRGBA[0]);
                         float gDiff = fabsf(output4f.fRGBA[1] - expected4f.fRGBA[1]);
                         float bDiff = fabsf(output4f.fRGBA[2] - expected4f.fRGBA[2]);
@@ -497,17 +502,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             passing = false;
                         }
                     }
-                    if (GrColorIsOpaque(input) && fp->preservesOpaqueInput() &&
+                    if (GrColorIsOpaque(input) && clone->preservesOpaqueInput() &&
                         !GrColorIsOpaque(output)) {
                         ERRORF(reporter,
                                "Processor %s claimed opaqueness is preserved but it is not. Input: "
                                "0x%08x, Output: 0x%08x.",
-                               fp->name(), input, output);
+                               clone->name(), input, output);
                         passing = false;
                     }
                     if (!passing) {
-                        ERRORF(reporter, "Seed: 0x%08x, Processor details: %s",
-                               seed, fp->dumpInfo().c_str());
+                        ERRORF(reporter, "Seed: 0x%08x, Processor details: %s", seed,
+                               clone->dumpInfo().c_str());
                     }
                 }
             }
@@ -550,6 +555,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
+            const char* name = fp->name();
             if (!fp->instantiate(context->resourceProvider()) ||
                 !clone->instantiate(context->resourceProvider())) {
                 continue;
@@ -564,12 +570,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors());
             REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords());
             // Draw with original and read back the results.
-            test_draw_op(rtc.get(), fp, inputTexture);
+            test_draw_op(rtc.get(), std::move(fp), inputTexture);
             memset(readData1.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
             rtc->readPixels(readInfo, readData1.get(), 0, 0, 0);
 
             // Draw with clone and read back the results.
-            test_draw_op(rtc.get(), clone, inputTexture);
+            test_draw_op(rtc.get(), std::move(clone), inputTexture);
             memset(readData2.get(), 0x0, sizeof(GrColor) * kRenderSize * kRenderSize);
             rtc->readPixels(readInfo, readData2.get(), 0, 0, 0);
 
@@ -583,7 +589,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                "Processor %s made clone produced different output. "
                                "Input color: 0x%08x, Original Output Color: 0x%08x, "
                                "Clone Output Color: 0x%08x..",
-                               fp->name(), input_texel_color(x, y), readData1[idx], readData2[idx]);
+                               name, input_texel_color(x, y), readData1[idx], readData2[idx]);
                         passing = false;
                     }
                 }

@@ -56,13 +56,13 @@ public:
      * @param filterOrNullForBicubic           If non-null indicates the filter mode. If null means
      *                                         use bicubic filtering.
      **/
-    virtual sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                    const SkMatrix& textureMatrix,
-                                    const SkRect& constraintRect,
-                                    FilterConstraint filterConstraint,
-                                    bool coordsLimitedToConstraintRect,
-                                    const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                    SkColorSpace* dstColorSpace) = 0;
+    virtual std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint filterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+            SkColorSpace* dstColorSpace) = 0;
 
     virtual ~GrTextureProducer() {}
 
@@ -130,13 +130,13 @@ protected:
         const GrSamplerParams::FilterMode* filterModeOrNullForBicubic,
         SkRect* domainRect);
 
-    static sk_sp<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
-        sk_sp<GrTextureProxy> proxy,
-        sk_sp<GrColorSpaceXform>,
-        const SkMatrix& textureMatrix,
-        DomainMode,
-        const SkRect& domain,
-        const GrSamplerParams::FilterMode* filterOrNullForBicubic);
+    static std::unique_ptr<GrFragmentProcessor> CreateFragmentProcessorForDomainAndFilter(
+            sk_sp<GrTextureProxy> proxy,
+            sk_sp<GrColorSpaceXform>,
+            const SkMatrix& textureMatrix,
+            DomainMode,
+            const SkRect& domain,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic);
 
 private:
     const int   fWidth;

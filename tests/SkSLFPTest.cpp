@@ -85,11 +85,11 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              "#include \"GrColorSpaceXform.h\"\n"
              "class GrTest : public GrFragmentProcessor {\n"
              "public:\n"
-             "    static sk_sp<GrFragmentProcessor> Make() {\n"
-             "        return sk_sp<GrFragmentProcessor>(new GrTest());\n"
+             "    static std::unique_ptr<GrFragmentProcessor> Make() {\n"
+             "        return std::unique_ptr<GrFragmentProcessor>(new GrTest());\n"
              "    }\n"
              "    GrTest(const GrTest& src);\n"
-             "    sk_sp<GrFragmentProcessor> clone() const override;\n"
+             "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
              "    const char* name() const override { return \"Test\"; }\n"
              "private:\n"
              "    GrTest()\n"
@@ -154,8 +154,8 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              ": INHERITED(src.optimizationFlags()) {\n"
              "    this->initClassID<GrTest>();\n"
              "}\n"
-             "sk_sp<GrFragmentProcessor> GrTest::clone() const {\n"
-             "    return sk_sp<GrFragmentProcessor>(new GrTest(*this));\n"
+             "std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {\n"
+             "    return std::unique_ptr<GrFragmentProcessor>(new GrTest(*this));\n"
              "}\n"
              "#endif\n"
          });
@@ -170,8 +170,8 @@ DEF_TEST(SkSLFPInput, r) {
          *SkSL::ShaderCapsFactory::Default(),
          {
              "SkPoint point() const { return fPoint; }",
-             "static sk_sp<GrFragmentProcessor> Make(SkPoint point) {",
-             "return sk_sp<GrFragmentProcessor>(new GrTest(point));",
+             "static std::unique_ptr<GrFragmentProcessor> Make(SkPoint point) {",
+             "return std::unique_ptr<GrFragmentProcessor>(new GrTest(point));",
              "GrTest(SkPoint point)",
              ", fPoint(point)"
          },
@@ -191,7 +191,7 @@ DEF_TEST(SkSLFPUniform, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-             "static sk_sp<GrFragmentProcessor> Make()"
+             "static std::unique_ptr<GrFragmentProcessor> Make()"
          },
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType, "
@@ -207,7 +207,7 @@ DEF_TEST(SkSLFPInUniform, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-             "static sk_sp<GrFragmentProcessor> Make(SkRect color) {",
+             "static std::unique_ptr<GrFragmentProcessor> Make(SkRect color) {",
          },
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kVec4f_GrSLType, "
@@ -257,7 +257,7 @@ DEF_TEST(SkSLFPSections, r) {
          *SkSL::ShaderCapsFactory::Default(),
          {
              "Make(float w,  int x, float y, std::vector<float> z )",
-             "return sk_sp<GrFragmentProcessor>(new GrTest(w, x, y, z));",
+             "return std::unique_ptr<GrFragmentProcessor>(new GrTest(w, x, y, z));",
              "GrTest(float w,  int x, float y, std::vector<float> z )",
              ", fW(w) {"
          },
@@ -342,7 +342,7 @@ DEF_TEST(SkSLFPSections, r) {
          {},
          {
              "#if GR_TEST_UTILS\n"
-             "sk_sp<GrFragmentProcessor> GrTest::TestCreate(GrProcessorTestData* testDataName) {\n"
+             "std::unique_ptr<GrFragmentProcessor> GrTest::TestCreate(GrProcessorTestData* testDataName) {\n"
              " testDataName section }\n"
              "#endif"
          });

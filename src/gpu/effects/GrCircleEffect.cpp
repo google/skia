@@ -95,12 +95,12 @@ GrCircleEffect::GrCircleEffect(const GrCircleEffect& src)
         , fRadius(src.fRadius) {
     this->initClassID<GrCircleEffect>();
 }
-sk_sp<GrFragmentProcessor> GrCircleEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrCircleEffect(*this));
+std::unique_ptr<GrFragmentProcessor> GrCircleEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrCircleEffect(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleEffect);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestData* testData) {
+std::unique_ptr<GrFragmentProcessor> GrCircleEffect::TestCreate(GrProcessorTestData* testData) {
     SkPoint center;
     center.fX = testData->fRandom->nextRangeScalar(0.f, 1000.f);
     center.fY = testData->fRandom->nextRangeScalar(0.f, 1000.f);

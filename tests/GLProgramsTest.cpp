@@ -65,8 +65,8 @@ private:
 
 class BigKeyProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new BigKeyProcessor);
+    static std::unique_ptr<GrFragmentProcessor> Make() {
+        return std::unique_ptr<GrFragmentProcessor>(new BigKeyProcessor);
     }
 
     const char* name() const override { return "Big Ole Key"; }
@@ -75,7 +75,7 @@ public:
         return new GLBigKeyProcessor;
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+    std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
     BigKeyProcessor() : INHERITED(kNone_OptimizationFlags) { this->initClassID<BigKeyProcessor>(); }
@@ -93,7 +93,7 @@ private:
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
+std::unique_ptr<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
     return BigKeyProcessor::Make();
 }
 #endif
@@ -102,15 +102,15 @@ sk_sp<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
 
 class BlockInputFragmentProcessor : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor> fp) {
-        return sk_sp<GrFragmentProcessor>(new BlockInputFragmentProcessor(fp));
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
+        return std::unique_ptr<GrFragmentProcessor>(new BlockInputFragmentProcessor(std::move(fp)));
     }
 
     const char* name() const override { return "Block Input"; }
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return new GLFP; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
         return Make(this->childProcessor(0).clone());
     }
 
@@ -125,7 +125,7 @@ private:
         typedef GrGLSLFragmentProcessor INHERITED;
     };
 
-    BlockInputFragmentProcessor(sk_sp<GrFragmentProcessor> child)
+    BlockInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child)
             : INHERITED(kNone_OptimizationFlags) {
         this->initClassID<BlockInputFragmentProcessor>();
         this->registerChildProcessor(std::move(child));
@@ -169,8 +169,8 @@ static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
     paint->setXPFactory(GrXPFactoryTestFactory::Get(d));
 }
 
-static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d,
-                                                          int minLevels, int maxLevels) {
+static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d,
+                                                                    int minLevels, int maxLevels) {
     SkASSERT(1 <= minLevels);
     SkASSERT(minLevels <= maxLevels);
 
@@ -181,7 +181,7 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
     if (1 == minLevels) {
         bool terminate = (1 == maxLevels) || (d->fRandom->nextF() < terminateProbability);
         if (terminate) {
-            sk_sp<GrFragmentProcessor> fp;
+            std::unique_ptr<GrFragmentProcessor> fp;
             while (true) {
                 fp = GrFragmentProcessorTestFactory::Make(d);
                 SkASSERT(fp);
@@ -198,11 +198,11 @@ static sk_sp<GrFragmentProcessor> create_random_proc_tree(GrProcessorTestData* d
     if (minLevels > 1) {
         --minLevels;
     }
-    sk_sp<GrFragmentProcessor> minLevelsChild(create_random_proc_tree(d, minLevels, maxLevels - 1));
-    sk_sp<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
+    auto minLevelsChild = create_random_proc_tree(d, minLevels, maxLevels - 1);
+    std::unique_ptr<GrFragmentProcessor> otherChild(create_random_proc_tree(d, 1, maxLevels - 1));
     SkBlendMode mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0,
                                                                (int)SkBlendMode::kLastMode));
-    sk_sp<GrFragmentProcessor> fp;
+    std::unique_ptr<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
         fp = GrXfermodeFragmentProcessor::MakeFromTwoProcessors(std::move(minLevelsChild),
                                                                 std::move(otherChild), mode);
@@ -222,7 +222,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     // Randomly choose to either create a linear pipeline of procs or create one proc tree
     const float procTreeProbability = 0.5f;
     if (d->fRandom->nextF() < procTreeProbability) {
-        sk_sp<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
+        std::unique_ptr<GrFragmentProcessor> fp(create_random_proc_tree(d, 2, maxTreeLevels));
         if (fp) {
             paint->addColorFragmentProcessor(std::move(fp));
         }
@@ -231,7 +231,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
         int numColorProcs = d->fRandom->nextULessThan(numProcs + 1);
 
         for (int s = 0; s < numProcs;) {
-            sk_sp<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::Make(d));
+            std::unique_ptr<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::Make(d));
             SkASSERT(fp);
 
             // finally add the stage to the correct pipeline in the drawstate
@@ -330,9 +330,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
 
             GrPaint paint;
             paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-            sk_sp<GrFragmentProcessor> fp(GrFragmentProcessorTestFactory::MakeIdx(i, &ptd));
-            sk_sp<GrFragmentProcessor> blockFP(
-                BlockInputFragmentProcessor::Make(std::move(fp)));
+            auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &ptd);
+            auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.addColorFragmentProcessor(std::move(blockFP));
             GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
             drawingManager->flush(nullptr);

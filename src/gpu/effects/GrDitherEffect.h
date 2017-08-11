@@ -19,7 +19,7 @@ class GrDitherEffect : public GrFragmentProcessor {
 public:
     int rangeType() const { return fRangeType; }
 
-    static sk_sp<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
         int rangeType;
         switch (dstConfig) {
             case kGray_8_GrPixelConfig:
@@ -44,10 +44,10 @@ public:
             case kAlpha_8_GrPixelConfig:
                 return nullptr;
         }
-        return sk_sp<GrFragmentProcessor>(new GrDitherEffect(rangeType));
+        return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(rangeType));
     }
     GrDitherEffect(const GrDitherEffect& src);
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DitherEffect"; }
 
 private:

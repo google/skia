@@ -54,7 +54,8 @@ protected:
 
     void drawForeground(SkCanvas* canvas, SkSpecialImage*, const SkIRect&) const;
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const;
+    std::unique_ptr<GrFragmentProcessor> makeFGFrag(
+            std::unique_ptr<GrFragmentProcessor> bgFP) const;
 #endif
 
 private:
@@ -243,7 +244,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
     }
 
     GrPaint paint;
-    sk_sp<GrFragmentProcessor> bgFP;
+    std::unique_ptr<GrFragmentProcessor> bgFP;
 
     if (backgroundProxy) {
         SkMatrix bgMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
@@ -266,15 +267,13 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                 -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform = GrColorSpaceXform::Make(foreground->getColorSpace(),
                                                                    outputProperties.colorSpace());
-        sk_sp<GrFragmentProcessor> foregroundFP(GrTextureDomainEffect::Make(
-                                        std::move(foregroundProxy),
-                                        std::move(fgXform), fgMatrix,
-                                        GrTextureDomain::MakeTexelDomain(foreground->subset()),
-                                        GrTextureDomain::kDecal_Mode,
-                                        GrSamplerParams::kNone_FilterMode));
+        auto foregroundFP = GrTextureDomainEffect::Make(
+                std::move(foregroundProxy), std::move(fgXform), fgMatrix,
+                GrTextureDomain::MakeTexelDomain(foreground->subset()),
+                GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode);
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
-        sk_sp<GrFragmentProcessor> xferFP = this->makeFGFrag(std::move(bgFP));
+        std::unique_ptr<GrFragmentProcessor> xferFP = this->makeFGFrag(std::move(bgFP));
 
         // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
         if (xferFP) {
@@ -307,8 +306,8 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                                renderTargetContext->refColorSpace());
 }
 
-sk_sp<GrFragmentProcessor>
-SkXfermodeImageFilter_Base::makeFGFrag(sk_sp<GrFragmentProcessor> bgFP) const {
+std::unique_ptr<GrFragmentProcessor> SkXfermodeImageFilter_Base::makeFGFrag(
+        std::unique_ptr<GrFragmentProcessor> bgFP) const {
     return GrXfermodeFragmentProcessor::MakeFromDstProcessor(std::move(bgFP), fMode);
 }
 

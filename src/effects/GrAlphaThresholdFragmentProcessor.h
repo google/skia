@@ -24,19 +24,19 @@ public:
     float innerThreshold() const { return fInnerThreshold; }
     float outerThreshold() const { return fOuterThreshold; }
 
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
-                                           sk_sp<GrColorSpaceXform>
-                                                   colorXform,
-                                           sk_sp<GrTextureProxy>
-                                                   mask,
-                                           float innerThreshold,
-                                           float outerThreshold,
-                                           const SkIRect& bounds) {
-        return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> image,
+                                                     sk_sp<GrColorSpaceXform>
+                                                             colorXform,
+                                                     sk_sp<GrTextureProxy>
+                                                             mask,
+                                                     float innerThreshold,
+                                                     float outerThreshold,
+                                                     const SkIRect& bounds) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(
                 image, colorXform, mask, innerThreshold, outerThreshold, bounds));
     }
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AlphaThresholdFragmentProcessor"; }
 
 private:

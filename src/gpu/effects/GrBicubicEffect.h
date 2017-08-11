@@ -22,8 +22,8 @@ public:
 
     const char* name() const override { return "Bicubic"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(*this));
     }
 
     const GrTextureDomain& domain() const { return fDomain; }
@@ -33,25 +33,23 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
-                                           const SkShader::TileMode tileModes[2]) {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy),
-                                                              std::move(colorSpaceXform),
-                                                              matrix, tileModes));
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                     const SkMatrix& matrix,
+                                                     const SkShader::TileMode tileModes[2]) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(
+                std::move(proxy), std::move(colorSpaceXform), matrix, tileModes));
     }
 
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& matrix,
-                                           const SkRect& domain) {
-        return sk_sp<GrFragmentProcessor>(new GrBicubicEffect(std::move(proxy),
-                                                              std::move(colorSpaceXform),
-                                                              matrix, domain));
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                     const SkMatrix& matrix,
+                                                     const SkRect& domain) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrBicubicEffect(std::move(proxy), std::move(colorSpaceXform), matrix, domain));
     }
 
     /**

@@ -18,7 +18,7 @@ public:
     SkColorFilterShader(sk_sp<SkShader> shader, sk_sp<SkColorFilter> filter);
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const AsFPArgs&) const override;
 #endif
 
     SK_TO_STRING_OVERRIDE()

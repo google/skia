@@ -91,7 +91,7 @@ public:
     /**
      * Appends an additional color processor to the color computation.
      */
-    void addColorFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
+    void addColorFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp) {
         SkASSERT(fp);
         fColorFragmentProcessors.push_back(std::move(fp));
         fTrivial = false;
@@ -100,7 +100,7 @@ public:
     /**
      * Appends an additional coverage processor to the coverage computation.
      */
-    void addCoverageFragmentProcessor(sk_sp<GrFragmentProcessor> fp) {
+    void addCoverageFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp) {
         SkASSERT(fp);
         fCoverageFragmentProcessors.push_back(std::move(fp));
         fTrivial = false;
@@ -157,8 +157,8 @@ private:
     friend class GrProcessorSet;
 
     const GrXPFactory* fXPFactory = nullptr;
-    SkSTArray<4, sk_sp<GrFragmentProcessor>>  fColorFragmentProcessors;
-    SkSTArray<2, sk_sp<GrFragmentProcessor>>  fCoverageFragmentProcessors;
+    SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fColorFragmentProcessors;
+    SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> fCoverageFragmentProcessors;
     bool fDisableOutputConversionToSRGB = false;
     bool fAllowSRGBInputs = false;
     bool fTrivial = true;

@@ -123,7 +123,7 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
 void HCodeGenerator::writeMake() {
     const char* separator;
     if (!this->writeSection(MAKE_SECTION)) {
-        this->writef("    static sk_sp<GrFragmentProcessor> Make(");
+        this->writef("    static std::unique_ptr<GrFragmentProcessor> Make(");
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             this->writef("%s%s %s", separator, ParameterType(param->fType).c_str(),
@@ -132,7 +132,7 @@ void HCodeGenerator::writeMake() {
         }
         this->writeSection(CONSTRUCTOR_PARAMS_SECTION, separator);
         this->writef(") {\n"
-                     "        return sk_sp<GrFragmentProcessor>(new %s(",
+                     "        return std::unique_ptr<GrFragmentProcessor>(new %s(",
                      fFullName.c_str());
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
@@ -251,7 +251,7 @@ bool HCodeGenerator::generateCode() {
     }
     this->writeMake();
     this->writef("    %s(const %s& src);\n"
-                 "    sk_sp<GrFragmentProcessor> clone() const override;\n"
+                 "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
                  "    const char* name() const override { return \"%s\"; }\n"
                  "private:\n",
                  fFullName.c_str(), fFullName.c_str(), fName.c_str());

@@ -105,14 +105,13 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(
     return copy;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
-                                        const SkMatrix& origTextureMatrix,
-                                        const SkRect& origConstraintRect,
-                                        FilterConstraint filterConstraint,
-                                        bool coordsLimitedToConstraintRect,
-                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace) {
-
+std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
+        const SkMatrix& origTextureMatrix,
+        const SkRect& origConstraintRect,
+        FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+        SkColorSpace* dstColorSpace) {
     SkMatrix textureMatrix = origTextureMatrix;
     const SkIRect* contentArea = this->contentAreaOrNull();
     // Convert the constraintRect to be relative to the texture rather than the content area so

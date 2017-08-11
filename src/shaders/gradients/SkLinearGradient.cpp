@@ -333,15 +333,15 @@ class GrLinearGradient : public GrGradientEffect {
 public:
     class GLSLLinearProcessor;
 
-    static sk_sp<GrFragmentProcessor> Make(const CreateArgs& args) {
-        auto processor = sk_sp<GrLinearGradient>(new GrLinearGradient(args));
+    static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
+        auto processor = std::unique_ptr<GrLinearGradient>(new GrLinearGradient(args));
         return processor->isValid() ? std::move(processor) : nullptr;
     }
 
     const char* name() const override { return "Linear Gradient"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
-        return sk_sp<GrFragmentProcessor>(new GrLinearGradient(*this));
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
+        return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradient(*this));
     }
 
 private:
@@ -396,7 +396,7 @@ void GrLinearGradient::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) {
     SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
                         {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
 
@@ -407,7 +407,7 @@ sk_sp<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) 
         SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
                                      params.fColorCount, params.fTileMode);
     GrTest::TestAsFPArgs asFPArgs(d);
-    sk_sp<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
     GrAlwaysAssert(fp);
     return fp;
 }
@@ -432,7 +432,8 @@ void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
 
 /////////////////////////////////////////////////////////////////////
 
-sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
+        const AsFPArgs& args) const {
     SkASSERT(args.fContext);
 
     SkMatrix matrix;
@@ -450,9 +451,9 @@ sk_sp<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(const AsFPArgs&
 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(fColorSpace.get(),
                                                                        args.fDstColorSpace);
-    sk_sp<GrFragmentProcessor> inner(GrLinearGradient::Make(
-        GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                     std::move(colorSpaceXform), SkToBool(args.fDstColorSpace))));
+    auto inner = GrLinearGradient::Make(GrGradientEffect::CreateArgs(
+            args.fContext, this, &matrix, fTileMode, std::move(colorSpaceXform),
+            SkToBool(args.fDstColorSpace)));
     if (!inner) {
         return nullptr;
     }

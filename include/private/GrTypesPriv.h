@@ -603,9 +603,10 @@ enum class GrBackendObjectOwnership : bool {
     kOwned = true
 };
 
-template <typename T> T * const * sk_sp_address_as_pointer_address(sk_sp<T> const * sp) {
-    static_assert(sizeof(T*) == sizeof(sk_sp<T>), "sk_sp not expected size.");
-    return reinterpret_cast<T * const *>(sp);
+template <typename T>
+T* const* unique_ptr_address_as_pointer_address(std::unique_ptr<T> const* up) {
+    static_assert(sizeof(T*) == sizeof(std::unique_ptr<T>), "unique_ptr not expected size.");
+    return reinterpret_cast<T* const*>(up);
 }
 
 /*

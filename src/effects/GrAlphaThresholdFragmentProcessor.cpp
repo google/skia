@@ -123,12 +123,12 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
     this->addCoordTransform(&fImageCoordTransform);
     this->addCoordTransform(&fMaskCoordTransform);
 }
-sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));
+std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
+std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::TestCreate(
         GrProcessorTestData* testData) {
     sk_sp<GrTextureProxy> bmpProxy = testData->textureProxy(GrProcessorUnitTest::kSkiaPMTextureIdx);
     sk_sp<GrTextureProxy> maskProxy = testData->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx);

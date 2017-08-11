@@ -712,5 +712,4 @@ enum class GrSemaphoresSubmitted : int {
     kYes,
 };
 
-
 #endif

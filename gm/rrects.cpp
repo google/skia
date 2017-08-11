@@ -106,7 +106,7 @@ protected:
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrPrimitiveEdgeType edgeType = (GrPrimitiveEdgeType) et;
-                        sk_sp<GrFragmentProcessor> fp(GrRRectEffect::Make(edgeType, rrect));
+                        auto fp = GrRRectEffect::Make(edgeType, rrect);
                         if (fp) {
                             GrPaint grPaint;
                             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
