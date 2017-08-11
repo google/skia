@@ -2563,7 +2563,7 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     uint8_t buffer[1024];
     SkDEBUGCODE(size_t size =) path.writeToMemory(buffer);
     SkASSERT(size <= sizeof(buffer));
-    
+
     // find where the counts and verbs are stored : from the impl in SkPathRef.cpp
     int32_t* vCount = (int32_t*)&buffer[16];
     SkASSERT(*vCount == 5);
@@ -2572,35 +2572,35 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     int32_t* cCount = (int32_t*)&buffer[24];
     SkASSERT(*cCount == 1);
     uint8_t* verbs = &buffer[28];
-    
+
     REPORTER_ASSERT(reporter, path.readFromMemory(buffer, sizeof(buffer)));
-    
+
     // check that we detect under/over-flow of counts
-    
+
     *vCount += 1;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *vCount -= 1;   // restore
-    
+
     *pCount += 1;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *pCount -= 2;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *pCount += 1;   // restore
-    
+
     *cCount += 1;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *cCount -= 2;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     *cCount += 1;   // restore
-    
+
     // Check that we detect when the verbs indicate more or fewer pts/conics
-    
+
     uint8_t save = verbs[0];
     SkASSERT(save == SkPath::kCubic_Verb);
     verbs[0] = SkPath::kQuad_Verb;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     verbs[0] = save;
-    
+
     save = verbs[1];
     SkASSERT(save == SkPath::kConic_Verb);
     verbs[1] = SkPath::kQuad_Verb;
@@ -2608,7 +2608,7 @@ static void test_corrupt_flattening(skiatest::Reporter* reporter) {
     verbs[1] = SkPath::kCubic_Verb;
     REPORTER_ASSERT(reporter, !path.readFromMemory(buffer, sizeof(buffer)));
     verbs[1] = save;
-    
+
     // Check that we detect invalid verbs
     save = verbs[1];
     verbs[1] = 17;
@@ -4467,6 +4467,46 @@ static void test_fuzz_crbug_662730(skiatest::Reporter* reporter) {
     surface->getCanvas()->drawPath(path, paint);
 }
 
+static void test_skbug_6947() {
+    SkPath path;
+    SkPoint points[] =
+        {{125.126022f, -0.499872506f}, {125.288895f, -0.499338806f},
+         {125.299316f, -0.499290764f}, {126.294594f, 0.505449712f},
+         {125.999992f, 62.5047531f}, {124.0f, 62.4980202f},
+         {124.122749f, 0.498142242f}, {125.126022f, -0.499872506f},
+         {125.119476f, 1.50011659f}, {125.122749f, 0.50012207f},
+         {126.122749f, 0.502101898f}, {126.0f, 62.5019798f},
+         {125.0f, 62.5f}, {124.000008f, 62.4952469f},
+         {124.294609f, 0.495946467f}, {125.294601f, 0.50069809f},
+         {125.289886f, 1.50068688f}, {125.282349f, 1.50065041f},
+         {125.119476f, 1.50011659f}};
+    constexpr SkPath::Verb kMove = SkPath::kMove_Verb;
+    constexpr SkPath::Verb kLine = SkPath::kLine_Verb;
+    constexpr SkPath::Verb kClose = SkPath::kClose_Verb;
+    SkPath::Verb verbs[] = {kMove, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kClose,
+            kMove, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kLine, kClose};
+    int pointIndex = 0;
+    for(auto verb : verbs) {
+        switch (verb) {
+            case kMove:
+                path.moveTo(points[pointIndex++]);
+                break;
+            case kLine:
+                path.lineTo(points[pointIndex++]);
+                break;
+            case kClose:
+            default:
+                path.close();
+                break;
+        }
+    }
+
+    auto surface = SkSurface::MakeRasterN32Premul(250, 125);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    surface->getCanvas()->drawPath(path, paint);
+}
+
 static void test_interp(skiatest::Reporter* reporter) {
     SkPath p1, p2, out;
     REPORTER_ASSERT(reporter, p1.isInterpolatable(p2));
@@ -4539,6 +4579,7 @@ DEF_TEST(Paths, reporter) {
     test_mask_overflow();
     test_path_crbugskia6003();
     test_fuzz_crbug_668907();
+    test_skbug_6947();
 
     SkSize::Make(3, 4);
 
@@ -4752,7 +4793,7 @@ DEF_TEST(path_tight_bounds, reporter) {
                 SkRect bounds = path.getBounds();
                 SkRect tight = path.computeTightBounds();
                 REPORTER_ASSERT(reporter, bounds.contains(tight));
-                
+
                 SkRect tight2;
                 TightBounds(path, &tight2);
                 REPORTER_ASSERT(reporter, nearly_equal(tight, tight2));
