@@ -106,6 +106,15 @@ SI V swap_rb(V v) {
 #endif
 }
 
+SI V max(V v1, V v2) {
+    V res;
+#if defined(__AVX2__)
+    return U8x4(_mm256_max_epu8(v1.u8x4, v2.u8x4));
+#else
+    return U8x4(_mm_max_epu8(v1.u8x4, v2.u8x4));
+#endif
+}
+
 struct Params {
     size_t x,y,tail;
 };
@@ -346,3 +355,9 @@ STAGE(modulate) { src = src*dst; }
 STAGE(multiply) { src = src*inv(alpha(dst)) + dst*inv(alpha(src)) + src*dst; }
 STAGE(screen)   { src = src + inv(src)*dst; }
 STAGE(xor_)     { src = src*inv(alpha(dst)) + dst*inv(alpha(src)); }
+
+STAGE(darken)   {
+    V rgb = src + dst - (max(src * alpha(dst), dst * alpha(src)));
+    V   a = src + (dst - dst*alpha(src));
+      src = (rgb.u32 & 0x00ffffff) | (a.u32 & 0xff000000);
+}
