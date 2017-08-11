@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd7a6ff3_45e059a1",
+        "filename": "gm/windowrectangles.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-11T13:40:46Z",
+      "side": 1,
+      "message": "PS 6 removes this as it is now unused.",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 166,
+        "endChar": 45
+      },
+      "revId": "de71394b3b3dd73730e4cae002c8336d5348e384",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
