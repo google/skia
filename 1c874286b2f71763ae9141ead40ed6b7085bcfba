@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "6735ed06_474f3b27",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-11T20:23:58Z",
+      "side": 1,
+      "message": "Yeah, you see why I love Clang?",
+      "parentUuid": "4f2f7cca_c0e3a068",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1546e1a7_4f2482ad",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 3
