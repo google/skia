@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "ok.h"
-#include "gm.h"
+#include "Benchmark.h"
 #include "SkData.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "Timer.h"
+#include "gm.h"
+#include "ok.h"
+#include <algorithm>
+#include <chrono>
+#include <limits>
 #include <vector>
 
 struct GMStream : Stream {
@@ -112,3 +117,97 @@ struct SKPStream : Stream {
     }
 };
 static Register skp{"skp", "draw SKPs from dir=skps", SKPStream::Create};
+
+struct BenchStream : Stream {
+    const BenchRegistry* registry = BenchRegistry::Head();
+    int samples;
+
+    static std::unique_ptr<Stream> Create(Options options) {
+        BenchStream stream;
+        stream.samples = std::max(1, atoi(options("samples", "20").c_str()));
+        return move_unique(stream);
+    }
+
+    struct BenchSrc : Src {
+        Benchmark* (*factory)(void*);
+        std::unique_ptr<Benchmark> bench;
+        int samples;
+
+        void init() {
+            if (bench) { return; }
+            bench.reset(factory(nullptr));
+        }
+
+        std::string name() override {
+            this->init();
+            return bench->getName();
+        }
+
+        SkISize size() override {
+            this->init();
+            return { bench->getSize().x(), bench->getSize().y() };
+        }
+
+        Status draw(SkCanvas* canvas) override {
+            this->init();
+
+            using ms = std::chrono::duration<double, std::milli>;
+            std::vector<ms> sample(samples);
+
+            bench->delayedSetup();
+            if (canvas) {
+                bench->perCanvasPreDraw(canvas);
+            }
+            for (int i = 0; i < samples; i++) {
+                using clock = std::chrono::high_resolution_clock;
+                for (int loops = 1; loops < 1000000000; loops *= 2) {
+                    bench->preDraw(canvas);
+                    auto start = clock::now();
+                        bench->draw(loops, canvas);
+                    ms elapsed = clock::now() - start;
+                    bench->postDraw(canvas);
+
+                    if (elapsed.count() < 10) {
+                        continue;
+                    }
+
+                    sample[i] = elapsed / loops;
+                    break;
+                }
+            }
+            if (canvas) {
+                bench->perCanvasPostDraw(canvas);
+            }
+
+            std::sort(sample.begin(), sample.end());
+
+            SkString msg = SkStringPrintf("%s\t@0", HumanizeMs(sample[0].count()).c_str());
+            if (samples > 2) {
+                msg.appendf("\t%s\t@%g", HumanizeMs(sample[samples-2].count()).c_str()
+                                       , 100.0*(samples-1) / samples);
+            }
+            if (samples > 1) {
+                msg.appendf("\t%s\t@100", HumanizeMs(sample[samples-1].count()).c_str());
+            }
+            ok_log(msg.c_str());
+
+            return Status::OK;
+        }
+    };
+
+    std::unique_ptr<Src> next() override {
+        if (!registry) {
+            return nullptr;
+        }
+        BenchSrc src;
+        src.factory = registry->factory();
+        src.samples = samples;
+        registry = registry->next();
+        return move_unique(src);
+    }
+};
+static Register bench{
+    "bench",
+    "time benchmarks linked into this binary samples=20 times each",
+    BenchStream::Create,
+};
