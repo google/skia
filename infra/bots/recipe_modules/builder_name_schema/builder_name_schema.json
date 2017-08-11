@@ -36,6 +36,16 @@
       "compiler",
       "target_arch",
       "configuration"
+    ],
+    "Upload": [
+      "orig_role",
+      "os",
+      "compiler",
+      "model",
+      "cpu_or_gpu",
+      "cpu_or_gpu_value",
+      "arch",
+      "configuration"
     ]
   },
   "builder_name_sep": "-"
