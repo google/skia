@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98f20b73_188b00fc",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-11T17:30:38Z",
+      "side": 1,
+      "message": "I think this has to be the floor of the log2 not the ceil.",
+      "revId": "d0ec0ea41c6ad9986b7fe75234696a353a07e426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
