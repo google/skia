@@ -585,7 +585,8 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
             canvas.translate(face->glyph->bitmap_left, -face->glyph->bitmap_top);
 
             SkPaint paint;
-            paint.setFilterQuality(kMedium_SkFilterQuality);
+            // Use kLow filter quality to avoid mipmap generation when down sampling
+            paint.setFilterQuality(kLow_SkFilterQuality);
             canvas.drawBitmap(unscaledBitmap, 0, 0, &paint);
 
             // If the destination is BW or LCD, convert from A8.
