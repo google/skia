@@ -16,6 +16,24 @@
       "revId": "382652439159c23bfb65cc0f56ece44fac904348",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebdd295b_4ef4bb4b",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-11T12:53:09Z",
+      "side": 1,
+      "message": "Yes, the way I wrote it actually saves time. Previously, the macros would always resolve to SkEventTracer calls. SkEventTracer is set up so that if you try to use it, and we haven\u0027t instantiated one, it creates a dummy instance that just says no categories are enabled and eats all events. But that still means putting a static bool* at every macro site, initializing it with a virtual call the first time it\u0027s hit, and checking that bool every time through.\n\nWith this change, framework builds will completely strip out all code at trace macro sites unless SK_TRACE_EVENTS_IN_FRAMEWORK is enabled.\n\nFor general Skia, I think that the flexibility of the SkEventTracer routing is useful, but for the framework, it seems that it\u0027s worth the extra complexity to be as fast as possible?",
+      "parentUuid": "dd5ee893_2ef64b8e",
+      "revId": "382652439159c23bfb65cc0f56ece44fac904348",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
