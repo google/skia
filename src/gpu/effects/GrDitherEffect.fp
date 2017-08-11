@@ -2,7 +2,7 @@
 layout(key) in int rangeType;
 
 @make {
-    static sk_sp<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrPixelConfig dstConfig) {
         int rangeType;
         switch (dstConfig) {
             case kGray_8_GrPixelConfig:
@@ -27,7 +27,7 @@ layout(key) in int rangeType;
             case kAlpha_8_GrPixelConfig:
                 return nullptr;
         }
-        return sk_sp<GrFragmentProcessor>(new GrDitherEffect(rangeType));
+        return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(rangeType));
     }
 }
 
@@ -68,5 +68,5 @@ void main() {
 
 @test(testData) {
     float range = testData->fRandom->nextRangeF(0.001f, 0.05f);
-    return sk_sp<GrFragmentProcessor>(new GrDitherEffect(range));
+    return std::unique_ptr<GrFragmentProcessor>(new GrDitherEffect(range));
 }

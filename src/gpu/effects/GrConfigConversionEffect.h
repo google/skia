@@ -29,11 +29,12 @@ public:
      *  Returns a fragment processor that calls the passed in fragment processor, and then performs
      *  the requested premul or unpremul conversion.
      */
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrFragmentProcessor>, PMConversion);
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
+                                                     PMConversion);
 
     const char* name() const override { return "Config Conversion"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     PMConversion  pmConversion() const { return fPMConversion; }
 

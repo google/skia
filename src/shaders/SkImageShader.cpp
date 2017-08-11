@@ -167,8 +167,8 @@ void SkImageShader::toString(SkString* str) const {
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
-sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& args) const {
-
+std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
+        const AsFPArgs& args) const {
     SkMatrix lmInverse;
     if (!this->getLocalMatrix().invert(&lmInverse)) {
         return nullptr;
@@ -207,7 +207,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
 
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        args.fDstColorSpace);
-    sk_sp<GrFragmentProcessor> inner;
+    std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {
         inner = GrBicubicEffect::Make(std::move(proxy),
                                       std::move(colorSpaceXform), lmInverse, tm);
@@ -219,7 +219,7 @@ sk_sp<GrFragmentProcessor> SkImageShader::asFragmentProcessor(const AsFPArgs& ar
     if (isAlphaOnly) {
         return inner;
     }
-    return sk_sp<GrFragmentProcessor>(GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner)));
+    return GrFragmentProcessor::MulOutputByInputAlpha(std::move(inner));
 }
 
 #endif

@@ -27,13 +27,13 @@ public:
     sk_sp<GrTextureProxy> refTextureProxySafeForParams(const GrSamplerParams&, SkIPoint* outOffset,
                                                        SkScalar scaleAdjust[2]);
 
-    sk_sp<GrFragmentProcessor> createFragmentProcessor(
-                                const SkMatrix& textureMatrix,
-                                const SkRect& constraintRect,
-                                FilterConstraint,
-                                bool coordsLimitedToConstraintRect,
-                                const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                SkColorSpace* dstColorSpace) override;
+    std::unique_ptr<GrFragmentProcessor> createFragmentProcessor(
+            const SkMatrix& textureMatrix,
+            const SkRect& constraintRect,
+            FilterConstraint,
+            bool coordsLimitedToConstraintRect,
+            const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+            SkColorSpace* dstColorSpace) override;
 
     // We do not ref the texture nor the colorspace, so the caller must keep them in scope while
     // this Adjuster is alive.

@@ -258,10 +258,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
     };
 
     for (auto filter : kNamedFilters) {
-        sk_sp<GrFragmentProcessor> fp(GrSimpleTextureEffect::Make(sContext->asTextureProxyRef(),
-                                                                  nullptr,
-                                                                  SkMatrix::I(),
-                                                                  filter.fMode));
+        auto fp = GrSimpleTextureEffect::Make(sContext->asTextureProxyRef(), nullptr, SkMatrix::I(),
+                                              filter.fMode);
         REPORTER_ASSERT(reporter, fp);
         if (!fp) {
             return;
@@ -269,7 +267,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(IntTexture, reporter, ctxInfo) {
         rtContext->clear(nullptr, 0xDDAABBCC, true);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.addColorFragmentProcessor(fp);
+        paint.addColorFragmentProcessor(std::move(fp));
         rtContext->drawPaint(GrNoClip(), std::move(paint), SkMatrix::I());
         SkImageInfo readInfo = SkImageInfo::Make(kS, kS, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);

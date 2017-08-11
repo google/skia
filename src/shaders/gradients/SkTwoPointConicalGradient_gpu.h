@@ -14,11 +14,12 @@ class GrProcessor;
 class SkTwoPointConicalGradient;
 
 namespace Gr2PtConicalGradientEffect {
-    /**
-     * Creates an effect that produces a two point conical gradient based on the
-     * shader passed in.
-     */
-    sk_sp<GrFragmentProcessor> Make(const GrGradientEffect::CreateArgs& args);
+
+/**
+ * Creates an effect that produces a two point conical gradient based on the shader passed in.
+ */
+std::unique_ptr<GrFragmentProcessor> Make(const GrGradientEffect::CreateArgs& args);
+
 };
 
 #endif

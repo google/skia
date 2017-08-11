@@ -58,22 +58,20 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
     fFragmentProcessors.reset(numTotalProcessors);
     int currFPIdx = 0;
     for (int i = 0; i < processors.numColorFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = processors.colorFragmentProcessor(i);
-        fFragmentProcessors[currFPIdx].reset(fp);
-        if (!fp->instantiate(args.fResourceProvider)) {
+        fFragmentProcessors[currFPIdx] = processors.detachColorFragmentProcessor(i);
+        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
 
     for (int i = 0; i < processors.numCoverageFragmentProcessors(); ++i, ++currFPIdx) {
-        const GrFragmentProcessor* fp = processors.coverageFragmentProcessor(i);
-        fFragmentProcessors[currFPIdx].reset(fp);
-        if (!fp->instantiate(args.fResourceProvider)) {
+        fFragmentProcessors[currFPIdx] = processors.detachCoverageFragmentProcessor(i);
+        if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }
     }
     if (clipFP) {
-        fFragmentProcessors[currFPIdx].reset(clipFP.get());
+        fFragmentProcessors[currFPIdx] = std::move(clipFP);
         if (!fFragmentProcessors[currFPIdx]->instantiate(args.fResourceProvider)) {
             this->markAsBad();
         }

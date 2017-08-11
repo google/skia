@@ -73,8 +73,8 @@ void GrClipStackClip::getConservativeBounds(int width, int height, SkIRect* devR
 
 ////////////////////////////////////////////////////////////////////////////////
 // set up the draw state to enable the aa clipping mask.
-static sk_sp<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTextureProxy> mask,
-                                                     const SkIRect &devBound) {
+static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(sk_sp<GrTextureProxy> mask,
+                                                               const SkIRect& devBound) {
     SkIRect domainTexels = SkIRect::MakeWH(devBound.width(), devBound.height());
     return GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(mask), domainTexels,
                                                             {devBound.fLeft, devBound.fTop});
@@ -174,9 +174,9 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
 static bool get_analytic_clip_processor(const ElementList& elements,
                                         bool abortIfAA,
                                         const SkRect& drawDevBounds,
-                                        sk_sp<GrFragmentProcessor>* resultFP) {
+                                        std::unique_ptr<GrFragmentProcessor>* resultFP) {
     SkASSERT(elements.count() <= kMaxAnalyticElements);
-    SkSTArray<kMaxAnalyticElements, sk_sp<GrFragmentProcessor>> fps;
+    SkSTArray<kMaxAnalyticElements, std::unique_ptr<GrFragmentProcessor>> fps;
     ElementList::Iter iter(elements);
     while (iter.get()) {
         SkClipOp op = iter.get()->getOp();
@@ -302,7 +302,7 @@ bool GrClipStackClip::apply(GrContext* context, GrRenderTargetContext* renderTar
             // is multisampled.
             disallowAnalyticAA = useHWAA || hasUserStencilSettings;
         }
-        sk_sp<GrFragmentProcessor> clipFP;
+        std::unique_ptr<GrFragmentProcessor> clipFP;
         if ((reducedClip.requiresAA() || avoidStencilBuffers) &&
             get_analytic_clip_processor(reducedClip.elements(), disallowAnalyticAA, devBounds,
                                         &clipFP)) {

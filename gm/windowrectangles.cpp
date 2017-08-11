@@ -149,18 +149,20 @@ private:
  */
 class AlphaOnlyClip final : public MaskOnlyClipBase {
 public:
-    AlphaOnlyClip(sk_sp<GrTextureProxy> mask, int x, int y) {
-        int w = mask->width(), h = mask->height();
-        fFP = GrDeviceSpaceTextureDecalFragmentProcessor::Make(std::move(mask),
-                                                               SkIRect::MakeWH(w, h), {x, y});
-    }
+    AlphaOnlyClip(sk_sp<GrTextureProxy> mask, int x, int y) : fMask(mask), fX(x), fY(y) {}
+
 private:
     bool apply(GrContext*, GrRenderTargetContext*, bool, bool, GrAppliedClip* out,
                SkRect* bounds) const override {
-        out->addCoverageFP(fFP);
+        int w = fMask->width();
+        int h = fMask->height();
+        out->addCoverageFP(GrDeviceSpaceTextureDecalFragmentProcessor::Make(
+                fMask, SkIRect::MakeWH(w, h), {fX, fY}));
         return true;
     }
-    sk_sp<GrFragmentProcessor> fFP;
+    sk_sp<GrTextureProxy> fMask;
+    int fX;
+    int fY;
 };
 
 /**

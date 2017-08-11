@@ -12,7 +12,8 @@
 #endif
 
 #if SK_SUPPORT_GPU
-sk_sp<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(const AsFPArgs& args) const {
+std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
+        const AsFPArgs& args) const {
     SkMatrix tmp = this->getLocalMatrix();
     if (args.fLocalMatrix) {
         tmp.preConcat(*args.fLocalMatrix);
