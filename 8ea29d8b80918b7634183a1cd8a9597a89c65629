@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68f3a08a_d94dded2",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1399,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-11T17:29:40Z",
+      "side": 1,
+      "message": "I pulled this code from drawBitmapRect, but I don\u0027t think it is needed.  If you look at drawTextureProducer(...) it seems to have exactly this logic.",
+      "revId": "8ea29d8b80918b7634183a1cd8a9597a89c65629",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
