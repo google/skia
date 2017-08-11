@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8e7644b9_ac01367e",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T19:46:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "581fd379_f537d71a",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1261c84_fb44b7c0",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4f2f7cca_c0e3a068",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T19:46:41Z",
+      "side": 1,
+      "message": "Done.\n\nImpressive, the new version compiles down the the exact same assembly :)",
+      "parentUuid": "d1261c84_fb44b7c0",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1546e1a7_4f2482ad",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 3
@@ -50,6 +86,24 @@
       "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "240b8c02_af5392a3",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T19:46:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1546e1a7_4f2482ad",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
