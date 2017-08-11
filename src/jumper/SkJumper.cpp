@@ -98,7 +98,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     M(modulate)          \
     M(multiply)          \
     M(screen)            \
-    M(xor_)
+    M(xor_)              \
+    M(darken)
 
 extern "C" {
 
