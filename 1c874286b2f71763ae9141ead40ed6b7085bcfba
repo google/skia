@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "581fd379_f537d71a",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T18:13:36Z",
+      "side": 1,
+      "message": "Good thing we\u0027ve got this blank line here.  :P",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1261c84_fb44b7c0",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T18:13:36Z",
+      "side": 1,
+      "message": "Believe it or not, I think we can do this all as just\n\n  auto gt \u003d a.u8x4 \u003e b.u8x4;\n  return (a.u8x4 \u0026 gt) | (b.u8x4 \u0026 ~gt);\n\nClang seems to get that that means (v)pmaxub.",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1546e1a7_4f2482ad",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T18:13:36Z",
+      "side": 1,
+      "message": "Might want to back src up a couple spaces so it doesn\u0027t look like a new declaration?",
+      "revId": "1c874286b2f71763ae9141ead40ed6b7085bcfba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
