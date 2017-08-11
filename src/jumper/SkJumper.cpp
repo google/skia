@@ -69,6 +69,38 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     #define ASM(name, suffix) _sk_##name##_##suffix
 #endif
 
+#ifdef SK_SUPPORT_LEGACY_RP_BLENDS
+// Some stages have 8-bit versions from SkJumper_stages_8bit.cpp.
+#define LOWP_STAGES(M)   \
+    M(black_color) M(white_color) M(uniform_color) \
+    M(set_rgb)           \
+    M(premul)            \
+    M(load_8888) M(load_8888_dst) M(store_8888) \
+    M(load_bgra) M(load_bgra_dst) M(store_bgra) \
+    M(load_a8)   M(load_a8_dst)   M(store_a8)   \
+    M(load_g8)   M(load_g8_dst)                 \
+    M(swap_rb)           \
+    M(srcover_rgba_8888) \
+    M(lerp_1_float)      \
+    M(lerp_u8)           \
+    M(scale_1_float)     \
+    M(scale_u8)          \
+    M(move_src_dst)      \
+    M(move_dst_src)      \
+    M(clear)             \
+    M(srcatop)           \
+    M(dstatop)           \
+    M(srcin)             \
+    M(dstin)             \
+    M(srcout)            \
+    M(dstout)            \
+    M(srcover)           \
+    M(dstover)           \
+    M(modulate)          \
+    M(multiply)          \
+    M(screen)            \
+    M(xor_)
+#else
 // Some stages have 8-bit versions from SkJumper_stages_8bit.cpp.
 #define LOWP_STAGES(M)   \
     M(black_color) M(white_color) M(uniform_color) \
@@ -100,6 +132,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     M(screen)            \
     M(xor_)              \
     M(darken)
+#endif
 
 extern "C" {
 
