@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2a5ff69_b54d5fc4",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T17:18:25Z",
+      "side": 1,
+      "message": "mask y?",
+      "range": {
+        "startLine": 29,
+        "startChar": 43,
+        "endLine": 29,
+        "endChar": 44
+      },
+      "revId": "f32fd42c2a7b832e4eaf2261a797f5f6c0150c39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8587226e_2c045217",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T17:18:25Z",
+      "side": 1,
+      "message": "mask x?",
+      "range": {
+        "startLine": 30,
+        "startChar": 31,
+        "endLine": 30,
+        "endChar": 32
+      },
+      "revId": "f32fd42c2a7b832e4eaf2261a797f5f6c0150c39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e86ff27d_c49601d9",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T17:18:25Z",
+      "side": 1,
+      "message": "Might be easier to see the symmetry with\n\nsize_t result \u003d 0;\nresult \u003d this-\u003eadd(result, ...);\nresult \u003d this-\u003eadd(result, ...);",
+      "range": {
+        "startLine": 32,
+        "startChar": 16,
+        "endLine": 33,
+        "endChar": 58
+      },
+      "revId": "f32fd42c2a7b832e4eaf2261a797f5f6c0150c39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "42328e98_638e2e8b",
+        "filename": "src/core/SkSafeMath.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T17:18:25Z",
+      "side": 1,
+      "message": "#if SK_DEBUG \u0026\u0026 defined(__clang__)\n   auto double_check \u003d (unsigned __int128)x * y;\n   SkASSERT(double_check and our result agree)\n#endif\n\n?",
+      "revId": "f32fd42c2a7b832e4eaf2261a797f5f6c0150c39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c89be5b_8426d593",
+        "filename": "tests/SafeMathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T17:18:25Z",
+      "side": 1,
+      "message": "might make it clearer to also assert 2*halfMax +1 \u003d\u003d max?",
+      "revId": "f32fd42c2a7b832e4eaf2261a797f5f6c0150c39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
