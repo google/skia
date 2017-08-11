@@ -757,6 +757,7 @@ void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fon
     // Version 21 of the system font configuration does not need any fallback configuration files.
     SkString basePath(getenv("ANDROID_ROOT"));
     basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
+    SkDebugf("%s\n", basePath.c_str());
 
     if (append_system_font_families(fontFamilies, basePath) >= 21) {
         return;
@@ -775,6 +776,8 @@ void SkFontMgr_Android_Parser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fon
                                                      const char* fallbackFontsXml,
                                                      const char* langFallbackFontsDir)
 {
+    SkDebugf("%s\n", basePath.c_str());
+
     if (fontsXml) {
         parse_config_file(fontsXml, fontFamilies, basePath, false);
     }
