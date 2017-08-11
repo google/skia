@@ -16,16 +16,16 @@ void GrCCPRTriangleProcessor::onEmitVertexShader(const GrCCPRCoverageProcessor& 
                                                  const TexelBufferHandle& pointsBuffer,
                                                  const char* atlasOffset, const char* rtAdjust,
                                                  GrGPArgs* gpArgs) const {
-    v->codeAppend ("highp float2 self = ");
+    v->codeAppend ("highfloat2 self = ");
     v->appendTexelFetch(pointsBuffer,
                         SkStringPrintf("%s[sk_VertexID]", proc.instanceAttrib()).c_str());
     v->codeAppendf(".xy + %s;", atlasOffset);
-    gpArgs->fPositionVar.set(kVec2f_GrSLType, "self");
+    gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "self");
 }
 
 void GrCCPRTriangleProcessor::defineInputVertices(GrGLSLGeometryBuilder* g) const {
     // Prepend in_vertices at the start of the shader.
-    g->codePrependf("highp float3x2 in_vertices = float3x2(sk_in[0].gl_Position.xy, "
+    g->codePrependf("highfloat3x2 in_vertices = highfloat3x2(sk_in[0].gl_Position.xy, "
                                                           "sk_in[1].gl_Position.xy, "
                                                           "sk_in[2].gl_Position.xy);");
 }
@@ -33,8 +33,8 @@ void GrCCPRTriangleProcessor::defineInputVertices(GrGLSLGeometryBuilder* g) cons
 void GrCCPRTriangleProcessor::emitWind(GrGLSLGeometryBuilder* g, const char* /*rtAdjust*/,
                                        const char* outputWind) const {
     // We will define in_vertices in defineInputVertices.
-    g->codeAppendf("%s = sign(determinant(float2x2(in_vertices[1] - in_vertices[0], "
-                                                  "in_vertices[2] - in_vertices[0])));",
+    g->codeAppendf("%s = sign(determinant(highfloat2x2(in_vertices[1] - in_vertices[0], "
+                                                      "in_vertices[2] - in_vertices[0])));",
                    outputWind);
 }
 
@@ -53,8 +53,8 @@ void GrCCPRTriangleHullAndEdgeProcessor::onEmitGeometryShader(GrGLSLGeometryBuil
     if (GeometryType::kHulls != fGeometryType) {
         g->codeAppend ("int edgeidx0 = sk_InvocationID, "
                            "edgeidx1 = (edgeidx0 + 1) % 3;");
-        g->codeAppendf("highp float2 edgept0 = in_vertices[%s > 0 ? edgeidx0 : edgeidx1];", wind);
-        g->codeAppendf("highp float2 edgept1 = in_vertices[%s > 0 ? edgeidx1 : edgeidx0];", wind);
+        g->codeAppendf("highfloat2 edgept0 = in_vertices[%s > 0 ? edgeidx0 : edgeidx1];", wind);
+        g->codeAppendf("highfloat2 edgept1 = in_vertices[%s > 0 ? edgeidx1 : edgeidx0];", wind);
 
         maxOutputVertices += this->emitEdgeGeometry(g, emitVertexFn, "edgept0", "edgept1");
     }
@@ -73,15 +73,15 @@ void GrCCPRTriangleCornerProcessor::onEmitVertexShader(const GrCCPRCoverageProce
     this->INHERITED::onEmitVertexShader(proc, v, pointsBuffer, atlasOffset, rtAdjust, gpArgs);
 
     // Fetch and transform the next point in the triangle.
-    v->codeAppend ("highp float2 next = ");
+    v->codeAppend ("highfloat2 next = ");
     v->appendTexelFetch(pointsBuffer,
                         SkStringPrintf("%s[(sk_VertexID+1) %% 3]", proc.instanceAttrib()).c_str());
     v->codeAppendf(".xy + %s;", atlasOffset);
 
     // Find the plane that gives distance from the [self -> next] edge, normalized to its AA
     // bloat width.
-    v->codeAppend ("highp float2 n = float2(next.y - self.y, self.x - next.x);");
-    v->codeAppendf("highp float2 d = n * float2x2(self + %f * sign(n), "
+    v->codeAppend ("highfloat2 n = highfloat2(next.y - self.y, self.x - next.x);");
+    v->codeAppendf("highfloat2 d = n * highfloat2x2(self + %f * sign(n), "
                                                  "self - %f * sign(n));",
                    kAABloatRadius, kAABloatRadius);
 
@@ -98,7 +98,7 @@ void GrCCPRTriangleCornerProcessor::onEmitGeometryShader(GrGLSLGeometryBuilder* 
                                                          const char* rtAdjust) const {
     this->defineInputVertices(g);
 
-    g->codeAppend ("highp float2 self = in_vertices[sk_InvocationID];");
+    g->codeAppend ("highfloat2 self = in_vertices[sk_InvocationID];");
     int numVertices = this->emitCornerGeometry(g, emitVertexFn, "self");
 
     g->configure(GrGLSLGeometryBuilder::InputType::kTriangles,
@@ -114,7 +114,7 @@ void GrCCPRTriangleCornerProcessor::emitPerVertexGeometryCode(SkString* fnBody,
                     fNeighbors.gsOut(), fDevCoord.gsIn());
     fnBody->appendf("%s.zw = %s[(sk_InvocationID + 2) %% 3];",
                     fNeighbors.gsOut(), fDevCoord.gsIn());
-    fnBody->appendf("%s = float3x3(%s[(sk_InvocationID + 2) %% 3], "
+    fnBody->appendf("%s = highfloat3x3(%s[(sk_InvocationID + 2) %% 3], "
                                   "%s[sk_InvocationID], "
                                   "%s[(sk_InvocationID + 1) %% 3]) * %s;",
                     fEdgeDistances.gsOut(), fEdgeDistance.gsIn(), fEdgeDistance.gsIn(),
@@ -129,32 +129,28 @@ void GrCCPRTriangleCornerProcessor::emitPerVertexGeometryCode(SkString* fnBody,
 void GrCCPRTriangleCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
                                                        const char* outputCoverage) const {
     // FIXME: Adreno breaks if we don't put the frag coord in an intermediate highp variable.
-    f->codeAppendf("highp float2 fragcoord = sk_FragCoord.xy;");
+    f->codeAppendf("highfloat2 fragcoord = sk_FragCoord.xy;");
 
     // Approximate coverage by tracking where 4 horizontal lines enter and leave the triangle.
-    GrShaderVar samples("samples", kVec4f_GrSLType, GrShaderVar::kNonArray,
-                        kHigh_GrSLPrecision);
+    GrShaderVar samples("samples", kHighFloat4_GrSLType, GrShaderVar::kNonArray);
     f->declareGlobal(samples);
-    f->codeAppendf("%s = fragcoord.y + float4(-0.375, -0.125, 0.125, 0.375);", samples.c_str());
+    f->codeAppendf("%s = fragcoord.y + highfloat4(-0.375, -0.125, 0.125, 0.375);", samples.c_str());
 
-    GrShaderVar leftedge("leftedge", kVec4f_GrSLType, GrShaderVar::kNonArray,
-                         kHigh_GrSLPrecision);
+    GrShaderVar leftedge("leftedge", kHighFloat4_GrSLType, GrShaderVar::kNonArray);
     f->declareGlobal(leftedge);
-    f->codeAppendf("%s = float4(fragcoord.x - 0.5);", leftedge.c_str());
+    f->codeAppendf("%s = highfloat4(fragcoord.x - 0.5);", leftedge.c_str());
 
-    GrShaderVar rightedge("rightedge", kVec4f_GrSLType, GrShaderVar::kNonArray,
-                          kHigh_GrSLPrecision);
+    GrShaderVar rightedge("rightedge", kHighFloat4_GrSLType, GrShaderVar::kNonArray);
     f->declareGlobal(rightedge);
-    f->codeAppendf("%s = float4(fragcoord.x + 0.5);", rightedge.c_str());
+    f->codeAppendf("%s = highfloat4(fragcoord.x + 0.5);", rightedge.c_str());
 
     SkString sampleEdgeFn;
-    GrShaderVar edgeArg("edge_distance", kVec3f_GrSLType, GrShaderVar::kNonArray,
-                        kHigh_GrSLPrecision);
+    GrShaderVar edgeArg("edge_distance", kHighFloat3_GrSLType, GrShaderVar::kNonArray);
     f->emitFunction(kVoid_GrSLType, "sampleEdge", 1, &edgeArg, [&]() {
         SkString b;
-        b.appendf("highp float m = abs(%s.x) < 1e-3 ? 1e18 : -1 / %s.x;",
+        b.appendf("highfloat m = abs(%s.x) < 1e-3 ? 1e18 : -1 / %s.x;",
                   edgeArg.c_str(), edgeArg.c_str());
-        b.appendf("highp float4 edge = m * (%s.y * samples + %s.z);",
+        b.appendf("highfloat4 edge = m * (%s.y * samples + %s.z);",
                   edgeArg.c_str(), edgeArg.c_str());
         b.appendf("if (%s.x <= 1e-3 || (abs(%s.x) < 1e-3 && %s.y > 0)) {",
                   edgeArg.c_str(), edgeArg.c_str(), edgeArg.c_str());
@@ -166,10 +162,10 @@ void GrCCPRTriangleCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
     }().c_str(), &sampleEdgeFn);
 
     // See if the previous neighbor already handled this pixel.
-    f->codeAppendf("if (all(lessThan(abs(fragcoord - %s.zw), float2(%f)))) {",
+    f->codeAppendf("if (all(lessThan(abs(fragcoord - %s.zw), highfloat2(%f)))) {",
                    fNeighbors.fsIn(), kAABloatRadius);
     // Handle the case where all 3 corners defer to the previous neighbor.
-    f->codeAppendf(    "if (%s != 0 || !all(lessThan(abs(fragcoord - %s.xy), float2(%f)))) {",
+    f->codeAppendf(    "if (%s != 0 || !all(lessThan(abs(fragcoord - %s.xy), highfloat2(%f)))) {",
                        fCornerIdx.fsIn(), fNeighbors.fsIn(), kAABloatRadius);
     f->codeAppend (        "discard;");
     f->codeAppend (    "}");
@@ -177,7 +173,7 @@ void GrCCPRTriangleCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
 
     // Erase what the hull and two edges wrote at this corner in previous shaders (the two .5's
     // for the edges and the -1 for the hull cancel each other out).
-    f->codeAppendf("%s = dot(float3(fragcoord, 1) * float2x3(%s), float2(1));",
+    f->codeAppendf("%s = dot(highfloat3(fragcoord, 1) * highfloat2x3(%s), highfloat2(1));",
                    outputCoverage, fEdgeDistances.fsIn());
 
     // Sample the two edges at this corner.
@@ -185,15 +181,15 @@ void GrCCPRTriangleCornerProcessor::emitShaderCoverage(GrGLSLFragmentBuilder* f,
     f->codeAppendf("%s(%s[1]);", sampleEdgeFn.c_str(), fEdgeDistances.fsIn());
 
     // Handle the opposite edge if the next neighbor will defer to us.
-    f->codeAppendf("if (all(lessThan(abs(fragcoord - %s.xy), float2(%f)))) {",
+    f->codeAppendf("if (all(lessThan(abs(fragcoord - %s.xy), highfloat2(%f)))) {",
                    fNeighbors.fsIn(), kAABloatRadius);
     // Erase the coverage the opposite edge wrote to this corner.
-    f->codeAppendf(    "%s += dot(%s[2], float3(fragcoord, 1)) + 0.5;",
+    f->codeAppendf(    "%s += dot(%s[2], highfloat3(fragcoord, 1)) + 0.5;",
                        outputCoverage, fEdgeDistances.fsIn());
     // Sample the opposite edge.
     f->codeAppendf(    "%s(%s[2]);", sampleEdgeFn.c_str(), fEdgeDistances.fsIn());
     f->codeAppend ("}");
 
-    f->codeAppendf("highp float4 widths = max(%s - %s, 0);", rightedge.c_str(), leftedge.c_str());
-    f->codeAppendf("%s += dot(widths, float4(0.25));", outputCoverage);
+    f->codeAppendf("highfloat4 widths = max(%s - %s, 0);", rightedge.c_str(), leftedge.c_str());
+    f->codeAppendf("%s += dot(widths, highfloat4(0.25));", outputCoverage);
 }
