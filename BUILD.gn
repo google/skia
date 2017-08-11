@@ -1295,6 +1295,7 @@ if (skia_enable_tools) {
       "tools/ok_vias.cpp",
     ]
     deps = [
+      ":bench",
       ":gm",
       ":skia",
       ":tests",
