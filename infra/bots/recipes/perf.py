@@ -41,61 +41,75 @@ def nanobench_flags(api, bot):
   if 'iOS' in bot:
     args.extend(['--skps', 'ignore_skps'])
 
-  configs = ['8888', 'nonrendering', 'hwui' ]
+  configs = []
+  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+    args.append('--nogpu')
+    configs.extend(['8888', 'nonrendering'])
 
-  if '-arm-' not in bot:
-    # For Android CPU tests, these take too long and cause the task to time out.
-    configs += [ 'f16', 'srgb' ]
-  if '-GCE-' in bot:
-    configs += [ '565' ]
+    if '-arm-' not in bot:
+      # For Android CPU tests, these take too long and cause the task to time
+      # out.
+      configs += [ 'f16', 'srgb' ]
+    if '-GCE-' in bot:
+      configs += [ '565' ]
 
-  gl_prefix = 'gl'
-  sample_count = '8'
-  if 'Android' in bot or 'iOS' in bot:
-    sample_count = '4'
-    # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
-    # instead of ES.
-    if 'NVIDIA_Shield' not in bot:
-      gl_prefix = 'gles'
-    # The NP produces a long error stream when we run with MSAA.
-    # iOS crashes (skia:6399)
-    if 'NexusPlayer' in bot or 'iOS' in bot:
+  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+    args.append('--nocpu')
+
+    gl_prefix = 'gl'
+    sample_count = '8'
+    if 'Android' in bot or 'iOS' in bot:
+      sample_count = '4'
+      # The NVIDIA_Shield has a regular OpenGL implementation. We bench that
+      # instead of ES.
+      if 'NVIDIA_Shield' not in bot:
+        gl_prefix = 'gles'
+      # The NP produces a long error stream when we run with MSAA.
+      # iOS crashes (skia:6399)
+      # Nexus7 (Tegra3) does not support MSAA.
+      if ('NexusPlayer' in bot or
+          'iOS'         in bot or
+          'Nexus7'      in bot):
+        sample_count = ''
+    elif 'Intel' in bot:
       sample_count = ''
-  elif 'Intel' in bot:
-    sample_count = ''
-  elif 'ChromeOS' in bot:
-    gl_prefix = 'gles'
+    elif 'ChromeOS' in bot:
+      gl_prefix = 'gles'
 
-  configs.append(gl_prefix)
-  if sample_count is not '':
-    configs.extend([gl_prefix + 'msaa' + sample_count,
-      gl_prefix + 'nvpr' + sample_count,
-      gl_prefix + 'nvprdit' + sample_count])
-
-  # We want to test both the OpenGL config and the GLES config on Linux Intel:
-  # GL is used by Chrome, GLES is used by ChromeOS.
-  if 'Intel' in bot and api.vars.is_linux:
-    configs.append('gles')
-
-  # Bench instanced rendering on a limited number of platforms
-  inst_config = gl_prefix + 'inst'
-  if 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini6.2' in bot:
-    configs.extend([inst_config, inst_config + sample_count])
-
-  if 'CommandBuffer' in bot:
-    configs = ['commandbuffer']
-  if 'Vulkan' in bot:
-    configs = ['vk']
-
-  if 'ANGLE' in bot:
-    # Test only ANGLE configs.
-    configs = ['angle_d3d11_es2']
+    configs.append(gl_prefix)
     if sample_count is not '':
-      configs.append('angle_d3d11_es2_msaa' + sample_count)
+      configs.append(gl_prefix + 'msaa' + sample_count)
+      if ('TegraX1' in bot or
+          'Quadro' in bot or
+          'GTX' in bot or
+          ('GT610' in bot and 'Ubuntu17' not in bot)):
+        configs.extend([gl_prefix + 'nvpr' + sample_count,
+                        gl_prefix + 'nvprdit' + sample_count])
 
-  if 'ChromeOS' in bot:
-    # Just run GLES for now - maybe add gles_msaa4 in the future
-    configs = ['gles']
+    # We want to test both the OpenGL config and the GLES config on Linux Intel:
+    # GL is used by Chrome, GLES is used by ChromeOS.
+    if 'Intel' in bot and api.vars.is_linux:
+      configs.append('gles')
+
+    # Bench instanced rendering on a limited number of platforms
+    inst_config = gl_prefix + 'inst'
+    if 'PixelC' in bot or 'NVIDIA_Shield' in bot or 'MacMini6.2' in bot:
+      configs.extend([inst_config, inst_config + sample_count])
+
+    if 'CommandBuffer' in bot:
+      configs = ['commandbuffer']
+    if 'Vulkan' in bot:
+      configs = ['vk']
+
+    if 'ANGLE' in bot:
+      # Test only ANGLE configs.
+      configs = ['angle_d3d11_es2']
+      if sample_count is not '':
+        configs.append('angle_d3d11_es2_msaa' + sample_count)
+
+    if 'ChromeOS' in bot:
+      # Just run GLES for now - maybe add gles_msaa4 in the future
+      configs = ['gles']
 
   args.append('--config')
   args.extend(configs)
@@ -236,27 +250,15 @@ def perf_steps(api):
         'NexusPlayer' not in api.vars.builder_name):
       args.extend(['--svgs',  api.flavor.device_dirs.svg_dir])
 
-  skip_flag = None
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
-    skip_flag = '--nogpu'
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
-    skip_flag = '--nocpu'
-  if skip_flag:
-    args.append(skip_flag)
   args.extend(nanobench_flags(api, api.vars.builder_name))
 
   if 'Chromecast' in api.vars.builder_cfg.get('os', ''):
     # Due to limited disk space, run a watered down perf run on Chromecast.
-    args = [
-      target,
-      '--config',
-      '8888',
-      'gles',
-    ]
+    args = [target]
     if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
-      args.extend(['--nogpu'])
+      args.extend(['--nogpu', '--config', '8888'])
     elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
-      args.extend(['--nocpu'])
+      args.extend(['--nocpu', '--config', 'gles'])
     args.extend([
       '-i', api.flavor.device_dirs.resource_dir,
       '--images', api.flavor.device_path_join(
@@ -313,7 +315,7 @@ def perf_steps(api):
   # See skia:2789.
   extra_config_parts = api.vars.builder_cfg.get('extra_config', '').split('_')
   if 'AbandonGpuContext' in extra_config_parts:
-    args.extend(['--abandonGpuContext', '--nocpu'])
+    args.extend(['--abandonGpuContext'])
 
   with api.env(env):
     api.run(api.flavor.step, target, cmd=args,
