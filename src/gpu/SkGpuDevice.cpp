@@ -1289,6 +1289,10 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
     this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
 }
 
+namespace GrImageOp {
+std::unique_ptr<GrDrawOp> Make(sk_sp<GrTextureProxy>, GrSamplerParams::FilterMode, GrColor,
+                               const SkRect srcRect, const SkRect dstRect, const SkMatrix&);
+}
 void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1297,6 +1301,21 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
     uint32_t pinnedUniqueID;
 
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+        if (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
+            !paint.getImageFilter() && !paint.isAntiAlias() &&
+            paint.getFilterQuality() < kMedium_SkFilterQuality &&
+            paint.getBlendMode() == SkBlendMode::kSrcOver && !this->ctm().hasPerspective()) {
+            SkRect srcRect = SkRect::MakeWH(image->width(), image->height());
+            GrSamplerParams::FilterMode filter = paint.getFilterQuality() < kLow_SkFilterQuality
+                    ? GrSamplerParams::kNone_FilterMode
+                    : GrSamplerParams::kBilerp_FilterMode;
+            GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
+                            ? SkColorToPremulGrColor(paint.getColor())
+                            : SkColorAlphaToGrColor(paint.getColor());
+            auto op = GrImageOp::Make(std::move(proxy), filter, color, srcRect, srcRect, viewMatrix);
+            fRenderTargetContext->addDrawOp(this->clip(), std::move(op));
+            return;
+        }
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), image->bounds(),
                                    pinnedUniqueID, as_IB(image)->onImageInfo().colorSpace());
@@ -1330,6 +1349,30 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+        if (SkCanvas::SrcRectConstraint::kFast_SrcRectConstraint == constraint &&
+            !paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
+            !paint.getImageFilter() && !paint.isAntiAlias() &&
+            paint.getFilterQuality() < kMedium_SkFilterQuality &&
+            paint.getBlendMode() == SkBlendMode::kSrcOver && !this->ctm().hasPerspective()) {
+            SkRect srcRect = src ? *src : SkRect::MakeWH(image->width(), image->height());
+            SkRect dstRect = dst;
+            if (src && !SkRect::MakeIWH(image->width(), image->height()).contains(srcRect)) {
+                SkMatrix srcToDstRect;
+                srcToDstRect.setRectToRect(srcRect, dst, SkMatrix::kFill_ScaleToFit);
+                SkAssertResult(srcRect.intersect(SkRect::MakeIWH(image->width(), image->height())));
+                srcToDstRect.mapRect(&dstRect, srcRect);
+            }
+            GrSamplerParams::FilterMode filter = paint.getFilterQuality() < kLow_SkFilterQuality
+                    ? GrSamplerParams::kNone_FilterMode
+                    : GrSamplerParams::kBilerp_FilterMode;
+            GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
+                            ? SkColorToPremulGrColor(paint.getColor())
+                            : SkColorAlphaToGrColor(paint.getColor());
+            auto op = GrImageOp::Make(std::move(proxy), filter, color, srcRect, dstRect,
+                                      this->ctm());
+            fRenderTargetContext->addDrawOp(this->clip(), std::move(op));
+            return;
+        }
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), image->bounds(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
