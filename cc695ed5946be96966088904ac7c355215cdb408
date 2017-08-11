@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d10d2380_eb54a6d1",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T21:08:30Z",
+      "side": 1,
+      "message": "We\u0027re unlikely to want to write non-separable blend modes here, and the ones above are also separable... so it may be more confusing to mention the separability than leave it out.",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54f0e01f_5950c55c",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T21:08:30Z",
+      "side": 1,
+      "message": "Might be just as clear as a normal function, like\n\nSI V srcover_alpha(V src, V dst, V rgb) { ... }\n\nThen call it like\n   src \u003d srcover_alpha(src, dst, src + (dst - max( .... )));\n?\n\nWe kind of only used macros for the old ones because we were doing the same thing to r,g, and b separately.  Here you\u0027ll get them all in one go?",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6109402e_51e5cf7b",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-11T21:08:30Z",
+      "side": 1,
+      "message": "Do we not need to split up the two()\u0027s for difference and exclusion?, like  (s - x) + (d - x), for some x?",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
