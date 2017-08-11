@@ -24,7 +24,7 @@ struct IRNode {
 
     virtual String description() const = 0;
 
-    const Position fPosition;
+    Position fPosition;
 };
 
 } // namespace
