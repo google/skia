@@ -150,49 +150,49 @@ GLOverdrawFragmentProcessor::GLOverdrawFragmentProcessor(const GrColor4f* colors
 void GLOverdrawFragmentProcessor::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     if (nullptr == args.fInputColor) {
-        fragBuilder->codeAppendf("%s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                    fColors[5].fRGBA[0],
-                                                                    fColors[5].fRGBA[1],
-                                                                    fColors[5].fRGBA[2],
-                                                                    fColors[5].fRGBA[3]);
+        fragBuilder->codeAppendf("%s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                     fColors[5].fRGBA[0],
+                                                                     fColors[5].fRGBA[1],
+                                                                     fColors[5].fRGBA[2],
+                                                                     fColors[5].fRGBA[3]);
     } else {
-        fragBuilder->codeAppendf("float alpha = 255.0 * %s.a;", args.fInputColor);
+        fragBuilder->codeAppendf("half alpha = 255.0 * %s.a;", args.fInputColor);
         fragBuilder->codeAppendf("if (alpha < 0.5) {");
-        fragBuilder->codeAppendf("    %s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                        fColors[0].fRGBA[0],
-                                                                        fColors[0].fRGBA[1],
-                                                                        fColors[0].fRGBA[2],
-                                                                        fColors[0].fRGBA[3]);
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[0].fRGBA[0],
+                                                                         fColors[0].fRGBA[1],
+                                                                         fColors[0].fRGBA[2],
+                                                                         fColors[0].fRGBA[3]);
         fragBuilder->codeAppendf("} else if (alpha < 1.5) {");
-        fragBuilder->codeAppendf("    %s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                        fColors[1].fRGBA[0],
-                                                                        fColors[1].fRGBA[1],
-                                                                        fColors[1].fRGBA[2],
-                                                                        fColors[1].fRGBA[3]);
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[1].fRGBA[0],
+                                                                         fColors[1].fRGBA[1],
+                                                                         fColors[1].fRGBA[2],
+                                                                         fColors[1].fRGBA[3]);
         fragBuilder->codeAppendf("} else if (alpha < 2.5) {");
-        fragBuilder->codeAppendf("    %s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                        fColors[2].fRGBA[0],
-                                                                        fColors[2].fRGBA[1],
-                                                                        fColors[2].fRGBA[2],
-                                                                        fColors[2].fRGBA[3]);
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[2].fRGBA[0],
+                                                                         fColors[2].fRGBA[1],
+                                                                         fColors[2].fRGBA[2],
+                                                                         fColors[2].fRGBA[3]);
         fragBuilder->codeAppendf("} else if (alpha < 3.5) {");
-        fragBuilder->codeAppendf("    %s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                        fColors[3].fRGBA[0],
-                                                                        fColors[3].fRGBA[1],
-                                                                        fColors[3].fRGBA[2],
-                                                                        fColors[3].fRGBA[3]);
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[3].fRGBA[0],
+                                                                         fColors[3].fRGBA[1],
+                                                                         fColors[3].fRGBA[2],
+                                                                         fColors[3].fRGBA[3]);
         fragBuilder->codeAppendf("} else if (alpha < 4.5) {");
-        fragBuilder->codeAppendf("    %s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                        fColors[4].fRGBA[0],
-                                                                        fColors[4].fRGBA[1],
-                                                                        fColors[4].fRGBA[2],
-                                                                        fColors[4].fRGBA[3]);
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[4].fRGBA[0],
+                                                                         fColors[4].fRGBA[1],
+                                                                         fColors[4].fRGBA[2],
+                                                                         fColors[4].fRGBA[3]);
         fragBuilder->codeAppendf("} else {");
-        fragBuilder->codeAppendf("    %s.rgba = float4(%f, %f, %f, %f);", args.fOutputColor,
-                                                                        fColors[5].fRGBA[0],
-                                                                        fColors[5].fRGBA[1],
-                                                                        fColors[5].fRGBA[2],
-                                                                        fColors[5].fRGBA[3]);
+        fragBuilder->codeAppendf("    %s.rgba = half4(%f, %f, %f, %f);", args.fOutputColor,
+                                                                         fColors[5].fRGBA[0],
+                                                                         fColors[5].fRGBA[1],
+                                                                         fColors[5].fRGBA[2],
+                                                                         fColors[5].fRGBA[3]);
         fragBuilder->codeAppendf("}");
     }
 }
