@@ -70,8 +70,8 @@ GrConfigConversionEffect::GrConfigConversionEffect(PMConversion pmConversion)
     this->initClassID<GrConfigConversionEffect>();
 }
 
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(fPMConversion));
+std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(fPMConversion));
 }
 
 bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
@@ -84,9 +84,9 @@ bool GrConfigConversionEffect::onIsEqual(const GrFragmentProcessor& s) const {
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(GrProcessorTestData* d) {
     PMConversion pmConv = static_cast<PMConversion>(d->fRandom->nextULessThan(kPMConversionCnt));
-    return sk_sp<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
+    return std::unique_ptr<GrFragmentProcessor>(new GrConfigConversionEffect(pmConv));
 }
 #endif
 
@@ -158,11 +158,13 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     GrPaint paint1;
     GrPaint paint2;
     GrPaint paint3;
-    sk_sp<GrFragmentProcessor> pmToUPM(new GrConfigConversionEffect(kToUnpremul_PMConversion));
-    sk_sp<GrFragmentProcessor> upmToPM(new GrConfigConversionEffect(kToPremul_PMConversion));
+    std::unique_ptr<GrFragmentProcessor> pmToUPM(
+            new GrConfigConversionEffect(kToUnpremul_PMConversion));
+    std::unique_ptr<GrFragmentProcessor> upmToPM(
+            new GrConfigConversionEffect(kToPremul_PMConversion));
 
     paint1.addColorTextureProcessor(dataProxy, nullptr, SkMatrix::I());
-    paint1.addColorFragmentProcessor(pmToUPM);
+    paint1.addColorFragmentProcessor(pmToUPM->clone());
     paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     readRTC->fillRectToRect(GrNoClip(), std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect, kRect);
@@ -199,12 +201,12 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrContext* context
     return true;
 }
 
-sk_sp<GrFragmentProcessor> GrConfigConversionEffect::Make(sk_sp<GrFragmentProcessor> fp,
-                                                          PMConversion pmConversion) {
+std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::Make(
+        std::unique_ptr<GrFragmentProcessor> fp, PMConversion pmConversion) {
     if (!fp) {
         return nullptr;
     }
-    sk_sp<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
-    sk_sp<GrFragmentProcessor> fpPipeline[] = { fp, ccFP };
+    std::unique_ptr<GrFragmentProcessor> ccFP(new GrConfigConversionEffect(pmConversion));
+    std::unique_ptr<GrFragmentProcessor> fpPipeline[] = { std::move(fp), std::move(ccFP) };
     return GrFragmentProcessor::RunInSeries(fpPipeline, 2);
 }

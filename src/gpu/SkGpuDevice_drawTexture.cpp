@@ -201,16 +201,16 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         }
         textureMatrix = &tempMatrix;
     }
-    sk_sp<GrFragmentProcessor> fp(producer->createFragmentProcessor(
-        *textureMatrix, clippedSrcRect, constraintMode, coordsAllInsideSrcRect, filterMode,
-        fRenderTargetContext->getColorSpace()));
+    auto fp = producer->createFragmentProcessor(*textureMatrix, clippedSrcRect, constraintMode,
+                                                coordsAllInsideSrcRect, filterMode,
+                                                fRenderTargetContext->getColorSpace());
     if (!fp) {
         return;
     }
 
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(fContext.get(), fRenderTargetContext.get(), paint, viewMatrix,
-                                     fp, producer->isAlphaOnly(), &grPaint)) {
+                                     std::move(fp), producer->isAlphaOnly(), &grPaint)) {
         return;
     }
     GrAA aa = GrBoolToAA(paint.isAntiAlias());

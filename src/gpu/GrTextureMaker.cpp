@@ -76,14 +76,13 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
     return result;
 }
 
-sk_sp<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
-                                        const SkMatrix& textureMatrix,
-                                        const SkRect& constraintRect,
-                                        FilterConstraint filterConstraint,
-                                        bool coordsLimitedToConstraintRect,
-                                        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
-                                        SkColorSpace* dstColorSpace) {
-
+std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
+        const SkMatrix& textureMatrix,
+        const SkRect& constraintRect,
+        FilterConstraint filterConstraint,
+        bool coordsLimitedToConstraintRect,
+        const GrSamplerParams::FilterMode* filterOrNullForBicubic,
+        SkColorSpace* dstColorSpace) {
     const GrSamplerParams::FilterMode* fmForDetermineDomain = filterOrNullForBicubic;
     if (filterOrNullForBicubic && GrSamplerParams::kMipMap_FilterMode == *filterOrNullForBicubic &&
         kYes_FilterConstraint == filterConstraint) {

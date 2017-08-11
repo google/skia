@@ -45,13 +45,13 @@ void SkLumaColorFilter::toString(SkString* str) const {
 #if SK_SUPPORT_GPU
 class LumaColorFilterEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make() {
-        return sk_sp<GrFragmentProcessor>(new LumaColorFilterEffect);
+    static std::unique_ptr<GrFragmentProcessor> Make() {
+        return std::unique_ptr<GrFragmentProcessor>(new LumaColorFilterEffect);
     }
 
     const char* name() const override { return "Luminance-to-Alpha"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override { return Make(); }
+    std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(); }
 
 private:
     class GLSLProcessor : public GrGLSLFragmentProcessor {
@@ -103,7 +103,8 @@ private:
     typedef GrFragmentProcessor INHERITED;
 };
 
-sk_sp<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*, SkColorSpace*) const {
+std::unique_ptr<GrFragmentProcessor> SkLumaColorFilter::asFragmentProcessor(GrContext*,
+                                                                            SkColorSpace*) const {
     return LumaColorFilterEffect::Make();
 }
 #endif

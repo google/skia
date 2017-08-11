@@ -38,30 +38,30 @@ public:
      * have to modify the effect/shaderbuilder interface to make it possible (e.g. give access
      * to the view matrix or untransformed positions in the fragment shader).
      */
-    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType edgeType, int n,
-                                           const SkScalar edges[]) {
+    static std::unique_ptr<GrFragmentProcessor> Make(GrPrimitiveEdgeType edgeType, int n,
+                                                     const SkScalar edges[]) {
         if (n <= 0 || n > kMaxEdges || kHairlineAA_GrProcessorEdgeType == edgeType) {
             return nullptr;
         }
-        return sk_sp<GrFragmentProcessor>(new GrConvexPolyEffect(edgeType, n, edges));
+        return std::unique_ptr<GrFragmentProcessor>(new GrConvexPolyEffect(edgeType, n, edges));
     }
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
      * inverse filled, or has too many edges, this will return nullptr.
      */
-    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPath&);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkPath&);
 
     /**
      * Creates an effect that fills inside the rect with AA edges..
      */
-    static sk_sp<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrPrimitiveEdgeType, const SkRect&);
 
     ~GrConvexPolyEffect() override;
 
     const char* name() const override { return "ConvexPoly"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     GrPrimitiveEdgeType getEdgeType() const { return fEdgeType; }
 

@@ -16,30 +16,30 @@
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                           const SkIRect& bounds,
-                                           const SkISize& kernelSize,
-                                           const SkScalar* kernel,
-                                           SkScalar gain,
-                                           SkScalar bias,
-                                           const SkIPoint& kernelOffset,
-                                           GrTextureDomain::Mode tileMode,
-                                           bool convolveAlpha) {
-        return sk_sp<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize,
-                                          kernel, gain, bias, kernelOffset, tileMode, convolveAlpha));
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+                                                     const SkIRect& bounds,
+                                                     const SkISize& kernelSize,
+                                                     const SkScalar* kernel,
+                                                     SkScalar gain,
+                                                     SkScalar bias,
+                                                     const SkIPoint& kernelOffset,
+                                                     GrTextureDomain::Mode tileMode,
+                                                     bool convolveAlpha) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize, kernel, gain,
+                                              bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static sk_sp<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> proxy,
-                                                   const SkIRect& bounds,
-                                                   const SkISize& kernelSize,
-                                                   SkScalar gain,
-                                                   SkScalar bias,
-                                                   const SkIPoint& kernelOffset,
-                                                   GrTextureDomain::Mode tileMode,
-                                                   bool convolveAlpha,
-                                                   SkScalar sigmaX,
-                                                   SkScalar sigmaY);
+    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> proxy,
+                                                             const SkIRect& bounds,
+                                                             const SkISize& kernelSize,
+                                                             SkScalar gain,
+                                                             SkScalar bias,
+                                                             const SkIPoint& kernelOffset,
+                                                             GrTextureDomain::Mode tileMode,
+                                                             bool convolveAlpha,
+                                                             SkScalar sigmaX,
+                                                             SkScalar sigmaY);
 
     const SkIRect& bounds() const { return fBounds; }
     const SkISize& kernelSize() const { return fKernelSize; }
@@ -52,7 +52,7 @@ public:
 
     const char* name() const override { return "MatrixConvolution"; }
 
-    sk_sp<GrFragmentProcessor> clone() const override;
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
     GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy,

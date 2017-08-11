@@ -194,8 +194,8 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEf
     memcpy(fKernelOffset, that.fKernelOffset, sizeof(fKernelOffset));
 }
 
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
-    return sk_sp<GrFragmentProcessor>(new GrMatrixConvolutionEffect(*this));
+std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrMatrixConvolutionEffect(*this));
 }
 
 void GrMatrixConvolutionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -248,30 +248,30 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 }
 
 // Static function to create a 2D convolution
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
-                                                            sk_sp<GrTextureProxy> proxy,
-                                                            const SkIRect& bounds,
-                                                            const SkISize& kernelSize,
-                                                            SkScalar gain,
-                                                            SkScalar bias,
-                                                            const SkIPoint& kernelOffset,
-                                                            GrTextureDomain::Mode tileMode,
-                                                            bool convolveAlpha,
-                                                            SkScalar sigmaX,
-                                                            SkScalar sigmaY) {
+std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
+        sk_sp<GrTextureProxy> proxy,
+        const SkIRect& bounds,
+        const SkISize& kernelSize,
+        SkScalar gain,
+        SkScalar bias,
+        const SkIPoint& kernelOffset,
+        GrTextureDomain::Mode tileMode,
+        bool convolveAlpha,
+        SkScalar sigmaX,
+        SkScalar sigmaY) {
     float kernel[MAX_KERNEL_SIZE];
 
     fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
 
-    return sk_sp<GrFragmentProcessor>(
-        new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize,
-                                      kernel, gain, bias, kernelOffset, tileMode, convolveAlpha));
+    return std::unique_ptr<GrFragmentProcessor>(
+            new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize, kernel, gain, bias,
+                                          kernelOffset, tileMode, convolveAlpha));
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
                                         : GrProcessorUnitTest::kAlphaTextureIdx;
     sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);

@@ -207,9 +207,10 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::onFilterImage(SkSpecialImage* s
 namespace {
 class ArithmeticFP : public GrFragmentProcessor {
 public:
-    static sk_sp<GrFragmentProcessor> Make(float k1, float k2, float k3, float k4,
-                                           bool enforcePMColor, sk_sp<GrFragmentProcessor> dst) {
-        return sk_sp<GrFragmentProcessor>(
+    static std::unique_ptr<GrFragmentProcessor> Make(float k1, float k2, float k3, float k4,
+                                                     bool enforcePMColor,
+                                                     std::unique_ptr<GrFragmentProcessor> dst) {
+        return std::unique_ptr<GrFragmentProcessor>(
                 new ArithmeticFP(k1, k2, k3, k4, enforcePMColor, std::move(dst)));
     }
 
@@ -223,7 +224,7 @@ public:
         return str;
     }
 
-    sk_sp<GrFragmentProcessor> clone() const override {
+    std::unique_ptr<GrFragmentProcessor> clone() const override {
         return Make(fK1, fK2, fK3, fK4, fEnforcePMColor, this->childProcessor(0).clone());
     }
 
@@ -291,7 +292,7 @@ private:
 
     // This could implement the const input -> const output optimization but it's unlikely to help.
     ArithmeticFP(float k1, float k2, float k3, float k4, bool enforcePMColor,
-                 sk_sp<GrFragmentProcessor> dst)
+                 std::unique_ptr<GrFragmentProcessor> dst)
             : INHERITED(kNone_OptimizationFlags)
             , fK1(k1)
             , fK2(k2)
@@ -313,14 +314,14 @@ private:
 }
 
 #if GR_TEST_UTILS
-sk_sp<GrFragmentProcessor> ArithmeticFP::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrFragmentProcessor> ArithmeticFP::TestCreate(GrProcessorTestData* d) {
     float k1 = d->fRandom->nextF();
     float k2 = d->fRandom->nextF();
     float k3 = d->fRandom->nextF();
     float k4 = d->fRandom->nextF();
     bool enforcePMColor = d->fRandom->nextBool();
 
-    sk_sp<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
+    std::unique_ptr<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
     return ArithmeticFP::Make(k1, k2, k3, k4, enforcePMColor, std::move(dst));
 }
 #endif
@@ -350,7 +351,7 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     }
 
     GrPaint paint;
-    sk_sp<GrFragmentProcessor> bgFP;
+    std::unique_ptr<GrFragmentProcessor> bgFP;
 
     if (backgroundProxy) {
         SkMatrix backgroundMatrix = SkMatrix::MakeTrans(-SkIntToScalar(backgroundOffset.fX),
@@ -371,14 +372,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                                         -SkIntToScalar(foregroundOffset.fY));
         sk_sp<GrColorSpaceXform> fgXform =
                 GrColorSpaceXform::Make(foreground->getColorSpace(), outputProperties.colorSpace());
-        sk_sp<GrFragmentProcessor> foregroundFP(GrTextureDomainEffect::Make(
-                                std::move(foregroundProxy), std::move(fgXform),
-                                foregroundMatrix,
-                                GrTextureDomain::MakeTexelDomain(foreground->subset()),
-                                GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode));
+        auto foregroundFP = GrTextureDomainEffect::Make(
+                std::move(foregroundProxy), std::move(fgXform), foregroundMatrix,
+                GrTextureDomain::MakeTexelDomain(foreground->subset()),
+                GrTextureDomain::kDecal_Mode, GrSamplerParams::kNone_FilterMode);
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
-        sk_sp<GrFragmentProcessor> xferFP =
+        std::unique_ptr<GrFragmentProcessor> xferFP =
                 ArithmeticFP::Make(fK[0], fK[1], fK[2], fK[3], fEnforcePMColor, std::move(bgFP));
 
         // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
