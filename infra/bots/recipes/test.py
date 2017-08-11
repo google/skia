@@ -67,122 +67,142 @@ def dm_flags(api, bot):
       'PixelC' in bot):
     args.append('--ignoreSigInt')
 
-  # These are the canonical configs that we would ideally run on all bots. We
-  # may opt out or substitute some below for specific bots
-  configs = ['8888', 'srgb', 'pdf']
-  # Add in either gles or gl configs to the canonical set based on OS
-  sample_count = '8'
-  gl_prefix = 'gl'
-  if 'Android' in bot or 'iOS' in bot:
-    sample_count = '4'
-    # We want to test the OpenGL config not the GLES config on the Shield
-    if 'NVIDIA_Shield' not in bot:
+  configs = []
+  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
+    args.append('--nogpu')
+
+    # These are the canonical configs that we would ideally run on all bots. We
+    # may opt out or substitute some below for specific bots
+    configs.extend(['8888', 'srgb', 'pdf'])
+
+    # Runs out of memory on Android bots. Everyone else seems fine.
+    if 'Android' in bot:
+      configs.remove('pdf')
+
+    if '-GCE-' in bot:
+      configs.extend(['565'])
+      configs.extend(['f16'])
+      configs.extend(['sp-8888', '2ndpic-8888']) # Test niche uses of SkPicture.
+      configs.extend(['lite-8888'])              # Experimental display list.
+      configs.extend(['gbr-8888'])
+
+    # NP is running out of RAM when we run all these modes.  skia:3255
+    if 'NexusPlayer' not in bot:
+      configs.extend(mode + '-8888' for mode in
+                     ['serialize', 'tiles_rt', 'pic'])
+
+    if 'Ci20' in bot:
+      # This bot is really slow, cut it down to just 8888.
+      configs = ['8888']
+
+    # This bot only differs from vanilla CPU bots in 8888 config.
+    if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
+      configs = ['8888', 'srgb']
+
+  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+    args.append('--nocpu')
+
+    # Add in either gles or gl configs to the canonical set based on OS
+    sample_count = '8'
+    gl_prefix = 'gl'
+    if 'Android' in bot or 'iOS' in bot:
+      sample_count = '4'
+      # We want to test the OpenGL config not the GLES config on the Shield
+      if 'NVIDIA_Shield' not in bot:
+        gl_prefix = 'gles'
+    elif 'Intel' in bot:
+      sample_count = ''
+    elif 'ChromeOS' in bot:
       gl_prefix = 'gles'
-  elif 'Intel' in bot:
-    sample_count = ''
-  elif 'ChromeOS' in bot:
-    gl_prefix = 'gles'
 
-  configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
-  if sample_count is not '':
-    configs.append(gl_prefix + 'msaa' + sample_count)
-
-  # The NP produces a long error stream when we run with MSAA. The Tegra3 just
-  # doesn't support it.
-  if ('NexusPlayer' in bot or
-      'Tegra3'      in bot or
-      # We aren't interested in fixing msaa bugs on current iOS devices.
-      'iPad4' in bot or
-      'iPadPro' in bot or
-      'iPhone6' in bot or
-      'iPhone7' in bot or
-      # skia:5792
-      'IntelHD530'   in bot or
-      'IntelIris540' in bot):
-    configs = [x for x in configs if 'msaa' not in x]
-
-  # The NP produces different images for dft on every run.
-  if 'NexusPlayer' in bot:
-    configs = [x for x in configs if 'dft' not in x]
-
-  # Runs out of memory on Android bots.  Everyone else seems fine.
-  if 'Android' in bot:
-    configs.remove('pdf')
-
-  if '-GCE-' in bot:
-    configs.extend(['565'])
-    configs.extend(['f16'])
-    configs.extend(['sp-8888', '2ndpic-8888'])   # Test niche uses of SkPicture.
-    configs.extend(['lite-8888'])                # Experimental display list.
-    configs.extend(['gbr-8888'])
-
-  if '-TSAN' not in bot and sample_count is not '':
-    if ('TegraK1'    in bot or
-        'TegraX1'    in bot or
-        'GTX550Ti'   in bot or
-        'GTX660'     in bot or
-        'GT610'      in bot or
-        'QuadroP400' in bot):
-      configs.append(gl_prefix + 'nvprdit' + sample_count)
-
-  # We want to test both the OpenGL config and the GLES config on Linux Intel:
-  # GL is used by Chrome, GLES is used by ChromeOS.
-  if 'Intel' in bot and api.vars.is_linux:
-    configs.extend(['gles', 'glesdft', 'glessrgb'])
-
-  # NP is running out of RAM when we run all these modes.  skia:3255
-  if 'NexusPlayer' not in bot:
-    configs.extend(mode + '-8888' for mode in
-                   ['serialize', 'tiles_rt', 'pic'])
-
-  # Test instanced rendering on a limited number of platforms
-  if 'Nexus6' in bot:
-    configs.append(gl_prefix + 'inst') # inst msaa isn't working yet on Adreno.
-  elif 'NVIDIA_Shield' in bot or 'PixelC' in bot:
-    # Multisampled instanced configs use nvpr so we substitute inst msaa
-    # configs for nvpr msaa configs.
-    old = gl_prefix + 'nvpr'
-    new = gl_prefix + 'inst'
-    configs = [x.replace(old, new) for x in configs]
-    # We also test non-msaa instanced.
-    configs.append(new)
-  elif 'MacMini6.2' in bot:
-    configs.extend([gl_prefix + 'inst'])
-
-  # CommandBuffer bot *only* runs the command_buffer config.
-  if 'CommandBuffer' in bot:
-    configs = ['commandbuffer']
-
-  # ANGLE bot *only* runs the angle configs
-  if 'ANGLE' in bot:
-    configs = ['angle_d3d11_es2',
-               'angle_d3d9_es2',
-               'angle_gl_es2',
-               'angle_d3d11_es3']
+    configs.extend([gl_prefix, gl_prefix + 'dft', gl_prefix + 'srgb'])
     if sample_count is not '':
-      configs.append('angle_d3d11_es2_msaa' + sample_count)
-      configs.append('angle_d3d11_es3_msaa' + sample_count)
+      configs.append(gl_prefix + 'msaa' + sample_count)
 
-  # Vulkan bot *only* runs the vk config.
-  if 'Vulkan' in bot:
-    configs = ['vk']
+    # The NP produces a long error stream when we run with MSAA. The Tegra3 just
+    # doesn't support it.
+    if ('NexusPlayer' in bot or
+        'Tegra3'      in bot or
+        # We aren't interested in fixing msaa bugs on current iOS devices.
+        'iPad4' in bot or
+        'iPadPro' in bot or
+        'iPhone6' in bot or
+        'iPhone7' in bot or
+        # skia:5792
+        'IntelHD530'   in bot or
+        'IntelIris540' in bot):
+      configs = [x for x in configs if 'msaa' not in x]
 
-  if 'ChromeOS' in bot:
-    # Just run GLES for now - maybe add gles_msaa4 in the future
-    configs = ['gles']
+    # The NP produces different images for dft on every run.
+    if 'NexusPlayer' in bot:
+      configs = [x for x in configs if 'dft' not in x]
 
-  if 'Ci20' in bot:
-    # This bot is really slow, cut it down to just 8888.
-    configs = ['8888']
+    if '-TSAN' not in bot and sample_count is not '':
+      if ('TegraK1'    in bot or
+          'TegraX1'    in bot or
+          'GTX550Ti'   in bot or
+          'GTX660'     in bot or
+          'QuadroP400' in bot or
+          ('GT610' in bot and 'Ubuntu17' not in bot)):
+        configs.append(gl_prefix + 'nvprdit' + sample_count)
 
-  # This bot only differs from vanilla CPU bots in 8888 config.
-  if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
-    configs = ['8888', 'srgb']
+    # We want to test both the OpenGL config and the GLES config on Linux Intel:
+    # GL is used by Chrome, GLES is used by ChromeOS.
+    if 'Intel' in bot and api.vars.is_linux:
+      configs.extend(['gles', 'glesdft', 'glessrgb'])
 
-  # Test coverage counting path renderer.
-  if 'CCPR' in bot:
-    configs = [c for c in configs if c == 'gl' or c == 'gles']
-    args.extend(['--pr', 'ccpr'])
+    # The following devices do not support glessrgb.
+    if 'glessrgb' in configs:
+      if ('IntelHD405'    in bot or
+          'IntelIris540'  in bot or
+          'IntelBayTrail' in bot or
+          'IntelHD2000'   in bot or
+          'AndroidOne'    in bot or
+          'Nexus7'        in bot or
+          'NexusPlayer'   in bot):
+        configs.remove('glessrgb')
+
+    # Test instanced rendering on a limited number of platforms
+    if 'Nexus6' in bot:
+      # inst msaa isn't working yet on Adreno.
+      configs.append(gl_prefix + 'inst')
+    elif 'NVIDIA_Shield' in bot or 'PixelC' in bot:
+      # Multisampled instanced configs use nvpr so we substitute inst msaa
+      # configs for nvpr msaa configs.
+      old = gl_prefix + 'nvpr'
+      new = gl_prefix + 'inst'
+      configs = [x.replace(old, new) for x in configs]
+      # We also test non-msaa instanced.
+      configs.append(new)
+    elif 'MacMini6.2' in bot:
+      configs.extend([gl_prefix + 'inst'])
+
+    # CommandBuffer bot *only* runs the command_buffer config.
+    if 'CommandBuffer' in bot:
+      configs = ['commandbuffer']
+
+    # ANGLE bot *only* runs the angle configs
+    if 'ANGLE' in bot:
+      configs = ['angle_d3d11_es2',
+                 'angle_d3d9_es2',
+                 'angle_gl_es2',
+                 'angle_d3d11_es3']
+      if sample_count is not '':
+        configs.append('angle_d3d11_es2_msaa' + sample_count)
+        configs.append('angle_d3d11_es3_msaa' + sample_count)
+
+    # Vulkan bot *only* runs the vk config.
+    if 'Vulkan' in bot:
+      configs = ['vk']
+
+    if 'ChromeOS' in bot:
+      # Just run GLES for now - maybe add gles_msaa4 in the future
+      configs = ['gles']
+
+    # Test coverage counting path renderer.
+    if 'CCPR' in bot:
+      configs = [c for c in configs if c == 'gl' or c == 'gles']
+      args.extend(['--pr', 'ccpr'])
 
   args.append('--config')
   args.extend(configs)
@@ -720,13 +740,6 @@ def test_steps(api):
   if api.vars.upload_dm_results:
     args.extend(['--writePath', api.flavor.device_dirs.dm_dir])
 
-  skip_flag = None
-  if api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
-    skip_flag = '--nogpu'
-  elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
-    skip_flag = '--nocpu'
-  if skip_flag:
-    args.append(skip_flag)
   args.extend(dm_flags(api, api.vars.builder_name))
 
   env = {}
