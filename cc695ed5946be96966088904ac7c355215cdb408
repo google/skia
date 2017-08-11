@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bfe313d4_e22a4d1b",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T21:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d10d2380_eb54a6d1",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54f0e01f_5950c55c",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "cc695ed5946be96966088904ac7c355215cdb408",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0986cfe5_8f2a853f",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T21:50:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54f0e01f_5950c55c",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -83,6 +119,24 @@
       "side": 1,
       "message": "Yeah, if we\u0027re worried about overflow anywhere, might as well worry everywhere until we figure it out.",
       "parentUuid": "75583244_e6756650",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d2fcff6_c38f485d",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T21:50:12Z",
+      "side": 1,
+      "message": "Done, but here\u0027s a head-scratcher: the assembly didn\u0027t change.  So the compiler figured these are equivalent -- but not for darken?!?\n\nAlmost starting to smell like a compiler bug...",
+      "parentUuid": "b0a128ac_d48607ee",
       "revId": "cc695ed5946be96966088904ac7c355215cdb408",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
