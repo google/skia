@@ -489,7 +489,8 @@ def dm_flags(api, bot):
                   '~bitmapfilters', # skia:6132
                   '~GrContextFactory_abandon']) #skia:6209
 
-  if 'Vulkan' in bot and 'IntelIris540' in bot and api.vars.is_linux:
+  if ('Vulkan' in bot and api.vars.is_linux and
+      ('IntelIris540' in bot or 'IntelIris640' in bot)):
     match.extend(['~VkHeapTests']) # skia:6245
 
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
