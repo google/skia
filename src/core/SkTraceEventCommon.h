@@ -76,9 +76,12 @@ struct SkAndroidFrameworkTraceUtil {
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. In the framework, the arguments are ignored.
-#define TRACE_EVENT0(category_group, name) SkAndroidFrameworkTraceUtil __trace(name)
-#define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) __trace(name)
-#define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) __trace(name)
+#define TRACE_EVENT0(category_group, name) \
+    SkAndroidFrameworkTraceUtil __trace(name)
+#define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
+    SkAndroidFrameworkTraceUtil __trace(name)
+#define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
+    SkAndroidFrameworkTraceUtil __trace(name)
 
 // Records a single event called "name" immediately, with 0, 1 or 2 associated arguments. If the
 // category is not enabled, then this does nothing.
