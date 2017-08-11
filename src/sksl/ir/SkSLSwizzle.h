@@ -32,6 +32,12 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 3: return *context.fFloat3_Type;
             case 4: return *context.fFloat4_Type;
         }
+    } else if (base == *context.fHalf_Type) {
+        switch (count) {
+            case 2: return *context.fHalf2_Type;
+            case 3: return *context.fHalf3_Type;
+            case 4: return *context.fHalf4_Type;
+        }
     } else if (base == *context.fDouble_Type) {
         switch (count) {
             case 2: return *context.fDouble2_Type;
