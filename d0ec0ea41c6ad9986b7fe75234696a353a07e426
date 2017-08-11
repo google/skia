@@ -16,6 +16,24 @@
       "revId": "d0ec0ea41c6ad9986b7fe75234696a353a07e426",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8766b8c_5bc57e74",
+        "filename": "src/gpu/text/GrAtlasGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-11T17:35:07Z",
+      "side": 1,
+      "message": "Ah, yes. I misread the logic here the first time, but we definitely need this to be floor (even though 99.9% of the time, maxTextureSize is power-of-two, so they\u0027re the same).",
+      "parentUuid": "98f20b73_188b00fc",
+      "revId": "d0ec0ea41c6ad9986b7fe75234696a353a07e426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
