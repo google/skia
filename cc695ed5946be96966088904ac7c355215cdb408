@@ -68,6 +68,24 @@
       "revId": "cc695ed5946be96966088904ac7c355215cdb408",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0a128ac_d48607ee",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-11T21:37:42Z",
+      "side": 1,
+      "message": "Yeah, if we\u0027re worried about overflow anywhere, might as well worry everywhere until we figure it out.",
+      "parentUuid": "75583244_e6756650",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
