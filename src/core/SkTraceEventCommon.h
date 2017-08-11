@@ -54,6 +54,84 @@
 #error "Another copy of this file has already been included."
 #endif
 
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+// If profiling Skia within the Android framework, setting this to 1 will route all Skia
+// tracing events to ATrace.
+#ifndef SK_TRACE_EVENTS_IN_FRAMEWORK
+#define SK_TRACE_EVENTS_IN_FRAMEWORK 0
+#endif
+
+#define TRACE_EMPTY do {} while (0)
+
+#if SK_TRACE_EVENTS_IN_FRAMEWORK
+
+#include <utils/Trace.h>
+struct SkAndroidFrameworkTraceUtil {
+    SkAndroidFrameworkTraceUtil(const char* name) {
+        ATRACE_BEGIN(name);
+    }
+    ~SkAndroidFrameworkTraceUtil() { ATRACE_END(); }
+};
+
+// Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
+// associated arguments. In the framework, the arguments are ignored.
+#define TRACE_EVENT0(category_group, name) SkAndroidFrameworkTraceUtil __trace(name)
+#define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) __trace(name)
+#define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) __trace(name)
+
+// Records a single event called "name" immediately, with 0, 1 or 2 associated arguments. If the
+// category is not enabled, then this does nothing.
+#define TRACE_EVENT_INSTANT0(category_group, name, scope) \
+    do { SkAndroidFrameworkTraceUtil __trace(name); } while(0)
+
+#define TRACE_EVENT_INSTANT1(category_group, name, scope, arg1_name, arg1_val) \
+    do { SkAndroidFrameworkTraceUtil __trace(name); } while(0)
+
+#define TRACE_EVENT_INSTANT2(category_group, name, scope, arg1_name, arg1_val, \
+                             arg2_name, arg2_val)                              \
+    do { SkAndroidFrameworkTraceUtil __trace(name); } while(0)
+
+// Records the value of a counter called "name" immediately. Value
+// must be representable as a 32 bit integer.
+#define TRACE_COUNTER1(category_group, name, value) ATRACE_INT(name, value)
+
+// Records the values of a multi-parted counter called "name" immediately.
+// In Chrome, this macro produces a stacked bar chart. ATrace doesn't support
+// that, so this just produces two separate counters.
+#define TRACE_COUNTER2(category_group, name, value1_name, value1_val, value2_name, value2_val) \
+    do { \
+        ATRACE_INT(name "-" value1_name, value1_val); \
+        ATRACE_INT(name "-" value2_name, value2_val); \
+    } while (0)
+
+#else
+
+#define TRACE_EVENT0(category_group, name) TRACE_EMPTY
+#define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) TRACE_EMPTY
+#define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) TRACE_EMPTY
+
+#define TRACE_EVENT_INSTANT0(category_group, name, scope) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT1(category_group, name, scope, arg1_name, arg1_val) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT2(category_group, name, scope, arg1_name, arg1_val, arg2_name, arg2_val) TRACE_EMPTY
+
+#define TRACE_COUNTER1(category_group, name, value) TRACE_EMPTY
+#define TRACE_COUNTER2(category_group, name, value1_name, value1_val, value2_name, value2_val) TRACE_EMPTY
+
+#endif
+
+// ATrace has no object tracking
+#define TRACE_EVENT_OBJECT_CREATED_WITH_ID(category_group, name, id) TRACE_EMPTY
+#define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(category_group, name, id, snapshot) TRACE_EMPTY
+#define TRACE_EVENT_OBJECT_DELETED_WITH_ID(category_group, name, id) TRACE_EMPTY
+
+// Macro to efficiently determine if a given category group is enabled.
+// This is only used for some shader text logging that isn't supported in ATrace anyway.
+#define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)             \
+  do { *ret = false; } while (0)
+
+#else // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. If the category is not enabled, then this does nothing.
 #define TRACE_EVENT0(category_group, name) \
@@ -126,6 +204,7 @@
     }                                                                       \
   } while (0)
 
+#endif
 
 // Phase indicates the nature of an event entry. E.g. part of a begin/end pair.
 #define TRACE_EVENT_PHASE_BEGIN ('B')
