@@ -1353,7 +1353,9 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
             this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                       viewMatrix, this->clip(), paint);
         } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-            this->drawBitmap(bm, x, y, paint);
+            GrBitmapTextureMaker maker(fContext.get(), bm);
+            this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
+                                      viewMatrix, this->clip(), paint);
         }
     }
 }
@@ -1388,7 +1390,8 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
         GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
         this->drawTextureProducer(&maker, src, &dst, constraint, this->ctm(), this->clip(), paint);
     } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-        this->drawBitmapRect(bm, src, dst, paint, constraint);
+        GrBitmapTextureMaker maker(fContext.get(), bm);
+        this->drawTextureProducer(&maker, src, &dst, constraint, this->ctm(), this->clip(), paint);
     }
 }
 
