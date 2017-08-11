@@ -564,6 +564,7 @@
       "--nocpu",
       "--config",
       "gles",
+      "glessrgb",
       "--match",
       "~blurroundrect",
       "~patch_grid",
