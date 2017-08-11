@@ -50,6 +50,24 @@
       "revId": "cc695ed5946be96966088904ac7c355215cdb408",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75583244_e6756650",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-11T21:32:10Z",
+      "side": 1,
+      "message": "You mean to avoid whatever weirdness was occurring with darken without parenthesization?  Not sure - I thought about it but the diffs look good as is too.  Maybe we\u0027re just getting lucky?",
+      "parentUuid": "6109402e_51e5cf7b",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
