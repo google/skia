@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd5ee893_2ef64b8e",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-11T12:22:07Z",
+      "side": 1,
+      "message": "can this if be folded into line 57?\n\n#if defined(...) \u0026\u0026 SK_TRACE_EVENTS_IN_FRAMEWORK\n\nOr does doing it this way actually save time when these macros are being executed?",
+      "revId": "382652439159c23bfb65cc0f56ece44fac904348",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
