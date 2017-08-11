@@ -184,40 +184,6 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
-// AVX adds some mask loads and stores that make for shorter, faster code.
-#if defined(JUMPER) && defined(__AVX__)
-    SI U32 mask(size_t tail) {
-        // We go a little out of our way to avoid needing large constant values here.
-
-        // It's easiest to build the mask as 8 8-bit values, either 0x00 or 0xff.
-        // Start fully on, then shift away lanes from the top until we've got our mask.
-        uint64_t mask = 0xffffffffffffffff >> 8*(kStride-tail);
-
-        // Sign-extend each mask lane to its full width, 0x00000000 or 0xffffffff.
-        using S8  = int8_t  __attribute__((ext_vector_type(8)));
-        using S32 = int32_t __attribute__((ext_vector_type(8)));
-        return (U32)__builtin_convertvector(unaligned_load<S8>(&mask), S32);
-    }
-
-    template <>
-    inline U32 load(const uint32_t* src, size_t tail) {
-        __builtin_assume(tail < kStride);
-        if (__builtin_expect(tail, 0)) {
-            return (U32)_mm256_maskload_ps((const float*)src, mask(tail));
-        }
-        return unaligned_load<U32>(src);
-    }
-
-    template <>
-    inline void store(uint32_t* dst, U32 v, size_t tail) {
-        __builtin_assume(tail < kStride);
-        if (__builtin_expect(tail, 0)) {
-            return _mm256_maskstore_ps((float*)dst, mask(tail), (F)v);
-        }
-        unaligned_store(dst, v);
-    }
-#endif
-
 SI F from_byte(U8 b) {
     return cast(expand(b)) * (1/255.0f);
 }
