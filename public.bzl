@@ -571,7 +571,7 @@ DM_INCLUDES = [
 def DM_ARGS(asan):
   source = ["tests", "gm", "image"]
   # TODO(benjaminwagner): f16 and serialize-8888 fail.
-  config = ["565", "8888", "pdf", "srgb", "tiles_rt", "pic"]
+  config = ["565", "8888", "pdf", "srgb", "tiles_rt-8888", "pic-8888"]
   # TODO(mtklein): maybe investigate why these fail?
   match = [
       "~Canvas",
