@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5da7e6cc_6a4d8edc",
+        "filename": "resources/android_fonts/v22/fonts.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 7710
+      },
+      "writtenOn": "2017-08-11T17:27:30Z",
+      "side": 1,
+      "message": "Remove the space here.",
+      "range": {
+        "startLine": 228,
+        "startChar": 18,
+        "endLine": 228,
+        "endChar": 19
+      },
+      "revId": "710c552bb292dc46a7706a4ad14dfdf3ce7c329f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
