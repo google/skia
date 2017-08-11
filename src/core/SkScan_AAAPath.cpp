@@ -1467,10 +1467,10 @@ static void aaa_walk_edges(SkAnalyticEdge* prevHead, SkAnalyticEdge* nextTail,
                 } else {
                     SkFixed rite = currE->fX;
                     currE->goY(nextY, yShift);
-                    leftE->fX = SkTMax(leftClip, leftE->fX);
+                    SkFixed nextLeft = SkTMax(leftClip, leftE->fX);
                     rite = SkTMin(rightClip, rite);
-                    currE->fX = SkTMin(rightClip, currE->fX);
-                    blit_trapezoid_row(blitter, y >> 16, left, rite, leftE->fX, currE->fX,
+                    SkFixed nextRite = SkTMin(rightClip, currE->fX);
+                    blit_trapezoid_row(blitter, y >> 16, left, rite, nextLeft, nextRite,
                             leftDY, currE->fDY, fullAlpha, maskRow, isUsingMask,
                             noRealBlitter || (fullAlpha == 0xFF && (
                                     edges_too_close(prevRite, left, leftE->fX) ||
