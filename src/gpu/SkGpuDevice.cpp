@@ -1353,7 +1353,9 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
             this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                       viewMatrix, this->clip(), paint);
         } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-            this->drawBitmap(bm, x, y, paint);
+            GrBitmapTextureMaker maker(fContext.get(), bm);
+            this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kStrict_SrcRectConstraint,
+                                      viewMatrix, this->clip(), paint);
         }
     }
 }
@@ -1373,11 +1375,11 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
         return;
     }
     SkBitmap bm;
-    SkMatrix srcToDstRect;
-    srcToDstRect.setRectToRect((src ? *src : SkRect::MakeIWH(image->width(), image->height())),
-                               dst, SkMatrix::kFill_ScaleToFit);
+    SkMatrix srcToDstMatrix;
+    const SkRect imgBounds = SkRect::MakeIWH(image->width(), image->height());
+    srcToDstMatrix.setRectToRect((src ? *src : imgBounds), dst, SkMatrix::kFill_ScaleToFit);
     if (this->shouldTileImage(image, src, constraint, paint.getFilterQuality(), this->ctm(),
-                              srcToDstRect)) {
+                              srcToDstMatrix)) {
         // only support tiling as bitmap at the moment, so force raster-version
         if (!as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
             return;
@@ -1388,7 +1390,27 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
         GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
         this->drawTextureProducer(&maker, src, &dst, constraint, this->ctm(), this->clip(), paint);
     } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-        this->drawBitmapRect(bm, src, dst, paint, constraint);
+        // The src rect is inferred to be the bmp bounds if not provided. Otherwise, the src rect
+        // must be clipped to the bmp bounds. If the src was clipped to the bmp bounds then we use
+        // the src-to-dst mapping to compute a new clipped dst rect.
+        const SkRect* newDst = &dst;
+        const SkRect* newSrc = src ? src : &imgBounds;
+        SkRect tmpSrc, tmpDst;
+        if (newSrc != &imgBounds) {
+            if (!imgBounds.contains(*newSrc)) {
+                tmpSrc = *newSrc;
+                if (!tmpSrc.intersect(imgBounds)) {
+                    return; // nothing to draw
+                }
+                newSrc = &tmpSrc;
+                srcToDstMatrix.mapRect(&tmpDst, *newSrc);
+                newDst = &tmpDst;
+            }
+        }
+
+        GrBitmapTextureMaker maker(fContext.get(), bm);
+        this->drawTextureProducer(&maker, newSrc, newDst, constraint, this->ctm(), this->clip(),
+                                  paint);
     }
 }
 
