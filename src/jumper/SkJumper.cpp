@@ -39,7 +39,7 @@ using StageFn = void(void);
 
 extern "C" {
 
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
@@ -115,7 +115,7 @@ static SkJumper_Engine gPlatform = kPortable;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
-#if __has_feature(memory_sanitizer)
+#if __has_feature(memory_sanitizer) || defined(SK_BUILD_FOR_TVOS)
     // We'll just run portable code.
 
 #elif defined(__aarch64__)
