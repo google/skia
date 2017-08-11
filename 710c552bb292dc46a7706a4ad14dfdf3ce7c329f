@@ -22,6 +22,30 @@
       "revId": "710c552bb292dc46a7706a4ad14dfdf3ce7c329f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d96c133_bef1baad",
+        "filename": "resources/android_fonts/v22/fonts.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-11T18:11:21Z",
+      "side": 1,
+      "message": "This is just test data to ensure we don\u0027t do anything silly in parsing. This isn\u0027t actually a \u0027real\u0027 fonts.xml or anything. We should actually put more non-nonsensical things in here for the tests. Beside this is closer to what you\u0027re doing on your side, since getAttributeValue apparently does normalization ( https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html#getAttributeValue(java.lang.String, java.lang.String) ) which means your leading spaces get stripped anyway. Our xml parser does not do these things, so we handle all that manually (and explicitly don\u0027t do entity expansion).",
+      "parentUuid": "5da7e6cc_6a4d8edc",
+      "range": {
+        "startLine": 228,
+        "startChar": 18,
+        "endLine": 228,
+        "endChar": 19
+      },
+      "revId": "710c552bb292dc46a7706a4ad14dfdf3ce7c329f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
