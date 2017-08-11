@@ -949,7 +949,7 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
     return nullptr;
 }
 
-static bool gather_sinks(const GrContextOptions& grCtxOptions) {
+static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfigs) {
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     for (int i = 0; i < configs.count(); i++) {
@@ -980,7 +980,9 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions) {
     }
 
     // If no configs were requested (just running tests, perhaps?), then we're okay.
-    if (configs.count() == 0 || FLAGS_config.count() == 0 ||
+    if (configs.count() == 0 ||
+        // If we're using the default configs, we're okay.
+        defaultConfigs ||
         // If we've been told to ignore undefined flags, we're okay.
         FLAGS_undefok ||
         // Otherwise, make sure that all specified configs have become sinks.
@@ -1337,7 +1339,16 @@ int main(int argc, char** argv) {
     if (!gather_srcs()) {
         return 1;
     }
-    if (!gather_sinks(grCtxOptions)) {
+    // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
+    bool defaultConfigs = true;
+    for (int i = 0; i < argc; i++) {
+        static const char* kConfigArg = "--config";
+        if (strcmp(argv[i], kConfigArg) == 0) {
+            defaultConfigs = false;
+            break;
+        }
+    }
+    if (!gather_sinks(grCtxOptions, defaultConfigs)) {
         return 1;
     }
     gather_tests();

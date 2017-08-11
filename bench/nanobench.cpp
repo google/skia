@@ -492,7 +492,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 }
 
 // Append all configs that are enabled and supported.
-void create_configs(SkTArray<Config>* configs) {
+void create_configs(SkTArray<Config>* configs, bool defaultConfigs) {
     SkCommandLineConfigArray array;
     ParseConfigs(FLAGS_config, &array);
     for (int i = 0; i < array.count(); ++i) {
@@ -1202,8 +1202,17 @@ int main(int argc, char** argv) {
                  FLAGS_samples, "samples");
     }
 
+    // TODO(dogben): This is a bit ugly. Find a cleaner way to do this.
+    bool defaultConfigs = true;
+    for (int i = 0; i < argc; i++) {
+        static const char* kConfigArg = "--config";
+        if (strcmp(argv[i], kConfigArg) == 0) {
+            defaultConfigs = false;
+            break;
+        }
+    }
     SkTArray<Config> configs;
-    create_configs(&configs);
+    create_configs(&configs, defaultConfigs);
 
 #ifdef THERMAL_MANAGER_SUPPORTED
     int tmEnabled, tmThreshold, tmSleepTimeMs, tmTimeoutMs;
