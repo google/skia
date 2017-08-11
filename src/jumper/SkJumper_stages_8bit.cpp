@@ -110,6 +110,7 @@ SI V operator*(V x, V y) {
 }
 
 SI V inv(V v) { return 0xff - v; }
+SI V two(V v) { return v + v; }
 SI V lerp(V from, V to, V t) { return to*t + from*inv(t); }
 
 SI V alpha(V v) {
@@ -143,6 +144,11 @@ SI V swap_rb(V v) {
 SI V max(V a, V b) {
     auto gt = a.u8x4 > b.u8x4;
     return (a.u8x4 & gt) | (b.u8x4 &~gt);
+}
+
+SI V min(V a, V b) {
+    auto gt = a.u8x4 > b.u8x4;
+    return (a.u8x4 & ~gt) | (b.u8x4 &gt);
 }
 
 struct Params {
@@ -407,8 +413,19 @@ STAGE(multiply) { src = src*inv(alpha(dst)) + dst*inv(alpha(src)) + src*dst; }
 STAGE(screen)   { src = src + inv(src)*dst; }
 STAGE(xor_)     { src = src*inv(alpha(dst)) + dst*inv(alpha(src)); }
 
-STAGE(darken)   {
-    V rgb = src + (dst - max(src*alpha(dst), dst*alpha(src)));
-    V   a = src + (dst - dst*alpha(src));
-    src   = (rgb.u32 & 0x00ffffff) | (a.u32 & 0xff000000);
-}
+// Separable blend modes: apply some function to rgb and srcover to alpha.
+#define BLEND_MODE(name)                                       \
+    SI V name##_rgb(V, V);                                     \
+    STAGE(name) {                                              \
+        V rgb = name##_rgb(src, dst);                          \
+        V   a = src + (dst - dst*alpha(src));                  \
+        src   = (rgb.u32 & 0x00ffffff) | (a.u32 & 0xff000000); \
+    }                                                          \
+    SI V name##_rgb(V s, V d)
+
+BLEND_MODE(darken)     { return s + (d -     max(s*alpha(d), d*alpha(s))) ; }
+BLEND_MODE(lighten)    { return s + (d -     min(s*alpha(d), d*alpha(s))) ; }
+BLEND_MODE(difference) { return s + (d - two(min(s*alpha(d), d*alpha(s)))); }
+BLEND_MODE(exclusion)  { return s + (d - two(s*d))                        ; }
+
+#undef BLEND_MODE
