@@ -1303,18 +1303,6 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (!is_debug) {  # I've benchmarked debug code once too many times...
-    test_app("monobench") {
-      sources = [
-        "tools/monobench.cpp",
-      ]
-      deps = [
-        ":bench",
-        ":skia",
-      ]
-    }
-  }
-
   test_app("nanobench") {
     sources = [
       "bench/nanobench.cpp",
