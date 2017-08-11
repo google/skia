@@ -110,6 +110,7 @@ SI V operator*(V x, V y) {
 }
 
 SI V inv(V v) { return 0xff - v; }
+SI V two(V v) { return v + v; }
 SI V lerp(V from, V to, V t) { return to*t + from*inv(t); }
 
 SI V alpha(V v) {
@@ -143,6 +144,11 @@ SI V swap_rb(V v) {
 SI V max(V a, V b) {
     auto gt = a.u8x4 > b.u8x4;
     return (a.u8x4 & gt) | (b.u8x4 &~gt);
+}
+
+SI V min(V a, V b) {
+    auto gt = a.u8x4 > b.u8x4;
+    return (a.u8x4 & ~gt) | (b.u8x4 &gt);
 }
 
 struct Params {
@@ -407,8 +413,22 @@ STAGE(multiply) { src = src*inv(alpha(dst)) + dst*inv(alpha(src)) + src*dst; }
 STAGE(screen)   { src = src + inv(src)*dst; }
 STAGE(xor_)     { src = src*inv(alpha(dst)) + dst*inv(alpha(src)); }
 
-STAGE(darken)   {
-    V rgb = src + (dst - max(src*alpha(dst), dst*alpha(src)));
-    V   a = src + (dst - dst*alpha(src));
-    src   = (rgb.u32 & 0x00ffffff) | (a.u32 & 0xff000000);
+SI V srcover_alpha(V src, V dst, V rgb) {
+    V a = src + (dst - dst*alpha(src));
+    return (rgb.u32 & 0x00ffffff) | (a.u32 & 0xff000000);
 }
+
+STAGE(darken)  { src = srcover_alpha(src, dst, src + (dst - max(src*alpha(dst), dst*alpha(src)))); }
+STAGE(lighten) { src = srcover_alpha(src, dst, src + (dst - min(src*alpha(dst), dst*alpha(src)))); }
+
+STAGE(difference) {
+    V min_ = min(src*alpha(dst), dst*alpha(src));
+    src    = srcover_alpha(src, dst, (src - min_) + (dst - min_));
+}
+
+STAGE(exclusion) {
+    V sd = src*dst;
+    src  = srcover_alpha(src, dst, (src - sd) + (dst - sd));
+}
+
+#undef BLEND_MODE
