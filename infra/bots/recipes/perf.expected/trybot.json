@@ -160,6 +160,7 @@
       "--nocpu",
       "--config",
       "gl",
+      "glsrgb",
       "--match",
       "~inc0.gif",
       "~inc1.gif",
