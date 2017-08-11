@@ -137,6 +137,7 @@
       "--nocpu",
       "--config",
       "gl",
+      "glsrgb",
       "glmsaa8",
       "glnvpr8",
       "glnvprdit8",
