@@ -896,7 +896,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->setupPosition(vertBuilder, gpArgs, dce.inPosition()->fName);
+    this->writeOutputPosition(vertBuilder, gpArgs, dce.inPosition()->fName);
 
     // emit transforms
     this->emitTransforms(vertBuilder,
@@ -1100,7 +1100,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->setupPosition(vertBuilder, gpArgs, de.inPosition()->fName);
+    this->writeOutputPosition(vertBuilder, gpArgs, de.inPosition()->fName);
 
     // emit transforms
     this->emitTransforms(vertBuilder,

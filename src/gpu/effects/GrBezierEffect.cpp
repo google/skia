@@ -86,12 +86,12 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->setupPosition(vertBuilder,
-                        uniformHandler,
-                        gpArgs,
-                        gp.inPosition()->fName,
-                        gp.viewMatrix(),
-                        &fViewMatrixUniform);
+    this->writeOutputPosition(vertBuilder,
+                              uniformHandler,
+                              gpArgs,
+                              gp.inPosition()->fName,
+                              gp.viewMatrix(),
+                              &fViewMatrixUniform);
 
     // emit transforms with position
     this->emitTransforms(vertBuilder,
@@ -347,12 +347,12 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor, &fColorUniform);
 
     // Setup position
-    this->setupPosition(vertBuilder,
-                        uniformHandler,
-                        gpArgs,
-                        gp.inPosition()->fName,
-                        gp.viewMatrix(),
-                        &fViewMatrixUniform);
+    this->writeOutputPosition(vertBuilder,
+                              uniformHandler,
+                              gpArgs,
+                              gp.inPosition()->fName,
+                              gp.viewMatrix(),
+                              &fViewMatrixUniform);
 
     // emit transforms with position
     this->emitTransforms(vertBuilder,
@@ -552,12 +552,12 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     // Setup position
-    this->setupPosition(vertBuilder,
-                        uniformHandler,
-                        gpArgs,
-                        gp.inPosition()->fName,
-                        gp.viewMatrix(),
-                        &fViewMatrixUniform);
+    this->writeOutputPosition(vertBuilder,
+                              uniformHandler,
+                              gpArgs,
+                              gp.inPosition()->fName,
+                              gp.viewMatrix(),
+                              &fViewMatrixUniform);
 
     // Setup KLM
     const char* devkLMMatrixName;
