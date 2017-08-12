@@ -140,6 +140,24 @@
       "revId": "cc695ed5946be96966088904ac7c355215cdb408",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a29706a_a6e05b88",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-12T19:56:39Z",
+      "side": 1,
+      "message": "I still think there\u0027s something we\u0027re just not understanding about the other case.  Clang\u0027s real good at reordering and handling invariants of integer math, and IIRC basically all we saw in the other case was instruction ordering change.  I\u0027m still in camp \"there\u0027s something we overlooked about the instructions we\u0027re asking to execute\".",
+      "parentUuid": "5d2fcff6_c38f485d",
+      "revId": "cc695ed5946be96966088904ac7c355215cdb408",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
