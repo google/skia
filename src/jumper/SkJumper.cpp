@@ -131,7 +131,10 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     M(multiply)          \
     M(screen)            \
     M(xor_)              \
-    M(darken)
+    M(darken)            \
+    M(lighten)           \
+    M(difference)        \
+    M(exclusion)
 #endif
 
 extern "C" {
