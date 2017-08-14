@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "5d107285_168f9048",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-14T20:22:49Z",
+      "side": 1,
+      "message": "Oh, that is nearly the most exciting thing I\u0027ve heard all month.  I gotta go look to see what Clang\u0027s doing here...",
+      "parentUuid": "37322e9b_e739a957",
+      "range": {
+        "startLine": 73,
+        "startChar": 27,
+        "endLine": 73,
+        "endChar": 41
+      },
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "20e7b9ba_694650b0",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 2
