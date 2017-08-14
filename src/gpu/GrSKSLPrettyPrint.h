@@ -7,10 +7,10 @@
 #ifndef GrSKSLPrettyPrint_DEFINED
 #define GrSKSLPrettyPrint_DEFINED
 
-#include "SkString.h"
+#include "SkSLString.h"
 
 namespace GrSKSLPrettyPrint {
-SkString PrettyPrint(const char** strings, int* lengths, int count, bool countlines);
+SkSL::String PrettyPrint(const char** strings, int* lengths, int count, bool countlines);
 };
 
 #endif

@@ -24,7 +24,7 @@ String String::printf(const char* fmt, ...) {
     return result;
 }
 
-#ifdef SKSL_STANDALONE
+#ifdef SKSL_USE_STD_STRING
 void String::appendf(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);

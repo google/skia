@@ -19,7 +19,7 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
     SkSL::StringStream output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kFragmentProcessor_Kind,
-                                                             SkString(src),
+                                                             SkSL::String(src),
                                                              settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());

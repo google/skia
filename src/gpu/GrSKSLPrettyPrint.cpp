@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "GrSKSLPrettyPrint.h"
+#include "SkSLString.h"
 
 namespace GrSKSLPrettyPrint {
 
@@ -12,7 +13,7 @@ class GLSLPrettyPrint {
 public:
     GLSLPrettyPrint() {}
 
-    SkString prettify(const char** strings, int* lengths, int count, bool countlines) {
+    SkSL::String prettify(const char** strings, int* lengths, int count, bool countlines) {
         fCountlines = countlines;
         fTabs = 0;
         fLinecount = 1;
@@ -184,7 +185,7 @@ private:
     int fTabs, fLinecount;
     size_t fIndex, fLength;
     const char* fInput;
-    SkString fPretty;
+    SkSL::String fPretty;
 
     // Some helpers for parseUntil when we go over a string length
     bool fInParseUntilNewline;
@@ -192,7 +193,7 @@ private:
     const char* fInParseUntilToken;
 };
 
-SkString PrettyPrint(const char** strings, int* lengths, int count, bool countlines) {
+SkSL::String PrettyPrint(const char** strings, int* lengths, int count, bool countlines) {
     GLSLPrettyPrint pp;
     return pp.prettify(strings, lengths, count, countlines);
 }

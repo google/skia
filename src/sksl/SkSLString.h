@@ -8,8 +8,9 @@
 #ifndef SKSL_STRING
 #define SKSL_STRING
 
+#define SKSL_USE_STD_STRING
 
-#ifdef SKSL_STANDALONE
+#ifdef SKSL_USE_STD_STRING
     #define SKSL_STRING_BASE std::string
     #include <string>
 #else
@@ -27,7 +28,7 @@ public:
     String& operator=(const String&) = default;
     String& operator=(String&&) = default;
 
-#ifndef SKSL_STANDALONE
+#ifndef SKSL_USE_STD_STRING
     String(const SkString& s)
     : INHERITED(s) {}
 #endif
@@ -40,7 +41,7 @@ public:
 
     static String printf(const char* fmt, ...);
 
-#ifdef SKSL_STANDALONE
+#ifdef SKSL_USE_STD_STRING
     void appendf(const char* fmt, ...);
 #endif
     void vappendf(const char* fmt, va_list va);
@@ -83,7 +84,7 @@ long stol(String s);
 
 } // namespace
 
-#ifdef SKSL_STANDALONE
+#ifdef SKSL_USE_STD_STRING
 namespace std {
     template<> struct hash<SkSL::String> {
         size_t operator()(const SkSL::String& s) const {

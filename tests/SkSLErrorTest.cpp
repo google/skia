@@ -16,7 +16,7 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     SkSL::Program::Settings settings;
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
-    compiler.convertProgram(SkSL::Program::kFragment_Kind, SkString(src), settings);
+    compiler.convertProgram(SkSL::Program::kFragment_Kind, SkSL::String(src), settings);
     SkSL::String skError(error);
     if (compiler.errorText() != skError) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
@@ -31,7 +31,7 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     SkString(src), settings);
+                                                                     SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 }
 
