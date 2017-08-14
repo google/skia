@@ -119,5 +119,8 @@ bool SkBitmapRegionCodec::decodeRegion(SkBitmap* bitmap, SkBRDAllocator* allocat
 
 bool SkBitmapRegionCodec::conversionSupported(SkColorType colorType) {
     SkImageInfo dstInfo = fCodec->getInfo().makeColorType(colorType);
-    return conversion_possible(dstInfo, fCodec->getInfo());
+    const SkEncodedInfo& encodedInfo = fCodec->getEncodedInfo();
+    return conversion_supported(dstInfo, encodedInfo.color(),
+                                encodedInfo.opaque(),
+                                dstInfo.colorSpace());
 }

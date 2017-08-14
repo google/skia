@@ -28,6 +28,8 @@ protected:
     Result onGetPixels(const SkImageInfo&, void*, size_t,
                        const Options&, int*) override;
     bool onRewind() override;
+    bool conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
+                             bool srcIsOpaque, const SkColorSpace* srcCS) const override;
 private:
     /*
      * Returns a swizzler on success, nullptr on failure
