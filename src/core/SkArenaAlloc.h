@@ -157,7 +157,7 @@ private:
     char* allocObject(uint32_t size, uint32_t alignment) {
         uintptr_t mask = alignment - 1;
         char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-        if ((ptrdiff_t)size > fEnd - objStart) {
+        if (objStart >= fEnd || size > fEnd - objStart) {
             this->ensureSpace(size, alignment);
             objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
         }
