@@ -29,6 +29,8 @@ SkDrawFilter* SkLiteRecorder::setDrawFilter(SkDrawFilter* df) {
 }
 #endif
 
+void SkLiteRecorder::onFlush() { fDL->flush(); }
+
 void SkLiteRecorder::willSave() { fDL->save(); }
 SkCanvas::SaveLayerStrategy SkLiteRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
     fDL->saveLayer(rec.fBounds, rec.fPaint, rec.fBackdrop, rec.fClipMask, rec.fClipMatrix,

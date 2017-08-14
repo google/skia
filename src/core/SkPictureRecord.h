@@ -157,6 +157,8 @@ protected:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
     bool onPeekPixels(SkPixmap*) override { return false; }
 
+    void onFlush() override;
+
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;

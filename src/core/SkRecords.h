@@ -47,6 +47,7 @@ namespace SkRecords {
 // you keep them semantically grouped, especially the Draws.  It's also nice to leave NoOp at 0.
 #define SK_RECORD_TYPES(M)                                          \
     M(NoOp)                                                         \
+    M(Flush)                                                        \
     M(Restore)                                                      \
     M(Save)                                                         \
     M(SaveLayer)                                                    \
@@ -174,6 +175,7 @@ struct T {                              \
 };
 
 RECORD(NoOp, 0);
+RECORD(Flush, 0);
 RECORD(Restore, 0,
         SkIRect devBounds;
         TypedMatrix matrix);

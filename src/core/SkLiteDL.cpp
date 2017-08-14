@@ -47,8 +47,8 @@ static const D* pod(const T* op, size_t offset = 0) {
 }
 
 namespace {
-#define TYPES(M)                                                                \
-    M(SetDrawFilter) M(Save) M(Restore) M(SaveLayer)                            \
+#define TYPES(M)                                                               \
+    M(SetDrawFilter) M(Flush) M(Save) M(Restore) M(SaveLayer)                   \
     M(Concat) M(SetMatrix) M(Translate)                                         \
     M(ClipPath) M(ClipRect) M(ClipRRect) M(ClipRegion)                          \
     M(DrawPaint) M(DrawPath) M(DrawRect) M(DrawRegion) M(DrawOval) M(DrawArc)   \
@@ -79,6 +79,11 @@ namespace {
             c->setDrawFilter(drawFilter.get());
 #endif
         }
+    };
+
+    struct Flush final : Op {
+        static const auto kType = Type::Flush;
+        void draw(SkCanvas* c, const SkMatrix&) const { c->flush(); }
     };
 
     struct Save final : Op {
@@ -529,6 +534,8 @@ void SkLiteDL::setDrawFilter(SkDrawFilter* df) {
     this->push<SetDrawFilter>(0, df);
 }
 #endif
+
+void SkLiteDL::flush() { this->push<Flush>(0); }
 
 void SkLiteDL::   save() { this->push   <Save>(0); }
 void SkLiteDL::restore() { this->push<Restore>(0); }

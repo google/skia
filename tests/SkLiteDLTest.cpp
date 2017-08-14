@@ -51,3 +51,14 @@ DEF_TEST(SkLiteRecorder, r) {
         c->drawRect(SkRect{0,0,9,9}, SkPaint{});
     c->restore();
 }
+
+DEF_TEST(SkLiteRecorder_RecordsFlush, r) {
+    SkLiteDL dl;
+
+    SkLiteRecorder canvas;
+    canvas.reset(&dl, {0,0,100,100});
+
+    REPORTER_ASSERT(r,  dl.empty());
+    canvas.flush();
+    REPORTER_ASSERT(r, !dl.empty());
+}
