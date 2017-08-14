@@ -73,6 +73,7 @@ namespace SkRecords {
 template <> void Draw::draw(const NoOp&) {}
 
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
+DRAW(Flush, flush());
 DRAW(Restore, restore());
 DRAW(Save, save());
 DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
@@ -387,6 +388,8 @@ private:
             fSaveStack.top().bounds.join(bounds);
         }
     }
+
+    Bounds bounds(const Flush&) const { return fCurrentClipBounds; }
 
     // FIXME: this method could use better bounds
     Bounds bounds(const DrawText&) const { return fCurrentClipBounds; }
