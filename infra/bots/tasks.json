@@ -7304,7 +7304,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1244-375.66",
+        "gpu:10de:1244-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -7356,7 +7356,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1244-375.66",
+        "gpu:10de:1244-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -7403,7 +7403,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-375.66",
+        "gpu:10de:11c0-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -7450,7 +7450,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-375.66",
+        "gpu:10de:11c0-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -7497,7 +7497,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-375.66",
+        "gpu:10de:1401-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -7544,7 +7544,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-375.66",
+        "gpu:10de:1401-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -8627,7 +8627,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-340.102",
+        "gpu:10de:104a-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia"
       ],
@@ -8679,7 +8679,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-340.102",
+        "gpu:10de:104a-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia"
       ],
@@ -14388,7 +14388,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1244-375.66",
+        "gpu:10de:1244-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -14440,7 +14440,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1244-375.66",
+        "gpu:10de:1244-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -14492,7 +14492,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1244-375.66",
+        "gpu:10de:1244-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -14539,7 +14539,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-375.66",
+        "gpu:10de:11c0-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -14586,7 +14586,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:11c0-375.66",
+        "gpu:10de:11c0-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -14633,7 +14633,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-375.66",
+        "gpu:10de:1401-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -14680,7 +14680,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:1401-375.66",
+        "gpu:10de:1401-384.59",
         "os:Debian-9.1",
         "pool:Skia"
       ],
@@ -15786,7 +15786,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-340.102",
+        "gpu:10de:104a-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia"
       ],
@@ -15838,7 +15838,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-340.102",
+        "gpu:10de:104a-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia"
       ],
@@ -15890,7 +15890,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-340.102",
+        "gpu:10de:104a-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia"
       ],
@@ -16187,7 +16187,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-340.102",
+        "gpu:10de:104a-384.59",
         "os:Ubuntu-17.04",
         "pool:Skia"
       ],
