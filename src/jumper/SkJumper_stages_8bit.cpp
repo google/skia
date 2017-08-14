@@ -88,6 +88,49 @@ SI U8x4 pack(U16x4 v) {
 #endif
 }
 
+// Approximate (v+127)/255 to within one bit.
+SI U8x4 div255(U16x4 v) {
+#if defined(__AVX2__)
+    static_assert(sizeof(v) == 128, "");
+    auto A = unaligned_load<__m256i>((char*)&v +  0),
+         B = unaligned_load<__m256i>((char*)&v + 32),
+         C = unaligned_load<__m256i>((char*)&v + 64),
+         D = unaligned_load<__m256i>((char*)&v + 96);
+
+    // (x * 258) >> 16 ≈ (x + 127) / 255
+    auto _258 = _mm256_set1_epi16(258);
+    A = _mm256_mulhi_epu16(A, _258);
+    B = _mm256_mulhi_epu16(B, _258);
+    C = _mm256_mulhi_epu16(C, _258);
+    D = _mm256_mulhi_epu16(D, _258);
+
+    auto pack = [](__m256i lo, __m256i hi) {
+        auto _02 = _mm256_permute2x128_si256(lo,hi, 0x20),
+             _13 = _mm256_permute2x128_si256(lo,hi, 0x31);
+        return _mm256_packus_epi16(_02, _13);
+    };
+    return join(pack(A,B), pack(C,D));
+
+#elif defined(__SSE2__)
+    static_assert(sizeof(v) == 64, "");
+    auto A = unaligned_load<__m128i>((char*)&v +  0),
+         B = unaligned_load<__m128i>((char*)&v + 16),
+         C = unaligned_load<__m128i>((char*)&v + 32),
+         D = unaligned_load<__m128i>((char*)&v + 48);
+
+    // (x * 258) >> 16 ≈ (x + 127) / 255
+    auto _258 = _mm_set1_epi16(258);
+    A = _mm_mulhi_epu16(A, _258);
+    B = _mm_mulhi_epu16(B, _258);
+    C = _mm_mulhi_epu16(C, _258);
+    D = _mm_mulhi_epu16(D, _258);
+
+    return join(_mm_packus_epi16(A,B), _mm_packus_epi16(C,D));
+#else
+    return pack((v + 127) / 255);
+#endif
+}
+
 union V {
     U32  u32;
     U8x4 u8x4;
@@ -95,7 +138,7 @@ union V {
     V() = default;
     V(U32   v) : u32 (v) {}
     V(U8x4  v) : u8x4(v) {}
-    V(U16x4 v) : u8x4(pack((v + 127)/255)) {}
+    V(U16x4 v) : u8x4(div255(v)) {}
     V(int   v) : u8x4(v) {}
     V(float v) : u8x4(v*255) {}
 };
