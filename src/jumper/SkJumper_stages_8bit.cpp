@@ -70,6 +70,8 @@ union V {
     V(U8x4  v) : u8x4(v) {}
     V(int   v) : u8x4(v) {}
     V(float v) : u8x4(v*255) {}
+
+    V(U16x4);
 };
 static const size_t kStride = sizeof(V) / sizeof(uint32_t);
 
@@ -102,12 +104,41 @@ SI U8x4 pack(U16x4 v) {
 
 SI V operator+(V x, V y) { return x.u8x4 + y.u8x4; }
 SI V operator-(V x, V y) { return x.u8x4 - y.u8x4; }
-SI V operator*(V x, V y) {
-    // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
-    U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
-          Y = __builtin_convertvector(y.u8x4, U16x4);
-    return pack((X*Y + X)>>8);
-}
+
+// Multiplying two unorm8 values produces a 255*255-biased value.
+// We need to divide by 255 (and ideally round) to get back to unorm8.
+//
+// If there's only one multiply, we have a fast approximation for the entire operation.
+// If there's more than one, it's faster to delay the divide by 255 until the very end.
+struct Product {
+    V x,y;
+
+    operator V() const {
+        // (x*y + x)/256 is a very good approximation of (x*y + 127)/255.
+        U16x4 X = __builtin_convertvector(x.u8x4, U16x4),
+              Y = __builtin_convertvector(y.u8x4, U16x4);
+        return pack((X*Y + X)>>8);
+    }
+};
+SI Product operator*(V x, V y) { return {x,y}; }
+
+#if !defined(SK_JUMPER_LEGACY_8BITMUL)
+    SI U16x4 eval(Product p) {
+        U16x4 X = __builtin_convertvector(p.x.u8x4, U16x4),
+              Y = __builtin_convertvector(p.y.u8x4, U16x4);
+        return X*Y;
+    }
+
+    inline V::V(U16x4 w) {
+        // Approximate divide by 255 with rounding.
+        u8x4 = __builtin_convertvector((w + (w>>7)) >> 8, U8x4);
+    }
+
+    SI U16x4 operator+(Product a, Product b) { return eval(a) + eval(b); }
+    SI U16x4 operator-(Product a, Product b) { return eval(a) - eval(b); }
+    SI U16x4 operator+(U16x4   a, Product b) { return      a  + eval(b); }
+    SI U16x4 operator-(U16x4   a, Product b) { return      a  - eval(b); }
+#endif
 
 SI V inv(V v) { return 0xff - v; }
 SI V two(V v) { return v + v; }
