@@ -410,6 +410,10 @@ template<int n> struct SkTFixed {
     static const SkFixed value = static_cast<SkFixed>(n << 16);
 };
 
+#ifndef FC_WEIGHT_DEMILIGHT
+#define FC_WEIGHT_DEMILIGHT        65
+#endif
+
 static SkFontStyle skfontstyle_from_fcpattern(FcPattern* pattern) {
     typedef SkFontStyle SkFS;
 
@@ -417,6 +421,8 @@ static SkFontStyle skfontstyle_from_fcpattern(FcPattern* pattern) {
         { SkTFixed<FC_WEIGHT_THIN>::value,       SkTFixed<SkFS::kThin_Weight>::value },
         { SkTFixed<FC_WEIGHT_EXTRALIGHT>::value, SkTFixed<SkFS::kExtraLight_Weight>::value },
         { SkTFixed<FC_WEIGHT_LIGHT>::value,      SkTFixed<SkFS::kLight_Weight>::value },
+        { SkTFixed<FC_WEIGHT_DEMILIGHT>::value,  SkTFixed<350>::value },
+        { SkTFixed<FC_WEIGHT_BOOK>::value,       SkTFixed<380>::value },
         { SkTFixed<FC_WEIGHT_REGULAR>::value,    SkTFixed<SkFS::kNormal_Weight>::value },
         { SkTFixed<FC_WEIGHT_MEDIUM>::value,     SkTFixed<SkFS::kMedium_Weight>::value },
         { SkTFixed<FC_WEIGHT_DEMIBOLD>::value,   SkTFixed<SkFS::kSemiBold_Weight>::value },
@@ -460,6 +466,8 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
         { SkTFixed<SkFS::kThin_Weight>::value,       SkTFixed<FC_WEIGHT_THIN>::value },
         { SkTFixed<SkFS::kExtraLight_Weight>::value, SkTFixed<FC_WEIGHT_EXTRALIGHT>::value },
         { SkTFixed<SkFS::kLight_Weight>::value,      SkTFixed<FC_WEIGHT_LIGHT>::value },
+        { SkTFixed<350>::value,                      SkTFixed<FC_WEIGHT_DEMILIGHT>::value },
+        { SkTFixed<380>::value,                      SkTFixed<FC_WEIGHT_BOOK>::value },
         { SkTFixed<SkFS::kNormal_Weight>::value,     SkTFixed<FC_WEIGHT_REGULAR>::value },
         { SkTFixed<SkFS::kMedium_Weight>::value,     SkTFixed<FC_WEIGHT_MEDIUM>::value },
         { SkTFixed<SkFS::kSemiBold_Weight>::value,   SkTFixed<FC_WEIGHT_DEMIBOLD>::value },
