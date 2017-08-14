@@ -134,7 +134,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     M(darken)            \
     M(lighten)           \
     M(difference)        \
-    M(exclusion)
+    M(exclusion)         \
+    M(overlay)
 #endif
 
 extern "C" {

@@ -34,12 +34,14 @@
     using U8    = uint8_t  __attribute__((ext_vector_type(16)));
     using U32   = uint32_t __attribute__((ext_vector_type(16)));
     using U8x4  = uint8_t  __attribute__((ext_vector_type(64)));
+    using C8x4  =    char  __attribute__((ext_vector_type(64)));
     using U16x4 = uint16_t __attribute__((ext_vector_type(64)));
     using R     = uint8_t  __attribute__((ext_vector_type(32)));
 #else
     using U8    = uint8_t  __attribute__((ext_vector_type( 8)));
     using U32   = uint32_t __attribute__((ext_vector_type( 8)));
     using U8x4  = uint8_t  __attribute__((ext_vector_type(32)));
+    using C8x4  =    char  __attribute__((ext_vector_type(32)));
     using U16x4 = uint16_t __attribute__((ext_vector_type(32)));
     using R     = uint8_t  __attribute__((ext_vector_type(16)));
 #endif
@@ -61,6 +63,8 @@ SI void split(U8x4 u8x4, R* lo, R* hi) {
     memcpy(hi, (char*)&u8x4 + sizeof(R), sizeof(R));
 }
 
+SI U8x4 pack(U16x4 v);
+
 union V {
     U32  u32;
     U8x4 u8x4;
@@ -68,6 +72,7 @@ union V {
     V() = default;
     V(U32   v) : u32 (v) {}
     V(U8x4  v) : u8x4(v) {}
+    V(U16x4 v) : u8x4(pack((v + 127)/255)) {}
     V(int   v) : u8x4(v) {}
     V(float v) : u8x4(v*255) {}
 };
@@ -109,7 +114,8 @@ SI V operator*(V x, V y) {
     return pack((X*Y + X)>>8);
 }
 
-SI V inv(V v) { return 0xff - v; }
+template <typename T>
+SI T inv(T v) { return 0xff - v; }
 SI V two(V v) { return v + v; }
 SI V lerp(V from, V to, V t) { return to*t + from*inv(t); }
 
@@ -141,14 +147,22 @@ SI V swap_rb(V v) {
 #endif
 }
 
+
+template <typename MaskT, typename ValT>
+SI ValT if_then_else(MaskT m, ValT t, ValT e) {
+    return (t & m) | (e & ~m);
+}
+
+SI V if_then_else(C8x4 c, V t, V e) {
+    return (t.u8x4 & c) | (e.u8x4 & ~c);
+}
+
 SI V max(V a, V b) {
-    auto gt = a.u8x4 > b.u8x4;
-    return (a.u8x4 & gt) | (b.u8x4 &~gt);
+    return if_then_else(a.u8x4 > b.u8x4, a, b);
 }
 
 SI V min(V a, V b) {
-    auto gt = a.u8x4 > b.u8x4;
-    return (a.u8x4 & ~gt) | (b.u8x4 &gt);
+    return if_then_else(a.u8x4 > b.u8x4, b, a);
 }
 
 struct Params {
@@ -439,6 +453,16 @@ STAGE(difference) {
     // so again we subtract two from rgb, one from alpha.
     V min_ = min(src*alpha(dst), dst*alpha(src));
     src = (src - min_) + (dst - zero_alpha(min_));
+}
+
+STAGE(overlay) {
+    U16x4 s  = __builtin_convertvector(       src.u8x4, U16x4),
+          sa = __builtin_convertvector(alpha(src).u8x4, U16x4),
+          d  = __builtin_convertvector(       dst.u8x4, U16x4),
+          da = __builtin_convertvector(alpha(dst).u8x4, U16x4);
+
+    src = s*inv(da) + d*inv(sa)
+        + if_then_else((d + d) <= da, s*d*2, sa*da - (da - d)*(sa - s)*2);
 }
 
 #undef BLEND_MODE
