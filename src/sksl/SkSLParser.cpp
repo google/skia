@@ -148,22 +148,35 @@ std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
     }
 }
 
-Token Parser::nextRawToken() {
+Token Parser::nextRawToken(bool needText) {
     if (fPushback.fKind != Token::INVALID_TOKEN) {
         Token result = fPushback;
         fPushback.fKind = Token::INVALID_TOKEN;
         fPushback.fText = "";
         return result;
     }
-    int token = sksllex(fScanner);
-    return Token(Position(skslget_lineno(fScanner), -1), (Token::Kind) token,
-                 String(skslget_text(fScanner)));
+    Token::Kind kind = (Token::Kind) sksllex(fScanner);
+    if (!needText) {
+        switch (kind) {
+            case Token::Kind::DIRECTIVE:     // fall through
+            case Token::Kind::IDENTIFIER:    // fall through
+            case Token::Kind::INT_LITERAL:   // fall through
+            case Token::Kind::FLOAT_LITERAL: // fall through
+            case Token::Kind::SECTION:
+                needText = true;
+            default:
+                break;
+        }
+    }
+    static String unavailable("<unavailable>");
+    return Token(Position(skslget_lineno(fScanner), -1), kind,
+                 needText ? String(skslget_text(fScanner)) : unavailable);
 }
 
 Token Parser::nextToken() {
     Token token;
     do {
-        token = this->nextRawToken();
+        token = this->nextRawToken(false);
     } while (token.fKind == Token::WHITESPACE);
     return token;
 }
@@ -315,7 +328,7 @@ std::unique_ptr<ASTDeclaration> Parser::section() {
     String text;
     int level = 1;
     for (;;) {
-        Token next = this->nextRawToken();
+        Token next = this->nextRawToken(true);
         switch (next.fKind) {
             case Token::LBRACE:
                 ++level;
@@ -593,12 +606,13 @@ String Parser::layoutCode() {
     if (!this->expect(Token::EQ, "'='")) {
         return "";
     }
-    Token start = this->peek();
+    Token start = this->nextRawToken(true);
+    this->pushback(start);
     String code;
     int level = 1;
     bool done = false;
     while (!done) {
-        Token next = this->peek();
+        Token next = this->nextRawToken(true);
         switch (next.fKind) {
             case Token::LPAREN:
                 ++level;
@@ -620,8 +634,11 @@ String Parser::layoutCode() {
         if (!level) {
             done = true;
         }
-        if (!done) {
-            code += this->nextRawToken().fText;
+        if (done) {
+            this->pushback(next);
+        }
+        else {
+            code += next.fText;
         }
     }
     return code;
