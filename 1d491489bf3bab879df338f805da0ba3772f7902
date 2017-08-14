@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29baf762_3ac3eac5",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T17:11:40Z",
+      "side": 1,
+      "message": "Do we need\n\n  operator+(Product, U16x4)\n  operator*(...)\n\nfor completeness?",
+      "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
