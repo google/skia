@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cee8720_b7f6da97",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T18:13:38Z",
+      "side": 1,
+      "message": "fIsSmall ? fFilterWindow : weight_from_diameter(fFilterWindow)\n\n?",
+      "range": {
+        "startLine": 42,
+        "startChar": 14,
+        "endLine": 42,
+        "endChar": 56
+      },
+      "revId": "684f7e05062789c1a0f7d6ab2e01f77440c2bd9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38ad02eb_ea35c7fb",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T18:13:38Z",
+      "side": 1,
+      "message": "// We don\u0027t think this is good for quality.  It is good for compatibility with previous expectations...\n\n?",
+      "revId": "684f7e05062789c1a0f7d6ab2e01f77440c2bd9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f1fc12d_e6d2f5a7",
+        "filename": "src/core/SkMaskBlurFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T18:13:38Z",
+      "side": 1,
+      "message": "Box?",
+      "range": {
+        "startLine": 193,
+        "startChar": 25,
+        "endLine": 193,
+        "endChar": 28
+      },
+      "revId": "684f7e05062789c1a0f7d6ab2e01f77440c2bd9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
