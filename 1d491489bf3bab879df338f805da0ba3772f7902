@@ -34,6 +34,24 @@
       "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d41da99b_34e52214",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T21:09:49Z",
+      "side": 1,
+      "message": "I was mostly thinking of constants - stuff like 2*s*da would be nice not stay in u16x4.  But I\u0027m not sure how to make it safe in general.",
+      "parentUuid": "38d33dd0_3feeb675",
+      "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
