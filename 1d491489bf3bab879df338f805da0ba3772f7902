@@ -52,6 +52,24 @@
       "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19ef1ae6_37a2c883",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-14T21:12:11Z",
+      "side": 1,
+      "message": "Ah, yeah, that\u0027s fair.  I find that it\u0027s fairly rare that anything other than 2 comes up actually.\n\nThoughts like this though are largely what I don\u0027t intend to land this code.  It\u0027s too implicit what\u0027s happening.",
+      "parentUuid": "d41da99b_34e52214",
+      "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
