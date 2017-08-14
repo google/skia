@@ -440,5 +440,3 @@ STAGE(difference) {
     V min_ = min(src*alpha(dst), dst*alpha(src));
     src = (src - min_) + (dst - zero_alpha(min_));
 }
-
-#undef BLEND_MODE
