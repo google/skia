@@ -31,10 +31,10 @@
 class SkData;
 
 // FC_POSTSCRIPT_NAME was added with b561ff20 which ended up in 2.10.92
-// Ubuntu 12.04 is on 2.8.0, 13.10 is on 2.10.93
-// Debian 7 is on 2.9.0, 8 is on 2.11
-// OpenSUSE 12.2 is on 2.9.0, 12.3 is on 2.10.2, 13.1 2.11.0
-// Fedora 19 is on 2.10.93
+// Ubuntu 14.04 is on 2.11.0
+// Debian 8 is on 2.11
+// OpenSUSE Leap 42.1 is on 2.11.0 (42.3 is on 2.11.1)
+// Fedora 24 is on 2.11.94
 #ifndef FC_POSTSCRIPT_NAME
 #    define FC_POSTSCRIPT_NAME  "postscriptname"
 #endif
@@ -178,6 +178,7 @@ enum SkWeakReturn {
 };
 /** Ideally there  would exist a call like
  *  FcResult FcPatternIsWeak(pattern, object, id, FcBool* isWeak);
+ *  Sometime after 2.12.4 FcPatternGetWithBinding was added which can retrieve the binding.
  *
  *  However, there is no such call and as of Fc 2.11.0 even FcPatternEquals ignores the weak bit.
  *  Currently, the only reliable way of finding the weak bit is by its effect on matching.
@@ -327,13 +328,20 @@ template<int n> struct SkTFixed {
     static const SkFixed value = static_cast<SkFixed>(n << 16);
 };
 
+#ifndef FC_WEIGHT_DEMILIGHT
+#define FC_WEIGHT_DEMILIGHT        65
+#endif
+
 static SkFontStyle skfontstyle_from_fcpattern(FcPattern* pattern) {
     typedef SkFontStyle SkFS;
 
+    // FcWeightToOpenType was buggy until 2.12.4
     static const MapRanges weightRanges[] = {
         { SkTFixed<FC_WEIGHT_THIN>::value,       SkTFixed<SkFS::kThin_Weight>::value },
         { SkTFixed<FC_WEIGHT_EXTRALIGHT>::value, SkTFixed<SkFS::kExtraLight_Weight>::value },
         { SkTFixed<FC_WEIGHT_LIGHT>::value,      SkTFixed<SkFS::kLight_Weight>::value },
+        { SkTFixed<FC_WEIGHT_DEMILIGHT>::value,  SkTFixed<350>::value },
+        { SkTFixed<FC_WEIGHT_BOOK>::value,       SkTFixed<380>::value },
         { SkTFixed<FC_WEIGHT_REGULAR>::value,    SkTFixed<SkFS::kNormal_Weight>::value },
         { SkTFixed<FC_WEIGHT_MEDIUM>::value,     SkTFixed<SkFS::kMedium_Weight>::value },
         { SkTFixed<FC_WEIGHT_DEMIBOLD>::value,   SkTFixed<SkFS::kSemiBold_Weight>::value },
@@ -375,10 +383,13 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
 
     typedef SkFontStyle SkFS;
 
+    // FcWeightFromOpenType was buggy until 2.12.4
     static const MapRanges weightRanges[] = {
         { SkTFixed<SkFS::kThin_Weight>::value,       SkTFixed<FC_WEIGHT_THIN>::value },
         { SkTFixed<SkFS::kExtraLight_Weight>::value, SkTFixed<FC_WEIGHT_EXTRALIGHT>::value },
         { SkTFixed<SkFS::kLight_Weight>::value,      SkTFixed<FC_WEIGHT_LIGHT>::value },
+        { SkTFixed<350>::value,                      SkTFixed<FC_WEIGHT_DEMILIGHT>::value },
+        { SkTFixed<380>::value,                      SkTFixed<FC_WEIGHT_BOOK>::value },
         { SkTFixed<SkFS::kNormal_Weight>::value,     SkTFixed<FC_WEIGHT_REGULAR>::value },
         { SkTFixed<SkFS::kMedium_Weight>::value,     SkTFixed<FC_WEIGHT_MEDIUM>::value },
         { SkTFixed<SkFS::kSemiBold_Weight>::value,   SkTFixed<FC_WEIGHT_DEMIBOLD>::value },
