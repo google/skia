@@ -963,6 +963,8 @@ const GrGLInterface* GrGLAssembleGLESInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(GetInternalformativ);
     }
 
+    GET_PROC_SUFFIX(GetTranslatedShaderSource, ANGLE);
+
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 

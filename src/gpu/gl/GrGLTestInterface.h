@@ -331,6 +331,7 @@ public:
     virtual GrGLvoid popDebugGroup() {}
     virtual GrGLvoid objectLabel(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label) {}
     virtual GrGLvoid getInternalformativ(GrGLenum target, GrGLenum internalformat, GrGLenum pname, GrGLsizei bufSize, GrGLint *params) {}
+    virtual GrGLvoid getTranslatedShaderSource(GrGLuint shader, GrGLsizei bufsize, GrGLsizei *length, GrGLchar *source) {}
 
 protected:
     // This must be called by leaf class

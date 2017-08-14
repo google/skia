@@ -136,6 +136,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
             GrGLint infoLen = GR_GL_INIT_ZERO;
             GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
             SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
+            SkDebugf("Info log len: %d\n", infoLen);
             if (infoLen > 0) {
                 // retrieve length even though we don't need it to workaround bug in Chromium cmd
                 // buffer param validation.
@@ -143,6 +144,19 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                 GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1, &length, (char*)log.get()));
                 SkDebugf("Errors:\n%s\n", (const char*) log.get());
             }
+
+            GrGLint translatedLen = GR_GL_INIT_ZERO;
+            GR_GL_CALL(gli, GetShaderiv(shaderId, GL_TRANSLATED_SHADER_SOURCE_LENGTH_ANGLE, &translatedLen));
+            SkAutoMalloc translated(sizeof(char)*(translatedLen + 1)); // outside if for debugger
+            SkDebugf("Translated source len: %d\n", translatedLen);
+            if (translatedLen > 0) {
+                // retrieve length even though we don't need it to workaround bug in Chromium cmd
+                // buffer param validation.
+                GrGLsizei length = GR_GL_INIT_ZERO;
+                GR_GL_CALL(gli, GetTranslatedShaderSource(shaderId, translatedLen + 1, &length, (char*)translated.get()));
+                SkDebugf("Transated:\n%s\n", (const char*)translated.get());
+            }
+
             SkDEBUGFAIL("GLSL compilation failed!");
             GR_GL_CALL(gli, DeleteShader(shaderId));
             return 0;
