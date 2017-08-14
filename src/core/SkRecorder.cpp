@@ -346,6 +346,10 @@ void SkRecorder::onDrawAnnotation(const SkRect& rect, const char key[], SkData* 
     APPEND(DrawAnnotation, rect, SkString(key), sk_ref_sp(value));
 }
 
+void SkRecorder::onFlush() {
+    APPEND(Flush);
+}
+
 void SkRecorder::willSave() {
     APPEND(Save);
 }

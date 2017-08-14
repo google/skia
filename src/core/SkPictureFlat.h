@@ -95,7 +95,9 @@ enum DrawType {
     DRAW_REGION,
     DRAW_VERTICES_OBJECT,
 
-    LAST_DRAWTYPE_ENUM = DRAW_VERTICES_OBJECT
+    FLUSH,
+
+    LAST_DRAWTYPE_ENUM = FLUSH
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*
