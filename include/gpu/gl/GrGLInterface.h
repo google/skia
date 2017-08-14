@@ -473,6 +473,8 @@ public:
         GrGLFunction<GrGLPopDebugGroupProc> fPopDebugGroup;
         GrGLFunction<GrGLObjectLabelProc> fObjectLabel;
 
+        GrGLFunction<GrGLGetTranslatedShaderSourceProc> fGetTranslatedShaderSource;
+
         /* EXT_window_rectangles */
         GrGLFunction<GrGLWindowRectanglesProc> fWindowRectangles;
 

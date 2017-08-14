@@ -369,6 +369,9 @@ typedef GrGLvoid (* GrGLPushDebugGroupProc)(GrGLenum source, GrGLuint id, GrGLsi
 typedef GrGLvoid (* GrGLPopDebugGroupProc)();
 typedef GrGLvoid (* GrGLObjectLabelProc)(GrGLenum identifier, GrGLuint name, GrGLsizei length, const GrGLchar *label);
 
+#define GL_TRANSLATED_SHADER_SOURCE_LENGTH_ANGLE 0x93A0
+typedef GrGLvoid(* GrGLGetTranslatedShaderSourceProc) (GrGLuint shader, GrGLsizei bufsize, GrGLsizei *length, GrGLchar *source);
+
 /** EXT_window_rectangles */
 typedef GrGLvoid (* GrGLWindowRectanglesProc)(GrGLenum mode, GrGLsizei count, const GrGLint box[]);
 
