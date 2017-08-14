@@ -16,6 +16,24 @@
       "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38d33dd0_3feeb675",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-14T17:59:42Z",
+      "side": 1,
+      "message": "We shouldn\u0027t need operator+(Product, U16x4) unless we get into weird parenthesization, but it\u0027s pretty harmless.\n\nIf we find ourselves needing operator*(), we\u0027ve got a serious issue.  That product would be at least 255*255*255-biased, possibly 255*255*255*255.",
+      "parentUuid": "29baf762_3ac3eac5",
+      "revId": "1d491489bf3bab879df338f805da0ba3772f7902",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
