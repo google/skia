@@ -115,7 +115,8 @@ def nanobench_flags(api, bot):
 
     if 'ANGLE' in bot:
       # Test only ANGLE configs.
-      configs = ['angle_d3d11_es2']
+      configs = ['angle_d3d11_es2',
+                 'angle_d3d11_es3_srgb']
       if sample_count is not '':
         configs.append('angle_d3d11_es2_msaa' + sample_count)
 

@@ -160,6 +160,7 @@
       "--nocpu",
       "--config",
       "angle_d3d11_es2",
+      "angle_d3d11_es3_srgb",
       "--match",
       "~tile_image_filter_tiled_64",
       "~inc0.gif",

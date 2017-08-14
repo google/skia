@@ -160,6 +160,7 @@
       "--nocpu",
       "--config",
       "angle_d3d11_es2",
+      "angle_d3d11_es3_srgb",
       "angle_d3d11_es2_msaa8",
       "--match",
       "~shapes_mixed_10000_32x33",
