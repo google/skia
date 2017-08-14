@@ -72,6 +72,46 @@ public:
     int32_t getPendingReadCnt_TestOnly() const;
     int32_t getPendingWriteCnt_TestOnly() const;
 
+    void addPendingRead() const {
+        this->validate();
+
+        ++fPendingReads;
+        if (fTarget) {
+            fTarget->addPendingRead();
+        }
+    }
+
+    void completedRead() const {
+        this->validate();
+
+        if (fTarget) {
+            fTarget->completedRead();
+        }
+
+        --fPendingReads;
+        this->didRemoveRefOrPendingIO();
+    }
+
+    void addPendingWrite() const {
+        this->validate();
+
+        ++fPendingWrites;
+        if (fTarget) {
+            fTarget->addPendingWrite();
+        }
+    }
+
+    void completedWrite() const {
+        this->validate();
+
+        if (fTarget) {
+            fTarget->completedWrite();
+        }
+
+        --fPendingWrites;
+        this->didRemoveRefOrPendingIO();
+    }
+
 protected:
     GrIORefProxy() : fTarget(nullptr), fRefCnt(1), fPendingReads(0), fPendingWrites(0) {}
     GrIORefProxy(sk_sp<GrSurface> surface) : fRefCnt(1), fPendingReads(0), fPendingWrites(0) {
@@ -119,46 +159,6 @@ private:
     // This class is used to manage conversion of refs to pending reads/writes.
     friend class GrSurfaceProxyRef;
     template <typename, GrIOType> friend class GrPendingIOResource;
-
-    void addPendingRead() const {
-        this->validate();
-
-        ++fPendingReads;
-        if (fTarget) {
-            fTarget->addPendingRead();
-        }
-    }
-
-    void completedRead() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->completedRead();
-        }
-
-        --fPendingReads;
-        this->didRemoveRefOrPendingIO();
-    }
-
-    void addPendingWrite() const {
-        this->validate();
-
-        ++fPendingWrites;
-        if (fTarget) {
-            fTarget->addPendingWrite();
-        }
-    }
-
-    void completedWrite() const {
-        this->validate();
-
-        if (fTarget) {
-            fTarget->completedWrite();
-        }
-
-        --fPendingWrites;
-        this->didRemoveRefOrPendingIO();
-    }
 
     void didRemoveRefOrPendingIO() const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
