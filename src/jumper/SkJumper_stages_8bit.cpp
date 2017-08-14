@@ -421,14 +421,24 @@ SI V srcover_alpha(V src, V dst, V rgb) {
 STAGE(darken)  { src = srcover_alpha(src, dst, src + (dst - max(src*alpha(dst), dst*alpha(src)))); }
 STAGE(lighten) { src = srcover_alpha(src, dst, src + (dst - min(src*alpha(dst), dst*alpha(src)))); }
 
-STAGE(difference) {
-    V min_ = min(src*alpha(dst), dst*alpha(src));
-    src    = srcover_alpha(src, dst, (src - min_) + (dst - min_));
-}
+SI V zero_alpha(V rgba) { return rgba.u32 & 0x00ffffff; }
 
 STAGE(exclusion) {
+    // We could do exclusion with srcover_alpha(), but can fold a little more math through:
+    //     rgb   = Sc + Dc - 2*Sc*Dc
+    //     alpha = Sa + Da -   Sa*Da
+    // So we just subtract two sd from rgb, and one from alpha.
     V sd = src*dst;
-    src  = srcover_alpha(src, dst, (src - sd) + (dst - sd));
+    src = (src - sd) + (dst - zero_alpha(sd));
+}
+STAGE(difference) {
+    // Like exclusion, we can fold math through with the same trick:
+    //     rgb   = Sc + Dc - 2*min(Sc*Da, Dc*Sa)
+    //     alpha = Sa + Da -       Sa*Da
+    // Here notice (Sa*Da) == min(Sa*Da, Da*Sa) for alpha,
+    // so again we subtract two from rgb, one from alpha.
+    V min_ = min(src*alpha(dst), dst*alpha(src));
+    src = (src - min_) + (dst - zero_alpha(min_));
 }
 
 #undef BLEND_MODE
