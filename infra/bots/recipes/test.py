@@ -31,6 +31,8 @@ def dm_flags(api, bot):
   # .pdfs, but not doing anything further with them.  skia:6821
   args.extend(['--dont_write', 'pdf'])
 
+  args.extend(['-v'])
+
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test.
   # Not Android due to:
@@ -580,6 +582,8 @@ def dm_flags(api, bot):
     match.append('~FontMgrAndroidParser') # skia:6478
     match.append('~PathOpsSimplify') # skia:6479
     blacklist(['_', 'gm', '_', 'fast_slow_blurimagefilter']) # skia:6480
+
+  match.append('~skbug_5321') # skia:6358
 
   if blacklisted:
     args.append('--blacklist')
