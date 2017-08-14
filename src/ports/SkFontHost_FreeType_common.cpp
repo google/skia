@@ -585,9 +585,17 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
             canvas.translate(face->glyph->bitmap_left, -face->glyph->bitmap_top);
 
             SkPaint paint;
-            paint.setFilterQuality(kMedium_SkFilterQuality);
+            // Using kMedium FilterQuality will cause mipmaps to be generated. Use
+            // kLow when the results will be roughly the same in order to avoid
+            // the mipmap generation cost.
+            // See skbug.com/6967
+            if (bitmapTransform.getMinScale() < 0.5) {
+                paint.setFilterQuality(kMedium_SkFilterQuality);
+            } else {
+                paint.setFilterQuality(kLow_SkFilterQuality);
+            }
             canvas.drawBitmap(unscaledBitmap, 0, 0, &paint);
-
+            
             // If the destination is BW or LCD, convert from A8.
             if (SkMask::kBW_Format == maskFormat) {
                 // Copy the A8 dstBitmap into the A1 glyph.fImage.
