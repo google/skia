@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "85e19fad_fd15ce7c",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T20:12:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d0f5144_3eab1d21",
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3250b910_14dfae68",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2017-08-14T17:04:46Z",
       "side": 1,
       "message": "Might want to try (v + (v\u003e\u003e7))\u003e\u003e8 ?",
+      "range": {
+        "startLine": 73,
+        "startChar": 27,
+        "endLine": 73,
+        "endChar": 41
+      },
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37322e9b_e739a957",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T20:12:15Z",
+      "side": 1,
+      "message": "Hmm, that seems consistently slower on HSW (~7083 vs ~6879).",
+      "parentUuid": "3250b910_14dfae68",
       "range": {
         "startLine": 73,
         "startChar": 27,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "121e209a_3456223f",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T20:12:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20e7b9ba_694650b0",
+      "range": {
+        "startLine": 452,
+        "startChar": 6,
+        "endLine": 452,
+        "endChar": 13
+      },
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ece14920_df10f128",
         "filename": "src/jumper/SkJumper_stages_8bit.cpp",
         "patchSetId": 2
@@ -97,6 +163,24 @@
       "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4d465b8_92c4557a",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T20:12:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ff0854e_4f7dac57",
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
