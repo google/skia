@@ -31,6 +31,8 @@ def dm_flags(api, bot):
   # .pdfs, but not doing anything further with them.  skia:6821
   args.extend(['--dont_write', 'pdf'])
 
+  args.extend(['-v'])
+
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test.
   # Not Android due to:
