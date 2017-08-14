@@ -73,7 +73,7 @@ GrGLuint GLBench::CompileShader(const GrGLContext* context, const char* sksl, Gr
     std::unique_ptr<SkSL::Program> program = context->compiler()->convertProgram(
                                         type == GR_GL_VERTEX_SHADER ? SkSL::Program::kVertex_Kind
                                                                     : SkSL::Program::kFragment_Kind,
-                                        SkString(sksl),
+                                        SkSL::String(sksl),
                                         settings);
     if (!program || !context->compiler()->toGLSL(*program, &glsl)) {
         SkDebugf("SkSL compilation failed:\n%s\n%s\n", sksl,

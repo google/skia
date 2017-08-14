@@ -24,7 +24,7 @@ public:
         const GrSimpleTextureEffect& _outer = args.fFp.cast<GrSimpleTextureEffect>();
         (void)_outer;
         fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
-        SkSL::String sk_TransformedCoords2D_0 =
+        SkString sk_TransformedCoords2D_0 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
                 "float4 _tmpVar1;%s = %s * %stexture(%s, %s).%s%s;\n", args.fOutputColor,

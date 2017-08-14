@@ -543,8 +543,8 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                              SkString((const char*) bytes->data()),
-                                                              settings);
+                                                          SkSL::String((const char*) bytes->data()),
+                                                          settings);
     if (!program || !compiler.toGLSL(*program, &output)) {
         SkDebugf("[terminated] Couldn't compile input.\n");
         return;
