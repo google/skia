@@ -79,6 +79,24 @@
       "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ff0854e_4f7dac57",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-14T17:14:28Z",
+      "side": 1,
+      "message": "Good catch, it\u0027s missing srcover_alpha().",
+      "parentUuid": "ece14920_df10f128",
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
