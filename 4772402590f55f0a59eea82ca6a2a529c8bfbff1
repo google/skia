@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb3e2100_7048f032",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "??",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c46bdd9_8408b33c",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "is_suitable_for_direct_draw ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5df8963d_e98076a6",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "Is this test reversed ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a25b7a7_00fbf0c3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "reuse predicate from above ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "374989dd_9fcac67a",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "Can this code block and the one above be folded into a single GrRenderTargetContext method (e.g., directDrawImage) ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "554b7dff_ed8aa4df",
+        "filename": "src/gpu/glsl/GrGLSLGeometryProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "specify the ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d281f55_bb5e3c24",
+        "filename": "src/gpu/ops/GrImageOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "const SkRect\u0026 *2 ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba73a979_acc87172",
+        "filename": "src/gpu/ops/GrImageOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "invW ?\nDon\u0027t we want the width of the instantiated GrTexture here rather than that of the proxy?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "756feb98_b148a6ac",
+        "filename": "src/gpu/ops/GrImageOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "invH ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67cd87de_92f7d7a0",
+        "filename": "src/gpu/ops/GrImageOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "texL,R,T,B ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "859cd816_c82f7db3",
+        "filename": "src/gpu/ops/GrImageOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-14T12:08:23Z",
+      "side": 1,
+      "message": "const SkRect\u0026 *2 ?",
+      "revId": "4772402590f55f0a59eea82ca6a2a529c8bfbff1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
