@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14d43086_5b1a97b1",
+        "filename": "src/android/SkBitmapRegionCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T20:47:12Z",
+      "side": 1,
+      "message": "Is it surprising to that this doesn\u0027t funnel down into fCodec-\u003econversionSupported()?  Maybe a note about why not?",
+      "revId": "585cb2ee6fbf8d20b8abce27dc0e91506c771071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
