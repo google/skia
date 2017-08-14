@@ -64,9 +64,11 @@ public:
 
 private:
     /**
-     * Return the next token, including whitespace tokens, from the parse stream.
+     * Return the next token, including whitespace tokens, from the parse stream. If needText is
+     * false, the token's text is only filled in if it is a token with variable text (identifiers,
+     * numbers, etc.).
      */
-    Token nextRawToken();
+    Token nextRawToken(bool needText);
 
     /**
      * Return the next non-whitespace token from the parse stream.
