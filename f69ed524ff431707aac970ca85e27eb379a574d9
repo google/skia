@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d0f5144_3eab1d21",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T17:04:46Z",
+      "side": 1,
+      "message": "I think you can just move pack up here?",
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3250b910_14dfae68",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T17:04:46Z",
+      "side": 1,
+      "message": "Might want to try (v + (v\u003e\u003e7))\u003e\u003e8 ?",
+      "range": {
+        "startLine": 73,
+        "startChar": 27,
+        "endLine": 73,
+        "endChar": 41
+      },
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20e7b9ba_694650b0",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T17:04:46Z",
+      "side": 1,
+      "message": "If you\u0027re going to do overlay, you might as well also do hardlight?",
+      "range": {
+        "startLine": 452,
+        "startChar": 6,
+        "endLine": 452,
+        "endChar": 13
+      },
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ece14920_df10f128",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-14T17:04:46Z",
+      "side": 1,
+      "message": "Doesn\u0027t alpha need to be normal srcover?\n\n(My reference for these is SkXfermode_opts.h)",
+      "revId": "f69ed524ff431707aac970ca85e27eb379a574d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
