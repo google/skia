@@ -37,8 +37,13 @@ public:
         // A factor used to simulate division using multiplication and shift.
         uint64_t scaledWeight() const;
 
+        // Returned when sigma < 2.
+        bool isSmall() const;
+
     private:
+        const bool     fIsSmall;
         const uint32_t fFilterWindow;
+        const uint64_t fWeight;
         const uint64_t fScaledWeight;
     };
 
@@ -58,6 +63,14 @@ private:
     void blurOneScan(FilterInfo gen,
                      const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
                            uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
+
+    void blurOneScanBox(FilterInfo gen,
+                        const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                              uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
+
+    void blurOneScanGauss(FilterInfo gen,
+                          const uint8_t* src, size_t srcStride, const uint8_t* srcEnd,
+                                uint8_t* dst, size_t dstStride,       uint8_t* dstEnd) const;
 
 
     const FilterInfo            fInfoW,
