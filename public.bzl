@@ -668,7 +668,7 @@ DEFINES_ALL = [
     # Should remove after we update golden images
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Experiment to diagnose image diffs in Google3
-    "SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES",
+    "SK_JUMPER_DISABLE_8BIT",
 ]
 
 ################################################################################

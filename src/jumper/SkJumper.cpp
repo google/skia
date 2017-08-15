@@ -30,7 +30,7 @@ static K kConstants = {
 static const int kNumStages = SK_RASTER_PIPELINE_STAGES(M);
 #undef M
 
-#ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
+#ifndef SK_JUMPER_DISABLE_8BIT
     #if 0 && !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
         #include <atomic>
 
@@ -334,7 +334,7 @@ static SkJumper_Engine choose_engine() {
     return kPortable;
 }
 
-#ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
+#ifndef SK_JUMPER_DISABLE_8BIT
     static const SkJumper_Engine kNone = {
     #define M(stage) nullptr,
         { SK_RASTER_PIPELINE_STAGES(M) },
@@ -380,7 +380,7 @@ static SkJumper_Engine choose_engine() {
 #endif
 
 const SkJumper_Engine& SkRasterPipeline::build_pipeline(void** ip) const {
-#ifndef SK_DISABLE_SSSE3_RUNTIME_CHECK_FOR_LOWP_STAGES
+#ifndef SK_JUMPER_DISABLE_8BIT
     gChooseLowpOnce([]{ gLowp = choose_lowp(); });
 
     // First try to build a lowp pipeline.  If that fails, fall back to normal float gEngine.
