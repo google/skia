@@ -9310,7 +9310,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-21.21.13.7619",
+        "gpu:10de:104a-22.21.13.8205",
         "os:Windows-10-10586",
         "pool:Skia"
       ],
@@ -16672,7 +16672,7 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
-        "gpu:10de:104a-21.21.13.7619",
+        "gpu:10de:104a-22.21.13.8205",
         "os:Windows-10-10586",
         "pool:Skia"
       ],

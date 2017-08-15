@@ -257,7 +257,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
 					"AMDHD7770":     "1002:683d-22.19.165.512",
-					"GT610":         "10de:104a-21.21.13.7619",
+					"GT610":         "10de:104a-22.21.13.8205",
 					"GTX1070":       "10de:1ba1-22.21.13.8205",
 					"GTX660":        "10de:11c0-22.21.13.8205",
 					"GTX960":        "10de:1401-22.21.13.8205",
