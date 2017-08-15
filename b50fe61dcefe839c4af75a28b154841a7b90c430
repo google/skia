@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8baf8a97_f576f585",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-15T16:37:10Z",
+      "side": 1,
+      "message": "You will want to put this in our BUILD file, not here.\n\nYou can change BUILD and the affected images atomically, but cannot change this file and the affected images atomically.",
+      "revId": "b50fe61dcefe839c4af75a28b154841a7b90c430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
