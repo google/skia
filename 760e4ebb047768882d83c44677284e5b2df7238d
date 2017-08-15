@@ -22,6 +22,30 @@
       "revId": "760e4ebb047768882d83c44677284e5b2df7238d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c09f48f_f9a32af2",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-15T19:07:11Z",
+      "side": 1,
+      "message": "Apparently not important, or compensated for at some level (kinda puzzled myself).\n\nSeems in line with previous trivialMatrix logic (https://skia-review.googlesource.com/c/24122/3/src/core/SkBitmapProcState.cpp#b125).",
+      "parentUuid": "708802eb_ef56a9d4",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "760e4ebb047768882d83c44677284e5b2df7238d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
