@@ -17,7 +17,7 @@ namespace SkSL {
 class FileOutputStream : public OutputStream {
 public:
     FileOutputStream(const char* name) {
-        fFile = fopen(name, "w");
+        fFile = fopen(name, "wb");
     }
 
     ~FileOutputStream() override {
