@@ -155,13 +155,13 @@ private:
     void ensureSpace(uint32_t size, uint32_t alignment);
 
     char* allocObject(uint32_t size, uint32_t alignment) {
-        uintptr_t mask = alignment - 1;
-        char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
-        if ((ptrdiff_t)size > fEnd - objStart) {
+        size_t mask = alignment - 1;
+        auto alignedOffset = (~reinterpret_cast<size_t>(fCursor) + 1) & mask;
+        if (size + alignedOffset > static_cast<size_t>(fEnd - fCursor)) {
             this->ensureSpace(size, alignment);
-            objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+            alignedOffset = (~reinterpret_cast<size_t>(fCursor) + 1) & mask;
         }
-        return objStart;
+        return fCursor + alignedOffset;
     }
 
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
