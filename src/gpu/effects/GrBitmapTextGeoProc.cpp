@@ -49,7 +49,7 @@ public:
         }
 
         // Setup position
-        this->setupPosition(vertBuilder, gpArgs, cte.inPosition()->fName);
+        this->writeOutputPosition(vertBuilder, gpArgs, cte.inPosition()->fName);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
