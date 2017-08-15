@@ -100,38 +100,48 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     SkASSERT(fFilterQuality <= kLow_SkFilterQuality);
     SkASSERT(fPixmap.addr());
 
-    // Most of the scanline procs deal with "unit" texture coordinates, as this
-    // makes it easy to perform tiling modes (repeat = (x & 0xFFFF)). To generate
-    // those, we divide the matrix by its dimensions here.
-    //
-    // We don't do this if we're either trivial (can ignore the matrix) or clamping
-    // in both X and Y since clamping to width,height is just as easy as to 0xFFFF.
+#ifdef SK_SUPPORT_LEGACY_BILERP2
+    bool integral_translate_only = false;
+#else
+    bool integral_translate_only = just_trans_integral(fInvMatrix);
+#endif
+    if (!integral_translate_only) {
+        // Most of the scanline procs deal with "unit" texture coordinates, as this
+        // makes it easy to perform tiling modes (repeat = (x & 0xFFFF)). To generate
+        // those, we divide the matrix by its dimensions here.
+        //
+        // We don't do this if we're either trivial (can ignore the matrix) or clamping
+        // in both X and Y since clamping to width,height is just as easy as to 0xFFFF.
 
-    if (fTileModeX != SkShader::kClamp_TileMode ||
-        fTileModeY != SkShader::kClamp_TileMode) {
-        fInvMatrix.postIDiv(fPixmap.width(), fPixmap.height());
-    }
-
-    // Now that all possible changes to the matrix have taken place, check
-    // to see if we're really close to a no-scale matrix.  If so, explicitly
-    // set it to be so.  Subsequent code may inspect this matrix to choose
-    // a faster path in this case.
-
-    // This code will only execute if the matrix has some scale component;
-    // if it's already pure translate then we won't do this inversion.
-
-    if (matrix_only_scale_translate(fInvMatrix)) {
-        SkMatrix forward;
-        if (fInvMatrix.invert(&forward) && just_trans_general(forward)) {
-            fInvMatrix.setTranslate(-forward.getTranslateX(), -forward.getTranslateY());
+        if (fTileModeX != SkShader::kClamp_TileMode ||
+            fTileModeY != SkShader::kClamp_TileMode) {
+            fInvMatrix.postIDiv(fPixmap.width(), fPixmap.height());
         }
+
+        // Now that all possible changes to the matrix have taken place, check
+        // to see if we're really close to a no-scale matrix.  If so, explicitly
+        // set it to be so.  Subsequent code may inspect this matrix to choose
+        // a faster path in this case.
+
+        // This code will only execute if the matrix has some scale component;
+        // if it's already pure translate then we won't do this inversion.
+
+        if (matrix_only_scale_translate(fInvMatrix)) {
+            SkMatrix forward;
+            if (fInvMatrix.invert(&forward) && just_trans_general(forward)) {
+                fInvMatrix.setTranslate(-forward.getTranslateX(), -forward.getTranslateY());
+            }
+        }
+
+        // Recompute the flag after matrix adjustments.
+        integral_translate_only = just_trans_integral(fInvMatrix);
     }
 
     fInvType = fInvMatrix.getType();
 
     if (kLow_SkFilterQuality == fFilterQuality &&
         (!valid_for_filtering(fPixmap.width() | fPixmap.height()) ||
-         just_trans_integral(fInvMatrix))) {
+         integral_translate_only)) {
         fFilterQuality = kNone_SkFilterQuality;
     }
 
