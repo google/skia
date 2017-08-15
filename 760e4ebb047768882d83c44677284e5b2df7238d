@@ -46,6 +46,30 @@
       "revId": "760e4ebb047768882d83c44677284e5b2df7238d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "485ab2a8_9833f0b7",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-15T19:29:27Z",
+      "side": 1,
+      "message": "Ah, looks like trivial \u003d\u003d translate-only, so if we\u0027re integer-translate-only, we\u0027re definitely trivial.",
+      "parentUuid": "2c09f48f_f9a32af2",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "760e4ebb047768882d83c44677284e5b2df7238d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
