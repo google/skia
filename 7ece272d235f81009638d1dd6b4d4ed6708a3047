@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e70656b4_19f602df",
+        "filename": "src/sksl/SkSLFileOutputStream.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-15T18:46:54Z",
+      "side": 1,
+      "message": "We stumble over this so much we wrote sk_fopen().",
+      "revId": "7ece272d235f81009638d1dd6b4d4ed6708a3047",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
