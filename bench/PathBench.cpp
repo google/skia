@@ -173,6 +173,41 @@ private:
     typedef PathBench INHERITED;
 };
 
+// This test simulates the strike-through clip-path in Android notification icon.
+class TwoRotatedRRectBench: public PathBench {
+public:
+    TwoRotatedRRectBench(): INHERITED(FLAGS00) {}
+
+    void appendName(SkString* name) override {
+        name->append("two_rotated_rrects");
+    }
+    void makePath(SkPath* path) override {
+        path->setFillType(SkPath::kWinding_FillType);
+        path->moveTo(145.967f, 150.231f);
+        path->lineTo(16.4741f, 20.7385f);
+        path->conicTo(11.9241f, 16.1885f, 16.4741f, 11.6385f, 0.707107f);
+        path->lineTo(16.4741f, 11.6385f);
+        path->conicTo(21.0242f, 7.08846f, 25.5742f, 11.6385f, 0.707107f);
+        path->lineTo(155.067f, 141.131f);
+        path->conicTo(159.617f, 145.681f, 155.067f, 150.231f, 0.707107f);
+        path->lineTo(155.067f, 150.231f);
+        path->conicTo(150.517f, 154.781f, 145.967f, 150.231f, 0.707107f);
+        path->close();
+        path->moveTo(136.867f, 159.331f);
+        path->lineTo(7.37414f, 29.8385f);
+        path->conicTo(2.82414f, 25.2885f, 7.37415f, 20.7385f, 0.707107f);
+        path->lineTo(7.37415f, 20.7385f);
+        path->conicTo(11.9241f, 16.1885f, 16.4741f, 20.7385f, 0.707107f);
+        path->lineTo(145.967f, 150.231f);
+        path->conicTo(150.517f, 154.781f, 145.967f, 159.331f, 0.707107f);
+        path->lineTo(145.967f, 159.331f);
+        path->conicTo(141.417f, 163.881f, 136.867f, 159.331f, 0.707107f);
+        path->close();
+    }
+private:
+    typedef PathBench INHERITED;
+};
+
 class NonAACirclePathBench: public CirclePathBench {
 public:
     NonAACirclePathBench(Flags flags) : INHERITED(flags) {}
@@ -1180,6 +1215,8 @@ DEF_BENCH( return new ArbRoundRectBench(true); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
+
+DEF_BENCH( return new TwoRotatedRRectBench(); )
 
 #include "SkPathOps.h"
 #include "SkPathPriv.h"
