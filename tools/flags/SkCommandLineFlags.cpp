@@ -11,12 +11,7 @@
 
 #include <stdlib.h>
 
-#if defined(GOOGLE3) && defined(SK_BUILD_FOR_IOS)
-    // This is defined by //base only for iOS (I don't know why).
-    DECLARE_bool(undefok)
-#else
-    DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
-#endif
+DEFINE_bool(undefok, false, "Silently ignore unknown flags instead of crashing.");
 
 template <typename T> static void ignore_result(const T&) {}
 
