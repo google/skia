@@ -46,6 +46,30 @@
       "revId": "642c4f4c60070969dcde30dc4e34b1c22317f482",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9695e6b7_743ff479",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-08-15T21:11:02Z",
+      "side": 1,
+      "message": "Decreased the key size for Android (instead of adding 0) and added comment",
+      "parentUuid": "4535393f_3bf9dfa4",
+      "range": {
+        "startLine": 197,
+        "startChar": 56,
+        "endLine": 197,
+        "endChar": 57
+      },
+      "revId": "642c4f4c60070969dcde30dc4e34b1c22317f482",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
