@@ -46,6 +46,30 @@
       "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea9bd9a_47f4acce",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 6765
+      },
+      "writtenOn": "2017-08-15T20:35:44Z",
+      "side": 1,
+      "message": "I researched this a bit more and have a more accurate answer. The same end result continues to apply.\n\nThe C++11 standard [1] specifies in §12.8/7\n\"If the class definition does not explicitly declare a copy constructor, one is declared implicitly. If the class definition declares a move constructor or move assignment operator, the implicitly declared copy constructor is defined as deleted; ...\"\n\nSo simply by specifying the defaulted move ctor/assignment, we effectively delete the copy ctor. I assume this is also true of the copy assignment, but I didn\u0027t actually find mention of that.\n\nHowever, with that said I still believe explicitly deleting makes the code more readable.\n\n[1] http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3485.pdf",
+      "parentUuid": "18f196cb_a54a18ff",
+      "range": {
+        "startLine": 156,
+        "startChar": 4,
+        "endLine": 157,
+        "endChar": 71
+      },
+      "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
