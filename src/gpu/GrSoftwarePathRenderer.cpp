@@ -186,18 +186,24 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         SkScalar sy = args.fViewMatrix->get(SkMatrix::kMScaleY);
         SkScalar kx = args.fViewMatrix->get(SkMatrix::kMSkewX);
         SkScalar ky = args.fViewMatrix->get(SkMatrix::kMSkewY);
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
         SkScalar tx = args.fViewMatrix->get(SkMatrix::kMTransX);
         SkScalar ty = args.fViewMatrix->get(SkMatrix::kMTransY);
         // Allow 8 bits each in x and y of subpixel positioning.
         SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
         SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+#endif
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
         GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize());
         builder[0] = SkFloat2Bits(sx);
         builder[1] = SkFloat2Bits(sy);
         builder[2] = SkFloat2Bits(kx);
         builder[3] = SkFloat2Bits(ky);
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        builder[4] = 0;
+#else
         builder[4] = fracX | (fracY >> 8);
+#endif
         args.fShape->writeUnstyledKey(&builder[5]);
         // FIXME: Doesn't the key need to consider whether we're using AA or not? In practice that
         // should always be true, though.
