@@ -529,6 +529,65 @@ static void push_image_gen_src(Path path, ImageGenSrc::Mode mode, SkAlphaType al
     push_src("image", folder, src);
 }
 
+static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode,
+        uint32_t sampleSize) {
+    SkString folder("brd_android_codec");
+    switch (mode) {
+        case BRDSrc::kFullImage_Mode:
+            break;
+        case BRDSrc::kDivisor_Mode:
+            folder.append("_divisor");
+            break;
+        default:
+            SkASSERT(false);
+            return;
+    }
+
+    switch (dstColorType) {
+        case CodecSrc::kGetFromCanvas_DstColorType:
+            break;
+        case CodecSrc::kGrayscale_Always_DstColorType:
+            folder.append("_kGray");
+            break;
+        default:
+            SkASSERT(false);
+            return;
+    }
+
+    if (1 != sampleSize) {
+        folder.appendf("_%.3f", 1.0f / (float) sampleSize);
+    }
+
+    BRDSrc* src = new BRDSrc(path, mode, dstColorType, sampleSize);
+    push_src("image", folder, src);
+}
+
+static void push_brd_srcs(Path path, bool gray) {
+    if (gray) {
+        // Only run grayscale to one sampleSize and Mode. Though interesting
+        // to test grayscale, it should not reveal anything across various
+        // sampleSizes and Modes
+        // Arbitrarily choose Mode and sampleSize.
+        push_brd_src(path, CodecSrc::kGrayscale_Always_DstColorType,
+                     BRDSrc::kFullImage_Mode, 2);
+    }
+
+    // Test on a variety of sampleSizes, making sure to include:
+    // - 2, 4, and 8, which are natively supported by jpeg
+    // - multiples of 2 which are not divisible by 4 (analogous for 4)
+    // - larger powers of two, since BRD clients generally use powers of 2
+    // We will only produce output for the larger sizes on large images.
+    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
+
+    const BRDSrc::Mode modes[] = { BRDSrc::kFullImage_Mode, BRDSrc::kDivisor_Mode, };
+
+    for (uint32_t sampleSize : sampleSizes) {
+        for (BRDSrc::Mode mode : modes) {
+            push_brd_src(path, CodecSrc::kGetFromCanvas_DstColorType, mode, sampleSize);
+        }
+    }
+}
+
 static void push_codec_srcs(Path path) {
     sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
     if (!encoded) {
@@ -641,16 +700,31 @@ static void push_codec_srcs(Path path) {
         }
     }
 
-    static const char* const rawExts[] = {
-        "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
-        "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
-    };
+    const char* ext = strrchr(path.c_str(), '.');
+    if (ext) {
+        ext++;
 
-    // There is not currently a reason to test RAW images on image generator.
-    // If we want to enable these tests, we will need to fix skbug.com/5079.
-    for (const char* ext : rawExts) {
-        if (path.endsWith(ext)) {
-            return;
+        static const char* const rawExts[] = {
+            "arw", "cr2", "dng", "nef", "nrw", "orf", "raf", "rw2", "pef", "srw",
+            "ARW", "CR2", "DNG", "NEF", "NRW", "ORF", "RAF", "RW2", "PEF", "SRW",
+        };
+        for (const char* rawExt : rawExts) {
+            if (0 == strcmp(rawExt, ext)) {
+                // RAW is not supported by image generator (skbug.com/5079) or BRD.
+                return;
+            }
+        }
+
+        static const char* const brdExts[] = {
+            "jpg", "jpeg", "png", "webp",
+            "JPG", "JPEG", "PNG", "WEBP",
+        };
+        for (const char* brdExt : brdExts) {
+            if (0 == strcmp(brdExt, ext)) {
+                bool gray = codec->getEncodedInfo().color() == SkEncodedInfo::kGray_Color;
+                push_brd_srcs(path, gray);
+                break;
+            }
         }
     }
 
@@ -676,80 +750,6 @@ static void push_codec_srcs(Path path) {
         }
 #endif
     }
-}
-
-static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc::Mode mode,
-        uint32_t sampleSize) {
-    SkString folder("brd_android_codec");
-    switch (mode) {
-        case BRDSrc::kFullImage_Mode:
-            break;
-        case BRDSrc::kDivisor_Mode:
-            folder.append("_divisor");
-            break;
-        default:
-            SkASSERT(false);
-            return;
-    }
-
-    switch (dstColorType) {
-        case CodecSrc::kGetFromCanvas_DstColorType:
-            break;
-        case CodecSrc::kGrayscale_Always_DstColorType:
-            folder.append("_kGray");
-            break;
-        default:
-            SkASSERT(false);
-            return;
-    }
-
-    if (1 != sampleSize) {
-        folder.appendf("_%.3f", 1.0f / (float) sampleSize);
-    }
-
-    BRDSrc* src = new BRDSrc(path, mode, dstColorType, sampleSize);
-    push_src("image", folder, src);
-}
-
-static void push_brd_srcs(Path path) {
-    // Only run grayscale to one sampleSize and Mode. Though interesting
-    // to test grayscale, it should not reveal anything across various
-    // sampleSizes and Modes
-    // Arbitrarily choose Mode and sampleSize.
-    push_brd_src(path, CodecSrc::kGrayscale_Always_DstColorType, BRDSrc::kFullImage_Mode, 2);
-
-
-    // Test on a variety of sampleSizes, making sure to include:
-    // - 2, 4, and 8, which are natively supported by jpeg
-    // - multiples of 2 which are not divisible by 4 (analogous for 4)
-    // - larger powers of two, since BRD clients generally use powers of 2
-    // We will only produce output for the larger sizes on large images.
-    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
-
-    const BRDSrc::Mode modes[] = {
-            BRDSrc::kFullImage_Mode,
-            BRDSrc::kDivisor_Mode,
-    };
-
-    for (uint32_t sampleSize : sampleSizes) {
-        for (BRDSrc::Mode mode : modes) {
-            push_brd_src(path, CodecSrc::kGetFromCanvas_DstColorType, mode, sampleSize);
-        }
-    }
-}
-
-static bool brd_supported(const char* ext) {
-    static const char* const exts[] = {
-        "jpg", "jpeg", "png", "webp",
-        "JPG", "JPEG", "PNG", "WEBP",
-    };
-
-    for (uint32_t i = 0; i < SK_ARRAY_COUNT(exts); i++) {
-        if (0 == strcmp(exts[i], ext)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 template <typename T>
@@ -785,14 +785,6 @@ static bool gather_srcs() {
 
     for (auto image : images) {
         push_codec_srcs(image);
-        if (FLAGS_simpleCodec) {
-            continue;
-        }
-
-        const char* ext = strrchr(image.c_str(), '.');
-        if (ext && brd_supported(ext+1)) {
-            push_brd_srcs(image);
-        }
     }
 
     SkTArray<SkString> colorImages;

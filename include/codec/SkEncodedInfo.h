@@ -156,6 +156,8 @@ public:
 
     Color color() const { return fColor; }
     Alpha alpha() const { return fAlpha; }
+    bool opaque() const { return fAlpha == kOpaque_Alpha; }
+
     uint8_t bitsPerComponent() const { return fBitsPerComponent; }
 
     uint8_t bitsPerPixel() const {

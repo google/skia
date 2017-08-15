@@ -846,6 +846,13 @@ private:
     bool                               fStartedIncrementalDecode;
 
     /**
+     *  Return whether {srcColor, srcIsOpaque, srcCS} can convert to dst.
+     *
+     *  Will be called for the appropriate frame, prior to initializing the colorXform.
+     */
+    virtual bool conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
+                                     bool srcIsOpaque, const SkColorSpace* srcCS) const;
+    /**
      *  Return whether these dimensions are supported as a scale.
      *
      *  The codec may choose to cache the information about scale and subset.

@@ -63,11 +63,6 @@ public:
                               const SkIRect& desiredSubset, int sampleSize,
                               SkColorType colorType, bool requireUnpremul,
                               sk_sp<SkColorSpace> prefColorSpace = nullptr) = 0;
-    /*
-     * @param  Requested destination color type
-     * @return true if we support the requested color type and false otherwise
-     */
-    virtual bool conversionSupported(SkColorType colorType) = 0;
 
     virtual SkEncodedImageFormat getEncodedFormat() = 0;
 

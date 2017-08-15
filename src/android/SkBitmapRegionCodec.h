@@ -28,8 +28,6 @@ public:
                       SkColorType colorType, bool requireUnpremul,
                       sk_sp<SkColorSpace> prefColorSpace) override;
 
-    bool conversionSupported(SkColorType colorType) override;
-
     SkEncodedImageFormat getEncodedFormat() override { return fCodec->getEncodedFormat(); }
 
     SkColorType computeOutputColorType(SkColorType requestedColorType) override {

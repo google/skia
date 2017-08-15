@@ -1138,14 +1138,16 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
     if (supportsScanlineDecoder) {
         REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
     } else {
-        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result);
+        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result
+                        || SkCodec::kInvalidConversion == result);
     }
 
     result = codec->startIncrementalDecode(infoF16, bm.getPixels(), bm.rowBytes());
     if (supportsIncrementalDecoder) {
         REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
     } else {
-        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result);
+        REPORTER_ASSERT(r, SkCodec::kUnimplemented == result
+                        || SkCodec::kInvalidConversion == result);
     }
 
     SkASSERT(SkColorSpace_Base::Type::kXYZ == as_CSB(infoF16.colorSpace())->type());

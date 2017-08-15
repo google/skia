@@ -228,9 +228,7 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, const Op
 
     const auto at = frame->hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
     const auto srcInfo = this->getInfo().makeAlphaType(at);
-    if (!conversion_possible(dstInfo, srcInfo) ||
-        !this->initializeColorXform(dstInfo, opts.fPremulBehavior))
-    {
+    if (!this->initializeColorXform(dstInfo, opts.fPremulBehavior)) {
         return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
     }
 

@@ -155,6 +155,29 @@ SkCodec::SkCodec(const SkEncodedInfo& info, const SkImageInfo& imageInfo,
 
 SkCodec::~SkCodec() {}
 
+bool SkCodec::conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
+                                  bool srcIsOpaque, const SkColorSpace* srcCS) const {
+    if (!valid_alpha(dst.alphaType(), srcIsOpaque)) {
+        return false;
+    }
+
+    switch (dst.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            return true;
+        case kRGBA_F16_SkColorType:
+            return dst.colorSpace() && dst.colorSpace()->gammaIsLinear();
+        case kRGB_565_SkColorType:
+            return srcIsOpaque;
+        case kGray_8_SkColorType:
+            return SkEncodedInfo::kGray_Color == srcColor && srcIsOpaque &&
+                   !needs_color_xform(dst, srcCS, false);
+        default:
+            return false;
+    }
+
+}
+
 bool SkCodec::rewindIfNeeded() {
     // Store the value of fNeedsRewind so we can update it. Next read will
     // require a rewind.
@@ -194,6 +217,10 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
                                           const Options& options) {
     const int index = options.fFrameIndex;
     if (0 == index) {
+        if (!this->conversionSupported(info, fEncodedInfo.color(), fEncodedInfo.opaque(),
+                                      fSrcInfo.colorSpace())) {
+            return kInvalidConversion;
+        }
         return kSuccess;
     }
 
@@ -212,6 +239,11 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
 
     const auto* frame = frameHolder->getFrame(index);
     SkASSERT(frame);
+
+    if (!this->conversionSupported(info, fEncodedInfo.color(), !frame->hasAlpha(),
+                                   fSrcInfo.colorSpace())) {
+        return kInvalidConversion;
+    }
 
     const int requiredFrame = frame->getRequiredFrame();
     if (requiredFrame == kNone) {
@@ -278,10 +310,6 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
     if (nullptr == options) {
         options = &optsStorage;
     } else {
-        const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes, *options);
-        if (frameIndexResult != kSuccess) {
-            return frameIndexResult;
-        }
         if (options->fSubset) {
             SkIRect subset(*options->fSubset);
             if (!this->onGetValidSubset(&subset) || subset != *options->fSubset) {
@@ -290,6 +318,12 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
                 return kUnimplemented;
             }
         }
+    }
+
+    const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes,
+                                                           *options);
+    if (frameIndexResult != kSuccess) {
+        return frameIndexResult;
     }
 
     // FIXME: Support subsets somehow? Note that this works for SkWebpCodec
@@ -350,10 +384,6 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
     if (nullptr == options) {
         options = &optsStorage;
     } else {
-        const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes, *options);
-        if (frameIndexResult != kSuccess) {
-            return frameIndexResult;
-        }
         if (options->fSubset) {
             SkIRect size = SkIRect::MakeSize(info.dimensions());
             if (!size.contains(*options->fSubset)) {
@@ -366,6 +396,12 @@ SkCodec::Result SkCodec::startIncrementalDecode(const SkImageInfo& info, void* p
                 return kInvalidParameters;
             }
         }
+    }
+
+    const Result frameIndexResult = this->handleFrameIndex(info, pixels, rowBytes,
+                                                           *options);
+    if (frameIndexResult != kSuccess) {
+        return frameIndexResult;
     }
 
     if (!this->dimensionsSupported(info.dimensions())) {
@@ -416,6 +452,18 @@ SkCodec::Result SkCodec::startScanlineDecode(const SkImageInfo& info,
         if (options->fSubset->top() != 0 || options->fSubset->height() != info.height()) {
             return kInvalidInput;
         }
+    }
+
+    // Scanline decoding only supports decoding the first frame.
+    if (options->fFrameIndex != 0) {
+        return kUnimplemented;
+    }
+
+    // The void* dst and rowbytes in handleFrameIndex or only used for decoding prior
+    // frames, which is not supported here anyway, so it is safe to pass nullptr/0.
+    const Result frameIndexResult = this->handleFrameIndex(info, nullptr, 0, *options);
+    if (frameIndexResult != kSuccess) {
+        return frameIndexResult;
     }
 
     // FIXME: Support subsets somehow?
@@ -567,7 +615,7 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo,
     fXformOnDecode = false;
     bool needsColorCorrectPremul = needs_premul(dstInfo, fEncodedInfo) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
-    if (needs_color_xform(dstInfo, fSrcInfo, needsColorCorrectPremul)) {
+    if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {
         fColorXform = SkColorSpaceXform_Base::New(fSrcInfo.colorSpace(), dstInfo.colorSpace(),
                                                   premulBehavior);
         if (!fColorXform) {

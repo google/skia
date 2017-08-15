@@ -1086,10 +1086,6 @@ bool SkPngCodec::onRewind() {
 SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t rowBytes, const Options& options,
                                         int* rowsDecoded) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-
     Result result = this->initializeXforms(dstInfo, options);
     if (kSuccess != result) {
         return result;
@@ -1106,10 +1102,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 
 SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
         void* dst, size_t rowBytes, const SkCodec::Options& options) {
-    if (!conversion_possible(dstInfo, this->getInfo())) {
-        return kInvalidConversion;
-    }
-
     Result result = this->initializeXforms(dstInfo, options);
     if (kSuccess != result) {
         return result;

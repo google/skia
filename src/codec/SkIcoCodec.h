@@ -48,6 +48,12 @@ protected:
 
     SkScanlineOrder onGetScanlineOrder() const override;
 
+    bool conversionSupported(const SkImageInfo&, SkEncodedInfo::Color, bool,
+                             const SkColorSpace*) const override {
+        // This will be checked by the embedded codec.
+        return true;
+    }
+
 private:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo,

@@ -66,6 +66,12 @@ SkAndroidCodec::SkAndroidCodec(SkCodec* codec)
     , fCodec(codec)
 {}
 
+SkAndroidCodec::~SkAndroidCodec() {}
+
+const SkEncodedInfo& SkAndroidCodec::getEncodedInfo() const {
+    return fCodec->getEncodedInfo();
+}
+
 std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromStream(std::unique_ptr<SkStream> stream, SkPngChunkReader* chunkReader) {
     auto codec = SkCodec::MakeFromStream(std::move(stream), nullptr, chunkReader);
     if (nullptr == codec) {
