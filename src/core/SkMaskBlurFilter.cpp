@@ -10,6 +10,7 @@
 #include <cmath>
 
 #include "SkMakeUnique.h"
+#include "SkSafeMath.h"
 
 static const double kPi = 3.14159265358979323846264338327950288;
 
@@ -109,8 +110,12 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
     size_t srcW = src.fBounds.width();
     size_t srcH = src.fBounds.height();
 
-    size_t dstW = srcW + 2 * borderW;
-    size_t dstH = srcH + 2 * borderH;
+    SkSafeMath safe;
+
+    // size_t dstW = srcW + 2 * borderW;
+    size_t dstW = safe.add(srcW, safe.add(borderW, borderW));
+    //size_t dstH = srcH + 2 * borderH;
+    size_t dstH = safe.add(srcH, safe.add(borderH, borderH));
 
     dst->fBounds.set(0, 0, dstW, dstH);
     dst->fBounds.offset(src.fBounds.x(), src.fBounds.y());
@@ -124,7 +129,13 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
         return {SkTo<int32_t>(borderW), SkTo<int32_t>(borderH)};
     }
 
-    dst->fImage = SkMask::AllocImage(dstW * dstH);
+    size_t toAlloc = safe.mul(dstW, dstH);
+    if (!safe) {
+        // There is no border offset because we are not drawing.
+        return {0, 0};
+    }
+    dst->fImage = SkMask::AllocImage(toAlloc);
+
 
     if (weightW > 1 && weightH > 1) {
         // Blur both directions.
