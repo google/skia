@@ -66,6 +66,10 @@ static_assert(YY_FLEX_MAJOR_VERSION * 10000 + YY_FLEX_MINOR_VERSION * 100 +
 #include "ir/SkSLModifiers.h"
 #include "ir/SkSLType.h"
 
+
+uint32_t gNextRawTokens = 0;
+uint32_t gNextRawPushbacks = 0;
+
 namespace SkSL {
 
 #define MAX_PARSE_DEPTH 50
@@ -149,10 +153,12 @@ std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
 }
 
 Token Parser::nextRawToken(bool needText) {
+//    ++gNextRawTokens;
     if (fPushback.fKind != Token::INVALID_TOKEN) {
-        Token result = fPushback;
+//        ++gNextRawPushbacks;
+        Token result(std::move(fPushback));
         fPushback.fKind = Token::INVALID_TOKEN;
-        fPushback.fText = "";
+        fPushback.fText.clear();
         return result;
     }
     Token::Kind kind = (Token::Kind) sksllex(fScanner);
@@ -187,11 +193,16 @@ void Parser::pushback(Token t) {
 }
 
 Token Parser::peek() {
-    fPushback = this->nextToken();
+    if (fPushback.fKind == Token::INVALID_TOKEN) {
+        fPushback = this->nextToken();
+    }
     return fPushback;
 }
 
 bool Parser::checkNext(Token::Kind kind, Token* result) {
+    if (fPushback.fKind != Token::INVALID_TOKEN && fPushback.fKind != kind) {
+        return false;
+    }
     Token next = this->nextToken();
     if (next.fKind == kind) {
         if (result) {
@@ -204,20 +215,16 @@ bool Parser::checkNext(Token::Kind kind, Token* result) {
 }
 
 bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
-    return this->expect(kind, String(expected), result);
-}
-
-bool Parser::expect(Token::Kind kind, String expected, Token* result) {
     Token next = this->nextToken();
     if (next.fKind == kind) {
         if (result) {
-            *result = next;
+            *result = std::move(next);
         }
         return true;
     } else {
         if (next.fText.size()) {
-            this->error(next.fPosition, "expected " + expected + ", but found '" + next.fText +
-                                        "'");
+            this->error(next.fPosition, "expected " + String(expected) + ", but found '" +
+                                        next.fText + "'");
         } else {
             this->error(next.fPosition, "parse error, recompile in debug mode for details");
         }
@@ -233,7 +240,7 @@ void Parser::error(Position p, String msg) {
     fErrors.error(p, msg);
 }
 
-bool Parser::isType(String name) {
+bool Parser::isType(const String& name) {
     return nullptr != fTypes[name];
 }
 
@@ -409,7 +416,7 @@ std::unique_ptr<ASTDeclaration> Parser::declaration() {
                                                                std::move(parameters),
                                                                std::move(body)));
     } else {
-        return this->varDeclarationEnd(modifiers, std::move(type), name.fText);
+        return this->varDeclarationEnd(modifiers, std::move(type), std::move(name.fText));
     }
 }
 
@@ -994,7 +1001,8 @@ std::unique_ptr<ASTDeclaration> Parser::interfaceBlock(Modifiers mods) {
     }
     this->expect(Token::SEMICOLON, "';'");
     return std::unique_ptr<ASTDeclaration>(new ASTInterfaceBlock(name.fPosition, mods,
-                                                                 name.fText, std::move(decls),
+                                                                 std::move(name.fText),
+                                                                 std::move(decls),
                                                                  std::move(instanceName.fText),
                                                                  std::move(sizes)));
 }
@@ -1361,7 +1369,7 @@ std::unique_ptr<ASTExpression> Parser::commaExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1397,7 +1405,7 @@ std::unique_ptr<ASTExpression> Parser::assignmentExpression() {
                     return nullptr;
                 }
                 result = std::unique_ptr<ASTExpression>(new ASTBinaryExpression(std::move(result),
-                                                                                t,
+                                                                                std::move(t),
                                                                                 std::move(right)));
             }
             default:
@@ -1440,7 +1448,7 @@ std::unique_ptr<ASTExpression> Parser::logicalOrExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1457,7 +1465,7 @@ std::unique_ptr<ASTExpression> Parser::logicalXorExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1474,7 +1482,7 @@ std::unique_ptr<ASTExpression> Parser::logicalAndExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1491,7 +1499,7 @@ std::unique_ptr<ASTExpression> Parser::bitwiseOrExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1508,7 +1516,7 @@ std::unique_ptr<ASTExpression> Parser::bitwiseXorExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1525,7 +1533,7 @@ std::unique_ptr<ASTExpression> Parser::bitwiseAndExpression() {
         if (!right) {
             return nullptr;
         }
-        result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+        result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
     }
     return result;
 }
@@ -1545,7 +1553,7 @@ std::unique_ptr<ASTExpression> Parser::equalityExpression() {
                 if (!right) {
                     return nullptr;
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+                result.reset(new ASTBinaryExpression(std::move(result), std::move(t), std::move(right)));
                 break;
             }
             default:
@@ -1571,7 +1579,8 @@ std::unique_ptr<ASTExpression> Parser::relationalExpression() {
                 if (!right) {
                     return nullptr;
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
+                                                     std::move(right)));
                 break;
             }
             default:
@@ -1595,7 +1604,8 @@ std::unique_ptr<ASTExpression> Parser::shiftExpression() {
                 if (!right) {
                     return nullptr;
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
+                                                     std::move(right)));
                 break;
             }
             default:
@@ -1619,7 +1629,8 @@ std::unique_ptr<ASTExpression> Parser::additiveExpression() {
                 if (!right) {
                     return nullptr;
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
+                                                     std::move(right)));
                 break;
             }
             default:
@@ -1644,7 +1655,8 @@ std::unique_ptr<ASTExpression> Parser::multiplicativeExpression() {
                 if (!right) {
                     return nullptr;
                 }
-                result.reset(new ASTBinaryExpression(std::move(result), t, std::move(right)));
+                result.reset(new ASTBinaryExpression(std::move(result), std::move(t),
+                                                     std::move(right)));
                 break;
             }
             default:
@@ -1667,7 +1679,8 @@ std::unique_ptr<ASTExpression> Parser::unaryExpression() {
             if (!expr) {
                 return nullptr;
             }
-            return std::unique_ptr<ASTExpression>(new ASTPrefixExpression(t, std::move(expr)));
+            return std::unique_ptr<ASTExpression>(new ASTPrefixExpression(std::move(t),
+                                                                          std::move(expr)));
         }
         default:
             return this->postfixExpression();
@@ -1846,7 +1859,7 @@ bool Parser::boolLiteral(bool* dest) {
 bool Parser::identifier(String* dest) {
     Token t;
     if (this->expect(Token::IDENTIFIER, "identifier", &t)) {
-        *dest = t.fText;
+        *dest = std::move(t.fText);
         return true;
     }
     return false;

@@ -76,11 +76,11 @@ String to_string(int64_t value);
 
 String to_string(uint64_t value);
 
-int stoi(String s);
+int stoi(const String& s);
 
-double stod(String s);
+double stod(const String& s);
 
-long stol(String s);
+long stol(const String& s);
 
 } // namespace
 
