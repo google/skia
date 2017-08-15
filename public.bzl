@@ -669,6 +669,8 @@ DEFINES_ALL = [
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Experiment to diagnose image diffs in Google3
     "SK_JUMPER_DISABLE_8BIT",
+    # Change from Gaussian small radii to Linear.
+    "SK_LEGACY_USE_GAUSS_FOR_SMALL_RADII"
 ]
 
 ################################################################################
