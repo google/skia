@@ -221,8 +221,16 @@ def dm_flags(api, bot):
   blacklisted = []
   def blacklist(quad):
     config, src, options, name = quad.split(' ') if type(quad) is str else quad
-    if config == '_' or config in configs:
+    if (config == '_' or
+        config in configs or
+        (config[0] == '~' and config[1:] in configs)):
       blacklisted.extend([config, src, options, name])
+
+  # Only run the 'svgparse_*' svgs on 8888.
+  if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
+    blacklist('_ svg _ svgparse_')
+  else:
+    blacklist('~8888 svg _ svgparse_')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')

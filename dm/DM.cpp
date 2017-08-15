@@ -72,9 +72,12 @@ DEFINE_string(matrix, "1 0 0 1",
 DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
 DEFINE_string(blacklist, "",
-        "Space-separated config/src/srcOptions/name quadruples to blacklist.  '_' matches anything.  E.g. \n"
+        "Space-separated config/src/srcOptions/name quadruples to blacklist. "
+        "'_' matches anything. '~' negates the match. E.g. \n"
         "'--blacklist gpu skp _ _' will blacklist all SKPs drawn into the gpu config.\n"
-        "'--blacklist gpu skp _ _ 8888 gm _ aarects' will also blacklist the aarects GM on 8888.");
+        "'--blacklist gpu skp _ _ 8888 gm _ aarects' will also blacklist the aarects GM on 8888.\n"
+        "'--blacklist ~8888 svg _ svgparse_' blocks non-8888 SVGs that contain \"svgparse_\" in "
+                                            "the name.");
 
 DEFINE_string2(readPath, r, "", "If set check for equality with golden results in this directory.");
 
@@ -1030,7 +1033,13 @@ static bool dump_png(SkBitmap bitmap, const char* path, const char* md5) {
 }
 
 static bool match(const char* needle, const char* haystack) {
-    return 0 == strcmp("_", needle) || nullptr != strstr(haystack, needle);
+    if ('~' == needle[0]) {
+        return !match(needle + 1, haystack);
+    }
+    if (0 == strcmp("_", needle)) {
+        return true;
+    }
+    return nullptr != strstr(haystack, needle);
 }
 
 static bool is_blacklisted(const char* sink, const char* src,
