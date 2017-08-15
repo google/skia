@@ -181,3 +181,12 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, created == 1);
     REPORTER_ASSERT(r, destroyed == 1);
 }
+
+// Chromium bug: https://bugs.chromium.org/p/chromium/issues/detail?id=744109
+// Must be compiled with target_cpu = "x86" to fail with segfault.
+DEF_TEST(ArenaAllocReallyBigAlloc, r) {
+    SkSTArenaAlloc<64> arena;
+    using T = struct {int f[1<<28];};
+    auto a = arena.makeArrayDefault<T>(3);
+    a[2].f[(1<<28) - 1] = 0;
+}
