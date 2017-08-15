@@ -22,6 +22,30 @@
       "revId": "15bb26ec70c9df6dbfc259918d9d9b0d8b2fcccc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c8028d0_1f0b9491",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-15T20:02:38Z",
+      "side": 0,
+      "message": "By \"this\" I transitively mean verbs().",
+      "parentUuid": "dab81862_9fb8b9ad",
+      "range": {
+        "startLine": 455,
+        "startChar": 71,
+        "endLine": 455,
+        "endChar": 77
+      },
+      "revId": "15bb26ec70c9df6dbfc259918d9d9b0d8b2fcccc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
