@@ -103,7 +103,6 @@ private:
      * Returns true if the read token was as expected, false otherwise.
      */
     bool expect(Token::Kind kind, const char* expected, Token* result = nullptr);
-    bool expect(Token::Kind kind, String expected, Token* result = nullptr);
 
     void error(Position p, const char* msg);
     void error(Position p, String msg);
@@ -112,7 +111,7 @@ private:
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
      */
-    bool isType(String name);
+    bool isType(const String& name);
 
     // these functions parse individual grammar rules from the current parse position; you probably
     // don't need to call any of these outside of the parser. The function declarations in the .cpp

@@ -146,7 +146,7 @@ String to_string(double value) {
 #undef MAX_DOUBLE_CHARS
 }
 
-int stoi(String s) {
+int stoi(const String& s) {
     char* p;
     SKSL_DEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);
@@ -155,7 +155,7 @@ int stoi(String s) {
     return (int) result;
 }
 
-double stod(String s) {
+double stod(const String& s) {
     double result;
     std::string str(s.c_str(), s.size());
     std::stringstream buffer(str);
@@ -165,7 +165,7 @@ double stod(String s) {
     return result;
 }
 
-long stol(String s) {
+long stol(const String& s) {
     char* p;
     SKSL_DEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);
