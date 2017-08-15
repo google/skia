@@ -1135,7 +1135,7 @@ Name ColorCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const SkRect kSKPViewport = {0,0, 1000,1000};
+static const SkRect kSKPViewport = {0,0, 16000,16000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) {}
 

@@ -75,7 +75,8 @@ declare_args() {
 # Our tools require static linking (they use non-exported symbols).
 skia_enable_tools = skia_enable_tools && !is_component_build
 
-fontmgr_android_enabled = skia_use_expat && skia_use_freetype
+fontmgr_android_enabled = true
+#skia_use_expat && skia_use_freetype
 
 skia_public_includes = [
   "include/android",

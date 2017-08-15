@@ -145,6 +145,12 @@ void GrTextUtils::DrawBmpPosText(GrAtlasTextBlob* blob, int runIndex, GrAtlasGly
 
     SkGlyphCache* cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
 
+    SkPaint::TextEncoding encoding = paint.skPaint().getTextEncoding();
+    SkTypeface* face = paint.skPaint().getTypeface();
+    SkString str;
+    face->getFamilyName(&str);
+    const char* name = str.c_str();
+
     SkFindAndPlaceGlyph::ProcessPosText(
         paint.skPaint().getTextEncoding(), text, byteLength,
         offset, viewMatrix, pos, scalarsPerPosition,
