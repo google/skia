@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "708802eb_ef56a9d4",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-15T18:57:11Z",
+      "side": 1,
+      "message": "Don\u0027t we now not do this if just_trans_integral()?  Isn\u0027t it important?\n\nOr is just_trans_integral() the same as \"trivial (can ignore the matrix)\"?",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "760e4ebb047768882d83c44677284e5b2df7238d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
