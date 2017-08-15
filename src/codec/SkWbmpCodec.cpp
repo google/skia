@@ -108,6 +108,11 @@ SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
     return SkEncodedImageFormat::kWBMP;
 }
 
+bool SkWbmpCodec::conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
+                                      bool srcIsOpaque, const SkColorSpace* srcCS) const {
+    return valid_color_type(dst) && valid_alpha(dst.alphaType(), srcIsOpaque);
+}
+
 SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
                                          void* dst,
                                          size_t rowBytes,
@@ -116,10 +121,6 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
-    }
-
-    if (!valid_color_type(info) || !valid_alpha(info.alphaType(), this->getInfo().alphaType())) {
-        return kInvalidConversion;
     }
 
     // Initialize the swizzler
@@ -184,12 +185,6 @@ SkCodec::Result SkWbmpCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     if (options.fSubset) {
         // Subsets are not supported.
         return kUnimplemented;
-    }
-
-    if (!valid_color_type(dstInfo) ||
-        !valid_alpha(dstInfo.alphaType(), this->getInfo().alphaType()))
-    {
-        return kInvalidConversion;
     }
 
     // Initialize the swizzler
