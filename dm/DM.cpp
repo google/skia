@@ -1291,7 +1291,7 @@ int main(int argc, char** argv) {
 
     initializeEventTracingForTools();
 
-#if defined(SK_BUILD_FOR_IOS)
+#if !defined(GOOGLE3) && defined(SK_BUILD_FOR_IOS)
     cd_Documents();
 #endif
     setbuf(stdout, nullptr);

@@ -249,7 +249,6 @@ BASE_SRCS_IOS = struct(
         "src/opts/*x86*",
         "src/opts/SkBlitMask_opts_arm*.cpp",
         "src/opts/SkBlitRow_opts_arm*.cpp",
-        "src/ports/*CG*",
         "src/ports/*FontConfig*",
         "src/ports/*FreeType*",
         "src/ports/*WIC*",
@@ -437,6 +436,7 @@ INCLUDES = [
     "src/core",
     "src/gpu",
     "src/image",
+    "src/images",
     "src/lazy",
     "src/opts",
     "src/ports",
@@ -681,7 +681,13 @@ LINKOPTS_ANDROID = [
     "-lEGL",
 ]
 
-LINKOPTS_IOS = []
+LINKOPTS_IOS = [
+    "-framework CoreFoundation",
+    "-framework CoreGraphics",
+    "-framework CoreText",
+    "-framework ImageIO",
+    "-framework MobileCoreServices",
+]
 
 LINKOPTS_ALL = [
     "-ldl",
