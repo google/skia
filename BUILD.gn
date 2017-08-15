@@ -37,6 +37,7 @@ declare_args() {
   skia_enable_effects = true
   skia_enable_flutter_defines = false
   skia_enable_gpu = true
+  skia_enable_heif = is_android
   skia_enable_pdf = true
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
@@ -532,6 +533,17 @@ optional("gpu") {
   }
 }
 
+optional("heif") {
+  enabled = skia_enable_heif
+  public_defines = [ "SK_ENABLE_HEIF" ]
+
+  deps = []
+
+  sources = [
+    "src/codec/SkHeifCodec.cpp",
+  ]
+}
+
 optional("jpeg") {
   enabled = skia_use_libjpeg_turbo
   public_defines = [ "SK_HAS_JPEG_LIBRARY" ]
@@ -655,6 +667,7 @@ component("skia") {
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
     ":gpu",
+    ":heif",
     ":jpeg",
     ":none",
     ":pdf",
