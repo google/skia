@@ -1193,3 +1193,29 @@ DEF_TEST(Picture_RecordsFlush, r) {
     auto back = SkPicture::MakeFromData(skp->data(), skp->size());
     REPORTER_ASSERT(r, back->approximateOpCount() == pic->approximateOpCount());
 }
+
+// We want to make sure all the bounds we work with in SkPictures are kept in float precision.
+// Generally this just means we should take care to never call SkCanvas::getDeviceClipBounds().
+DEF_TEST(Picture_BoundsFloat, r) {
+    SkRect rect = {0,0, 100.01, 200.01};
+    SkRTreeFactory rtree;
+    SkPictureRecorder rec;
+
+    auto canvas = rec.beginRecording(rect, &rtree);
+
+    // Our rect will affect device pixels in the SkIRect {0,0, 100,200} with a hard clip,
+    // but we want to preserve the full {0,0, 100.01,200.01} in our cullRect().
+    // If we're calling getDeviceClipBounds(), we'll end up with a cullRect that's too small.
+    bool aa_clips = false;
+
+    canvas->save();
+        canvas->clipRect(rect, aa_clips);
+        canvas->drawRect(rect, SkPaint());
+    canvas->restore();
+
+    auto pic = rec.finishRecordingAsPicture();
+
+    REPORTER_ASSERT(r, pic->approximateOpCount() == 4);  // Just a sanity check.
+    REPORTER_ASSERT(r, pic->cullRect().width()  > 100);  // if == 100 we've used device bounds.
+    REPORTER_ASSERT(r, pic->cullRect().height() > 200);  //   "   200       "        "
+}
