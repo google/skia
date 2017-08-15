@@ -382,7 +382,7 @@ DEF_TEST(SkSLFPTransformedCoords, r) {
          *SkSL::ShaderCapsFactory::Default(),
          {},
          {
-            "SkSL::String sk_TransformedCoords2D_0 = "
+            "SkString sk_TransformedCoords2D_0 = "
                                          "fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);",
             "fragBuilder->codeAppendf(\"%s = float4(%s, %s);\\n\", args.fOutputColor, "
                               "sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str());"

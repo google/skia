@@ -95,7 +95,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
             String name = "sk_TransformedCoords2D_" + to_string(index);
             fFormatArgs.push_back(name + ".c_str()");
             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
-                fExtraEmitCodeCode += "        SkSL::String " + name +
+                fExtraEmitCodeCode += "        SkString " + name +
                                       " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
                                       to_string(index) + "]);\n";
                 fWrittenTransformedCoords.insert(index);

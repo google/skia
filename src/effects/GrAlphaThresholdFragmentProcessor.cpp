@@ -39,10 +39,8 @@ public:
                 kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "innerThreshold");
         fOuterThresholdVar = args.fUniformHandler->addUniform(
                 kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "outerThreshold");
-        SkString sk_TransformedCoords2D_0 =
-                fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-        SkString sk_TransformedCoords2D_1 =
-                fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
+        SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
+        SkString sk_TransformedCoords2D_1 = fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
         fragBuilder->codeAppendf(
                 "float4 _tmpVar1;float4 color = %stexture(%s, %s).%s%s;\nfloat4 mask_color = "
                 "texture(%s, %s).%s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n        "
