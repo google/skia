@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9657532b_6400d7d1",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2017-08-15T17:37:14Z",
+      "side": 1,
+      "message": "Is the K... part of the model significant?",
+      "range": {
+        "startLine": 302,
+        "startChar": 34,
+        "endLine": 302,
+        "endChar": 42
+      },
+      "revId": "7e4514dd565cee29db13c6cd0271bbdc693d62ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
