@@ -58,15 +58,6 @@ public:
         return fStyle;
     }
 
-    /** Returns the typeface's intrinsic style attributes.
-     *  @deprecated use fontStyle() instead.
-     */
-    Style style() const {
-        return static_cast<Style>(
-            (fStyle.weight() >= SkFontStyle::kSemiBold_Weight ? kBold : kNormal) |
-            (fStyle.slant()  != SkFontStyle::kUpright_Slant ? kItalic : kNormal));
-    }
-
     /** Returns true if style() has the kBold bit set. */
     bool isBold() const { return fStyle.weight() >= SkFontStyle::kSemiBold_Weight; }
 
