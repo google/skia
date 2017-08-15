@@ -451,8 +451,9 @@ bool SkPath::isRectContour(bool allowPartial, int* currVerb, const SkPoint** pts
     bool autoClose = false;
     bool insertClose = false;
     int verbCnt = fPathRef->countVerbs();
+    const uint8_t* verbs = fPathRef->verbs();
     while (*currVerb < verbCnt && (!allowPartial || !autoClose)) {
-        uint8_t verb = insertClose ? (uint8_t) kClose_Verb : fPathRef->atVerb(*currVerb);
+        uint8_t verb = insertClose ? (uint8_t) kClose_Verb : verbs[~(*currVerb)];
         switch (verb) {
             case kClose_Verb:
                 savePts = pts;
