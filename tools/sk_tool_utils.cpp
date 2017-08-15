@@ -247,12 +247,11 @@ SkBitmap create_string_bitmap(int w, int h, SkColor c, int x, int y,
     return result;
 }
 
-void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
-                      SkScalar x, SkScalar y) {
+void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
+                            const SkPaint& origPaint, SkScalar x, SkScalar y) {
     SkPaint paint(origPaint);
     SkTDArray<uint16_t> glyphs;
 
-    size_t len = strlen(text);
     glyphs.append(paint.textToGlyphs(text, len, nullptr));
     paint.textToGlyphs(text, len, glyphs.begin());
 
@@ -260,6 +259,11 @@ void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPain
     const SkTextBlobBuilder::RunBuffer& run = builder->allocRun(paint, glyphs.count(), x, y,
                                                                 nullptr);
     memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
+}
+
+void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
+                      const SkPaint& origPaint, SkScalar x, SkScalar y) {
+    add_to_text_blob_w_len(builder, text, strlen(text), origPaint, x, y);
 }
 
 #if !defined(__clang__) && defined(_MSC_VER)

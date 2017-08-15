@@ -29,6 +29,7 @@ samples_sources = [
   "$_samplecode/SampleCCPRGeometry.cpp",
   "$_samplecode/SampleCamera.cpp",
   "$_samplecode/SampleChart.cpp",
+  "$_samplecode/SampleChineseFling.cpp",
   "$_samplecode/SampleCircle.cpp",
   "$_samplecode/SampleClip.cpp",
   "$_samplecode/SampleClipDrawMatch.cpp",

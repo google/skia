@@ -129,8 +129,11 @@ namespace sk_tool_utils {
                                   int textSize, const char* str);
 
     // A helper for inserting a drawtext call into a SkTextBlobBuilder
-    void add_to_text_blob(SkTextBlobBuilder* builder, const char* text, const SkPaint& origPaint,
-                          SkScalar x, SkScalar y);
+    void add_to_text_blob_w_len(SkTextBlobBuilder* builder, const char* text, size_t len,
+                                const SkPaint& origPaint, SkScalar x, SkScalar y);
+
+    void add_to_text_blob(SkTextBlobBuilder* builder, const char* text,
+                          const SkPaint& origPaint, SkScalar x, SkScalar y);
 
     void make_big_path(SkPath& path);
 
