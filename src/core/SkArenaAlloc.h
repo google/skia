@@ -156,16 +156,12 @@ private:
 
     char* allocObject(uint32_t size, uint32_t alignment) {
         uintptr_t mask = alignment - 1;
-        uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
-        uintptr_t totalSize = size + alignedOffset;
-        if (totalSize < size) {
-            SK_ABORT("The total size of allocation overflowed uintptr_t.");
-        }
-        if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
+        char* objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
+        if ((ptrdiff_t)size > fEnd - objStart) {
             this->ensureSpace(size, alignment);
-            alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+            objStart = (char*)((uintptr_t)(fCursor + mask) & ~mask);
         }
-        return fCursor + alignedOffset;
+        return objStart;
     }
 
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
