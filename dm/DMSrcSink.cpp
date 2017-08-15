@@ -1135,7 +1135,7 @@ Name ColorCodecSrc::name() const {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static const SkRect kSKPViewport = {0,0, 1000,1000};
+static const SkRect kSKPViewport = {0,0, 16000,16000};
 
 SKPSrc::SKPSrc(Path path) : fPath(path) {}
 
@@ -1151,7 +1151,10 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
     stream = nullptr;  // Might as well drop this when we're done with it.
 
     canvas->clipRect(kSKPViewport);
-    canvas->drawPicture(pic);
+    for (int i = 0; i < 100; ++i) {
+      canvas->clear(0xEEFF0000);
+      canvas->drawPicture(pic);
+    }
     return "";
 }
 

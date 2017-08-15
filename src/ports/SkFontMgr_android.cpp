@@ -311,12 +311,19 @@ protected:
         }
         SkAutoAsciiToLC tolc(familyName);
         for (int i = 0; i < fNameToFamilyMap.count(); ++i) {
+	  //            const char* foo = fNameToFamilyMap[i].name.c_str();
+
+	  //            SkDebugf("foo %s\n", foo);
             if (fNameToFamilyMap[i].name.equals(tolc.lc())) {
                 return SkRef(fNameToFamilyMap[i].styleSet);
             }
         }
         // TODO: eventually we should not need to name fallback families.
         for (int i = 0; i < fFallbackNameToFamilyMap.count(); ++i) {
+	  //            const char* bar = fFallbackNameToFamilyMap[i].name.c_str();
+
+	  //            SkDebugf("bar %s\n", bar);
+
             if (fFallbackNameToFamilyMap[i].name.equals(tolc.lc())) {
                 return SkRef(fFallbackNameToFamilyMap[i].styleSet);
             }

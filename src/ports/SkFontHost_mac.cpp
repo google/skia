@@ -2653,6 +2653,8 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0
 sk_sp<SkFontMgr> SkFontMgr::Factory() { return sk_make_sp<SkFontMgr_Mac>(); }
+#endif
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)

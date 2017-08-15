@@ -113,7 +113,7 @@ DEFINE_string(outResultsFile, "", "If given, write results here as JSON.");
 DEFINE_int32(maxCalibrationAttempts, 3,
              "Try up to this many times to guess loops for a bench, or skip the bench.");
 DEFINE_int32(maxLoops, 1000000, "Never run a bench more times than this.");
-DEFINE_string(clip, "0,0,1000,1000", "Clip for SKPs.");
+DEFINE_string(clip, "0,0,16000,16000", "Clip for SKPs.");
 DEFINE_string(scales, "1.0", "Space-separated scales for SKPs.");
 DEFINE_string(zoom, "1.0,0", "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
                              "function that ping-pongs between 1.0 and zoomMax.");
