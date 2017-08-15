@@ -1078,6 +1078,17 @@ uint8_t max_edge_alpha(Edge* a, Edge* b) {
     }
 }
 
+bool out_of_range_and_collinear(const SkPoint& p, Edge* edge, Comparator& c) {
+    if (c.sweep_lt(p, edge->fTop->fPoint) &&
+        !Line(p, edge->fBottom->fPoint).dist(edge->fTop->fPoint)) {
+        return true;
+    } else if (c.sweep_lt(edge->fBottom->fPoint, p) &&
+        !Line(edge->fTop->fPoint, p).dist(edge->fBottom->fPoint)) {
+        return true;
+    }
+    return false;
+}
+
 bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** current,
                             VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     if (!edge || !other) {
@@ -1086,6 +1097,12 @@ bool check_for_intersection(Edge* edge, Edge* other, EdgeList* activeEdges, Vert
     SkPoint p;
     uint8_t alpha;
     if (edge->intersect(*other, &p, &alpha) && p.isFinite()) {
+        // Ignore any out-of-range intersections which are also collinear,
+        // since the resulting edges would cancel each other out by merging.
+        if (out_of_range_and_collinear(p, edge, c) ||
+            out_of_range_and_collinear(p, other, c)) {
+            return false;
+        }
         Vertex* v;
         LOG("found intersection, pt is %g, %g\n", p.fX, p.fY);
         Vertex* top = *current;

@@ -347,6 +347,21 @@ static SkPath create_path_22() {
     return path;
 }
 
+// A path which contains out-of-range colinear intersections.
+static SkPath create_path_23() {
+    SkPath path;
+    path.moveTo(                   0, 63.39080047607421875);
+    path.lineTo(-0.70804601907730102539, 63.14350128173828125);
+    path.lineTo(-7.8608899287380243391e-17, 64.14080047607421875);
+    path.moveTo(                   0, 64.14080047607421875);
+    path.lineTo(44.285900115966796875, 64.14080047607421875);
+    path.lineTo(                   0, 62.64080047607421875);
+    path.moveTo(21.434900283813476562, -0.24732701480388641357);
+    path.lineTo(-0.70804601907730102539, 63.14350128173828125);
+    path.lineTo(0.70804601907730102539,  63.6381988525390625);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
@@ -427,5 +442,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_22());
+    test_path(ctx, rtc.get(), create_path_23());
 }
 #endif
