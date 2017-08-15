@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0dde82f6_59b8fb61",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-15T19:16:20Z",
+      "side": 1,
+      "message": "The alignment is only calculated from align_of which has this property.",
+      "parentUuid": "5f9fb1dd_79032edd",
+      "range": {
+        "startLine": 157,
+        "startChar": 46,
+        "endLine": 157,
+        "endChar": 55
+      },
+      "revId": "1a11761d0cb98a42ca6c3927bcbcac9de636c2c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6813b8dc_a272dfa7",
         "filename": "src/core/SkArenaAlloc.h",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "f11d1162_3e51e9ea",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-15T19:16:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6813b8dc_a272dfa7",
+      "range": {
+        "startLine": 159,
+        "startChar": 48,
+        "endLine": 159,
+        "endChar": 54
+      },
+      "revId": "1a11761d0cb98a42ca6c3927bcbcac9de636c2c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9dd636be_b35933d6",
         "filename": "src/core/SkArenaAlloc.h",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2017-08-15T18:52:27Z",
       "side": 1,
       "message": "This can still overflow (on 32 bit), giving the wrong behavior. It\u0027s somewhat difficult with the \u0027auto\u0027 standing in for size_t to reason about.",
+      "range": {
+        "startLine": 160,
+        "startChar": 12,
+        "endLine": 160,
+        "endChar": 32
+      },
+      "revId": "1a11761d0cb98a42ca6c3927bcbcac9de636c2c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74da3505_6d82c531",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2017-08-15T19:16:20Z",
+      "side": 1,
+      "message": "Checked for overflow, and fail if encountered.",
+      "parentUuid": "9dd636be_b35933d6",
       "range": {
         "startLine": 160,
         "startChar": 12,
