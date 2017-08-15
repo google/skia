@@ -41,8 +41,9 @@ public:
      */
     static std::unique_ptr<SkAndroidCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
 
-    virtual ~SkAndroidCodec() {}
+    virtual ~SkAndroidCodec();
 
+    const SkEncodedInfo& getEncodedInfo() const;
 
     const SkImageInfo& getInfo() const { return fInfo; }
 

@@ -398,23 +398,14 @@ static void blend_line(SkColorType dstCT, void* dst,
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, int* rowsDecodedPtr) {
+    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
+        return kInvalidConversion;
+    }
+
     const int index = options.fFrameIndex;
     SkASSERT(0 == index || index < fFrameHolder.size());
 
     const auto& srcInfo = this->getInfo();
-    {
-        auto info = srcInfo;
-        if (index > 0) {
-            auto alphaType = alpha_type(fFrameHolder.frame(index)->hasAlpha());
-            info = info.makeAlphaType(alphaType);
-        }
-        if (!conversion_possible(dstInfo, info) ||
-            !this->initializeColorXform(dstInfo, options.fPremulBehavior))
-        {
-            return kInvalidConversion;
-        }
-    }
-
     SkASSERT(0 == index || (!options.fSubset && dstInfo.dimensions() == srcInfo.dimensions()));
 
     WebPDecoderConfig config;
