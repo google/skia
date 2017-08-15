@@ -244,14 +244,14 @@ public:
     static void Rewind(sk_sp<SkPathRef>* pathRef);
 
     ~SkPathRef();
-    int countPoints() const { SkDEBUGCODE(this->validate();) return fPointCnt; }
-    int countVerbs() const { SkDEBUGCODE(this->validate();) return fVerbCnt; }
-    int countWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.count(); }
+    int countPoints() const { return fPointCnt; }
+    int countVerbs() const { return fVerbCnt; }
+    int countWeights() const { return fConicWeights.count(); }
 
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
      */
-    const uint8_t* verbs() const { SkDEBUGCODE(this->validate();) return fVerbs; }
+    const uint8_t* verbs() const { return fVerbs; }
 
     /**
      * Returns a const pointer to the first verb in memory (which is the last logical verb).
@@ -261,15 +261,15 @@ public:
     /**
      * Returns a const pointer to the first point.
      */
-    const SkPoint* points() const { SkDEBUGCODE(this->validate();) return fPoints; }
+    const SkPoint* points() const { return fPoints; }
 
     /**
      * Shortcut for this->points() + this->countPoints()
      */
     const SkPoint* pointsEnd() const { return this->points() + this->countPoints(); }
 
-    const SkScalar* conicWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.begin(); }
-    const SkScalar* conicWeightsEnd() const { SkDEBUGCODE(this->validate();) return fConicWeights.end(); }
+    const SkScalar* conicWeights() const { return fConicWeights.begin(); }
+    const SkScalar* conicWeightsEnd() const { return fConicWeights.end(); }
 
     /**
      * Convenience methods for getting to a verb or point by index.
