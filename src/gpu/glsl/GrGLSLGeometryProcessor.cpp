@@ -85,19 +85,19 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
     SkASSERT(i == fInstalledTransforms.count());
 }
 
-void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
-                                            GrGPArgs* gpArgs,
-                                            const char* posName) {
+void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuilder,
+                                                  GrGPArgs* gpArgs,
+                                                  const char* posName) {
     gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
     vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
 }
 
-void GrGLSLGeometryProcessor::setupPosition(GrGLSLVertexBuilder* vertBuilder,
-                                            GrGLSLUniformHandler* uniformHandler,
-                                            GrGPArgs* gpArgs,
-                                            const char* posName,
-                                            const SkMatrix& mat,
-                                            UniformHandle* viewMatrixUniform) {
+void GrGLSLGeometryProcessor::writeOutputPosition(GrGLSLVertexBuilder* vertBuilder,
+                                                  GrGLSLUniformHandler* uniformHandler,
+                                                  GrGPArgs* gpArgs,
+                                                  const char* posName,
+                                                  const SkMatrix& mat,
+                                                  UniformHandle* viewMatrixUniform) {
     if (mat.isIdentity()) {
         gpArgs->fPositionVar.set(kVec2f_GrSLType, "pos2");
         vertBuilder->codeAppendf("float2 %s = %s;", gpArgs->fPositionVar.c_str(), posName);
