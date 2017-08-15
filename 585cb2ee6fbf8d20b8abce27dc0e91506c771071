@@ -16,6 +16,24 @@
       "revId": "585cb2ee6fbf8d20b8abce27dc0e91506c771071",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99eb3175_eb6a52af",
+        "filename": "src/android/SkBitmapRegionCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-15T16:26:33Z",
+      "side": 1,
+      "message": "It turns out we don\u0027t need this method. It is only used in tests, and there only to stop us from attempting to decode a non-grayscale image to grayscale from BRD (without reporting a fatal error).\n\nLatest patch set removes the method, and simply doesn\u0027t attempt to do such decodes.",
+      "parentUuid": "14d43086_5b1a97b1",
+      "revId": "585cb2ee6fbf8d20b8abce27dc0e91506c771071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "774bb087_929e9310",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-15T16:26:33Z",
+      "side": 1,
+      "message": "This method is just moved, unchanged.",
+      "range": {
+        "startLine": 529,
+        "startChar": 12,
+        "endLine": 529,
+        "endChar": 24
+      },
+      "revId": "5e69361641f76d1b0aa0a8de029dd75698bfb72b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06297733_76a68c54",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-15T16:26:33Z",
+      "side": 1,
+      "message": "This method is moved, with the new parameter gray. Otherwise it\u0027s the same.",
+      "range": {
+        "startLine": 562,
+        "startChar": 12,
+        "endLine": 562,
+        "endChar": 25
+      },
+      "revId": "5e69361641f76d1b0aa0a8de029dd75698bfb72b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
