@@ -60,21 +60,14 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     surface->getCanvas()->drawPath(path, whitePaint);
     SkPixmap pixmap;
     surface->getCanvas()->peekPixels(&pixmap);
-#if defined(SK_BUILD_FOR_WIN)
-    // The static constexpr version in #else causes cl.exe to crash.
-    const uint8_t* kZeros = reinterpret_cast<uint8_t*>(calloc(kRes, 1));
-#else
-    static constexpr uint8_t kZeros[kRes] = {0};
-#endif
     for (int y = 0; y < kRes; ++y) {
         const uint8_t* row = pixmap.addr8(0, y);
-        if (0 != memcmp(kZeros, row, kRes)) {
-            return false;
+        for (int x = 0; x < kRes; ++x) {
+            if (row[x] != 0) {
+                return false;
+            }
         }
     }
-#ifdef SK_BUILD_FOR_WIN
-    free(const_cast<uint8_t*>(kZeros));
-#endif
     return true;
 }
 
