@@ -10,6 +10,103 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkMakeUnique.h"
+#include "SkShaderBase.h"
+#include "SkArenaAlloc.h"
+#include "../private/SkFloatingPoint.h"
+static float mirror(float x) {
+    return x - sk_float_floor(x);
+}
+static SkPMColor lerp(float t, SkPMColor a, SkPMColor b) {
+    int s = sk_float_round2int_no_saturate(t * 256);
+    return SkAlphaMulQ(a, 256 - s) + SkAlphaMulQ(b, s);
+}
+/*
+ *  (1 - u)(1 - v)A + u(1 - v)B + (1 - u)vC + uvD
+ *
+ *  (1 - u - v + uv)A + (u - uv)B + (v - uv)C + uvD
+ *
+ *  A + (B - A)u + (C - A)v + (A + D - B - C)uv
+ *
+ *  delta = (B - A)du + (C - A)dv + (A + D - B - C)(udv + vdu + dudv)
+ */
+static SkPMColor sample(const SkPMColor colors[], float u, float v) {
+    if (true) {
+#if 1
+        int iu = sk_float_round2int_no_saturate(u * 256);
+        int iv = sk_float_round2int_no_saturate(v * 256);
+
+        int s00 = iu * iv >> 8;
+        int s01 = (256 - iu) * iv >> 8;
+        int s10 = iu * (256 - iv) >> 8;
+#else
+        int s00 = sk_float_round2int_no_saturate((1 - u) * (1 - v) * 256);
+        int s01 = sk_float_round2int_no_saturate(u * (1 - v) * 256);
+        int s10 = sk_float_round2int_no_saturate((1 - u) * v * 256);
+#endif
+        int s11 = 256 - s00 - s01 - s10;
+        SkASSERT(s11 >= 0);
+
+        return SkUnsplay(SkSplay(colors[0]) * s00 +
+                         SkSplay(colors[1]) * s01 +
+                         SkSplay(colors[3]) * s10 +
+                         SkSplay(colors[2]) * s11);
+    } else {
+    SkPMColor ab = lerp(u, colors[0], colors[1]);
+    SkPMColor dc = lerp(u, colors[3], colors[2]);
+    return lerp(v, ab, dc);
+    }
+}
+
+class Quad : public SkShaderBase {
+    SkPMColor fQuad[4];
+public:
+    Quad(const SkColor quad[4], const SkMatrix& lm) : SkShaderBase(&lm) {
+        for (int i = 0; i < 4; ++i) {
+            fQuad[i] = SkPreMultiplyColor(quad[i]);
+        }
+    }
+
+    class Ctx : public Context {
+        const SkPMColor*    fQuad;
+        SkMatrix            fInv;
+    public:
+        Ctx(const SkShaderBase& shader, const ContextRec& rec) : Context(shader, rec) {
+            fQuad = ((Quad*)&shader)->fQuad;
+            shader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fInv);
+        }
+
+        void shadeSpan(int x, int y, SkPMColor span[], int count) override {
+            SkPoint pt;
+            fInv.mapXY(x + 0.5f, y + 0.5f, &pt);
+            for (int i = 0; i < count; ++i) {
+                float x = mirror(pt.fX);
+                float y = mirror(pt.fY);
+                span[i] = sample(fQuad, x, y);
+                pt.fX += fInv.getScaleX();
+                pt.fY += fInv.getSkewY();
+            }
+        }
+    };
+
+    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
+        return alloc->make<Ctx>(*this, rec);
+    }
+
+    Factory getFactory() const override { return nullptr; }
+
+};
+
+static void test_quad(SkCanvas* canvas) {
+    SkMatrix lm;
+    lm.setScale(300, 300);
+    lm.postSkew(0.2f, 0);
+    lm.postRotate(30);
+    SkPaint paint;
+    SkColor quad[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorWHITE };
+    paint.setShader(sk_sp<SkShader>(new Quad(quad, lm)));
+
+    canvas->drawPaint(paint);
+}
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -141,6 +238,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (true) { test_quad(canvas); return; }
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
