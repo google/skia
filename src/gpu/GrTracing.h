@@ -17,6 +17,6 @@ class GrContext;
  */
 #define GR_CREATE_TRACE_MARKER_CONTEXT(classname, op, context)               \
     GR_AUDIT_TRAIL_AUTO_FRAME(context->getAuditTrail(), classname "::" op);  \
-    INTERNAL_TRACE_EVENT_ADD_SCOPED("skia.gpu", classname "::" op);
+    TRACE_EVENT0("skia.gpu", classname "::" op);
 
 #endif
