@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "11f12e51_ad98c9c7",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-16T14:31:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cba1bff_dd94dbec",
+      "range": {
+        "startLine": 46,
+        "startChar": 62,
+        "endLine": 46,
+        "endChar": 71
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7c65b898_b000ab07",
         "filename": "tools/trace/SkChromeTracingTracer.cpp",
         "patchSetId": 1
@@ -119,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "3ab23548_7c660bca",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-16T14:31:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c65b898_b000ab07",
+      "range": {
+        "startLine": 52,
+        "startChar": 39,
+        "endLine": 52,
+        "endChar": 43
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98718968_cbab5728",
         "filename": "tools/trace/SkChromeTracingTracer.cpp",
         "patchSetId": 1
@@ -139,6 +187,30 @@
       "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83cf35fc_8853f8c1",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-16T14:31:48Z",
+      "side": 1,
+      "message": "Yeah, I had been on the fence about that. We\u0027re profiling, so I wanted something low overhead (and precise), although if that resolution comes at the expense of crazy clock drift on laptops, then it\u0027s not of much use. I\u0027ve switched over.",
+      "parentUuid": "98718968_cbab5728",
+      "range": {
+        "startLine": 119,
+        "startChar": 43,
+        "endLine": 119,
+        "endChar": 64
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
