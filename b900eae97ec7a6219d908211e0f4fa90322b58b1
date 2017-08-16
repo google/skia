@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "97064760_dc780034",
+        "filename": "bench/GLVertexAttributesBench.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "I\u0027ll just make it highfloat for now :-).",
+      "parentUuid": "ab7959a5_4456cd16",
+      "range": {
+        "startLine": 72,
+        "startChar": 40,
+        "endLine": 72,
+        "endChar": 55
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2def8317_cf967824",
         "filename": "src/effects/SkBlurMaskFilter.cpp",
         "patchSetId": 34
@@ -36,6 +60,24 @@
       "writtenOn": "2017-08-16T12:44:35Z",
       "side": 1,
       "message": "fragBuilder-\u003eappendf(\"using floatType \u003d %s;\", kHigh_GrSLPrecision ? \"highfloat\" : \"half\");\n\n:)",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78de0cd7_bfe409ff",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "I suppose we could always add typedefs at some point :-)",
+      "parentUuid": "2def8317_cf967824",
       "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "dc42b7be_c9733c41",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "For SPIR-V, there\u0027s a \"relaxed precision\" annotation you can attach to variables, and it works similarly in that it infers the precision of other things based on context. This is more about spelling it out so it\u0027s explicit; in a near-future CL I\u0027ll be enforcing that these match.",
+      "parentUuid": "8b2df126_fc85d24d",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "672a7007_aef6b67a",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
         "patchSetId": 34
@@ -73,6 +133,24 @@
       "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9988817f_c609c511",
+        "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "672a7007_aef6b67a",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "4d6542ab_a7498f9e",
+        "filename": "src/gpu/ccpr/GrCCPRCubicProcessor.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "525cf1e2_1404956f",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ada0735c_7be01326",
         "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.h",
         "patchSetId": 34
@@ -107,6 +203,24 @@
       "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d34ac76_d00e9ca6",
+        "filename": "src/gpu/ccpr/GrCCPRTriangleProcessor.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "Yes, I\u0027m doing this over a series of CLs. GrSLPrecision is going to be completely eradicated by the time I\u0027m done.",
+      "parentUuid": "ada0735c_7be01326",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -150,6 +264,30 @@
     },
     {
       "key": {
+        "uuid": "a52a7c3f_9364fd98",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "It seemed like we should generally be using highp for positions unless there was a good reason not to. I suppose I don\u0027t know what the max size of a distance field atlas is; do they not ever extend past 1024?",
+      "parentUuid": "d496f2d3_77b32a05",
+      "range": {
+        "startLine": 590,
+        "startChar": 28,
+        "endLine": 590,
+        "endChar": 48
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c3d0b3a_40edcaa4",
         "filename": "src/gpu/effects/GrSRGBEffect.cpp",
         "patchSetId": 34
@@ -167,6 +305,24 @@
     },
     {
       "key": {
+        "uuid": "079ec053_63ecbfa8",
+        "filename": "src/gpu/effects/GrSRGBEffect.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "These should all be half. I vaguely remember changing them to highp as part of an experiment; I think I just forgot to switch them back.",
+      "parentUuid": "3c3d0b3a_40edcaa4",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b6921d0_4e5eae34",
         "filename": "src/gpu/effects/GrTextureDomain.cpp",
         "patchSetId": 34
@@ -178,6 +334,30 @@
       "writtenOn": "2017-08-16T12:44:35Z",
       "side": 1,
       "message": "Why this change? and in the other texture lookups.",
+      "range": {
+        "startLine": 101,
+        "startChar": 52,
+        "endLine": 101,
+        "endChar": 72
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7bc2f3d5_54d10c84",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "Same as above; mediump is not adequate for textures of \u003e1024 pixels, so I figured we should be using highp here. No?",
+      "parentUuid": "0b6921d0_4e5eae34",
       "range": {
         "startLine": 101,
         "startChar": 52,
@@ -207,6 +387,24 @@
     },
     {
       "key": {
+        "uuid": "2caf8042_9bfc1923",
+        "filename": "src/gpu/instanced/InstanceProcessor.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "591fc97f_ab6a18a1",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14c2a796_7ee86ba4",
         "filename": "tests/GrMeshTest.cpp",
         "patchSetId": 34
@@ -221,6 +419,24 @@
       "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0733c77c_0ce83d50",
+        "filename": "tests/GrMeshTest.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2017-08-16T15:22:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14c2a796_7ee86ba4",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
