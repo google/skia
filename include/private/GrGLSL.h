@@ -89,26 +89,34 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
     switch (t) {
         case kVoid_GrSLType:
             return "void";
-        case kFloat_GrSLType:
-            return "float";
-        case kVec2f_GrSLType:
-            return "float2";
-        case kVec3f_GrSLType:
-            return "float3";
-        case kVec4f_GrSLType:
-            return "float4";
-        case kVec2i_GrSLType:
-            return "int2";
-        case kVec3i_GrSLType:
-            return "int3";
-        case kVec4i_GrSLType:
-            return "int4";
-        case kMat22f_GrSLType:
-            return "float2x2";
-        case kMat33f_GrSLType:
-            return "float3x3";
-        case kMat44f_GrSLType:
-            return "float4x4";
+        case kHighFloat_GrSLType:
+            return "highfloat";
+        case kHighFloat2_GrSLType:
+            return "highfloat2";
+        case kHighFloat3_GrSLType:
+            return "highfloat3";
+        case kHighFloat4_GrSLType:
+            return "highfloat4";
+        case kHalf_GrSLType:
+            return "half";
+        case kHalf2_GrSLType:
+            return "half2";
+        case kHalf3_GrSLType:
+            return "half3";
+        case kHalf4_GrSLType:
+            return "half4";
+        case kHighFloat2x2_GrSLType:
+            return "highfloat2x2";
+        case kHighFloat3x3_GrSLType:
+            return "highfloat3x3";
+        case kHighFloat4x4_GrSLType:
+            return "highfloat4x4";
+        case kHalf2x2_GrSLType:
+            return "half2x2";
+        case kHalf3x3_GrSLType:
+            return "half3x3";
+        case kHalf4x4_GrSLType:
+            return "half4x4";
         case kTexture2DSampler_GrSLType:
             return "sampler2D";
         case kITexture2DSampler_GrSLType:
@@ -121,8 +129,18 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "samplerBuffer";
         case kBool_GrSLType:
             return "bool";
+        case kShort_GrSLType:
+            return "short";
+        case kUShort_GrSLType:
+            return "ushort";
         case kInt_GrSLType:
             return "int";
+        case kInt2_GrSLType:
+            return "int2";
+        case kInt3_GrSLType:
+            return "int3";
+        case kInt4_GrSLType:
+            return "int4";
         case kUint_GrSLType:
             return "uint";
         case kTexture2D_GrSLType:

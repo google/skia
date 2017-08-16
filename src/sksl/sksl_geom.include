@@ -3,15 +3,15 @@ STRINGIFY(
 // defines built-in interfaces supported by SkiaSL geometry shaders
 
 layout(builtin=10002) in sk_PerVertex {
-  layout(builtin=0) float4 gl_Position;
-  layout(builtin=1) float gl_PointSize;
-  layout(builtin=3) float sk_ClipDistance[];
+  layout(builtin=0) highfloat4 gl_Position;
+  layout(builtin=1) highfloat gl_PointSize;
+  layout(builtin=3) highfloat sk_ClipDistance[];
 } sk_in[];
 
 out sk_PerVertex {
-    layout(builtin=0) float4 gl_Position;
-    layout(builtin=1) float gl_PointSize;
-    layout(builtin=3) float sk_ClipDistance[];
+    layout(builtin=0) highfloat4 gl_Position;
+    layout(builtin=1) highfloat gl_PointSize;
+    layout(builtin=3) highfloat sk_ClipDistance[];
 };
 
 layout(builtin=8) int sk_InvocationID;
