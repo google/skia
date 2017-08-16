@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "76da91ee_ee2eaf94",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T14:13:16Z",
+      "side": 1,
+      "message": "Does windows pack these? I thought it defaulted \"char\" to \"signed char\" and didn\u0027t pack unless types were the same.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 21
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5cba1bff_dd94dbec",
         "filename": "tools/trace/SkChromeTracingTracer.cpp",
         "patchSetId": 1
@@ -18,6 +41,29 @@
         "startChar": 62,
         "endLine": 46,
         "endChar": 71
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c65b898_b000ab07",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T14:13:16Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "range": {
+        "startLine": 52,
+        "startChar": 39,
+        "endLine": 52,
+        "endChar": 43
       },
       "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
