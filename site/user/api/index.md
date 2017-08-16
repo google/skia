@@ -60,7 +60,6 @@ Here's a partial list of the more important Skia classes:
     -   [SkPath2DPathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkPath2DPathEffect.html)
     -   [SkLine2DPathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkLine2DPathEffect.html)
     -   [SkPath1DPathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkPath1DPathEffect.html)
-    -   [SkArcToPathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkArcToPathEffect.html)
     -   [SkCornerPathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkCornerPathEffect.html)
     -   [SkDashPathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkDashPathEffect.html)
     -   [SkDiscretePathEffect](http://skia-doc.commondatastorage.googleapis.com/doxygen/doxygen/html/classSkDiscretePathEffect.html)

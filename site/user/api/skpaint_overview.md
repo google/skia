@@ -174,12 +174,6 @@ SkPathEffect
 
     <fiddle-embed name='@skpaint_path_1d_path_effect'></fiddle-embed>
 
-*   SkArcToPathEffect
-
-	The following few examples use this function:
-
-    <fiddle-embed name='@skpaint_arc_to_path_effect'></fiddle-embed>
-
 *   SkCornerPathEffect: a path effect that can turn sharp corners into
     various treatments (e.g. rounded corners).
 
