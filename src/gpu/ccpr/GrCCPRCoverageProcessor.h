@@ -182,7 +182,7 @@ protected:
     // TODO: subclasses might have good spots to stuff the winding information without burning a
     // whole new varying slot. Consider requiring them to generate the correct coverage sign.
     virtual void emitShaderCoverage(GrGLSLFragmentBuilder*, const char* outputCoverage) const {
-        SkFAIL("Shader coverage not implemented when using CoverageType::kShader.");
+        SK_ABORT("Shader coverage not implemented when using CoverageType::kShader.");
     }
 
     // Emits one wedge of the conservative raster hull of a convex polygon. The complete hull has

@@ -215,7 +215,7 @@ private:
         // 1 to the returned value.
         uint32_t id = static_cast<uint32_t>(sk_atomic_inc(idCounter)) + 1;
         if (!id) {
-            SkFAIL("This should never wrap as it should only be called once for each GrOp "
+            SK_ABORT("This should never wrap as it should only be called once for each GrOp "
                    "subclass.");
         }
         return id;

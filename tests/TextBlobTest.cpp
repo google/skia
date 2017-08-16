@@ -333,7 +333,7 @@ private:
             }
         } break;
         default:
-            SkFAIL("unhandled positioning value");
+            SK_ABORT("unhandled positioning value");
         }
     }
 };

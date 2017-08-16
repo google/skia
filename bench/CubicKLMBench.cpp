@@ -30,7 +30,7 @@ public:
                 fName.append("loop");
                 break;
             default:
-                SkFAIL("Unexpected cubic type");
+                SK_ABORT("Unexpected cubic type");
                 break;
         }
     }

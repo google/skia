@@ -1790,7 +1790,7 @@ static SkImageFilterLight* create_random_light(SkRandom* random) {
                                    random->nextUScalar1(), random->nextUScalar1(), random->nextU());
         }
         default:
-            SkFAIL("Unexpected value.");
+            SK_ABORT("Unexpected value.");
             return nullptr;
     }
 }

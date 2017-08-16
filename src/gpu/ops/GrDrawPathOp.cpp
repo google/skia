@@ -232,7 +232,7 @@ inline void pre_translate_transform_values(const float* xforms,
     }
     switch (type) {
         case GrPathRendering::kNone_PathTransformType:
-            SkFAIL("Cannot pre-translate kNone_PathTransformType.");
+            SK_ABORT("Cannot pre-translate kNone_PathTransformType.");
             break;
         case GrPathRendering::kTranslateX_PathTransformType:
             SkASSERT(0 == y);
@@ -263,7 +263,7 @@ inline void pre_translate_transform_values(const float* xforms,
             }
             break;
         default:
-            SkFAIL("Unknown transform type.");
+            SK_ABORT("Unknown transform type.");
             break;
     }
 }

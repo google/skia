@@ -44,7 +44,7 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
         case kUint_GrVertexAttribType:
             return {false, 1, GR_GL_UNSIGNED_INT};
     }
-    SkFAIL("Unknown vertex attrib type");
+    SK_ABORT("Unknown vertex attrib type");
     return {false, 0, 0};
 };
 

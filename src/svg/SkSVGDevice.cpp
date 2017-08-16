@@ -159,7 +159,7 @@ public:
             }
         } break;
         default:
-            SkFAIL("unknown text encoding");
+            SK_ABORT("unknown text encoding");
         }
 
         if (scalarsPerPos < 2) {

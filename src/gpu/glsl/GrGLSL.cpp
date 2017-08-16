@@ -41,7 +41,7 @@ void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
                 out->append("precision lowp float;\n");
                 break;
             default:
-                SkFAIL("Unknown precision value.");
+                SK_ABORT("Unknown precision value.");
         }
     }
 }

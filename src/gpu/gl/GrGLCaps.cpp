@@ -1368,7 +1368,7 @@ static GrGLenum precision_to_gl_float_type(GrSLPrecision p) {
     case kHigh_GrSLPrecision:
         return GR_GL_HIGH_FLOAT;
     default:
-        SkFAIL("Unexpected precision type.");
+        SK_ABORT("Unexpected precision type.");
         return -1;
     }
 }
@@ -1382,7 +1382,7 @@ static GrGLenum shader_type_to_gl_shader(GrShaderType type) {
     case kFragment_GrShaderType:
         return GR_GL_FRAGMENT_SHADER;
     }
-    SkFAIL("Unknown shader type.");
+    SK_ABORT("Unknown shader type.");
     return -1;
 }
 

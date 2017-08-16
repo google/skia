@@ -73,7 +73,7 @@ private:
             case SkBlendMode::kClear:
             case SkBlendMode::kSrc:
             case SkBlendMode::kDst:
-                SkFAIL("Should never create clear, src, or dst compose two FP.");
+                SK_ABORT("Should never create clear, src, or dst compose two FP.");
                 flags = kNone_OptimizationFlags;
                 break;
 
@@ -303,7 +303,7 @@ private:
         OptimizationFlags flags;
         switch (mode) {
             case SkBlendMode::kClear:
-                SkFAIL("Should never create clear compose one FP.");
+                SK_ABORT("Should never create clear compose one FP.");
                 flags = kNone_OptimizationFlags;
                 break;
 

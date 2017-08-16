@@ -27,7 +27,7 @@ static const char* pixel_config_name(GrPixelConfig config) {
         case kAlpha_half_GrPixelConfig: return "AlphaHalf";
         case kRGBA_half_GrPixelConfig: return "RGBAHalf";
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return "<invalid>";
 }
 

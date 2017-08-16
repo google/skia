@@ -259,7 +259,7 @@ protected:
                 break;
 
             default:
-                SkFAIL("Invalid shape.");
+                SK_ABORT("Invalid shape.");
         }
     }
 

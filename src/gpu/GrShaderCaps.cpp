@@ -34,7 +34,7 @@ static const char* precision_to_string(GrSLPrecision p) {
     case kHigh_GrSLPrecision:
         return "high";
     default:
-        SkFAIL("Unexpected precision type.");
+        SK_ABORT("Unexpected precision type.");
         return "";
     }
 }

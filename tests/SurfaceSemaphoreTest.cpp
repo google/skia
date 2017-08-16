@@ -305,7 +305,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest, reporter, ctxInfo)
         // device to hang when tearing down (even if just tearing down GL). So we Fail here to
         // kill things.
         if (err == VK_TIMEOUT) {
-            SkFAIL("Waiting on semaphore indefinitely");
+            SK_ABORT("Waiting on semaphore indefinitely");
         }
     }
 #endif

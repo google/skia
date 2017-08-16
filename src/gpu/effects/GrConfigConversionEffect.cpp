@@ -44,7 +44,7 @@ public:
                 break;
 
             default:
-                SkFAIL("Unknown conversion op.");
+                SK_ABORT("Unknown conversion op.");
                 break;
         }
         fragBuilder->codeAppendf("%s = color;", args.fOutputColor);

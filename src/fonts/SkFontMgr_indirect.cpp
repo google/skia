@@ -64,11 +64,11 @@ int SkFontMgr_Indirect::onCountFamilies() const {
 }
 
 void SkFontMgr_Indirect::onGetFamilyName(int index, SkString* familyName) const {
-    SkFAIL("Not implemented");
+    SK_ABORT("Not implemented");
 }
 
 SkFontStyleSet* SkFontMgr_Indirect::onCreateStyleSet(int index) const {
-    SkFAIL("Not implemented");
+    SK_ABORT("Not implemented");
     return nullptr;
 }
 

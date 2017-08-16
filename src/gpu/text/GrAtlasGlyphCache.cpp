@@ -318,7 +318,7 @@ static bool get_packed_glyph_image(SkGlyphCache* cache, const SkGlyph& glyph, in
                 break;
             }
             default:
-                SkFAIL("Invalid GrMaskFormat");
+                SK_ABORT("Invalid GrMaskFormat");
         }
     } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);

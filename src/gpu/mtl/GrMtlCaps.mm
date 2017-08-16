@@ -96,7 +96,7 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
     }
 #endif
     // No supported feature sets were found
-    SkFAIL("Requested an unsupported feature set");
+    SK_ABORT("Requested an unsupported feature set");
 }
 
 void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {

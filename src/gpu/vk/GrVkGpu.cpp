@@ -320,10 +320,10 @@ GrBuffer* GrVkGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPatter
             buff = GrVkTexelBuffer::Create(this, size, kDynamic_GrAccessPattern == accessPattern);
             break;
         case kDrawIndirect_GrBufferType:
-            SkFAIL("DrawIndirect Buffers not supported  in vulkan backend.");
+            SK_ABORT("DrawIndirect Buffers not supported  in vulkan backend.");
             return nullptr;
         default:
-            SkFAIL("Unknown buffer type.");
+            SK_ABORT("Unknown buffer type.");
             return nullptr;
     }
     if (data && buff) {
@@ -1377,7 +1377,7 @@ GrBackendObject GrVkGpu::createTestingOnlyBackendTexture(void* srcData, int w, i
             VK_CALL(FreeCommandBuffers(fDevice, fCmdPool, 1, &cmdBuffer));
             VK_CALL(DestroyFence(fDevice, fence, nullptr));
             SkDebugf("Fence failed to signal: %d\n", err);
-            SkFAIL("failing");
+            SK_ABORT("failing");
         }
         SkASSERT(!err);
 
@@ -1829,7 +1829,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                 this->internalResolveRenderTarget(rt, false);
                 break;
             default:
-                SkFAIL("Unknown resolve type");
+                SK_ABORT("Unknown resolve type");
         }
         image = rt;
     } else {

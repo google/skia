@@ -31,7 +31,7 @@ static void test_lcd_coverage_fallback_case(skiatest::Reporter* reporter, const 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(GrPorterDuff, reporter, ctxInfo) {
     const GrCaps& caps = *ctxInfo.grContext()->getGpu()->caps();
     if (!caps.shaderCaps()->dualSourceBlendingSupport()) {
-        SkFAIL("Null context does not support dual source blending.");
+        SK_ABORT("Null context does not support dual source blending.");
         return;
     }
 
@@ -1050,13 +1050,13 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, /*factory*/) {
     sk_gpu_test::GrContextFactory mockFactory(opts);
     GrContext* ctx = mockFactory.get(sk_gpu_test::GrContextFactory::kNullGL_ContextType);
     if (!ctx) {
-        SkFAIL("Failed to create null context without ARB_blend_func_extended.");
+        SK_ABORT("Failed to create null context without ARB_blend_func_extended.");
         return;
     }
 
     const GrCaps& caps = *ctx->caps();
     if (caps.shaderCaps()->dualSourceBlendingSupport()) {
-        SkFAIL("Null context failed to honor request for no ARB_blend_func_extended.");
+        SK_ABORT("Null context failed to honor request for no ARB_blend_func_extended.");
         return;
     }
 

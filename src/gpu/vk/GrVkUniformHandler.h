@@ -91,12 +91,12 @@ private:
     ImageStorageHandle addImageStorage(uint32_t visibility, GrSLType,  GrImageStorageFormat,
                                        GrSLMemoryModel, GrSLRestrict, GrIOType,
                                        const char* name) override {
-        SkFAIL("Image storages not implemented for Vulkan.");
+        SK_ABORT("Image storages not implemented for Vulkan.");
         return 0;
     }
 
     const GrShaderVar& imageStorageVariable(ImageStorageHandle handle) const override {
-        SkFAIL("Image storages not implemented for Vulkan.");
+        SK_ABORT("Image storages not implemented for Vulkan.");
         static const GrShaderVar* gVar = nullptr;
         return *gVar;
     }

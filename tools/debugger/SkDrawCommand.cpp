@@ -745,7 +745,7 @@ void SkDrawCommand::WritePNG(const uint8_t* rgba, unsigned width, unsigned heigh
     png_infop info_ptr = png_create_info_struct(png);
     SkASSERT(info_ptr != nullptr);
     if (setjmp(png_jmpbuf(png))) {
-        SkFAIL("png encode error");
+        SK_ABORT("png encode error");
     }
     png_set_write_fn(png, &out, write_png_callback, NULL);
     int colorType = isOpaque ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_RGBA;

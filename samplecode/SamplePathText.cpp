@@ -287,7 +287,7 @@ public:
                     case SkPath::kCubic_Verb:
                     case SkPath::kConic_Verb:
                     case SkPath::kDone_Verb:
-                        SkFAIL("Unexpected path verb");
+                        SK_ABORT("Unexpected path verb");
                         break;
                 }
             }

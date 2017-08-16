@@ -120,7 +120,7 @@ public:
             case kMock_ContextType:
                 return "Mock";
         }
-        SkFAIL("Unreachable");
+        SK_ABORT("Unreachable");
         return "Unknown";
     }
 

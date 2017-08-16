@@ -51,7 +51,7 @@ void drawTestCase(SkCanvas* canvas, const char* text, SkScalar y, const SkPaint&
             case SkPaint::kRight_Align: originX = 1; break;
             case SkPaint::kCenter_Align: originX = 0.5f; break;
             case SkPaint::kLeft_Align: originX = 0; break;
-            default: SkFAIL("Invalid paint origin"); return;
+            default: SK_ABORT("Invalid paint origin"); return;
         }
 
         float x = kTextHeight;

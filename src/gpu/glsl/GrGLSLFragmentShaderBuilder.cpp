@@ -106,7 +106,7 @@ bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
             }
             return true;
         default:
-            SkFAIL("Unexpected GLSLFeature requested.");
+            SK_ABORT("Unexpected GLSLFeature requested.");
             return false;
     }
 }

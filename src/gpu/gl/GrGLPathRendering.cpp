@@ -68,7 +68,7 @@ static void verify_floats(const float* floats, int count) {
 static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
     switch (op) {
         default:
-            SkFAIL("Unexpected path fill.");
+            SK_ABORT("Unexpected path fill.");
             /* fallthrough */;
         case GrStencilOp::kIncWrap:
             return GR_GL_COUNT_UP;

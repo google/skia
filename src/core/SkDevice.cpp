@@ -169,7 +169,7 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                               SkPoint::Make(x, y), runPaint);
             break;
         default:
-            SkFAIL("unhandled positioning mode");
+            SK_ABORT("unhandled positioning mode");
         }
 
         if (drawFilter) {

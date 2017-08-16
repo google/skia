@@ -234,7 +234,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
             func = "max";
             break;
         default:
-            SkFAIL("Unexpected type");
+            SK_ABORT("Unexpected type");
             func = ""; // suppress warning
             break;
     }
@@ -248,7 +248,7 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
             dir = "y";
             break;
         default:
-            SkFAIL("Unknown filter direction.");
+            SK_ABORT("Unknown filter direction.");
             dir = ""; // suppress warning
     }
 
@@ -306,7 +306,7 @@ void GrGLMorphologyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
             pixelSize = 1.0f / texture.height();
             break;
         default:
-            SkFAIL("Unknown filter direction.");
+            SK_ABORT("Unknown filter direction.");
     }
     pdman.set1f(fPixelSizeUni, pixelSize);
 

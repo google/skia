@@ -49,7 +49,7 @@ static inline bool GrAATypeIsHW(GrAAType type) {
         case GrAAType::kMixedSamples:
             return true;
     }
-    SkFAIL("Unknown AA Type");
+    SK_ABORT("Unknown AA Type");
     return false;
 }
 
@@ -170,7 +170,7 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kIImageStorage2D_GrSLType:
             return false;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return false;
 }
 
@@ -203,7 +203,7 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kIImageStorage2D_GrSLType:
             return false;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return false;
 }
 
@@ -236,7 +236,7 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kIImageStorage2D_GrSLType:
             return false;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return false;
 }
 
@@ -269,7 +269,7 @@ static inline bool GrSLTypeIsImageStorage(GrSLType type) {
         case kBufferSampler_GrSLType:
             return false;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return false;
 }
 
@@ -302,7 +302,7 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kBool_GrSLType:
             return false;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return false;
 }
 
@@ -363,7 +363,7 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
         case kUint_GrVertexAttribType:
             return sizeof(uint32_t);
     }
-    SkFAIL("Unexpected attribute type");
+    SK_ABORT("Unexpected attribute type");
     return 0;
 }
 
@@ -397,7 +397,7 @@ static inline bool GrVertexAttribTypeIsIntType(GrVertexAttribType type) {
         case kUint_GrVertexAttribType:
             return true;
     }
-    SkFAIL("Unexpected attribute type");
+    SK_ABORT("Unexpected attribute type");
     return false;
 }
 
@@ -428,7 +428,7 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
         case kUint_GrVertexAttribType:
             return kUint_GrSLType;
     }
-    SkFAIL("Unsupported type conversion");
+    SK_ABORT("Unsupported type conversion");
     return kVoid_GrSLType;
 }
 
@@ -511,7 +511,7 @@ static inline GrPrimitiveEdgeType GrInvertProcessorEdgeType(const GrPrimitiveEdg
         case kInverseFillAA_GrProcessorEdgeType:
             return kFillAA_GrProcessorEdgeType;
         case kHairlineAA_GrProcessorEdgeType:
-            SkFAIL("Hairline fill isn't invertible.");
+            SK_ABORT("Hairline fill isn't invertible.");
     }
     return kFillAA_GrProcessorEdgeType;  // suppress warning.
 }

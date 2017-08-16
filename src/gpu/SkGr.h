@@ -172,7 +172,7 @@ static inline GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMo
         case SkVertices::kTriangleFan_VertexMode:
             return GrPrimitiveType::kTriangleFan;
     }
-    SkFAIL("Invalid mode");
+    SK_ABORT("Invalid mode");
     return GrPrimitiveType::kPoints;
 }
 

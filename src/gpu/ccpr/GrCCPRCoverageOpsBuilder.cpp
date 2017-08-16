@@ -88,7 +88,7 @@ static int num_pts(uint8_t verb) {
         case SkPath::kClose_Verb:
         case SkPath::kDone_Verb:
         default:
-            SkFAIL("Path verb does not have an endpoint.");
+            SK_ABORT("Path verb does not have an endpoint.");
             return 0;
         case SkPath::kMove_Verb:
         case SkPath::kLine_Verb:
@@ -203,9 +203,9 @@ void MaxBufferItems::countPathItems(GrCCPRCoverageOpsBuilder::ScissorMode scisso
                 continue;
             case SkPath::kConic_Verb:
                 SkASSERT(currFanPts > 0);
-                SkFAIL("Conics are not supported.");
+                SK_ABORT("Conics are not supported.");
             default:
-                SkFAIL("Unexpected path verb.");
+                SK_ABORT("Unexpected path verb.");
         }
     }
 
@@ -254,9 +254,9 @@ void GrCCPRCoverageOpsBuilder::parsePath(ScissorMode scissorMode, const SkMatrix
                               m.transform(pts[ptsIdx + 2]));
                 break;
             case SkPath::kConic_Verb:
-                SkFAIL("Conics are not supported.");
+                SK_ABORT("Conics are not supported.");
             default:
-                SkFAIL("Unexpected path verb.");
+                SK_ABORT("Unexpected path verb.");
         }
 
         ptsIdx += num_pts(verb);

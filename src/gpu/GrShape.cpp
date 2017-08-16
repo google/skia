@@ -59,7 +59,7 @@ SkRect GrShape::bounds() const {
         case Type::kPath:
             return this->path().getBounds();
     }
-    SkFAIL("Unknown shape type");
+    SK_ABORT("Unknown shape type");
     return kInverted;
 }
 
@@ -143,7 +143,7 @@ int GrShape::unstyledKeySize() const {
             return 2;
         }
     }
-    SkFAIL("Should never get here.");
+    SK_ABORT("Should never get here.");
     return 0;
 }
 

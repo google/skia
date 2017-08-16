@@ -102,7 +102,7 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                     break;
                 }
                 default: {
-                    SkFAIL("Unsupported operation.");
+                    SK_ABORT("Unsupported operation.");
                 }
             }
         }
@@ -134,7 +134,7 @@ void GrGLConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
             imageIncrement[1] = ySign / texture.height();
             break;
         default:
-            SkFAIL("Unknown filter direction.");
+            SK_ABORT("Unknown filter direction.");
     }
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
     if (conv.useBounds()) {
