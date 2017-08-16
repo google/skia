@@ -78,7 +78,7 @@ GrAAType GrChooseAAType(GrAA aa, GrFSAAType fsaaType, GrAllowMixedSamples allowM
             return GrAllowMixedSamples::kYes == allowMixedSamples ? GrAAType::kMixedSamples
                                                                   : GrAAType::kCoverage;
     }
-    SkFAIL("Unexpected fsaa type");
+    SK_ABORT("Unexpected fsaa type");
     return GrAAType::kNone;
 }
 

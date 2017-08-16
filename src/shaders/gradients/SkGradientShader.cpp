@@ -894,7 +894,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap,
                         SkColorSpace::MakeSRGBLinear());
                     break;
                 default:
-                    SkFAIL("Unexpected bitmap type");
+                    SK_ABORT("Unexpected bitmap type");
                     return;
             }
             bitmap->allocPixels(info);

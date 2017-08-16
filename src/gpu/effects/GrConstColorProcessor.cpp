@@ -75,7 +75,7 @@ GrColor4f GrConstColorProcessor::constantOutputForConstantInput(GrColor4f input)
         case kModulateRGBA_InputMode:
             return fColor.modulate(input);
     }
-    SkFAIL("Unexpected mode");
+    SK_ABORT("Unexpected mode");
     return GrColor4f::TransparentBlack();
 }
 

@@ -27,7 +27,7 @@ GrScratchKey::ResourceType GrScratchKey::GenerateResourceType() {
 
     int32_t type = sk_atomic_inc(&gType);
     if (type > SK_MaxU16) {
-        SkFAIL("Too many Resource Types");
+        SK_ABORT("Too many Resource Types");
     }
 
     return static_cast<ResourceType>(type);
@@ -38,7 +38,7 @@ GrUniqueKey::Domain GrUniqueKey::GenerateDomain() {
 
     int32_t domain = sk_atomic_inc(&gDomain);
     if (domain > SK_MaxU16) {
-        SkFAIL("Too many GrUniqueKey Domains");
+        SK_ABORT("Too many GrUniqueKey Domains");
     }
 
     return static_cast<Domain>(domain);

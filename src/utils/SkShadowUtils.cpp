@@ -151,7 +151,7 @@ struct SpotVerticesFactory {
                 }
                 return false;
         }
-        SkFAIL("Uninitialized occluder type?");
+        SK_ABORT("Uninitialized occluder type?");
         return false;
     }
 
@@ -369,7 +369,7 @@ public:
     bool isRRect(SkRRect* rrect) { return fShapeForKey.asRRect(rrect, nullptr, nullptr, nullptr); }
 #else
     int keyBytes() const { return -1; }
-    void writeKey(void* key) const { SkFAIL("Should never be called"); }
+    void writeKey(void* key) const { SK_ABORT("Should never be called"); }
     bool isRRect(SkRRect* rrect) { return false; }
 #endif
 

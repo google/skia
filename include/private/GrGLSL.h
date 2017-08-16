@@ -77,7 +77,7 @@ static inline const char* GrGLSLPrecisionString(GrSLPrecision p) {
         case kDefault_GrSLPrecision:
             return "";
         default:
-            SkFAIL("Unexpected precision type.");
+            SK_ABORT("Unexpected precision type.");
             return "";
     }
 }
@@ -134,7 +134,7 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
         case kIImageStorage2D_GrSLType:
             return "iimage2D";
     }
-    SkFAIL("Unknown shader var type.");
+    SK_ABORT("Unknown shader var type.");
     return ""; // suppress warning
 }
 

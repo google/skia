@@ -18,7 +18,7 @@ static const char* input_type_name(GrGLSLGeometryBuilder::InputType in) {
         case InputType::kTriangles: return "triangles";
         case InputType::kTrianglesAdjacency: return "triangles_adjacency";
     }
-    SkFAIL("invalid input type");
+    SK_ABORT("invalid input type");
     return "unknown_input";
 }
 
@@ -29,7 +29,7 @@ static const char* output_type_name(GrGLSLGeometryBuilder::OutputType out) {
         case OutputType::kLineStrip: return "line_strip";
         case OutputType::kTriangleStrip: return "triangle_strip";
     }
-    SkFAIL("invalid output type");
+    SK_ABORT("invalid output type");
     return "unknown_output";
 }
 

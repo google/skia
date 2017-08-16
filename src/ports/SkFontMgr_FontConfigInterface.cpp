@@ -176,11 +176,11 @@ protected:
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        SkFAIL("Not implemented.");
+        SK_ABORT("Not implemented.");
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        SkFAIL("Not implemented.");
+        SK_ABORT("Not implemented.");
         return nullptr;
     }
 

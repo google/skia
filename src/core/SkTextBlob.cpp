@@ -489,7 +489,7 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
         bounds.setBounds(glyphPosPts, run.glyphCount());
     } break;
     default:
-        SkFAIL("unsupported positioning mode");
+        SK_ABORT("unsupported positioning mode");
     }
 
     // Expand by typeface glyph bounds.

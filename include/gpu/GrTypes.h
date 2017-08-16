@@ -365,7 +365,7 @@ static inline bool GrPixelConfigIs8888Unorm(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return false;
 }
 
@@ -390,7 +390,7 @@ static inline bool GrPixelConfigIsSRGB(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return false;
 }
 
@@ -418,7 +418,7 @@ static inline GrPixelConfig GrPixelConfigSwapRAndB(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return kUnknown_GrPixelConfig;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return kUnknown_GrPixelConfig;
 }
 
@@ -446,7 +446,7 @@ static inline size_t GrBytesPerPixel(GrPixelConfig config) {
         case kUnknown_GrPixelConfig:
             return 0;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return 0;
 }
 
@@ -469,7 +469,7 @@ static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
         case kUnknown_GrPixelConfig:
             return false;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return false;
 }
 
@@ -492,7 +492,7 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
-    SkFAIL("Invalid pixel config.");
+    SK_ABORT("Invalid pixel config.");
     return false;
 }
 
@@ -515,7 +515,7 @@ static inline bool GrPixelConfigIsFloatingPoint(GrPixelConfig config) {
         case kRGBA_8888_sint_GrPixelConfig:
             return false;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return false;
 }
 
@@ -542,7 +542,7 @@ static inline bool GrPixelConfigIsUnorm(GrPixelConfig config) {
         case kRGBA_half_GrPixelConfig:
             return false;
     }
-    SkFAIL("Invalid pixel config.");
+    SK_ABORT("Invalid pixel config.");
     return false;
 }
 

@@ -64,7 +64,7 @@ public:
                           const char* name, const char* ext = nullptr) const {
         using Proc = Ret(GR_GL_FUNCTION_TYPE*)(Args...);
         if (!SkStrStartsWith(name, "gl")) {
-            SkFAIL("getGLProcAddress: proc name must have 'gl' prefix");
+            SK_ABORT("getGLProcAddress: proc name must have 'gl' prefix");
             *out = nullptr;
         } else if (ext) {
             SkString fullname(name);

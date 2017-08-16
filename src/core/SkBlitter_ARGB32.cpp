@@ -182,7 +182,7 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
             SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
             break;
         default:
-            SkFAIL("Mask format not handled.");
+            SK_ABORT("Mask format not handled.");
     }
 }
 
@@ -202,7 +202,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
             SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
             break;
         default:
-            SkFAIL("Mask format not handled.");
+            SK_ABORT("Mask format not handled.");
     }
 }
 

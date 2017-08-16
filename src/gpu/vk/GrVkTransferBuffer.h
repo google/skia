@@ -41,7 +41,7 @@ private:
     }
 
     bool onUpdateData(const void* src, size_t srcSizeInBytes) override {
-        SkFAIL("Not implemented for transfer buffers.");
+        SK_ABORT("Not implemented for transfer buffers.");
         return false;
     }
 

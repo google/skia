@@ -207,7 +207,7 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
         case DegenerateTestData::kNonDegenerate:
             break;
         default:
-            SkFAIL("Unexpected degenerate test stage.");
+            SK_ABORT("Unexpected degenerate test stage.");
     }
 }
 

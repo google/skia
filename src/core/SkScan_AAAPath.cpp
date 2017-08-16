@@ -226,7 +226,7 @@ MaskAdditiveBlitter::MaskAdditiveBlitter(
 }
 
 void MaskAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], int len) {
-    SkFAIL("Don't use this; directly add alphas to the mask.");
+    SK_ABORT("Don't use this; directly add alphas to the mask.");
 }
 
 void MaskAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha alpha) {

@@ -150,7 +150,7 @@ private:
             case SkPaint::kGlyphID_TextEncoding:
                 return arena->make<GlyphIdGlyphFinder>(cache);
         }
-        SkFAIL("Should not get here.");
+        SK_ABORT("Should not get here.");
         return nullptr;
     }
 
@@ -262,7 +262,7 @@ private:
                         SkFloatToScalar(glyph.fAdvanceY)};
         }
         // Even though the entire enum is covered above, MVSC doesn't think so. Make it happy.
-        SkFAIL("Should never get here.");
+        SK_ABORT("Should never get here.");
         return {0.0f, 0.0f};
     }
 
@@ -281,7 +281,7 @@ private:
             case kNone_SkAxisAlignment:
                 return {kSubpixelRounding, kSubpixelRounding};
         }
-        SkFAIL("Should not get here.");
+        SK_ABORT("Should not get here.");
         return {0.0f, 0.0f};
     }
 
@@ -300,7 +300,7 @@ private:
                 return {SkScalarToFixed(SkScalarFraction(position.fX) + kSubpixelRounding),
                         SkScalarToFixed(SkScalarFraction(position.fY) + kSubpixelRounding)};
         }
-        SkFAIL("Should not get here.");
+        SK_ABORT("Should not get here.");
         return {0, 0};
     }
 
@@ -325,7 +325,7 @@ private:
         // See GCC bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60277
         virtual SkPoint findAndPositionGlyph(
             const char** text, SkPoint position, ProcessOneGlyph&& processOneGlyph) {
-            SkFAIL("Should never get here.");
+            SK_ABORT("Should never get here.");
             return {0.0f, 0.0f};
         }
     };
@@ -435,7 +435,7 @@ private:
                 return arena->make<GlyphFindAndPlaceSubpixel<
                     ProcessOneGlyph, kTextAlignment, kY_SkAxisAlignment>>(glyphFinder);
         }
-        SkFAIL("Should never get here.");
+        SK_ABORT("Should never get here.");
         return nullptr;
     }
 

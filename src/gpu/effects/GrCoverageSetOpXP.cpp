@@ -203,7 +203,7 @@ const GrXPFactory* GrCoverageSetOpXPFactory::Get(SkRegion::Op regionOp, bool inv
         }
     }
 #undef _CONSTEXPR_
-    SkFAIL("Unknown region op.");
+    SK_ABORT("Unknown region op.");
     return nullptr;
 }
 

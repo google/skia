@@ -2437,7 +2437,7 @@ private:
                 fLastVec = vec;
                 break;
             case kInvalid_DirChange:
-                SkFAIL("Use of invalid direction change flag");
+                SK_ABORT("Use of invalid direction change flag");
                 break;
         }
     }

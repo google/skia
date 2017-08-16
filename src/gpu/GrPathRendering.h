@@ -60,7 +60,7 @@ public:
                 return 6;
 
             default:
-                SkFAIL("Unknown path transform type");
+                SK_ABORT("Unknown path transform type");
                 return 0;
         }
     }

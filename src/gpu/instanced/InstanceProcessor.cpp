@@ -1674,7 +1674,7 @@ GLSLInstanceProcessor::Backend* GLSLInstanceProcessor::Backend::Create(const GrP
                                                                        const VertexInputs& inputs) {
     switch (opInfo.aaType()) {
         default:
-            SkFAIL("Unexpected antialias mode.");
+            SK_ABORT("Unexpected antialias mode.");
         case GrAAType::kNone:
             return new BackendNonAA(opInfo, inputs);
         case GrAAType::kCoverage:
@@ -2035,7 +2035,7 @@ IndexRange InstanceProcessor::GetIndexRangeForRect(GrAAType aaType) {
         case GrAAType::kMixedSamples:
             return {kRect_FirstIndex, 3 * kRect_TriCount};
     }
-    SkFAIL("Unexpected aa type!");
+    SK_ABORT("Unexpected aa type!");
     return {0, 0};
 }
 
@@ -2054,7 +2054,7 @@ IndexRange InstanceProcessor::GetIndexRangeForOval(GrAAType aaType, const SkRect
         case GrAAType::kMixedSamples:
             return {kOctagonsFanned_FirstIndex, 3 * kOctagonsFanned_TriCount};
     }
-    SkFAIL("Unexpected aa type!");
+    SK_ABORT("Unexpected aa type!");
     return {0, 0};
 }
 
@@ -2068,7 +2068,7 @@ IndexRange InstanceProcessor::GetIndexRangeForRRect(GrAAType aaType) {
         case GrAAType::kMixedSamples:
             return {kCorneredRectFanned_FirstIndex, 3 * kCorneredRectFanned_TriCount};
     }
-    SkFAIL("Unexpected aa type!");
+    SK_ABORT("Unexpected aa type!");
     return {0, 0};
 }
 

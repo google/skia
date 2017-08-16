@@ -196,7 +196,7 @@ inline bool init_path_object_for_general_path(GrGLGpu* gpu, GrGLuint pathID,
 static GrPathRendering::FillType convert_skpath_filltype(SkPath::FillType fill) {
     switch (fill) {
         default:
-            SkFAIL("Incomplete Switch\n");
+            SK_ABORT("Incomplete Switch\n");
         case SkPath::kWinding_FillType:
         case SkPath::kInverseWinding_FillType:
             return GrPathRendering::kWinding_FillType;

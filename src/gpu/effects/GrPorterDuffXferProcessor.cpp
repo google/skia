@@ -459,7 +459,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
             fragBuilder->codeAppendf("%s = (float4(1.0) - %s) * %s;", output, inColor, inCoverage);
             break;
         default:
-            SkFAIL("Unsupported output type.");
+            SK_ABORT("Unsupported output type.");
             break;
     }
 }
@@ -753,7 +753,7 @@ const GrXPFactory* GrPorterDuffXPFactory::Get(SkBlendMode blendMode) {
         case SkBlendMode::kScreen:
             return &gScreenPDXPF;
         default:
-            SkFAIL("Unexpected blend mode.");
+            SK_ABORT("Unexpected blend mode.");
             return nullptr;
     }
 }

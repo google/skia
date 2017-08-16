@@ -819,7 +819,7 @@ static inline GrGLint config_alignment(GrPixelConfig config) {
         case kUnknown_GrPixelConfig:
             return 0;
     }
-    SkFAIL("Invalid pixel config");
+    SK_ABORT("Invalid pixel config");
     return 0;
 }
 
@@ -1239,7 +1239,7 @@ static bool renderbuffer_storage_msaa(const GrGLContext& ctx,
                                                                 width, height));
             break;
         case GrGLCaps::kNone_MSFBOType:
-            SkFAIL("Shouldn't be here if we don't support multisampled renderbuffers.");
+            SK_ABORT("Shouldn't be here if we don't support multisampled renderbuffers.");
             break;
     }
     return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));
@@ -2332,7 +2332,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
                 GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID()));
                 break;
             default:
-                SkFAIL("Unknown resolve type");
+                SK_ABORT("Unknown resolve type");
         }
         glvp = renderTarget->getViewport();
     } else {
@@ -2575,7 +2575,7 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
         case GrPrimitiveType::kLinesAdjacency:
             return GR_GL_LINES_ADJACENCY;
     }
-    SkFAIL("invalid GrPrimitiveType");
+    SK_ABORT("invalid GrPrimitiveType");
     return GR_GL_TRIANGLES;
 }
 
@@ -2908,7 +2908,7 @@ static GrGLenum get_component_enum_from_char(char component) {
         case 'a':
            return GR_GL_ALPHA;
         default:
-            SkFAIL("Unsupported component");
+            SK_ABORT("Unsupported component");
             return 0;
     }
 }
@@ -4399,7 +4399,7 @@ int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
         case kTextureExternalSampler_GrSLType:
             return 3;
         default:
-            SkFAIL("Unexpected samper type");
+            SK_ABORT("Unexpected samper type");
             return 0;
     }
 }

@@ -321,7 +321,7 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kLinesAdjacency:
             return 4;
     }
-    SkFAIL("Incomplete switch\n");
+    SK_ABORT("Incomplete switch\n");
     return 0;
 }
 
@@ -339,7 +339,7 @@ static uint32_t primitive_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kLinesAdjacency:
             return 4;
     }
-    SkFAIL("Incomplete switch\n");
+    SK_ABORT("Incomplete switch\n");
     return 0;
 }
 

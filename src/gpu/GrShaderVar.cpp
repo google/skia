@@ -17,7 +17,7 @@ static const char* type_modifier_string(GrShaderVar::TypeModifier t) {
         case GrShaderVar::kOut_TypeModifier: return "out";
         case GrShaderVar::kUniform_TypeModifier: return "uniform";
     }
-    SkFAIL("Unknown shader variable type modifier.");
+    SK_ABORT("Unknown shader variable type modifier.");
     return "";
 }
 
@@ -52,7 +52,7 @@ void GrShaderVar::setMemoryModel(GrSLMemoryModel model) {
             this->addModifier("volatile");
             return;
     }
-    SkFAIL("Unknown memory model.");
+    SK_ABORT("Unknown memory model.");
 }
 
 void GrShaderVar::setRestrict(GrSLRestrict restrict) {
@@ -63,7 +63,7 @@ void GrShaderVar::setRestrict(GrSLRestrict restrict) {
             this->addModifier("restrict");
             return;
     }
-    SkFAIL("Unknown restrict.");
+    SK_ABORT("Unknown restrict.");
 }
 
 void GrShaderVar::setIOType(GrIOType ioType) {
@@ -77,7 +77,7 @@ void GrShaderVar::setIOType(GrIOType ioType) {
             this->addModifier("writeonly");
             return;
     }
-    SkFAIL("Unknown io type.");
+    SK_ABORT("Unknown io type.");
 }
 
 void GrShaderVar::appendDecl(const GrShaderCaps* shaderCaps, SkString* out) const {

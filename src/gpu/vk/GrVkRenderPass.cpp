@@ -35,7 +35,7 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
             attachment->stencilStoreOp = desc.fLoadStoreOps.fStoreOp;
             break;
         default:
-            SkFAIL("Unexpected attachment layout");
+            SK_ABORT("Unexpected attachment layout");
     }
 
     attachment->initialLayout = layout;

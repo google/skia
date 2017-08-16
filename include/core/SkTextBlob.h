@@ -87,7 +87,7 @@ private:
     // be freed with sk_free.
     void operator delete(void* p) { sk_free(p); }
     void* operator new(size_t) {
-        SkFAIL("All blobs are created by placement new.");
+        SK_ABORT("All blobs are created by placement new.");
         return sk_malloc_throw(0);
     }
     void* operator new(size_t, void* p) { return p; }

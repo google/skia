@@ -41,7 +41,7 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
         case kUint_GrVertexAttribType:
             return VK_FORMAT_R32_UINT;
     }
-    SkFAIL("Unknown vertex attrib type");
+    SK_ABORT("Unknown vertex attrib type");
     return VK_FORMAT_UNDEFINED;
 }
 
@@ -111,7 +111,7 @@ static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType prim
         case GrPrimitiveType::kLinesAdjacency:
             return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
     }
-    SkFAIL("invalid GrPrimitiveType");
+    SK_ABORT("invalid GrPrimitiveType");
     return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 }
 

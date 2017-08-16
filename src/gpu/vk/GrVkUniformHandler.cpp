@@ -55,7 +55,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kIImageStorage2D_GrSLType:
             break;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return 0;
 }
 
@@ -104,7 +104,7 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kIImageStorage2D_GrSLType:
             break;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return 0;
 }
 

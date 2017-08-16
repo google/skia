@@ -61,7 +61,7 @@ bool GrPixelConfigToVkFormat(GrPixelConfig config, VkFormat* format) {
             *format = VK_FORMAT_R16_SFLOAT;
             return true;
     }
-    SkFAIL("Unexpected config");
+    SK_ABORT("Unexpected config");
     return false;
 }
 

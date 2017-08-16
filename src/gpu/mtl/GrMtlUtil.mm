@@ -64,7 +64,7 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
             *format = MTLPixelFormatR16Float;
             return true;
     }
-    SkFAIL("Unexpected config");
+    SK_ABORT("Unexpected config");
     return false;
 }
 

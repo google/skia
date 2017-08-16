@@ -64,7 +64,7 @@ void GrFragmentProcessorTestFactory::VerifyFactoryCount() {
     if (kFPFactoryCount != GetFactories()->count()) {
         SkDebugf("\nExpected %d fragment processor factories, found %d.\n",
                  kFPFactoryCount, GetFactories()->count());
-        SkFAIL("Wrong number of fragment processor factories!");
+        SK_ABORT("Wrong number of fragment processor factories!");
     }
 }
 
@@ -73,7 +73,7 @@ void GrGeometryProcessorTestFactory::VerifyFactoryCount() {
     if (kGPFactoryCount != GetFactories()->count()) {
         SkDebugf("\nExpected %d geometry processor factories, found %d.\n",
                  kGPFactoryCount, GetFactories()->count());
-        SkFAIL("Wrong number of geometry processor factories!");
+        SK_ABORT("Wrong number of geometry processor factories!");
     }
 }
 
@@ -81,7 +81,7 @@ void GrXPFactoryTestFactory::VerifyFactoryCount() {
     if (kXPFactoryCount != GetFactories()->count()) {
         SkDebugf("\nExpected %d xp factory factories, found %d.\n",
                  kXPFactoryCount, GetFactories()->count());
-        SkFAIL("Wrong number of xp factory factories!");
+        SK_ABORT("Wrong number of xp factory factories!");
     }
 }
 
@@ -280,7 +280,7 @@ GrResourceIOProcessor::ImageStorageAccess::ImageStorageAccess(sk_sp<GrTexturePro
             fFormat = GrImageStorageFormat::kRGBA32f;
             break;
         default:
-            SkFAIL("Config is not (yet) supported as image storage.");
+            SK_ABORT("Config is not (yet) supported as image storage.");
             break;
     }
 }

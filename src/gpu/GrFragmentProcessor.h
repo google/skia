@@ -319,7 +319,7 @@ protected:
 
 private:
     virtual GrColor4f constantOutputForConstantInput(GrColor4f /* inputColor */) const {
-        SkFAIL("Subclass must override this if advertising this optimization.");
+        SK_ABORT("Subclass must override this if advertising this optimization.");
         return GrColor4f::TransparentBlack();
     }
 

@@ -380,7 +380,7 @@ static void emit_advanced_xfermode_code(GrGLSLFragmentBuilder* fsBuilder, const 
             break;
         }
         default:
-            SkFAIL("Unknown Custom Xfer mode.");
+            SK_ABORT("Unknown Custom Xfer mode.");
             break;
     }
 }
@@ -427,7 +427,7 @@ static bool append_porterduff_term(GrGLSLFragmentBuilder* fsBuilder, SkBlendMode
                 fsBuilder->codeAppendf(" * (1.0 - %s.a)", dstColorName);
                 break;
             default:
-                SkFAIL("Unsupported Blend Coeff");
+                SK_ABORT("Unsupported Blend Coeff");
         }
         return true;
     }
@@ -494,7 +494,7 @@ void GrGLSLBlend::AppendRegionOp(GrGLSLFragmentBuilder* fsBuilder, const char* s
             dstCoeff = SkBlendModeCoeff::kZero;
             break;
         default:
-            SkFAIL("Unsupported Op");
+            SK_ABORT("Unsupported Op");
             // We should never get here but to make compiler happy
             srcCoeff = SkBlendModeCoeff::kZero;
             dstCoeff = SkBlendModeCoeff::kZero;

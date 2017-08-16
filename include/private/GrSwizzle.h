@@ -126,7 +126,7 @@ public:
             case 3:
                 return AAAA();
             default:
-                SkFAIL("Mod is broken?!?");
+                SK_ABORT("Mod is broken?!?");
                 return RGBA();
         }
     }

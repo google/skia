@@ -56,7 +56,7 @@ static MutateResult mutate_conservative_op(SkRegion::Op* op, bool inverseFilled)
                 return kContinue_MutateResult;
         }
     }
-    SkFAIL("should not get here");
+    SK_ABORT("should not get here");
     return kDoNothing_MutateResult;
 }
 

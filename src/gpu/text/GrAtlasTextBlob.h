@@ -99,7 +99,7 @@ public:
         blob->fPool->release(p);
     }
     void* operator new(size_t) {
-        SkFAIL("All blobs are created by placement new.");
+        SK_ABORT("All blobs are created by placement new.");
         return sk_malloc_throw(0);
     }
 

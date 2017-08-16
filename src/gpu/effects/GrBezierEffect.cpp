@@ -196,7 +196,7 @@ void GrGLConicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         default:
-            SkFAIL("Shouldn't get here");
+            SK_ABORT("Shouldn't get here");
     }
 
     // TODO should we really be doing this?
@@ -401,7 +401,7 @@ void GrGLQuadEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         default:
-            SkFAIL("Shouldn't get here");
+            SK_ABORT("Shouldn't get here");
     }
 
     if (0xff != gp.coverageScale()) {
@@ -642,7 +642,7 @@ void GrGLCubicEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             break;
         }
         default:
-            SkFAIL("Shouldn't get here");
+            SK_ABORT("Shouldn't get here");
     }
 
 

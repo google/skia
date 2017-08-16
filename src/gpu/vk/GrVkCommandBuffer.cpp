@@ -499,7 +499,7 @@ void GrVkPrimaryCommandBuffer::submitToQueue(
                          WaitForFences(gpu->device(), 1, &fSubmitFence, true, UINT64_MAX));
         if (VK_TIMEOUT == err) {
             SkDebugf("Fence failed to signal: %d\n", err);
-            SkFAIL("failing");
+            SK_ABORT("failing");
         }
         SkASSERT(!err);
 
@@ -524,7 +524,7 @@ bool GrVkPrimaryCommandBuffer::finished(const GrVkGpu* gpu) const {
 
         default:
             SkDebugf("Error getting fence status: %d\n", err);
-            SkFAIL("failing");
+            SK_ABORT("failing");
             break;
     }
 

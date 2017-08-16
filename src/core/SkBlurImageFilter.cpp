@@ -128,7 +128,7 @@ static GrTextureDomain::Mode to_texture_domain_mode(SkBlurImageFilter::TileMode 
       case SkBlurImageFilter::TileMode::kRepeat_TileMode:
         return GrTextureDomain::kRepeat_Mode;
       default:
-        SkFAIL("Unsupported tile mode.");
+        SK_ABORT("Unsupported tile mode.");
         return GrTextureDomain::kDecal_Mode;
     }
 }

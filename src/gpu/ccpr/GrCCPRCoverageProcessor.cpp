@@ -39,7 +39,7 @@ const char* GrCCPRCoverageProcessor::GetProcessorName(Mode mode) {
         case Mode::kLoopBorders:
             return "GrCCPRCubicBorderProcessor (loop)";
     }
-    SkFAIL("Unexpected ccpr coverage processor mode.");
+    SK_ABORT("Unexpected ccpr coverage processor mode.");
     return nullptr;
 }
 
@@ -85,7 +85,7 @@ GrGLSLPrimitiveProcessor* GrCCPRCoverageProcessor::createGLSLInstance(const GrSh
         case Mode::kLoopBorders:
             return new GrCCPRCubicBorderProcessor(GrCCPRCubicProcessor::Type::kLoop);
     }
-    SkFAIL("Unexpected ccpr coverage processor mode.");
+    SK_ABORT("Unexpected ccpr coverage processor mode.");
     return nullptr;
 }
 
