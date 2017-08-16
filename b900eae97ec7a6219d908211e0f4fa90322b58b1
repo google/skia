@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "ab7959a5_4456cd16",
+        "filename": "bench/GLVertexAttributesBench.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T12:44:35Z",
+      "side": 1,
+      "message": "This should probably be highfloat. Or perhaps even better this benchmark should be deleted.",
+      "range": {
+        "startLine": 72,
+        "startChar": 40,
+        "endLine": 72,
+        "endChar": 55
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2def8317_cf967824",
+        "filename": "src/effects/SkBlurMaskFilter.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T12:44:35Z",
+      "side": 1,
+      "message": "fragBuilder-\u003eappendf(\"using floatType \u003d %s;\", kHigh_GrSLPrecision ? \"highfloat\" : \"half\");\n\n:)",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8b2df126_fc85d24d",
         "filename": "src/gpu/ccpr/GrCCPRCoverageProcessor.cpp",
         "patchSetId": 34
@@ -70,6 +110,46 @@
     },
     {
       "key": {
+        "uuid": "9ad44dbd_e787f1fe",
+        "filename": "src/gpu/effects/GrBezierEffect.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T12:44:35Z",
+      "side": 1,
+      "message": "Unrealted to this change, but wanted to pose a question to Chris: Should we remove this code and associated gms? This really existed just to preserve Greg\u0027s work on this. It seems like with advent CCPR that time has passed.",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d496f2d3_77b32a05",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T12:44:35Z",
+      "side": 1,
+      "message": "Is this a change? (and same for st below).",
+      "range": {
+        "startLine": 590,
+        "startChar": 28,
+        "endLine": 590,
+        "endChar": 48
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c3d0b3a_40edcaa4",
         "filename": "src/gpu/effects/GrSRGBEffect.cpp",
         "patchSetId": 34
@@ -81,6 +161,29 @@
       "writtenOn": "2017-08-16T00:00:01Z",
       "side": 1,
       "message": "curious how you deduced this should be high",
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b6921d0_4e5eae34",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T12:44:35Z",
+      "side": 1,
+      "message": "Why this change? and in the other texture lookups.",
+      "range": {
+        "startLine": 101,
+        "startChar": 52,
+        "endLine": 101,
+        "endChar": 72
+      },
       "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
