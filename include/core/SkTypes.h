@@ -115,7 +115,6 @@ inline void operator delete(void* p) {
 #endif
 
 // Legacy macro names for SK_ABORT
-#define SkFAIL(message)                 SK_ABORT(message)
 #define sk_throw()                      SK_ABORT("sk_throw")
 
 #ifdef SK_IGNORE_TO_STRING
