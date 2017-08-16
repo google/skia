@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44e85315_cd7991c2",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2017-08-16T18:54:13Z",
+      "side": 1,
+      "message": "removed this",
+      "range": {
+        "startLine": 17,
+        "startChar": 7,
+        "endLine": 17,
+        "endChar": 37
+      },
+      "revId": "75e6bd585998c852bb00661978bd7acadbe4af4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
