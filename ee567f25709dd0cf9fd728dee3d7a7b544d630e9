@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1adde863_0a149357",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-16T20:35:04Z",
+      "side": 1,
+      "message": "Unrelated: it\u0027s occurred to me that we can pack this into some unused bits of fArgName on 64-bit builds.\n\n(We can\u0027t on 32-bit builds, but it wouldn\u0027t help there anyway.)",
+      "revId": "ee567f25709dd0cf9fd728dee3d7a7b544d630e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "767a2138_02a109c5",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-16T20:35:04Z",
+      "side": 1,
+      "message": "These won\u0027t ever be negative, right?  RIGHT?",
+      "range": {
+        "startLine": 236,
+        "startChar": 4,
+        "endLine": 236,
+        "endChar": 11
+      },
+      "revId": "ee567f25709dd0cf9fd728dee3d7a7b544d630e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
