@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a37bc208_cab7113c",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-16T15:40:14Z",
+      "side": 1,
+      "message": "I\u0027d probably add this same block to the start of executeOps, too?",
+      "revId": "43c448e619d3044552b22d8c5fef2a8339411e23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
