@@ -258,9 +258,14 @@ config("default") {
 }
 
 config("no_exceptions") {
-  # Exceptions are disabled by default on Windows.  (Use /EHsc to enable them.)
+  # Exceptions are disabled by default on Windows.  (Use :yes_exceptions to enable them.)
   if (!is_win) {
     cflags_cc = [ "-fno-exceptions" ]
+  }
+}
+config("yes_exceptions") {
+  if (is_win) {
+    cflags_cc = [ "/EHsc" ]
   }
 }
 

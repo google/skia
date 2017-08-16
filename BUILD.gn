@@ -883,6 +883,9 @@ if (skia_enable_tools) {
         ":skia_private",
       ]
 
+      configs -= [ "//gn:no_exceptions" ]
+      configs += [ "//gn:yes_exceptions" ]
+
       if (!defined(deps)) {
         deps = []
       }
@@ -896,6 +899,8 @@ if (skia_enable_tools) {
       shared_library("lib" + target_name) {
         forward_variables_from(invoker, "*", [ "is_shared_library" ])
         configs += [ ":skia_private" ]
+        configs -= [ "//gn:no_exceptions" ]
+        configs += [ "//gn:yes_exceptions" ]
         testonly = true
       }
     } else {
@@ -903,6 +908,8 @@ if (skia_enable_tools) {
       executable(_executable) {
         forward_variables_from(invoker, "*", [ "is_shared_library" ])
         configs += [ ":skia_private" ]
+        configs -= [ "//gn:no_exceptions" ]
+        configs += [ "//gn:yes_exceptions" ]
         testonly = true
       }
     }
