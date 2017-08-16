@@ -130,7 +130,9 @@ def dm_flags(api, bot):
         'iPhone7' in bot or
         # skia:5792
         'IntelHD530'   in bot or
-        'IntelIris540' in bot):
+        'IntelIris540' in bot or
+        # DO NOT SUBMIT
+        'IntelHD615' in bot):
       configs = [x for x in configs if 'msaa' not in x]
 
     # The NP produces different images for dft on every run.
@@ -498,10 +500,17 @@ def dm_flags(api, bot):
                   '~GrContextFactory_abandon']) #skia:6209
 
   if ('Vulkan' in bot and api.vars.is_linux and
-      ('IntelIris540' in bot or 'IntelIris640' in bot)):
+      ('IntelIris540' in bot or
+       'IntelIris640' in bot or
+       # DO NOT SUBMIT
+       'IntelHD615' in bot)):
     match.extend(['~VkHeapTests']) # skia:6245
 
-  if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+  if ('Vulkan' in bot and
+      ('IntelIris540' in bot or
+       # DO NOT SUBMIT
+       'IntelHD615' in bot) and
+      'Win' in bot):
     # skia:6398
     blacklist(['vk', 'gm', '_', 'aarectmodes'])
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
@@ -571,7 +580,7 @@ def dm_flags(api, bot):
     match.append('~WritePixelsNonTexture_Gpu')
     match.append('~XfermodeImageFilterCroppedInput_Gpu')
 
-  if 'IntelIris540' in bot and 'ANGLE' in bot:
+  if ('IntelIris540' in bot or 'IntelHD615' in bot) and 'ANGLE' in bot:
     for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
       # skia:6103
       blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
