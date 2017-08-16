@@ -610,6 +610,13 @@ static sk_sp<SkPathEffect> make_null_dash() {
     return SkDashPathEffect::Make(kNullIntervals, SK_ARRAY_COUNT(kNullIntervals), 0.f);
 }
 
+// We make enough TestCases, and they're large enough, that on Google3 builds we exceed
+// the maximum stack frame limit.  make_TestCase() moves those temporaries over to the heap.
+template <typename... Args>
+static std::unique_ptr<TestCase> make_TestCase(Args&&... args) {
+    return std::unique_ptr<TestCase>{ new TestCase(std::forward<Args>(args)...) };
+}
+
 static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     sk_sp<SkPathEffect> dashPE = make_dash();
 
@@ -622,8 +629,8 @@ static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     expectations.fStrokeApplies = false;
     fillCase.testExpectations(reporter, expectations);
     // Test that another GrShape instance built from the same primitive is the same.
-    TestCase(geo, fill, reporter).compare(reporter, fillCase,
-                                          TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(geo, fill, reporter)
+        ->compare(reporter, fillCase, TestCase::kAllSame_ComparisonExpecation);
 
     SkPaint stroke2RoundBevel;
     stroke2RoundBevel.setStyle(SkPaint::kStroke_Style);
@@ -635,8 +642,8 @@ static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     expectations.fPEHasEffect = false;
     expectations.fStrokeApplies = !geo.strokeIsConvertedToFill();
     stroke2RoundBevelCase.testExpectations(reporter, expectations);
-    TestCase(geo, stroke2RoundBevel, reporter).compare(reporter, stroke2RoundBevelCase,
-                                                       TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(geo, stroke2RoundBevel, reporter)
+        ->compare(reporter, stroke2RoundBevelCase, TestCase::kAllSame_ComparisonExpecation);
 
     SkPaint stroke2RoundBevelDash = stroke2RoundBevel;
     stroke2RoundBevelDash.setPathEffect(make_dash());
@@ -645,8 +652,8 @@ static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     expectations.fPEHasEffect = true;
     expectations.fStrokeApplies = true;
     stroke2RoundBevelDashCase.testExpectations(reporter, expectations);
-    TestCase(geo, stroke2RoundBevelDash, reporter).compare(reporter, stroke2RoundBevelDashCase,
-                                                           TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(geo, stroke2RoundBevelDash, reporter)
+        ->compare(reporter, stroke2RoundBevelDashCase, TestCase::kAllSame_ComparisonExpecation);
 
     if (geo.fillChangesGeom() || geo.strokeIsConvertedToFill()) {
         fillCase.compare(reporter, stroke2RoundBevelCase,
@@ -675,8 +682,8 @@ static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     expectations.fPEHasEffect = false;
     expectations.fStrokeApplies = !geo.strokeIsConvertedToFill();
     stroke2RoundBevelAndFillCase.testExpectations(reporter, expectations);
-    TestCase(geo, stroke2RoundBevelAndFill, reporter).compare(reporter,
-            stroke2RoundBevelAndFillCase, TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(geo, stroke2RoundBevelAndFill, reporter)->compare(
+            reporter, stroke2RoundBevelAndFillCase, TestCase::kAllSame_ComparisonExpecation);
 
     SkPaint stroke2RoundBevelAndFillDash = stroke2RoundBevelDash;
     stroke2RoundBevelAndFillDash.setStyle(SkPaint::kStrokeAndFill_Style);
@@ -685,7 +692,7 @@ static void test_basic(skiatest::Reporter* reporter, const Geo& geo) {
     expectations.fPEHasEffect = false;
     expectations.fStrokeApplies = !geo.strokeIsConvertedToFill();
     stroke2RoundBevelAndFillDashCase.testExpectations(reporter, expectations);
-    TestCase(geo, stroke2RoundBevelAndFillDash, reporter).compare(
+    make_TestCase(geo, stroke2RoundBevelAndFillDash, reporter)->compare(
         reporter, stroke2RoundBevelAndFillDashCase, TestCase::kAllSame_ComparisonExpecation);
     stroke2RoundBevelAndFillDashCase.compare(reporter, stroke2RoundBevelAndFillCase,
                                              TestCase::kAllSame_ComparisonExpecation);
@@ -1304,7 +1311,7 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
     REPORTER_ASSERT(reporter, paths_fill_same(a, b));
 }
 
-void test_empty_shape(skiatest::Reporter* reporter) {
+DEF_TEST(GrShape_empty_shape, reporter) {
     SkPath emptyPath;
     SkPaint fill;
     TestCase fillEmptyCase(reporter, emptyPath, fill);
@@ -1609,7 +1616,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     }
 }
 
-void test_lines(skiatest::Reporter* r) {
+DEF_TEST(GrShape_lines, r) {
     static constexpr SkPoint kA { 1,  1};
     static constexpr SkPoint kB { 5, -9};
     static constexpr SkPoint kC {-3, 17};
@@ -1717,7 +1724,7 @@ void test_lines(skiatest::Reporter* r) {
 
 }
 
-static void test_stroked_lines(skiatest::Reporter* r) {
+DEF_TEST(GrShape_stroked_lines, r) {
     // Paints to try
     SkPaint buttCap;
     buttCap.setStyle(SkPaint::kStroke_Style);
@@ -1737,13 +1744,15 @@ static void test_stroked_lines(skiatest::Reporter* r) {
 
     SkPaint fill;
 
-    TestCase(r, linePath, buttCap).compare(r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
-                                           TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, buttCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 4, 6, 5), fill),
+            TestCase::kAllSame_ComparisonExpecation);
 
-    TestCase(r, linePath, squareCap).compare(r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
-                                             TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, squareCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 7), fill),
+            TestCase::kAllSame_ComparisonExpecation);
 
-    TestCase(r, linePath, roundCap).compare(r,
+    make_TestCase(r, linePath, roundCap)->compare(r,
         TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 7), 2, 2), fill),
         TestCase::kAllSame_ComparisonExpecation);
 
@@ -1752,29 +1761,33 @@ static void test_stroked_lines(skiatest::Reporter* r) {
     linePath.moveTo(4, 4);
     linePath.lineTo(5, 4);
 
-    TestCase(r, linePath, buttCap).compare(r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
-                                           TestCase::kAllSame_ComparisonExpecation);
-    TestCase(r, linePath, squareCap).compare(r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
-                                             TestCase::kAllSame_ComparisonExpecation);
-    TestCase(r, linePath, roundCap).compare(r,
-         TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
-         TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, buttCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, squareCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 2, 7, 6), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, roundCap)->compare(
+            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 7, 6), 2, 2), fill),
+            TestCase::kAllSame_ComparisonExpecation);
 
     // point
     linePath.reset();
     linePath.moveTo(4, 4);
     linePath.lineTo(4, 4);
 
-    TestCase(r, linePath, buttCap).compare(r, TestCase(r, SkRect::MakeEmpty(), fill),
-                                           TestCase::kAllSame_ComparisonExpecation);
-    TestCase(r, linePath, squareCap).compare(r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
-                                             TestCase::kAllSame_ComparisonExpecation);
-    TestCase(r, linePath, roundCap).compare(r,
-        TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
-        TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, buttCap)->compare(
+            r, TestCase(r, SkRect::MakeEmpty(), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, squareCap)->compare(
+            r, TestCase(r, SkRect::MakeLTRB(2, 2, 6, 6), fill),
+            TestCase::kAllSame_ComparisonExpecation);
+    make_TestCase(r, linePath, roundCap)->compare(
+            r, TestCase(r, SkRRect::MakeRectXY(SkRect::MakeLTRB(2, 2, 6, 6), 2, 2), fill),
+            TestCase::kAllSame_ComparisonExpecation);
 }
 
-static void test_short_path_keys(skiatest::Reporter* r) {
+DEF_TEST(GrShape_short_path_keys, r) {
     SkPaint paints[4];
     paints[1].setStyle(SkPaint::kStroke_Style);
     paints[1].setStrokeWidth(5.f);
@@ -1872,39 +1885,51 @@ DEF_TEST(GrShape, reporter) {
                                                     PathGeo::Invert::kNo));
     }
 
-    SkPath openRectPath;
-    openRectPath.moveTo(0, 0);
-    openRectPath.lineTo(10, 0);
-    openRectPath.lineTo(10, 10);
-    openRectPath.lineTo(0, 10);
-    geos.emplace_back(new RRectPathGeo(openRectPath, SkRect::MakeWH(10, 10),
-                                       RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kNo));
-    geos.emplace_back(new RRectPathGeo(openRectPath, SkRect::MakeWH(10, 10),
-                                       RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kYes));
-    rrectPathGeos.emplace_back(new RRectPathGeo(openRectPath, SkRect::MakeWH(10, 10),
-                                                RRectPathGeo::RRectForStroke::kNo,
-                                                PathGeo::Invert::kNo));
+    {
+        SkPath openRectPath;
+        openRectPath.moveTo(0, 0);
+        openRectPath.lineTo(10, 0);
+        openRectPath.lineTo(10, 10);
+        openRectPath.lineTo(0, 10);
+        geos.emplace_back(new RRectPathGeo(
+                    openRectPath, SkRect::MakeWH(10, 10),
+                    RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kNo));
+        geos.emplace_back(new RRectPathGeo(
+                    openRectPath, SkRect::MakeWH(10, 10),
+                    RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kYes));
+        rrectPathGeos.emplace_back(new RRectPathGeo(
+                    openRectPath, SkRect::MakeWH(10, 10),
+                    RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kNo));
+    }
 
-    SkPath quadPath;
-    quadPath.quadTo(10, 10, 5, 8);
-    geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kNo));
-    geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kYes));
+    {
+        SkPath quadPath;
+        quadPath.quadTo(10, 10, 5, 8);
+        geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kNo));
+        geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kYes));
+    }
 
-    SkPath linePath;
-    linePath.lineTo(10, 10);
-    geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kNo));
-    geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kYes));
+    {
+        SkPath linePath;
+        linePath.lineTo(10, 10);
+        geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kNo));
+        geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kYes));
+    }
 
     // Horizontal and vertical paths become rrects when stroked.
-    SkPath vLinePath;
-    vLinePath.lineTo(0, 10);
-    geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kNo));
-    geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kYes));
+    {
+        SkPath vLinePath;
+        vLinePath.lineTo(0, 10);
+        geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kNo));
+        geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kYes));
+    }
 
-    SkPath hLinePath;
-    hLinePath.lineTo(10, 0);
-    geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kNo));
-    geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kYes));
+    {
+        SkPath hLinePath;
+        hLinePath.lineTo(10, 0);
+        geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kNo));
+        geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kYes));
+    }
 
     for (int i = 0; i < geos.count(); ++i) {
         test_basic(reporter, *geos[i]);
@@ -1958,14 +1983,6 @@ DEF_TEST(GrShape, reporter) {
 
     // Test a volatile empty path.
     test_volatile_path(reporter, PathGeo(SkPath(), PathGeo::Invert::kNo));
-
-    test_empty_shape(reporter);
-
-    test_lines(reporter);
-
-    test_stroked_lines(reporter);
-
-    test_short_path_keys(reporter);
 }
 
 #endif
