@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c012487_5a6a997e",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T18:15:11Z",
+      "side": 1,
+      "message": "These are otherwise alphabetical. Please move this above skia_use_vulkan",
+      "range": {
+        "startLine": 203,
+        "startChar": 3,
+        "endLine": 203,
+        "endChar": 19
+      },
+      "revId": "f2f99aa59aa004ccf407ad3e41172339db3eb02c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
