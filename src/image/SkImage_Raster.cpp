@@ -13,6 +13,7 @@
 #include "SkColorSpaceXformImageGenerator.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
+#include "SkConvertPixels.h"
 #include "SkData.h"
 #include "SkImageInfoPriv.h"
 #include "SkImagePriv.h"
@@ -239,17 +240,24 @@ void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
 #endif
 
 sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset) const {
-    // TODO : could consider heurist of sharing pixels, if subset is pretty close to complete
-
-    SkImageInfo info = SkImageInfo::MakeN32(subset.width(), subset.height(), fBitmap.alphaType());
-    auto surface(SkSurface::MakeRaster(info));
-    if (!surface) {
+    SkImageInfo info = fBitmap.info().makeWH(subset.width(), subset.height());
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(info)) {
         return nullptr;
     }
-    surface->getCanvas()->clear(0);
-    surface->getCanvas()->drawImage(this, SkIntToScalar(-subset.x()), SkIntToScalar(-subset.y()),
-                                    nullptr);
-    return surface->makeImageSnapshot();
+
+    void* dst = bitmap.getPixels();
+    void* src = fBitmap.getAddr(subset.x(), subset.y());
+    if (!dst || !src) {
+        SkDEBUGFAIL("SkImage_Raster::onMakeSubset with nullptr src or dst");
+        return nullptr;
+    }
+
+    SkRectMemcpy(dst, bitmap.rowBytes(), src, fBitmap.rowBytes(), bitmap.rowBytes(),
+                 subset.height());
+
+    bitmap.setImmutable();
+    return MakeFromBitmap(bitmap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
