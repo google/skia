@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c643b929_b61899d5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "I think if you format this as\n\nBug: b/###\n\nit will make it a link automatically (although it won\u0027t update the bug automatically).",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0491df3b_221a9319",
+        "filename": "Android.bp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "We don\u0027t need this file checked in to Skia upstream.",
+      "range": {
+        "startLine": 1,
+        "startChar": 8,
+        "endLine": 1,
+        "endChar": 12
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e42ffc4_2d099801",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "You can just define this as false, and then set it to true in the generator for Android.bp",
+      "range": {
+        "startLine": 40,
+        "startChar": 21,
+        "endLine": 40,
+        "endChar": 31
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eeae2cd_186c3be0",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "Maybe this should be skia_use_libheif, to be consistent with libpng etc?",
+      "range": {
+        "startLine": 40,
+        "startChar": 2,
+        "endLine": 40,
+        "endChar": 18
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbb900cc_cb7fa08d",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "We\u0027re already inconsistent on this one. Most of our decoders are \"SK_HAS_XXX_LIBRARY\", but DNG is \"SK_CODEC_DECODES_RAW\". I\u0027d go with the former: \"SK_HAS_HEIF_LIBRARY\".",
+      "range": {
+        "startLine": 538,
+        "startChar": 22,
+        "endLine": 538,
+        "endChar": 36
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdae03ee_c4d86651",
+        "filename": "gn/gn_to_bp.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "This block is where you should set skia_enable_heif to true.",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 197,
+        "endChar": 7
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "777e2a25_7ffba02c",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "This section should be inside\n\n#ifdef SK_ENABLE_HEIF",
+      "range": {
+        "startLine": 46,
+        "startChar": 6,
+        "endLine": 46,
+        "endChar": 55
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d75b6f43_65b93512",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T17:16:16Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be necessary, if you surround the callsite with #ifdefs, like the others.",
+      "range": {
+        "startLine": 84,
+        "startChar": 7,
+        "endLine": 84,
+        "endChar": 37
+      },
+      "revId": "1897abdc838dd2b05496173267e40226b4a44be4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
