@@ -35,7 +35,6 @@ struct TraceEvent {
     uint32_t fSize;
 
     const char* fName;
-    const char* fCategory;
     // TODO: Merge fID and fClockEnd (never used together)
     uint64_t fID;
     uint64_t fClockBegin;
@@ -114,7 +113,6 @@ SkEventTracer::Handle SkChromeTracingTracer::addTraceEvent(char phase,
     traceEvent->fNumArgs = numArgs;
     traceEvent->fSize = size;
     traceEvent->fName = name;
-    traceEvent->fCategory = fCategories.getCategoryGroupName(categoryEnabledFlag);
     traceEvent->fID = id;
     traceEvent->fClockBegin = std::chrono::steady_clock::now().time_since_epoch().count();
     traceEvent->fClockEnd = 0;
@@ -187,12 +185,34 @@ static void trace_value_to_json(SkJSONWriter* writer, uint64_t argValue, uint8_t
     }
 }
 
-typedef SkTHashMap<uint64_t, const char*> BaseTypeResolver;
+namespace {
+
+struct TraceEventSerializationState {
+    TraceEventSerializationState(uint64_t clockOffset)
+            : fClockOffset(clockOffset), fNextThreadID(0) {}
+
+    int getShortThreadID(SkThreadID id) {
+        if (int* shortIDPtr = fShortThreadIDMap.find(id)) {
+            return *shortIDPtr;
+        }
+        int shortID = fNextThreadID++;
+        fShortThreadIDMap.set(id, shortID);
+        return shortID;
+    }
+
+    uint64_t fClockOffset;
+    SkTHashMap<uint64_t, const char*> fBaseTypeResolver;
+    int fNextThreadID;
+    SkTHashMap<SkThreadID, int> fShortThreadIDMap;
+};
+
+}
 
 static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
-                                BaseTypeResolver* baseTypeResolver) {
+                                TraceEventSerializationState* serializationState) {
     // We track the original (creation time) "name" of each currently live object, so we can
     // automatically insert "base_name" fields in object snapshot events.
+    auto baseTypeResolver = &(serializationState->fBaseTypeResolver);
     if (TRACE_EVENT_PHASE_CREATE_OBJECT == traceEvent->fPhase) {
         SkASSERT(nullptr == baseTypeResolver->find(traceEvent->fID));
         baseTypeResolver->set(traceEvent->fID, traceEvent->fName);
@@ -206,18 +226,22 @@ static void trace_event_to_json(SkJSONWriter* writer, TraceEvent* traceEvent,
     char phaseString[2] = { traceEvent->fPhase, 0 };
     writer->appendString("ph", phaseString);
     writer->appendString("name", traceEvent->fName);
-    writer->appendString("cat", traceEvent->fCategory);
     if (0 != traceEvent->fID) {
         // IDs are (almost) always pointers
         writer->appendPointer("id", reinterpret_cast<void*>(traceEvent->fID));
     }
-    // Convert nanoseconds to microseconds (standard time unit for tracing JSON files)
-    writer->appendDouble("ts", static_cast<double>(traceEvent->fClockBegin) * 1E-3);
+
+    // Offset timestamps to reduce JSON length, then convert nanoseconds to microseconds
+    // (standard time unit for tracing JSON files).
+    uint64_t relativeTimestamp = static_cast<int64_t>(traceEvent->fClockBegin -
+                                                      serializationState->fClockOffset);
+    writer->appendDoubleDigits("ts", static_cast<double>(relativeTimestamp) * 1E-3, 3);
     if (0 != traceEvent->fClockEnd) {
         double dur = static_cast<double>(traceEvent->fClockEnd - traceEvent->fClockBegin) * 1E-3;
-        writer->appendDouble("dur", dur);
+        writer->appendDoubleDigits("dur", dur, 3);
     }
-    writer->appendS64("tid", traceEvent->fThreadID);
+
+    writer->appendS64("tid", serializationState->getShortThreadID(traceEvent->fThreadID));
     // Trace events *must* include a process ID, but for internal tools this isn't particularly
     // important (and certainly not worth adding a cross-platform API to get it).
     writer->appendS32("pid", 0);
@@ -274,21 +298,28 @@ void SkChromeTracingTracer::flush() {
     SkJSONWriter writer(&fileStream, SkJSONWriter::Mode::kFast);
     writer.beginArray();
 
-    BaseTypeResolver baseTypeResolver;
+    uint64_t clockOffset = 0;
+    if (fBlocks.count() > 0) {
+        clockOffset = reinterpret_cast<TraceEvent*>(fBlocks[0].fBlock.get())->fClockBegin;
+    } else if (fCurBlock.fEventsInBlock > 0) {
+        clockOffset = reinterpret_cast<TraceEvent*>(fCurBlock.fBlock.get())->fClockBegin;
+    }
+
+    TraceEventSerializationState serializationState(clockOffset);
 
     auto event_block_to_json = [](SkJSONWriter* writer, const TraceEventBlock& block,
-                                  BaseTypeResolver* baseTypeResolver) {
+                                  TraceEventSerializationState* serializationState) {
         TraceEvent* traceEvent = reinterpret_cast<TraceEvent*>(block.fBlock.get());
         for (int i = 0; i < block.fEventsInBlock; ++i) {
-            trace_event_to_json(writer, traceEvent, baseTypeResolver);
+            trace_event_to_json(writer, traceEvent, serializationState);
             traceEvent = traceEvent->next();
         }
     };
 
     for (int i = 0; i < fBlocks.count(); ++i) {
-        event_block_to_json(&writer, fBlocks[i], &baseTypeResolver);
+        event_block_to_json(&writer, fBlocks[i], &serializationState);
     }
-    event_block_to_json(&writer, fCurBlock, &baseTypeResolver);
+    event_block_to_json(&writer, fCurBlock, &serializationState);
 
     writer.endArray();
     writer.flush();

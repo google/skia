@@ -198,8 +198,16 @@ public:
     void appendS64(int64_t value);
     void appendU32(uint32_t value) { this->beginValue(); this->appendf("%u", value); }
     void appendU64(uint64_t value);
-    void appendFloat(float value) { this->beginValue(); this->appendf("%f", value);; }
+    void appendFloat(float value) { this->beginValue(); this->appendf("%f", value); }
     void appendDouble(double value) { this->beginValue(); this->appendf("%f", value); }
+    void appendFloatDigits(float value, int digits) {
+        this->beginValue();
+        this->appendf("%.*f", digits, value);
+    }
+    void appendDoubleDigits(double value, int digits) {
+        this->beginValue();
+        this->appendf("%.*f", digits, value);
+    }
     void appendHexU32(uint32_t value) { this->beginValue(); this->appendf("\"0x%x\"", value); }
     void appendHexU64(uint64_t value);
 
@@ -223,6 +231,15 @@ public:
     DEFINE_NAMED_APPEND(appendHexU64, uint64_t)
 
 #undef DEFINE_NAMED_APPEND
+
+    void appendFloatDigits(const char* name, float value, int digits) {
+        this->appendName(name);
+        this->appendFloatDigits(value, digits);
+    }
+    void appendDoubleDigits(const char* name, double value, int digits) {
+        this->appendName(name);
+        this->appendDoubleDigits(value, digits);
+    }
 
 private:
     enum {
