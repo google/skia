@@ -574,7 +574,7 @@ public:
             GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
             // Setup position
-            this->setupPosition(vertBuilder, gpArgs, qe.fInPosition->fName);
+            this->writeOutputPosition(vertBuilder, gpArgs, qe.fInPosition->fName);
 
             // emit transforms
             this->emitTransforms(vertBuilder,

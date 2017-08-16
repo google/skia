@@ -132,12 +132,12 @@ public:
             }
 
             // Setup position
-            this->setupPosition(vertBuilder,
-                                uniformHandler,
-                                gpArgs,
-                                gp.inPosition()->fName,
-                                gp.viewMatrix(),
-                                &fViewMatrixUniform);
+            this->writeOutputPosition(vertBuilder,
+                                      uniformHandler,
+                                      gpArgs,
+                                      gp.inPosition()->fName,
+                                      gp.viewMatrix(),
+                                      &fViewMatrixUniform);
 
             if (gp.hasExplicitLocalCoords()) {
                 // emit transforms with explicit local coords

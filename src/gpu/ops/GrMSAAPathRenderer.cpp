@@ -145,8 +145,8 @@ public:
             vsBuilder->codeAppendf("%s = %s;", uv.vsOut(), qp.inUV()->fName);
 
             // Setup position
-            this->setupPosition(vsBuilder, uniformHandler, gpArgs, qp.inPosition()->fName,
-                                qp.viewMatrix(), &fViewMatrixUniform);
+            this->writeOutputPosition(vsBuilder, uniformHandler, gpArgs, qp.inPosition()->fName,
+                                      qp.viewMatrix(), &fViewMatrixUniform);
 
             // emit transforms
             this->emitTransforms(vsBuilder, varyingHandler, uniformHandler, gpArgs->fPositionVar,

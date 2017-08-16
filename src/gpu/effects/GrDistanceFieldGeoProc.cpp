@@ -54,12 +54,12 @@ public:
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
-        this->setupPosition(vertBuilder,
-                            uniformHandler,
-                            gpArgs,
-                            dfTexEffect.inPosition()->fName,
-                            dfTexEffect.viewMatrix(),
-                            &fViewMatrixUniform);
+        this->writeOutputPosition(vertBuilder,
+                                  uniformHandler,
+                                  gpArgs,
+                                  dfTexEffect.inPosition()->fName,
+                                  dfTexEffect.viewMatrix(),
+                                  &fViewMatrixUniform);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
@@ -331,12 +331,12 @@ public:
         vertBuilder->codeAppendf("%s = %s;", v.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // Setup position
-        this->setupPosition(vertBuilder,
-                            uniformHandler,
-                            gpArgs,
-                            dfTexEffect.inPosition()->fName,
-                            dfTexEffect.viewMatrix(),
-                            &fViewMatrixUniform);
+        this->writeOutputPosition(vertBuilder,
+                                  uniformHandler,
+                                  gpArgs,
+                                  dfTexEffect.inPosition()->fName,
+                                  dfTexEffect.viewMatrix(),
+                                  &fViewMatrixUniform);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
@@ -568,12 +568,12 @@ public:
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
 
         // Setup position
-        this->setupPosition(vertBuilder,
-                            uniformHandler,
-                            gpArgs,
-                            dfTexEffect.inPosition()->fName,
-                            dfTexEffect.viewMatrix(),
-                            &fViewMatrixUniform);
+        this->writeOutputPosition(vertBuilder,
+                                  uniformHandler,
+                                  gpArgs,
+                                  dfTexEffect.inPosition()->fName,
+                                  dfTexEffect.viewMatrix(),
+                                  &fViewMatrixUniform);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
