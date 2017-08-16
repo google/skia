@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "559f8f40_9935f08e",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-16T14:17:03Z",
+      "side": 1,
+      "message": "Yes.  You may be remembering that it won\u0027t pack bitfields of unrelated types?  Here both char and uint8_t will take a byte, then there\u0027ll be two bytes of padding, then four for fSize.",
+      "parentUuid": "76da91ee_ee2eaf94",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 21
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5cba1bff_dd94dbec",
         "filename": "tools/trace/SkChromeTracingTracer.cpp",
         "patchSetId": 1
