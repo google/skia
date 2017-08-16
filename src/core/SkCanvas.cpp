@@ -2656,7 +2656,9 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
+#endif
     RETURN_ON_NULL(dr);
     if (x || y) {
         SkMatrix matrix = SkMatrix::MakeTrans(x, y);
@@ -2667,7 +2669,9 @@ void SkCanvas::drawDrawable(SkDrawable* dr, SkScalar x, SkScalar y) {
 }
 
 void SkCanvas::drawDrawable(SkDrawable* dr, const SkMatrix* matrix) {
+#ifndef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
+#endif
     RETURN_ON_NULL(dr);
     if (matrix && matrix->isIdentity()) {
         matrix = nullptr;
