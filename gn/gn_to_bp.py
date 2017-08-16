@@ -15,7 +15,6 @@ import subprocess
 import tempfile
 
 tool_cflags = [
-    '-fexceptions',
     '-Wno-unused-parameter',
 ]
 
