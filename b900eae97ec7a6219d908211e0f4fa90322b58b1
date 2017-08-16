@@ -288,6 +288,30 @@
     },
     {
       "key": {
+        "uuid": "2c3986af_27ff98a1",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T18:51:25Z",
+      "side": 1,
+      "message": "Agreed that it should be high, just curious whether it was before or not... but I guess the precison param to addVarying is what was controlling it before?",
+      "parentUuid": "a52a7c3f_9364fd98",
+      "range": {
+        "startLine": 590,
+        "startChar": 28,
+        "endLine": 590,
+        "endChar": 48
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c3d0b3a_40edcaa4",
         "filename": "src/gpu/effects/GrSRGBEffect.cpp",
         "patchSetId": 34
@@ -358,6 +382,30 @@
       "side": 1,
       "message": "Same as above; mediump is not adequate for textures of \u003e1024 pixels, so I figured we should be using highp here. No?",
       "parentUuid": "0b6921d0_4e5eae34",
+      "range": {
+        "startLine": 101,
+        "startChar": 52,
+        "endLine": 101,
+        "endChar": 72
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97db3856_54e9074b",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T18:51:25Z",
+      "side": 1,
+      "message": "Agreed. I was mostly wondering why we didn\u0027t have to somehow specify a highp precision before. However, it turns out that this is a meaningless parameter. I think it became meaningless when you made all the various texture sampling functions be overloads of \"texture\". It had been used to select which one to call.",
+      "parentUuid": "7bc2f3d5_54d10c84",
       "range": {
         "startLine": 101,
         "startChar": 52,
