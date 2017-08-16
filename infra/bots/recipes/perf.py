@@ -153,9 +153,14 @@ def nanobench_flags(api, bot):
     match.append('~keymobi')
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
-  if 'IntelIris540' in bot and 'ANGLE' in bot:
+  # DO NOT SUBMIT
+  if ('IntelIris540' in bot or 'IntelHD615' in bot) and 'ANGLE' in bot:
     match.append('~tile_image_filter_tiled_64')  # skia:6082
-  if ('Vulkan' in bot and ('IntelIris540' in bot or 'IntelIris640' in bot) and
+  if ('Vulkan' in bot and
+      ('IntelIris540' in bot or
+       'IntelIris640' in bot or
+       # DO NOT SUBMIT
+       'IntelHD615' in bot) and
       'Win' in bot):
     # skia:6398
     match.append('~GM_varied_text_clipped_lcd')
