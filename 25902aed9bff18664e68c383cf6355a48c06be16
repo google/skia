@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "13420b98_e986741b",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T14:27:09Z",
+      "side": 1,
+      "message": "Yeah, I was thinking about bitfields.",
+      "parentUuid": "559f8f40_9935f08e",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 21
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5cba1bff_dd94dbec",
         "filename": "tools/trace/SkChromeTracingTracer.cpp",
         "patchSetId": 1
