@@ -34,6 +34,24 @@
       "revId": "43c448e619d3044552b22d8c5fef2a8339411e23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "275f9f07_e9d075a0",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2017-08-16T17:01:15Z",
+      "side": 1,
+      "message": "added the same trace for executeOps.",
+      "parentUuid": "cd0a0833_78f48fd1",
+      "revId": "43c448e619d3044552b22d8c5fef2a8339411e23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
