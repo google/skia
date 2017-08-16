@@ -10,6 +10,7 @@
 
 #include "SkWGL.h"
 
+#include "SkOnce.h"
 #include "SkTDArray.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
@@ -231,58 +232,65 @@ void destroy_dummy_window(HWND dummy) {
 #define GET_PROC(NAME, SUFFIX) f##NAME = \
                      (NAME##Proc) wglGetProcAddress("wgl" #NAME #SUFFIX)
 
-SkWGLExtensions::SkWGLExtensions()
-    : fGetExtensionsString(nullptr)
-    , fChoosePixelFormat(nullptr)
-    , fGetPixelFormatAttribfv(nullptr)
-    , fGetPixelFormatAttribiv(nullptr)
-    , fCreateContextAttribs(nullptr)
-    , fSwapInterval(nullptr)
-    , fCreatePbuffer(nullptr)
-    , fGetPbufferDC(nullptr)
-    , fReleasePbufferDC(nullptr)
-    , fDestroyPbuffer(nullptr)
- {
-    HDC prevDC = wglGetCurrentDC();
-    HGLRC prevGLRC = wglGetCurrentContext();
 
-    PIXELFORMATDESCRIPTOR dummyPFD;
+SkWGLExtensions::GetExtensionsStringProc SkWGLExtensions::fGetExtensionsString = nullptr;
+SkWGLExtensions::ChoosePixelFormatProc SkWGLExtensions::fChoosePixelFormat = nullptr;
+SkWGLExtensions::GetPixelFormatAttribfvProc SkWGLExtensions::fGetPixelFormatAttribfv = nullptr;
+SkWGLExtensions::GetPixelFormatAttribivProc SkWGLExtensions::fGetPixelFormatAttribiv = nullptr;
+SkWGLExtensions::CreateContextAttribsProc SkWGLExtensions::fCreateContextAttribs = nullptr;
+SkWGLExtensions::SwapIntervalProc SkWGLExtensions::fSwapInterval = nullptr;
+SkWGLExtensions::CreatePbufferProc SkWGLExtensions::fCreatePbuffer = nullptr;
+SkWGLExtensions::GetPbufferDCProc SkWGLExtensions::fGetPbufferDC = nullptr;
+SkWGLExtensions::ReleasePbufferDCProc SkWGLExtensions::fReleasePbufferDC = nullptr;
+SkWGLExtensions::DestroyPbufferProc SkWGLExtensions::fDestroyPbuffer = nullptr;
 
-    ZeroMemory(&dummyPFD, sizeof(dummyPFD));
-    dummyPFD.nSize = sizeof(dummyPFD);
-    dummyPFD.nVersion = 1;
-    dummyPFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
-    dummyPFD.iPixelType = PFD_TYPE_RGBA;
-    dummyPFD.cColorBits  = 32;
-    dummyPFD.cDepthBits  = 0;
-    dummyPFD.cStencilBits = 8;
-    dummyPFD.iLayerType = PFD_MAIN_PLANE;
-    HWND dummyWND = create_dummy_window();
-    if (dummyWND) {
-        HDC dummyDC = GetDC(dummyWND);
-        int dummyFormat = ChoosePixelFormat(dummyDC, &dummyPFD);
-        SetPixelFormat(dummyDC, dummyFormat, &dummyPFD);
-        HGLRC dummyGLRC = wglCreateContext(dummyDC);
-        SkASSERT(dummyGLRC);
-        wglMakeCurrent(dummyDC, dummyGLRC);
+SkWGLExtensions::SkWGLExtensions() {
+    // We cache these function pointers once, and then reuse them. That's possibly incorrect if
+    // there are multiple GPUs, or if we intend to use these for rendering contexts of different
+    // pixel formats (where wglGetProcAddress is not guaranteed to return the same pointer).
+    static SkOnce once;
+    once([] {
+        HDC prevDC = wglGetCurrentDC();
+        HGLRC prevGLRC = wglGetCurrentContext();
 
-        GET_PROC(GetExtensionsString, ARB);
-        GET_PROC(ChoosePixelFormat, ARB);
-        GET_PROC(GetPixelFormatAttribiv, ARB);
-        GET_PROC(GetPixelFormatAttribfv, ARB);
-        GET_PROC(CreateContextAttribs, ARB);
-        GET_PROC(SwapInterval, EXT);
-        GET_PROC(CreatePbuffer, ARB);
-        GET_PROC(GetPbufferDC, ARB);
-        GET_PROC(ReleasePbufferDC, ARB);
-        GET_PROC(DestroyPbuffer, ARB);
+        PIXELFORMATDESCRIPTOR dummyPFD;
 
-        wglMakeCurrent(dummyDC, nullptr);
-        wglDeleteContext(dummyGLRC);
-        destroy_dummy_window(dummyWND);
-    }
+        ZeroMemory(&dummyPFD, sizeof(dummyPFD));
+        dummyPFD.nSize = sizeof(dummyPFD);
+        dummyPFD.nVersion = 1;
+        dummyPFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+        dummyPFD.iPixelType = PFD_TYPE_RGBA;
+        dummyPFD.cColorBits  = 32;
+        dummyPFD.cDepthBits  = 0;
+        dummyPFD.cStencilBits = 8;
+        dummyPFD.iLayerType = PFD_MAIN_PLANE;
+        HWND dummyWND = create_dummy_window();
+        if (dummyWND) {
+            HDC dummyDC = GetDC(dummyWND);
+            int dummyFormat = ChoosePixelFormat(dummyDC, &dummyPFD);
+            SetPixelFormat(dummyDC, dummyFormat, &dummyPFD);
+            HGLRC dummyGLRC = wglCreateContext(dummyDC);
+            SkASSERT(dummyGLRC);
+            wglMakeCurrent(dummyDC, dummyGLRC);
 
-    wglMakeCurrent(prevDC, prevGLRC);
+            GET_PROC(GetExtensionsString, ARB);
+            GET_PROC(ChoosePixelFormat, ARB);
+            GET_PROC(GetPixelFormatAttribiv, ARB);
+            GET_PROC(GetPixelFormatAttribfv, ARB);
+            GET_PROC(CreateContextAttribs, ARB);
+            GET_PROC(SwapInterval, EXT);
+            GET_PROC(CreatePbuffer, ARB);
+            GET_PROC(GetPbufferDC, ARB);
+            GET_PROC(ReleasePbufferDC, ARB);
+            GET_PROC(DestroyPbuffer, ARB);
+
+            wglMakeCurrent(dummyDC, nullptr);
+            wglDeleteContext(dummyGLRC);
+            destroy_dummy_window(dummyWND);
+        }
+
+        wglMakeCurrent(prevDC, prevGLRC);
+    });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -334,8 +342,8 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
     extensions.choosePixelFormat(dc, iAttrs.begin(), fAttrs, 1, format, &num);
 }
 
-static HGLRC create_gl_context(HDC dc, SkWGLExtensions extensions, SkWGLContextRequest contextType,
-                               HGLRC shareContext) {
+static HGLRC create_gl_context(HDC dc, const SkWGLExtensions& extensions,
+                               SkWGLContextRequest contextType, HGLRC shareContext) {
     HDC prevDC = wglGetCurrentDC();
     HGLRC prevGLRC = wglGetCurrentContext();
 

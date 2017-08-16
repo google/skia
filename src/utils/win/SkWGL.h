@@ -105,16 +105,16 @@ private:
     typedef int (WINAPI* ReleasePbufferDCProc)(HPBUFFER, HDC);
     typedef BOOL (WINAPI* DestroyPbufferProc)(HPBUFFER);
 
-    GetExtensionsStringProc fGetExtensionsString;
-    ChoosePixelFormatProc fChoosePixelFormat;
-    GetPixelFormatAttribfvProc fGetPixelFormatAttribfv;
-    GetPixelFormatAttribivProc fGetPixelFormatAttribiv;
-    CreateContextAttribsProc fCreateContextAttribs;
-    SwapIntervalProc fSwapInterval;
-    CreatePbufferProc fCreatePbuffer;
-    GetPbufferDCProc fGetPbufferDC;
-    ReleasePbufferDCProc fReleasePbufferDC;
-    DestroyPbufferProc fDestroyPbuffer;
+    static GetExtensionsStringProc fGetExtensionsString;
+    static ChoosePixelFormatProc fChoosePixelFormat;
+    static GetPixelFormatAttribfvProc fGetPixelFormatAttribfv;
+    static GetPixelFormatAttribivProc fGetPixelFormatAttribiv;
+    static CreateContextAttribsProc fCreateContextAttribs;
+    static SwapIntervalProc fSwapInterval;
+    static CreatePbufferProc fCreatePbuffer;
+    static GetPbufferDCProc fGetPbufferDC;
+    static ReleasePbufferDCProc fReleasePbufferDC;
+    static DestroyPbufferProc fDestroyPbuffer;
 };
 
 enum SkWGLContextRequest {
