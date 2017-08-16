@@ -39,6 +39,30 @@
       "revId": "ee567f25709dd0cf9fd728dee3d7a7b544d630e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "359c7e4b_2435dc24",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-16T20:56:25Z",
+      "side": 1,
+      "message": "Ah, good catch. I wrote that line before switching to steady_clock. So, no - these will never be negative.",
+      "parentUuid": "767a2138_02a109c5",
+      "range": {
+        "startLine": 236,
+        "startChar": 4,
+        "endLine": 236,
+        "endChar": 11
+      },
+      "revId": "ee567f25709dd0cf9fd728dee3d7a7b544d630e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
