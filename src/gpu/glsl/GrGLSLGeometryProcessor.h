@@ -20,10 +20,10 @@ class GrGLSLGPBuilder;
 class GrGLSLGeometryProcessor : public GrGLSLPrimitiveProcessor {
 public:
     /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
-    void emitCode(EmitArgs&) override;
+    void emitCode(EmitArgs&) final;
 
 protected:
-    // A helper which subclasses can use if needed and used above in the default setTransformData().
+    // A helper which subclasses can use to upload coord transform matrices in setData().
     void setTransformDataHelper(const SkMatrix& localMatrix,
                                 const GrGLSLProgramDataManager& pdman,
                                 FPCoordTransformIter*);
@@ -39,7 +39,7 @@ protected:
                              posVar, localCoords, SkMatrix::I(), handler);
     }
 
-    // Emit pre-transformed coords as a vertex attribute per coord-transform.
+    // Emit pre-transformed coords as a varying per coord-transform.
     void emitTransforms(GrGLSLVertexBuilder*,
                         GrGLSLVaryingHandler*,
                         GrGLSLUniformHandler*,
@@ -49,19 +49,25 @@ protected:
                         FPCoordTransformHandler*);
 
     struct GrGPArgs {
-        // The variable used by a GP to store its position. It can be
-        // either a float2 or a float3 depending on the presence of perspective.
+        // Used to specify the output variable used by the GP to store its device position. It can
+        // either be a float2 or a float3 (in order to handle perspective). The subclass sets this
+        // in its onEmitCode().
         GrShaderVar fPositionVar;
     };
 
-    // Create the correct type of position variable given the CTM
-    void setupPosition(GrGLSLVertexBuilder*, GrGPArgs*, const char* posName);
-    void setupPosition(GrGLSLVertexBuilder*,
-                       GrGLSLUniformHandler* uniformHandler,
-                       GrGPArgs*,
-                       const char* posName,
-                       const SkMatrix& mat,
-                       UniformHandle* viewMatrixUniform);
+    // Helpers for adding code to write the transformed vertex position. The first simple version
+    // just writes a variable named by 'posName' into the position output variable with the
+    // assumption that the position is 2D. The second version transforms the input position by a
+    // view matrix and the output variable is 2D or 3D depending on whether the view matrix is
+    // perspective. Both versions declare the output position variable and will set
+    // GrGPArgs::fPositionVar.
+    void writeOutputPosition(GrGLSLVertexBuilder*, GrGPArgs*, const char* posName);
+    void writeOutputPosition(GrGLSLVertexBuilder*,
+                             GrGLSLUniformHandler* uniformHandler,
+                             GrGPArgs*,
+                             const char* posName,
+                             const SkMatrix& mat,
+                             UniformHandle* viewMatrixUniform);
 
     static uint32_t ComputePosKey(const SkMatrix& mat) {
         if (mat.isIdentity()) {
