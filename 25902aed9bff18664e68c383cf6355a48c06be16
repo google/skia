@@ -211,6 +211,30 @@
       "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15d5aeb4_9d273b9c",
+        "filename": "tools/trace/SkChromeTracingTracer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-16T14:35:24Z",
+      "side": 1,
+      "message": "I suspect that on laptops they\u0027ll both be rdtsc based.  I\u0027d expect differences on ARM, maybe.",
+      "parentUuid": "83cf35fc_8853f8c1",
+      "range": {
+        "startLine": 119,
+        "startChar": 43,
+        "endLine": 119,
+        "endChar": 64
+      },
+      "revId": "25902aed9bff18664e68c383cf6355a48c06be16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
