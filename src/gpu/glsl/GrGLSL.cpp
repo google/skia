@@ -25,23 +25,3 @@ bool GrGLSLSupportsNamedFragmentShaderOutputs(GrGLSLGeneration gen) {
     }
     return false;
 }
-
-void GrGLSLAppendDefaultFloatPrecisionDeclaration(GrSLPrecision p,
-                                                  const GrShaderCaps& shaderCaps,
-                                                  SkString* out) {
-    if (shaderCaps.usesPrecisionModifiers()) {
-        switch (p) {
-            case kHigh_GrSLPrecision:
-                out->append("precision highp float;\n");
-                break;
-            case kMedium_GrSLPrecision:
-                out->append("precision mediump float;\n");
-                break;
-            case kLow_GrSLPrecision:
-                out->append("precision lowp float;\n");
-                break;
-            default:
-                SK_ABORT("Unknown precision value.");
-        }
-    }
-}

@@ -19,7 +19,7 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const char* colorUni;
         fColorUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                         kVec4f_GrSLType, kMedium_GrSLPrecision,
+                                                         kHalf4_GrSLType,
                                                          "constantColor",
                                                          &colorUni);
         GrConstColorProcessor::InputMode mode = args.fFp.cast<GrConstColorProcessor>().inputMode();

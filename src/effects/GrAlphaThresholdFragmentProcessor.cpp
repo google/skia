@@ -36,24 +36,25 @@ public:
         (void)_outer;
         fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
         fInnerThresholdVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "innerThreshold");
+                kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "innerThreshold");
         fOuterThresholdVar = args.fUniformHandler->addUniform(
-                kFragment_GrShaderFlag, kFloat_GrSLType, kDefault_GrSLPrecision, "outerThreshold");
+                kFragment_GrShaderFlag, kHalf_GrSLType, kDefault_GrSLPrecision, "outerThreshold");
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         SkString sk_TransformedCoords2D_1 = fragBuilder->ensureCoords2D(args.fTransformedCoords[1]);
         fragBuilder->codeAppendf(
-                "float4 _tmpVar1;float4 color = %stexture(%s, %s).%s%s;\nfloat4 mask_color = "
-                "texture(%s, %s).%s;\nif (mask_color.w < 0.5) {\n    if (color.w > %s) {\n        "
-                "float scale = %s / color.w;\n        color.xyz *= scale;\n        color.w = %s;\n "
-                "   }\n} else if (color.w < %s) {\n    float scale = %s / max(0.001, color.w);\n   "
-                " color.xyz *= scale;\n    color.w = %s;\n}\n%s = color;\n",
+                "half4 _tmpVar1;half4 color = %stexture(%s, %s).%s%s;\nhalf4 mask_color = "
+                "texture(%s, %s).%s;\nif (highfloat(mask_color.w) < 0.5) {\n    if (color.w > %s) "
+                "{\n        half scale = %s / color.w;\n        color.xyz *= scale;\n        "
+                "color.w = %s;\n    }\n} else if (color.w < %s) {\n    half scale = highfloat(%s) "
+                "/ max(0.001, highfloat(color.w));\n    color.xyz *= scale;\n    color.w = "
+                "%s;\n}\n%s = color;\n",
                 fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 fColorSpaceHelper.isValid()
-                        ? SkStringPrintf(", float4(clamp((%s * float4(_tmpVar1.rgb, 1.0)).rgb, "
-                                         "0.0, _tmpVar1.a), _tmpVar1.a))",
+                        ? SkStringPrintf(", half4(clamp((%s * half4(_tmpVar1.rgb, 1.0)).rgb, 0.0, "
+                                         "_tmpVar1.a), _tmpVar1.a))",
                                          args.fUniformHandler->getUniformCStr(
                                                  fColorSpaceHelper.gamutXformUniform()))
                                   .c_str()
