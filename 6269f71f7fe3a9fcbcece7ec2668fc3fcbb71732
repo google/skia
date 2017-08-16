@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92e8fc9c_7aacd222",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-16T21:23:05Z",
+      "side": 0,
+      "message": "Oh I had not realized what you were saying when you pointed this out before... what a joke!\n\nLooks like this fixes a GM.",
+      "range": {
+        "startLine": 244,
+        "startChar": 36,
+        "endLine": 244,
+        "endChar": 43
+      },
+      "revId": "6269f71f7fe3a9fcbcece7ec2668fc3fcbb71732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
