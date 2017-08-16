@@ -15,6 +15,7 @@
 #include "instanced/InstancedRendering.h"
 #include "ops/GrClearOp.h"
 #include "ops/GrCopySurfaceOp.h"
+#include "SkTraceEvent.h"
 
 using gr_instanced::InstancedRendering;
 
@@ -63,10 +64,16 @@ void GrRenderTargetOpList::dump() const {
 void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
     SkASSERT(this->isClosed());
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    TRACE_EVENT0("skia", TRACE_FUNC);
+#endif
 
     // Loop over the ops that haven't yet been prepared.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         if (fRecordedOps[i].fOp) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+            TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
+#endif
             GrOpFlushState::DrawOpArgs opArgs = {
                 fTarget.get()->asRenderTargetProxy(),
                 fRecordedOps[i].fAppliedClip,
@@ -129,6 +136,9 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
     }
 
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    TRACE_EVENT0("skia", TRACE_FUNC);
+#endif
 
     std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
@@ -143,6 +153,9 @@ bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
         if (!fRecordedOps[i].fOp) {
             continue;
         }
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+        TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
+#endif
 
         if (fRecordedOps[i].fOp->needsCommandBufferIsolation()) {
             // This op is a special snowflake and must occur between command buffers
