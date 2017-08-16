@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc3bbc40_4f50d438",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-16T19:32:51Z",
+      "side": 1,
+      "message": "Rather than specify 32, I would just say \"...SkCodec passes a limited number of bytes ...\"",
+      "range": {
+        "startLine": 922,
+        "startChar": 31,
+        "endLine": 922,
+        "endChar": 49
+      },
+      "revId": "dd6456e4c1124e6517ee345684f345941370adad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
