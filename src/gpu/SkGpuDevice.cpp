@@ -1289,6 +1289,95 @@ void SkGpuDevice::drawDevice(SkBaseDevice* device,
     this->drawSpecial(srcImg.get(), left, top, paint, nullptr, SkMatrix::I());
 }
 
+static bool can_use_draw_Texture_affine(const SkPaint& paint, const SkMatrix& ctm,
+                                        SkCanvas::SrcRectConstraint constraint) {
+    return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
+            !paint.getImageFilter() && !paint.isAntiAlias() &&
+            paint.getFilterQuality() < kMedium_SkFilterQuality &&
+            paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&
+            SkCanvas::kFast_SrcRectConstraint == constraint);
+}
+
+static GrColor image_op_color_and_filter_mode(const GrTextureProxy* proxy, const SkPaint& paint,
+                                              GrSamplerParams::FilterMode* filter) {
+    switch (paint.getFilterQuality()) {
+        case kNone_SkFilterQuality:
+            *filter = GrSamplerParams::kNone_FilterMode;
+            break;
+        case kLow_SkFilterQuality:
+            *filter = GrSamplerParams::kBilerp_FilterMode;
+            break;
+        case kMedium_SkFilterQuality:
+        case kHigh_SkFilterQuality:
+            SkFAIL("Quality level not allowed.");
+    }
+    return GrPixelConfigIsAlphaOnly(proxy->config()) ? SkColorToPremulGrColor(paint.getColor())
+                                                     : SkColorAlphaToGrColor(paint.getColor());
+}
+
+static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
+                                const SkRect* dst, sk_sp<GrTextureProxy> proxy,
+                                SkColorSpace* colorSpace, const GrClip& clip,
+                                GrRenderTargetContext* rtc) {
+    SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
+    SkRect srcRect = src ? *src : SkRect::MakeWH(proxy->width(), proxy->height());
+    SkRect dstRect = dst ? *dst : srcRect;
+    if (src && !SkRect::MakeIWH(proxy->width(), proxy->height()).contains(srcRect)) {
+        SkMatrix srcToDstRect;
+        srcToDstRect.setRectToRect(srcRect, dstRect, SkMatrix::kFill_ScaleToFit);
+        SkAssertResult(srcRect.intersect(SkRect::MakeIWH(proxy->width(), proxy->height())));
+        srcToDstRect.mapRect(&dstRect, srcRect);
+    }
+    auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->getColorSpace());
+    GrSamplerParams::FilterMode filter;
+    switch (paint.getFilterQuality()) {
+        case kNone_SkFilterQuality:
+            filter = GrSamplerParams::kNone_FilterMode;
+            break;
+        case kLow_SkFilterQuality:
+            filter = GrSamplerParams::kBilerp_FilterMode;
+            break;
+        case kMedium_SkFilterQuality:
+        case kHigh_SkFilterQuality:
+            SkFAIL("Quality level not allowed.");
+    }
+    GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
+                ? SkColorToPremulGrColor(paint.getColor())
+                : SkColorAlphaToGrColor(paint.getColor());
+    rtc->drawTextureAffine(clip, std::move(proxy), filter, color, srcRect, dstRect, ctm,
+                           std::move(csxf));
+}
+
+static void draw_maker_as_texture_affine(const SkPaint& paint, const SkMatrix& ctm,
+                                         const SkRect* src,
+                                         const SkRect* dst, GrTextureMaker* maker, int imageW,
+                                         int imageH,
+                                         const GrClip& clip, GrRenderTargetContext* rtc) {
+
+    sk_sp<SkColorSpace> cs;
+    SkScalar adjust[2] =  {1.f, 1.f};
+    auto proxy = maker->refTextureProxyForParams(GrSamplerParams::ClampNoFilter(),
+                                                 rtc->getColorSpace(), &cs, adjust);
+    if (!proxy) {
+        return;
+    }
+    SkRect srcTemp;
+    SkRect dstTemp;
+    if (1.f != adjust[0] == 1.f != adjust[1]) {
+        if (!dst) {
+            dstTemp = SkRect::MakeWH(imageW, imageH);
+            dst = &dstTemp;
+        }
+        srcTemp = src ? *src : SkRect::MakeWH(imageW, imageH);
+        srcTemp.fLeft *= adjust[0];
+        srcTemp.fRight *= adjust[0];
+        srcTemp.fTop *= adjust[1];
+        srcTemp.fBottom *= adjust[1];
+        src = &srcTemp;
+    }
+    draw_texture_affine(paint, ctm, src, dst, std::move(proxy), cs.get(), clip, rtc);
+}
+
 void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                             const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1297,32 +1386,55 @@ void SkGpuDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
     uint32_t pinnedUniqueID;
 
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+        as_IB(image)->colorSpace();
+        if (can_use_draw_Texture_affine(paint, this->ctm(), SkCanvas::kFast_SrcRectConstraint)) {
+            draw_texture_affine(paint, viewMatrix, nullptr, nullptr, std::move(proxy),
+                                as_IB(image)->colorSpace(), this->clip(),
+                                fRenderTargetContext.get());
+            return;
+        }
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), image->bounds(),
                                    pinnedUniqueID, as_IB(image)->onImageInfo().colorSpace());
         this->drawTextureProducer(&adjuster, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
                                   viewMatrix, this->clip(), paint);
         return;
-    } else {
-        SkBitmap bm;
-        if (this->shouldTileImage(image, nullptr, SkCanvas::kFast_SrcRectConstraint,
-                                  paint.getFilterQuality(), this->ctm(), SkMatrix::I())) {
-            // only support tiling as bitmap at the moment, so force raster-version
-            if (!as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-                return;
-            }
-            this->drawBitmap(bm, x, y, paint);
-        } else if (image->isLazyGenerated()) {
-            GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
-            this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
-                                      viewMatrix, this->clip(), paint);
-        } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
-            GrBitmapTextureMaker maker(fContext.get(), bm);
-            this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
-                                      viewMatrix, this->clip(), paint);
+    }
+    SkBitmap bm;
+    if (this->shouldTileImage(image, nullptr, SkCanvas::kFast_SrcRectConstraint,
+                              paint.getFilterQuality(), this->ctm(), SkMatrix::I())) {
+        // only support tiling as bitmap at the moment, so force raster-version
+        if (!as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
+            return;
         }
+        this->drawBitmap(bm, x, y, paint);
+        return;
+    }
+    if (image->isLazyGenerated()) {
+        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+        if (can_use_draw_Texture_affine(paint, this->ctm(), SkCanvas::kFast_SrcRectConstraint)) {
+            draw_maker_as_texture_affine(paint, viewMatrix, nullptr, nullptr, &maker,
+                                         image->width(), image->height(), this->clip(),
+                                         fRenderTargetContext.get());
+            return;
+        }
+        this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
+                                  viewMatrix, this->clip(), paint);
+        return;
+    }
+    if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
+        GrBitmapTextureMaker maker(fContext.get(), bm);
+        if (can_use_draw_Texture_affine(paint, this->ctm(), SkCanvas::kFast_SrcRectConstraint)) {
+            draw_maker_as_texture_affine(paint, viewMatrix, nullptr, nullptr, &maker,
+                                         image->width(), image->height(), this->clip(),
+                                         fRenderTargetContext.get());
+            return;
+        }
+        this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kFast_SrcRectConstraint,
+                                  viewMatrix, this->clip(), paint);
     }
 }
+
 
 void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
                                 const SkRect& dst, const SkPaint& paint,
@@ -1330,6 +1442,12 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
+        if (can_use_draw_Texture_affine(paint, this->ctm(), constraint)) {
+            draw_texture_affine(paint, this->ctm(), src, &dst, std::move(proxy),
+                                as_IB(image)->colorSpace(), this->clip(),
+                                fRenderTargetContext.get());
+            return;
+        }
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), image->bounds(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
@@ -1348,11 +1466,27 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src,
             return;
         }
         this->drawBitmapRect(bm, src, dst, paint, constraint);
-    } else if (image->isLazyGenerated()) {
+        return;
+    }
+    if (image->isLazyGenerated()) {
         GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
+        if (can_use_draw_Texture_affine(paint, this->ctm(), constraint)) {
+            draw_maker_as_texture_affine(paint, this->ctm(), src, &dst, &maker, image->width(),
+                                         image->height(), this->clip(),
+                                         fRenderTargetContext.get());
+            return;
+        }
         this->drawTextureProducer(&maker, src, &dst, constraint, this->ctm(), this->clip(), paint);
-    } else if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
+        return;
+    }
+    if (as_IB(image)->getROPixels(&bm, fRenderTargetContext->getColorSpace())) {
         GrBitmapTextureMaker maker(fContext.get(), bm);
+        if (can_use_draw_Texture_affine(paint, this->ctm(), constraint)) {
+            draw_maker_as_texture_affine(paint, this->ctm(), src, &dst, &maker, image->width(),
+                                                         image->height(), this->clip(),
+                                                         fRenderTargetContext.get());
+            return;
+        }
         this->drawTextureProducer(&maker, src, &dst, constraint, this->ctm(), this->clip(), paint);
     }
 }

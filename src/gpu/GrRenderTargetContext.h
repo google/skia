@@ -135,6 +135,18 @@ public:
                                  const SkMatrix& localMatrix);
 
     /**
+     * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
+     * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect' specifies
+     * the rectangle to draw in local coords which will be transformed by 'viewMatrix' to device
+     * space. The edges of the rendered rectangle are not antialiased. This asserts that the
+     * view matrix does not have perspective.
+     */
+    void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerParams::FilterMode,
+                           GrColor,
+                           const SkRect& srcRect, const SkRect& dstRect, const SkMatrix& viewMatrix,
+                           sk_sp<GrColorSpaceXform>);
+
+    /**
      * Draw a roundrect using a paint.
      *
      * @param paint       describes how to color pixels.
@@ -413,12 +425,12 @@ private:
 
     void internalDrawPath(
             const GrClip&, GrPaint&&, GrAA, const SkMatrix&, const SkPath&, const GrStyle&);
-
+public:
     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
     // dropped (e.g., due to clipping).
     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
-
+private:
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should
     // be used by GrXferProcessor to access the destination color in 'result'. If the return
     // value is false then a texture copy could not be made.
