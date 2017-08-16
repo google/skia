@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <chrono>
 #include <limits>
+#include <stdlib.h>
 #include <vector>
 
 struct GMStream : Stream {
