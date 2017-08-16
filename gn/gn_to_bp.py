@@ -31,6 +31,7 @@ tool_shared_libs = [
     'libicui18n',
     'libexpat',
     'libft2',
+    'libheif',
     'libdng_sdk',
     'libpiex',
     'libcutils',
@@ -124,6 +125,7 @@ cc_library {
         "libdng_sdk",
         "libexpat",
         "libft2",
+        "libheif",
         "libicui18n",
         "libicuuc",
         "libjpeg",
@@ -198,6 +200,7 @@ gn_args = {
   'skia_use_vulkan':    'true',
   'target_cpu':         '"none"',
   'target_os':          '"android"',
+  'skia_use_libheif':   'true',
 }
 gn_args = ' '.join(sorted('%s=%s' % (k,v) for (k,v) in gn_args.iteritems()))
 
