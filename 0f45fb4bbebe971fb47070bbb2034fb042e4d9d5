@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e04b94da_770a400a",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-16T19:17:47Z",
+      "side": 1,
+      "message": "It seems like the desc should come before the budgeted field.",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c9821aa_955727e6",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-16T19:17:47Z",
+      "side": 1,
+      "message": "Move this to GrTypesPriv.h \u0026 share with GrVkImage ?",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39c5d5ae_4900837e",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-16T19:17:47Z",
+      "side": 1,
+      "message": "Don\u0027t you explicitly have a resolve texture ?",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04d2a37d_09583ff3",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-16T19:17:47Z",
+      "side": 1,
+      "message": "What ?",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
