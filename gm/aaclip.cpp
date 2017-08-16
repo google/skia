@@ -10,6 +10,83 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkMakeUnique.h"
+#include "SkShaderBase.h"
+#include "SkArenaAlloc.h"
+#include "SkPM4f.h"
+
+/*
+ *  (1 - u)(1 - v)A + u(1 - v)B + (1 - u)vC + uvD
+ *
+ *  (1 - u - v + uv)A + (u - uv)B + (v - uv)C + uvD
+ *
+ *  A + (B - A)u + (C - A)v + (A + D - B - C)uv
+ */
+
+class Quad : public SkShaderBase {
+    SkColor fQuad[4];
+
+public:
+    Quad(const SkColor quad[4], const SkMatrix& lm) : SkShaderBase(&lm) {
+        memcpy(fQuad, quad, sizeof(fQuad));
+    }
+
+    class Ctx : public Context {
+        Sk4f        fC, fU, fV, fUV;
+        SkMatrix    fInv;
+    public:
+        Ctx(const SkShaderBase& shader, const ContextRec& rec) : Context(shader, rec) {
+            const SkColor* quad = ((Quad*)&shader)->fQuad;
+            Sk4f A = SkPM4f::FromPMColor(SkPreMultiplyColor(quad[0])).to4f();
+            Sk4f B = SkPM4f::FromPMColor(SkPreMultiplyColor(quad[1])).to4f();
+            Sk4f C = SkPM4f::FromPMColor(SkPreMultiplyColor(quad[2])).to4f();
+            Sk4f D = SkPM4f::FromPMColor(SkPreMultiplyColor(quad[3])).to4f();
+
+            fUV = A + D - B - C;
+            fU  = B - A;
+            fV  = C - A;
+            fC  = A;
+
+            shader.computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, &fInv);
+        }
+
+        void shadeSpan(int x, int y, SkPMColor span[], int count) override {
+            SkPoint pt;
+            fInv.mapXY(x + 0.5f, y + 0.5f, &pt);
+
+            Sk4f xx(pt.fX),
+                 yy(pt.fY),
+                 dx(fInv.getScaleX()),
+                 dy(fInv.getSkewY());
+
+            for (int i = 0; i < count; ++i) {
+                xx -= xx.floor();
+                yy -= yy.floor();
+                span[i] = SkPM4f::From4f(fC + fU * xx + fV * yy + fUV * xx * yy).toPMColor();
+                xx += dx;
+                yy += dy;
+            }
+        }
+    };
+
+    Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {
+        return alloc->make<Ctx>(*this, rec);
+    }
+
+    Factory getFactory() const override { return nullptr; }
+
+};
+
+static void test_quad(SkCanvas* canvas) {
+    SkMatrix lm;
+    lm.setScale(300, 300);
+    lm.postSkew(0.2f, 0);
+    lm.postRotate(30);
+    SkPaint paint;
+    SkColor quad[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorWHITE };
+    paint.setShader(sk_sp<SkShader>(new Quad(quad, lm)));
+
+    canvas->drawPaint(paint);
+}
 
 static void do_draw(SkCanvas* canvas, const SkRect& r) {
     SkPaint paint;
@@ -141,6 +218,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        if (true) { test_quad(canvas); return; }
         // Initial pixel-boundary-aligned draw
         draw_rect_tests(canvas);
 
