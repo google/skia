@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "99cb2f4b_9ed099a5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2017-08-16T18:15:38Z",
+      "side": 1,
+      "message": "Strange, I changed this to \"Bug: b/64077740\" but commit msg is not updated. Other files are updated.",
+      "range": {
+        "startLine": 9,
+        "startChar": 5,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "f2f99aa59aa004ccf407ad3e41172339db3eb02c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c012487_5a6a997e",
         "filename": "gn/gn_to_bp.py",
         "patchSetId": 2
