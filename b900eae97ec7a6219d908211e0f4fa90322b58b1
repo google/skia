@@ -336,6 +336,30 @@
     },
     {
       "key": {
+        "uuid": "4152f470_71ce099c",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 34
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-16T19:17:16Z",
+      "side": 1,
+      "message": "sgtm",
+      "parentUuid": "283147ba_7f32ee50",
+      "range": {
+        "startLine": 590,
+        "startChar": 28,
+        "endLine": 590,
+        "endChar": 48
+      },
+      "revId": "b900eae97ec7a6219d908211e0f4fa90322b58b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3c3d0b3a_40edcaa4",
         "filename": "src/gpu/effects/GrSRGBEffect.cpp",
         "patchSetId": 34
