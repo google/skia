@@ -50,7 +50,7 @@ private:
     void flush();
 
     enum {
-        // Events are variable size, but most commonly 56 bytes, assuming 64-bit pointers and
+        // Events are variable size, but most commonly 48 bytes, assuming 64-bit pointers and
         // reasonable packing. This is a first guess at a number that balances memory usage vs.
         // time overhead of allocating blocks.
         kBlockSize = 512 * 1024,
