@@ -6,12 +6,12 @@
  */
 
 #include "SkGpuDevice.h"
-
 #include "GrBlurUtils.h"
 #include "GrCaps.h"
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "GrTextureAdjuster.h"
+#include "GrTextureMaker.h"
 #include "SkDraw.h"
 #include "SkGr.h"
 #include "SkMaskFilter.h"
@@ -85,14 +85,108 @@ static bool can_ignore_bilerp_constraint(const GrTextureProducer& producer,
     return false;
 }
 
+bool gBlockAffine = false;
+
+static bool can_use_draw_Texture_affine(const SkPaint& paint, const SkMatrix& ctm,
+                                        SkCanvas::SrcRectConstraint constraint) {
+    if (gBlockAffine) { gBlockAffine = false; return false; }
+    return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
+            !paint.getImageFilter() && !paint.isAntiAlias() &&
+            paint.getFilterQuality() < kMedium_SkFilterQuality &&
+            paint.getBlendMode() == SkBlendMode::kSrcOver && !ctm.hasPerspective() &&
+            SkCanvas::kFast_SrcRectConstraint == constraint);
+}
+
+static void draw_texture_affine(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
+                                const SkRect* dst, sk_sp<GrTextureProxy> proxy,
+                                SkColorSpace* colorSpace, const GrClip& clip,
+                                GrRenderTargetContext* rtc) {
+    SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
+    SkRect srcRect = src ? *src : SkRect::MakeWH(proxy->width(), proxy->height());
+    SkRect dstRect = dst ? *dst : srcRect;
+    if (src && !SkRect::MakeIWH(proxy->width(), proxy->height()).contains(srcRect)) {
+        SkMatrix srcToDstRect;
+        srcToDstRect.setRectToRect(srcRect, dstRect, SkMatrix::kFill_ScaleToFit);
+        SkAssertResult(srcRect.intersect(SkRect::MakeIWH(proxy->width(), proxy->height())));
+        srcToDstRect.mapRect(&dstRect, srcRect);
+    }
+    auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->getColorSpace());
+    GrSamplerParams::FilterMode filter;
+    switch (paint.getFilterQuality()) {
+        case kNone_SkFilterQuality:
+            filter = GrSamplerParams::kNone_FilterMode;
+            break;
+        case kLow_SkFilterQuality:
+            filter = GrSamplerParams::kBilerp_FilterMode;
+            break;
+        case kMedium_SkFilterQuality:
+        case kHigh_SkFilterQuality:
+            SkFAIL("Quality level not allowed.");
+    }
+    GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
+                ? SkColorToPremulGrColor(paint.getColor())
+                : SkColorAlphaToGrColor(paint.getColor());
+    rtc->drawTextureAffine(clip, std::move(proxy), filter, color, srcRect, dstRect, ctm,
+                           std::move(csxf));
+}
+
 //////////////////////////////////////////////////////////////////////////////
+
+void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t pinnedUniqueID,
+                                         SkColorSpace* colorSpace, SkAlphaType alphaType,
+                                         const SkRect* srcRect, const SkRect* dstRect,
+                                         SkCanvas::SrcRectConstraint constraint,
+                                         const SkMatrix& viewMatrix, const SkPaint& paint) {
+    if (can_use_draw_Texture_affine(paint, this->ctm(), constraint)) {
+        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, std::move(proxy),
+                            colorSpace, this->clip(), fRenderTargetContext.get());
+        return;
+    }
+    auto contentRect = SkIRect::MakeWH(proxy->width(), proxy->height());
+    GrTextureAdjuster adjuster(this->context(), std::move(proxy), alphaType,
+                               contentRect, pinnedUniqueID, colorSpace);
+    this->drawTextureProducer(&adjuster, srcRect, dstRect, constraint, viewMatrix, paint);
+}
+
+void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH,
+                                   const SkRect* srcRect, const SkRect* dstRect,
+                                   SkCanvas::SrcRectConstraint constraint,
+                                   const SkMatrix& viewMatrix, const SkPaint& paint) {
+    if (can_use_draw_Texture_affine(paint, this->ctm(), constraint)) {
+        sk_sp<SkColorSpace> cs;
+        SkScalar adjust[2] =  {1.f, 1.f};
+        auto proxy = maker->refTextureProxyForParams(GrSamplerParams::ClampNoFilter(),
+                                                     fRenderTargetContext->getColorSpace(), &cs,
+                                                     adjust);
+        if (!proxy) {
+            return;
+        }
+        SkRect srcTemp;
+        SkRect dstTemp;
+        if (1.f != adjust[0] == 1.f != adjust[1]) {
+            if (!dstRect) {
+                dstTemp = SkRect::MakeWH(imageW, imageH);
+                dstRect = &dstTemp;
+            }
+            srcTemp = srcRect ? *srcRect : SkRect::MakeWH(imageW, imageH);
+            srcTemp.fLeft *= adjust[0];
+            srcTemp.fRight *= adjust[0];
+            srcTemp.fTop *= adjust[1];
+            srcTemp.fBottom *= adjust[1];
+            srcRect = &srcTemp;
+        }
+        draw_texture_affine(paint, viewMatrix, srcRect, dstRect, std::move(proxy), cs.get(),
+                            this->clip(), fRenderTargetContext.get());
+        return;
+    }
+    this->drawTextureProducer(maker, srcRect, dstRect, constraint, viewMatrix, paint);
+}
 
 void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
                                       const SkRect* srcRect,
                                       const SkRect* dstRect,
                                       SkCanvas::SrcRectConstraint constraint,
                                       const SkMatrix& viewMatrix,
-                                      const GrClip& clip,
                                       const SkPaint& paint) {
     // This is the funnel for all non-tiled bitmap/image draw calls. Log a histogram entry.
     SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
@@ -141,7 +235,7 @@ void SkGpuDevice::drawTextureProducer(GrTextureProducer* producer,
     LogDrawScaleFactor(SkMatrix::Concat(viewMatrix, srcToDstMatrix), paint.getFilterQuality());
 
     this->drawTextureProducerImpl(producer, clippedSrcRect, clippedDstRect, constraint, viewMatrix,
-                                  srcToDstMatrix, clip, paint);
+                                  srcToDstMatrix, paint);
 }
 
 void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
@@ -150,7 +244,6 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
                                           SkCanvas::SrcRectConstraint constraint,
                                           const SkMatrix& viewMatrix,
                                           const SkMatrix& srcToDstMatrix,
-                                          const GrClip& clip,
                                           const SkPaint& paint) {
     // Specifying the texture coords as local coordinates is an attempt to enable more GrDrawOp
     // combining by not baking anything about the srcRect, dstRect, or viewMatrix, into the texture
@@ -215,13 +308,14 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
     GrAA aa = GrBoolToAA(paint.isAntiAlias());
     if (canUseTextureCoordsAsLocalCoords) {
-        fRenderTargetContext->fillRectToRect(clip, std::move(grPaint), aa, viewMatrix,
+        fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint), aa, viewMatrix,
                                              clippedDstRect, clippedSrcRect);
         return;
     }
 
     if (!mf) {
-        fRenderTargetContext->drawRect(clip, std::move(grPaint), aa, viewMatrix, clippedDstRect);
+        fRenderTargetContext->drawRect(this->clip(), std::move(grPaint), aa, viewMatrix,
+                                       clippedDstRect);
         return;
     }
 
@@ -234,7 +328,7 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         if (mf->directFilterRRectMaskGPU(fContext.get(),
                                          fRenderTargetContext.get(),
                                          std::move(grPaint),
-                                         clip,
+                                         this->clip(),
                                          viewMatrix,
                                          rec,
                                          SkRRect::MakeRect(clippedDstRect),
