@@ -94,6 +94,30 @@
       "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21d3c372_24f2aa46",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-08-17T17:57:20Z",
+      "side": 1,
+      "message": "That\u0027s a good point.\n\nFor the base class here, SkStream, it was spelled out with \": public SkNoncopyable\" rather than \"\u003d delete\". But for all the other types here it was not spelled out. And the user would have to hunt into the base class to learn it is non-copyable.\n\nI\u0027m okay with either option.",
+      "parentUuid": "420e640a_9adb0df1",
+      "range": {
+        "startLine": 156,
+        "startChar": 4,
+        "endLine": 157,
+        "endChar": 71
+      },
+      "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
