@@ -68,7 +68,7 @@ void GLWindowContext_xlib::onInitializeContext() {
         for (int minor = 2; minor >= 0 && !fGLContext; --minor) {
             // Ganesh prefers a compatibility profile for possible NVPR support. However, RenderDoc
             // requires a core profile. Edit this code to use RenderDoc.
-            for (int profile : {GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+            for (int profile : {/*GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,*/
                                 GLX_CONTEXT_CORE_PROFILE_BIT_ARB}) {
                 int attribs[] = {
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, minor,

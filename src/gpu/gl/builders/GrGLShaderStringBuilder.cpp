@@ -18,7 +18,7 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(gpu->glInterface(), R, X)
 
 // Print the source code for all shaders generated.
-static const bool c_PrintShaders{false};
+static const bool c_PrintShaders{true};
 
 static void print_source_lines_with_numbers(const char* source,
                                             std::function<void(const char*)> println) {

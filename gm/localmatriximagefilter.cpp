@@ -52,10 +52,10 @@ DEF_SIMPLE_GM(localmatriximagefilter, canvas, 640, 640) {
     sk_sp<SkImage> image0(make_image(canvas));
 
     const ImageFilterFactory factories[] = {
-        IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),
+        //IFCCast([]{ return SkBlurImageFilter::Make(8, 8, nullptr); }),
         IFCCast([]{ return SkDilateImageFilter::Make(8, 8, nullptr); }),
         IFCCast([]{ return SkErodeImageFilter::Make(8, 8, nullptr); }),
-        IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr); }),
+        //IFCCast([]{ return SkOffsetImageFilter::Make(8, 8, nullptr); }),
     };
 
     const SkMatrix matrices[] = {
@@ -67,15 +67,17 @@ DEF_SIMPLE_GM(localmatriximagefilter, canvas, 640, 640) {
     const SkScalar spacer = image0->width() * 3.0f / 2;
 
     canvas->translate(40, 40);
+    int i = 0;
     for (auto&& factory : factories) {
         sk_sp<SkImageFilter> filter(factory());
 
         canvas->save();
+        if (i == 0)
         show_image(canvas, image0.get(), filter);
         for (const auto& matrix : matrices) {
             sk_sp<SkImageFilter> localFilter(filter->makeWithLocalMatrix(matrix));
             canvas->translate(spacer, 0);
-            show_image(canvas, image0.get(), std::move(localFilter));
+            //show_image(canvas, image0.get(), std::move(localFilter));
         }
         canvas->restore();
         canvas->translate(0, spacer);
