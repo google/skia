@@ -16,6 +16,24 @@
       "revId": "9807ebb096636bcac6a028b1ead4aeb5bd173922",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "754dbf78_07ef6798",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-17T19:38:11Z",
+      "side": 1,
+      "message": "Passing in the ownership always into ctors instead to keep things more uniform",
+      "parentUuid": "781c2caa_0f7b0756",
+      "revId": "9807ebb096636bcac6a028b1ead4aeb5bd173922",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
