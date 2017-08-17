@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b9c98942_0b020bf4",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-17T20:06:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e04b94da_770a400a",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c9821aa_955727e6",
         "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-16T19:17:47Z",
       "side": 1,
       "message": "Move this to GrTypesPriv.h \u0026 share with GrVkImage ?",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a2293c9_92aeb528",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-17T20:06:53Z",
+      "side": 1,
+      "message": "It turns out we actually don\u0027t need the Wrapped enum in Mtl or the concept of ownership in general. All the backend objects (MTLTextures) are automatically ref counted so we will always own our ref of the object and the client is free to do as they please with their ref.",
+      "parentUuid": "4c9821aa_955727e6",
       "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f3cb39c7_97856b5e",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-17T20:06:53Z",
+      "side": 1,
+      "message": "Yes we will have a resolve texture so the plus 1 commment is right. Delete TODO",
+      "parentUuid": "39c5d5ae_4900837e",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "04d2a37d_09583ff3",
         "filename": "src/gpu/mtl/GrMtlRenderTarget.mm",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-08-16T19:17:47Z",
       "side": 1,
       "message": "What ?",
+      "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86d2ba47_ebf9bb73",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-17T20:06:53Z",
+      "side": 1,
+      "message": "Cleaned up comment to state how we plan to use RTs. For background, there are three storage modes in metal. Private which is gpu only memory. Shared which is coherent memory accessible on cpu and gpu (not available for desktop MTLTextures). And Managed with is non-coherent memory accessable on cpu and gpu.",
+      "parentUuid": "04d2a37d_09583ff3",
       "revId": "0f45fb4bbebe971fb47070bbb2034fb042e4d9d5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
