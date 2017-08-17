@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6168373_17ab6870",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T21:09:48Z",
+      "side": 1,
+      "message": "Should the +1 be conditioned on the existence of fResolveTexture ?",
+      "revId": "8f6d85fcc37477888fed0c5db90599fc935e6cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
