@@ -140,7 +140,7 @@ public:
             varyingHandler->emitAttributes(qp);
             varyingHandler->addPassThroughAttribute(qp.inColor(), args.fOutputColor);
 
-            GrGLSLVertToFrag uv(kHighFloat2_GrSLType);
+            GrGLSLVertToFrag uv(kVec2f_GrSLType);
             varyingHandler->addVarying("uv", &uv, kHigh_GrSLPrecision);
             vsBuilder->codeAppendf("%s = %s;", uv.vsOut(), qp.inUV()->fName);
 
@@ -156,7 +156,7 @@ public:
             GrGLSLPPFragmentBuilder* fsBuilder = args.fFragBuilder;
             fsBuilder->codeAppendf("if (%s.x * %s.x >= %s.y) discard;", uv.fsIn(), uv.fsIn(),
                                                                         uv.fsIn());
-            fsBuilder->codeAppendf("%s = half4(1.0);", args.fOutputCoverage);
+            fsBuilder->codeAppendf("%s = float4(1.0);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,

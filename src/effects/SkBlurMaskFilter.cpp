@@ -862,12 +862,12 @@ void OutputRectBlurProfileLookup(GrGLSLFPFragmentBuilder* fragBuilder,
                                  const char *profileSize, const char *loc,
                                  const char *blurred_width,
                                  const char *sharp_width) {
-    fragBuilder->codeAppendf("half %s;", output);
+    fragBuilder->codeAppendf("float %s;", output);
     fragBuilder->codeAppendf("{");
-    fragBuilder->codeAppendf("half coord = ((abs(%s - 0.5 * %s) - 0.5 * %s)) / %s;",
+    fragBuilder->codeAppendf("float coord = ((abs(%s - 0.5 * %s) - 0.5 * %s)) / %s;",
                            loc, blurred_width, sharp_width, profileSize);
     fragBuilder->codeAppendf("%s = ", output);
-    fragBuilder->appendTextureLookup(sampler, "half2(coord,0.5)");
+    fragBuilder->appendTextureLookup(sampler, "float2(coord,0.5)");
     fragBuilder->codeAppend(".a;");
     fragBuilder->codeAppendf("}");
 }
@@ -889,41 +889,49 @@ void GrGLRectBlurEffect::emitCode(EmitArgs& args) {
     const char *rectName;
     const char *profileSizeName;
 
-    const char* floatType = rbe.precision() == kHigh_GrSLPrecision ? "highfloat" : "half";
+    SkString precisionString;
+    if (args.fShaderCaps->usesPrecisionModifiers()) {
+        precisionString.printf("%s ", GrGLSLPrecisionString(rbe.precision()));
+    }
     fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   rbe.precision() == kHigh_GrSLPrecision ?
-                                                             kHighFloat4_GrSLType : kHalf4_GrSLType,
+                                                   kVec4f_GrSLType,
+                                                   rbe.precision(),
                                                    "proxyRect",
                                                    &rectName);
     fProfileSizeUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                     kHalf_GrSLType,
+                                                     kFloat_GrSLType,
+                                                     kDefault_GrSLPrecision,
                                                      "profileSize",
                                                      &profileSizeName);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     if (args.fInputColor) {
-        fragBuilder->codeAppendf("half4 src=%s;", args.fInputColor);
+        fragBuilder->codeAppendf("float4 src=%s;", args.fInputColor);
     } else {
-        fragBuilder->codeAppendf("half4 src=half4(1);");
+        fragBuilder->codeAppendf("float4 src=float4(1);");
     }
 
-    fragBuilder->codeAppendf("%s2 translatedPos = sk_FragCoord.xy - %s.xy;", floatType, rectName);
-    fragBuilder->codeAppendf("%s width = %s.z - %s.x;", floatType, rectName, rectName);
-    fragBuilder->codeAppendf("%s height = %s.w - %s.y;", floatType, rectName, rectName);
+    fragBuilder->codeAppendf("%s float2 translatedPos = sk_FragCoord.xy - %s.xy;",
+                             precisionString.c_str(), rectName);
+    fragBuilder->codeAppendf("%s float width = %s.z - %s.x;", precisionString.c_str(), rectName,
+                             rectName);
+    fragBuilder->codeAppendf("%s float height = %s.w - %s.y;", precisionString.c_str(), rectName,
+                             rectName);
 
-    fragBuilder->codeAppendf("%s2 smallDims = half2(width - %s, height - %s);", floatType,
-                             profileSizeName, profileSizeName);
-    fragBuilder->codeAppendf("%s center = 2.0 * floor(%s/2.0 + .25) - 1.0;", floatType,
-                             profileSizeName);
-    fragBuilder->codeAppendf("%s2 wh = smallDims - half2(center,center);", floatType);
+    fragBuilder->codeAppendf("%s float2 smallDims = float2(width - %s, height - %s);",
+                             precisionString.c_str(), profileSizeName, profileSizeName);
+    fragBuilder->codeAppendf("%s float center = 2.0 * floor(%s/2.0 + .25) - 1.0;",
+                             precisionString.c_str(), profileSizeName);
+    fragBuilder->codeAppendf("%s float2 wh = smallDims - float2(center,center);",
+                             precisionString.c_str());
 
     OutputRectBlurProfileLookup(fragBuilder, args.fTexSamplers[0], "horiz_lookup", profileSizeName,
                                 "translatedPos.x", "width", "wh.x");
     OutputRectBlurProfileLookup(fragBuilder, args.fTexSamplers[0], "vert_lookup", profileSizeName,
                                 "translatedPos.y", "height", "wh.y");
 
-    fragBuilder->codeAppendf("half final = horiz_lookup * vert_lookup;");
+    fragBuilder->codeAppendf("float final = horiz_lookup * vert_lookup;");
     fragBuilder->codeAppendf("%s = src * final;", args.fOutputColor);
 }
 
@@ -1269,15 +1277,18 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     // components x, y, z, and w, respectively.
 
     fProxyRectUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                   kHalf4_GrSLType,
+                                                   kVec4f_GrSLType,
+                                                   kDefault_GrSLPrecision,
                                                    "proxyRect",
                                                    &rectName);
     fCornerRadiusUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                      kHalf_GrSLType,
+                                                      kFloat_GrSLType,
+                                                      kDefault_GrSLPrecision,
                                                       "cornerRadius",
                                                       &cornerRadiusName);
     fBlurRadiusUniform = uniformHandler->addUniform(kFragment_GrShaderFlag,
-                                                    kHalf_GrSLType,
+                                                    kFloat_GrSLType,
+                                                    kDefault_GrSLPrecision,
                                                     "blurRadius",
                                                     &blurRadiusName);
 
@@ -1285,10 +1296,10 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
 
     // warp the fragment position to the appropriate part of the 9patch blur texture
 
-    fragBuilder->codeAppendf("half2 rectCenter = (%s.xy + %s.zw)/2.0;", rectName, rectName);
-    fragBuilder->codeAppendf("half2 translatedFragPos = sk_FragCoord.xy - %s.xy;", rectName);
-    fragBuilder->codeAppendf("half threshold = %s + 2.0*%s;", cornerRadiusName, blurRadiusName);
-    fragBuilder->codeAppendf("half2 middle = %s.zw - %s.xy - 2.0*threshold;", rectName, rectName);
+    fragBuilder->codeAppendf("float2 rectCenter = (%s.xy + %s.zw)/2.0;", rectName, rectName);
+    fragBuilder->codeAppendf("float2 translatedFragPos = sk_FragCoord.xy - %s.xy;", rectName);
+    fragBuilder->codeAppendf("float threshold = %s + 2.0*%s;", cornerRadiusName, blurRadiusName);
+    fragBuilder->codeAppendf("float2 middle = %s.zw - %s.xy - 2.0*threshold;", rectName, rectName);
 
     fragBuilder->codeAppendf(
            "if (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {");
@@ -1304,8 +1315,8 @@ void GrGLRRectBlurEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("translatedFragPos.y -= middle.y - 1.0;");
     fragBuilder->codeAppendf("}");
 
-    fragBuilder->codeAppendf("half2 proxyDims = half2(2.0*threshold+1.0);");
-    fragBuilder->codeAppendf("half2 texCoord = translatedFragPos / proxyDims;");
+    fragBuilder->codeAppendf("float2 proxyDims = float2(2.0*threshold+1.0);");
+    fragBuilder->codeAppendf("float2 texCoord = translatedFragPos / proxyDims;");
 
     fragBuilder->codeAppendf("%s = ", args.fOutputColor);
     fragBuilder->appendTextureLookupAndModulate(args.fInputColor, args.fTexSamplers[0], "texCoord");

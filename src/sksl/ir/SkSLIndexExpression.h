@@ -26,15 +26,8 @@ static const Type& index_type(const Context& context, const Type& type) {
                 case 4: return *context.fFloat4_Type;
                 default: ASSERT(false);
             }
-        } else if (type.componentType() == *context.fHalf_Type) {
-            switch (type.rows()) {
-                case 2: return *context.fHalf2_Type;
-                case 3: return *context.fHalf3_Type;
-                case 4: return *context.fHalf4_Type;
-                default: ASSERT(false);
-            }
         } else {
-           ASSERT(type.componentType() == *context.fDouble_Type);
+            ASSERT(type.componentType() == *context.fDouble_Type);
             switch (type.rows()) {
                 case 2: return *context.fDouble2_Type;
                 case 3: return *context.fDouble3_Type;

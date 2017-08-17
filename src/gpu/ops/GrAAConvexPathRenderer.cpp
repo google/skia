@@ -564,7 +564,7 @@ public:
             // emit attributes
             varyingHandler->emitAttributes(qe);
 
-            GrGLSLVertToFrag v(kHalf4_GrSLType);
+            GrGLSLVertToFrag v(kVec4f_GrSLType);
             varyingHandler->addVarying("QuadEdge", &v);
             vertBuilder->codeAppendf("%s = %s;", v.vsOut(), qe.fInQuadEdge->fName);
 
@@ -585,17 +585,17 @@ public:
                                  qe.fLocalMatrix,
                                  args.fFPCoordTransformHandler);
 
-            fragBuilder->codeAppendf("half edgeAlpha;");
+            fragBuilder->codeAppendf("float edgeAlpha;");
 
             // keep the derivative instructions outside the conditional
-            fragBuilder->codeAppendf("half2 duvdx = dFdx(%s.xy);", v.fsIn());
-            fragBuilder->codeAppendf("half2 duvdy = dFdy(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float2 duvdx = dFdx(%s.xy);", v.fsIn());
+            fragBuilder->codeAppendf("float2 duvdy = dFdy(%s.xy);", v.fsIn());
             fragBuilder->codeAppendf("if (%s.z > 0.0 && %s.w > 0.0) {", v.fsIn(), v.fsIn());
             // today we know z and w are in device space. We could use derivatives
             fragBuilder->codeAppendf("edgeAlpha = min(min(%s.z, %s.w) + 0.5, 1.0);", v.fsIn(),
                                      v.fsIn());
             fragBuilder->codeAppendf ("} else {");
-            fragBuilder->codeAppendf("half2 gF = half2(2.0*%s.x*duvdx.x - duvdx.y,"
+            fragBuilder->codeAppendf("float2 gF = float2(2.0*%s.x*duvdx.x - duvdx.y,"
                                      "               2.0*%s.x*duvdy.x - duvdy.y);",
                                      v.fsIn(), v.fsIn());
             fragBuilder->codeAppendf("edgeAlpha = (%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
@@ -603,7 +603,7 @@ public:
             fragBuilder->codeAppendf("edgeAlpha = "
                                      "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);}");
 
-            fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = float4(edgeAlpha);", args.fOutputCoverage);
         }
 
         static inline void GenKey(const GrGeometryProcessor& gp,

@@ -69,7 +69,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
     const char* version = shaderCaps->versionDeclString();
 
     // setup vertex shader
-    GrShaderVar aPosition("a_position", kHighFloat4_GrSLType, GrShaderVar::kIn_TypeModifier);
+    GrShaderVar aPosition("a_position", kVec4f_GrSLType, GrShaderVar::kIn_TypeModifier);
     SkTArray<GrShaderVar> aVars;
     SkTArray<GrShaderVar> oVars;
 
@@ -81,7 +81,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
         SkString aname;
         aname.appendf("a_color_%d", i);
         aVars.push_back(GrShaderVar(aname.c_str(),
-                                    kHalf4_GrSLType,
+                                    kVec4f_GrSLType,
                                     GrShaderVar::kIn_TypeModifier));
         aVars.back().appendDecl(shaderCaps, &vshaderTxt);
         vshaderTxt.append(";\n");
@@ -92,7 +92,7 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
         SkString oname;
         oname.appendf("o_color_%d", i);
         oVars.push_back(GrShaderVar(oname.c_str(),
-                                    kHalf4_GrSLType,
+                                    kVec4f_GrSLType,
                                     GrShaderVar::kOut_TypeModifier));
         oVars.back().appendDecl(shaderCaps, &vshaderTxt);
         vshaderTxt.append(";\n");
@@ -109,14 +109,15 @@ GrGLuint GLVertexAttributesBench::setupShader(const GrGLContext* ctx, uint32_t a
 
     // Passthrough position as a dummy
     for (uint32_t i = attribs; i < maxAttribs; i++) {
-        vshaderTxt.appendf("%s = highfloat4(0, 0, 0, 1);\n", oVars[i].c_str());
+        vshaderTxt.appendf("%s = float4(0, 0, 0, 1);\n", oVars[i].c_str());
     }
 
     vshaderTxt.append("}\n");
 
     // setup fragment shader
-    GrShaderVar oFragColor("o_FragColor", kHalf4_GrSLType, GrShaderVar::kOut_TypeModifier);
+    GrShaderVar oFragColor("o_FragColor", kVec4f_GrSLType, GrShaderVar::kOut_TypeModifier);
     SkString fshaderTxt(version);
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(kMedium_GrSLPrecision, *shaderCaps, &fshaderTxt);
 
     const char* fsOutName;
     if (shaderCaps->mustDeclareFragmentShaderOutput()) {

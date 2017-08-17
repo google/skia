@@ -60,16 +60,16 @@ private:
 
         void emitCode(EmitArgs& args) override {
             if (nullptr == args.fInputColor) {
-                args.fInputColor = "half4(1)";
+                args.fInputColor = "float4(1)";
             }
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            fragBuilder->codeAppendf("\thalf luma = dot(half3(%f, %f, %f), %s.rgb);\n",
+            fragBuilder->codeAppendf("\tfloat luma = dot(float3(%f, %f, %f), %s.rgb);\n",
                                      SK_ITU_BT709_LUM_COEFF_R,
                                      SK_ITU_BT709_LUM_COEFF_G,
                                      SK_ITU_BT709_LUM_COEFF_B,
                                      args.fInputColor);
-            fragBuilder->codeAppendf("\t%s = half4(0, 0, 0, luma);\n",
+            fragBuilder->codeAppendf("\t%s = float4(0, 0, 0, luma);\n",
                                      args.fOutputColor);
 
         }

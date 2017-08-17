@@ -72,8 +72,8 @@ private:
                         args.fVaryingHandler->emitAttributes(gp);
                         this->writeOutputPosition(args.fVertBuilder, gpArgs, gp.getAttrib(0).fName);
                         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputColor);
-                        fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+                        fragBuilder->codeAppendf("%s = float4(1);", args.fOutputColor);
+                        fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
                                  const GrPrimitiveProcessor& primProc,

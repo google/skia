@@ -24,8 +24,8 @@ public:
                   uint32_t visibility = kFragment_GrShaderFlag) {
         SkASSERT(uniformHandler);
         if (colorSpaceXform) {
-            fGamutXformVar = uniformHandler->addUniform(visibility, kHalf4x4_GrSLType,
-                                                        "ColorXform");
+            fGamutXformVar = uniformHandler->addUniform(visibility, kMat44f_GrSLType,
+                                                        kDefault_GrSLPrecision, "ColorXform");
             fValid = true;
         }
     }

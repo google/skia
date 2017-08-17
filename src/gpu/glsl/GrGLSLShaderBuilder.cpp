@@ -122,16 +122,16 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     // re-insert the original alpha. The supplied srcColor is likely to be of the form
     // "texture(...)", and we don't want to evaluate that twice, so wrap everything in a function.
     static const GrShaderVar gColorGamutXformArgs[] = {
-        GrShaderVar("color", kHalf4_GrSLType),
-        GrShaderVar("xform", kHalf4x4_GrSLType),
+        GrShaderVar("color", kVec4f_GrSLType),
+        GrShaderVar("xform", kMat44f_GrSLType),
     };
     SkString functionBody;
     // Gamut xform, clamp to destination gamut. We only support/have premultiplied textures, so we
     // always just clamp to alpha.
-    functionBody.append("\tcolor.rgb = clamp((xform * half4(color.rgb, 1.0)).rgb, 0.0, color.a);\n");
+    functionBody.append("\tcolor.rgb = clamp((xform * float4(color.rgb, 1.0)).rgb, 0.0, color.a);\n");
     functionBody.append("\treturn color;");
     SkString colorGamutXformFuncName;
-    this->emitFunction(kHalf4_GrSLType,
+    this->emitFunction(kVec4f_GrSLType,
                        "colorGamutXform",
                        SK_ARRAY_COUNT(gColorGamutXformArgs),
                        gColorGamutXformArgs,
