@@ -19,7 +19,7 @@
 
 enum {
     SK_MALLOC_TEMP  = 0x01, //!< hint to sk_malloc that the requested memory will be freed in the scope of the stack frame
-    SK_MALLOC_THROW = 0x02  //!< instructs sk_malloc to call sk_throw if the memory cannot be allocated.
+    SK_MALLOC_THROW = 0x02  //!< instructs sk_malloc to not return normally if the memory cannot be allocated.
 };
 /** Return a block of memory (at least 4-byte aligned) of at least the
     specified size. If the requested memory cannot be returned, either

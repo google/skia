@@ -109,9 +109,7 @@ bool SkDefaultBitmapControllerState::processMediumRequest(const SkBitmapProvider
             }
         }
         // diagnostic for a crasher...
-        if (nullptr == fCurrMip->data()) {
-            sk_throw();
-        }
+        SkASSERT_RELEASE(fCurrMip->data());
 
         const SkSize scale = SkSize::Make(SkScalarInvert(invScaleSize.width()),
                                           SkScalarInvert(invScaleSize.height()));

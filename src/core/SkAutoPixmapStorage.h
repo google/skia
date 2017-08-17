@@ -35,7 +35,7 @@ public:
     *  to point to that memory. The storage will be freed when this object is destroyed,
     *  or if another call to tryAlloc() or alloc() is made.
     *
-    *  If the memory cannot be allocated, calls sk_throw().
+    *  If the memory cannot be allocated, calls SK_ABORT().
     */
     void alloc(const SkImageInfo&);
 

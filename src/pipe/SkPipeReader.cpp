@@ -751,7 +751,7 @@ static void definePicture_handler(SkPipeReader& reader, uint32_t packedVerb, SkC
 }
 
 static void endPicture_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
-    sk_throw();     // never call me
+    SK_ABORT("not reached");  // never call me
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

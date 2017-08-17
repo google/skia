@@ -248,9 +248,7 @@ public:
      */
     bool SK_WARN_UNUSED_RESULT tryAllocPixelsFlags(const SkImageInfo& info, uint32_t flags);
     void allocPixelsFlags(const SkImageInfo& info, uint32_t flags) {
-        if (!this->tryAllocPixelsFlags(info, flags)) {
-            sk_throw();
-        }
+        SkASSERT_RELEASE(this->tryAllocPixelsFlags(info, flags));
     }
 
     /**
@@ -264,9 +262,7 @@ public:
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info, size_t rowBytes);
 
     void allocPixels(const SkImageInfo& info, size_t rowBytes) {
-        if (!this->tryAllocPixels(info, rowBytes)) {
-            sk_throw();
-        }
+        SkASSERT_RELEASE(this->tryAllocPixels(info, rowBytes));
     }
 
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(const SkImageInfo& info) {
@@ -363,9 +359,7 @@ public:
     bool SK_WARN_UNUSED_RESULT tryAllocPixels(Allocator* allocator);
 
     void allocPixels(Allocator* allocator) {
-        if (!this->tryAllocPixels(allocator)) {
-            sk_throw();
-        }
+        SkASSERT_RELEASE(this->tryAllocPixels(allocator));
     }
 
     /**

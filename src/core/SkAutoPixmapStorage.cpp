@@ -50,9 +50,7 @@ bool SkAutoPixmapStorage::tryAlloc(const SkImageInfo& info) {
 }
 
 void SkAutoPixmapStorage::alloc(const SkImageInfo& info) {
-    if (!this->tryAlloc(info)) {
-        sk_throw();
-    }
+    SkASSERT_RELEASE(this->tryAlloc(info));
 }
 
 const SkData* SkAutoPixmapStorage::detachPixelsAsData() {

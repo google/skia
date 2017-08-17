@@ -1382,8 +1382,7 @@ private:
     }
 
     void unexpected() {
-        SkDebugf("---- did not expect to get called here");
-        sk_throw();
+        SK_ABORT("---- did not expect to get called here");
     }
 };
 
