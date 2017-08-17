@@ -6,11 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include <GLES/gl.h> 
-
-#include "WindowContextFactory_android.h"
-#include "../GLWindowContext.h"
 #include <EGL/egl.h>
+#include <GLES/gl.h>
+#include "../GLWindowContext.h"
+#include "WindowContextFactory_android.h"
+#include "gl/GrGLInterface.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
@@ -25,7 +25,7 @@ public:
 
     void onSwapBuffers() override;
 
-    void onInitializeContext() override;
+    sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
 
 private:
@@ -57,7 +57,7 @@ GLWindowContext_android::~GLWindowContext_android() {
     this->destroyContext();
 }
 
-void GLWindowContext_android::onInitializeContext() {
+sk_sp<const GrGLInterface> GLWindowContext_android::onInitializeContext() {
     fWidth = ANativeWindow_getWidth(fNativeWindow);
     fHeight = ANativeWindow_getHeight(fNativeWindow);
 
@@ -131,6 +131,8 @@ void GLWindowContext_android::onInitializeContext() {
 
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_STENCIL_SIZE, &fStencilBits);
     eglGetConfigAttrib(fDisplay, surfaceConfig, EGL_SAMPLES, &fSampleCount);
+
+    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
 }
 
 void GLWindowContext_android::onDestroyContext() {
