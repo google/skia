@@ -175,7 +175,7 @@ def dm_flags(api, bot):
       configs = [x.replace(old, new) for x in configs]
       # We also test non-msaa instanced.
       configs.append(new)
-    elif 'MacMini6.2' in bot:
+    elif 'MacMini7.1' in bot:
       configs.extend([gl_prefix + 'inst'])
 
     # CommandBuffer bot *only* runs the command_buffer config.
@@ -830,8 +830,8 @@ TEST_BUILDERS = [
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
   'Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug',
-  'Test-Mac-Clang-MacMini6.2-CPU-AVX-x86_64-Debug',
-  'Test-Mac-Clang-MacMini6.2-GPU-IntelHD4000-x86_64-Debug-CommandBuffer',
+  'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug',
+  'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-CommandBuffer',
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Release-TSAN',
