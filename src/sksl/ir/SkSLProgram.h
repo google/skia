@@ -104,12 +104,14 @@ struct Program {
 
     Program(Kind kind,
             Settings settings,
+            Modifiers::Flag defaultPrecision,
             Context* context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
     : fKind(kind)
     , fSettings(settings)
+    , fDefaultPrecision(defaultPrecision)
     , fContext(context)
     , fSymbols(symbols)
     , fElements(std::move(elements))
@@ -117,6 +119,8 @@ struct Program {
 
     Kind fKind;
     Settings fSettings;
+    // FIXME handle different types; currently it assumes this is for floats
+    Modifiers::Flag fDefaultPrecision;
     Context* fContext;
     // it's important to keep fElements defined after (and thus destroyed before) fSymbols,
     // because destroying elements can modify reference counts in symbols

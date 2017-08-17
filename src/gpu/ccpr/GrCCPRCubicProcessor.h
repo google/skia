@@ -46,10 +46,11 @@ public:
     GrCCPRCubicProcessor(Type type)
             : INHERITED(CoverageType::kShader)
             , fType(type)
-            , fInset(kHighFloat3_GrSLType)
-            , fTS(kHighFloat_GrSLType)
-            , fKLMMatrix("klm_matrix", kHighFloat3x3_GrSLType, GrShaderVar::kNonArray)
-            , fKLMDerivatives("klm_derivatives", kHighFloat2_GrSLType, 3) {}
+            , fInset(kVec3f_GrSLType)
+            , fTS(kFloat_GrSLType)
+            , fKLMMatrix("klm_matrix", kMat33f_GrSLType, GrShaderVar::kNonArray,
+                         kHigh_GrSLPrecision)
+            , fKLMDerivatives("klm_derivatives", kVec2f_GrSLType, 3, kHigh_GrSLPrecision) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         varyingHandler->addVarying("insets", &fInset, kHigh_GrSLPrecision);
@@ -80,8 +81,8 @@ class GrCCPRCubicInsetProcessor : public GrCCPRCubicProcessor {
 public:
     GrCCPRCubicInsetProcessor(Type type)
             : INHERITED(type)
-            , fKLM(kHighFloat3_GrSLType)
-            , fGradMatrix(kHighFloat2x2_GrSLType) {}
+            , fKLM(kVec3f_GrSLType)
+            , fGradMatrix(kMat22f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);
@@ -106,16 +107,16 @@ class GrCCPRCubicBorderProcessor : public GrCCPRCubicProcessor {
 public:
     GrCCPRCubicBorderProcessor(Type type)
             : INHERITED(type)
-            , fEdgeDistanceEquation("edge_distance_equation", kHighFloat3_GrSLType,
-                                    GrShaderVar::kNonArray)
-            , fEdgeDistanceDerivatives("edge_distance_derivatives", kHighFloat2_GrSLType,
-                                        GrShaderVar::kNonArray)
-            , fEdgeSpaceTransform("edge_space_transform", kHighFloat4_GrSLType,
-                                  GrShaderVar::kNonArray)
-            , fKLMD(kHighFloat4_GrSLType)
-            , fdKLMDdx(kHighFloat4_GrSLType)
-            , fdKLMDdy(kHighFloat4_GrSLType)
-            , fEdgeSpaceCoord(kHighFloat2_GrSLType) {}
+            , fEdgeDistanceEquation("edge_distance_equation", kVec3f_GrSLType,
+                                    GrShaderVar::kNonArray, kHigh_GrSLPrecision)
+            , fEdgeDistanceDerivatives("edge_distance_derivatives", kVec2f_GrSLType,
+                                        GrShaderVar::kNonArray, kHigh_GrSLPrecision)
+            , fEdgeSpaceTransform("edge_space_transform", kVec4f_GrSLType, GrShaderVar::kNonArray,
+                                  kHigh_GrSLPrecision)
+            , fKLMD(kVec4f_GrSLType)
+            , fdKLMDdx(kVec4f_GrSLType)
+            , fdKLMDdy(kVec4f_GrSLType)
+            , fEdgeSpaceCoord(kVec2f_GrSLType) {}
 
     void resetVaryings(GrGLSLVaryingHandler* varyingHandler) override {
         this->INHERITED::resetVaryings(varyingHandler);

@@ -26,7 +26,7 @@ public:
 
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
-        fragBuilder->codeAppend("half4 shadowParams;");
+        fragBuilder->codeAppend("float4 shadowParams;");
         varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
 
         // setup pass through color
@@ -43,12 +43,12 @@ public:
                              rsgp.inPosition()->fName,
                              args.fFPCoordTransformHandler);
 
-        fragBuilder->codeAppend("half d = length(shadowParams.xy);");
-        fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
+        fragBuilder->codeAppend("float d = length(shadowParams.xy);");
+        fragBuilder->codeAppend("float distance = shadowParams.z * (1.0 - d);");
 
-        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
+        fragBuilder->codeAppend("float factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
         fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = half4(factor);",
+        fragBuilder->codeAppendf("%s = float4(factor);",
                                  args.fOutputCoverage);
     }
 

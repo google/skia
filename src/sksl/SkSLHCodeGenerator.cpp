@@ -23,15 +23,13 @@ HCodeGenerator::HCodeGenerator(const Program* program, ErrorReporter* errors, St
 , fSectionAndParameterHelper(*program, *errors) {}
 
 String HCodeGenerator::ParameterType(const Type& type) {
-    if (type.fName == "highfloat" || type.fName == "half") {
-        return "float";
-    } else if (type.fName == "highfloat2" || type.fName == "half2") {
+    if (type.fName == "float2") {
         return "SkPoint";
-    } else if (type.fName == "int4" || type.fName == "short4") {
+    } else if (type.fName == "int4") {
         return "SkIRect";
-    } else if (type.fName == "highfloat4" || type.fName == "half4") {
+    } else if (type.fName == "float4") {
         return "SkRect";
-    } else if (type.fName == "highfloat4x4" || type.fName == "half4x4") {
+    } else if (type.fName == "float4x4") {
         return "SkMatrix44";
     } else if (type.kind() == Type::kSampler_Kind) {
         return "sk_sp<GrTextureProxy>";

@@ -440,7 +440,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
     SkASSERT(inColor);
     switch (outputType) {
         case BlendFormula::kNone_OutputType:
-            fragBuilder->codeAppendf("%s = half4(0.0);", output);
+            fragBuilder->codeAppendf("%s = float4(0.0);", output);
             break;
         case BlendFormula::kCoverage_OutputType:
             // We can have a coverage formula while not reading coverage if there are mixed samples.
@@ -456,7 +456,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
             fragBuilder->codeAppendf("%s = (1.0 - %s.a) * %s;", output, inColor, inCoverage);
             break;
         case BlendFormula::kISCModulate_OutputType:
-            fragBuilder->codeAppendf("%s = (half4(1.0) - %s) * %s;", output, inColor, inCoverage);
+            fragBuilder->codeAppendf("%s = (float4(1.0) - %s) * %s;", output, inColor, inCoverage);
             break;
         default:
             SK_ABORT("Unsupported output type.");
@@ -629,8 +629,8 @@ public:
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         const char* alpha;
-        fAlphaUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                         "alpha", &alpha);
+        fAlphaUniform = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType,
+                                                         kDefault_GrSLPrecision, "alpha", &alpha);
         GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
         // We want to force our primary output to be alpha * Coverage, where alpha is the alpha
         // value of the src color. We know that there are no color stages (or we wouldn't have

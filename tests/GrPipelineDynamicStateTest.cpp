@@ -91,11 +91,11 @@ class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
         varyingHandler->addPassThroughAttribute(&mp.fColor, args.fOutputColor);
 
         GrGLSLVertexBuilder* v = args.fVertBuilder;
-        v->codeAppendf("highfloat2 vertex = %s;", mp.fVertex.fName);
-        gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "vertex");
+        v->codeAppendf("float2 vertex = %s;", mp.fVertex.fName);
+        gpArgs->fPositionVar.set(kVec2f_GrSLType, "vertex");
 
         GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
-        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        f->codeAppendf("%s = float4(1);", args.fOutputCoverage);
     }
 };
 

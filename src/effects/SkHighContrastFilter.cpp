@@ -247,46 +247,47 @@ void GLHighContrastFilterEffect::GenKey(
 
 void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     const char* contrast;
-    fContrastUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
+    fContrastUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                    kFloat_GrSLType, kDefault_GrSLPrecision,
                                                     "contrast", &contrast);
 
     if (nullptr == args.fInputColor) {
-        args.fInputColor = "half4(1)";
+        args.fInputColor = "float4(1)";
     }
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
-    fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);
+    fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);
 
     // Unpremultiply. The max() is to guard against 0 / 0.
-    fragBuilder->codeAppendf("half nonZeroAlpha = max(color.a, 0.00001);");
-    fragBuilder->codeAppendf("color = half4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
+    fragBuilder->codeAppendf("float nonZeroAlpha = max(color.a, 0.00001);");
+    fragBuilder->codeAppendf("color = float4(color.rgb / nonZeroAlpha, nonZeroAlpha);");
 
     // Grayscale.
     if (fConfig.fGrayscale) {
-        fragBuilder->codeAppendf("half luma = dot(color, half4(%f, %f, %f, 0));",
+        fragBuilder->codeAppendf("float luma = dot(color, float4(%f, %f, %f, 0));",
                                  SK_LUM_COEFF_R, SK_LUM_COEFF_G, SK_LUM_COEFF_B);
-        fragBuilder->codeAppendf("color = half4(luma, luma, luma, 0);");
+        fragBuilder->codeAppendf("color = float4(luma, luma, luma, 0);");
     }
 
     if (fConfig.fInvertStyle == InvertStyle::kInvertBrightness) {
-        fragBuilder->codeAppendf("color = half4(1, 1, 1, 1) - color;");
+        fragBuilder->codeAppendf("color = float4(1, 1, 1, 1) - color;");
     }
 
     if (fConfig.fInvertStyle == InvertStyle::kInvertLightness) {
         // Convert from RGB to HSL.
-        fragBuilder->codeAppendf("half fmax = max(color.r, max(color.g, color.b));");
-        fragBuilder->codeAppendf("half fmin = min(color.r, min(color.g, color.b));");
-        fragBuilder->codeAppendf("half l = (fmax + fmin) / 2;");
+        fragBuilder->codeAppendf("float fmax = max(color.r, max(color.g, color.b));");
+        fragBuilder->codeAppendf("float fmin = min(color.r, min(color.g, color.b));");
+        fragBuilder->codeAppendf("float l = (fmax + fmin) / 2;");
 
-        fragBuilder->codeAppendf("half h;");
-        fragBuilder->codeAppendf("half s;");
+        fragBuilder->codeAppendf("float h;");
+        fragBuilder->codeAppendf("float s;");
 
         fragBuilder->codeAppendf("if (fmax == fmin) {");
         fragBuilder->codeAppendf("  h = 0;");
         fragBuilder->codeAppendf("  s = 0;");
         fragBuilder->codeAppendf("} else {");
-        fragBuilder->codeAppendf("  half d = fmax - fmin;");
+        fragBuilder->codeAppendf("  float d = fmax - fmin;");
         fragBuilder->codeAppendf("  s = l > 0.5 ?");
         fragBuilder->codeAppendf("      d / (2 - fmax - fmin) :");
         fragBuilder->codeAppendf("      d / (fmax + fmin);");
@@ -304,11 +305,11 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
         // Convert back from HSL to RGB.
         SkString hue2rgbFuncName;
         static const GrShaderVar gHue2rgbArgs[] = {
-            GrShaderVar("p", kHalf_GrSLType),
-            GrShaderVar("q", kHalf_GrSLType),
-            GrShaderVar("t", kHalf_GrSLType),
+            GrShaderVar("p", kFloat_GrSLType),
+            GrShaderVar("q", kFloat_GrSLType),
+            GrShaderVar("t", kFloat_GrSLType),
         };
-        fragBuilder->emitFunction(kHalf_GrSLType,
+        fragBuilder->emitFunction(kFloat_GrSLType,
                                   "hue2rgb",
                                   SK_ARRAY_COUNT(gHue2rgbArgs),
                                   gHue2rgbArgs,
@@ -325,10 +326,10 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
                                   "return p;",
                                   &hue2rgbFuncName);
         fragBuilder->codeAppendf("if (s == 0) {");
-        fragBuilder->codeAppendf("  color = half4(l, l, l, 0);");
+        fragBuilder->codeAppendf("  color = float4(l, l, l, 0);");
         fragBuilder->codeAppendf("} else {");
-        fragBuilder->codeAppendf("  half q = l < 0.5 ? l * (1 + s) : l + s - l * s;");
-        fragBuilder->codeAppendf("  half p = 2 * l - q;");
+        fragBuilder->codeAppendf("  float q = l < 0.5 ? l * (1 + s) : l + s - l * s;");
+        fragBuilder->codeAppendf("  float p = 2 * l - q;");
         fragBuilder->codeAppendf("  color.r = %s(p, q, h + 1/3.);", hue2rgbFuncName.c_str());
         fragBuilder->codeAppendf("  color.g = %s(p, q, h);", hue2rgbFuncName.c_str());
         fragBuilder->codeAppendf("  color.b = %s(p, q, h - 1/3.);", hue2rgbFuncName.c_str());
@@ -337,8 +338,8 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
 
     // Contrast.
     fragBuilder->codeAppendf("if (%s != 0) {", contrast);
-    fragBuilder->codeAppendf("  half m = (1 + %s) / (1 - %s);", contrast, contrast);
-    fragBuilder->codeAppendf("  half off = (-0.5 * m + 0.5);");
+    fragBuilder->codeAppendf("  float m = (1 + %s) / (1 - %s);", contrast, contrast);
+    fragBuilder->codeAppendf("  float off = (-0.5 * m + 0.5);");
     fragBuilder->codeAppendf("  color = m * color + off;");
     fragBuilder->codeAppendf("}");
 

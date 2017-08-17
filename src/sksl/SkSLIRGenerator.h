@@ -63,6 +63,7 @@ public:
 
     void convertProgram(String text,
                         SymbolTable& types,
+                        Modifiers::Flag* defaultPrecision,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**

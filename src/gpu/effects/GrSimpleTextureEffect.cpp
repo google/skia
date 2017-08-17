@@ -26,15 +26,15 @@ public:
         fColorSpaceHelper.emitCode(args.fUniformHandler, _outer.colorXform().get());
         SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
         fragBuilder->codeAppendf(
-                "half4 _tmpVar1;%s = %s * %stexture(%s, %s).%s%s;\n", args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "half4(1)",
+                "float4 _tmpVar1;%s = %s * %stexture(%s, %s).%s%s;\n", args.fOutputColor,
+                args.fInputColor ? args.fInputColor : "float4(1)",
                 fColorSpaceHelper.isValid() ? "(_tmpVar1 = " : "",
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 fColorSpaceHelper.isValid()
-                        ? SkStringPrintf(", half4(clamp((%s * half4(_tmpVar1.rgb, 1.0)).rgb, 0.0, "
-                                         "_tmpVar1.a), _tmpVar1.a))",
+                        ? SkStringPrintf(", float4(clamp((%s * float4(_tmpVar1.rgb, 1.0)).rgb, "
+                                         "0.0, _tmpVar1.a), _tmpVar1.a))",
                                          args.fUniformHandler->getUniformCStr(
                                                  fColorSpaceHelper.gamutXformUniform()))
                                   .c_str()

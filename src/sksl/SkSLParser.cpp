@@ -49,6 +49,7 @@ static_assert(YY_FLEX_MAJOR_VERSION * 10000 + YY_FLEX_MINOR_VERSION * 100 +
 #include "ast/SkSLASTIntLiteral.h"
 #include "ast/SkSLASTModifiersDeclaration.h"
 #include "ast/SkSLASTParameter.h"
+#include "ast/SkSLASTPrecision.h"
 #include "ast/SkSLASTPrefixExpression.h"
 #include "ast/SkSLASTReturnStatement.h"
 #include "ast/SkSLASTSection.h"
@@ -108,13 +109,20 @@ Parser::~Parser() {
     layoutlex_destroy(fLayoutScanner);
 }
 
-/* (directive | section | declaration)* END_OF_FILE */
+/* (precision | directive | section | declaration)* END_OF_FILE */
 std::vector<std::unique_ptr<ASTDeclaration>> Parser::file() {
     std::vector<std::unique_ptr<ASTDeclaration>> result;
     for (;;) {
         switch (this->peek().fKind) {
             case Token::END_OF_FILE:
                 return result;
+            case Token::PRECISION: {
+                std::unique_ptr<ASTDeclaration> precision = this->precision();
+                if (precision) {
+                    result.push_back(std::move(precision));
+                }
+                break;
+            }
             case Token::DIRECTIVE: {
                 std::unique_ptr<ASTDeclaration> decl = this->directive();
                 if (decl) {
@@ -228,6 +236,36 @@ void Parser::error(Position p, String msg) {
 
 bool Parser::isType(const String& name) {
     return nullptr != fTypes[name];
+}
+
+/* PRECISION (LOWP | MEDIUMP | HIGHP) type SEMICOLON */
+std::unique_ptr<ASTDeclaration> Parser::precision() {
+    if (!this->expect(Token::PRECISION, "'precision'")) {
+        return nullptr;
+    }
+    Modifiers::Flag result;
+    Token p = this->nextToken();
+    switch (p.fKind) {
+        case Token::LOWP:
+            result = Modifiers::kLowp_Flag;
+            break;
+        case Token::MEDIUMP:
+            result = Modifiers::kMediump_Flag;
+            break;
+        case Token::HIGHP:
+            result = Modifiers::kHighp_Flag;
+            break;
+        default:
+            this->error(p.fPosition, "expected 'lowp', 'mediump', or 'highp', but found '" +
+                                     p.fText + "'");
+            return nullptr;
+    }
+    // FIXME handle the type
+    if (!this->type()) {
+        return nullptr;
+    }
+    this->expect(Token::SEMICOLON, "';'");
+    return std::unique_ptr<ASTDeclaration>(new ASTPrecision(p.fPosition, result));
 }
 
 /* DIRECTIVE(#version) INT_LITERAL ("es" | "compatibility")? |

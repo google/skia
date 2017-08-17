@@ -85,7 +85,8 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     , fCustomColorOutputIndex(-1)
     , fHasSecondaryOutput(false)
     , fUsedSampleOffsetArrays(0)
-    , fHasInitializedSampleMask(false) {
+    , fHasInitializedSampleMask(false)
+    , fDefaultPrecision(kMedium_GrSLPrecision) {
     fSubstageIndices.push_back(0);
 #ifdef SK_DEBUG
     fUsedProcessorFeatures = GrProcessor::kNone_RequiredFeatures;
@@ -111,14 +112,14 @@ bool GrGLSLFragmentShaderBuilder::enableFeature(GLSLFeature feature) {
 }
 
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
-    if (kHighFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
-        SkASSERT(kHighFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
+    if (kVec3f_GrSLType != coords.getType()) {
+        SkASSERT(kVec2f_GrSLType == coords.getType());
         return coords.getName();
     }
 
     SkString coords2D;
     coords2D.printf("%s_ensure2D", coords.c_str());
-    this->codeAppendf("\thighfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
+    this->codeAppendf("\tfloat2 %s = %s.xy / %s.z;", coords2D.c_str(), coords.c_str(),
                       coords.c_str());
     return coords2D;
 }
@@ -174,6 +175,10 @@ void GrGLSLFragmentShaderBuilder::overrideSampleCoverage(const char* mask) {
     fHasInitializedSampleMask = true;
 }
 
+void GrGLSLFragmentShaderBuilder::elevateDefaultPrecision(GrSLPrecision precision) {
+    fDefaultPrecision = SkTMax(fDefaultPrecision, precision);
+}
+
 const char* GrGLSLFragmentShaderBuilder::dstColor() {
     SkDEBUGCODE(fHasReadDstColor = true;)
 
@@ -194,7 +199,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
             fOutputs[fCustomColorOutputIndex].setTypeModifier(GrShaderVar::kInOut_TypeModifier);
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
-            this->codeAppendf("half4 %s = %s;", kDstColorName, fbFetchColorName);
+            this->codeAppendf("float4 %s = %s;", kDstColorName, fbFetchColorName);
         } else {
             return fbFetchColorName;
         }
@@ -223,7 +228,7 @@ void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
     if (!fHasCustomColorOutput) {
         fHasCustomColorOutput = true;
         fCustomColorOutputIndex = fOutputs.count();
-        fOutputs.push_back().set(kHalf4_GrSLType, DeclaredColorOutputName(),
+        fOutputs.push_back().set(kVec4f_GrSLType, DeclaredColorOutputName(),
                                  GrShaderVar::kOut_TypeModifier);
         fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back()); 
     }
@@ -242,7 +247,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
     // output. The condition also co-incides with the condition in whici GLES SL 2.0
     // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
     if (caps.mustDeclareFragmentShaderOutput()) {
-        fOutputs.push_back().set(kHalf4_GrSLType, DeclaredSecondaryColorOutputName(),
+        fOutputs.push_back().set(kVec4f_GrSLType, DeclaredSecondaryColorOutputName(),
                                  GrShaderVar::kOut_TypeModifier);
         fProgramBuilder->finalizeFragmentSecondaryColor(fOutputs.back());
     }
@@ -275,6 +280,9 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
+    GrGLSLAppendDefaultFloatPrecisionDeclaration(fDefaultPrecision,
+                                                 *fProgramBuilder->shaderCaps(),
+                                                 &this->precisionQualifier());
     if (fUsedSampleOffsetArrays & (1 << kSkiaDevice_Coordinates)) {
         this->defineSampleOffsetArray(sample_offset_array_name(kSkiaDevice_Coordinates),
                                       SkMatrix::MakeTrans(-0.5f, -0.5f));
@@ -297,9 +305,9 @@ void GrGLSLFragmentShaderBuilder::defineSampleOffsetArray(const char* name, cons
     SkSTArray<16, SkPoint, true> offsets;
     offsets.push_back_n(specs.fEffectiveSampleCnt);
     m.mapPoints(offsets.begin(), specs.fSampleLocations, specs.fEffectiveSampleCnt);
-    this->definitions().appendf("const highfloat2 %s[] = highfloat2[](", name);
+    this->definitions().appendf("const highp float2 %s[] = float2[](", name);
     for (int i = 0; i < specs.fEffectiveSampleCnt; ++i) {
-        this->definitions().appendf("highfloat2(%f, %f)", offsets[i].x(), offsets[i].y());
+        this->definitions().appendf("float2(%f, %f)", offsets[i].x(), offsets[i].y());
         this->definitions().append(i + 1 != specs.fEffectiveSampleCnt ? ", " : ");\n");
     }
 }
