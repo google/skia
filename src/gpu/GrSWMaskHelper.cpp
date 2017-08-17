@@ -6,16 +6,12 @@
  */
 
 #include "GrSWMaskHelper.h"
-#include "GrCaps.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrRenderTargetContext.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
 #include "SkDistanceFieldGen.h"
-#include "ops/GrDrawOp.h"
-#include "ops/GrRectOpFactory.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -144,34 +140,4 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
     helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
 
     return helper.toTextureProxy(context, fit);
-}
-
-void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
-                                               GrRenderTargetContext* renderTargetContext,
-                                               GrPaint&& paint,
-                                               const GrUserStencilSettings& userStencilSettings,
-                                               const GrClip& clip,
-                                               const SkMatrix& viewMatrix,
-                                               const SkIPoint& textureOriginInDeviceSpace,
-                                               const SkIRect& deviceSpaceRectToDraw) {
-    SkMatrix invert;
-    if (!viewMatrix.invert(&invert)) {
-        return;
-    }
-
-    SkRect dstRect = SkRect::Make(deviceSpaceRectToDraw);
-
-    // We use device coords to compute the texture coordinates. We take the device coords and apply
-    // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
-    // matrix to normalized coords.
-    SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
-                                              SkIntToScalar(-textureOriginInDeviceSpace.fY));
-    maskMatrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            std::move(proxy), nullptr, maskMatrix,
-            GrSamplerParams::kNone_FilterMode));
-    renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), SkMatrix::I(), invert, dstRect,
-                                           GrAAType::kNone, &userStencilSettings));
 }
