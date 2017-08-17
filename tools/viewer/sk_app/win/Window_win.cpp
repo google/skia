@@ -349,6 +349,11 @@ bool Window_win::attach(BackendType attachType) {
         case kNativeGL_BackendType:
             fWindowContext = window_context_factory::NewGLForWin(fHWnd, fRequestedDisplayParams);
             break;
+#if SK_ANGLE
+        case kANGLE_BackendType:
+            fWindowContext = window_context_factory::NewANGLEForWin(fHWnd, fRequestedDisplayParams);
+            break;
+#endif
         case kRaster_BackendType:
             fWindowContext = window_context_factory::NewRasterForWin(fHWnd,
                                                                      fRequestedDisplayParams);
