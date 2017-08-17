@@ -50,17 +50,6 @@ struct Constructor : public Expression {
                                                                   &fType));
             }
         }
-        if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kFloatLiteral_Kind) {
-            if (fType == *irGenerator.fContext.fFloat_Type ||
-                fType == *irGenerator.fContext.fHalf_Type) {
-                // convert float(1.0) to 1.0
-                double floatValue = ((FloatLiteral&) *fArguments[0]).fValue;
-                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                    fPosition,
-                                                                    floatValue,
-                                                                    &fType));
-            }
-        }
         return nullptr;
     }
 

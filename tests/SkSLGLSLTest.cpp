@@ -1573,17 +1573,4 @@ DEF_TEST(SkSLNumberConversions, r) {
          "float f2f = f;\n");
 }
 
-DEF_TEST(SkSLConstantSwizzleComparison, r) {
-    test(r,
-         "void main() { if (half4(1.0).x == half4(1.0).y) { sk_FragColor = half4(1.0); } }",
-         *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    {\n"
-         "        sk_FragColor = vec4(1.0);\n"
-         "    }\n"
-         "}\n");
-}
-
 #endif

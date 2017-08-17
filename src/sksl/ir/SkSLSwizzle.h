@@ -94,15 +94,13 @@ struct Swizzle : public Expression {
         if (fBase->fKind == Expression::kConstructor_Kind && fBase->isConstant()) {
             // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
             ASSERT(fBase->fKind == Expression::kConstructor_Kind);
-            if (fType == *irGenerator.fContext.fInt_Type ||
-                fType == *irGenerator.fContext.fShort_Type) {
+            if (fType == *irGenerator.fContext.fInt_Type) {
                 ASSERT(fComponents.size() == 1);
                 int64_t value = ((Constructor&) *fBase).getIVecComponent(fComponents[0]);
                 return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
                                                                     Position(),
                                                                     value));
-            } else if (fType == *irGenerator.fContext.fFloat_Type ||
-                       fType == *irGenerator.fContext.fHalf_Type) {
+            } else if (fType == *irGenerator.fContext.fFloat_Type) {
                 ASSERT(fComponents.size() == 1);
                 double value = ((Constructor&) *fBase).getFVecComponent(fComponents[0]);
                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
