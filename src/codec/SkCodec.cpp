@@ -218,10 +218,16 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
     const int index = options.fFrameIndex;
     if (0 == index) {
         if (!this->conversionSupported(info, fEncodedInfo.color(), fEncodedInfo.opaque(),
-                                      fSrcInfo.colorSpace())) {
+                                      fSrcInfo.colorSpace())
+            || !this->initializeColorXform(info, fEncodedInfo.alpha(), options.fPremulBehavior))
+        {
             return kInvalidConversion;
         }
         return kSuccess;
+    }
+
+    if (index < 0) {
+        return kInvalidParameters;
     }
 
     if (options.fSubset || info.dimensions() != fSrcInfo.dimensions()) {
@@ -246,47 +252,48 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
     }
 
     const int requiredFrame = frame->getRequiredFrame();
-    if (requiredFrame == kNone) {
-        return kSuccess;
-    }
-
-    if (options.fPriorFrame != kNone) {
-        // Check for a valid frame as a starting point. Alternatively, we could
-        // treat an invalid frame as not providing one, but rejecting it will
-        // make it easier to catch the mistake.
-        if (options.fPriorFrame < requiredFrame || options.fPriorFrame >= index) {
-            return kInvalidParameters;
-        }
-        const auto* prevFrame = frameHolder->getFrame(options.fPriorFrame);
-        switch (prevFrame->getDisposalMethod()) {
-            case SkCodecAnimation::DisposalMethod::kRestorePrevious:
+    if (requiredFrame != kNone) {
+        if (options.fPriorFrame != kNone) {
+            // Check for a valid frame as a starting point. Alternatively, we could
+            // treat an invalid frame as not providing one, but rejecting it will
+            // make it easier to catch the mistake.
+            if (options.fPriorFrame < requiredFrame || options.fPriorFrame >= index) {
                 return kInvalidParameters;
-            case SkCodecAnimation::DisposalMethod::kRestoreBGColor:
-                // If a frame after the required frame is provided, there is no
-                // need to clear, since it must be covered by the desired frame.
-                if (options.fPriorFrame == requiredFrame) {
-                    zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
-                }
-                break;
-            default:
-                break;
+            }
+            const auto* prevFrame = frameHolder->getFrame(options.fPriorFrame);
+            switch (prevFrame->getDisposalMethod()) {
+                case SkCodecAnimation::DisposalMethod::kRestorePrevious:
+                    return kInvalidParameters;
+                case SkCodecAnimation::DisposalMethod::kRestoreBGColor:
+                    // If a frame after the required frame is provided, there is no
+                    // need to clear, since it must be covered by the desired frame.
+                    if (options.fPriorFrame == requiredFrame) {
+                        zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            Options prevFrameOptions(options);
+            prevFrameOptions.fFrameIndex = requiredFrame;
+            prevFrameOptions.fZeroInitialized = kNo_ZeroInitialized;
+            const Result result = this->getPixels(info, pixels, rowBytes, &prevFrameOptions);
+            if (result != kSuccess) {
+                return result;
+            }
+            const auto* prevFrame = frameHolder->getFrame(requiredFrame);
+            const auto disposalMethod = prevFrame->getDisposalMethod();
+            if (disposalMethod == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
+                zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
+            }
         }
-        return kSuccess;
     }
 
-    Options prevFrameOptions(options);
-    prevFrameOptions.fFrameIndex = requiredFrame;
-    prevFrameOptions.fZeroInitialized = kNo_ZeroInitialized;
-    const Result result = this->getPixels(info, pixels, rowBytes, &prevFrameOptions);
-    if (result == kSuccess) {
-        const auto* prevFrame = frameHolder->getFrame(requiredFrame);
-        const auto disposalMethod = prevFrame->getDisposalMethod();
-        if (disposalMethod == SkCodecAnimation::DisposalMethod::kRestoreBGColor) {
-            zero_rect(info, pixels, rowBytes, prevFrame->frameRect());
-        }
-    }
-
-    return result;
+    FrameInfo frameInfo;
+    SkAssertResult(this->getFrameInfo(index, &frameInfo));
+    return this->initializeColorXform(info, frameInfo.fAlpha, options.fPremulBehavior)
+        ? kSuccess : kInvalidConversion;
 }
 
 SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
@@ -609,11 +616,14 @@ static inline SkColorSpaceXform::ColorFormat select_xform_format_ct(SkColorType 
     }
 }
 
-bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo,
+bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha encodedAlpha,
                                    SkTransferFunctionBehavior premulBehavior) {
     fColorXform = nullptr;
     fXformOnDecode = false;
-    bool needsColorCorrectPremul = needs_premul(dstInfo, fEncodedInfo) &&
+    if (!this->usesColorXform()) {
+        return true;
+    }
+    bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {
         fColorXform = SkColorSpaceXform_Base::New(fSrcInfo.colorSpace(), dstInfo.colorSpace(),
