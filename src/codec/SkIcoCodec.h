@@ -54,6 +54,7 @@ protected:
         return true;
     }
 
+    bool onUsesColorXform() const override { return false; }
 private:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo,

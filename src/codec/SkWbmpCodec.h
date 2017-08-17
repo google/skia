@@ -30,6 +30,7 @@ protected:
     bool onRewind() override;
     bool conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
                              bool srcIsOpaque, const SkColorSpace* srcCS) const override;
+    bool onUsesColorXform() const override { return false; }
 private:
     /*
      * Returns a swizzler on success, nullptr on failure
