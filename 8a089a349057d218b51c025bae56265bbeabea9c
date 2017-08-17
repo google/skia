@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd9e2276_5dd5ebf7",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-17T15:47:32Z",
+      "side": 1,
+      "message": "I find this hard to search traces for so I think I\u0027m going to deviate from the existing trace tag unless I get push back",
+      "range": {
+        "startLine": 139,
+        "startChar": 36,
+        "endLine": 139,
+        "endChar": 37
+      },
+      "revId": "8a089a349057d218b51c025bae56265bbeabea9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
