@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7f0c3cc4_02f78527",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T16:05:07Z",
+      "side": 1,
+      "message": "Make sure not to land like this.",
+      "revId": "8a089a349057d218b51c025bae56265bbeabea9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cd9e2276_5dd5ebf7",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 2
@@ -13,6 +30,30 @@
       "writtenOn": "2017-08-17T15:47:32Z",
       "side": 1,
       "message": "I find this hard to search traces for so I think I\u0027m going to deviate from the existing trace tag unless I get push back",
+      "range": {
+        "startLine": 139,
+        "startChar": 36,
+        "endLine": 139,
+        "endChar": 37
+      },
+      "revId": "8a089a349057d218b51c025bae56265bbeabea9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a82dd2f_1d18312d",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T16:05:07Z",
+      "side": 1,
+      "message": "Not sure I follow. What\u0027s hard to search for?",
+      "parentUuid": "cd9e2276_5dd5ebf7",
       "range": {
         "startLine": 139,
         "startChar": 36,
