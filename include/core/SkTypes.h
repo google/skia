@@ -110,9 +110,6 @@ inline void operator delete(void* p) {
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
-// Legacy macro names for SK_ABORT
-#define sk_throw()                      SK_ABORT("sk_throw")
-
 #ifdef SK_IGNORE_TO_STRING
     #define SK_TO_STRING_NONVIRT()
     #define SK_TO_STRING_VIRT()
