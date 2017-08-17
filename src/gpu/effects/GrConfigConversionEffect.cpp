@@ -22,12 +22,13 @@ public:
 
         if (nullptr == args.fInputColor) {
             // could optimize this case, but we aren't for now.
-            args.fInputColor = "half4(1)";
+            args.fInputColor = "highfloat4(1)";
         }
 
         // Aggressively round to the nearest exact (N / 255) floating point value. This lets us
         // find a round-trip preserving pair on some GPUs that do odd byte to float conversion.
-        fragBuilder->codeAppendf("half4 color = floor(%s * 255.0 + 0.5) / 255.0;", args.fInputColor);
+        fragBuilder->codeAppendf("highfloat4 color = floor(%s * 255.0 + 0.5) / 255.0;",
+                                 args.fInputColor);
 
         switch (cce.pmConversion()) {
             case GrConfigConversionEffect::kToPremul_PMConversion:
@@ -37,7 +38,7 @@ public:
 
             case GrConfigConversionEffect::kToUnpremul_PMConversion:
                 fragBuilder->codeAppend(
-                    "color.rgb = color.a <= 0.0 ? half3(0,0,0) : floor(color.rgb / color.a * 255.0 + 0.5) / 255.0;");
+                    "color.rgb = color.a <= 0.0 ? highfloat3(0,0,0) : floor(color.rgb / color.a * 255.0 + 0.5) / 255.0;");
                 break;
 
             default:
