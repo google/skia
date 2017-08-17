@@ -170,7 +170,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Chromecast": "Android",
 			"ChromeOS":   "ChromeOS",
 			"Debian9":    DEFAULT_OS_DEBIAN,
-			"Mac":        "Mac-10.11",
+			"Mac":        "Mac-10.12",
 			"Ubuntu14":   DEFAULT_OS_UBUNTU,
 			"Ubuntu16":   "Ubuntu-16.10",
 			"Ubuntu17":   "Ubuntu-17.04",
@@ -478,18 +478,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 	}
 
-	// TODO(stephana): Remove this once all Mac machines are on the same
-	// OS version again. Move the call to swarmDimensions back to the
-	// creation of the TaskSpec struct below.
 	dimensions := swarmDimensions(parts)
-	if strings.Contains(name, "Mac") {
-		for idx, dim := range dimensions {
-			if strings.HasPrefix(dim, "os") {
-				dimensions[idx] = "os:Mac-10.12"
-				break
-			}
-		}
-	}
 
 	// Add the task.
 	b.MustAddTask(name, &specs.TaskSpec{
