@@ -16,6 +16,24 @@
       "revId": "a26d219a929f4e70f8597dfd57a53348c4bba905",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94a37375_eea40279",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 37
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T14:33:54Z",
+      "side": 0,
+      "message": "Curious why our round trip unit test isn\u0027t failing.",
+      "parentUuid": "540c9d3d_b8f63fb5",
+      "revId": "a26d219a929f4e70f8597dfd57a53348c4bba905",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
