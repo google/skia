@@ -619,7 +619,10 @@ public:
          *  This is conservative; it will still return non-opaque if e.g. a
          *  color index-based frame has a color with alpha but does not use it.
          */
+#ifdef SK_LEGACY_FRAME_INFO_ALPHA_TYPE
         SkAlphaType fAlphaType;
+#endif
+        SkEncodedInfo::Alpha fAlpha;
 
         /**
          *  How this frame should be modified before decoding the next one.
@@ -806,8 +809,12 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo,
+    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha,
                               SkTransferFunctionBehavior premulBehavior);
+    // Some classes never need a colorXform e.g.
+    // - ICO uses its embedded codec's colorXform
+    // - WBMP is just Black/White
+    virtual bool usesColorXform() const { return true; }
     void applyColorXform(void* dst, const void* src, int count, SkAlphaType) const;
     void applyColorXform(void* dst, const void* src, int count) const;
 
