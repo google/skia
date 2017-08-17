@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30ee4cad_a5ac59c1",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2017-08-17T15:35:43Z",
+      "side": 1,
+      "message": "I thought this file would only be compiled if this define was set.  Can you remove this?",
+      "range": {
+        "startLine": 10,
+        "startChar": 7,
+        "endLine": 10,
+        "endChar": 26
+      },
+      "revId": "7dd5642d4bbf4d841eb21b29a99a15d2f4727ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
