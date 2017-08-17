@@ -33,6 +33,7 @@
 #include "SkResourceCache.h"
 #include "SkShaderBase.h"
 #include "SkTemplates.h"
+#include "SkTraceEvent.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrConstColorProcessor.h"
 #include "effects/GrDitherEffect.h"
@@ -135,6 +136,7 @@ sk_sp<GrTextureProxy> GrUploadPixmapToTextureProxy(GrResourceProvider* resourceP
     SkPixmap tmpPixmap;
     GrSurfaceDesc desc;
 
+    ATRACE_ANDROID_FRAMEWORK("Upload Texture [%ux%u]", pixmap.width(), pixmap.height());
     if (const SkPixmap* pmap = compute_desc(*resourceProvider->caps(), pixmap, &desc,
                                             &tmpBitmap, &tmpPixmap)) {
         return GrSurfaceProxy::MakeDeferred(resourceProvider, desc,
@@ -177,6 +179,7 @@ sk_sp<GrTextureProxy> GrGenerateMipMapsAndUploadToTextureProxy(GrContext* ctx,
         return nullptr;
     }
 
+    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pixmap.width(), pixmap.height());
     std::unique_ptr<SkMipMap> mipmaps(SkMipMap::Build(pixmap, colorMode, nullptr));
     if (!mipmaps) {
         return nullptr;

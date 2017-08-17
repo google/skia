@@ -54,7 +54,33 @@
 #error "Another copy of this file has already been included."
 #endif
 
+#define TRACE_EMPTY do {} while (0)
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+#include <utils/Trace.h>
+struct SkAndroidFrameworkTraceUtil {
+
+    SkAndroidFrameworkTraceUtil(const char* name) {
+        ATRACE_BEGIN(name);
+    }
+    SkAndroidFrameworkTraceUtil(bool, const char* fmt, ...) {
+        if (CC_LIKELY(!ATRACE_ENABLED())) return;
+
+        const int BUFFER_SIZE = 256;
+        va_list ap;
+        char buf[BUFFER_SIZE];
+
+        va_start(ap, fmt);
+        vsnprintf(buf, BUFFER_SIZE, fmt, ap);
+        va_end(ap);
+
+        ATRACE_BEGIN(buf);
+    }
+    ~SkAndroidFrameworkTraceUtil() { ATRACE_END(); }
+};
+
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) SkAndroidFrameworkTraceUtil __trace(true, fmt, ##__VA_ARGS__)
 
 // If profiling Skia within the Android framework, setting this to 1 will route all Skia
 // tracing events to ATrace.
@@ -62,17 +88,7 @@
 #define SK_TRACE_EVENTS_IN_FRAMEWORK 0
 #endif
 
-#define TRACE_EMPTY do {} while (0)
-
 #if SK_TRACE_EVENTS_IN_FRAMEWORK
-
-#include <utils/Trace.h>
-struct SkAndroidFrameworkTraceUtil {
-    SkAndroidFrameworkTraceUtil(const char* name) {
-        ATRACE_BEGIN(name);
-    }
-    ~SkAndroidFrameworkTraceUtil() { ATRACE_END(); }
-};
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. In the framework, the arguments are ignored.
@@ -134,6 +150,8 @@ struct SkAndroidFrameworkTraceUtil {
   do { *ret = false; } while (0)
 
 #else // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. If the category is not enabled, then this does nothing.
