@@ -212,9 +212,13 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     const GrMorphologyEffect& me = args.fFp.cast<GrMorphologyEffect>();
 
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
-    fPixelSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "PixelSize");
+    fPixelSizeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                               kFloat_GrSLType, kDefault_GrSLPrecision,
+                                               "PixelSize");
     const char* pixelSizeInc = uniformHandler->getUniformCStr(fPixelSizeUni);
-    fRangeUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHighFloat2_GrSLType, "Range");
+    fRangeUni = uniformHandler->addUniform(kFragment_GrShaderFlag,
+                                           kVec2f_GrSLType, kDefault_GrSLPrecision,
+                                           "Range");
     const char* range = uniformHandler->getUniformCStr(fRangeUni);
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -222,11 +226,11 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     const char* func;
     switch (me.type()) {
         case GrMorphologyEffect::Type::kErode:
-            fragBuilder->codeAppendf("\t\t%s = half4(1, 1, 1, 1);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("\t\t%s = float4(1, 1, 1, 1);\n", args.fOutputColor);
             func = "min";
             break;
         case GrMorphologyEffect::Type::kDilate:
-            fragBuilder->codeAppendf("\t\t%s = half4(0, 0, 0, 0);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("\t\t%s = float4(0, 0, 0, 0);\n", args.fOutputColor);
             func = "max";
             break;
         default:
@@ -251,12 +255,12 @@ void GrGLMorphologyEffect::emitCode(EmitArgs& args) {
     int width = me.width();
 
     // float2 coord = coord2D;
-    fragBuilder->codeAppendf("\t\thighfloat2 coord = %s;\n", coords2D.c_str());
+    fragBuilder->codeAppendf("\t\tfloat2 coord = %s;\n", coords2D.c_str());
     // coord.x -= radius * pixelSize;
     fragBuilder->codeAppendf("\t\tcoord.%s -= %d.0 * %s; \n", dir, me.radius(), pixelSizeInc);
     if (me.useRange()) {
         // highBound = min(highBound, coord.x + (width-1) * pixelSize);
-        fragBuilder->codeAppendf("\t\thighfloat highBound = min(%s.y, coord.%s + %f * %s);",
+        fragBuilder->codeAppendf("\t\tfloat highBound = min(%s.y, coord.%s + %f * %s);",
                                  range, dir, float(width - 1), pixelSizeInc);
         // coord.x = max(lowBound, coord.x);
         fragBuilder->codeAppendf("\t\tcoord.%s = max(%s.x, coord.%s);", dir, range, dir);

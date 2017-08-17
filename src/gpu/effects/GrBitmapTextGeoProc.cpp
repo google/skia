@@ -34,7 +34,7 @@ public:
         SkDEBUGCODE(GrTexture* atlas = cte.textureSampler(0).peekTexture());
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
-        GrGLSLVertToFrag v(kHighFloat2_GrSLType);
+        GrGLSLVertToFrag v(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s;", v.vsOut(),
                                  cte.inTextureCoords()->fName);
@@ -65,12 +65,12 @@ public:
             fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
                                                         args.fTexSamplers[0],
                                                         v.fsIn(),
-                                                        kHalf2_GrSLType);
+                                                        kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
-            fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
-            fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kHalf2_GrSLType);
+            fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
             fragBuilder->codeAppend(";");
         }
     }

@@ -396,7 +396,8 @@ void GLColorTableEffect::onSetData(const GrGLSLProgramDataManager& pdm,
 
 void GLColorTableEffect::emitCode(EmitArgs& args) {
     const char* yoffsets;
-    fRGBAYValuesUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+    fRGBAYValuesUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                       kVec4f_GrSLType, kDefault_GrSLPrecision,
                                                        "yoffsets", &yoffsets);
     static const float kColorScaleFactor = 255.0f / 256.0f;
     static const float kColorOffsetFactor = 1.0f / 512.0f;
@@ -404,14 +405,14 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
     if (nullptr == args.fInputColor) {
         // the input color is solid white (all ones).
         static const float kMaxValue = kColorScaleFactor + kColorOffsetFactor;
-        fragBuilder->codeAppendf("\t\thalf4 coord = half4(%f, %f, %f, %f);\n",
+        fragBuilder->codeAppendf("\t\tfloat4 coord = float4(%f, %f, %f, %f);\n",
                                  kMaxValue, kMaxValue, kMaxValue, kMaxValue);
 
     } else {
-        fragBuilder->codeAppendf("\t\thalf nonZeroAlpha = max(%s.a, .0001);\n", args.fInputColor);
-        fragBuilder->codeAppendf("\t\thalf4 coord = half4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
+        fragBuilder->codeAppendf("\t\tfloat nonZeroAlpha = max(%s.a, .0001);\n", args.fInputColor);
+        fragBuilder->codeAppendf("\t\tfloat4 coord = float4(%s.rgb / nonZeroAlpha, nonZeroAlpha);\n",
                                  args.fInputColor);
-        fragBuilder->codeAppendf("\t\tcoord = coord * %f + half4(%f, %f, %f, %f);\n",
+        fragBuilder->codeAppendf("\t\tcoord = coord * %f + float4(%f, %f, %f, %f);\n",
                                  kColorScaleFactor,
                                  kColorOffsetFactor, kColorOffsetFactor,
                                  kColorOffsetFactor, kColorOffsetFactor);
@@ -420,22 +421,22 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
     SkString coord;
 
     fragBuilder->codeAppendf("\t\t%s.a = ", args.fOutputColor);
-    coord.printf("half2(coord.a, %s.a)", yoffsets);
+    coord.printf("float2(coord.a, %s.a)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
     fragBuilder->codeAppendf("\t\t%s.r = ", args.fOutputColor);
-    coord.printf("half2(coord.r, %s.r)", yoffsets);
+    coord.printf("float2(coord.r, %s.r)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
     fragBuilder->codeAppendf("\t\t%s.g = ", args.fOutputColor);
-    coord.printf("half2(coord.g, %s.g)", yoffsets);
+    coord.printf("float2(coord.g, %s.g)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 
     fragBuilder->codeAppendf("\t\t%s.b = ", args.fOutputColor);
-    coord.printf("half2(coord.b, %s.b)", yoffsets);
+    coord.printf("float2(coord.b, %s.b)", yoffsets);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0], coord.c_str());
     fragBuilder->codeAppend(".a;\n");
 

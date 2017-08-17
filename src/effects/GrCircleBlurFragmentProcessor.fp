@@ -1,13 +1,13 @@
-in half4 circleRect;
-in half textureRadius;
-in half solidRadius;
+in float4 circleRect;
+in float textureRadius;
+in float solidRadius;
 in uniform sampler2D blurProfileSampler;
 
 // The data is formatted as:
 // x, y - the center of the circle
 // z    - inner radius that should map to 0th entry in the texture.
 // w    - the inverse of the distance over which the texture is stretched.
-uniform half4 circleData;
+uniform float4 circleData;
 
 @optimizationFlags {
     kCompatibleWithCoverageAsAlpha_OptimizationFlag
@@ -273,10 +273,10 @@ uniform half4 circleData;
 void main() {
     // We just want to compute "(length(vec) - circleData.z + 0.5) * circleData.w" but need to
     // rearrange for precision.
-    half2 vec = half2((sk_FragCoord.x - circleData.x) * circleData.w,
-                      (sk_FragCoord.y - circleData.y) * circleData.w);
-    half dist = length(vec) + (0.5 - circleData.z) * circleData.w;
-    sk_OutColor = sk_InColor * texture(blurProfileSampler, half2(dist, 0.5)).a;
+    float2 vec = float2((sk_FragCoord.x - circleData.x) * circleData.w,
+                    (sk_FragCoord.y - circleData.y) * circleData.w);
+    float dist = length(vec) + (0.5 - circleData.z) * circleData.w;
+    sk_OutColor = sk_InColor * texture(blurProfileSampler, float2(dist, 0.5)).a;
 }
 
 @test(testData) {

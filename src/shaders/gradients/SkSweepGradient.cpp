@@ -198,8 +198,8 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
     const GrSweepGradient& ge = args.fFp.cast<GrSweepGradient>();
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     this->emitUniforms(uniformHandler, ge);
-    fTBiasScaleUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
-                                                "SweepFSParams");
+    fTBiasScaleUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kVec2f_GrSLType,
+                                                kDefault_GrSLPrecision, "SweepFSParams");
     const char* tBiasScaleV = uniformHandler->getUniformCStr(fTBiasScaleUni);
 
     const SkString coords2D = args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]);

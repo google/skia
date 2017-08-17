@@ -327,20 +327,20 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
 
         GrGLSLVertexBuilder* v = args.fVertBuilder;
         if (!mp.fInstanceLocation) {
-            v->codeAppendf("highfloat2 vertex = %s;", mp.fVertex->fName);
+            v->codeAppendf("float2 vertex = %s;", mp.fVertex->fName);
         } else {
             if (mp.fVertex) {
-                v->codeAppendf("highfloat2 offset = %s;", mp.fVertex->fName);
+                v->codeAppendf("float2 offset = %s;", mp.fVertex->fName);
             } else {
-                v->codeAppend ("highfloat2 offset = highfloat2(sk_VertexID / 2, sk_VertexID % 2);");
+                v->codeAppend ("float2 offset = float2(sk_VertexID / 2, sk_VertexID % 2);");
             }
-            v->codeAppendf("highfloat2 vertex = %s + offset * %i;",
+            v->codeAppendf("float2 vertex = %s + offset * %i;",
                            mp.fInstanceLocation->fName, kBoxSize);
         }
-        gpArgs->fPositionVar.set(kHighFloat2_GrSLType, "vertex");
+        gpArgs->fPositionVar.set(kVec2f_GrSLType, "vertex");
 
         GrGLSLPPFragmentBuilder* f = args.fFragBuilder;
-        f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
+        f->codeAppendf("%s = float4(1);", args.fOutputCoverage);
     }
 };
 
