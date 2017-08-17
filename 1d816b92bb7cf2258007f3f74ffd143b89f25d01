@@ -16,6 +16,24 @@
       "revId": "1d816b92bb7cf2258007f3f74ffd143b89f25d01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "483060d3_d95798f5",
+        "filename": "tools/viewer/sk_app/GLWindowContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T18:37:36Z",
+      "side": 0,
+      "message": "Ah, you\u0027re right. I didn\u0027t mean to remove the return.",
+      "parentUuid": "c783fb9a_6689d625",
+      "revId": "1d816b92bb7cf2258007f3f74ffd143b89f25d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
