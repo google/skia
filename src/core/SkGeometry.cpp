@@ -1156,7 +1156,7 @@ bool SkConic::asQuadTol(SkScalar tol) const {
 #define kMaxConicToQuadPOW2     5
 
 int SkConic::computeQuadPOW2(SkScalar tol) const {
-    if (tol < 0 || !SkScalarIsFinite(tol)) {
+    if (tol < 0 || !SkScalarIsFinite(tol) || !SkPointsAreFinite(fPts, 3)) {
         return 0;
     }
 
