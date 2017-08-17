@@ -189,7 +189,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			d["os"] = "Windows-10-10586"
 		}
 		// This machine hasn't been upgraded yet.
-		if parts["model"] == "MacMini6.2" && os == "Mac" && parts["cpu_or_gpu"] == "CPU" {
+		if parts["model"] == "MacMini7.1" && os == "Mac" && parts["cpu_or_gpu"] == "CPU" {
 			d["os"] = "Mac-10.11"
 		}
 	} else {
@@ -308,8 +308,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 				d["gpu"] = gpu
 			} else if strings.Contains(parts["os"], "Mac") {
 				gpu, ok := map[string]string{
-					// TODO(benjaminwagner): GPU name doesn't match device ID.
-					"IntelHD4000": "8086:0a2e",
+					"IntelIris5100": "8086:0a2e",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
 					glog.Fatalf("Entry %q not found in Mac GPU mapping.", parts["cpu_or_gpu_value"])
