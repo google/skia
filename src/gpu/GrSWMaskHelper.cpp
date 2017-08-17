@@ -145,33 +145,3 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
 
     return helper.toTextureProxy(context, fit);
 }
-
-void GrSWMaskHelper::DrawToTargetWithShapeMask(sk_sp<GrTextureProxy> proxy,
-                                               GrRenderTargetContext* renderTargetContext,
-                                               GrPaint&& paint,
-                                               const GrUserStencilSettings& userStencilSettings,
-                                               const GrClip& clip,
-                                               const SkMatrix& viewMatrix,
-                                               const SkIPoint& textureOriginInDeviceSpace,
-                                               const SkIRect& deviceSpaceRectToDraw) {
-    SkMatrix invert;
-    if (!viewMatrix.invert(&invert)) {
-        return;
-    }
-
-    SkRect dstRect = SkRect::Make(deviceSpaceRectToDraw);
-
-    // We use device coords to compute the texture coordinates. We take the device coords and apply
-    // a translation so that the top-left of the device bounds maps to 0,0, and then a scaling
-    // matrix to normalized coords.
-    SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
-                                              SkIntToScalar(-textureOriginInDeviceSpace.fY));
-    maskMatrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
-            std::move(proxy), nullptr, maskMatrix,
-            GrSamplerParams::kNone_FilterMode));
-    renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), SkMatrix::I(), invert, dstRect,
-                                           GrAAType::kNone, &userStencilSettings));
-}
