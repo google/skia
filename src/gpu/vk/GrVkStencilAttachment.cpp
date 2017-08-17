@@ -19,7 +19,7 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const GrVkImageInfo& info,
                                              const GrVkImageView* stencilView)
     : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
-    , GrVkImage(info, GrVkImage::kNot_Wrapped)
+    , GrVkImage(info, GrBackendObjectOwnership::kOwned)
     , fFormat(format)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
