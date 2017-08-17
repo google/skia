@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c783fb9a_6689d625",
+        "filename": "tools/viewer/sk_app/GLWindowContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T18:28:53Z",
+      "side": 0,
+      "message": "Why was this removed? Seems like the logic would still have worked?",
+      "revId": "1d816b92bb7cf2258007f3f74ffd143b89f25d01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
