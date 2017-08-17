@@ -28,7 +28,6 @@ enum class SkEncodedImageFormat {
     kKTX,
     kASTC,
     kDNG,
-    kHEIF,
 };
 
 #endif  // SkEncodedImageFormat_DEFINED

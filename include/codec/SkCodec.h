@@ -50,7 +50,7 @@ public:
      *  this many bytes, or by implementing rewind() to be able to rewind()
      *  after reading this many bytes.
      */
-    static constexpr size_t MinBufferedBytesNeeded() { return 32; }
+    static size_t MinBufferedBytesNeeded();
 
     /**
      *  Error codes for various SkCodec methods.

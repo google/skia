@@ -32,7 +32,6 @@ SkBitmapRegionDecoder* SkBitmapRegionDecoder::Create(
                 case SkEncodedImageFormat::kJPEG:
                 case SkEncodedImageFormat::kPNG:
                 case SkEncodedImageFormat::kWEBP:
-                case SkEncodedImageFormat::kHEIF:
                     break;
                 default:
                     return nullptr;
