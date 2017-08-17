@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "540c9d3d_b8f63fb5",
+        "filename": "src/gpu/effects/GrConfigConversionEffect.cpp",
+        "patchSetId": 37
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T13:30:39Z",
+      "side": 0,
+      "message": "FYI: This has regressed our ability to round-trip on most mobile GPUs, which is going to turn into a canvas2D performance problem.",
+      "revId": "a26d219a929f4e70f8597dfd57a53348c4bba905",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
