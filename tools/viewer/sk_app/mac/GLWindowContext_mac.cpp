@@ -6,12 +6,11 @@
  * found in the LICENSE file.
  */
 
-#include "../GLWindowContext.h"
-#include "WindowContextFactory_mac.h"
-
-#include "SDL.h"
-
 #include <OpenGL/gl.h>
+#include "../GLWindowContext.h"
+#include "SDL.h"
+#include "WindowContextFactory_mac.h"
+#include "gl/GrGLInterface.h"
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;
@@ -26,8 +25,8 @@ public:
     ~GLWindowContext_mac() override;
     
     void onSwapBuffers() override;
-    
-    void onInitializeContext() override;
+
+    sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
     
 private:
@@ -51,13 +50,13 @@ GLWindowContext_mac::~GLWindowContext_mac() {
     this->destroyContext();
 }
 
-void GLWindowContext_mac::onInitializeContext() {
+sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     SkASSERT(fWindow);
 
     fGLContext = SDL_GL_CreateContext(fWindow);
     if (!fGLContext) {
         SkDebugf("%s\n", SDL_GetError());
-        return;
+        return nullptr;
     }
 
     if (0 == SDL_GL_MakeCurrent(fWindow, fGLContext)) {
@@ -74,6 +73,7 @@ void GLWindowContext_mac::onInitializeContext() {
     } else {
         SkDebugf("MakeCurrent failed: %s\n", SDL_GetError());
     }
+    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
 }
 
 void GLWindowContext_mac::onDestroyContext() {

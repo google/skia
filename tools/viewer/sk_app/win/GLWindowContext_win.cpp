@@ -6,13 +6,12 @@
  * found in the LICENSE file.
  */
 
-#include "WindowContextFactory_win.h"
+#include <Windows.h>
 #include <GL/gl.h>
-
- // windows stuff
-#include "win/SkWGL.h"
-
 #include "../GLWindowContext.h"
+#include "GrGLInterface.h"
+#include "WindowContextFactory_win.h"
+#include "win/SkWGL.h"
 
 using sk_app::GLWindowContext;
 using sk_app::DisplayParams;
@@ -27,7 +26,7 @@ public:
 protected:
     void onSwapBuffers() override;
 
-    void onInitializeContext() override;
+    sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
 
 private:
@@ -51,13 +50,13 @@ GLWindowContext_win::~GLWindowContext_win() {
     this->destroyContext();
 }
 
-void GLWindowContext_win::onInitializeContext() {
+sk_sp<const GrGLInterface> GLWindowContext_win::onInitializeContext() {
     HDC dc = GetDC(fHWND);
 
     fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, false /* deepColor */,
                                 kGLPreferCompatibilityProfile_SkWGLContextRequest);
     if (NULL == fHGLRC) {
-        return;
+        return nullptr;
     }
 
     // Look to see if RenderDoc is attached. If so, re-create the context with a core profile
@@ -70,7 +69,7 @@ void GLWindowContext_win::onInitializeContext() {
             fHGLRC = SkCreateWGLContext(dc, fDisplayParams.fMSAASampleCount, false /* deepColor */,
                                         kGLPreferCoreProfile_SkWGLContextRequest);
             if (NULL == fHGLRC) {
-                return;
+                return nullptr;
             }
         }
     }
@@ -107,6 +106,7 @@ void GLWindowContext_win::onInitializeContext() {
         fHeight = rect.bottom - rect.top;
         glViewport(0, 0, fWidth, fHeight);
     }
+    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
 }
 
 
