@@ -30,6 +30,7 @@
 #include "SkClipOpPriv.h"
 #include <SkLatticeIter.h>
 
+#define SKDEBUGCANVAS_ATTRIBUTE_DUMP              "dump"
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMAND           "command"
 #define SKDEBUGCANVAS_ATTRIBUTE_VISIBLE           "visible"
 #define SKDEBUGCANVAS_ATTRIBUTE_MATRIX            "matrix"
@@ -583,6 +584,13 @@ Json::Value SkDrawCommand::MakeJsonScalar(SkScalar z) {
 
 Json::Value SkDrawCommand::MakeJsonPath(const SkPath& path) {
     Json::Value result(Json::objectValue);
+
+    SkDynamicMemoryWStream wstream;
+    path.dump(&wstream, false, false);
+    auto data = wstream.detachAsData();
+    SkString dumpString((char*)data->bytes(), data->size());
+    result[SKDEBUGCANVAS_ATTRIBUTE_DUMP] = dumpString.c_str();
+
     switch (path.getFillType()) {
         case SkPath::kWinding_FillType:
             result[SKDEBUGCANVAS_ATTRIBUTE_FILLTYPE] = SKDEBUGCANVAS_FILLTYPE_WINDING;
