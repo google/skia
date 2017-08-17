@@ -121,8 +121,7 @@ void SkPathMeasure_segTo(const SkPoint pts[], unsigned segType,
             }
             break;
         default:
-            SkDEBUGFAIL("unknown segType");
-            sk_throw();
+            SK_ABORT("unknown segType");
     }
 }
 

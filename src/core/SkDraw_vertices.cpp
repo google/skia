@@ -80,7 +80,7 @@ public:
     SK_TO_STRING_OVERRIDE()
 
     // For serialization.  This will never be called.
-    Factory getFactory() const override { sk_throw(); return nullptr; }
+    Factory getFactory() const override { SK_ABORT("not reached"); return nullptr; }
 
 protected:
     Context* onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc) const override {

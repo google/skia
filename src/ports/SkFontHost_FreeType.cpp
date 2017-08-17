@@ -418,9 +418,7 @@ class AutoFTAccess {
 public:
     AutoFTAccess(const SkTypeface* tf) : fFaceRec(nullptr) {
         gFTMutex.acquire();
-        if (!ref_ft_library()) {
-            sk_throw();
-        }
+        SkASSERT_RELEASE(ref_ft_library());
         fFaceRec = ref_ft_face(tf);
     }
 
@@ -764,10 +762,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     , fStrikeIndex(-1)
 {
     SkAutoMutexAcquire  ac(gFTMutex);
-
-    if (!ref_ft_library()) {
-        sk_throw();
-    }
+    SkASSERT_RELEASE(ref_ft_library());
 
     fFaceRec.reset(ref_ft_face(this->getTypeface()));
 
