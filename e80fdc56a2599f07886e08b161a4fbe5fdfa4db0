@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1d515070_040525ca",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-17T17:06:53Z",
+      "side": 1,
+      "message": "\u003e Are we initializing twice\n\nI don\u0027t think so. There are two call-sites; one for index \u003d\u003d 0, and one for other indices.\n\n\u003e and forgetting to call onUsesColorXform()?\n\nOops, yes. Meant to call this internally in initializeColorXform. Fixed.",
+      "parentUuid": "189f5bad_b0472277",
+      "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5be5f016_a30ce64b",
         "filename": "src/codec/SkIcoCodec.h",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "dd2f02cb_44f66b8a",
+        "filename": "src/codec/SkIcoCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-17T17:06:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5be5f016_a30ce64b",
+      "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6d4972e_e680404b",
         "filename": "src/codec/SkWbmpCodec.h",
         "patchSetId": 1
@@ -50,6 +86,24 @@
       "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e15ef23_653b106e",
+        "filename": "src/codec/SkWbmpCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-17T17:06:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6d4972e_e680404b",
+      "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
