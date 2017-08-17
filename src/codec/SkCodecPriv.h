@@ -271,9 +271,8 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
-static inline bool needs_premul(const SkImageInfo& dstInfo, const SkEncodedInfo& encodedInfo) {
-    return kPremul_SkAlphaType == dstInfo.alphaType() &&
-           SkEncodedInfo::kUnpremul_Alpha == encodedInfo.alpha();
+static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedAlpha) {
+    return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
 }
 
 static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS,
