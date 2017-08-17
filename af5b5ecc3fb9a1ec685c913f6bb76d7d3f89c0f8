@@ -70,6 +70,30 @@
       "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "420e640a_9adb0df1",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-17T17:46:37Z",
+      "side": 1,
+      "message": "\u003e Although, leaving them out may not make the \"this isn\u0027t copyable\" as obvious?\n\u003e Someone would need to hunt into the base to learn that.\n\nFWIW, this was already true for classes like these, which subclass a subclass of SkNoncopyable.",
+      "parentUuid": "eea9bd9a_47f4acce",
+      "range": {
+        "startLine": 156,
+        "startChar": 4,
+        "endLine": 157,
+        "endChar": 71
+      },
+      "revId": "af5b5ecc3fb9a1ec685c913f6bb76d7d3f89c0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
