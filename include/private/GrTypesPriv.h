@@ -356,7 +356,7 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kInt4_GrSLType:
             return false;
     }
-    SkFAIL("Unexpected type");
+    SK_ABORT("Unexpected type");
     return false;
 }
 
