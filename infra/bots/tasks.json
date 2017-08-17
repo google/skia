@@ -7826,7 +7826,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a2e",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7873,7 +7873,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a2e",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -7920,7 +7920,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a2e",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15216,7 +15216,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a2e",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15263,7 +15263,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a2e",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
@@ -15310,7 +15310,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a2e",
-        "os:Mac-10.11",
+        "os:Mac-10.12",
         "pool:Skia"
       ],
       "execution_timeout_ns": 14400000000000,
