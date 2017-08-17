@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d04753d9_4a530dba",
+        "filename": "infra/bots/recipes/perf.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2017-08-17T17:47:49Z",
+      "side": 1,
+      "message": "TODO for whom?",
+      "range": {
+        "startLine": 159,
+        "startChar": 11,
+        "endLine": 159,
+        "endChar": 15
+      },
+      "revId": "3339847819a882bc72c7a0a6d443532673a2dfa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
