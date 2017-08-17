@@ -438,8 +438,7 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor,
     return create_gl_context(dc, extensions, contextType, shareContext);
 }
 
-SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCount,
-                                                 SkWGLContextRequest contextType,
+SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, SkWGLContextRequest contextType,
                                                  HGLRC shareContext) {
     SkWGLExtensions extensions;
     if (!extensions.hasExtension(parentDC, "WGL_ARB_pixel_format") ||
@@ -447,24 +446,45 @@ SkWGLPbufferContext* SkWGLPbufferContext::Create(HDC parentDC, int msaaSampleCou
         return nullptr;
     }
 
+    // We cache the pixel formats once, and then reuse them. That's possibly incorrect if
+    // there are multiple GPUs, but this function is always called with a freshly made,
+    // identically constructed HDC (see WinGLTestContext).
+    //
+    // We only store two potential pixel formats, one for single buffer, one for double buffer.
+    // We never ask for MSAA, so we don't need the second pixel format for each buffering state.
+    static int gPixelFormats[2] = { -1, -1 };
+    static SkOnce once;
+    once([=] {
+        {
+            // Single buffer
+            int pixelFormatsToTry[2] = { -1, -1 };
+            get_pixel_formats_to_try(parentDC, extensions, false, 0, false, pixelFormatsToTry);
+            gPixelFormats[0] = pixelFormatsToTry[0];
+        }
+        {
+            // Double buffer
+            int pixelFormatsToTry[2] = { -1, -1 };
+            get_pixel_formats_to_try(parentDC, extensions, true, 0, false, pixelFormatsToTry);
+            gPixelFormats[1] = pixelFormatsToTry[0];
+        }
+    });
+
     // try for single buffer first
-    for (int dblBuffer = 0; dblBuffer < 2; ++dblBuffer) {
-        int pixelFormatsToTry[] = { -1, -1 };
-        get_pixel_formats_to_try(parentDC, extensions, (0 != dblBuffer), msaaSampleCount,
-                                 false, pixelFormatsToTry);
-        for (int f = 0; -1 != pixelFormatsToTry[f] && f < SK_ARRAY_COUNT(pixelFormatsToTry); ++f) {
-            HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormatsToTry[f], 1, 1, nullptr);
-            if (0 != pbuf) {
-                HDC dc = extensions.getPbufferDC(pbuf);
-                if (dc) {
-                    HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
-                    if (glrc) {
-                        return new SkWGLPbufferContext(pbuf, dc, glrc);
-                    }
-                    extensions.releasePbufferDC(pbuf, dc);
+    for (int pixelFormat : gPixelFormats) {
+        if (-1 == pixelFormat) {
+            continue;
+        }
+        HPBUFFER pbuf = extensions.createPbuffer(parentDC, pixelFormat, 1, 1, nullptr);
+        if (0 != pbuf) {
+            HDC dc = extensions.getPbufferDC(pbuf);
+            if (dc) {
+                HGLRC glrc = create_gl_context(dc, extensions, contextType, shareContext);
+                if (glrc) {
+                    return new SkWGLPbufferContext(pbuf, dc, glrc);
                 }
-                extensions.destroyPbuffer(pbuf);
+                extensions.releasePbufferDC(pbuf, dc);
             }
+            extensions.destroyPbuffer(pbuf);
         }
     }
     return nullptr;

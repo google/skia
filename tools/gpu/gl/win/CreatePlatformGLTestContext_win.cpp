@@ -90,7 +90,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
         winShareContext = shareContext->fPbufferContext ? shareContext->fPbufferContext->getGLRC()
                                                         : shareContext->fGlRenderContext;
     }
-    fPbufferContext = SkWGLPbufferContext::Create(fDeviceContext, 0, contextType, winShareContext);
+    fPbufferContext = SkWGLPbufferContext::Create(fDeviceContext, contextType, winShareContext);
 
     HDC dc;
     HGLRC glrc;
