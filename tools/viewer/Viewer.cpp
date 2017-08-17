@@ -165,8 +165,11 @@ DEFINE_pathrenderer_flag;
 DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
 DECLARE_int32(threads)
 
-const char *kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
+const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+    "ANGLE",
+#endif
 #ifdef SK_VULKAN
     "Vulkan",
 #endif
@@ -177,6 +180,11 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
 #ifdef SK_VULKAN
     if (0 == strcmp(str, "vk")) {
         return sk_app::Window::kVulkan_BackendType;
+    } else
+#endif
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+    if (0 == strcmp(str, "angle")) {
+        return sk_app::Window::kANGLE_BackendType;
     } else
 #endif
     if (0 == strcmp(str, "gl")) {
@@ -366,26 +374,17 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
-        sk_app::Window::BackendType newBackend = fBackendType;
-#if defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
-        if (sk_app::Window::kRaster_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kNativeGL_BackendType;
-#ifdef SK_VULKAN
-        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kVulkan_BackendType;
-#endif
-        } else {
-            newBackend = sk_app::Window::kRaster_BackendType;
-        }
-#elif defined(SK_BUILD_FOR_UNIX)
+        sk_app::Window::BackendType newBackend = (sk_app::Window::BackendType)(
+                (fBackendType + 1) % sk_app::Window::kBackendTypeCount);
         // Switching to and from Vulkan is problematic on Linux so disabled for now
-        if (sk_app::Window::kRaster_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kNativeGL_BackendType;
-        } else if (sk_app::Window::kNativeGL_BackendType == fBackendType) {
-            newBackend = sk_app::Window::kRaster_BackendType;
+#if defined(SK_BUILD_FOR_UNIX) && defined(SK_VULKAN)
+        if (newBackend == sk_app::Window::kVulkan_BackendType) {
+            newBackend = (sk_app::Window::BackendType)((newBackend + 1) %
+                                                       sk_app::Window::kBackendTypeCount);
+        } else if (fBackendType == sk_app::Window::kVulkan_BackendType) {
+            newBackend = sk_app::Window::kVulkan_BackendType;
         }
 #endif
-
         this->setBackend(newBackend);
     });
 
@@ -706,10 +705,14 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
     fWindow->detach();
 
 #if defined(SK_BUILD_FOR_WIN) && defined(SK_VULKAN)
-    // Switching from OpenGL to Vulkan (or vice-versa on some systems) in the same window is
-    // problematic at this point on Windows, so we just delete the window and recreate it.
+    // Switching between OpenGL, Vulkan, and ANGLE in the same window is problematic at this point
+    // on Windows, so we just delete the window and recreate it.
     if (sk_app::Window::kVulkan_BackendType == fBackendType ||
-            sk_app::Window::kNativeGL_BackendType == fBackendType) {
+        sk_app::Window::kNativeGL_BackendType == fBackendType
+#if SK_ANGLE
+        || sk_app::Window::kANGLE_BackendType == fBackendType
+#endif
+        ) {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         delete fWindow;
         fWindow = Window::CreateNativeWindow(nullptr);
@@ -1048,6 +1051,10 @@ void Viewer::drawImGui(SkCanvas* canvas) {
                 ImGui::RadioButton("Raster", &newBackend, sk_app::Window::kRaster_BackendType);
                 ImGui::SameLine();
                 ImGui::RadioButton("OpenGL", &newBackend, sk_app::Window::kNativeGL_BackendType);
+#if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
+                ImGui::SameLine();
+                ImGui::RadioButton("ANGLE", &newBackend, sk_app::Window::kANGLE_BackendType);
+#endif
 #if defined(SK_VULKAN)
                 ImGui::SameLine();
                 ImGui::RadioButton("Vulkan", &newBackend, sk_app::Window::kVulkan_BackendType);

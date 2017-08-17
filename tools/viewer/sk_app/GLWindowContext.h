@@ -40,7 +40,7 @@ protected:
     // This should be called by subclass constructor. It is also called when window/display
     // parameters change. This will in turn call onInitializeContext().
     void initializeContext();
-    virtual void onInitializeContext() = 0;
+    virtual sk_sp<const GrGLInterface> onInitializeContext() = 0;
 
     // This should be called by subclass destructor. It is also called when window/display
     // parameters change prior to initializing a new GL context. This will in turn call

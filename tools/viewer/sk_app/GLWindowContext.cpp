@@ -30,10 +30,9 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
 }
 
 void GLWindowContext::initializeContext() {
-    this->onInitializeContext();
     SkASSERT(!fContext);
 
-    fBackendContext.reset(GrGLCreateNativeInterface());
+    fBackendContext = this->onInitializeContext();
     fContext = GrContext::MakeGL(fBackendContext.get(), fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount) {
         fDisplayParams.fMSAASampleCount /= 2;
