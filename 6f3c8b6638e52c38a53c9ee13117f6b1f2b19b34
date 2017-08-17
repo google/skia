@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "5b568cf1_0e49e0cf",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "Comment-wise, isn\u0027t there a limit on the filterMode too (bilerp or point) ?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bbe5896_2bd661a8",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "// See if we can use a TextureOp for this paint. TextureOps have less overhead but are more limited in what they can draw\n\n?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6afd1d39_d9043bde",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "srcToDestMat ? or just srcToDest ?\n\n// The srcRect is too large. Shrink it and dstRect.",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "053acd01_6c9c00e4",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 19
@@ -25,6 +76,108 @@
     },
     {
       "key": {
+        "uuid": "e8da8446_a295e371",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "this-\u003ectm -\u003e viewMatrix ?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65ece4b8_e2be33b4",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "I think you can just pass in nullptr for adjust and skip all the adjusting",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c3b96cc_cfe0ff3c",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "// This is a specialized GeometryProcessor for the GrTextureOp. It differs from the other GPs in that it ...\n\n?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06a7e511_03da0d9e",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "imageGP ? Whatever it is it should be consistent with the one in setData.",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3e6082f_9c623a34",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "// A specialized DrawOp that only handles ...\n\n?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fc3f2a2_348bc64f",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "move this up to right after makeVertexSpace call ?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7523509b_4e998e57",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 19
@@ -42,6 +195,40 @@
         "endLine": 207,
         "endChar": 31
       },
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "729fa8a6_208044fc",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "// This is here because ...\n\n?",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8e60f39_ca409a8c",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T18:43:41Z",
+      "side": 1,
+      "message": "??",
       "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
