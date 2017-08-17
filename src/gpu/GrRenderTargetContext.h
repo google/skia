@@ -374,7 +374,6 @@ private:
 
     friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
-    friend class GrSWMaskHelper;  // for access to add[Mesh]DrawOp
 
     // All the path renderers currently make their own ops
     friend class GrSoftwarePathRenderer;             // for access to add[Mesh]DrawOp
