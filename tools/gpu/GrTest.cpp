@@ -316,6 +316,7 @@ DRAW_OP_TEST_EXTERN(SmallPathOp);
 DRAW_OP_TEST_EXTERN(RegionOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
 DRAW_OP_TEST_EXTERN(TesselatingPathOp);
+DRAW_OP_TEST_EXTERN(TextureOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
@@ -342,6 +343,7 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
         DRAW_OP_TEST_ENTRY(RegionOp),
         DRAW_OP_TEST_ENTRY(RRectOp),
         DRAW_OP_TEST_ENTRY(TesselatingPathOp),
+        DRAW_OP_TEST_ENTRY(TextureOp),
     };
 
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
