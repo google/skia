@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "781c2caa_0f7b0756",
+        "filename": "src/gpu/vk/GrVkTextureRenderTarget.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-17T19:30:03Z",
+      "side": 1,
+      "message": "// The ownership field is only used if isWrapped is true\n\n?",
+      "revId": "9807ebb096636bcac6a028b1ead4aeb5bd173922",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
