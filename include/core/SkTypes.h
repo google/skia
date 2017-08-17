@@ -95,8 +95,6 @@ inline void operator delete(void* p) {
     #define SkDEBUGFAIL(message)        SK_ABORT(message)
     #define SkDEBUGFAILF(fmt, ...)      SkASSERTF(false, fmt, ##__VA_ARGS__)
     #define SkDEBUGCODE(...)            __VA_ARGS__
-    #define SkDECLAREPARAM(type, var)   , type var
-    #define SkPARAM(var)                , var
     #define SkDEBUGF(args       )       SkDebugf args
     #define SkAssertResult(cond)        SkASSERT(cond)
 #else
@@ -106,8 +104,6 @@ inline void operator delete(void* p) {
     #define SkDEBUGFAILF(fmt, ...)
     #define SkDEBUGCODE(...)
     #define SkDEBUGF(args)
-    #define SkDECLAREPARAM(type, var)
-    #define SkPARAM(var)
 
     // unlike SkASSERT, this guy executes its condition in the non-debug build.
     // The if is present so that this can be used with functions marked SK_WARN_UNUSED_RESULT.
