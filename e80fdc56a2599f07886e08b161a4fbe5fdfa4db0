@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "189f5bad_b0472277",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-17T16:46:01Z",
+      "side": 1,
+      "message": "Are we initializing twice and forgetting to call onUsesColorXform()?",
+      "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5be5f016_a30ce64b",
+        "filename": "src/codec/SkIcoCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-17T16:46:01Z",
+      "side": 1,
+      "message": "// Handled by embedded codec.\n\n?",
+      "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6d4972e_e680404b",
+        "filename": "src/codec/SkWbmpCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-17T16:46:01Z",
+      "side": 1,
+      "message": "// No color to transform.\n?",
+      "revId": "e80fdc56a2599f07886e08b161a4fbe5fdfa4db0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
