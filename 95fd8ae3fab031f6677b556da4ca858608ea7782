@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0eff88f7_9aec2de4",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-17T17:08:31Z",
+      "side": 1,
+      "message": "Given that there is no non-virtual usesColorXform() call that wraps this, you might just want to rename it to usesColorXform().",
+      "range": {
+        "startLine": 623,
+        "startChar": 15,
+        "endLine": 623,
+        "endChar": 31
+      },
+      "revId": "95fd8ae3fab031f6677b556da4ca858608ea7782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
