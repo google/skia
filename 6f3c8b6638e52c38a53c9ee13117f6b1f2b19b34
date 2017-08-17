@@ -305,6 +305,24 @@
     },
     {
       "key": {
+        "uuid": "b2b749df_4805cc05",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T19:27:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1225e181_5c4930ce",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3e6082f_9c623a34",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 19
@@ -354,6 +372,24 @@
       "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a72b2106_87c8921f",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T19:27:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12509b39_80093440",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -541,6 +577,30 @@
       "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85f59c60_18707371",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T19:27:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e7b0177_fc4be238",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 320,
+        "endChar": 46
+      },
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
