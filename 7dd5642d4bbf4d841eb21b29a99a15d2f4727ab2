@@ -46,6 +46,29 @@
       "revId": "7dd5642d4bbf4d841eb21b29a99a15d2f4727ab2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e4ec73d_a650bb33",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7719
+      },
+      "writtenOn": "2017-08-17T18:04:12Z",
+      "side": 1,
+      "message": "Can we do not remove the ReadHeader()? The skia code on oc-mr1-dev has the older prototype where the stream is SkStream*, this method has to release it if create failed, it\u0027s easier to resolve the conflict if you keep that.",
+      "range": {
+        "startLine": 121,
+        "startChar": 38,
+        "endLine": 121,
+        "endChar": 52
+      },
+      "revId": "7dd5642d4bbf4d841eb21b29a99a15d2f4727ab2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
