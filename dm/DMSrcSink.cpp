@@ -152,6 +152,13 @@ Error BRDSrc::draw(SkCanvas* canvas) const {
         return Error::Nonfatal(SkStringPrintf("Could not create brd for %s.", fPath.c_str()));
     }
 
+    if (kRGB_565_SkColorType == colorType) {
+        auto recommendedCT = brd->computeOutputColorType(colorType);
+        if (recommendedCT != colorType) {
+            return Error::Nonfatal("Skip decoding non-opaque to 565.");
+        }
+    }
+
     const uint32_t width = brd->width();
     const uint32_t height = brd->height();
     // Visually inspecting very small output images is not necessary.
