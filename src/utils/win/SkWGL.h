@@ -143,8 +143,8 @@ HGLRC SkCreateWGLContext(HDC dc, int msaaSampleCount, bool deepColor, SkWGLConte
  */
 class SkWGLPbufferContext : public SkRefCnt {
 public:
-    static SkWGLPbufferContext* Create(HDC parentDC, int msaaSampleCount,
-                                       SkWGLContextRequest contextType, HGLRC shareContext);
+    static SkWGLPbufferContext* Create(HDC parentDC, SkWGLContextRequest contextType,
+                                       HGLRC shareContext);
 
     virtual ~SkWGLPbufferContext();
 
