@@ -55,14 +55,16 @@ private:
                             const GrVkImageView* texView,
                             const GrVkImageInfo& msaaInfo,
                             const GrVkImageView* colorAttachmentView,
-                            const GrVkImageView* resolveAttachmentView);
+                            const GrVkImageView* resolveAttachmentView,
+                            GrBackendObjectOwnership);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             SkBudgeted budgeted,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
                             const GrVkImageView* texView,
-                            const GrVkImageView* colorAttachmentView);
+                            const GrVkImageView* colorAttachmentView,
+                            GrBackendObjectOwnership);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
@@ -71,20 +73,21 @@ private:
                             const GrVkImageInfo& msaaInfo,
                             const GrVkImageView* colorAttachmentView,
                             const GrVkImageView* resolveAttachmentView,
-                            GrVkImage::Wrapped wrapped);
+                            GrBackendObjectOwnership);
 
     GrVkTextureRenderTarget(GrVkGpu* gpu,
                             const GrSurfaceDesc& desc,
                             const GrVkImageInfo& info,
                             const GrVkImageView* texView,
                             const GrVkImageView* colorAttachmentView,
-                            GrVkImage::Wrapped wrapped);
+                            GrBackendObjectOwnership);
 
     static sk_sp<GrVkTextureRenderTarget> Make(GrVkGpu*,
                                                const GrSurfaceDesc&,
                                                const GrVkImageInfo&,
                                                SkBudgeted budgeted,
-                                               GrVkImage::Wrapped wrapped);
+                                               GrBackendObjectOwnership,
+                                               bool isWrapped);
 
     // GrGLRenderTarget accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
