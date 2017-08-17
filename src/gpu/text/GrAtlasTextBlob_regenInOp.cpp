@@ -170,7 +170,7 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
     bool brokenRun = false;
     for (int glyphIdx = 0; glyphIdx < glyphCount; glyphIdx++) {
         GrGlyph* glyph = nullptr;
-        int log2Width = 0, log2Height = 0;
+        int log2Width1 = 0, log2Height1 = 0;
         if (regenTexCoords) {
             size_t glyphOffset = glyphIdx + info->glyphStartIndex();
 
@@ -197,8 +197,8 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
             }
             fontCache->addGlyphToBulkAndSetUseToken(info->bulkUseToken(), glyph,
                                                     target->nextDrawToken());
-            log2Width = fontCache->log2Width(info->maskFormat());
-            log2Height = fontCache->log2Height(info->maskFormat());
+            log2Width1 = fontCache->log2Width1(info->maskFormat());
+            log2Height1 = fontCache->log2Height1(info->maskFormat());
         }
 
         intptr_t vertex = reinterpret_cast<intptr_t>(fVertices);
@@ -206,7 +206,7 @@ void GrAtlasTextBlob::regenInOp(GrDrawOp::Target* target, GrAtlasGlyphCache* fon
         vertex += vertexStride * glyphIdx * GrAtlasTextOp::kVerticesPerGlyph;
         regen_vertices<regenPos, regenCol, regenTexCoords>(vertex, glyph, vertexStride,
                                                            info->drawAsDistanceFields(), transX,
-                                                           transY, log2Width, log2Height, color);
+                                                           transY, log2Width1, log2Height1, color);
         helper->incGlyphCount();
     }
 

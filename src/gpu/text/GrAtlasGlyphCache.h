@@ -110,7 +110,7 @@ private:
  */
 class GrAtlasGlyphCache {
 public:
-    GrAtlasGlyphCache(GrContext*, float maxTextureBytes);
+    GrAtlasGlyphCache(GrContext*, size_t startTextureBytes, size_t maxTextureBytes);
     ~GrAtlasGlyphCache();
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
     // another client of the cache may cause the strike to be purged while it is still reffed.
@@ -174,8 +174,8 @@ public:
         return this->getAtlas(format)->atlasGeneration();
     }
 
-    int log2Width(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Width; }
-    int log2Height(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Height; }
+    int log2Width1(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Width1; }
+    int log2Height1(GrMaskFormat format) { return fAtlasConfigs[format].fLog2Height1; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended debug only
