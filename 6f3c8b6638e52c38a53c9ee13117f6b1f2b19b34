@@ -270,6 +270,23 @@
     },
     {
       "key": {
+        "uuid": "1225e181_5c4930ce",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T19:13:00Z",
+      "side": 1,
+      "message": "Need to call fColorSpaceXformHelper.emitCode(args.fUniformHandler, igp.fColorSpaceXform.get()) before appendTextureLookup. (I should add a debug flag in the helper class to catch that...)",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b3e6082f_9c623a34",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 19
@@ -299,6 +316,23 @@
       "side": 1,
       "message": "Done, also renamed to TextureOp.",
       "parentUuid": "b3e6082f_9c623a34",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12509b39_80093440",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T19:13:00Z",
+      "side": 1,
+      "message": "Already called append(GrMeshDrawOp::dumpInfo()) on line 124...",
       "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -427,6 +461,29 @@
       "side": 1,
       "message": "which part?",
       "parentUuid": "d8e60f39_ca409a8c",
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e7b0177_fc4be238",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T19:13:00Z",
+      "side": 1,
+      "message": "There\u0027s also GrTest::TestColorXform() that encapsulates this.",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 320,
+        "endChar": 46
+      },
       "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
