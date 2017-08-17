@@ -28,13 +28,13 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageInfo& msaaInfo,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
-                                   GrVkImage::Wrapped wrapped)
+                                   GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, wrapped)
+    , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImage(new GrVkImage(msaaInfo, GrVkImage::kNot_Wrapped))
+    , fMSAAImage(new GrVkImage(msaaInfo, GrBackendObjectOwnership::kOwned))
     , fResolveAttachmentView(resolveAttachmentView)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
@@ -51,13 +51,13 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageInfo& msaaInfo,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
-                                   GrVkImage::Wrapped wrapped)
+                                   GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, wrapped)
+    , GrVkImage(info, ownership)
     // for the moment we only support 1:1 color to stencil
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
-    , fMSAAImage(new GrVkImage(msaaInfo, GrVkImage::kNot_Wrapped))
+    , fMSAAImage(new GrVkImage(msaaInfo, GrBackendObjectOwnership::kOwned))
     , fResolveAttachmentView(resolveAttachmentView)
     , fFramebuffer(nullptr)
     , fCachedSimpleRenderPass(nullptr) {
@@ -72,9 +72,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
                                    const GrVkImageView* colorAttachmentView,
-                                   GrVkImage::Wrapped wrapped)
+                                   GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, wrapped)
+    , GrVkImage(info, ownership)
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
@@ -92,9 +92,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrSurfaceDesc& desc,
                                    const GrVkImageInfo& info,
                                    const GrVkImageView* colorAttachmentView,
-                                   GrVkImage::Wrapped wrapped)
+                                   GrBackendObjectOwnership ownership)
     : GrSurface(gpu, desc)
-    , GrVkImage(info, wrapped)
+    , GrVkImage(info, ownership)
     , GrRenderTarget(gpu, desc)
     , fColorAttachmentView(colorAttachmentView)
     , fMSAAImage(nullptr)
@@ -110,7 +110,7 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
                          SkBudgeted budgeted,
                          const GrSurfaceDesc& desc,
                          const GrVkImageInfo& info,
-                         GrVkImage::Wrapped wrapped) {
+                         GrBackendObjectOwnership ownership) {
     SkASSERT(1 == info.fLevelCount);
     VkFormat pixelFormat;
     GrPixelConfigToVkFormat(desc.fConfig, &pixelFormat);
@@ -167,9 +167,9 @@ GrVkRenderTarget::Create(GrVkGpu* gpu,
     GrVkRenderTarget* texRT;
     if (desc.fSampleCnt) {
         texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, msInfo,
-                                     colorAttachmentView, resolveAttachmentView, wrapped);
+                                     colorAttachmentView, resolveAttachmentView, ownership);
     } else {
-        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, colorAttachmentView, wrapped);
+        texRT = new GrVkRenderTarget(gpu, budgeted, desc, info, colorAttachmentView, ownership);
     }
 
     return texRT;
@@ -188,7 +188,7 @@ GrVkRenderTarget::CreateNewRenderTarget(GrVkGpu* gpu,
     }
 
     GrVkRenderTarget* rt = GrVkRenderTarget::Create(gpu, budgeted, desc, info,
-                                                    GrVkImage::kNot_Wrapped);
+                                                    GrBackendObjectOwnership::kOwned);
     if (!rt) {
         GrVkImage::DestroyImageInfo(gpu, &info);
     }
@@ -203,7 +203,8 @@ GrVkRenderTarget::MakeWrappedRenderTarget(GrVkGpu* gpu,
     SkASSERT(VK_NULL_HANDLE != info->fImage);
 
     return sk_sp<GrVkRenderTarget>(
-        GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info, GrVkImage::kBorrowed_Wrapped));
+        GrVkRenderTarget::Create(gpu, SkBudgeted::kNo, desc, *info,
+                                 GrBackendObjectOwnership::kBorrowed));
 }
 
 bool GrVkRenderTarget::completeStencilAttachment() {

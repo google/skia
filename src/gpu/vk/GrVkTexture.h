@@ -42,7 +42,7 @@ public:
 
 protected:
     GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, const GrVkImageView*,
-                GrVkImage::Wrapped wrapped);
+                GrBackendObjectOwnership);
 
     GrVkGpu* getVkGpu() const;
 
@@ -54,7 +54,7 @@ private:
     GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&,
                 const GrVkImageInfo&, const GrVkImageView* imageView);
     GrVkTexture(GrVkGpu*, Wrapped, const GrSurfaceDesc&,
-                const GrVkImageInfo&, const GrVkImageView* imageView, GrVkImage::Wrapped wrapped);
+                const GrVkImageInfo&, const GrVkImageView* imageView, GrBackendObjectOwnership);
 
     const GrVkImageView*     fTextureView;
     const GrVkImageView*     fLinearTextureView;

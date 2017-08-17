@@ -23,16 +23,10 @@ private:
     class Resource;
 
 public:
-    enum Wrapped {
-        kNot_Wrapped,
-        kAdopted_Wrapped,
-        kBorrowed_Wrapped,
-    };
-
-    GrVkImage(const GrVkImageInfo& info, Wrapped wrapped)
+    GrVkImage(const GrVkImageInfo& info, GrBackendObjectOwnership ownership)
         : fInfo(info)
-        , fIsBorrowed(kBorrowed_Wrapped == wrapped) {
-        if (kBorrowed_Wrapped == wrapped) {
+        , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
+        if (fIsBorrowed) {
             fResource = new BorrowedResource(info.fImage, info.fAlloc, info.fImageTiling);
         } else {
             fResource = new Resource(info.fImage, info.fAlloc, info.fImageTiling);
