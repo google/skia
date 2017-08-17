@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "053acd01_6c9c00e4",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T16:31:50Z",
+      "side": 1,
+      "message": "This is always the proxy\u0027s bounding rectangle. I will remove the idea of a \"content area\" from the adjuster in a follow on CL.",
+      "range": {
+        "startLine": 143,
+        "startChar": 77,
+        "endLine": 143,
+        "endChar": 88
+      },
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7523509b_4e998e57",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-17T16:31:50Z",
+      "side": 1,
+      "message": "Annoyingly, quad index buffer disagrees with kTriangleStrip about the order of vertices in a quad. I\u0027m thinking about changing that in a follow on CL.",
+      "range": {
+        "startLine": 207,
+        "startChar": 8,
+        "endLine": 207,
+        "endChar": 31
+      },
+      "revId": "6f3c8b6638e52c38a53c9ee13117f6b1f2b19b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
