@@ -2,6 +2,97 @@
   "comments": [
     {
       "key": {
+        "uuid": "e81bdca7_3d00138c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "\u0027times four\u0027 seems wrong? (bytes per pixel may not be four depending on color type, and is already factored into rowBytes in any case)",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3e9f188_c55409ea",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "... or zero?",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33fc961f_b625b9e7",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "Drop references to info, just state width and height are zero or positive.",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 45
+      },
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cfa4f5a_5482dc4d",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "Again, remove \u0027times four\u0027?",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7652029_ae773c9c",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "rowBytes can be zero here, as well, right? (or must be \u003e\u003d width*4)",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55d8c8c7_58c4a5de",
         "filename": "include/core/SkCanvas.h",
         "patchSetId": 6
@@ -31,6 +122,74 @@
       "side": 1,
       "message": "If possible, I\u0027d like to start with an active verb in present tense",
       "parentUuid": "55d8c8c7_58c4a5de",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99bca189_66d6700f",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "Supposed to be possessive? \u0027pixmap\u0027s pixel address\u0027 ?",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98627bcb_7c7d3046",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "GPU canvas does support readPixels",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f5a149f_d5989c9b",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "dstRowBytes needs to be at least that large, but may be larger",
+      "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39658f16_3fe3ca41",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-17T20:56:45Z",
+      "side": 1,
+      "message": "All versions of writePixels have the same kind of restriction as readPixels - this will fail for document-backed canvas",
       "revId": "0ef3611d9ad4aa0c8db27fa0c10ed97a2c277f85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
