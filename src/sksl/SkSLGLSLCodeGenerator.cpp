@@ -738,8 +738,10 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
     if (usesPrecisionModifiers()) {
         switch (type.kind()) {
             case Type::kScalar_Kind:
-                if (type == *fContext.fHalf_Type || type == *fContext.fShort_Type ||
-                        type == *fContext.fUShort_Type) {
+                if (type == *fContext.fHalf_Type) {
+                    return fProgram.fSettings.fForceHighPrecision ? "highp " : "mediump ";
+                }
+                if (type == *fContext.fShort_Type || type == *fContext.fUShort_Type) {
                     return "mediump ";
                 }
                 if (type == *fContext.fFloat_Type || type == *fContext.fInt_Type ||

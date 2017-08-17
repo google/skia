@@ -1586,4 +1586,34 @@ DEF_TEST(SkSLConstantSwizzleComparison, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLForceHighPrecision, r) {
+    test(r,
+         "void main() { half x = sqrt(1); half4 y = half4(x); sk_FragColor = y; }",
+         *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
+         "#version 400\n"
+         "out mediump vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    mediump float x = sqrt(1.0);\n"
+         "    mediump vec4 y = vec4(x);\n"
+         "    sk_FragColor = y;\n"
+         "}\n");
+    SkSL::Program::Settings settings;
+    settings.fForceHighPrecision = true;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::UsesPrecisionModifiers();
+    settings.fCaps = caps.get();
+    SkSL::Program::Inputs inputs;
+    test(r,
+         "void main() { half x = sqrt(1); half4 y = half4(x); sk_FragColor = y; }",
+         settings,
+         "#version 400\n"
+         "out mediump vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    highp float x = sqrt(1.0);\n"
+         "    highp vec4 y = vec4(x);\n"
+         "    sk_FragColor = y;\n"
+         "}\n",
+         &inputs);
+}
+
+
 #endif

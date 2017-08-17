@@ -74,6 +74,8 @@ struct Program {
         // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
         // constant equivalents during compilation
         bool fReplaceSettings = true;
+        // if true, all half types should be forced to the float equivalents
+        bool fForceHighPrecision = false;
         std::unordered_map<String, Value> fArgs;
     };
 
