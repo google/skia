@@ -6,15 +6,14 @@
  * found in the LICENSE file.
  */
 
+#include <OpenGL/gl.h>
 #include "../GLWindowContext.h"
+#include "SDL.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "sk_tool_utils.h"
 #include "WindowContextFactory_mac.h"
-
-#include "SDL.h"
-
-#include <OpenGL/gl.h>
+#include "gl/GrGLInterface.h"
+#include "sk_tool_utils.h"
 
 using sk_app::DisplayParams;
 using sk_app::window_context_factory::MacWindowInfo;
@@ -37,7 +36,7 @@ public:
 
     void onSwapBuffers() override;
 
-    void onInitializeContext() override;
+    sk_sp<const GrGLInterface> onInitializeContext() override;
     void onDestroyContext() override;
 
 private:
@@ -63,13 +62,13 @@ RasterWindowContext_mac::~RasterWindowContext_mac() {
     this->destroyContext();
 }
 
-void RasterWindowContext_mac::onInitializeContext() {
+sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     SkASSERT(fWindow);
 
     fGLContext = SDL_GL_CreateContext(fWindow);
     if (!fGLContext) {
         SkDebugf("%s\n", SDL_GetError());
-        return;
+        return nullptr;
     }
 
     if (0 == SDL_GL_MakeCurrent(fWindow, fGLContext)) {
@@ -91,6 +90,7 @@ void RasterWindowContext_mac::onInitializeContext() {
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
                                          kPremul_SkAlphaType, fDisplayParams.fColorSpace);
     fBackbufferSurface = SkSurface::MakeRaster(info);
+    return sk_sp<const GrGLInterface>(GrGLCreateNativeInterface());
 }
 
 void RasterWindowContext_mac::onDestroyContext() {

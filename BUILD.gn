@@ -1579,6 +1579,9 @@ if (skia_enable_tools) {
           "tools/viewer/sk_app/win/Window_win.cpp",
           "tools/viewer/sk_app/win/main_win.cpp",
         ]
+        if (skia_use_angle) {
+          sources += [ "tools/viewer/sk_app/win/ANGLEWindowContext_win.cpp" ]
+        }
       } else if (is_mac) {
         sources += [
           "tools/viewer/sk_app/mac/GLWindowContext_mac.cpp",
@@ -1617,6 +1620,9 @@ if (skia_enable_tools) {
         deps += [ "//third_party/native_app_glue" ]
       } else if (is_mac) {
         deps += [ "//third_party/libsdl" ]
+      }
+      if (skia_use_angle) {
+        deps += [ "//third_party/angle2" ]
       }
     }
   }
