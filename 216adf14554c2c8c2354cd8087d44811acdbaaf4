@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa7d41a0_283c0c18",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5870
+      },
+      "writtenOn": "2017-08-18T00:17:06Z",
+      "side": 1,
+      "message": "Super nit, feel free to disregard:\nI had to walk through this line to understand what \"at\" was (alpha type). My initial skim interpreted it as something like an iterator or an index. Maybe \"alphaType\" would be more clear.",
+      "range": {
+        "startLine": 322,
+        "startChar": 25,
+        "endLine": 322,
+        "endChar": 27
+      },
+      "revId": "216adf14554c2c8c2354cd8087d44811acdbaaf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
