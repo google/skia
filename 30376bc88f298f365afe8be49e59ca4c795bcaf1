@@ -16,6 +16,24 @@
       "revId": "30376bc88f298f365afe8be49e59ca4c795bcaf1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70f615ca_4452379c",
+        "filename": "src/core/SkOverdrawCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7721
+      },
+      "writtenOn": "2017-08-18T14:30:12Z",
+      "side": 1,
+      "message": "I have moved both the headers out of src/ into include/.",
+      "parentUuid": "14e2f080_9e14a35c",
+      "revId": "30376bc88f298f365afe8be49e59ca4c795bcaf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
