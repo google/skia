@@ -19,6 +19,8 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
         case kShort_GrSLType: // fall through
         case kInt_GrSLType:
             return 0x3;
+        case kUShort2_GrSLType:
+            return 0x3;   // Greg - is this correct?
         case kUShort_GrSLType: // fall through
         case kUint_GrSLType:
             return 0x3;
@@ -77,6 +79,7 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
         case kInt_GrSLType:
             return sizeof(int32_t);
         case kUShort_GrSLType: // fall through
+        case kUShort2_GrSLType: // fall through
         case kUint_GrSLType:
             return sizeof(int32_t);
         case kHalf_GrSLType: // fall through

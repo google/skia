@@ -57,6 +57,7 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 1;
         case kUint_GrSLType:
         case kUShort_GrSLType: // fall through
+        case kUShort2_GrSLType: // fall through
              return 1;
         case kTexture2D_GrSLType:
              return 0;

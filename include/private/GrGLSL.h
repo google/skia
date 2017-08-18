@@ -133,6 +133,8 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "short";
         case kUShort_GrSLType:
             return "ushort";
+        case kUShort2_GrSLType:
+            return "ushort2";
         case kInt_GrSLType:
             return "int";
         case kInt2_GrSLType:

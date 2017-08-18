@@ -23,13 +23,11 @@
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
 
-#define ATLAS_TEXTURE_WIDTH 2048
-#define ATLAS_TEXTURE_HEIGHT 2048
-#define PLOT_WIDTH  512
-#define PLOT_HEIGHT 256
+#define ATLAS_PLOT_WIDTH  512
+#define ATLAS_PLOT_HEIGHT 256
 
-#define NUM_PLOTS_X   (ATLAS_TEXTURE_WIDTH / PLOT_WIDTH)
-#define NUM_PLOTS_Y   (ATLAS_TEXTURE_HEIGHT / PLOT_HEIGHT)
+#define ATLAS_NUM_PLOTS_X 4
+#define ATLAS_NUM_PLOTS_Y 8
 
 #ifdef DF_PATH_TRACKING
 static int g_NumCachedShapes = 0;
@@ -251,7 +249,7 @@ private:
             }
 
             flushInfo.fGeometryProcessor =
-                    GrBitmapTextGeoProc::Make(this->color(), atlas->getProxy(), params,
+                    GrBitmapTextGeoProc::Make1(this->color(), atlas->getProxy(), params,
                                               kA8_GrMaskFormat, invert, fHelper.usesLocalCoords());
         }
 
@@ -744,8 +742,9 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!fAtlas) {
         fAtlas = GrDrawOpAtlas::Make(args.fContext,
                                      kAlpha_8_GrPixelConfig,
-                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                     NUM_PLOTS_X, NUM_PLOTS_Y,
+                                     ATLAS_PLOT_WIDTH, ATLAS_PLOT_HEIGHT,
+                                     ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
+                                     ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
                                      &GrSmallPathRenderer::HandleEviction,
                                      (void*)this);
         if (!fAtlas) {
@@ -812,8 +811,9 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas = GrDrawOpAtlas::Make(context, kAlpha_8_GrPixelConfig,
-                                                 ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                 NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                 ATLAS_PLOT_WIDTH, ATLAS_PLOT_HEIGHT,
+                                                 ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
+                                                 ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
                                                  &PathTestStruct::HandleEviction,
                                                  (void*)&gTestStruct);
     }
