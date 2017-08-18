@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f855d6e1_b75f5d23",
+        "filename": "src/gpu/GrTextureAdjuster.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-18T15:41:42Z",
+      "side": 1,
+      "message": "Move this to the top of the function ?",
+      "revId": "ed45ba57984c57d65f16066fcc1428a604b7fb6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
