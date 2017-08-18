@@ -146,8 +146,12 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
         frameInfo->fDuration = frameContext->getDuration();
         frameInfo->fRequiredFrame = frameContext->getRequiredFrame();
         frameInfo->fFullyReceived = frameContext->isComplete();
+#ifdef SK_LEGACY_FRAME_INFO_ALPHA_TYPE
         frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
                                                          : kOpaque_SkAlphaType;
+#endif
+        frameInfo->fAlpha = frameContext->hasAlpha() ? SkEncodedInfo::kBinary_Alpha
+                                                     : SkEncodedInfo::kOpaque_Alpha;
         frameInfo->fDisposalMethod = frameContext->getDisposalMethod();
     }
     return true;
@@ -224,12 +228,6 @@ SkCodec::Result SkGifCodec::prepareToDecode(const SkImageInfo& dstInfo, const Op
         // Parsing happened in SkCodec::getPixels.
         SkASSERT(frameIndex < fReader->imagesCount());
         SkASSERT(frame->reachedStartOfData());
-    }
-
-    const auto at = frame->hasAlpha() ? kUnpremul_SkAlphaType : kOpaque_SkAlphaType;
-    const auto srcInfo = this->getInfo().makeAlphaType(at);
-    if (!this->initializeColorXform(dstInfo, opts.fPremulBehavior)) {
-        return gif_error("Cannot convert input type to output type.\n", kInvalidConversion);
     }
 
     if (this->xformOnDecode()) {
