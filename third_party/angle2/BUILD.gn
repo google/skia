@@ -44,7 +44,7 @@ config("common") {
     "$angle_root/src/common/third_party/base",
     "$angle_root/src/third_party/khronos",
   ]
-
+  cflags_cc = []
   assert(is_linux || is_win)  # TODO: is_mac?
   if (is_linux) {
     defines += [
@@ -52,6 +52,7 @@ config("common") {
       "GL_APICALL=__attribute__((visibility(\"default\")))",
       "EGLAPI=__attribute__((visibility(\"default\")))",
     ]
+    cflags_cc += [ "-std=c++14" ]
   } else if (is_win) {
     defines += [
       "ANGLE_ENABLE_D3D11",
