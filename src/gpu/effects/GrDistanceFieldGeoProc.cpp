@@ -754,6 +754,7 @@ public:
         key |= ComputePosKey(dfTexEffect.viewMatrix()) << 16;
         b->add32(key);
 
+        // Remove!
         // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
         SkASSERT(gp.numTextureSamplers() == 1);
         GrTextureProxy* atlas = gp.textureSampler(0).proxy();

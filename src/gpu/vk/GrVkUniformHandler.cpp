@@ -16,6 +16,8 @@
 // aligned to 16 bytes (i.e. has mask of 0xF).
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
+        case kVec2us_GrSLType:
+            return 0x3;
         case kInt_GrSLType:
             return 0x3;
         case kUint_GrSLType:
@@ -64,6 +66,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     so a float2x2 takes up 8 floats. */
 static inline uint32_t grsltype_to_vk_size(GrSLType type) {
     switch(type) {
+        case kVec2us_GrSLType: // fall through
         case kInt_GrSLType:
             return sizeof(int32_t);
         case kUint_GrSLType:
