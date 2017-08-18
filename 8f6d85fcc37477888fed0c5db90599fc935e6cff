@@ -16,6 +16,24 @@
       "revId": "8f6d85fcc37477888fed0c5db90599fc935e6cff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a24b71a_a02d22ad",
+        "filename": "src/gpu/mtl/GrMtlRenderTarget.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-18T13:32:44Z",
+      "side": 1,
+      "message": "it shouldn\u0027t be conditioned since if we don\u0027t have any samples the +1 reflects the base RT itself. Updated the comment to clarify this.",
+      "parentUuid": "a6168373_17ab6870",
+      "revId": "8f6d85fcc37477888fed0c5db90599fc935e6cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
