@@ -19,7 +19,7 @@
  *  5 (or larger) -> fColors[5]
  *
  */
-class SkOverdrawColorFilter : public SkColorFilter {
+class SK_API SkOverdrawColorFilter : public SkColorFilter {
 public:
     static constexpr int kNumColors = 6;
 
