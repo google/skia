@@ -54,6 +54,8 @@ protected:
         return true;
     }
 
+    // Handled by the embedded codec.
+    bool usesColorXform() const override { return false; }
 private:
 
     Result onStartScanlineDecode(const SkImageInfo& dstInfo,
