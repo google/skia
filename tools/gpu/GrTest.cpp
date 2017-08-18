@@ -316,32 +316,34 @@ DRAW_OP_TEST_EXTERN(SmallPathOp);
 DRAW_OP_TEST_EXTERN(RegionOp);
 DRAW_OP_TEST_EXTERN(RRectOp);
 DRAW_OP_TEST_EXTERN(TesselatingPathOp);
+DRAW_OP_TEST_EXTERN(TextureOp);
 
 void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext, GrPaint&& paint) {
     GrContext* context = renderTargetContext->surfPriv().getContext();
     using MakeDrawOpFn = std::unique_ptr<GrDrawOp>(GrPaint&&, SkRandom*, GrContext*, GrFSAAType);
     static constexpr MakeDrawOpFn* gFactories[] = {
-        DRAW_OP_TEST_ENTRY(AAConvexPathOp),
-        DRAW_OP_TEST_ENTRY(AAFillRectOp),
-        DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
-        DRAW_OP_TEST_ENTRY(AAHairlineOp),
-        DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
-        DRAW_OP_TEST_ENTRY(CircleOp),
-        DRAW_OP_TEST_ENTRY(DashOp),
-        DRAW_OP_TEST_ENTRY(DefaultPathOp),
-        DRAW_OP_TEST_ENTRY(DIEllipseOp),
-        DRAW_OP_TEST_ENTRY(EllipseOp),
-        DRAW_OP_TEST_ENTRY(GrAtlasTextOp),
-        DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
-        DRAW_OP_TEST_ENTRY(GrDrawVerticesOp),
-        DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
-        DRAW_OP_TEST_ENTRY(NonAALatticeOp),
-        DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
-        DRAW_OP_TEST_ENTRY(ShadowRRectOp),
-        DRAW_OP_TEST_ENTRY(SmallPathOp),
-        DRAW_OP_TEST_ENTRY(RegionOp),
-        DRAW_OP_TEST_ENTRY(RRectOp),
-        DRAW_OP_TEST_ENTRY(TesselatingPathOp),
+            DRAW_OP_TEST_ENTRY(AAConvexPathOp),
+            DRAW_OP_TEST_ENTRY(AAFillRectOp),
+            DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
+            DRAW_OP_TEST_ENTRY(AAHairlineOp),
+            DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
+            DRAW_OP_TEST_ENTRY(CircleOp),
+            DRAW_OP_TEST_ENTRY(DashOp),
+            DRAW_OP_TEST_ENTRY(DefaultPathOp),
+            DRAW_OP_TEST_ENTRY(DIEllipseOp),
+            DRAW_OP_TEST_ENTRY(EllipseOp),
+            DRAW_OP_TEST_ENTRY(GrAtlasTextOp),
+            DRAW_OP_TEST_ENTRY(GrDrawAtlasOp),
+            DRAW_OP_TEST_ENTRY(GrDrawVerticesOp),
+            DRAW_OP_TEST_ENTRY(NonAAFillRectOp),
+            DRAW_OP_TEST_ENTRY(NonAALatticeOp),
+            DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
+            DRAW_OP_TEST_ENTRY(ShadowRRectOp),
+            DRAW_OP_TEST_ENTRY(SmallPathOp),
+            DRAW_OP_TEST_ENTRY(RegionOp),
+            DRAW_OP_TEST_ENTRY(RRectOp),
+            DRAW_OP_TEST_ENTRY(TesselatingPathOp),
+            DRAW_OP_TEST_ENTRY(TextureOp),
     };
 
     static constexpr size_t kTotal = SK_ARRAY_COUNT(gFactories);
