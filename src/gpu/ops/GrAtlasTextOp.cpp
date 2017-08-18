@@ -102,7 +102,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     } else {
         GrSamplerParams params(SkShader::kClamp_TileMode, GrSamplerParams::kNone_FilterMode);
         flushInfo.fGeometryProcessor =
-                GrBitmapTextGeoProc::Make(this->color(), std::move(proxy), params, maskFormat,
+                GrBitmapTextGeoProc::Make1(this->color(), std::move(proxy), params, maskFormat,
                                           localMatrix, this->usesLocalCoords());
     }
 
