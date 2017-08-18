@@ -9,7 +9,6 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrRectanizer.h"
-#include "GrSurfacePriv.h"
 #include "SkAutoMalloc.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
@@ -21,14 +20,16 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (!fAtlases[index]) {
         GrPixelConfig config = MaskFormatToPixelConfig(format, *fContext->caps());
-        int width = fAtlasConfigs[index].fWidth;
-        int height = fAtlasConfigs[index].fHeight;
-        int numPlotsX = fAtlasConfigs[index].numPlotsX();
-        int numPlotsY = fAtlasConfigs[index].numPlotsY();
+        int plotWidth = fAtlasConfigs[index].fPlotWidth;
+        int plotHeight = fAtlasConfigs[index].fPlotHeight;
+        int startNumPlotsX = fAtlasConfigs[index].fStartNumPlotsX;
+        int startNumPlotsY = fAtlasConfigs[index].fStartNumPlotsY;
+        int maxNumPlotsX = fAtlasConfigs[index].fMaxNumPlotsX;
+        int maxNumPlotsY = fAtlasConfigs[index].fMaxNumPlotsY;
 
         fAtlases[index] = GrDrawOpAtlas::Make(
-                fContext, config, width, height, numPlotsX, numPlotsY,
-                &GrAtlasGlyphCache::HandleEviction, (void*)this);
+                fContext, config, plotWidth, plotHeight, startNumPlotsX, startNumPlotsY,
+                maxNumPlotsX, maxNumPlotsY, &GrAtlasGlyphCache::HandleEviction, (void*)this);
         if (!fAtlases[index]) {
             return false;
         }
@@ -36,7 +37,9 @@ bool GrAtlasGlyphCache::initAtlas(GrMaskFormat format) {
     return true;
 }
 
-GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
+GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context,
+                                     size_t startTextureBytes,
+                                     size_t maxTextureBytes)
         : fContext(context), fPreserveStrike(nullptr) {
     // Calculate RGBA size. Must be between 1024 x 512 and MaxTextureSize x MaxTextureSize / 2
     int log2MaxTextureSize = SkPrevLog2(context->caps()->maxTextureSize());
@@ -45,7 +48,9 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
         int maxDim = 1 << log2MaxDim;
         int minDim = 1 << (log2MaxDim - 1);
 
-        if (maxDim * minDim * 4 >= maxTextureBytes) break;
+        if (maxDim * minDim * 4 >= startTextureBytes) {
+            break;
+        }
     }
 
     int log2MinDim = log2MaxDim - 1;
@@ -57,27 +62,13 @@ GrAtlasGlyphCache::GrAtlasGlyphCache(GrContext* context, float maxTextureBytes)
 
     // Setup default atlas configs. The A8 atlas uses maxDim for both width and height, as the A8
     // format is already very compact.
-    fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Width = log2MaxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fLog2Height = log2MaxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = maxPlot;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = minPlot;
+    fAtlasConfigs[kA8_GrMaskFormat].init(maxPlot, minPlot, maxDim, maxDim, maxDim, maxDim);
 
-    // A565 and ARGB use maxDim x minDim.
-    fAtlasConfigs[kA565_GrMaskFormat].fWidth = minDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Width = log2MinDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fLog2Height = log2MaxDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = minPlot;
-    fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = minPlot;
+    // A565 uses maxDim x minDim.
+    fAtlasConfigs[kA565_GrMaskFormat].init(minPlot, maxPlot, minDim, maxDim, minDim, maxDim);
 
-    fAtlasConfigs[kARGB_GrMaskFormat].fWidth = minDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Width = log2MinDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fLog2Height = log2MaxDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
-    fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
+    // ARGB
+    fAtlasConfigs[kARGB_GrMaskFormat].init(minPlot, minPlot, minDim, maxDim, minDim, maxDim);
 }
 
 GrAtlasGlyphCache::~GrAtlasGlyphCache() {

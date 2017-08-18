@@ -111,7 +111,7 @@ public:
 
     const SkMatrix& getMatrix() const { return fMatrix; }
     const GrTextureProxy* proxy() const { return fProxy; }
-    bool normalize() const { return fNormalize; }
+    bool normalize1() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
 
     // This should only ever be called at flush time after the backing texture has been

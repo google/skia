@@ -21,7 +21,7 @@ class GrInvariantOutput;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(GrColor color,
+    static sk_sp<GrGeometryProcessor> Make1(GrColor color,
                                            sk_sp<GrTextureProxy> proxy, const GrSamplerParams& p,
                                            GrMaskFormat format, const SkMatrix& localMatrix,
                                            bool usesLocalCoords) {

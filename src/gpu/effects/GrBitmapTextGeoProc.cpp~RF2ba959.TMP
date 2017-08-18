@@ -31,14 +31,13 @@ public:
 
         const char* atlasSizeInvName;
         fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kVec2f_GrSLType,
-                                                          kHigh_GrSLPrecision,
+                                                          kHighFloat2_GrSLType1,
                                                           "AtlasSizeInv",
                                                           &atlasSizeInvName);
 
-        GrGLSLVertToFrag v(kVec2f_GrSLType);
+        GrGLSLVertToFrag v(kHighFloat2_GrSLType1);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s / %s;",
+        vertBuilder->codeAppendf("%s = %s * %s;",
                                  v.vsOut(), btgp.inTextureCoords()->fName, atlasSizeInvName);
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -67,12 +66,12 @@ public:
             fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
                                                         args.fTexSamplers[0],
                                                         v.fsIn(),
-                                                        kVec2f_GrSLType);
+                                                        kHalf2_GrSLType);
             fragBuilder->codeAppend(";");
-            fragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);
+            fragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
         } else {
             fragBuilder->codeAppendf("%s = ", args.fOutputCoverage);
-            fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kVec2f_GrSLType);
+            fragBuilder->appendTextureLookup(args.fTexSamplers[0], v.fsIn(), kHalf2_GrSLType);
             fragBuilder->codeAppend(";");
         }
     }
@@ -92,7 +91,7 @@ public:
         SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         if (fAtlasSize.fWidth != atlas->width() || fAtlasSize.fHeight != atlas->height()) {
-            pdman.set2f(fAtlasSizeInvUniform, atlas->width(), atlas->height()); //1.0f / atlas->width(), 1.0f / atlas->height());
+            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
             fAtlasSize.set(atlas->width(), atlas->height());
         }
         this->setTransformDataHelper(btgp.localMatrix(), pdman, &transformIter);
@@ -110,10 +109,9 @@ public:
 
 private:
     GrColor       fColor;
-    UniformHandle fColorUniform;
-
     SkISize       fAtlasSize;
     UniformHandle fAtlasSizeInvUniform;
+    UniformHandle fColorUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
@@ -139,7 +137,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
     if (hasVertexColor) {
         fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     }
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_GrVertexAttribType,
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_new_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
     this->addTextureSampler(&fTextureSampler);
 }
