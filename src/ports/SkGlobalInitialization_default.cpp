@@ -33,7 +33,7 @@
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
-#include "../../src/effects/SkOverdrawColorFilter.h"
+#include "SkOverdrawColorFilter.h"
 #include "SkPaintImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
