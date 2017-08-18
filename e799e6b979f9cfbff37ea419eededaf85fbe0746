@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "15e95e96_97617298",
+        "filename": "include/gpu/GrCaps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-18T20:16:07Z",
+      "side": 1,
+      "message": "We *could* make this is a GrSoftware[Small?]PathRenderer construct param rather than a cap. Not sure it\u0027s better, just throwing it out as an alternative.",
+      "revId": "e799e6b979f9cfbff37ea419eededaf85fbe0746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e8cc6e4_deec742e",
         "filename": "src/gpu/GrOpList.h",
         "patchSetId": 3
