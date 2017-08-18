@@ -15,7 +15,7 @@
  *  increments the alpha channel of each pixel every time it would have been touched
  *  by a draw call.  This is useful for detecting overdraw.
  */
-class SkOverdrawCanvas : public SkNWayCanvas {
+class SK_API SkOverdrawCanvas : public SkNWayCanvas {
 public:
     /* Does not take ownership of canvas */
     SkOverdrawCanvas(SkCanvas*);
