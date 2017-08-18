@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14e2f080_9e14a35c",
+        "filename": "src/core/SkOverdrawCanvas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-18T12:19:17Z",
+      "side": 1,
+      "message": "If Chrome is going to use this then we should move it from src/core to include/core. Generally, files in src/ are not meant to be included by clients.",
+      "revId": "30376bc88f298f365afe8be49e59ca4c795bcaf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
