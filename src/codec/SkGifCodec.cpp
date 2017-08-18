@@ -146,10 +146,6 @@ bool SkGifCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
         frameInfo->fDuration = frameContext->getDuration();
         frameInfo->fRequiredFrame = frameContext->getRequiredFrame();
         frameInfo->fFullyReceived = frameContext->isComplete();
-#ifdef SK_LEGACY_FRAME_INFO_ALPHA_TYPE
-        frameInfo->fAlphaType = frameContext->hasAlpha() ? kUnpremul_SkAlphaType
-                                                         : kOpaque_SkAlphaType;
-#endif
         frameInfo->fAlpha = frameContext->hasAlpha() ? SkEncodedInfo::kBinary_Alpha
                                                      : SkEncodedInfo::kOpaque_Alpha;
         frameInfo->fDisposalMethod = frameContext->getDisposalMethod();
