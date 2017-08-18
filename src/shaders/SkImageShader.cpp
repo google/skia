@@ -69,9 +69,11 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
     if (at == kUnpremul_SkAlphaType) {
         return true;
     }
+#ifndef SK_SUPPORT_LEGACY_TILED_BITMAPS
     if (tx != ty) {
         return true;
     }
+#endif
 #ifndef SK_SUPPORT_LEGACY_ROTATED_SHADERS
     if (!ctm.isScaleTranslate()) {
         return true;
