@@ -270,10 +270,6 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
-
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorFormat(dstInfo)) {
         return kInvalidConversion;
@@ -347,10 +343,6 @@ SkSampler* SkHeifCodec::getSampler(bool createIfNecessary) {
 
 SkCodec::Result SkHeifCodec::onStartScanlineDecode(
         const SkImageInfo& dstInfo, const Options& options) {
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
-
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorFormat(dstInfo)) {
         return kInvalidConversion;

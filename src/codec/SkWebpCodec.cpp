@@ -305,7 +305,11 @@ bool SkWebpCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
         // libwebp only reports fully received frames for an
         // animated image.
         frameInfo->fFullyReceived = true;
+#ifdef SK_LEGACY_FRAME_INFO_ALPHA_TYPE
         frameInfo->fAlphaType = alpha_type(frame->hasAlpha());
+#endif
+        frameInfo->fAlpha = frame->hasAlpha() ? SkEncodedInfo::kUnpremul_Alpha
+                                              : SkEncodedInfo::kOpaque_Alpha;
         frameInfo->fDisposalMethod = frame->getDisposalMethod();
     }
 
@@ -398,10 +402,6 @@ static void blend_line(SkColorType dstCT, void* dst,
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, int* rowsDecodedPtr) {
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
-
     const int index = options.fFrameIndex;
     SkASSERT(0 == index || index < fFrameHolder.size());
 

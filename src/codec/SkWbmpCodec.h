@@ -30,6 +30,8 @@ protected:
     bool onRewind() override;
     bool conversionSupported(const SkImageInfo& dst, SkEncodedInfo::Color srcColor,
                              bool srcIsOpaque, const SkColorSpace* srcCS) const override;
+    // No need to Xform; all pixels are either black or white.
+    bool usesColorXform() const override { return false; }
 private:
     /*
      * Returns a swizzler on success, nullptr on failure

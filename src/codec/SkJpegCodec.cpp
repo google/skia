@@ -581,10 +581,6 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
         return fDecoderMgr->returnFailure("setjmp", kInvalidInput);
     }
 
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
-    }
-
     // Check if we can decode to the requested destination and set the output color space
     if (!this->setOutputColorSpace(dstInfo)) {
         return fDecoderMgr->returnFailure("setOutputColorSpace", kInvalidConversion);
@@ -688,10 +684,6 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     if (setjmp(fDecoderMgr->getJmpBuf())) {
         SkCodecPrintf("setjmp: Error from libjpeg\n");
         return kInvalidInput;
-    }
-
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        return kInvalidConversion;
     }
 
     // Check if we can decode to the requested destination and set the output color space

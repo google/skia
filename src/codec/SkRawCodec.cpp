@@ -696,11 +696,6 @@ std::unique_ptr<SkCodec> SkRawCodec::MakeFromStream(std::unique_ptr<SkStream> st
 SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
                                         size_t dstRowBytes, const Options& options,
                                         int* rowsDecoded) {
-    if (!this->initializeColorXform(dstInfo, options.fPremulBehavior)) {
-        SkCodecPrintf("Error: cannot convert input type to output type.\n");
-        return kInvalidConversion;
-    }
-
     SkImageInfo swizzlerInfo = dstInfo;
     std::unique_ptr<uint32_t[]> xformBuffer = nullptr;
     if (this->colorXform()) {
