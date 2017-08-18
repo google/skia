@@ -43,7 +43,6 @@
 #include "ops/GrSemaphoreOp.h"
 #include "ops/GrShadowRRectOp.h"
 #include "ops/GrStencilPathOp.h"
-#include "ops/GrTextureOp.h"
 #include "text/GrAtlasTextContext.h"
 #include "text/GrStencilAndCoverTextContext.h"
 
@@ -768,21 +767,6 @@ void GrRenderTargetContext::fillRectToRect(const GrClip& clip,
     path.setIsVolatile(true);
     path.addRect(localRect);
     this->internalDrawPath(clip, std::move(paint), aa, viewAndUnLocalMatrix, path, GrStyle());
-}
-
-void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                              GrSamplerParams::FilterMode filter, GrColor color,
-                                              const SkRect& srcRect, const SkRect& dstRect,
-                                              const SkMatrix& viewMatrix,
-                                              sk_sp<GrColorSpaceXform> colorSpaceXform) {
-    ASSERT_SINGLE_OWNER
-    RETURN_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureAffine", fContext);
-    SkASSERT(!viewMatrix.hasPerspective());
-    bool allowSRGB = SkToBool(this->getColorSpace());
-    this->addDrawOp(clip, GrTextureOp::Make(std::move(proxy), filter, color, srcRect, dstRect,
-                                            viewMatrix, std::move(colorSpaceXform), allowSRGB));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,

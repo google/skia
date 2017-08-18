@@ -285,8 +285,6 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrStencilPathOp.h",
   "$_src/gpu/ops/GrTessellatingPathRenderer.cpp",
   "$_src/gpu/ops/GrTessellatingPathRenderer.h",
-  "$_src/gpu/ops/GrTextureOp.cpp",
-  "$_src/gpu/ops/GrTextureOp.h",
 
   # coverage counting path renderer
   "$_src/gpu/ccpr/GrCCPRAtlas.cpp",
