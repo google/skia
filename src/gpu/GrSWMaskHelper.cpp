@@ -6,12 +6,16 @@
  */
 
 #include "GrSWMaskHelper.h"
+
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrOpFlushState.h"
+#include "GrOpList.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
-#include "SkDistanceFieldGen.h"
+#include "SkMakeUnique.h"
+#include "SkTraceEvent.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -90,6 +94,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
 }
 
 sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     GrSurfaceDesc desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
     desc.fWidth = fPixels.width();
@@ -112,32 +117,52 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBacki
     return sContext->asTextureProxyRef();
 }
 
-/**
- * Convert mask generation results to a signed distance field
- */
-void GrSWMaskHelper::toSDF(unsigned char* sdf) {
-    SkGenerateDistanceFieldFromA8Image(sdf, (const unsigned char*)fPixels.addr(),
-                                       fPixels.width(), fPixels.height(), fPixels.rowBytes());
+namespace {
+
+class GrMaskUploaderPreFlushCallback : public GrPreFlushCallback {
+public:
+    GrMaskUploaderPreFlushCallback(sk_sp<GrTextureProxy> proxy, SkAutoPixmapStorage&& pixels)
+            : fProxy(std::move(proxy)) {
+        fPixels = std::move(pixels);
+    }
+
+    void execute(GrOpFlushState* flushState) override {
+        TRACE_EVENT0("skia", TRACE_FUNC);
+        auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
+            TRACE_EVENT0("skia", "uploadMask");
+            writePixelsFn(this->fProxy.get(), 0, 0, this->fPixels.width(), this->fPixels.height(),
+                          kAlpha_8_GrPixelConfig, this->fPixels.addr(), this->fPixels.rowBytes());
+        };
+        flushState->addASAPUpload(std::move(uploadMask));
+    }
+
+private:
+    sk_sp<GrTextureProxy> fProxy;
+    SkAutoPixmapStorage fPixels;
+};
+
 }
 
-////////////////////////////////////////////////////////////////////////////////
-/**
- * Software rasterizes shape to A8 mask and uploads the result to a scratch texture. Returns the
- * resulting texture on success; nullptr on failure.
- */
-sk_sp<GrTextureProxy> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
-                                                             const GrShape& shape,
-                                                             const SkIRect& resultBounds,
-                                                             GrAA aa,
-                                                             SkBackingFit fit,
-                                                             const SkMatrix* matrix) {
-    GrSWMaskHelper helper;
+sk_sp<GrTextureProxy> GrSWMaskHelper::toDeferredTextureProxy(GrContext* context, SkBackingFit fit,
+                                                             GrOpList* opList) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+    GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fWidth = fPixels.width();
+    desc.fHeight = fPixels.height();
+    desc.fConfig = kAlpha_8_GrPixelConfig;
 
-    if (!helper.init(resultBounds, matrix)) {
+    sk_sp<GrSurfaceContext> sContext =
+            context->contextPriv().makeDeferredSurfaceContext(desc, fit, SkBudgeted::kYes);
+    if (!sContext || !sContext->asTextureProxy()) {
         return nullptr;
     }
 
-    helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
+    sk_sp<GrTextureProxy> proxy = sContext->asTextureProxyRef();
 
-    return helper.toTextureProxy(context, fit);
+    std::unique_ptr<GrPreFlushCallback> callback =
+            skstd::make_unique<GrMaskUploaderPreFlushCallback>(proxy, std::move(fPixels));
+    opList->addPreFlushCallback(std::move(callback));
+
+    return proxy;
 }
