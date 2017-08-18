@@ -362,13 +362,16 @@ const GrBuffer* GrResourceProvider::createPatternedIndexBuffer(const uint16_t* p
     return buffer;
 }
 
+static constexpr int kMaxQuads = 1 << 12;  // max possible: (1 << 14) - 1;
+
 const GrBuffer* GrResourceProvider::createQuadIndexBuffer() {
-    static const int kMaxQuads = 1 << 12; // max possible: (1 << 14) - 1;
     GR_STATIC_ASSERT(4 * kMaxQuads <= 65535);
     static const uint16_t kPattern[] = { 0, 1, 2, 0, 2, 3 };
 
     return this->createPatternedIndexBuffer(kPattern, 6, kMaxQuads, 4, fQuadIndexBufferKey);
 }
+
+int GrResourceProvider::QuadCountOfQuadBuffer() { return kMaxQuads; }
 
 sk_sp<GrPath> GrResourceProvider::createPath(const SkPath& path, const GrStyle& style) {
     SkASSERT(this->gpu()->pathRendering());
