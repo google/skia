@@ -112,7 +112,7 @@ protected:
             fPaint.setTypeface(fTypefaces[fTypefaceIndices[i]]);
 
             canvas->save();
-                canvas->clipRect(fClipRects[i]);
+//                canvas->clipRect(fClipRects[i]);
                 canvas->translate(fPositions[i].fX, fPositions[i].fY);
                 canvas->drawString(fStrings[i], 0, 0, fPaint);
             canvas->restore();
@@ -133,7 +133,7 @@ protected:
     bool runAsBench() const override { return true; }
 
 private:
-    static constexpr int kCnt = 30;
+    static constexpr int kCnt = 4;
     static constexpr int kMinLength = 15;
     static constexpr int kMaxLength = 40;
 

@@ -93,6 +93,7 @@ public:
         // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
         // we treat this as a set of non-AA rects rendered with a texture.
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
+        this->setClipRect(this->bounds());
     }
 
     const char* name() const override { return "AtlasTextOp"; }
@@ -156,6 +157,7 @@ private:
     const SkMatrix& viewMatrix() const { return fGeoData[0].fViewMatrix; }
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     int numGlyphs() const { return fNumGlyphs; }
+    void setClipRect(const SkRect& clipRect) { fClipRect = clipRect; }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
@@ -181,6 +183,7 @@ private:
     GrColor fColor;
     uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
+    SkRect   fClipRect;
     bool fUsesLocalCoords;
     bool fCanCombineOnTouchOrOverlap;
     int fGeoCount;
