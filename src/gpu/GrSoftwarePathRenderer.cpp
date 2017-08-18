@@ -145,10 +145,8 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
     maskMatrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
                 std::move(proxy), nullptr, maskMatrix, GrSamplerParams::kNone_FilterMode));
-    renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), SkMatrix::I(), invert, dstRect,
-                                           GrAAType::kNone, &userStencilSettings));
+    DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
+                  dstRect, invert);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,11 +203,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     GrUniqueKey maskKey;
-    struct KeyData {
-        SkScalar fFractionalTranslateX;
-        SkScalar fFractionalTranslateY;
-    };
-
     if (useCache) {
         // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
         SkScalar sx = args.fViewMatrix->get(SkMatrix::kMScaleX);
@@ -240,8 +233,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         builder[4] = fracX | (fracY >> 8);
         args.fShape->writeUnstyledKey(&builder[5]);
 #endif
-        // FIXME: Doesn't the key need to consider whether we're using AA or not? In practice that
-        // should always be true, though.
     }
 
     sk_sp<GrTextureProxy> proxy;
@@ -251,9 +242,14 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        proxy = GrSWMaskHelper::DrawShapeMaskToTexture(args.fContext, *args.fShape,
-                                                       *boundsForMask, aa,
-                                                       fit, args.fViewMatrix);
+
+        GrSWMaskHelper helper;
+        if (!helper.init(*boundsForMask, args.fViewMatrix)) {
+            return false;
+        }
+        helper.drawShape(*args.fShape, SkRegion::kReplace_Op, aa, 0xFF);
+        proxy = helper.toDeferredTextureProxy(args.fContext, fit,
+                                              args.fRenderTargetContext->getOpList());
         if (!proxy) {
             return false;
         }
