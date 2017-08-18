@@ -26,13 +26,20 @@ class GrTextureOpList;
 struct SkIPoint;
 struct SkIRect;
 
+class GrPreFlushCallback : SkNoncopyable {
+public:
+    virtual ~GrPreFlushCallback() {}
+    virtual void execute(GrOpFlushState*) = 0;
+};
+
 class GrOpList : public SkRefCnt {
 public:
     GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
-    // These three methods are invoked at flush time
+    // These four methods are invoked at flush time
     bool instantiate(GrResourceProvider* resourceProvider);
+    void executePreFlushCallbacks(GrOpFlushState* flushState);
     virtual void prepareOps(GrOpFlushState* flushState) = 0;
     virtual bool executeOps(GrOpFlushState* flushState) = 0;
 
@@ -50,6 +57,10 @@ public:
     }
 
     virtual void reset();
+
+    void addPreFlushCallback(std::unique_ptr<GrPreFlushCallback> callback) {
+        fPreFlushCallbacks.push_back(std::move(callback));
+    }
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
     // these could go away
@@ -154,6 +165,9 @@ private:
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*>  fDependencies;
+
+    // These are used rarely, most clients never produce any
+    SkTArray<std::unique_ptr<GrPreFlushCallback>> fPreFlushCallbacks;
 
     typedef SkRefCnt INHERITED;
 };
