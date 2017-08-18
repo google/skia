@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e8cc6e4_deec742e",
+        "filename": "src/gpu/GrOpList.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-18T19:21:33Z",
+      "side": 1,
+      "message": "Nobody expects the Spanish Inquisition",
+      "revId": "e799e6b979f9cfbff37ea419eededaf85fbe0746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c39286e3_e74e1783",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-18T19:21:33Z",
+      "side": 1,
+      "message": "Just leveraging the helper function that\u0027s also used for DrawAroundInvPath...",
+      "revId": "e799e6b979f9cfbff37ea419eededaf85fbe0746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91b7a120_c26939cb",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-18T19:21:33Z",
+      "side": 1,
+      "message": "The caps bit is hooked up here, although it\u0027s not actually enabling any kind of threading yet - just deferred upload. The threaded implementation is going to require some rework here, dynamically allocating the helper and handing that to the PreFlushCallback, etc...",
+      "revId": "e799e6b979f9cfbff37ea419eededaf85fbe0746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
