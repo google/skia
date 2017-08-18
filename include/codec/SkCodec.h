@@ -619,9 +619,6 @@ public:
          *  This is conservative; it will still return non-opaque if e.g. a
          *  color index-based frame has a color with alpha but does not use it.
          */
-#ifdef SK_LEGACY_FRAME_INFO_ALPHA_TYPE
-        SkAlphaType fAlphaType;
-#endif
         SkEncodedInfo::Alpha fAlpha;
 
         /**
