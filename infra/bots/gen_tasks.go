@@ -188,10 +188,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if parts["model"] == "Golo" && os == "Win10" && parts["cpu_or_gpu_value"] == "GT610" {
 			d["os"] = "Windows-10-10586"
 		}
-		// This machine hasn't been upgraded yet.
-		if parts["model"] == "MacMini7.1" && os == "Mac" && parts["cpu_or_gpu"] == "CPU" {
-			d["os"] = "Mac-10.11"
-		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
