@@ -22,6 +22,30 @@
       "revId": "216adf14554c2c8c2354cd8087d44811acdbaaf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3e40c8c_38cdae51",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2017-08-18T14:58:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa7d41a0_283c0c18",
+      "range": {
+        "startLine": 322,
+        "startChar": 25,
+        "endLine": 322,
+        "endChar": 27
+      },
+      "revId": "216adf14554c2c8c2354cd8087d44811acdbaaf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
