@@ -13,6 +13,12 @@ static inline int grsltype_to_location_size(GrSLType type) {
     switch(type) {
         case kVoid_GrSLType:
             return 0;
+        case kBool_GrSLType:
+             return 1;
+        case kInt_GrSLType:
+             return 1;
+        case kUint_GrSLType:
+             return 1;
         case kFloat_GrSLType:
             return 1;
         case kVec2f_GrSLType:
@@ -43,12 +49,6 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kBufferSampler_GrSLType:
              return 0;
-        case kBool_GrSLType:
-             return 1;
-        case kInt_GrSLType:
-             return 1;
-        case kUint_GrSLType:
-             return 1;
         case kTexture2D_GrSLType:
              return 0;
         case kSampler_GrSLType:
