@@ -59,7 +59,7 @@ sk_sp<GrTextureProxy> GrTextureMaker::refTextureProxyForParams(const GrSamplerPa
 
     sk_sp<GrTextureProxy> result;
     if (original) {
-        result = CopyOnGpu(fContext, std::move(original), nullptr, copyParams);
+        result = CopyOnGpu(fContext, std::move(original), copyParams);
     } else {
         result = this->generateTextureProxyForParams(copyParams, willBeMipped, dstColorSpace);
     }
@@ -115,8 +115,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     SkRect domain;
     DomainMode domainMode =
         DetermineDomainMode(constraintRect, filterConstraint, coordsLimitedToConstraintRect,
-                            proxy.get(),
-                            nullptr, fmForDetermineDomain, &domain);
+                            proxy.get(), fmForDetermineDomain, &domain);
     SkASSERT(kTightCopy_DomainMode != domainMode);
     sk_sp<GrColorSpaceXform> colorSpaceXform = GrColorSpaceXform::Make(texColorSpace.get(),
                                                                        dstColorSpace);
@@ -135,5 +134,5 @@ sk_sp<GrTextureProxy> GrTextureMaker::generateTextureProxyForParams(const CopyPa
         return nullptr;
     }
 
-    return CopyOnGpu(fContext, std::move(original), nullptr, copyParams);
+    return CopyOnGpu(fContext, std::move(original), copyParams);
 }
