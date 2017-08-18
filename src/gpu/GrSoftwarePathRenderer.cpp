@@ -8,9 +8,15 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrAuditTrail.h"
 #include "GrClip.h"
+#include "GrContextPriv.h"
 #include "GrGpuResourcePriv.h"
+#include "GrOpFlushState.h"
+#include "GrOpList.h"
 #include "GrResourceProvider.h"
 #include "GrSWMaskHelper.h"
+#include "SkMakeUnique.h"
+#include "SkSemaphore.h"
+#include "SkTaskGroup.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
 
@@ -145,10 +151,53 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
     maskMatrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
                 std::move(proxy), nullptr, maskMatrix, GrSamplerParams::kNone_FilterMode));
-    renderTargetContext->addDrawOp(clip,
-                                   GrRectOpFactory::MakeNonAAFillWithLocalMatrix(
-                                           std::move(paint), SkMatrix::I(), invert, dstRect,
-                                           GrAAType::kNone, &userStencilSettings));
+    DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
+                  dstRect, invert);
+}
+
+static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrContext* context, SkBackingFit fit,
+                                                              int width, int height) {
+    GrSurfaceDesc desc;
+    desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = kAlpha_8_GrPixelConfig;
+
+    sk_sp<GrSurfaceContext> sContext =
+            context->contextPriv().makeDeferredSurfaceContext(desc, fit, SkBudgeted::kYes);
+    if (!sContext || !sContext->asTextureProxy()) {
+        return nullptr;
+    }
+    return sContext->asTextureProxyRef();
+}
+
+namespace {
+
+class GrMaskUploaderPreFlushCallback : public GrPreFlushCallback {
+public:
+    GrMaskUploaderPreFlushCallback(sk_sp<GrTextureProxy> proxy)
+            : fProxy(std::move(proxy)) {
+    }
+
+    void execute(GrOpFlushState* flushState) override {
+        fPixelsReady.wait();
+        auto uploadMask = [this](GrDrawOp::WritePixelsFn& writePixelsFn) {
+            writePixelsFn(this->fProxy.get(), 0, 0, this->fPixels.width(), this->fPixels.height(),
+                          kAlpha_8_GrPixelConfig, this->fPixels.addr(), this->fPixels.rowBytes());
+        };
+        flushState->addASAPUpload(std::move(uploadMask));
+    }
+
+    SkAutoPixmapStorage* getPixels() { return &fPixels; }
+    SkSemaphore* getSemaphore() { return &fPixelsReady; }
+
+private:
+    // NOTE: This ref cnt isn't thread safe!
+    sk_sp<GrTextureProxy> fProxy;
+    SkAutoPixmapStorage fPixels;
+    SkSemaphore fPixelsReady;
+};
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,11 +254,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     GrUniqueKey maskKey;
-    struct KeyData {
-        SkScalar fFractionalTranslateX;
-        SkScalar fFractionalTranslateY;
-    };
-
     if (useCache) {
         // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
         SkScalar sx = args.fViewMatrix->get(SkMatrix::kMScaleX);
@@ -240,8 +284,6 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         builder[4] = fracX | (fracY >> 8);
         args.fShape->writeUnstyledKey(&builder[5]);
 #endif
-        // FIXME: Doesn't the key need to consider whether we're using AA or not? In practice that
-        // should always be true, though.
     }
 
     sk_sp<GrTextureProxy> proxy;
@@ -251,9 +293,41 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!proxy) {
         SkBackingFit fit = useCache ? SkBackingFit::kExact : SkBackingFit::kApprox;
         GrAA aa = GrAAType::kCoverage == args.fAAType ? GrAA::kYes : GrAA::kNo;
-        proxy = GrSWMaskHelper::DrawShapeMaskToTexture(args.fContext, *args.fShape,
-                                                       *boundsForMask, aa,
-                                                       fit, args.fViewMatrix);
+
+        if (args.fContext->caps()->useThreadedPathMaskRendering()) {
+            SkTaskGroup* taskGroup = args.fContext->contextPriv().getTaskGroup();
+            SkASSERT(taskGroup);
+            proxy = make_deferred_mask_texture_proxy(args.fContext, fit,
+                                                     boundsForMask->width(),
+                                                     boundsForMask->height());
+            if (!proxy) {
+                return false;
+            }
+
+            auto uploader = skstd::make_unique<GrMaskUploaderPreFlushCallback>(proxy);
+            SkAutoPixmapStorage* pixels = uploader->getPixels();
+            SkSemaphore* semaphore = uploader->getSemaphore();
+            SkIRect maskBoundsValue = *boundsForMask;
+
+            // Need to capture all the relevant bits in the callback object, perhaps? Then just
+            // capture the pointer to it, and use that in the lambda to do everything?
+            auto drawAndUploadMask = [pixels, semaphore, maskBoundsValue] {
+                GrSWMaskHelper helper(pixels);
+                // How to deal with init failing here? Too late!!!
+                helper.init(maskBoundsValue, viewMatrix);
+                helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
+            };
+            taskGroup->add(std::move(drawAndUploadMask));
+        } else {
+            GrSWMaskHelper helper;
+            if (!helper.init(*boundsForMask, args.fViewMatrix)) {
+                return false;
+            }
+            helper.drawShape(*args.fShape, SkRegion::kReplace_Op, aa, 0xFF);
+            proxy = helper.toTextureProxy(args.fContext, fit);
+
+        }
+
         if (!proxy) {
             return false;
         }
