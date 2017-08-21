@@ -1318,6 +1318,7 @@ int main(int argc, char** argv) {
     }
 
     GrContextOptions grCtxOptions;
+    grCtxOptions.fUseThreadedPathMaskRendering = true;
 #if SK_SUPPORT_GPU
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
 #endif

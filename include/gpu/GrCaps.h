@@ -167,6 +167,8 @@ public:
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
 
+    bool useThreadedPathMaskRendering() const { return fUseThreadedPathMaskRendering; }
+
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
      * used for doing dst copies needed in blends, thus the src is always a GrRenderTargetProxy. It
@@ -219,6 +221,9 @@ protected:
 
     // Vulkan doesn't support this (yet) and some drivers have issues, too
     bool fCrossContextTextureSupport                 : 1;
+
+    // Only some clients want this behavior
+    bool fUseThreadedPathMaskRendering               : 1;
 
     InstancedSupport fInstancedSupport;
 
