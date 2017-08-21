@@ -64,17 +64,13 @@ public:
 
         Element(const Element&);
 
-        Element(const SkRect& rect, SkClipOp op, bool doAA) {
-            this->initRect(0, rect, op, doAA);
-        }
+        Element(const SkRect& rect, SkClipOp op, bool doAA) { this->initRect(0, rect, op, doAA); }
 
         Element(const SkRRect& rrect, SkClipOp op, bool doAA) {
             this->initRRect(0, rrect, op, doAA);
         }
 
-        Element(const SkPath& path, SkClipOp op, bool doAA) {
-            this->initPath(0, path, op, doAA);
-        }
+        Element(const SkPath& path, SkClipOp op, bool doAA) { this->initPath(0, path, op, doAA); }
 
         ~Element() {
 #if SK_SUPPORT_GPU
@@ -135,58 +131,14 @@ public:
          * Gets the bounds of the clip element, either the rect or path bounds. (Whether the shape
          * is inverse filled is not considered.)
          */
-        const SkRect& getBounds() const {
-            static const SkRect kEmpty = { 0, 0, 0, 0 };
-            switch (fType) {
-                case kRect_Type:  // fallthrough
-                case kRRect_Type:
-                    return fRRect.getBounds();
-                case kPath_Type:
-                    return fPath.get()->getBounds();
-                case kEmpty_Type:
-                    return kEmpty;
-                default:
-                    SkDEBUGFAIL("Unexpected type.");
-                    return kEmpty;
-            }
-        }
+        const SkRect& getBounds() const;
 
         /**
-         * Conservatively checks whether the clip shape contains the rect param. (Whether the shape
+         * Conservatively checks whether the clip shape contains the rect/rrect. (Whether the shape
          * is inverse filled is not considered.)
          */
-        bool contains(const SkRect& rect) const {
-            switch (fType) {
-                case kRect_Type:
-                    return this->getRect().contains(rect);
-                case kRRect_Type:
-                    return fRRect.contains(rect);
-                case kPath_Type:
-                    return fPath.get()->conservativelyContainsRect(rect);
-                case kEmpty_Type:
-                    return false;
-                default:
-                    SkDEBUGFAIL("Unexpected type.");
-                    return false;
-            }
-        }
-
-        bool contains(const SkRRect& rrect) const {
-            switch (fType) {
-                case kRect_Type:
-                    return this->getRect().contains(rrect.getBounds());
-                case kRRect_Type:
-                    // We don't currently have a generalized rrect-rrect containment.
-                    return fRRect.contains(rrect.getBounds()) || rrect == fRRect;
-                case kPath_Type:
-                    return fPath.get()->conservativelyContainsRect(rrect.getBounds());
-                case kEmpty_Type:
-                    return false;
-                default:
-                    SkDEBUGFAIL("Unexpected type.");
-                    return false;
-            }
-        }
+        bool contains(const SkRect& rect) const;
+        bool contains(const SkRRect& rrect) const;
 
         /**
          * Is the clip shape inverse filled.
@@ -262,35 +214,9 @@ public:
             this->initPath(saveCount, path, op, doAA);
         }
 
-        void initCommon(int saveCount, SkClipOp op, bool doAA) {
-            fSaveCount = saveCount;
-            fOp = op;
-            fDoAA = doAA;
-            // A default of inside-out and empty bounds means the bounds are effectively void as it
-            // indicates that nothing is known to be outside the clip.
-            fFiniteBoundType = kInsideOut_BoundsType;
-            fFiniteBound.setEmpty();
-            fIsIntersectionOfRects = false;
-            fGenID = kInvalidGenID;
-        }
-
-        void initRect(int saveCount, const SkRect& rect, SkClipOp op, bool doAA) {
-            fRRect.setRect(rect);
-            fType = kRect_Type;
-            this->initCommon(saveCount, op, doAA);
-        }
-
-        void initRRect(int saveCount, const SkRRect& rrect, SkClipOp op, bool doAA) {
-            SkRRect::Type type = rrect.getType();
-            fRRect = rrect;
-            if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
-                fType = kRect_Type;
-            } else {
-                fType = kRRect_Type;
-            }
-            this->initCommon(saveCount, op, doAA);
-        }
-
+        void initCommon(int saveCount, SkClipOp op, bool doAA);
+        void initRect(int saveCount, const SkRect& rect, SkClipOp op, bool doAA);
+        void initRRect(int saveCount, const SkRRect& rrect, SkClipOp op, bool doAA);
         void initPath(int saveCount, const SkPath& path, SkClipOp op, bool doAA);
 
         void setEmpty();
