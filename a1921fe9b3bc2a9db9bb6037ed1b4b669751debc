@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "f3f189e6_acd5daa9",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-21T18:06:58Z",
+      "side": 1,
+      "message": "I guess it\u0027s a moot point if the option is #num threads.",
+      "parentUuid": "7058e890_600ccd34",
+      "range": {
+        "startLine": 208,
+        "startChar": 18,
+        "endLine": 208,
+        "endChar": 39
+      },
+      "revId": "a1921fe9b3bc2a9db9bb6037ed1b4b669751debc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d0b605f8_5ec5a0c8",
         "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
         "patchSetId": 7

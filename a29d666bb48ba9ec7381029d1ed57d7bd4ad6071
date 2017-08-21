@@ -52,6 +52,24 @@
       "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91318a98_a42618ac",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-21T18:06:58Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m not really concerned.",
+      "parentUuid": "45a43dc8_f7664e1a",
+      "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
