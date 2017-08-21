@@ -413,6 +413,23 @@ bool SkGradientShaderBase::onAppendStages(SkRasterPipeline* p,
         f_and_b[1] = c_l;
 
         p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, f_and_b);
+    } else if (fColorCount == 4 && fOrigPos == nullptr) {
+        /*
+         fA = d + three * (b - c) - a;
+         fB = three * (c - times_2(b) + a);
+         fC = three * (b - a);
+         fD = a;
+         */
+        Sk4f a = Sk4f::Load(&fOrigColors4f[0]);
+        Sk4f b = Sk4f::Load(&fOrigColors4f[1]);
+        Sk4f c = Sk4f::Load(&fOrigColors4f[2]);
+        Sk4f d = Sk4f::Load(&fOrigColors4f[3]);
+        float* coeff = alloc->makeArray<float>(16);
+        (d + (b - c)*3 - a).store(&coeff[0]);   // coeff for t^3
+        ((c - b - b + a)*3).store(&coeff[4]);   // coeff for t^2
+                ((b - a)*3).store(&coeff[8]);   // coeff for t^1
+                          a.store(&coeff[12]);  // coeff for t^0
+        p->append(SkRasterPipeline::gradient_cubic, coeff);
     } else {
         auto* ctx = alloc->make<SkJumper_GradientCtx>();
 
