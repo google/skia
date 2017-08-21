@@ -164,6 +164,7 @@ DEFINE_pathrenderer_flag;
 
 DEFINE_bool(instancedRendering, false, "Enable instanced rendering on GPU backends.");
 DECLARE_int32(threads)
+DECLARE_int32(gpuThreads);
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
@@ -303,6 +304,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fMSAASampleCount = FLAGS_msaa;
     displayParams.fGrContextOptions.fEnableInstancedRendering = FLAGS_instancedRendering;
     displayParams.fGrContextOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    displayParams.fGrContextOptions.fWorkerThreadCount = FLAGS_gpuThreads;
     fWindow->setRequestedDisplayParams(displayParams);
 
     // register callbacks

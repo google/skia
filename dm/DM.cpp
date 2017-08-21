@@ -1320,6 +1320,7 @@ int main(int argc, char** argv) {
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    grCtxOptions.fWorkerThreadCount = FLAGS_gpuThreads;
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.

@@ -27,6 +27,7 @@ DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
 DECLARE_string(svgs);
 DECLARE_int32(threads);
+DECLARE_int32(gpuThreads);
 DECLARE_string(resourcePath);
 DECLARE_bool(verbose);
 DECLARE_bool(veryVerbose);
