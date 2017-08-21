@@ -63,7 +63,12 @@ protected:
 #endif
 
     bool onIsRasterPipelineOnly(const SkMatrix& ctm) const override {
+#ifdef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
         return as_SB(fProxyShader)->isRasterPipelineOnly(ctm);
+#else
+        return as_SB(fProxyShader)->isRasterPipelineOnly(SkMatrix::Concat(ctm,
+                                                                          this->getLocalMatrix()));
+#endif
     }
 
 private:
