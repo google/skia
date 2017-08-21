@@ -167,6 +167,10 @@ static inline sk_pixmap_t* ToPixmap(SkPixmap* pixmap) {
     return reinterpret_cast<sk_pixmap_t*>(pixmap);
 }
 
+static inline const sk_pixmap_t* ToPixmap(const SkPixmap* pixmap) {
+    return reinterpret_cast<const sk_pixmap_t*>(pixmap);
+}
+
 static inline const SkPixelSerializer* AsPixelSerializer(const sk_pixelserializer_t* cpixelserializer) {
     return reinterpret_cast<const SkPixelSerializer*>(cpixelserializer);
 }
