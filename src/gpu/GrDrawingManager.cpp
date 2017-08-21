@@ -152,6 +152,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                     continue;   // Odd - but not a big deal
                 }
                 opList->makeClosed(*fContext->caps());
+                opList->executePreFlushCallbacks(&fFlushState);
                 opList->prepareOps(&fFlushState);
                 if (!opList->executeOps(&fFlushState)) {
                     continue;         // This is bad
@@ -174,6 +175,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             continue;
         }
 
+        fOpLists[i]->executePreFlushCallbacks(&fFlushState);
         fOpLists[i]->prepareOps(&fFlushState);
     }
 

@@ -74,6 +74,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fSuppressPrints = options.fSuppressPrints;
     fWireframeMode = options.fWireframeMode;
     fBufferMapThreshold = options.fBufferMapThreshold;
+    fUseThreadedPathMaskRendering = options.fUseThreadedPathMaskRendering;
     fAvoidInstancedDrawsToFPTargets = false;
     fAvoidStencilBuffers = false;
 
