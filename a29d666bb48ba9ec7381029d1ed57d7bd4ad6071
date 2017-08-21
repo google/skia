@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d69fe44_eac2d4a3",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-21T14:47:10Z",
+      "side": 1,
+      "message": "Not sure what to do here. In the non-threaded case, this returns, without ever creating a draw op. We can\u0027t do that here... I could arrange not to upload anything in the pre flush callback, which is a good idea, but then we\u0027re just going to render with an uninitialized mask texture.",
+      "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
