@@ -1139,6 +1139,7 @@ int main(int argc, char** argv) {
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
     grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    grContextOpts.fWorkerThreadCount = FLAGS_gpuThreads;
     gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
 

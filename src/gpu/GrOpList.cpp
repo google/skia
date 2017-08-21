@@ -54,7 +54,14 @@ void GrOpList::reset() {
     }
 
     fTarget.reset();
+    fPreFlushCallbacks.reset();
     fAuditTrail = nullptr;
+}
+
+void GrOpList::executePreFlushCallbacks(GrOpFlushState* flushState) {
+    for (int i = 0; i < fPreFlushCallbacks.count(); ++i) {
+        fPreFlushCallbacks[i]->execute(flushState);
+    }
 }
 
 // Add a GrOpList-based dependency
