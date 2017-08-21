@@ -154,40 +154,62 @@ void SkClipStack::Element::initCommon(int saveCount, SkClipOp op, bool doAA) {
     fGenID = kInvalidGenID;
 }
 
-void SkClipStack::Element::initRect(int saveCount, const SkRect& rect, SkClipOp op, bool doAA) {
-    fRRect.setRect(rect);
-    fType = kRect_Type;
-    this->initCommon(saveCount, op, doAA);
-}
-
-void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, SkClipOp op, bool doAA) {
-    SkRRect::Type type = rrect.getType();
-    fRRect = rrect;
-    if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
+void SkClipStack::Element::initRect(int saveCount, const SkRect& rect, const SkMatrix& m,
+                                    SkClipOp op, bool doAA) {
+    if (m.rectStaysRect()) {
+        SkRect devRect;
+        m.mapRect(&devRect, rect);
+        fRRect.setRect(devRect);
         fType = kRect_Type;
-    } else {
-        fType = kRRect_Type;
+        this->initCommon(saveCount, op, doAA);
+        return;
     }
-    this->initCommon(saveCount, op, doAA);
+    SkPath path;
+    path.addRect(rect);
+    path.setIsVolatile(true);
+    this->initAsPath(saveCount, path, m, op, doAA);
 }
 
-void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkClipOp op,
-                                    bool doAA) {
+void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, const SkMatrix& m,
+                                     SkClipOp op, bool doAA) {
+    if (rrect.transform(m, &fRRect)) {
+        SkRRect::Type type = fRRect.getType();
+        if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
+            fType = kRect_Type;
+        } else {
+            fType = kRRect_Type;
+        }
+        this->initCommon(saveCount, op, doAA);
+        return;
+    }
+    SkPath path;
+    path.addRRect(rrect);
+    path.setIsVolatile(true);
+    this->initAsPath(saveCount, path, m, op, doAA);
+}
+
+void SkClipStack::Element::initPath(int saveCount, const SkPath& path, const SkMatrix& m,
+                                    SkClipOp op, bool doAA) {
     if (!path.isInverseFillType()) {
         SkRect r;
         if (path.isRect(&r)) {
-            this->initRect(saveCount, r, op, doAA);
+            this->initRect(saveCount, r, m, op, doAA);
             return;
         }
         SkRect ovalRect;
         if (path.isOval(&ovalRect)) {
             SkRRect rrect;
             rrect.setOval(ovalRect);
-            this->initRRect(saveCount, rrect, op, doAA);
+            this->initRRect(saveCount, rrect, m, op, doAA);
             return;
         }
     }
-    fPath.set(path);
+    this->initAsPath(saveCount, path, m, op, doAA);
+}
+
+void SkClipStack::Element::initAsPath(int saveCount, const SkPath& path, const SkMatrix& m,
+                                      SkClipOp op, bool doAA) {
+    path.transform(m, fPath.init());
     fPath.get()->setIsVolatile(true);
     fType = kPath_Type;
     this->initCommon(saveCount, op, doAA);
@@ -808,51 +830,34 @@ void SkClipStack::pushElement(const Element& element) {
 
 void SkClipStack::clipRRect(const SkRRect& rrect, const SkMatrix& matrix, SkClipOp op,
                             bool doAA) {
-    SkRRect transformedRRect;
-    if (rrect.transform(matrix, &transformedRRect)) {
-        Element element(fSaveCount, transformedRRect, op, doAA);
-        this->pushElement(element);
-        if (this->hasClipRestriction(op)) {
-            Element element(fSaveCount, fClipRestrictionRect, kIntersect_SkClipOp, false);
-            this->pushElement(element);
-        }
-        return;
+    Element element(fSaveCount, rrect, matrix, op, doAA);
+    this->pushElement(element);
+    if (this->hasClipRestriction(op)) {
+        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), kIntersect_SkClipOp,
+                            false);
+        this->pushElement(restriction);
     }
-    SkPath path;
-    path.addRRect(rrect);
-    path.setIsVolatile(true);
-    this->clipPath(path, matrix, op, doAA);
 }
 
 void SkClipStack::clipRect(const SkRect& rect, const SkMatrix& matrix, SkClipOp op,
                            bool doAA) {
-    if (matrix.rectStaysRect()) {
-        SkRect devRect;
-        matrix.mapRect(&devRect, rect);
-        if (this->hasClipRestriction(op)) {
-            if (!devRect.intersect(fClipRestrictionRect)) {
-                devRect.setEmpty();
-            }
-        }
-        Element element(fSaveCount, devRect, op, doAA);
-        this->pushElement(element);
-        return;
+    Element element(fSaveCount, rect, matrix, op, doAA);
+    this->pushElement(element);
+    if (this->hasClipRestriction(op)) {
+        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), kIntersect_SkClipOp,
+                            false);
+        this->pushElement(restriction);
     }
-    SkPath path;
-    path.addRect(rect);
-    path.setIsVolatile(true);
-    this->clipPath(path, matrix, op, doAA);
 }
 
 void SkClipStack::clipPath(const SkPath& path, const SkMatrix& matrix, SkClipOp op,
                            bool doAA) {
-    SkPath devPath;
-    path.transform(matrix, &devPath);
-    Element element(fSaveCount, devPath, op, doAA);
+    Element element(fSaveCount, path, matrix, op, doAA);
     this->pushElement(element);
     if (this->hasClipRestriction(op)) {
-        Element element(fSaveCount, fClipRestrictionRect, kIntersect_SkClipOp, false);
-        this->pushElement(element);
+        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), kIntersect_SkClipOp,
+                            false);
+        this->pushElement(restriction);
     }
 }
 
