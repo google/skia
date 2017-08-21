@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd4e9482_46561cef",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-21T15:49:01Z",
+      "side": 1,
+      "message": "Looking ahead, should we make this less path-specific? Perhaps it should indicate that the client is allowing the creation/use of threads. Or maybe how many threads to allow. I assume it wont be long before we\u0027re using the threads for work other than sw path raster.",
+      "range": {
+        "startLine": 61,
+        "startChar": 9,
+        "endLine": 61,
+        "endChar": 46
+      },
+      "revId": "a1921fe9b3bc2a9db9bb6037ed1b4b669751debc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "213c421a_f738232d",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-21T15:49:01Z",
+      "side": 1,
+      "message": "Curious where 2 came from.",
+      "range": {
+        "startLine": 208,
+        "startChar": 18,
+        "endLine": 208,
+        "endChar": 39
+      },
+      "revId": "a1921fe9b3bc2a9db9bb6037ed1b4b669751debc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0b605f8_5ec5a0c8",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-21T15:49:01Z",
+      "side": 1,
+      "message": "nice",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 191,
+        "endChar": 38
+      },
+      "revId": "a1921fe9b3bc2a9db9bb6037ed1b4b669751debc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

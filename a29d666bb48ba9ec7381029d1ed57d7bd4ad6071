@@ -16,6 +16,24 @@
       "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bfad491_60296e43",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-21T15:49:01Z",
+      "side": 1,
+      "message": "Upload zeros?",
+      "parentUuid": "1d69fe44_eac2d4a3",
+      "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
