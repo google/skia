@@ -104,11 +104,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
     SkASSERT(fFilterQuality <= kLow_SkFilterQuality);
     SkASSERT(fPixmap.addr());
 
-#ifdef SK_SUPPORT_LEGACY_BILERP2
-    bool integral_translate_only = false;
-#else
     bool integral_translate_only = just_trans_integral(fInvMatrix);
-#endif
     if (!integral_translate_only) {
         // Most of the scanline procs deal with "unit" texture coordinates, as this
         // makes it easy to perform tiling modes (repeat = (x & 0xFFFF)). To generate
