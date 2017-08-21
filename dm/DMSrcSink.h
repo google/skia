@@ -307,7 +307,7 @@ public:
     GPUSink(sk_gpu_test::GrContextFactory::ContextType,
             sk_gpu_test::GrContextFactory::ContextOverrides, int samples, bool diText,
             SkColorType colorType, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
-            bool threaded);
+            bool threaded, const GrContextOptions& grCtxOptions);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     bool serial() const override { return !fThreaded; }
@@ -326,6 +326,7 @@ private:
     SkAlphaType                                       fAlphaType;
     sk_sp<SkColorSpace>                               fColorSpace;
     bool                                              fThreaded;
+    GrContextOptions                                  fBaseContextOptions;
 };
 
 class PDFSink : public Sink {

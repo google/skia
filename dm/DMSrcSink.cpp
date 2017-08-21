@@ -1301,7 +1301,8 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
                  SkColorType colorType,
                  SkAlphaType alphaType,
                  sk_sp<SkColorSpace> colorSpace,
-                 bool threaded)
+                 bool threaded,
+                 const GrContextOptions& grCtxOptions)
         : fContextType(ct)
         , fContextOverrides(overrides)
         , fSampleCount(samples)
@@ -1309,12 +1310,13 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
         , fColorType(colorType)
         , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace))
-        , fThreaded(threaded) {}
+        , fThreaded(threaded)
+        , fBaseContextOptions(grCtxOptions) {}
 
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
 Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
-    GrContextOptions grOptions;
+    GrContextOptions grOptions = fBaseContextOptions;
 
     src.modifyGrContextOptions(&grOptions);
 
