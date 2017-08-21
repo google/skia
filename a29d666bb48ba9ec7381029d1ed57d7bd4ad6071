@@ -34,6 +34,24 @@
       "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45a43dc8_f7664e1a",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-21T17:06:36Z",
+      "side": 1,
+      "message": "I\u0027m not even sure how to do that, though - the only way for init to fail is if tryAllocPixels fails, which almost certainly means we\u0027re out of memory. I\u0027ve modified the code to safely skip the upload, but there is no data source we can pass to writePixels (and we\u0027re probably about to crash anyway)?",
+      "parentUuid": "2bfad491_60296e43",
+      "revId": "a29d666bb48ba9ec7381029d1ed57d7bd4ad6071",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
