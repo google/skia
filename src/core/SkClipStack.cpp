@@ -70,6 +70,55 @@ bool SkClipStack::Element::operator== (const Element& element) const {
     }
 }
 
+const SkRect& SkClipStack::Element::getBounds() const {
+    static const SkRect kEmpty = {0, 0, 0, 0};
+    switch (fType) {
+        case kRect_Type:  // fallthrough
+        case kRRect_Type:
+            return fRRect.getBounds();
+        case kPath_Type:
+            return fPath.get()->getBounds();
+        case kEmpty_Type:
+            return kEmpty;
+        default:
+            SkDEBUGFAIL("Unexpected type.");
+            return kEmpty;
+    }
+}
+
+bool SkClipStack::Element::contains(const SkRect& rect) const {
+    switch (fType) {
+        case kRect_Type:
+            return this->getRect().contains(rect);
+        case kRRect_Type:
+            return fRRect.contains(rect);
+        case kPath_Type:
+            return fPath.get()->conservativelyContainsRect(rect);
+        case kEmpty_Type:
+            return false;
+        default:
+            SkDEBUGFAIL("Unexpected type.");
+            return false;
+    }
+}
+
+bool SkClipStack::Element::contains(const SkRRect& rrect) const {
+    switch (fType) {
+        case kRect_Type:
+            return this->getRect().contains(rrect.getBounds());
+        case kRRect_Type:
+            // We don't currently have a generalized rrect-rrect containment.
+            return fRRect.contains(rrect.getBounds()) || rrect == fRRect;
+        case kPath_Type:
+            return fPath.get()->conservativelyContainsRect(rrect.getBounds());
+        case kEmpty_Type:
+            return false;
+        default:
+            SkDEBUGFAIL("Unexpected type.");
+            return false;
+    }
+}
+
 void SkClipStack::Element::invertShapeFillType() {
     switch (fType) {
         case kRect_Type:
@@ -91,6 +140,35 @@ void SkClipStack::Element::invertShapeFillType() {
             // Should this set to an empty, inverse filled path?
             break;
     }
+}
+
+void SkClipStack::Element::initCommon(int saveCount, SkClipOp op, bool doAA) {
+    fSaveCount = saveCount;
+    fOp = op;
+    fDoAA = doAA;
+    // A default of inside-out and empty bounds means the bounds are effectively void as it
+    // indicates that nothing is known to be outside the clip.
+    fFiniteBoundType = kInsideOut_BoundsType;
+    fFiniteBound.setEmpty();
+    fIsIntersectionOfRects = false;
+    fGenID = kInvalidGenID;
+}
+
+void SkClipStack::Element::initRect(int saveCount, const SkRect& rect, SkClipOp op, bool doAA) {
+    fRRect.setRect(rect);
+    fType = kRect_Type;
+    this->initCommon(saveCount, op, doAA);
+}
+
+void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, SkClipOp op, bool doAA) {
+    SkRRect::Type type = rrect.getType();
+    fRRect = rrect;
+    if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
+        fType = kRect_Type;
+    } else {
+        fType = kRRect_Type;
+    }
+    this->initCommon(saveCount, op, doAA);
 }
 
 void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkClipOp op,
