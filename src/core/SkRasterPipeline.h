@@ -84,7 +84,7 @@ struct SkJumper_Engine;
     M(evenly_spaced_gradient)                                    \
     M(gauss_a_to_rgba) M(gradient)                               \
     M(evenly_spaced_2_stop_gradient)                             \
-    M(xy_to_unit_angle)                                          \
+    M(xy_to_unit_angle)  M(gradient_cubic)                                        \
     M(xy_to_radius)                                              \
     M(xy_to_2pt_conical_quadratic_min)                           \
     M(xy_to_2pt_conical_quadratic_max)                           \
