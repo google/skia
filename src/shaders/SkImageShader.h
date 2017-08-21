@@ -30,7 +30,8 @@ public:
     SkImageShader(sk_sp<SkImage>, TileMode tx, TileMode ty, const SkMatrix* localMatrix);
 
     static bool IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType, SkAlphaType,
-                                     SkShader::TileMode tx, SkShader::TileMode ty);
+                                     SkShader::TileMode tx, SkShader::TileMode ty,
+                                     const SkMatrix& localM);
 
 protected:
     void flatten(SkWriteBuffer&) const override;

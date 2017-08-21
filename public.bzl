@@ -665,6 +665,7 @@ DEFINES_ALL = [
     # Required for building dm.
     "GR_TEST_UTILS",
     # Staging flags for API changes
+    "SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER",
     # Should remove after we update golden images
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
     # Experiment to diagnose image diffs in Google3
