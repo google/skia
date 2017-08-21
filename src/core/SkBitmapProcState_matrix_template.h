@@ -70,32 +70,4 @@ void NoFilterProc_Scale(const SkBitmapProcState& s, uint32_t xy[],
     }
 }
 
-// note: we could special-case on a matrix which is skewed in X but not Y.
-// this would require a more general setup thatn SCALE does, but could use
-// SCALE's inner loop that only looks at dx
-
-template <typename TileProc>
-void NoFilterProc_Affine(const SkBitmapProcState& s, uint32_t xy[],
-                         int count, int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kAffine_Mask);
-    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                             SkMatrix::kScale_Mask |
-                             SkMatrix::kAffine_Mask)) == 0);
-
-    const SkBitmapProcStateAutoMapper mapper(s, x, y);
-
-    SkFractionalInt fx = mapper.fractionalIntX();
-    SkFractionalInt fy = mapper.fractionalIntY();
-    SkFractionalInt dx = s.fInvSxFractionalInt;
-    SkFractionalInt dy = s.fInvKyFractionalInt;
-    int maxX = s.fPixmap.width() - 1;
-    int maxY = s.fPixmap.height() - 1;
-
-    for (int i = count; i > 0; --i) {
-        *xy++ = (TileProc::Y(s, SkFractionalIntToFixed(fy), maxY) << 16) |
-                 TileProc::X(s, SkFractionalIntToFixed(fx), maxX);
-        fx += dx; fy += dy;
-    }
-}
-
 #endif
