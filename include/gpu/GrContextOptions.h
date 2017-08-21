@@ -33,6 +33,13 @@ struct GrContextOptions {
         deduce the optimal value for this platform. */
     int  fBufferMapThreshold = -1;
 
+    /**
+     * Number of worker threads (if any) that will be created. Currently used for software path
+     * rendering, but may be used for other tasks. Leaving this at zero will cause all work to be
+     * done serially on the main thread.
+     */
+    int fWorkerThreadCount = 0;
+
     /** some gpus have problems with partial writes of the rendertarget */
     bool fUseDrawInsteadOfPartialRenderTargetWrite = false;
 

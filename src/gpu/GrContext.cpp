@@ -25,8 +25,11 @@
 #include "GrTextureContext.h"
 #include "GrTracing.h"
 #include "SkConvertPixels.h"
+#include "SkExecutor.h"
 #include "SkGr.h"
 #include "SkJSONWriter.h"
+#include "SkMakeUnique.h"
+#include "SkTaskGroup.h"
 #include "SkUnPreMultiplyPriv.h"
 #include "effects/GrConfigConversionEffect.h"
 #include "text/GrTextBlobCache.h"
@@ -200,6 +203,11 @@ bool GrContext::init(const GrContextOptions& options) {
     fAtlasGlyphCache = new GrAtlasGlyphCache(this, options.fGlyphCacheTextureMaximumBytes);
 
     fTextBlobCache.reset(new GrTextBlobCache(TextBlobCacheOverBudgetCB, this));
+
+    if (options.fWorkerThreadCount > 0) {
+        fThreadPool = SkExecutor::MakeThreadPool(options.fWorkerThreadCount);
+        fTaskGroup = skstd::make_unique<SkTaskGroup>(*fThreadPool);
+    }
 
     return true;
 }
