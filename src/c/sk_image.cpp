@@ -128,6 +128,10 @@ sk_data_t* sk_image_encode(const sk_image_t* cimage) {
     return ToData(AsImage(cimage)->encode());
 }
 
+sk_data_t* sk_image_encode_with_serializer(const sk_image_t* cimage, sk_pixelserializer_t* serializer) {
+    return ToData(AsImage(cimage)->encode(AsPixelSerializer(serializer)));
+}
+
 sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality) {
     return ToData(AsImage(cimage)->encode((SkEncodedImageFormat)encoder, quality));
 }

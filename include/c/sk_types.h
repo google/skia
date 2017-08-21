@@ -329,6 +329,7 @@ typedef struct sk_string_t sk_string_t;
 */
 typedef struct sk_bitmap_t sk_bitmap_t;
 typedef struct sk_pixmap_t sk_pixmap_t;
+typedef struct sk_pixelserializer_t sk_pixelserializer_t;
 typedef struct sk_colorfilter_t sk_colorfilter_t;
 typedef struct sk_imagefilter_t sk_imagefilter_t;
 typedef struct sk_imagefilter_croprect_t sk_imagefilter_croprect_t;

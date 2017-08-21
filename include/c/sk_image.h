@@ -39,6 +39,7 @@ SK_C_API bool sk_image_read_pixels(const sk_image_t* image, const sk_imageinfo_t
 SK_C_API bool sk_image_read_pixels_into_pixmap(const sk_image_t* image, const sk_pixmap_t* dst, int srcX, int srcY, sk_image_caching_hint_t cachingHint);
 SK_C_API bool sk_image_scale_pixels(const sk_image_t* image, const sk_pixmap_t* dst, sk_filter_quality_t quality, sk_image_caching_hint_t cachingHint);
 SK_C_API sk_data_t* sk_image_encode(const sk_image_t*);
+SK_C_API sk_data_t* sk_image_encode_with_serializer(const sk_image_t*, sk_pixelserializer_t* serializer);
 SK_C_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality);
 SK_C_API sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset);
 SK_C_API sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage);

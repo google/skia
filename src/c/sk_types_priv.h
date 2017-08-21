@@ -159,8 +159,32 @@ static inline SkPixmap& AsPixmap(sk_pixmap_t& cpixmap) {
     return reinterpret_cast<SkPixmap&>(cpixmap);
 }
 
+static inline const sk_pixmap_t& ToPixmap(const SkPixmap& pixmap) {
+    return reinterpret_cast<const sk_pixmap_t&>(pixmap);
+}
+
 static inline sk_pixmap_t* ToPixmap(SkPixmap* pixmap) {
     return reinterpret_cast<sk_pixmap_t*>(pixmap);
+}
+
+static inline const SkPixelSerializer* AsPixelSerializer(const sk_pixelserializer_t* cpixelserializer) {
+    return reinterpret_cast<const SkPixelSerializer*>(cpixelserializer);
+}
+
+static inline const SkPixelSerializer& AsPixelSerializer(const sk_pixelserializer_t& cpixelserializer) {
+    return reinterpret_cast<const SkPixelSerializer&>(cpixelserializer);
+}
+
+static inline SkPixelSerializer* AsPixelSerializer(sk_pixelserializer_t* cpixelserializer) {
+    return reinterpret_cast<SkPixelSerializer*>(cpixelserializer);
+}
+
+static inline SkPixelSerializer& AsPixelSerializer(sk_pixelserializer_t& cpixelserializer) {
+    return reinterpret_cast<SkPixelSerializer&>(cpixelserializer);
+}
+
+static inline sk_pixelserializer_t* ToPixelSerializer(SkPixelSerializer* pixelserializer) {
+    return reinterpret_cast<sk_pixelserializer_t*>(pixelserializer);
 }
 
 static inline SkMask* AsMask(sk_mask_t* cmask) {
