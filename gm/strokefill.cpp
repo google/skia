@@ -358,3 +358,19 @@ DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {
     paint.setStrokeWidth(1);
     canvas->drawPath(path, paint);
 }
+
+DEF_SIMPLE_GM(bug6987, canvas, 200, 200) {
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(0.0001f);
+    paint.setAntiAlias(true);
+    SkPath path;
+    canvas->save();
+    canvas->scale(50000.0f, 50000.0f);
+    path.moveTo(0.0005f, 0.0004f);
+    path.lineTo(0.0008f, 0.0010f);
+    path.lineTo(0.0002f, 0.0010f);
+    path.close();
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
