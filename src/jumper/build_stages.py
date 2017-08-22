@@ -35,12 +35,6 @@ cflags = ['-std=c++11', '-Os', '-DJUMPER',
 x86 = [ '-m32' ]
 win = ['-DWIN', '-mno-red-zone']
 sse2 = ['-msse2', '-mno-sse3', '-mno-ssse3', '-mno-sse4.1']
-subprocess.check_call(clang + cflags + sse2 +
-                      ['-c', stages] +
-                      ['-o', 'sse2.o'])
-subprocess.check_call(clang + cflags + sse2 + win +
-                      ['-c', stages] +
-                      ['-o', 'win_sse2.o'])
 subprocess.check_call(clang + cflags + sse2 + x86 +
                       ['-c', stages] +
                       ['-o', 'x86_sse2.o'])
@@ -92,17 +86,6 @@ subprocess.check_call(clang + cflags + hsw +
 subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', stages_8bit] +
                       ['-o', 'win_8bit_hsw.o'])
-
-# iOS disallows the use of register x18,
-# so we need to use it as a least-common denominator.
-aarch64 = [ '--target=arm64-apple-ios' ]
-subprocess.check_call(clang + cflags + aarch64 +
-                      ['-c', stages] +
-                      ['-o', 'aarch64.o'])
-# TODO: need to work out relocations (adrp, lCPI, etc.)
-#subprocess.check_call(clang + cflags + aarch64 +
-#                      ['-c', stages_8bit] +
-#                      ['-o', '8bit_aarch64.o'])
 
 vfp4 = [
     '--target=armv7a-linux-gnueabihf',
@@ -223,12 +206,7 @@ print '    #define BALIGN32 .balign 32'
 print '#endif'
 
 print '.text'
-print '#if defined(__aarch64__)'
-print 'BALIGN4'
-parse_object_file(     'aarch64.o', '.long')
-#parse_object_file('8bit_aarch64.o', '.long')
-
-print '#elif defined(__arm__)'
+print '#if defined(__arm__)'
 print 'BALIGN4'
 parse_object_file(     'vfp4.o', '.long', target='elf32-littlearm')
 #parse_object_file('8bit_vfp4.o', '.long', target='elf32-littlearm')
@@ -240,8 +218,6 @@ print 'BALIGN32'
 parse_object_file('avx.o',   '.byte')
 print 'BALIGN32'
 parse_object_file('sse41.o', '.byte')
-print 'BALIGN32'
-parse_object_file('sse2.o',  '.byte')
 print 'BALIGN32'
 parse_object_file('8bit_hsw.o', '.byte')
 print 'BALIGN32'
@@ -272,8 +248,6 @@ print 'ALIGN 32'
 parse_object_file('win_avx.o',   'DB')
 print 'ALIGN 32'
 parse_object_file('win_sse41.o', 'DB')
-print 'ALIGN 32'
-parse_object_file('win_sse2.o',  'DB')
 print 'ALIGN 32'
 parse_object_file('win_8bit_hsw.o', 'DB')
 print 'ALIGN 32'

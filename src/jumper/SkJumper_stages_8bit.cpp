@@ -16,7 +16,7 @@
 // pixels.  This is the natural format for kN32_SkColorType buffers, and we
 // hope the stages in this file can replace many custom legacy routines.
 
-#if !defined(JUMPER)
+#if !defined(__clang__)
     #error "This file must be pre-compiled."
 #elif defined(__aarch64__)
     #define WRAP(name) sk_##name##_aarch64_8bit
