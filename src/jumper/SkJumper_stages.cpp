@@ -23,7 +23,7 @@ using K = const SkJumper_constants;
 // A little wrapper macro to name Stages differently depending on the instruction set.
 // That lets us link together several options.
 #if !defined(JUMPER)
-    #define WRAP(name) sk_##name
+    #define WRAP(name) sk_##name##_portable
 #elif defined(__aarch64__)
     #define WRAP(name) sk_##name##_aarch64
 #elif defined(__arm__)
