@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55ad29c5_d00de5f5",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-22T18:23:20Z",
+      "side": 1,
+      "message": "Should we just change the name of this function and make it execute the PFCs? Or in MDB might we want to execute all the PFCs before preparing any ops?",
+      "range": {
+        "startLine": 156,
+        "startChar": 24,
+        "endLine": 156,
+        "endChar": 34
+      },
+      "revId": "cb1418a11e584c950d582dc61d30fd2ef30c95e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
