@@ -21,7 +21,6 @@
 #include "GrTypes.h"
 
 class GrAccelData;
-class GrTextureMaker;
 class GrTextureProducer;
 struct GrCachedLayer;
 
@@ -206,30 +205,12 @@ private:
                         bool bicubic,
                         bool needsTextureDomain);
 
-    void drawPinnedTextureProxy(sk_sp<GrTextureProxy>,
-                                uint32_t pinnedUniqueID,
-                                SkColorSpace*,
-                                SkAlphaType alphaType,
-                                const SkRect* srcRect,
-                                const SkRect* dstRect,
-                                SkCanvas::SrcRectConstraint,
-                                const SkMatrix& viewMatrix,
-                                const SkPaint&);
-
-    void drawTextureMaker(GrTextureMaker* maker,
-                          int imageW,
-                          int imageH,
-                          const SkRect* srcRect,
-                          const SkRect* dstRect,
-                          SkCanvas::SrcRectConstraint,
-                          const SkMatrix& viewMatrix,
-                          const SkPaint&);
-
     void drawTextureProducer(GrTextureProducer*,
                              const SkRect* srcRect,
                              const SkRect* dstRect,
                              SkCanvas::SrcRectConstraint,
                              const SkMatrix& viewMatrix,
+                             const GrClip&,
                              const SkPaint&);
 
     void drawTextureProducerImpl(GrTextureProducer*,
@@ -238,6 +219,7 @@ private:
                                  SkCanvas::SrcRectConstraint,
                                  const SkMatrix& viewMatrix,
                                  const SkMatrix& srcToDstMatrix,
+                                 const GrClip&,
                                  const SkPaint&);
 
     bool drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& outer,
