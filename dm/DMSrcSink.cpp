@@ -1315,9 +1315,15 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
 
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
-Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
+Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
+    return this->onDraw(src, dst, dstStream, log, FLAGS_gpuThreads);
+}
+
+Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
+                      int numWorkerThreads) const {
     GrContextOptions grOptions = fBaseContextOptions;
 
+    grOptions.fWorkerThreadCount = numWorkerThreads;
     src.modifyGrContextOptions(&grOptions);
 
     GrContextFactory factory(grOptions);
@@ -1362,6 +1368,50 @@ Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) co
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
+    }
+    return "";
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
+                                           GrContextFactory::ContextOverrides overrides,
+                                           int samples,
+                                           bool diText,
+                                           SkColorType colorType,
+                                           SkAlphaType alphaType,
+                                           sk_sp<SkColorSpace> colorSpace,
+                                           bool threaded,
+                                           const GrContextOptions& grCtxOptions)
+        : INHERITED(ct, overrides, samples, diText, colorType, alphaType, std::move(colorSpace),
+                    threaded, grCtxOptions) {}
+
+Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream,
+                                 SkString* log) const {
+    // Draw twice, once with worker threads, and once without. Verify that we get the same result.
+    static const int kNumWorkerThreads = 4;
+    Error err = this->onDraw(src, dst, wStream, log, kNumWorkerThreads);
+    if (!err.isEmpty() || !dst) {
+        return err;
+    }
+
+    SkBitmap reference;
+    SkString refLog;
+    SkDynamicMemoryWStream refStream;
+    static const int kNoWorkerThreads = 0;
+    Error refErr = this->onDraw(src, &reference, &refStream, &refLog, kNoWorkerThreads);
+    if (!refErr.isEmpty()) {
+        return refErr;
+    }
+
+    // The dimensions are a property of the Src only, and so should be identical.
+    SkASSERT(reference.getSize() == dst->getSize());
+    if (reference.getSize() != dst->getSize()) {
+        return "Dimensions don't match reference";
+    }
+    // All SkBitmaps in DM are pre-locked and tight, so this comparison is easy.
+    if (0 != memcmp(reference.getPixels(), dst->getPixels(), reference.getSize())) {
+        return "Pixels don't match reference";
     }
     return "";
 }

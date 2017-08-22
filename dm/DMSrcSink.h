@@ -310,6 +310,8 @@ public:
             bool threaded, const GrContextOptions& grCtxOptions);
 
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+    Error onDraw(const Src&, SkBitmap*, SkWStream*, SkString*, int numWorkerThreads) const;
+
     bool serial() const override { return !fThreaded; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override {
@@ -327,6 +329,20 @@ private:
     sk_sp<SkColorSpace>                               fColorSpace;
     bool                                              fThreaded;
     GrContextOptions                                  fBaseContextOptions;
+};
+
+class GPUThreadTestingSink : public GPUSink {
+public:
+    GPUThreadTestingSink(sk_gpu_test::GrContextFactory::ContextType,
+                         sk_gpu_test::GrContextFactory::ContextOverrides, int samples, bool diText,
+                         SkColorType colorType, SkAlphaType alphaType,
+                         sk_sp<SkColorSpace> colorSpace, bool threaded,
+                         const GrContextOptions& grCtxOptions);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
+    typedef GPUSink INHERITED;
 };
 
 class PDFSink : public Sink {

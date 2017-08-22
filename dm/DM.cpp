@@ -71,6 +71,9 @@ DEFINE_string(matrix, "1 0 0 1",
               "'matrix' or 'upright' in config.");
 DEFINE_bool(gpu_threading, false, "Allow GPU work to run on multiple threads?");
 
+DEFINE_bool(checkGpuThreading, false, "Run GPU configs with and without worker threads,"
+                                      "then validate that results are visually identical.");
+
 DEFINE_string(blacklist, "",
         "Space-separated config/src/srcOptions/name quadruples to blacklist. "
         "'_' matches anything. '~' negates the match. E.g. \n"
@@ -858,10 +861,19 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
-            return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
-                               gpuConfig->getUseDIText(), gpuConfig->getColorType(),
-                               gpuConfig->getAlphaType(), sk_ref_sp(gpuConfig->getColorSpace()),
-                               FLAGS_gpu_threading, grCtxOptions);
+            if (FLAGS_checkGpuThreading) {
+                return new GPUThreadTestingSink(contextType, contextOverrides,
+                                                gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                                                gpuConfig->getColorType(),
+                                                gpuConfig->getAlphaType(),
+                                                sk_ref_sp(gpuConfig->getColorSpace()),
+                                                FLAGS_gpu_threading, grCtxOptions);
+            } else {
+                return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
+                                   gpuConfig->getUseDIText(), gpuConfig->getColorType(),
+                                   gpuConfig->getAlphaType(), sk_ref_sp(gpuConfig->getColorSpace()),
+                                   FLAGS_gpu_threading, grCtxOptions);
+            }
         }
     }
 #endif
@@ -1320,6 +1332,7 @@ int main(int argc, char** argv) {
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    grCtxOptions.fWorkerThreadCount = FLAGS_gpuThreads;
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
