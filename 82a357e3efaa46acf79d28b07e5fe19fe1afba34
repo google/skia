@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06586060_28aeef85",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-22T13:16:07Z",
+      "side": 1,
+      "message": "This seems fine, but I think the more typical thing the rest of DM types would do is make GPUThreadTestingSink have two GPUSinks, and pass the number of threads into GPUSink\u0027s constructor.",
+      "revId": "82a357e3efaa46acf79d28b07e5fe19fe1afba34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb2be66e_0f332b90",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-22T13:16:07Z",
+      "side": 1,
+      "message": "Might be that you just allow the user to provide an SkExecutor*?  That was sort of its idea, to allow clients like Chrome or Android customize thread pooling, priorities, etc.",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 31
+      },
+      "revId": "82a357e3efaa46acf79d28b07e5fe19fe1afba34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90834e61_2d81bd57",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-22T13:16:07Z",
+      "side": 1,
+      "message": "This works?  That\u0027s sort of surprising.  I always figured we\u0027d parse that as -g -j.",
+      "range": {
+        "startLine": 57,
+        "startChar": 27,
+        "endLine": 57,
+        "endChar": 29
+      },
+      "revId": "82a357e3efaa46acf79d28b07e5fe19fe1afba34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
