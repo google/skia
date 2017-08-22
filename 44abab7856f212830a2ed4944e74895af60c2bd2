@@ -22,6 +22,30 @@
       "revId": "44abab7856f212830a2ed4944e74895af60c2bd2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72d5c9c3_b6589900",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-22T14:41:18Z",
+      "side": 1,
+      "message": "Err, let me revise that.  SkFILEStream does have a nullary constructor (who know\u0027s what the point of that is), but SkFILEWStream\u0027s is indeed new here.",
+      "parentUuid": "372d4f47_f5cae1e7",
+      "range": {
+        "startLine": 308,
+        "startChar": 4,
+        "endLine": 308,
+        "endChar": 29
+      },
+      "revId": "44abab7856f212830a2ed4944e74895af60c2bd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
