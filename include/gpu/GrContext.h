@@ -44,8 +44,10 @@ struct GrVkBackendContext;
 class GrSwizzle;
 class SkTraceMemoryDump;
 
+class SkExecutor;
 class SkImage;
 class SkSurfaceProps;
+class SkTaskGroup;
 
 class SK_API GrContext : public SkRefCnt {
 public:
@@ -358,6 +360,8 @@ private:
     // This guard is passed to the GrDrawingManager and, from there to all the
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner                   fSingleOwner;
+
+    std::unique_ptr<SkTaskGroup>            fTaskGroup;
 
     struct CleanUpData {
         PFCleanUpFunc fFunc;
