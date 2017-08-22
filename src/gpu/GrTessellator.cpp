@@ -80,7 +80,7 @@
  * degrees counterclockwise, rather that transposing.
  */
 
-#define LOGGING_ENABLED 0
+#define LOGGING_ENABLED 1
 
 #if LOGGING_ENABLED
 #define LOG printf
@@ -1167,6 +1167,9 @@ void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
             Vertex* next = v->fNext;
             if (coincident(prev->fPoint, v->fPoint)) {
                 LOG("vertex %g,%g coincident; removing\n", v->fPoint.fX, v->fPoint.fY);
+                contour->remove(v);
+            } else if (!v->fPoint.isFinite()) {
+                LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             }
             prev = v;
