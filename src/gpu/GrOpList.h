@@ -37,7 +37,7 @@ public:
     GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
     ~GrOpList() override;
 
-    // These three methods are invoked at flush time
+    // These four methods are invoked at flush time
     bool instantiate(GrResourceProvider* resourceProvider);
     void prepare(GrOpFlushState* flushState);
     bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }

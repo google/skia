@@ -12,6 +12,8 @@
 #include "SkCommandLineFlags.h"
 #include "SkString.h"
 
+class SkExecutor;
+
 DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);
@@ -52,5 +54,7 @@ DECLARE_string(properties);
  *    regardless of file type.
  */
 bool CollectImages(SkCommandLineFlags::StringArray dir, SkTArray<SkString>* output);
+
+SkExecutor* GpuExecutorForTools();
 
 #endif
