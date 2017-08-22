@@ -110,7 +110,7 @@ public:
     { }
 
     bool prepareToDecode();
-    bool outputRow(const unsigned char* rowBegin);
+    void outputRow(const unsigned char* rowBegin);
     bool doLZW(const unsigned char* block, size_t bytesInBlock);
     bool hasRemainingRows() { return SkToBool(rowsRemaining); }
 
