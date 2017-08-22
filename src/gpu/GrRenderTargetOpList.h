@@ -65,8 +65,8 @@ public:
      * Together these two functions flush all queued up draws to GrCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareOps(GrOpFlushState* flushState) override;
-    bool executeOps(GrOpFlushState* flushState) override;
+    void onPrepare(GrOpFlushState* flushState) override;
+    bool onExecute(GrOpFlushState* flushState) override;
 
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
         this->recordOp(std::move(op), caps, nullptr, nullptr);

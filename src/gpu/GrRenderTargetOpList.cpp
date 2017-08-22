@@ -61,7 +61,7 @@ void GrRenderTargetOpList::dump() const {
 }
 #endif
 
-void GrRenderTargetOpList::prepareOps(GrOpFlushState* flushState) {
+void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(fTarget.get()->priv().peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -130,7 +130,7 @@ static inline void finish_command_buffer(GrGpuCommandBuffer* buffer) {
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
 // is at flush time). However, we need to store the RenderTargetProxy in the
 // Ops and instantiate them here.
-bool GrRenderTargetOpList::executeOps(GrOpFlushState* flushState) {
+bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }

@@ -26,6 +26,12 @@ class GrTextureOpList;
 struct SkIPoint;
 struct SkIRect;
 
+class GrPrepareCallback : SkNoncopyable {
+public:
+    virtual ~GrPrepareCallback() {}
+    virtual void operator()(GrOpFlushState*) = 0;
+};
+
 class GrOpList : public SkRefCnt {
 public:
     GrOpList(GrResourceProvider*, GrSurfaceProxy*, GrAuditTrail*);
@@ -33,8 +39,8 @@ public:
 
     // These three methods are invoked at flush time
     bool instantiate(GrResourceProvider* resourceProvider);
-    virtual void prepareOps(GrOpFlushState* flushState) = 0;
-    virtual bool executeOps(GrOpFlushState* flushState) = 0;
+    void prepare(GrOpFlushState* flushState);
+    bool execute(GrOpFlushState* flushState) { return this->onExecute(flushState); }
 
     virtual bool copySurface(const GrCaps& caps,
                              GrSurfaceProxy* dst,
@@ -50,6 +56,10 @@ public:
     }
 
     virtual void reset();
+
+    void addPrepareCallback(std::unique_ptr<GrPrepareCallback> callback) {
+        fPrepareCallbacks.push_back(std::move(callback));
+    }
 
     // TODO: in an MDB world, where the OpLists don't allocate GPU resources, it seems like
     // these could go away
@@ -147,6 +157,9 @@ private:
         }
     };
 
+    virtual void onPrepare(GrOpFlushState* flushState) = 0;
+    virtual bool onExecute(GrOpFlushState* flushState) = 0;
+
     void addDependency(GrOpList* dependedOn);
 
     uint32_t              fUniqueID;
@@ -154,6 +167,9 @@ private:
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkTDArray<GrOpList*>  fDependencies;
+
+    // These are used rarely, most clients never produce any
+    SkTArray<std::unique_ptr<GrPrepareCallback>> fPrepareCallbacks;
 
     typedef SkRefCnt INHERITED;
 };
