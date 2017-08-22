@@ -594,6 +594,9 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
         return false;
     }
     border = blurFilter.blur(src, dst);
+    if (dst->fImage == nullptr) {
+        return false;
+    }
 #endif  // SK_SUPPORT_LEGACY_MASK_BLUR
 
     if (src.fImage != nullptr) {
