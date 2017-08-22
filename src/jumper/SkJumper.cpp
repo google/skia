@@ -142,14 +142,7 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
 extern "C" {
 
 #if __has_feature(memory_sanitizer)
-    // We'll just run portable code.
-
-#elif defined(__aarch64__)
-    StartPipelineFn ASM(start_pipeline,aarch64);
-    StageFn ASM(just_return,aarch64);
-    #define M(st) StageFn ASM(st,aarch64);
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
+    // We'll just run baseline code.
 
 #elif defined(__arm__)
     StartPipelineFn ASM(start_pipeline,vfp4);
@@ -207,7 +200,7 @@ extern "C" {
 
 #endif
 
-    // Portable, single-pixel stages.
+    // Baseline stages that are compiled as a normal part of Skia.
     StartPipelineFn sk_start_pipeline;
     StageFn sk_just_return;
     #define M(st) StageFn sk_##st;
@@ -246,29 +239,20 @@ struct SkJumper_Engine {
     StageFn*         just_return;
 };
 
-// We'll default to this portable engine, but try to choose a better one at runtime.
-static const SkJumper_Engine kPortable = {
+// We'll default to this baseline engine, but try to choose a better one at runtime.
+static const SkJumper_Engine kBaseline = {
 #define M(stage) sk_##stage,
     { SK_RASTER_PIPELINE_STAGES(M) },
 #undef M
     sk_start_pipeline,
     sk_just_return,
 };
-static SkJumper_Engine gEngine = kPortable;
+static SkJumper_Engine gEngine = kBaseline;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
 #if __has_feature(memory_sanitizer)
-    // We'll just run portable code.
-
-#elif defined(__aarch64__)
-    return {
-    #define M(stage) ASM(stage, aarch64),
-        { SK_RASTER_PIPELINE_STAGES(M) },
-        M(start_pipeline)
-        M(just_return)
-    #undef M
-    };
+    // We'll just run baseline code.
 
 #elif defined(__arm__)
     if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
@@ -309,18 +293,10 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
-    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
-        return {
-        #define M(stage) ASM(stage, sse2),
-            { SK_RASTER_PIPELINE_STAGES(M) },
-            M(start_pipeline)
-            M(just_return)
-        #undef M
-        };
-    }
+    // x86-64 will always have SSE2.
 
 #elif defined(__i386__) || defined(_M_IX86)
-    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
+    if (SkCpu::Supports(SkCpu::SSE2)) {
         return {
         #define M(stage) ASM(stage, sse2),
             { SK_RASTER_PIPELINE_STAGES(M) },
@@ -331,7 +307,7 @@ static SkJumper_Engine choose_engine() {
     }
 
 #endif
-    return kPortable;
+    return kBaseline;
 }
 
 #ifndef SK_JUMPER_DISABLE_8BIT

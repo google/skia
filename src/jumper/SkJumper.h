@@ -11,6 +11,8 @@
 // This file contains definitions shared by SkJumper.cpp (compiled normally as part of Skia)
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
+//
+// JUMPER will be defined if we're compiling offline.
 
 // Externally facing functions (start_pipeline) are called a little specially on Windows.
 #if defined(JUMPER) && defined(WIN) && defined(__x86_64__)
@@ -21,7 +23,7 @@
     #define MAYBE_MSABI
 #endif
 
-#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+#if defined(JUMPER) && defined(__arm__)
     // To reduce SkJumper's dependency on the Android NDK,
     // we provide what we need from <string.h>, <stdint.h>, and <stddef.h> ourselves.
     #define memcpy __builtin_memcpy
@@ -32,15 +34,9 @@
     using uint16_t = unsigned short;
     using  int32_t =   signed int;
     using uint32_t = unsigned int;
-    #if defined(__aarch64__)
-        using  int64_t =   signed long;
-        using uint64_t = unsigned long;
-        using size_t = uint64_t;
-    #else
-        using  int64_t =   signed long long;
-        using uint64_t = unsigned long long;
-        using size_t = uint32_t;
-    #endif
+    using  int64_t =   signed long long;
+    using uint64_t = unsigned long long;
+    using   size_t = uint32_t;
 
     // Now pretend we've included <stdint.h> (or it'll be included again by <arm_neon.h>).
     #define __CLANG_STDINT_H

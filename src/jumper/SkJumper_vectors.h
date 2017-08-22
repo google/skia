@@ -15,67 +15,7 @@
 
 // Every function in this file should be marked static and inline using SI (see SkJumper_misc.h).
 
-#if !defined(JUMPER)
-    // This path should lead to portable code that can be compiled directly into Skia.
-    // (All other paths are compiled offline by Clang into SkJumper_generated.S.)
-    #include <math.h>
-
-    using F   = float   ;
-    using I32 =  int32_t;
-    using U64 = uint64_t;
-    using U32 = uint32_t;
-    using U16 = uint16_t;
-    using U8  = uint8_t ;
-
-    SI F   mad(F f, F m, F a)   { return f*m+a; }
-    SI F   min(F a, F b)        { return fminf(a,b); }
-    SI F   max(F a, F b)        { return fmaxf(a,b); }
-    SI F   abs_  (F v)          { return fabsf(v); }
-    SI F   floor_(F v)          { return floorf(v); }
-    SI F   rcp   (F v)          { return 1.0f / v; }
-    SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
-    SI F    sqrt_(F v)          { return sqrtf(v); }
-    SI U32 round (F v, F scale) { return (uint32_t)(v*scale + 0.5f); }
-    SI U16 pack(U32 v)          { return (U16)v; }
-    SI U8  pack(U16 v)          { return  (U8)v; }
-
-    SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
-
-    template <typename T>
-    SI T gather(const T* p, U32 ix) { return p[ix]; }
-
-    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        *r = ptr[0];
-        *g = ptr[1];
-        *b = ptr[2];
-    }
-    SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
-        *r = ptr[0];
-        *g = ptr[1];
-        *b = ptr[2];
-        *a = ptr[3];
-    }
-    SI void store4(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
-        ptr[0] = r;
-        ptr[1] = g;
-        ptr[2] = b;
-        ptr[3] = a;
-    }
-
-    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
-        *r = ptr[0];
-        *g = ptr[1];
-        *b = ptr[2];
-        *a = ptr[3];
-    }
-    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
-        ptr[0] = r;
-        ptr[1] = g;
-        ptr[2] = b;
-        ptr[3] = a;
-    }
-
-#elif defined(__aarch64__) || defined(__arm__)
+#if defined(__clang__) && (defined(__aarch64__) || defined(__ARM_VFPV4__))
     #include <arm_neon.h>
 
     // Since we know we're using Clang, we can use its vector extensions.
@@ -187,7 +127,12 @@
         }
     }
 
-#elif defined(__AVX__)
+    SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
+    SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
+    SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
+    SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
+
+#elif defined(__clang__) && defined(__AVX__)
     #include <immintrin.h>
 
     // These are __m256 and __m256i, but friendlier and strongly-typed.
@@ -401,7 +346,12 @@
         }
     }
 
-#elif defined(__SSE2__)
+    SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
+    SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
+    SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
+    SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
+
+#elif defined(__clang__) && defined(__SSE2__)
     #include <immintrin.h>
 
     template <typename T> using V = T __attribute__((ext_vector_type(4)));
@@ -564,17 +514,73 @@
             _mm_storeu_ps(ptr +12, a);
         }
     }
-#endif
 
-// We need to be a careful with casts.
-// (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
-// These named casts and bit_cast() are always what they seem to be.
-#if defined(JUMPER)
     SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
     SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
     SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
     SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
+
 #else
+    // This portable scalar fallback is for unspecialized platforms (e.g. MIPS),
+    // platforms without a guaranteed baseline vector instruction set (e.g. 32-bit ARM or x86),
+    // or for compilers that are not Clang (GCC, MSVC).
+    #include <math.h>
+
+    using F   = float   ;
+    using I32 =  int32_t;
+    using U64 = uint64_t;
+    using U32 = uint32_t;
+    using U16 = uint16_t;
+    using U8  = uint8_t ;
+
+    SI F   mad(F f, F m, F a)   { return f*m+a; }
+    SI F   min(F a, F b)        { return fminf(a,b); }
+    SI F   max(F a, F b)        { return fmaxf(a,b); }
+    SI F   abs_  (F v)          { return fabsf(v); }
+    SI F   floor_(F v)          { return floorf(v); }
+    SI F   rcp   (F v)          { return 1.0f / v; }
+    SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
+    SI F    sqrt_(F v)          { return sqrtf(v); }
+    SI U32 round (F v, F scale) { return (uint32_t)(v*scale + 0.5f); }
+    SI U16 pack(U32 v)          { return (U16)v; }
+    SI U8  pack(U16 v)          { return  (U8)v; }
+
+    SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
+
+    template <typename T>
+    SI T gather(const T* p, U32 ix) { return p[ix]; }
+
+    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+    }
+    SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+        *a = ptr[3];
+    }
+    SI void store4(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+        ptr[0] = r;
+        ptr[1] = g;
+        ptr[2] = b;
+        ptr[3] = a;
+    }
+
+    SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
+        *r = ptr[0];
+        *g = ptr[1];
+        *b = ptr[2];
+        *a = ptr[3];
+    }
+    SI void store4(float* ptr, size_t tail, F r, F g, F b, F a) {
+        ptr[0] = r;
+        ptr[1] = g;
+        ptr[2] = b;
+        ptr[3] = a;
+    }
+
     SI F   cast  (U32 v) { return   (F)v; }
     SI U32 trunc_(F   v) { return (U32)v; }
     SI U32 expand(U16 v) { return (U32)v; }
@@ -587,7 +593,7 @@ SI V if_then_else(I32 c, V t, V e) {
 }
 
 SI U16 bswap(U16 x) {
-#if defined(JUMPER) && defined(__SSE2__) && !defined(__AVX__)
+#if defined(__clang__) && defined(__SSE2__) && !defined(__AVX__)
     // Somewhat inexplicably Clang decides to do (x<<8) | (x>>8) in 32-bit lanes
     // when generating code for SSE2 and SSE4.1.  We'll do it manually...
     auto v = widen_cast<__m128i>(x);
@@ -625,10 +631,10 @@ SI F approx_powf(F x, F y) {
 }
 
 SI F from_half(U16 h) {
-#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+#if defined(__clang__) && (defined(__aarch64__) || defined(__ARM_VFPV4__))
     return vcvt_f32_f16(h);
 
-#elif defined(JUMPER) && defined(__AVX2__)
+#elif defined(__clang__) && defined(__AVX2__)
     return _mm256_cvtph_ps(h);
 
 #else
@@ -645,10 +651,10 @@ SI F from_half(U16 h) {
 }
 
 SI U16 to_half(F f) {
-#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+#if defined(__clang__) && (defined(__aarch64__) || defined(__ARM_VFPV4__))
     return vcvt_f16_f32(f);
 
-#elif defined(JUMPER) && defined(__AVX2__)
+#elif defined(__clang__) && defined(__AVX2__)
     return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
 #else

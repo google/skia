@@ -15,7 +15,7 @@ static const size_t kStride = sizeof(F) / sizeof(float);
 // A reminder:
 // Code guarded by defined(JUMPER) can assume that it will be compiled by Clang
 // and that F, I32, etc. are kStride-deep ext_vector_types of the appropriate type.
-// Otherwise, F, I32, etc. just alias the basic scalar types (and so kStride == 1).
+// When !defined(JUMPER), F, I32, etc. may be vectors or may just alias basic scalar types.
 
 // You can use most constants in this file, but in a few rare exceptions we read from this struct.
 using K = const SkJumper_constants;
@@ -24,8 +24,6 @@ using K = const SkJumper_constants;
 // That lets us link together several options.
 #if !defined(JUMPER)
     #define WRAP(name) sk_##name
-#elif defined(__aarch64__)
-    #define WRAP(name) sk_##name##_aarch64
 #elif defined(__arm__)
     #define WRAP(name) sk_##name##_vfp4
 #elif defined(__AVX2__)
@@ -609,10 +607,10 @@ STAGE(from_srgb_dst) {
 STAGE(to_srgb) {
     auto fn = [&](F l) {
         // We tweak c and d for each instruction set to make sure fn(1) is exactly 1.
-    #if defined(JUMPER) && defined(__SSE2__)
+    #if defined(__SSE2__) || defined(_M_X64) || ( defined(_M_IX86_FP) && _M_IX86_FP >= 2 )
         const float c = 1.130048394203f,
                     d = 0.141357362270f;
-    #elif defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+    #elif defined(__aarch64__) || defined(__arm__)
         const float c = 1.129999995232f,
                     d = 0.141381442547f;
     #else
