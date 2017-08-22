@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkInsetConvexPolygon_DEFINED
-#define SkInsetConvexPolygon_DEFINED
+#ifndef SkOffsetPolygon_DEFINED
+#define SkOffsetPolygon_DEFINED
 
 #include <functional>
 
@@ -35,6 +35,19 @@ inline bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPoly
                                 [inset](int) { return inset; },
                                 insetPolygon);
 }
+
+/**
+* Generates a polygon that is offset a given distance from the boundary of a given polygon.
+*
+* @param inputPolygonVerts  Array of points representing the vertices of the original polygon.
+* @param inputPolygonSize  Number of vertices in the original polygon.
+* @param offset  How far we wish to offset the polygon for a given index in the array.
+*                Positive values are insets, negative values are outsets.
+* @param insetPolygon  The resulting offset polygon, if any.
+* @return true if an offset polygon exists, false otherwise.
+*/
+bool SkOffsetPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
+                     SkScalar offset, SkTDArray<SkPoint>* offsetPolygon);
 
 /**
  * Offset a segment by the given distance at each point.
