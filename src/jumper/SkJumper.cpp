@@ -13,7 +13,6 @@
 #include "SkTemplates.h"
 
 // We'll use __has_feature(memory_sanitizer) to detect MSAN.
-// SkJumper_generated.S is not compiled with MSAN, so MSAN would yell really loud.
 #if !defined(__has_feature)
     #define __has_feature(x) 0
 #endif
@@ -141,6 +140,14 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
 
 extern "C" {
 
+    // We'll always declare portable, single-pixel stages,
+    // but depending on the platform they may not be used.
+    StartPipelineFn sk_start_pipeline_portable;
+    StageFn sk_just_return_portable;
+    #define M(st) StageFn sk_##st##_portable;
+        SK_RASTER_PIPELINE_STAGES(M)
+    #undef M
+
 #if __has_feature(memory_sanitizer)
     // We'll just run portable code.
 
@@ -206,13 +213,6 @@ extern "C" {
     #undef M
 
 #endif
-
-    // Portable, single-pixel stages.
-    StartPipelineFn sk_start_pipeline;
-    StageFn sk_just_return;
-    #define M(st) StageFn sk_##st;
-        SK_RASTER_PIPELINE_STAGES(M)
-    #undef M
 }
 
 #if !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
@@ -246,29 +246,29 @@ struct SkJumper_Engine {
     StageFn*         just_return;
 };
 
-// We'll default to this portable engine, but try to choose a better one at runtime.
-static const SkJumper_Engine kPortable = {
-#define M(stage) sk_##stage,
-    { SK_RASTER_PIPELINE_STAGES(M) },
+// We'll default to a baseline engine, but try to choose a better one at runtime.
+// SkJumper_generated*.S are not compiled with MSAN, so MSAN would yell really loud.
+// Instead we'll just use the portable scalar code that is compiled with MSAN.
+#if   !__has_feature(memory_sanitizer) && (defined(__x86_64__) || defined(_M_X64))
+    #define M(stage) ASM(stage, sse2),
+#elif !__has_feature(memory_sanitizer) && (defined(__aarch64__))
+    #define M(stage) ASM(stage, aarch64),
+#else
+    #define M(stage) sk_##stage##_portable,
+#endif
+    static const SkJumper_Engine kBaseline = {
+        { SK_RASTER_PIPELINE_STAGES(M) },
+        M(start_pipeline)
+        M(just_return)
+    };
 #undef M
-    sk_start_pipeline,
-    sk_just_return,
-};
-static SkJumper_Engine gEngine = kPortable;
+
+static SkJumper_Engine gEngine = kBaseline;
 static SkOnce gChooseEngineOnce;
 
 static SkJumper_Engine choose_engine() {
 #if __has_feature(memory_sanitizer)
-    // We'll just run portable code.
-
-#elif defined(__aarch64__)
-    return {
-    #define M(stage) ASM(stage, aarch64),
-        { SK_RASTER_PIPELINE_STAGES(M) },
-        M(start_pipeline)
-        M(just_return)
-    #undef M
-    };
+    // We want the portable baseline.
 
 #elif defined(__arm__)
     if (1 && SkCpu::Supports(SkCpu::NEON|SkCpu::NEON_FMA|SkCpu::VFP_FP16)) {
@@ -309,15 +309,6 @@ static SkJumper_Engine choose_engine() {
         #undef M
         };
     }
-    if (1 && SkCpu::Supports(SkCpu::SSE2)) {
-        return {
-        #define M(stage) ASM(stage, sse2),
-            { SK_RASTER_PIPELINE_STAGES(M) },
-            M(start_pipeline)
-            M(just_return)
-        #undef M
-        };
-    }
 
 #elif defined(__i386__) || defined(_M_IX86)
     if (1 && SkCpu::Supports(SkCpu::SSE2)) {
@@ -331,7 +322,7 @@ static SkJumper_Engine choose_engine() {
     }
 
 #endif
-    return kPortable;
+    return kBaseline;
 }
 
 #ifndef SK_JUMPER_DISABLE_8BIT
