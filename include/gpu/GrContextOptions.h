@@ -11,6 +11,8 @@
 #include "SkTypes.h"
 #include "GrTypes.h"
 
+class SkExecutor;
+
 struct GrContextOptions {
     GrContextOptions() {}
 
@@ -32,6 +34,14 @@ struct GrContextOptions {
         buffers to CPU memory in order to update them.  A value of -1 means the GrContext should
         deduce the optimal value for this platform. */
     int  fBufferMapThreshold = -1;
+
+    /**
+     * Executor to handle threaded work within Ganesh. If this is nullptr, then all work will be
+     * done serially on the main thread. To have worker threads assist with various tasks, set this
+     * to a valid SkExecutor instance. Currently, used for software path rendering, but may be used
+     * for other tasks.
+     */
+    SkExecutor* fExecutor = nullptr;
 
     /** some gpus have problems with partial writes of the rendertarget */
     bool fUseDrawInsteadOfPartialRenderTargetWrite = false;
