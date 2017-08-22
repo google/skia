@@ -105,11 +105,10 @@ private:
             // the matrix for the path with only fractional translation.
             SkAutoSTArray<24, uint32_t> fKey;
         };
-        Key fKey;
+        Key                    fKey;
         GrDrawOpAtlas::AtlasID fID;
-        SkRect   fBounds;
-        SkScalar fScale;
-        SkVector fTranslate;
+        SkRect                 fBounds;
+        GrIRect16              fTextureCoords;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
         static inline const Key& GetKey(const ShapeData& data) {
