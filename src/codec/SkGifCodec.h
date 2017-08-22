@@ -32,7 +32,7 @@ public:
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
     // Callback for SkGifImageReader when a row is available.
-    bool haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
+    void haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                         int rowNumber, int repeatCount, bool writeTransparentPixels);
 protected:
     /*
