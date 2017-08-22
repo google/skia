@@ -97,7 +97,7 @@ mailing address.
 #define GETINT16(p)   ((p)[1]<<8|(p)[0])
 
 // Send the data to the display front-end.
-bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
+void SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 {
     int drowStart = irow;
     int drowEnd = irow;
@@ -144,13 +144,12 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
 
     // Protect against too much image data.
     if (drowStart >= m_frameContext->height())
-        return true;
+        return;
 
     // CALLBACK: Let the client know we have decoded a row.
     const bool writeTransparentPixels = (SkCodec::kNone == m_frameContext->getRequiredFrame());
-    if (!m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
-        drowStart, drowEnd - drowStart + 1, writeTransparentPixels))
-        return false;
+    m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
+            drowStart, drowEnd - drowStart + 1, writeTransparentPixels);
 
     if (!m_frameContext->interlaced())
         irow++;
@@ -194,7 +193,6 @@ bool SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
             }
         } while (irow > (unsigned) (m_frameContext->height() - 1));
     }
-    return true;
 }
 
 // Perform Lempel-Ziv-Welch decoding.
@@ -287,8 +285,7 @@ bool SkGIFLZWContext::doLZW(const unsigned char* block, size_t bytesInBlock)
             // Output as many rows as possible.
             unsigned char* rowBegin = rowBuffer.begin();
             for (; rowBegin + width <= rowIter; rowBegin += width) {
-                if (!outputRow(rowBegin))
-                    return false;
+                outputRow(rowBegin);
                 rowsRemaining--;
                 if (!rowsRemaining)
                     return true;

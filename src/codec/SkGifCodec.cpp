@@ -421,7 +421,7 @@ void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint
     }
 }
 
-bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
+void SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                                 int rowNumber, int repeatCount, bool writeTransparentPixels)
 {
     const SkGIFFrameContext* frameContext = fReader->frameContext(frameIndex);
@@ -439,7 +439,7 @@ bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
     // FIXME: No need to make the checks on width/xBegin/xEnd for every row. We could instead do
     // this once in prepareToDecode.
     if (!width || (xBegin < 0) || (yBegin < 0) || (xEnd <= xBegin) || (yEnd <= yBegin))
-        return true;
+        return;
 
     // yBegin is the first row in the non-sampled image. dstRow will be the row in the output,
     // after potentially scaling it.
@@ -456,7 +456,7 @@ bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                 dstRow = potentialRow / sampleY;
                 const int scaledHeight = get_scaled_dimension(this->dstInfo().height(), sampleY);
                 if (dstRow >= scaledHeight) {
-                    return true;
+                    return;
                 }
 
                 foundNecessaryRow = true;
@@ -474,7 +474,7 @@ bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
         }
 
         if (!foundNecessaryRow) {
-            return true;
+            return;
         }
     } else {
         // Make sure the repeatCount does not take us beyond the end of the dst
@@ -536,8 +536,7 @@ bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                 break;
             default:
                 SkASSERT(false);
-                return false;
-                break;
+                return;
         }
         p.append(SkRasterPipeline::srcover);
         p.append(storeDst, &dst);
@@ -555,6 +554,4 @@ bool SkGifCodec::haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
             memcpy(dst, copiedLine, bytesToCopy);
         }
     }
-
-    return true;
 }
