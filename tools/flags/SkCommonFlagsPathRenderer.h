@@ -46,6 +46,8 @@ inline GrContextOptions::GpuPathRenderers get_named_pathrenderers_flags(const ch
         return GpuPathRenderers::kTessellating;
     } else if (!strcmp(name, "grdefault")) {
         return GpuPathRenderers::kDefault;
+    } else if (!strcmp(name, "none")) {
+        return GpuPathRenderers::kNone;
     }
     SK_ABORT(SkStringPrintf("error: unknown named path renderer \"%s\"\n", name).c_str());
     return GpuPathRenderers::kNone;

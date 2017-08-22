@@ -1619,6 +1619,7 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
+        ":common_flags",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
