@@ -38,8 +38,8 @@ public:
      * Together these two functions flush all queued ops to GrGpuCommandBuffer. The return value
      * of executeOps() indicates whether any commands were actually issued to the GPU.
      */
-    void prepareOps(GrOpFlushState* flushState) override;
-    bool executeOps(GrOpFlushState* flushState) override;
+    void onPrepare(GrOpFlushState* flushState) override;
+    bool onExecute(GrOpFlushState* flushState) override;
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize

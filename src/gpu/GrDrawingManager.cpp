@@ -152,8 +152,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                     continue;   // Odd - but not a big deal
                 }
                 opList->makeClosed(*fContext->caps());
-                opList->prepareOps(&fFlushState);
-                if (!opList->executeOps(&fFlushState)) {
+                opList->prepare(&fFlushState);
+                if (!opList->execute(&fFlushState)) {
                     continue;         // This is bad
                 }
             }
@@ -174,7 +174,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             continue;
         }
 
-        fOpLists[i]->prepareOps(&fFlushState);
+        fOpLists[i]->prepare(&fFlushState);
     }
 
     // Upload all data to the GPU
@@ -185,7 +185,7 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
             continue;
         }
 
-        if (fOpLists[i]->executeOps(&fFlushState)) {
+        if (fOpLists[i]->execute(&fFlushState)) {
             flushed = true;
         }
         fOpLists[i]->reset();
