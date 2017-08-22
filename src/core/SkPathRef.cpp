@@ -33,8 +33,9 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
 //////////////////////////////////////////////////////////////////////////////
 
 SkPathRef::~SkPathRef() {
+    // Deliberately don't validate() this path ref, otherwise there's no way
+    // to read one that's not valid and then free its memory without asserting.
     this->callGenIDChangeListeners();
-    SkDEBUGCODE(this->validate();)
     sk_free(fPoints);
 
     SkDEBUGCODE(fPoints = nullptr;)
