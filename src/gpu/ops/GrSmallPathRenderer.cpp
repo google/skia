@@ -407,11 +407,13 @@ private:
         int width = devPathBounds.width() + 2*intPad;
         int height = devPathBounds.height() + 2*intPad;
         devPathBounds = SkIRect::MakeWH(width, height);
+        SkScalar translateX = intPad - dx;
+        SkScalar translateY = intPad - dy;
 
         // draw path to bitmap
         SkMatrix drawMatrix;
         drawMatrix.setScale(scale, scale);
-        drawMatrix.postTranslate(intPad - dx, intPad - dy);
+        drawMatrix.postTranslate(translateX, translateY);
 
         SkASSERT(devPathBounds.fLeft == 0);
         SkASSERT(devPathBounds.fTop == 0);
@@ -481,14 +483,17 @@ private:
         shapeData->fID = id;
 
         // set the bounds rect to the original bounds
-        shapeData->fBounds = bounds;
+        shapeData->fBounds = SkRect::Make(devPathBounds);
+        shapeData->fBounds.offset(-translateX, -translateY);
+        shapeData->fBounds.fLeft /= scale;
+        shapeData->fBounds.fTop /= scale;
+        shapeData->fBounds.fRight /= scale;
+        shapeData->fBounds.fBottom /= scale;
 
-        // set up path to texture coordinate transform
-        shapeData->fScale = scale;
-        dx -= SK_DistanceFieldPad + kAntiAliasPad;
-        dy -= SK_DistanceFieldPad + kAntiAliasPad;
-        shapeData->fTranslate.fX = atlasLocation.fX - dx;
-        shapeData->fTranslate.fY = atlasLocation.fY - dy;
+        shapeData->fTextureCoords.set(atlasLocation.fX+SK_DistanceFieldPad,
+                                      atlasLocation.fY+SK_DistanceFieldPad,
+                                      atlasLocation.fX+SK_DistanceFieldPad+devPathBounds.width(),
+                                      atlasLocation.fY+SK_DistanceFieldPad+devPathBounds.height());
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -573,14 +578,11 @@ private:
         shapeData->fKey.set(shape, ctm);
         shapeData->fID = id;
 
-        // set the bounds rect to the original bounds
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
-        // set up path to texture coordinate transform
-        shapeData->fScale = SK_Scalar1;
-        shapeData->fTranslate.fX = atlasLocation.fX + translateX;
-        shapeData->fTranslate.fY = atlasLocation.fY + translateY;
+        shapeData->fTextureCoords.set(atlasLocation.fX, atlasLocation.fY,
+                                      atlasLocation.fX+width, atlasLocation.fY+height);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -601,11 +603,13 @@ private:
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
         SkRect bounds = shapeData->fBounds;
+#if 0
         if (fUsesDistanceField) {
             // outset bounds to include ~1 pixel of AA in device space
             SkScalar outset = SkScalarInvert(maxScale);
             bounds.outset(outset, outset);
         }
+#endif
 
         // vertex positions
         // TODO make the vertex attributes a struct
@@ -622,22 +626,10 @@ private:
         }
 
         // set up texture coordinates
-        SkScalar texLeft = bounds.fLeft;
-        SkScalar texTop = bounds.fTop;
-        SkScalar texRight = bounds.fRight;
-        SkScalar texBottom = bounds.fBottom;
-
-        // transform original path's bounds to texture space
-        SkScalar scale = shapeData->fScale;
-        const SkVector& translate = shapeData->fTranslate;
-        texLeft *= scale;
-        texTop *= scale;
-        texRight *= scale;
-        texBottom *= scale;
-        texLeft += translate.fX;
-        texTop += translate.fY;
-        texRight += translate.fX;
-        texBottom += translate.fY;
+        SkScalar texLeft = shapeData->fTextureCoords.fLeft;
+        SkScalar texTop = shapeData->fTextureCoords.fTop;
+        SkScalar texRight = shapeData->fTextureCoords.fRight;
+        SkScalar texBottom = shapeData->fTextureCoords.fBottom;
 
         // convert texcoords to unsigned short format
         sk_sp<GrTextureProxy> proxy = atlas->getProxy();
