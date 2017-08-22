@@ -352,6 +352,7 @@
   "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Debug-ASAN",
   "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-ASAN",
   "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
+  "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN_GpuWorkerThreads",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-ASAN",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release",

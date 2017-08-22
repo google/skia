@@ -2129,6 +2129,12 @@
         "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN"
       ]
     },
+    "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN_GpuWorkerThreads": {
+      "priority": 0.8,
+      "tasks": [
+        "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN_GpuWorkerThreads"
+      ]
+    },
     "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug": {
       "priority": 0.8,
       "tasks": [
@@ -16270,6 +16276,58 @@
         "test",
         "repository=<(REPO)",
         "buildername=Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN",
+        "swarm_out_dir=${ISOLATED_OUTDIR}",
+        "revision=<(REVISION)",
+        "patch_repo=<(PATCH_REPO)",
+        "patch_storage=<(PATCH_STORAGE)",
+        "patch_issue=<(ISSUE)",
+        "patch_set=<(PATCHSET)"
+      ],
+      "io_timeout_ns": 2400000000000,
+      "isolate": "test_skia_bundled_unix.isolate",
+      "max_attempts": 1,
+      "priority": 0.8
+    },
+    "Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN_GpuWorkerThreads": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:29"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:81"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:8"
+        }
+      ],
+      "dependencies": [
+        "Build-Debian9-Clang-x86_64-Release-TSAN",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:104a-384.59",
+        "os:Ubuntu-17.04",
+        "pool:Skia"
+      ],
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_args": [
+        "--workdir",
+        "../../..",
+        "test",
+        "repository=<(REPO)",
+        "buildername=Test-Ubuntu17-Clang-Golo-GPU-GT610-x86_64-Release-TSAN_GpuWorkerThreads",
         "swarm_out_dir=${ISOLATED_OUTDIR}",
         "revision=<(REVISION)",
         "patch_repo=<(PATCH_REPO)",
