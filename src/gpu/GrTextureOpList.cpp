@@ -45,7 +45,7 @@ void GrTextureOpList::dump() const {
 
 #endif
 
-void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
+void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
@@ -57,7 +57,7 @@ void GrTextureOpList::prepareOps(GrOpFlushState* flushState) {
     }
 }
 
-bool GrTextureOpList::executeOps(GrOpFlushState* flushState) {
+bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     if (0 == fRecordedOps.count()) {
         return false;
     }
