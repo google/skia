@@ -148,7 +148,7 @@ public:
 
         bool done = false;
         while (!done) {
-            SkPath::Verb verb = iter.next(pts);
+            SkPath::Verb verb = iter.next(pts, false);
             switch (verb) {
                 case SkPath::kMove_Verb:
                     this->moveTo(pts[0]);
