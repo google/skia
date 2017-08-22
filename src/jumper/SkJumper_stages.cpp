@@ -12,11 +12,6 @@
 // Our fundamental vector depth is our pixel stride.
 static const size_t kStride = sizeof(F) / sizeof(float);
 
-// A reminder:
-// Code guarded by defined(JUMPER) can assume that it will be compiled by Clang
-// and that F, I32, etc. are kStride-deep ext_vector_types of the appropriate type.
-// Otherwise, F, I32, etc. just alias the basic scalar types (and so kStride == 1).
-
 // You can use most constants in this file, but in a few rare exceptions we read from this struct.
 using K = const SkJumper_constants;
 

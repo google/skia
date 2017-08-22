@@ -15,9 +15,10 @@
 
 // Every function in this file should be marked static and inline using SI (see SkJumper_misc.h).
 
-#if !defined(JUMPER)
-    // This path should lead to portable code that can be compiled directly into Skia.
-    // (All other paths are compiled offline by Clang into SkJumper_generated.S.)
+#if !defined(__clang__)
+    // This portable scalar fallback is for unspecialized platforms (e.g. MIPS),
+    // platforms without a guaranteed baseline vector instruction set (e.g. 32-bit ARM or x86),
+    // or for compilers that are not Clang (GCC, MSVC).
     #include <math.h>
 
     using F   = float   ;
@@ -569,7 +570,7 @@
 // We need to be a careful with casts.
 // (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
 // These named casts and bit_cast() are always what they seem to be.
-#if defined(JUMPER)
+#if defined(__clang__)
     SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
     SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
     SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
@@ -587,7 +588,7 @@ SI V if_then_else(I32 c, V t, V e) {
 }
 
 SI U16 bswap(U16 x) {
-#if defined(JUMPER) && defined(__SSE2__) && !defined(__AVX__)
+#if defined(__clang__) && defined(__SSE2__) && !defined(__AVX__)
     // Somewhat inexplicably Clang decides to do (x<<8) | (x>>8) in 32-bit lanes
     // when generating code for SSE2 and SSE4.1.  We'll do it manually...
     auto v = widen_cast<__m128i>(x);
@@ -625,10 +626,10 @@ SI F approx_powf(F x, F y) {
 }
 
 SI F from_half(U16 h) {
-#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+#if defined(__clang__) && (defined(__aarch64__) || defined(__arm__))
     return vcvt_f32_f16(h);
 
-#elif defined(JUMPER) && defined(__AVX2__)
+#elif defined(__clang__) && defined(__AVX2__)
     return _mm256_cvtph_ps(h);
 
 #else
@@ -645,10 +646,10 @@ SI F from_half(U16 h) {
 }
 
 SI U16 to_half(F f) {
-#if defined(JUMPER) && (defined(__aarch64__) || defined(__arm__))
+#if defined(__clang__) && (defined(__aarch64__) || defined(__arm__))
     return vcvt_f16_f32(f);
 
-#elif defined(JUMPER) && defined(__AVX2__)
+#elif defined(__clang__) && defined(__AVX2__)
     return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
 #else

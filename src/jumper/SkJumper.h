@@ -11,6 +11,8 @@
 // This file contains definitions shared by SkJumper.cpp (compiled normally as part of Skia)
 // and SkJumper_stages.cpp (compiled into Skia _and_ offline into SkJumper_generated.h).
 // Keep it simple!
+//
+// JUMPER will be defined if we're compiling offline.
 
 // Externally facing functions (start_pipeline) are called a little specially on Windows.
 #if defined(JUMPER) && defined(WIN) && defined(__x86_64__)
