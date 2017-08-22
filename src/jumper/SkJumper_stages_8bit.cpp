@@ -256,39 +256,6 @@ SI void store(T* dst, V v, size_t tail) {
     unaligned_store(dst, v);
 }
 
-#if 0 && defined(__AVX2__)
-    SI U32 mask(size_t tail) {
-        // We go a little out of our way to avoid needing large constant values here.
-
-        // It's easiest to build the mask as 8 8-bit values, either 0x00 or 0xff.
-        // Start fully on, then shift away lanes from the top until we've got our mask.
-        uint64_t mask = 0xffffffffffffffff >> 8*(kStride-tail);
-
-        // Sign-extend each mask lane to its full width, 0x00000000 or 0xffffffff.
-        using S8  = int8_t  __attribute__((ext_vector_type(8)));
-        using S32 = int32_t __attribute__((ext_vector_type(8)));
-        return (U32)__builtin_convertvector(unaligned_load<S8>(&mask), S32);
-    }
-
-    template <>
-    inline U32 load(const uint32_t* src, size_t tail) {
-        __builtin_assume(tail < kStride);
-        if (__builtin_expect(tail, 0)) {
-            return _mm256_maskload_epi32((const int*)src, mask(tail));
-        }
-        return unaligned_load<U32>(src);
-    }
-
-    template <>
-    inline void store(uint32_t* dst, U32 v, size_t tail) {
-        __builtin_assume(tail < kStride);
-        if (__builtin_expect(tail, 0)) {
-            return _mm256_maskstore_epi32((int*)dst, mask(tail), v);
-        }
-        unaligned_store(dst, v);
-    }
-#endif
-
 // Used by load_ and store_ stages to get to the right (x,y) starting point of contiguous memory.
 template <typename T>
 SI T* ptr_at_xy(const SkJumper_MemoryCtx* ctx, int x, int y) {
