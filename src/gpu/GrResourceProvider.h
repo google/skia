@@ -152,8 +152,6 @@ public:
         return this->createQuadIndexBuffer();
     }
 
-    static int QuadCountOfQuadBuffer();
-
     /**
      * Factories for GrPath and GrPathRange objects. It's an error to call these if path rendering
      * is not supported.
