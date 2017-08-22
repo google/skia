@@ -29,6 +29,11 @@ public:
     // replicating the internal logic.  This permits not only simpler caching of blurred results,
     // but also being able to predict precisely at what pixels the blurred profile of e.g. a
     // rectangle will lie.
+    //
+    // Calling details:
+    // * calculate margin - if src.fImage is null, then this call only calculates the border.
+    // * failure          - if src.fImage is not null, failure is signal with dst->fImage being
+    //                      null.
 
     static bool SK_WARN_UNUSED_RESULT BoxBlur(SkMask* dst, const SkMask& src,
                                               SkScalar sigma, SkBlurStyle style, SkBlurQuality,

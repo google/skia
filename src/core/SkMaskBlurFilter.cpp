@@ -131,6 +131,7 @@ SkIPoint SkMaskBlurFilter::blur(const SkMask& src, SkMask* dst) const {
 
     size_t toAlloc = safe.mul(dstW, dstH);
     if (!safe) {
+        dst->fBounds = SkIRect::MakeEmpty();
         // There is no border offset because we are not drawing.
         return {0, 0};
     }
