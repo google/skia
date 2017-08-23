@@ -89,6 +89,12 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
     switch (t) {
         case kVoid_GrSLType:
             return "void";
+        case kBool_GrSLType:
+            return "bool";
+        case kInt_GrSLType:
+            return "int";
+        case kUint_GrSLType:
+            return "uint";
         case kFloat_GrSLType:
             return "float";
         case kVec2f_GrSLType:
@@ -119,12 +125,6 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "sampler2DRect";
         case kBufferSampler_GrSLType:
             return "samplerBuffer";
-        case kBool_GrSLType:
-            return "bool";
-        case kInt_GrSLType:
-            return "int";
-        case kUint_GrSLType:
-            return "uint";
         case kTexture2D_GrSLType:
             return "texture2D";
         case kSampler_GrSLType:
