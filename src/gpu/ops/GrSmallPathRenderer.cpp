@@ -22,13 +22,11 @@
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
 
-#define ATLAS_TEXTURE_WIDTH 2048
-#define ATLAS_TEXTURE_HEIGHT 2048
-#define PLOT_WIDTH  512
-#define PLOT_HEIGHT 256
+#define ATLAS_PLOT_WIDTH  512
+#define ATLAS_PLOT_HEIGHT 256
 
-#define NUM_PLOTS_X   (ATLAS_TEXTURE_WIDTH / PLOT_WIDTH)
-#define NUM_PLOTS_Y   (ATLAS_TEXTURE_HEIGHT / PLOT_HEIGHT)
+#define ATLAS_NUM_PLOTS_X 4
+#define ATLAS_NUM_PLOTS_Y 8
 
 #ifdef DF_PATH_TRACKING
 static int g_NumCachedShapes = 0;
@@ -352,11 +350,11 @@ private:
 
                     shapeData = new ShapeData;
                     if (!this->addBMPathToAtlas(target,
-                                              &flushInfo,
-                                              atlas,
-                                              shapeData,
-                                              args.fShape,
-                                              this->viewMatrix())) {
+                                                &flushInfo,
+                                                atlas,
+                                                shapeData,
+                                                args.fShape,
+                                                this->viewMatrix())) {
                         delete shapeData;
                         continue;
                     }
@@ -407,11 +405,13 @@ private:
         int width = devPathBounds.width() + 2*intPad;
         int height = devPathBounds.height() + 2*intPad;
         devPathBounds = SkIRect::MakeWH(width, height);
+        SkScalar translateX = intPad - dx;
+        SkScalar translateY = intPad - dy;
 
         // draw path to bitmap
         SkMatrix drawMatrix;
         drawMatrix.setScale(scale, scale);
-        drawMatrix.postTranslate(intPad - dx, intPad - dy);
+        drawMatrix.postTranslate(translateX, translateY);
 
         SkASSERT(devPathBounds.fLeft == 0);
         SkASSERT(devPathBounds.fTop == 0);
@@ -480,15 +480,33 @@ private:
         shapeData->fKey.set(shape, dimension);
         shapeData->fID = id;
 
+
+        SkRect foo = SkRect::Make(devPathBounds);
+        foo.offset(-translateX, -translateY);
+
         // set the bounds rect to the original bounds
-        shapeData->fBounds = bounds;
+#if 1
+        shapeData->fBounds1 = bounds;
+#else
+        shapeData->fBounds1 = SkRect::Make(devPathBounds);
+        shapeData->fBounds1.offset(-translateX, -translateY);
+#endif
 
         // set up path to texture coordinate transform
-        shapeData->fScale = scale;
+        shapeData->fTexCoords1.set(atlasLocation.fX, atlasLocation.fY,
+                                  atlasLocation.fX + width, atlasLocation.fY + height);
+
+#if 0
+#if 1
+        shapeData->fScale1 = scale;
+#else
+        shapeData->fScale1 = SK_Scalar1;
+#endif
         dx -= SK_DistanceFieldPad + kAntiAliasPad;
         dy -= SK_DistanceFieldPad + kAntiAliasPad;
-        shapeData->fTranslate.fX = atlasLocation.fX - dx;
-        shapeData->fTranslate.fY = atlasLocation.fY - dy;
+        shapeData->fTranslate1.fX = atlasLocation.fX - dx;
+        shapeData->fTranslate1.fY = atlasLocation.fY - dy;
+#endif
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -573,14 +591,17 @@ private:
         shapeData->fKey.set(shape, ctm);
         shapeData->fID = id;
 
-        // set the bounds rect to the original bounds
-        shapeData->fBounds = SkRect::Make(devPathBounds);
-        shapeData->fBounds.offset(-translateX, -translateY);
+        shapeData->fBounds1 = SkRect::Make(devPathBounds);
+        shapeData->fBounds1.offset(-translateX, -translateY);
 
+        shapeData->fTexCoords1.set(atlasLocation.fX, atlasLocation.fY,
+                                  atlasLocation.fX + width, atlasLocation.fY + height);
+#if 0
         // set up path to texture coordinate transform
-        shapeData->fScale = SK_Scalar1;
-        shapeData->fTranslate.fX = atlasLocation.fX + translateX;
-        shapeData->fTranslate.fY = atlasLocation.fY + translateY;
+        shapeData->fScale1 = SK_Scalar1;
+        shapeData->fTranslate1.fX = atlasLocation.fX + translateX;
+        shapeData->fTranslate1.fY = atlasLocation.fY + translateY;
+#endif
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -600,19 +621,23 @@ private:
                            const ShapeData* shapeData) const {
         SkPoint* positions = reinterpret_cast<SkPoint*>(offset);
 
-        SkRect bounds = shapeData->fBounds;
+        SkRect bounds1 = shapeData->fBounds1;
+#if 0
         if (fUsesDistanceField) {
             // outset bounds to include ~1 pixel of AA in device space
             SkScalar outset = SkScalarInvert(maxScale);
-            bounds.outset(outset, outset);
+            bounds1.outset(outset, outset);
         }
+#endif
+
+//        SkDebugf("rect %f,%f,%f,%f\n", bounds1.fLeft, bounds1.fTop, bounds1.fRight, bounds1.fBottom);
 
         // vertex positions
         // TODO make the vertex attributes a struct
-        positions->setRectFan(bounds.left() + preTranslate.fX,
-                              bounds.top() + preTranslate.fY,
-                              bounds.right() + preTranslate.fX,
-                              bounds.bottom() + preTranslate.fY,
+        positions->setRectFan(bounds1.left() + preTranslate.fX,
+                              bounds1.top() + preTranslate.fY,
+                              bounds1.right() + preTranslate.fX,
+                              bounds1.bottom() + preTranslate.fY,
                               vertexStride);
 
         // colors
@@ -621,15 +646,16 @@ private:
             *colorPtr = color;
         }
 
+#if 0
         // set up texture coordinates
-        SkScalar texLeft = bounds.fLeft;
-        SkScalar texTop = bounds.fTop;
-        SkScalar texRight = bounds.fRight;
-        SkScalar texBottom = bounds.fBottom;
+        SkScalar texLeft = bounds1.fLeft;
+        SkScalar texTop = bounds1.fTop;
+        SkScalar texRight = bounds1.fRight;
+        SkScalar texBottom = bounds1.fBottom;
 
         // transform original path's bounds to texture space
-        SkScalar scale = shapeData->fScale;
-        const SkVector& translate = shapeData->fTranslate;
+        SkScalar scale = shapeData->fScale1;
+        const SkVector& translate = shapeData->fTranslate1;
         texLeft *= scale;
         texTop *= scale;
         texRight *= scale;
@@ -639,17 +665,16 @@ private:
         texRight += translate.fX;
         texBottom += translate.fY;
 
-        // convert texcoords to unsigned short format
-        sk_sp<GrTextureProxy> proxy = atlas->getProxy();
+        SkASSERT(SkScalarIsInt(texLeft));
+        SkASSERT(SkScalarIsInt(texTop));
+        SkASSERT(SkScalarIsInt(texRight));
+        SkASSERT(SkScalarIsInt(texBottom));
+#endif
 
-        // The proxy must be functionally exact for this normalization to work correctly
-        SkASSERT(GrResourceProvider::IsFunctionallyExact(proxy.get()));
-        SkScalar uFactor = 65535.f / proxy->width();
-        SkScalar vFactor = 65535.f / proxy->height();
-        uint16_t l = (uint16_t)(texLeft*uFactor);
-        uint16_t t = (uint16_t)(texTop*vFactor);
-        uint16_t r = (uint16_t)(texRight*uFactor);
-        uint16_t b = (uint16_t)(texBottom*vFactor);
+        uint16_t l = shapeData->fTexCoords1.fLeft;
+        uint16_t t = shapeData->fTexCoords1.fTop;
+        uint16_t r = shapeData->fTexCoords1.fRight;
+        uint16_t b = shapeData->fTexCoords1.fBottom;
 
         // set vertex texture coords
         intptr_t textureCoordOffset = offset + sizeof(SkPoint) + sizeof(GrColor);
@@ -743,8 +768,9 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!fAtlas) {
         fAtlas = GrDrawOpAtlas::Make(args.fContext,
                                      kAlpha_8_GrPixelConfig,
-                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                     NUM_PLOTS_X, NUM_PLOTS_Y,
+                                     ATLAS_PLOT_WIDTH, ATLAS_PLOT_HEIGHT,
+                                     ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
+                                     ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
                                      &GrSmallPathRenderer::HandleEviction,
                                      (void*)this);
         if (!fAtlas) {
@@ -811,8 +837,9 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
         gTestStruct.fAtlas = GrDrawOpAtlas::Make(context, kAlpha_8_GrPixelConfig,
-                                                 ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                 NUM_PLOTS_X, NUM_PLOTS_Y,
+                                                 ATLAS_PLOT_WIDTH, ATLAS_PLOT_HEIGHT,
+                                                 ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
+                                                 ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y,
                                                  &PathTestStruct::HandleEviction,
                                                  (void*)&gTestStruct);
     }
