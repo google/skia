@@ -22,6 +22,30 @@
       "revId": "3cf781d0e0afc0bbd8a9cb18ad4b126ebcafbbe5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "356650c4_a47e39b2",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-23T18:47:06Z",
+      "side": 0,
+      "message": "IIUC we needed that b.c. we were basically creating a float constant (so didn\u0027t want the precision unnecessarily truncated). In the new way we\u0027re actually using the input float values to compute the delta.",
+      "parentUuid": "66c044e9_eff6c020",
+      "range": {
+        "startLine": 616,
+        "startChar": 69,
+        "endLine": 616,
+        "endChar": 87
+      },
+      "revId": "3cf781d0e0afc0bbd8a9cb18ad4b126ebcafbbe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
