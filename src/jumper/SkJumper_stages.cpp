@@ -631,8 +631,8 @@ STAGE(to_srgb) {
 }
 
 STAGE(rgb_to_hsl) {
-    F mx = max(max(r,g), b),
-      mn = min(min(r,g), b),
+    F mx = max(r,g,b),
+      mn = min(r,g,b),
       d = mx - mn,
       d_rcp = 1.0f / d;
 
@@ -673,6 +673,15 @@ STAGE(hsl_to_rgb) {
     b = if_then_else(s == 0, l, hue_to_rgb(h - (1/3.0f)));
 }
 
+// Returns the coverage value to use for alpha given coverages for red, green, and blue.
+// Lerping da->a with this value has the same effect as taking
+// the max of lerping da->a with each of cr,cg,cb.
+SI F alpha_coverage_from_rgb_coverage(F a, F da,
+                                      F cr, F cg, F cb) {
+    return if_then_else(a < da, min(cr,cg,cb),
+                                max(cr,cg,cb));
+}
+
 STAGE(scale_1_float) {
     auto c = *(const float*)ctx;
 
@@ -691,6 +700,20 @@ STAGE(scale_u8) {
     g = g * c;
     b = b * c;
     a = a * c;
+}
+STAGE(scale_565) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, x,y);
+
+    F cr,cg,cb;
+    from_565(load<U16>(ptr, tail), &cr, &cg, &cb);
+
+    // Notice that we need da here, so we've got to load_..._dst first.
+    F ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
+
+    r = r * cr;
+    g = g * cg;
+    b = b * cb;
+    a = a * ca;
 }
 
 SI F lerp(F from, F to, F t) {
@@ -722,10 +745,12 @@ STAGE(lerp_565) {
     F cr,cg,cb;
     from_565(load<U16>(ptr, tail), &cr, &cg, &cb);
 
+    F ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
+
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
-    a = max(lerp(da, a, cr), lerp(da, a, cg), lerp(da, a, cb));
+    a = lerp(da, a, ca);
 }
 
 STAGE(load_tables) {

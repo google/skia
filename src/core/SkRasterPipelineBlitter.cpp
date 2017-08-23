@@ -310,10 +310,10 @@ SkRasterPipelineBlitter::build_blit_pipeline(SkRasterPipeline::StockStage scale,
 
     const bool preScale = fBlend == SkBlendMode::kSrcOver;
 
+    this->append_load_d(&p);  // scale_565 needs at least the dst alpha loaded first.
     if (preScale) {
         p.append(scale, ctx);
     }
-    this->append_load_d(&p);
     this->append_blend(&p);
     if (!preScale) {
         p.append(lerp, ctx);
@@ -426,15 +426,9 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
                                                 &fMaskPtr);
     }
     if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
-        // TODO: add prescale stage, fold into build_bllit_pipeline?
-        SkRasterPipeline p(fAlloc);
-        p.extend(fColorPipeline);
-        this->append_load_d(&p);
-        this->append_blend(&p);
-        p.append(SkRasterPipeline::lerp_565, &fMaskPtr);
-        this->maybe_clamp(&p);
-        this->append_store(&p);
-        fBlitMaskLCD16 = p.compile();
+        fBlitMaskLCD16 = this->build_blit_pipeline(SkRasterPipeline::scale_565,
+                                                   SkRasterPipeline::lerp_565,
+                                                   &fMaskPtr);
     }
 
     std::function<void(size_t,size_t,size_t,size_t)>* blitter = nullptr;
