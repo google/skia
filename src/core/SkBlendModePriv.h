@@ -19,14 +19,11 @@ static inline bool SkBlendMode_CaresAboutRBOrder(SkBlendMode mode) {
     return (mode > SkBlendMode::kLastSeparableMode);
 }
 
-void SkBlendMode_AppendStagesNoClamp(SkBlendMode, SkRasterPipeline*);
-void SkBlendMode_AppendClampIfNeeded(SkBlendMode, SkRasterPipeline*);
-
-static inline void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
-    // Only plus clamps, so maybe append a clamping plus here instead of a second stage?
-    SkBlendMode_AppendStagesNoClamp(mode, p);
-    SkBlendMode_AppendClampIfNeeded(mode, p);
-}
+// Returns true if we should fold coverage into source, if either,
+//   - we must to get the blend mode correct (e.g. plus);
+//   - if folding coverage is optional but faster than lerping (e.g. srcover).
+bool SkBlendMode_ShouldFoldCoverageIntoSource(SkBlendMode);
+void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p);
 
 enum class SkBlendModeCoeff {
     kZero, /** 0 */
