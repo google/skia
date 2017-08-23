@@ -16,6 +16,24 @@
       "revId": "ba207a35e358cab38cb2138e3257650f567260cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c33a030_645be68a",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2017-08-23T20:26:49Z",
+      "side": 1,
+      "message": "Ack, thanks.  I\u0027ll remember it one of these patches.  /o\\\n\nI\u0027m used to the \"git cl format\" presubmit telling me when I get style wrong in Chromium.",
+      "parentUuid": "22d9f903_46aa4bdd",
+      "revId": "ba207a35e358cab38cb2138e3257650f567260cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
