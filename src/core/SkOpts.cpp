@@ -96,10 +96,21 @@ namespace SkOpts {
     static void init() {
 #if !defined(SK_BUILD_NO_OPTS)
     #if defined(SK_CPU_X86)
-        if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
-        if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
-        if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
-        if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
+            if (SkCpu::Supports(SkCpu::SSSE3)) { Init_ssse3(); }
+        #endif
+
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE41
+            if (SkCpu::Supports(SkCpu::SSE41)) { Init_sse41(); }
+        #endif
+
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE42
+            if (SkCpu::Supports(SkCpu::SSE42)) { Init_sse42(); }
+        #endif
+
+        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX
+            if (SkCpu::Supports(SkCpu::AVX  )) { Init_avx();   }
+        #endif
 
     #elif defined(SK_CPU_ARM64)
         if (SkCpu::Supports(SkCpu::CRC32)) { Init_crc32(); }
