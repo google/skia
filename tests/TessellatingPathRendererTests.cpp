@@ -362,17 +362,6 @@ static SkPath create_path_23() {
     return path;
 }
 
-// A path which results in infs and nans when conics are converted to quads.
-static SkPath create_path_24() {
-     SkPath path;
-     path.moveTo(-2.20883e+37f, -1.02892e+37f);
-     path.conicTo(-2.00958e+38f, -9.36107e+37f, -1.7887e+38f, -8.33215e+37f, 0.707107f);
-     path.conicTo(-1.56782e+38f, -7.30323e+37f, 2.20883e+37f, 1.02892e+37f, 0.707107f);
-     path.conicTo(2.00958e+38f, 9.36107e+37f, 1.7887e+38f, 8.33215e+37f, 0.707107f);
-     path.conicTo(1.56782e+38f, 7.30323e+37f, -2.20883e+37f, -1.02892e+37f, 0.707107f);
-     return path;
-}
-
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
@@ -454,6 +443,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_22());
     test_path(ctx, rtc.get(), create_path_23());
-    test_path(ctx, rtc.get(), create_path_24());
 }
 #endif
