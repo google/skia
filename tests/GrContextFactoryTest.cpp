@@ -10,7 +10,9 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextFactory.h"
+#include "GrContextPriv.h"
 #include "GrCaps.h"
+#include "SkExecutor.h"
 #include "Test.h"
 
 using namespace sk_gpu_test;
@@ -136,6 +138,30 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, /*factory*/) {
         REPORTER_ASSERT(reporter, info5.testContext());
         REPORTER_ASSERT(reporter, info5.grContext() != info4.grContext());
         REPORTER_ASSERT(reporter, info5.testContext() != info4.testContext());
+    }
+}
+
+DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, /*factory*/) {
+    // Verify that contexts have a task group iff we supply an executor with context options
+    GrContextOptions contextOptions;
+    contextOptions.fExecutor = nullptr;
+    GrContextFactory serialFactory(contextOptions);
+
+    std::unique_ptr<SkExecutor> threadPool = SkExecutor::MakeThreadPool(1);
+    contextOptions.fExecutor = threadPool.get();
+    GrContextFactory threadedFactory(contextOptions);
+
+    for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
+        GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
+        ContextInfo serialInfo = serialFactory.getContextInfo(ctxType);
+        if (GrContext* serialContext = serialInfo.grContext()) {
+            REPORTER_ASSERT(reporter, nullptr == serialContext->contextPriv().getTaskGroup());
+        }
+
+        ContextInfo threadedInfo = threadedFactory.getContextInfo(ctxType);
+        if (GrContext* threadedContext = threadedInfo.grContext()) {
+            REPORTER_ASSERT(reporter, nullptr != threadedContext->contextPriv().getTaskGroup());
+        }
     }
 }
 
