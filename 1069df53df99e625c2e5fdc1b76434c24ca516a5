@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84763030_060ea93f",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-23T14:19:27Z",
+      "side": 1,
+      "message": "liar liar!",
+      "range": {
+        "startLine": 41,
+        "startChar": 39,
+        "endLine": 42,
+        "endChar": 23
+      },
+      "revId": "1069df53df99e625c2e5fdc1b76434c24ca516a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
