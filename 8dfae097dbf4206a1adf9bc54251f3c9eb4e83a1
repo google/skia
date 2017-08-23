@@ -68,6 +68,29 @@
       "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1d265b0_857e37c9",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-23T18:31:16Z",
+      "side": 1,
+      "message": "hmm looks like we have some support errors here. r16G16_UNORM and USCALED are not guaranteed to be supported format for vertex attribs (samme with R32G32B32_SFLOAT above). We may need to add some caps checks for the VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT in VkFormatProperties::bufferFeatures for each format",
+      "range": {
+        "startLine": 38,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 47
+      },
+      "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
