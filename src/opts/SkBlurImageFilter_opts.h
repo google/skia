@@ -216,8 +216,9 @@ enum class BlurDirection { kX, kY };
 #endif
 
 template<BlurDirection srcDirection, BlurDirection dstDirection>
-static void box_blur(const SkPMColor* src, int srcStride, const SkIRect& srcBounds, SkPMColor* dst,
-                     int kernelSize, int leftOffset, int rightOffset, int width, int height) {
+/*not static*/ inline
+void box_blur(const SkPMColor* src, int srcStride, const SkIRect& srcBounds, SkPMColor* dst,
+              int kernelSize, int leftOffset, int rightOffset, int width, int height) {
     int left = srcBounds.left();
     int right = srcBounds.right();
     int top = srcBounds.top();
