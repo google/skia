@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1776ac3e_393d750f",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-23T18:22:04Z",
+      "side": 1,
+      "message": "This is unclear to me -- does that mean 65535 maps to 1.0 in the shader, or 1 maps to 1.0 in the shader?",
+      "range": {
+        "startLine": 327,
+        "startChar": 60,
+        "endLine": 327,
+        "endChar": 90
+      },
+      "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f05f8e4_2834d2cc",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-23T18:22:04Z",
+      "side": 1,
+      "message": "One advantage of the previous method is that we were multiplying a 0-1 float value (which has high fractional precision) by an int -- and if the result is a little off that just means the antialiasing isn\u0027t quite right. One thing we\u0027ll have to watch out for is whether multiplying the int texel coordinates by the inverse size messes up the area of texture lookup on crummy GPUs.",
+      "range": {
+        "startLine": 82,
+        "startChar": 42,
+        "endLine": 82,
+        "endChar": 46
+      },
+      "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdedc9eb_9d04cd69",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-23T18:22:04Z",
+      "side": 1,
+      "message": "Is this right? There are three components here.",
+      "range": {
+        "startLine": 40,
+        "startChar": 19,
+        "endLine": 40,
+        "endChar": 46
+      },
+      "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66c044e9_eff6c020",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2017-08-23T18:22:04Z",
+      "side": 0,
+      "message": "Do we not need this any more?",
+      "range": {
+        "startLine": 616,
+        "startChar": 69,
+        "endLine": 616,
+        "endChar": 87
+      },
+      "revId": "3cf781d0e0afc0bbd8a9cb18ad4b126ebcafbbe5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
