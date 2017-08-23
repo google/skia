@@ -5227,24 +5227,22 @@ empty genID = 1
 
 #Method void validate() const
 
-Debugging check to see if Path data is consistent.
-Not currently maintained.
+    Debugging check to see if Path data is consistent.
+    Not currently maintained.
 
-#NoExample
+    #NoExample
+    ##
+
 ##
-
-##
-
-# ------------------------------------------------------------------------------
 
 #Method void experimentalValidateRef() const
 
-#Private
-Debugging check to see if Path data is consistent.
-Not ready for public use.
-##
+    #Private
+    Debugging check to see if Path data is consistent.
+    Not ready for public use.
+    ##
 
-##
+    ##
 
 # ------------------------------------------------------------------------------
 
@@ -5766,7 +5764,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
 
         Returns Conic_Weight if next() returned kConic_Verb.
 
-        If next() has not been called, or next() did not return kConic_Verb,
+        If next() has not been called, or next() did not return kConic_Verb,f
         result is undefined.
 
         #Return  Conic_Weight for Conic Points returned by next(). ##
