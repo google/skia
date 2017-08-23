@@ -93,6 +93,15 @@ subprocess.check_call(clang + cflags + hsw + win +
                       ['-c', stages_8bit] +
                       ['-o', 'win_8bit_hsw.o'])
 
+# Merge x86-64 object files to deduplicate constants.
+# (No other platform has more than one specialization.)
+subprocess.check_call(['ld', '-r', '-o', 'merged.o',
+                       'hsw.o', 'avx.o', 'sse41.o', 'sse2.o',
+                       '8bit_hsw.o', '8bit_sse41.o', '8bit_sse2.o'])
+subprocess.check_call(['ld', '-r', '-o', 'win_merged.o',
+                       'win_hsw.o', 'win_avx.o', 'win_sse41.o', 'win_sse2.o',
+                       'win_8bit_hsw.o', 'win_8bit_sse41.o', 'win_8bit_sse2.o'])
+
 # iOS disallows the use of register x18,
 # so we need to use it as a least-common denominator.
 aarch64 = [ '--target=arm64-apple-ios' ]
@@ -235,19 +244,7 @@ parse_object_file(     'vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
 print 'BALIGN32'
-parse_object_file('hsw.o',   '.byte')
-print 'BALIGN32'
-parse_object_file('avx.o',   '.byte')
-print 'BALIGN32'
-parse_object_file('sse41.o', '.byte')
-print 'BALIGN32'
-parse_object_file('sse2.o',  '.byte')
-print 'BALIGN32'
-parse_object_file('8bit_hsw.o', '.byte')
-print 'BALIGN32'
-parse_object_file('8bit_sse41.o', '.byte')
-print 'BALIGN32'
-parse_object_file('8bit_sse2.o', '.byte')
+parse_object_file('merged.o',   '.byte')
 
 print '#elif defined(__i386__)'
 print 'BALIGN32'
@@ -267,19 +264,7 @@ print '''; Copyright 2017 Google Inc.
 print 'IFDEF RAX'
 print "_text32 SEGMENT ALIGN(32) 'CODE'"
 print 'ALIGN 32'
-parse_object_file('win_hsw.o',   'DB')
-print 'ALIGN 32'
-parse_object_file('win_avx.o',   'DB')
-print 'ALIGN 32'
-parse_object_file('win_sse41.o', 'DB')
-print 'ALIGN 32'
-parse_object_file('win_sse2.o',  'DB')
-print 'ALIGN 32'
-parse_object_file('win_8bit_hsw.o', 'DB')
-print 'ALIGN 32'
-parse_object_file('win_8bit_sse41.o', 'DB')
-print 'ALIGN 32'
-parse_object_file('win_8bit_sse2.o', 'DB')
+parse_object_file('win_merged.o',   'DB')
 
 print 'ELSE'
 print '.MODEL FLAT,C'
