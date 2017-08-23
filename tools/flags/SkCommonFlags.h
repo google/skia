@@ -12,6 +12,8 @@
 #include "SkCommandLineFlags.h"
 #include "SkString.h"
 
+class SkExecutor;
+
 DECLARE_bool(cpu);
 DECLARE_bool(dryRun);
 DECLARE_bool(gpu);

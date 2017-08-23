@@ -30,6 +30,7 @@
 #include "SkCodec.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
+#include "SkCommonFlagsGpuThreads.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkDebugfTracer.h"
@@ -1139,6 +1140,7 @@ int main(int argc, char** argv) {
 #if SK_SUPPORT_GPU
     GrContextOptions grContextOpts;
     grContextOpts.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    grContextOpts.fExecutor = GpuExecutorForTools();
     gGrFactory.reset(new GrContextFactory(grContextOpts));
 #endif
 
