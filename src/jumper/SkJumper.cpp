@@ -136,6 +136,8 @@ using StartPipelineFn = void(size_t,size_t,size_t,size_t, void**,K*);
     M(difference)        \
     M(exclusion)         \
     M(hardlight)         \
+    M(colorburn)         \
+    M(colordodge)        \
     M(overlay)
 #endif
 
