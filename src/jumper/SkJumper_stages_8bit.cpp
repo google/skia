@@ -157,6 +157,10 @@ SI V min(V a, V b) {
     return if_then_else(a.u8x4 > b.u8x4, b.u8x4, a.u8x4);
 }
 
+SI U16x4 min(U16x4 a, U16x4 b) {
+    return if_then_else(a > b, b, a);
+}
+
 struct Params {
     size_t x,y,tail;
 };
@@ -438,5 +442,25 @@ STAGE(overlay) {
     src = blend_rgb16(src, dst, [](U16x4 s, U16x4 d, U16x4 sa, U16x4 da) {
         return s*inv(da) + d*inv(sa)
              + if_then_else(d*2 <= da, s*d*2, sa*da - (da - d)*(sa - s)*2);
+    });
+}
+
+STAGE(colorburn) {
+    src = blend_rgb16(src, dst, [](U16x4 s, U16x4 d, U16x4 sa, U16x4 da) {
+        auto denom = if_then_else(s == 0, U16x4(1), s);
+
+        return if_then_else(d == da,   d*0xff +    s*inv(da),
+               if_then_else(s ==  0, /*s*0xff + */ d*inv(sa),
+                                      sa*(da - min(da, (da-d)*sa/denom)) + s*inv(da) + d*inv(sa)));
+    });
+}
+
+STAGE(colordodge) {
+    src = blend_rgb16(src, dst, [](U16x4 s, U16x4 d, U16x4 sa, U16x4 da) {
+        auto denom = if_then_else(s == sa, U16x4(1), sa - s);
+
+        return if_then_else(d ==  0, /* d*0xff + */ s*inv(da),
+               if_then_else(s == sa,    s*0xff +    d*inv(sa),
+                                       sa*min(da, (da*sa)/denom) + s*inv(da) + d*inv(sa)));
     });
 }
