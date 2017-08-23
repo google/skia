@@ -18,6 +18,7 @@
 #include "SkColorSpacePriv.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsConfig.h"
+#include "SkCommonFlagsGpuThreads.h"
 #include "SkCommonFlagsPathRenderer.h"
 #include "SkData.h"
 #include "SkDocument.h"
@@ -858,10 +859,19 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                      "GM tests will be skipped.\n", gpuConfig->getTag().c_str());
                 return nullptr;
             }
-            return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
-                               gpuConfig->getUseDIText(), gpuConfig->getColorType(),
-                               gpuConfig->getAlphaType(), sk_ref_sp(gpuConfig->getColorSpace()),
-                               FLAGS_gpu_threading, grCtxOptions);
+            if (gpuConfig->getTestThreading()) {
+                return new GPUThreadTestingSink(contextType, contextOverrides,
+                                                gpuConfig->getSamples(), gpuConfig->getUseDIText(),
+                                                gpuConfig->getColorType(),
+                                                gpuConfig->getAlphaType(),
+                                                sk_ref_sp(gpuConfig->getColorSpace()),
+                                                FLAGS_gpu_threading, grCtxOptions);
+            } else {
+                return new GPUSink(contextType, contextOverrides, gpuConfig->getSamples(),
+                                   gpuConfig->getUseDIText(), gpuConfig->getColorType(),
+                                   gpuConfig->getAlphaType(), sk_ref_sp(gpuConfig->getColorSpace()),
+                                   FLAGS_gpu_threading, grCtxOptions);
+            }
         }
     }
 #endif
@@ -1320,6 +1330,7 @@ int main(int argc, char** argv) {
     GrContextOptions grCtxOptions;
 #if SK_SUPPORT_GPU
     grCtxOptions.fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
+    grCtxOptions.fExecutor = GpuExecutorForTools();
 #endif
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
