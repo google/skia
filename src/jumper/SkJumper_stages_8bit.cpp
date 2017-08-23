@@ -440,3 +440,11 @@ STAGE(overlay) {
              + if_then_else(d*2 <= da, s*d*2, sa*da - (da - d)*(sa - s)*2);
     });
 }
+
+// Missing blendmode specializations:
+//
+//   plus        - tricky due to clamping vs. partial coverage (especially with LCD masks).
+//
+//   colorburn  |
+//   colordodge  > these involve division, which makes them (much) slower than the float stages.
+//   softlight  |
