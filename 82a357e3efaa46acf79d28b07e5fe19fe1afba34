@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "6d441d74_5089ea9c",
+        "filename": "include/gpu/GrContextOptions.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-23T17:06:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb2be66e_0f332b90",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 31
+      },
+      "revId": "82a357e3efaa46acf79d28b07e5fe19fe1afba34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90834e61_2d81bd57",
         "filename": "tools/flags/SkCommonFlags.cpp",
         "patchSetId": 13
@@ -53,6 +77,30 @@
       "writtenOn": "2017-08-22T13:16:07Z",
       "side": 1,
       "message": "This works?  That\u0027s sort of surprising.  I always figured we\u0027d parse that as -g -j.",
+      "range": {
+        "startLine": 57,
+        "startChar": 27,
+        "endLine": 57,
+        "endChar": 29
+      },
+      "revId": "82a357e3efaa46acf79d28b07e5fe19fe1afba34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52757fd0_dd2bf4b4",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-23T17:06:00Z",
+      "side": 1,
+      "message": "No, this doesn\u0027t work. :/",
+      "parentUuid": "90834e61_2d81bd57",
       "range": {
         "startLine": 57,
         "startChar": 27,
