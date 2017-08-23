@@ -30,13 +30,13 @@ namespace SK_OPTS_NS {
         }
     }
 
-    static void memset16(uint16_t buffer[], uint16_t value, int count) {
+    /*not static*/ inline void memset16(uint16_t buffer[], uint16_t value, int count) {
         memsetT(buffer, value, count);
     }
-    static void memset32(uint32_t buffer[], uint32_t value, int count) {
+    /*not static*/ inline void memset32(uint32_t buffer[], uint32_t value, int count) {
         memsetT(buffer, value, count);
     }
-    static void memset64(uint64_t buffer[], uint64_t value, int count) {
+    /*not static*/ inline void memset64(uint64_t buffer[], uint64_t value, int count) {
         memsetT(buffer, value, count);
     }
 

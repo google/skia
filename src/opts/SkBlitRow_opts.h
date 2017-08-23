@@ -76,7 +76,7 @@ static inline uint8x8_t SkPMSrcOver_neon2(uint8x8_t dst, uint8x8_t src) {
 
 #endif
 
-static inline
+/*not static*/ inline
 void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU alpha) {
     SkASSERT(alpha == 0xFF);
     sk_msan_assert_initialized(src, src+len);

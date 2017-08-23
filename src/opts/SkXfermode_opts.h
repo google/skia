@@ -267,7 +267,7 @@ private:
 
 namespace SK_OPTS_NS {
 
-static SkXfermode* create_xfermode(SkBlendMode mode) {
+/*not static*/ inline SkXfermode* create_xfermode(SkBlendMode mode) {
     switch (mode) {
 #define CASE(Xfermode) \
     case SkBlendMode::k##Xfermode: return new Sk4pxXfermode<Xfermode>()
