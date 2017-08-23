@@ -289,7 +289,7 @@ private:
         SkPath::Verb verb;
 
         SkPoint pts[4];
-        while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kLine_Verb:
                     linePointCount += 1;
@@ -508,7 +508,7 @@ private:
 
             bool done = false;
             while (!done) {
-                SkPath::Verb verb = iter.next(pts, false);
+                SkPath::Verb verb = iter.next(pts);
                 switch (verb) {
                     case SkPath::kMove_Verb:
                         if (!first) {
