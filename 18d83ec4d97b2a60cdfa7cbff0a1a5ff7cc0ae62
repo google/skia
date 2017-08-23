@@ -22,6 +22,30 @@
       "revId": "18d83ec4d97b2a60cdfa7cbff0a1a5ff7cc0ae62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6a33e52_39c3a633",
+        "filename": "src/jumper/SkJumper_stages_8bit.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-23T15:53:14Z",
+      "side": 1,
+      "message": "\u003e div... it\u0027s slow and serial.\n\nugh\n\n\u003e Even legacy uses floats to do these two modes.  I don\u0027t think you wanna try this in 8-bit.\n\nAck",
+      "parentUuid": "a5f26d0a_2ff43880",
+      "range": {
+        "startLine": 454,
+        "startChar": 64,
+        "endLine": 454,
+        "endChar": 65
+      },
+      "revId": "18d83ec4d97b2a60cdfa7cbff0a1a5ff7cc0ae62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
