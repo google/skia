@@ -2220,7 +2220,7 @@ void SkPath::dumpHex() const {
 }
 
 
-bool SkPath::isValid() const {
+bool SkPath::isValidImpl() const {
     if ((fFillType & ~3) != 0) {
         return false;
     }

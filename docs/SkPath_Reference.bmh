@@ -5225,24 +5225,26 @@ empty genID = 1
 
 # ------------------------------------------------------------------------------
 
+#Method bool isValid() const
+
+    Returns if Path data is consistent. Corrupt Path data is detected if
+    internal values are out of range or internal storage does not match
+    array dimensions.
+
+    #Return  true if Path data is consistent ##
+
+    #NoExample
+    ##
+
+##
+
 #Method void validate() const
 
-Debugging check to see if Path data is consistent.
-Not currently maintained.
+    Asserts if Path data is inconsistent.
+    Debugging check intended for internal use only.
 
-#NoExample
-##
-
-##
-
-# ------------------------------------------------------------------------------
-
-#Method void experimentalValidateRef() const
-
-#Private
-Debugging check to see if Path data is consistent.
-Not ready for public use.
-##
+    #NoExample
+    ##
 
 ##
 
