@@ -1168,6 +1168,9 @@ void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
             if (coincident(prev->fPoint, v->fPoint)) {
                 LOG("vertex %g,%g coincident; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
+            } else if (!v->fPoint.isFinite()) {
+                LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
+                contour->remove(v);
             }
             prev = v;
             v = next;
