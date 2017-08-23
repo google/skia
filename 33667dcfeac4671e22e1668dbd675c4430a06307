@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4950f016_aee48fc7",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 1418,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2017-08-23T16:22:12Z",
+      "side": 1,
+      "message": "I don\u0027t think bitmap locking is a thing anymore.",
+      "range": {
+        "startLine": 1418,
+        "startChar": 31,
+        "endLine": 1418,
+        "endChar": 41
+      },
+      "revId": "33667dcfeac4671e22e1668dbd675c4430a06307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
