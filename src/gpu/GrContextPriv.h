@@ -159,6 +159,8 @@ public:
 
     GrBackend getBackend() const { return fContext->fBackend; }
 
+    SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
+
 private:
     explicit GrContextPriv(GrContext* context) : fContext(context) {}
     GrContextPriv(const GrContextPriv&); // unimpl
