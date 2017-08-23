@@ -41,6 +41,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkChecksum_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
@@ -83,6 +84,8 @@ namespace SkOpts {
     DEFINE_DEFAULT(memset64);
 
     DEFINE_DEFAULT(hash_fn);
+
+    DEFINE_DEFAULT(raster_pipeline_stages);
 
 #undef DEFINE_DEFAULT
 

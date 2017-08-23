@@ -11,6 +11,7 @@
 #include "SkRasterPipeline.h"
 #include "SkTypes.h"
 #include "SkXfermodePriv.h"
+#include <array>
 
 struct ProcCoeff;
 
@@ -57,6 +58,10 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
+
+#define M(st) +1
+    extern std::array<void(*)(), SK_RASTER_PIPELINE_STAGES(M)> raster_pipeline_stages;
+#undef M
 }
 
 #endif//SkOpts_DEFINED
