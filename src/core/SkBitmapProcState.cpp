@@ -79,11 +79,7 @@ static bool valid_for_filtering(unsigned dimension) {
 }
 
 bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
-#ifdef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
-    SkASSERT(!inv.hasPerspective());
-#else
     SkASSERT(inv.isScaleTranslate());
-#endif
 
     fPixmap.reset();
     fInvMatrix = inv;
@@ -547,34 +543,6 @@ static void check_scale_filter(uint32_t bitmapXY[], int count,
     }
 }
 
-static void check_affine_nofilter(uint32_t bitmapXY[], int count,
-                                 unsigned mx, unsigned my) {
-    for (int i = 0; i < count; ++i) {
-        uint32_t XY = bitmapXY[i];
-        unsigned x = XY & 0xFFFF;
-        unsigned y = XY >> 16;
-        SkASSERT(x < mx);
-        SkASSERT(y < my);
-    }
-}
-
-static void check_affine_filter(uint32_t bitmapXY[], int count,
-                                 unsigned mx, unsigned my) {
-    for (int i = 0; i < count; ++i) {
-        uint32_t YY = *bitmapXY++;
-        unsigned y0 = YY >> 18;
-        unsigned y1 = YY & 0x3FFF;
-        SkASSERT(y0 < my);
-        SkASSERT(y1 < my);
-
-        uint32_t XX = *bitmapXY++;
-        unsigned x0 = XX >> 18;
-        unsigned x1 = XX & 0x3FFF;
-        SkASSERT(x0 < mx);
-        SkASSERT(x1 < mx);
-    }
-}
-
 void SkBitmapProcState::DebugMatrixProc(const SkBitmapProcState& state,
                                         uint32_t bitmapXY[], int count,
                                         int x, int y) {
@@ -585,16 +553,11 @@ void SkBitmapProcState::DebugMatrixProc(const SkBitmapProcState& state,
 
     void (*proc)(uint32_t bitmapXY[], int count, unsigned mx, unsigned my);
 
-    // There are four formats possible:
-    //  scale -vs- affine
+    // There are two formats possible:
     //  filter -vs- nofilter
-    if (state.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
-        proc = state.fFilterQuality != kNone_SkFilterQuality ?
-                    check_scale_filter : check_scale_nofilter;
-    } else {
-        proc = state.fFilterQuality != kNone_SkFilterQuality ?
-                    check_affine_filter : check_affine_nofilter;
-    }
+    SkASSERT(state.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
+    proc = state.fFilterQuality != kNone_SkFilterQuality ?
+                check_scale_filter : check_scale_nofilter;
     proc(bitmapXY, count, state.fPixmap.width(), state.fPixmap.height());
 }
 
