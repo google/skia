@@ -78,11 +78,9 @@ bool SkImageShader::IsRasterPipelineOnly(const SkMatrix& ctm, SkColorType ct, Sk
     if (!ctm.isScaleTranslate()) {
         return true;
     }
-#ifndef SK_SUPPORT_LEGACY_LOCAL_ROTATE_SHADER
     if (!localM.isScaleTranslate()) {
         return true;
     }
-#endif
     return false;
 }
 
