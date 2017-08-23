@@ -83,6 +83,8 @@ public:
         //!< different from the others and there must be one corner where
         //!< both radii are non-zero.
         kComplex_Type,
+
+        kLastType = kComplex_Type,
     };
 
     /**

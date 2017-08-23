@@ -524,6 +524,10 @@ bool SkRRect::isValid() const {
     }
     bool patchesOfNine = radii_are_nine_patch(fRadii);
 
+    if (fType > kLastType) {
+        return false;
+    }
+
     switch (fType) {
         case kEmpty_Type:
             if (!fRect.isEmpty() || !allRadiiZero || !allRadiiSame || !allCornersSquare) {
