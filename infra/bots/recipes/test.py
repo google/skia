@@ -368,6 +368,9 @@ def dm_flags(api, bot):
   if 'Win' in bot or 'Android' in bot:
     for test in ['verylargebitmap', 'verylarge_picture_image']:
       blacklist(['serialize-8888', 'gm', '_', test])
+  if 'Mac' in bot and 'CPU' in bot and 'Release' in bot:
+    # skia:6992
+    blacklist(['serialize-8888', 'gm', '_', 'encode-platform'])
 
   # skia:4769
   for test in ['drawfilter']:
@@ -831,7 +834,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-PixelC-CPU-TegraX1-arm64-Debug-Android',
   'Test-ChromeOS-Clang-Chromebook_C100p-GPU-MaliT764-arm-Debug',
   'Test-ChromeOS-Clang-Chromebook_CB5_312T-GPU-PowerVRGX6250-arm-Debug',
-  'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Debug',
+  'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-CommandBuffer',
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-ASAN',
   'Test-Ubuntu-Clang-GCE-CPU-AVX2-x86_64-Debug-MSAN',
