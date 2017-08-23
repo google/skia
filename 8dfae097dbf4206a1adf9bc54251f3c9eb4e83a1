@@ -187,6 +187,30 @@
       "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dd17809_cceab167",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-23T20:23:00Z",
+      "side": 1,
+      "message": "PTAL. It should be switched over to R16G16_UINT.",
+      "parentUuid": "5cb7e68f_ff5b367d",
+      "range": {
+        "startLine": 38,
+        "startChar": 12,
+        "endLine": 40,
+        "endChar": 47
+      },
+      "revId": "8dfae097dbf4206a1adf9bc54251f3c9eb4e83a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
