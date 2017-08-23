@@ -41,6 +41,7 @@
 #include "SkBlurImageFilter_opts.h"
 #include "SkChecksum_opts.h"
 #include "SkMorphologyImageFilter_opts.h"
+#include "SkRasterPipeline_opts.h"
 #include "SkSwizzler_opts.h"
 #include "SkUtils_opts.h"
 #include "SkXfermode_opts.h"
@@ -85,6 +86,21 @@ namespace SkOpts {
     DEFINE_DEFAULT(hash_fn);
 
 #undef DEFINE_DEFAULT
+
+#if 0
+    Thunk raster_pipeline_stages[] = {
+#define M(st) SK_OPTS_NS::st,
+        SK_RASTER_PIPELINE_STAGES(M)
+#undef M
+    };
+#else
+    #define M(st) +1
+    Thunk raster_pipeline_stages[SK_RASTER_PIPELINE_STAGES(M)] = {
+        (Thunk)SK_OPTS_NS::foo,
+        (Thunk)SK_OPTS_NS::bar,
+        nullptr,
+    };
+#endif
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_ssse3();

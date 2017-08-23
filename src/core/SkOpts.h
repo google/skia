@@ -57,6 +57,11 @@ namespace SkOpts {
     static inline uint32_t hash(const void* data, size_t bytes, uint32_t seed=0) {
         return hash_fn(data, bytes, seed);
     }
+
+#define M(st) +1
+    using Thunk = void(*)(void);
+    extern Thunk raster_pipeline_stages[SK_RASTER_PIPELINE_STAGES(M)];
+#undef M
 }
 
 #endif//SkOpts_DEFINED

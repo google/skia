@@ -13,6 +13,7 @@
 #endif
 
 #define SK_OPTS_NS avx
+#include "SkRasterPipeline_opts.h"
 #include "SkUtils_opts.h"
 
 namespace SkOpts {
@@ -20,5 +21,8 @@ namespace SkOpts {
         memset16 = SK_OPTS_NS::memset16;
         memset32 = SK_OPTS_NS::memset32;
         memset64 = SK_OPTS_NS::memset64;
+
+        memcpy(raster_pipeline_stages, SK_OPTS_NS::raster_pipeline_stages,
+               sizeof(raster_pipeline_stages));
     }
 }
