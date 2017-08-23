@@ -15,15 +15,16 @@
 #include "GrTracing.h"
 
 std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig config,
-                                                   int width, int height,
-                                                   int numPlotsX, int numPlotsY,
+                                                   int plotWidth, int plotHeight,
+                                                   int startNumPlotsX, int startNumPlotsY,
+                                                   int maxNumPlotsX, int maxNumPlotsY,
                                                    GrDrawOpAtlas::EvictionFunc func,
                                                    void* data) {
     GrSurfaceDesc desc;
     desc.fFlags = kNone_GrSurfaceFlags;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    desc.fWidth = width;
-    desc.fHeight = height;
+    desc.fWidth = startNumPlotsX * plotWidth;
+    desc.fHeight = startNumPlotsY * plotHeight;
     desc.fConfig = config;
 
     // We don't want to flush the context so we claim we're in the middle of flushing so as to
@@ -46,8 +47,10 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
         return nullptr;
     }
 
-    std::unique_ptr<GrDrawOpAtlas> atlas(
-            new GrDrawOpAtlas(ctx, std::move(proxy), numPlotsX, numPlotsY));
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(ctx, std::move(proxy),
+                                                           plotWidth, plotHeight,
+                                                           startNumPlotsX, startNumPlotsY,
+                                                           maxNumPlotsX, maxNumPlotsY));
     atlas->registerEvictionCallback(func, data);
     return atlas;
 }
@@ -56,7 +59,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrContext* ctx, GrPixelConfig
 ////////////////////////////////////////////////////////////////////////////////
 
 GrDrawOpAtlas::Plot::Plot(int index, uint64_t genID, int offX, int offY, int width, int height,
-                          GrPixelConfig config)
+                          GrPixelConfig config, bool active)
         : fLastUpload(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fLastUse(GrDrawOpUploadToken::AlreadyFlushedToken())
         , fIndex(index)
@@ -71,6 +74,7 @@ GrDrawOpAtlas::Plot::Plot(int index, uint64_t genID, int offX, int offY, int wid
         , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
         , fConfig(config)
         , fBytesPerPixel(GrBytesPerPixel(config))
+        , fActive(active)
 #ifdef SK_DEBUG
         , fDirty(false)
 #endif
@@ -163,30 +167,39 @@ void GrDrawOpAtlas::Plot::resetRects() {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDrawOpAtlas::GrDrawOpAtlas(GrContext* context, sk_sp<GrTextureProxy> proxy,
-                             int numPlotsX, int numPlotsY)
+                             int plotWidth, int plotHeight,
+                             int startNumPlotsX, int startNumPlotsY,
+                             int maxNumPlotsX, int maxNumPlotsY)
         : fContext(context)
         , fProxy(std::move(proxy))
+        , fPlotWidth(plotWidth)
+        , fPlotHeight(plotHeight)
         , fAtlasGeneration(kInvalidAtlasGeneration + 1) {
-    fPlotWidth = fProxy->width() / numPlotsX;
-    fPlotHeight = fProxy->height() / numPlotsY;
-    SkASSERT(numPlotsX * numPlotsY <= BulkUseTokenUpdater::kMaxPlots);
-    SkASSERT(fPlotWidth * numPlotsX == fProxy->width());
-    SkASSERT(fPlotHeight * numPlotsY == fProxy->height());
+    SkASSERT(startNumPlotsX * startNumPlotsY <= BulkUseTokenUpdater::kMaxPlots);
+    SkASSERT(maxNumPlotsX * maxNumPlotsY <= BulkUseTokenUpdater::kMaxPlots);
+    SkASSERT(fPlotWidth * startNumPlotsX == fProxy->width());
+    SkASSERT(fPlotHeight * startNumPlotsY == fProxy->height());
 
-    SkDEBUGCODE(fNumPlots = numPlotsX * numPlotsY;)
+    SkDEBUGCODE(fMaxNumPlotsX = maxNumPlotsX;)
+    fActiveNumPlots = startNumPlotsX * startNumPlotsY;
+    fMaxNumPlots = maxNumPlotsX * maxNumPlotsY;
 
-    // set up allocated plots
-    fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
+    // Allocate the maximum number of plots but only have the starter set be active. This
+    // lets us keep the indices of the plots constant.
+    fPlotArray.reset(new sk_sp<Plot>[ maxNumPlotsX * maxNumPlotsY ]);
 
     sk_sp<Plot>* currPlot = fPlotArray.get();
-    for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
-        for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
-            uint32_t index = r * numPlotsX + c;
+    for (int y = 0; y < maxNumPlotsY; ++y) {
+        for (int x = 0; x < maxNumPlotsX; ++x) {
+            uint32_t index = y * maxNumPlotsX + x;
+            bool active =  x < startNumPlotsX && y < startNumPlotsY;
             currPlot->reset(
-                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fProxy->config()));
+                    new Plot(index, 1, x, y, fPlotWidth, fPlotHeight, fProxy->config(), active));
 
-            // build LRU list
-            fPlotList.addToHead(currPlot->get());
+            // Only active plots are in the LRU list
+            if (active) {
+                fActivePlotList.addToHead(currPlot->get());
+            }
             ++currPlot;
         }
     }
@@ -237,7 +250,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 
     // now look through all allocated plots for one we can share, in Most Recently Refed order
     PlotList::Iter plotIter;
-    plotIter.init(fPlotList, PlotList::Iter::kHead_IterStart);
+    plotIter.init(fActivePlotList, PlotList::Iter::kHead_IterStart);
     Plot* plot;
     while ((plot = plotIter.get())) {
         SkASSERT(GrBytesPerPixel(fProxy->config()) == plot->bpp());
@@ -249,7 +262,7 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
 
     // If the above fails, then see if the least recently refed plot has already been flushed to the
     // gpu
-    plot = fPlotList.tail();
+    plot = fActivePlotList.tail();
     SkASSERT(plot);
     if (target->hasDrawBeenFlushed(plot->lastUseToken())) {
         this->processEviction(plot->id());
@@ -275,11 +288,11 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     }
 
     this->processEviction(plot->id());
-    fPlotList.remove(plot);
+    fActivePlotList.remove(plot);
     sk_sp<Plot>& newPlot = fPlotArray[plot->index()];
     newPlot.reset(plot->clone());
 
-    fPlotList.addToHead(newPlot.get());
+    fActivePlotList.addToHead(newPlot.get());
     SkASSERT(GrBytesPerPixel(fProxy->config()) == newPlot->bpp());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
@@ -307,3 +320,52 @@ bool GrDrawOpAtlas::addToAtlas(AtlasID* id, GrDrawOp::Target* target, int width,
     fAtlasGeneration++;
     return true;
 }
+
+bool GrDrawOpAtlas::enbiggen() {
+    SkDEBUGCODE(this->validate());
+
+    SkDEBUGCODE(this->validate());
+    return true;
+}
+
+bool GrDrawOpAtlas::ensmallen() {
+    SkDEBUGCODE(this->validate());
+
+    SkDEBUGCODE(this->validate());
+    return true;
+}
+
+#ifdef SK_DEBUG
+void GrDrawOpAtlas::validate() const {
+    SkASSERT(fActiveNumPlots <= fMaxNumPlots);
+
+    for (int i = 0; i < fMaxNumPlots; ++i) {
+        Plot* plot = fPlotArray[i].get();
+
+        SkASSERT(i == plot->fIndex);
+        SkASSERT(fPlotWidth == plot->fWidth);
+        SkASSERT(fPlotHeight == plot->fHeight);
+        SkASSERT(i == plot->fY * fMaxNumPlotsX + plot->fX);
+        SkASSERT(plot->fOffset.fX ==plot->fX * fPlotWidth);
+        SkASSERT(plot->fOffset.fY == plot->fY * fPlotHeight);
+        SkASSERT(fProxy->config() == plot->fConfig);
+
+        if (plot->fActive) {
+            SkASSERT(fActivePlotList.isInList(plot));
+        } else {
+            SkASSERT(!fActivePlotList.isInList(plot));
+        }
+
+    }
+
+    SkASSERT(fActiveNumPlots == fActivePlotList.countEntries());
+
+    PlotList::Iter iter;
+    iter.init(fActivePlotList, PlotList::Iter::kHead_IterStart);
+    for (Plot* cur = iter.get(); cur; cur = iter.next()) {
+        SkASSERT(cur->fActive);
+    }
+
+}
+#endif
+

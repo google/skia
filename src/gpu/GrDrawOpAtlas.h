@@ -17,14 +17,25 @@
 class GrRectanizer;
 
 struct GrDrawOpAtlasConfig {
-    int numPlotsX() const { return fWidth / fPlotWidth; }
-    int numPlotsY() const { return fHeight / fPlotWidth; }
-    int fWidth;
-    int fHeight;
-    int fLog2Width;
-    int fLog2Height;
+    void init(int plotWidth, int plotHeight,
+              int startWidth, int startHeight,
+              int maxWidth, int maxHeight) {
+        fPlotWidth = plotWidth;
+        fPlotHeight = plotHeight;
+
+        fStartNumPlotsX = startWidth / fPlotWidth;
+        fStartNumPlotsY = startHeight / fPlotHeight;
+
+        fMaxNumPlotsX = maxWidth / fPlotWidth;
+        fMaxNumPlotsY = maxHeight / fPlotHeight;
+    }
+
     int fPlotWidth;
     int fPlotHeight;
+    int fStartNumPlotsX;
+    int fStartNumPlotsY;
+    int fMaxNumPlotsX;
+    int fMaxNumPlotsY;
 };
 
 /**
@@ -58,21 +69,26 @@ public:
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
      * should only be used inside of GrMeshDrawOp::onPrepareDraws.
      *  @param GrPixelConfig    The pixel config which this atlas will store
-     *  @param width            width in pixels of the atlas
-     *  @param height           height in pixels of the atlas
-     *  @param numPlotsX        The number of plots the atlas should be broken up into in the X
-     *                          direction
-     *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
-     *                          direction
+     *  @param plotWidth        width in pixels of a plot in the atlas
+     *  @param plotHeight       height in pixels of a plot in the atlas
+     *  @param startNumPlotsX   The number of plots the atlas should be broken up into in the X
+     *                          direction to start with
+     *  @param startNumPlotsY   The number of plots the atlas should be broken up into in the Y
+     *                          direction to start with
+     *  @param maxNumPlotsX     The maximum number of plots the atlas should be broken up into
+     *                          in the X direction
+     *  @param maxNumPlotsY     The maximum number of plots the atlas should be broken up into
+     *                          in the Y direction
      *  @param func             An eviction function which will be called whenever the atlas has to
      *                          evict data
-     *  @param data             User supplied data which will be passed into func whenver an
+     *  @param data             User supplied data which will be passed into func whenever an
      *                          eviction occurs
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
     static std::unique_ptr<GrDrawOpAtlas> Make(GrContext*, GrPixelConfig,
-                                               int width, int height,
-                                               int numPlotsX, int numPlotsY,
+                                               int plotWidth, int plotHeight,
+                                               int startNumPlotsX, int startNumPlotsY,
+                                               int maxNumPlotsX, int maxNumPlotsY,
                                                GrDrawOpAtlas::EvictionFunc func, void* data);
 
     /**
@@ -97,7 +113,7 @@ public:
 
     inline bool hasID(AtlasID id) {
         uint32_t index = GetIndexFromID(id);
-        SkASSERT(index < fNumPlots);
+        SkASSERT((int)index < fMaxNumPlots);
         return fPlotArray[index]->genID() == GetGenerationFromID(id);
     }
 
@@ -105,7 +121,7 @@ public:
     inline void setLastUseToken(AtlasID id, GrDrawOpUploadToken token) {
         SkASSERT(this->hasID(id));
         uint32_t index = GetIndexFromID(id);
-        SkASSERT(index < fNumPlots);
+        SkASSERT((int)index < fActiveNumPlots);
         this->makeMRU(fPlotArray[index].get());
         fPlotArray[index]->setLastUseToken(token);
     }
@@ -175,8 +191,13 @@ public:
         return width > kGlyphMaxDim || height > kGlyphMaxDim;
     }
 
+    // True on success; false on failure
+    bool enbiggen();
+    bool ensmallen();
+
 private:
-    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int numPlotsX, int numPlotsY);
+    GrDrawOpAtlas(GrContext*, sk_sp<GrTextureProxy>, int plotWidth, int plotHeight,
+                  int startNumPlotsX, int startNumPlotsY, int maxNumPlotsX, int maxNumPlotsY);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -221,7 +242,7 @@ private:
 
     private:
         Plot(int index, uint64_t genID, int offX, int offY, int width, int height,
-             GrPixelConfig config);
+             GrPixelConfig config, bool active);
 
         ~Plot() override;
 
@@ -230,7 +251,7 @@ private:
          * the atlas
          */
         Plot* clone() const {
-            return new Plot(fIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig);
+            return new Plot(fIndex, fGenID + 1, fX, fY, fWidth, fHeight, fConfig, fActive);
         }
 
         static GrDrawOpAtlas::AtlasID CreateId(uint32_t index, uint64_t generation) {
@@ -254,6 +275,7 @@ private:
         const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
         const GrPixelConfig fConfig;
         const size_t fBytesPerPixel;
+        bool fActive;              // Is this plot in use? Is it in the LRU list?
         SkIRect fDirtyRect;
         SkDEBUGCODE(bool fDirty);
 
@@ -276,21 +298,26 @@ private:
     inline bool updatePlot(GrDrawOp::Target*, AtlasID*, Plot*);
 
     inline void makeMRU(Plot* plot) {
-        if (fPlotList.head() == plot) {
+        if (fActivePlotList.head() == plot) {
             return;
         }
 
-        fPlotList.remove(plot);
-        fPlotList.addToHead(plot);
+        fActivePlotList.remove(plot);
+        fActivePlotList.addToHead(plot);
     }
 
     inline void processEviction(AtlasID);
+
+    SkDEBUGCODE(void validate() const;)
 
     GrContext*            fContext;
     sk_sp<GrTextureProxy> fProxy;
     int                   fPlotWidth;
     int                   fPlotHeight;
-    SkDEBUGCODE(uint32_t  fNumPlots;)
+    int                   fActiveNumPlots;
+    int                   fMaxNumPlots;
+
+    SkDEBUGCODE(int       fMaxNumPlotsX);
 
     uint64_t              fAtlasGeneration;
 
@@ -303,7 +330,7 @@ private:
     // allocated array of Plots
     std::unique_ptr<sk_sp<Plot>[]> fPlotArray;
     // LRU list of Plots (MRU at head - LRU at tail)
-    PlotList fPlotList;
+    PlotList fActivePlotList;
 };
 
 #endif
