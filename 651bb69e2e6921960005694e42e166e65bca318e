@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67f11497_640e5ba6",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-23T16:17:19Z",
+      "side": 1,
+      "message": "This is fine for now (since it is better than no support), but can we add a TODO to change this to a single buffer to buffer copy when size \u003e 65536",
+      "range": {
+        "startLine": 651,
+        "startChar": 4,
+        "endLine": 651,
+        "endChar": 26
+      },
+      "revId": "651bb69e2e6921960005694e42e166e65bca318e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14164389_fa98956d",
+        "filename": "src/gpu/vk/GrVkCommandBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-23T16:17:19Z",
+      "side": 1,
+      "message": "just for safety (and probably should have been there from start) can we an assert that offset+size \u003c buffer.size()",
+      "range": {
+        "startLine": 653,
+        "startChar": 7,
+        "endLine": 653,
+        "endChar": 66
+      },
+      "revId": "651bb69e2e6921960005694e42e166e65bca318e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
