@@ -182,17 +182,18 @@ info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
 pixels is not nullptr;
 rowBytes is zero or large enough to contain info width pixels of Image_Color_Type.
 
-pixel buffer size should be info height times rowBytes times bytes required for
-Image_Color_Type.
+Pass zero for rowBytes to compute rowBytes from info width and size of pixel. 
+If rowBytes is greater than zero, it must be equal to or greater than
+info width times bytes required for Image_Color_Type.
+
+Pixel buffer size should be info height times computed rowBytes.
 
 #Param info  width, height, Image_Color_Type, Image_Alpha_Type, Color_Space, of Raster_Surface;
              width, or height, or both, may be zero
 ##
-#Param pixels  pointer to destination pixels buffer; buffer size should be height
-               times rowBytes times four
+#Param pixels  pointer to destination pixels buffer
 ##
-#Param rowBytes  interval from one Surface row to the next; equal to or greater than
-                 info width times bytes required for Image_Color_Type
+#Param rowBytes  interval from one Surface row to the next, or zero
 ##
 
 #Return  Canvas if all parameters are valid; otherwise, nullptr ##
@@ -249,21 +250,22 @@ To access pixels after drawing, call flush() or peekPixels.
 
 Canvas is returned if all parameters are valid.
 Valid parameters include:
-info dimensions are zero or positive;
-info contains Image_Color_Type and Image_Alpha_Type supported by Raster_Surface;
+width and height are zero or positive;
 pixels is not nullptr;
-rowBytes is zero or large enough to contain width pixels of Image_Color_Type.
+rowBytes is zero or large enough to contain width pixels of kN32_SkColorType.
 
-pixel buffer size should be info height times rowBytes times bytes required for
-Image_Color_Type.
+Pass zero for rowBytes to compute rowBytes from fo width and size of pixel. 
+If rowBytes is greater than zero, it must be equal to or greater than
+width times bytes required for Image_Color_Type.
+
+Pixel buffer size should be height times rowBytes.
 
 #Param width  pixel column count on Raster_Surface created; must be zero or greater ##
 #Param height  pixel row count on Raster_Surface created.; must be zero or greater ##
 #Param pixels  pointer to destination pixels buffer; buffer size should be height
-               times rowBytes times four
+               times rowBytes
 ##
-#Param rowBytes  interval from one Surface row to the next; equal to or greater than
-                 width times four
+#Param rowBytes  interval from one Surface row to the next, or zero
 ##
 
 #Return  Canvas if all parameters are valid; otherwise, nullptr ##
@@ -312,8 +314,8 @@ void draw(SkCanvas* ) {
 
 #Method SkCanvas()
 
-Creates an empty canvas with no backing device/pixels, and zero
-dimensions.
+Creates an empty canvas with no backing device or pixels, with 
+a width and height of zero.
 
 #Return  empty canvas ##
 
@@ -612,7 +614,7 @@ void draw(SkCanvas* canvas) {
 
 #Method SkMetaData& getMetaData()
 
-Associates additional data with the canvas.
+Returns storage to associate additional data with the canvas.
 The storage is freed when Canvas is deleted.
 
 #Return  storage that can be read from and written to ##
@@ -944,12 +946,12 @@ the drawing destination.
 
 Returns true if Canvas has direct access to its pixels.
 
-Pixels are readable when Device is raster. Pixels are not readable when SkCanvas
+Pixels are readable when Device is raster. Pixels are not readable when Canvas
 is returned from GPU_Surface, returned by SkDocument::beginPage, returned by
-SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility class
+SkPictureRecorder::beginRecording, or Canvas is the base of a utility class
 like SkDumpCanvas.
 
-pixmap pixel address is only valid while Canvas is in scope and unchanged. Any
+pixmap is valid only while Canvas is in scope and unchanged. Any
 Canvas or Surface call may invalidate the pixmap values.
 
 #Param pixmap  storage for Canvas pixel state if Canvas pixels are readable;
@@ -975,52 +977,60 @@ Canvas or Surface call may invalidate the pixmap values.
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY)
 
-Copies rectangle of pixels from Canvas into dstPixels, converting their
-Image_Color_Type and Image_Alpha_Type. Pixels are readable when Device is
-raster. Pixels are not readable when SkCanvas is returned from GPU_Surface,
-returned by SkDocument::beginPage, returned by SkPictureRecorder::beginRecording,
-or SkCanvas is the base of a utility class like SkDumpCanvas.
+Copies rectangle of pixels from Canvas into dstPixels. Source rectangle starts at
+(srcX, srcY) and ends at (this->imageInfo.width(), this->imageInfo.height()).
+Destination rectangle starts at (0, 0) and ends at (dstInfo.width(), dstInfo.height()).
+Copies each readable pixel intersecting both rectangles, converting to
+dstInfo.colorType() and dstInfo.alphaType() as needed.
 
-Pixel values are converted only if Canvas Image_Color_Type and Image_Alpha_Type
-does not match dstInfo. Only pixels within the rectangle that intersect Canvas
-pixels are copied. dstPixels outside the rectangle intersection are unchanged.
+Pixels are readable when Device is raster, or backed by a GPU.
+Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
+returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
+class like SkDumpCanvas.
 
-#Table
-#Legend
-# source rectangle # value ##
-##
-# left # srcX ##
-# top # srcY ##
-# width # dstInfo.width() ##
-# height # dstInfo.height() ##
-##
+The destination pixel storage must be allocated by the caller.
 
- #Table
-#Legend
-# canvas pixel bounds # value ##
-##
-# left # 0 ##
-# top # 0 ##
-# width # imageInfo().width() ##
-# height # imageInfo().height() ##
-##
+Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+do not match. Only pixels within both source and destination rectangles
+are copied. dstPixels contents outside the rectangle intersection are unchanged.
+
+Pass negative values for srcX or srcY to offset pixels across or down destination.
 
 Does not copy, and returns false if:
 
 #List
-# Source rectangle and canvas pixel bounds do not intersect. ##
-# Canvas pixels could not be converted to dstInfo Image_Color_Type or dstInfo Image_Alpha_Type. ##
-# Canvas pixels are not readable; for instance, Canvas is not raster, or is document-based. ##
+# Source and destination rectangles do not intersect. ##
+# Canvas pixels could not be converted to dstInfo.colorType() or dstInfo.alphaType(). ##
+# Canvas pixels are not readable; for instance, Canvas is document-based. ##
 # dstRowBytes is too small to contain one row of pixels. ##
 ##
 
 #Param dstInfo  dimensions, Image_Color_Type, and Image_Alpha_Type of dstPixels ##
-#Param dstPixels  storage for pixels, of size dstInfo.height() times dstRowBytes ##
-#Param dstRowBytes  size of one destination row, dstInfo.width() times pixel size ##
+#Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
+#Param dstRowBytes  size of one destination row; dstInfo.width() times pixel size, or larger ##
 #Param srcX  offset into readable pixels in x ##
 #Param srcY  offset into readable pixels in y ##
 
 #Return  true if pixels were copied ##
+
+#Example
+#Description
+    readPixels copies one quarter of the canvas into each of the four corners.
+##
+    canvas->clear(SK_ColorBLUE);
+    SkPaint paint;
+    canvas->drawCircle(32, 32, 28, paint);
+    SkImageInfo info = SkImageInfo::Make(64, 64, kBGRA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkData> data(SkData::MakeUninitialized(info.minRowBytes() * info.height()));
+    sk_bzero(data->writable_data(), info.minRowBytes() * info.height());
+    for (int x : { 32, -32 } ) {
+        for (int y : { 32, -32 } ) {
+            canvas->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);
+        } 
+    }
+    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());
+    canvas->drawImage(image, 0, 0);
+##
 
 #Example
 #Description
@@ -1053,45 +1063,33 @@ Does not copy, and returns false if:
 
 #Method bool readPixels(const SkPixmap& pixmap, int srcX, int srcY)
 
-Copies rectangle of pixels from Canvas into Pixmap, converting their
-Image_Color_Type and Image_Alpha_Type. Pixels are readable when Device is raster.
-Pixels are not readable when SkCanvas is returned from GPU_Surface, returned by
-SkDocument::beginPage, returned by SkPictureRecorder::beginRecording,
-or SkCanvas is the base of a utility class like SkDumpCanvas.
+Copies rectangle of pixels from Canvas into pixmap. Source rectangle starts at
+(srcX, srcY) and ends at (this->imageInfo.width(), this->imageInfo.height()).
+Destination rectangle starts at (0, 0) and ends at (pixmap.width(), pixmap.height()).
+Copies each readable pixel intersecting both rectangles, converting to
+pixmap.colorType() and pixmap.alphaType() as needed.
 
-Pixel values are converted only if Canvas Image_Color_Type and Image_Alpha_Type
-does not match bitmap Image_Info. Only Pixmap pixels within the rectangle that
-intersect Canvas pixels are copied. Pixmap pixels outside the rectangle
-intersection are unchanged.
+Pixels are readable when Device is raster, or backed by a GPU.
+Pixels are not readable when SkCanvas is returned by SkDocument::beginPage,
+returned by SkPictureRecorder::beginRecording, or Canvas is the base of a utility
+class like SkDumpCanvas.
 
-#Table
-#Legend
-# source rectangle # value ##
-##
-# left # srcX ##
-# top # srcY ##
-# width # bitmap.width() ##
-# height # bitmap.height() ##
-##
+Allocates pixel storage in pixmap if needed.
 
- #Table
-#Legend
-# canvas pixel bounds # value ##
-##
-# left # 0 ##
-# top # 0 ##
-# width # imageInfo().width() ##
-# height # imageInfo().height() ##
-##
+Pixel values are converted only if Image_Color_Type and Image_Alpha_Type
+do not match. Only pixels within both source and destination rectangles
+are copied. dstPixels contents outside the rectangle intersection are unchanged.
+
+Pass negative values for srcX or srcY to offset pixels across or down destination.
 
 Does not copy, and returns false if:
 
 #List
-# Source rectangle and canvas pixel bounds do not intersect. ##
-# Canvas pixels could not be converted to bitmap Image_Color_Type or bitmap Image_Alpha_Type. ##
-# Canvas pixels are not readable; for instance, Canvas is not raster, or is document-based. ##
-# bitmap pixels could not be allocated. ##
-# Bitmap_Row_Bytes is too small to contain one row of pixels. ##
+# Source and destination rectangles do not intersect. ##
+# Canvas pixels could not be converted to pixmap.colorType() or pixmap.alphaType(). ##
+# Canvas pixels are not readable; for instance, Canvas is document-based. ##
+# Pixmap pixels could not be allocated. ##
+# pixmap.rowBytes() is too small to contain one row of pixels. ##
 ##
 
 #Param pixmap  storage for pixels copied from Canvas ##
@@ -1121,17 +1119,21 @@ void draw(SkCanvas* canvas) {
 
 #Method bool readPixels(const SkBitmap& bitmap, int srcX, int srcY)
 
-Copies pixels enclosed by bitmap offset to (x, y) from Canvas into bitmap,
-converting their Image_Color_Type and Image_Alpha_Type.
-Pixels are readable when Device is raster. Pixels are not readable when SkCanvas
-is returned from GPU_Surface, returned by SkDocument::beginPage, returned by
-SkPictureRecorder::beginRecording, or SkCanvas is the base of a utility class
-like SkDumpCanvas. Allocates pixel storage in bitmap if needed.
+Copies rectangle of pixels from Canvas into bitmap at (srcX, srcY), converting
+Image_Color_Type and Image_Alpha_Typeif required. Pixels are readable when Device is
+raster, or backed by a GPU. Pixels are not readable when SkCanvas is
+returned by SkDocument::beginPage, returned by SkPictureRecorder::beginRecording,
+or SkCanvas is the base of a utility class like SkDumpCanvas.
 
-Pixel values are converted only if Canvas Image_Color_Type and Image_Alpha_Type
-does not match bitmap Image_Info. Only pixels within the rectangle that intersect
-Canvas pixels are copied. Bitamp pixels outside the rectangle intersection are
-unchanged.
+Allocates pixel storage in bitmap if needed.
+
+Bitmap values are converted only if Canvas Image_Color_Type and Image_Alpha_Type
+does not match bitmap Image_Info. Only Bitmap pixels within the rectangle that
+intersect Canvas pixels are altered. Bitmap pixels outside the rectangle
+intersection are unchanged.
+
+The intersection rectangle is bounded by (srcX, srcY), and
+(bitmap.width(), bitmap.height()).
 
 #Table
 #Legend
@@ -1139,16 +1141,16 @@ unchanged.
 ##
 # left # 0 ##
 # top # 0 ##
-# width # imageInfo().width() ##
-# height # imageInfo().height() ##
+# width # canvas->imageInfo().width() ##
+# height # canvas->imageInfo().height() ##
 ##
 
 Does not copy, and returns false if:
 
 #List
-# Bounds formed by (x, y) and bitmap (width, height) and canvas pixel bounds do not intersect. ##
+# bounds (srcX, srcY, bitmap.width(), bitmap.height()) and canvas bounds do not intersect. ##
 # Canvas pixels could not be converted to bitmap Image_Color_Type or bitmap Image_Alpha_Type. ##
-# Canvas pixels are not readable; for instance, Canvas is not raster, or is document-based. ##
+# Canvas pixels are not readable; for instance, Canvas is document-based. ##
 # bitmap pixels could not be allocated. ##
 # Bitmap_Row_Bytes is too small to contain one row of pixels. ##
 ##
