@@ -55,11 +55,6 @@ private:
     void maybe_clamp  (SkRasterPipeline*) const;
     void append_store (SkRasterPipeline*) const;
 
-    std::function<void(size_t, size_t, size_t, size_t)>
-    build_blit_pipeline(SkRasterPipeline::StockStage scaleStage,
-                        SkRasterPipeline::StockStage lerpStage,
-                        void* ctx) const;
-
     // If we have an burst context, use it to fill our shader buffer.
     void burst_shade(int x, int y, int w);
 
@@ -301,29 +296,6 @@ void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
     fShaderOutput = SkJumper_MemoryCtx{ fShaderBuffer.data() - x, 0 };
 }
 
-std::function<void(size_t, size_t, size_t, size_t)>
-SkRasterPipelineBlitter::build_blit_pipeline(SkRasterPipeline::StockStage scale,
-                                             SkRasterPipeline::StockStage lerp,
-                                             void* ctx) const {
-    SkRasterPipeline p(fAlloc);
-    p.extend(fColorPipeline);
-
-    const bool preScale = fBlend == SkBlendMode::kSrcOver;
-
-    if (preScale) {
-        p.append(scale, ctx);
-    }
-    this->append_load_d(&p);
-    this->append_blend(&p);
-    if (!preScale) {
-        p.append(lerp, ctx);
-    }
-    this->maybe_clamp(&p);
-    this->append_store(&p);
-
-    return p.compile();
-}
-
 void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
     this->blitRect(x,y,w,1);
 }
@@ -343,7 +315,6 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
     }
 
     if (!fBlitRect) {
-        // TODO: fold into build_blit_pipeline?
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         if (fBlend == SkBlendMode::kSrcOver
@@ -378,9 +349,20 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
 
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
     if (!fBlitAntiH) {
-        fBlitAntiH = this->build_blit_pipeline(SkRasterPipeline::scale_1_float,
-                                               SkRasterPipeline::lerp_1_float,
-                                               &fCurrentCoverage);
+        SkRasterPipeline p(fAlloc);
+        p.extend(fColorPipeline);
+        if (fBlend == SkBlendMode::kSrcOver) {
+            p.append(SkRasterPipeline::scale_1_float, &fCurrentCoverage);
+            this->append_load_d(&p);
+            this->append_blend(&p);
+        } else {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            p.append(SkRasterPipeline::lerp_1_float, &fCurrentCoverage);
+        }
+        this->maybe_clamp(&p);
+        this->append_store(&p);
+        fBlitAntiH = p.compile();
     }
 
     for (int16_t run = *runs; run > 0; run = *runs) {
@@ -421,12 +403,22 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
 
     // Lazily build whichever pipeline we need, specialized for each mask format.
     if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
-        fBlitMaskA8 = this->build_blit_pipeline(SkRasterPipeline::scale_u8,
-                                                SkRasterPipeline::lerp_u8,
-                                                &fMaskPtr);
+        SkRasterPipeline p(fAlloc);
+        p.extend(fColorPipeline);
+        if (fBlend == SkBlendMode::kSrcOver) {
+            p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
+            this->append_load_d(&p);
+            this->append_blend(&p);
+        } else {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
+        }
+        this->maybe_clamp(&p);
+        this->append_store(&p);
+        fBlitMaskA8 = p.compile();
     }
     if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
-        // TODO: add prescale stage, fold into build_bllit_pipeline?
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
         this->append_load_d(&p);
