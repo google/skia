@@ -178,6 +178,8 @@
       "image",
       "colorImage",
       "svg",
+      "--gpuThreads",
+      "8",
       "--blacklist",
       "~8888",
       "svg",
