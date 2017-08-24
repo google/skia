@@ -22,13 +22,11 @@
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "ops/GrMeshDrawOp.h"
 
-#define ATLAS_TEXTURE_WIDTH 2048
-#define ATLAS_TEXTURE_HEIGHT 2048
-#define PLOT_WIDTH  512
-#define PLOT_HEIGHT 256
+#define ATLAS_PLOT_WIDTH  512
+#define ATLAS_PLOT_HEIGHT 256
 
-#define NUM_PLOTS_X   (ATLAS_TEXTURE_WIDTH / PLOT_WIDTH)
-#define NUM_PLOTS_Y   (ATLAS_TEXTURE_HEIGHT / PLOT_HEIGHT)
+#define ATLAS_NUM_PLOTS_X 4
+#define ATLAS_NUM_PLOTS_Y 8
 
 #ifdef DF_PATH_TRACKING
 static int g_NumCachedShapes = 0;
@@ -711,8 +709,9 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!fAtlas) {
         fAtlas = GrDrawOpAtlas::Make(args.fContext,
                                      kAlpha_8_GrPixelConfig,
-                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                     NUM_PLOTS_X, NUM_PLOTS_Y,
+                                     SkISize::Make(ATLAS_PLOT_WIDTH, ATLAS_PLOT_HEIGHT),
+                                     SkIPoint::Make(ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y),
+                                     SkIPoint::Make(ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y),
                                      &GrSmallPathRenderer::HandleEviction,
                                      (void*)this);
         if (!fAtlas) {
@@ -778,11 +777,13 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
     if (context->uniqueID() != gTestStruct.fContextID) {
         gTestStruct.fContextID = context->uniqueID();
         gTestStruct.reset();
-        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context, kAlpha_8_GrPixelConfig,
-                                                 ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                 NUM_PLOTS_X, NUM_PLOTS_Y,
-                                                 &PathTestStruct::HandleEviction,
-                                                 (void*)&gTestStruct);
+        gTestStruct.fAtlas = GrDrawOpAtlas::Make(
+                                            context, kAlpha_8_GrPixelConfig,
+                                            SkISize::Make(ATLAS_PLOT_WIDTH, ATLAS_PLOT_HEIGHT),
+                                            SkIPoint::Make(ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y),
+                                            SkIPoint::Make(ATLAS_NUM_PLOTS_X, ATLAS_NUM_PLOTS_Y),
+                                            &PathTestStruct::HandleEviction,
+                                            (void*)&gTestStruct);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
