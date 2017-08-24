@@ -16,6 +16,24 @@
       "revId": "2e073f162c2431a277a78f589e181c777a19fe51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "240a3814_95d2489f",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2017-08-24T14:29:26Z",
+      "side": 1,
+      "message": "Yeah, I was actually working around the fact that I wanted it to be null if the flag is zero, but that\u0027s still doable with a ?: initialization expression. Will do.",
+      "parentUuid": "9407e471_e041b066",
+      "revId": "2e073f162c2431a277a78f589e181c777a19fe51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
