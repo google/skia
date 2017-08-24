@@ -47,10 +47,14 @@ public:
     void onQueryMultisampleSpecs(GrRenderTarget* rt, const GrStencilSettings&,
                                  int* effectiveSampleCnt, SamplePattern*) override {}
 
-    GrGpuCommandBuffer* createCommandBuffer(
+    GrGpuRTCommandBuffer* createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
-                                    const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override {
+                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override {
+        return nullptr;
+    }
+
+    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override {
         return nullptr;
     }
 
