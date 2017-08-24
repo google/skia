@@ -95,10 +95,10 @@ subprocess.check_call(clang + cflags + hsw + win +
 
 # Merge x86-64 object files to deduplicate constants.
 # (No other platform has more than one specialization.)
-subprocess.check_call(['ld', '-r', '-o', 'merged.o',
+subprocess.check_call(['ld', '-dylib', '-o', 'merged.dylib',
                        'hsw.o', 'avx.o', 'sse41.o', 'sse2.o',
                        '8bit_hsw.o', '8bit_sse41.o', '8bit_sse2.o'])
-subprocess.check_call(['ld', '-r', '-o', 'win_merged.o',
+subprocess.check_call(['ld', '-dylib', '-o', 'win_merged.dylib',
                        'win_hsw.o', 'win_avx.o', 'win_sse41.o', 'win_sse2.o',
                        'win_8bit_hsw.o', 'win_8bit_sse41.o', 'win_8bit_sse2.o'])
 
@@ -244,7 +244,7 @@ parse_object_file(     'vfp4.o', '.long', target='elf32-littlearm')
 
 print '#elif defined(__x86_64__)'
 print 'BALIGN32'
-parse_object_file('merged.o',   '.byte')
+parse_object_file('merged.dylib',   '.byte')
 
 print '#elif defined(__i386__)'
 print 'BALIGN32'
@@ -264,7 +264,7 @@ print '''; Copyright 2017 Google Inc.
 print 'IFDEF RAX'
 print "_text32 SEGMENT ALIGN(32) 'CODE'"
 print 'ALIGN 32'
-parse_object_file('win_merged.o',   'DB')
+parse_object_file('win_merged.dylib',   'DB')
 
 print 'ELSE'
 print '.MODEL FLAT,C'
