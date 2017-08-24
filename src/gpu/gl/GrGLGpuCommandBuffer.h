@@ -17,21 +17,46 @@
 class GrGLGpu;
 class GrGLRenderTarget;
 
-class GrGLGpuCommandBuffer : public GrGpuCommandBuffer {
+class GrGLGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
+public:
+    GrGLGpuTextureCommandBuffer(GrGLGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
+        : INHERITED(texture, origin)
+        , fGpu(gpu) {
+    }
+
+    ~GrGLGpuTextureCommandBuffer() override {}
+
+    void submit() override {}
+
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fTexture, src, srcRect, dstPoint);
+    }
+
+    void insertEventMarker(const char* msg) override {
+        fGpu->insertEventMarker(msg);
+    }
+
+private:
+    GrGLGpu*                    fGpu;
+
+    typedef GrGpuTextureCommandBuffer INHERITED;
+};
+
+class GrGLGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
 /**
  * We do not actually buffer up draws or do any work in the this class for GL. Instead commands
  * are immediately sent to the gpu to execute. Thus all the commands in this class are simply
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                         const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
+    GrGLGpuRTCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                           const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
             : INHERITED(rt, origin)
             , fGpu(gpu) {
         fClearSB = LoadOp::kClear == stencilInfo.fLoadOp;
     }
 
-    ~GrGLGpuCommandBuffer() override {}
+    ~GrGLGpuRTCommandBuffer() override {}
 
     void begin() override {
         if (fClearSB) {
@@ -50,10 +75,14 @@ public:
         state->doUpload(upload);
     }
 
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fRenderTarget, src, srcRect, dstPoint);
+    }
+
+    void submit() override {}
+
 private:
     GrGpu* gpu() override { return fGpu; }
-
-    void onSubmit() override {}
 
     void onDraw(const GrPipeline& pipeline,
                 const GrPrimitiveProcessor& primProc,
@@ -76,7 +105,7 @@ private:
     GrGLGpu*                    fGpu;
     bool                        fClearSB;
 
-    typedef GrGpuCommandBuffer INHERITED;
+    typedef GrGpuRTCommandBuffer INHERITED;
 };
 
 #endif

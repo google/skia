@@ -39,14 +39,20 @@ GrGpu* GrMockGpu::Create(const GrMockOptions* mockOptions, const GrContextOption
 }
 
 
-GrGpuCommandBuffer* GrMockGpu::createCommandBuffer(
+GrGpuRTCommandBuffer* GrMockGpu::createCommandBuffer(
                                             GrRenderTarget* rt, GrSurfaceOrigin origin,
-                                            const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) {
-    return new GrMockGpuCommandBuffer(this, rt, origin);
+                                            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+                                            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) {
+    return new GrMockGpuRTCommandBuffer(this, rt, origin);
 }
 
-void GrMockGpu::submitCommandBuffer(const GrMockGpuCommandBuffer* cmdBuffer) {
+GrGpuTextureCommandBuffer* GrMockGpu::createCommandBuffer(GrTexture* texture,
+                                                          GrSurfaceOrigin origin) {
+    return new GrMockGpuTextureCommandBuffer(texture, origin);
+}
+
+
+void GrMockGpu::submitCommandBuffer(const GrMockGpuRTCommandBuffer* cmdBuffer) {
     for (int i = 0; i < cmdBuffer->numDraws(); ++i) {
         fStats.incNumDraws();
     }
