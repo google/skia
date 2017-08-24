@@ -56,7 +56,6 @@ GrCCPRPathProcessor::GrCCPRPathProcessor(GrResourceProvider* rp, sk_sp<GrTexture
     this->addInstanceAttrib("view_matrix", kVec4f_GrVertexAttribType, kHigh_GrSLPrecision);
     this->addInstanceAttrib("view_translate", kVec2f_GrVertexAttribType, kHigh_GrSLPrecision);
     // FIXME: this could be a vector of two shorts if it were supported by Ganesh.
-    // Note: this should be doable now with kVec2us_uint_GrVertexAttribType
     this->addInstanceAttrib("atlas_offset", kVec2i_GrVertexAttribType, kHigh_GrSLPrecision);
     this->addInstanceAttrib("color", kVec4ub_GrVertexAttribType, kLow_GrSLPrecision);
 

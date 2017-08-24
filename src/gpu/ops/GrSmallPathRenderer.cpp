@@ -351,11 +351,11 @@ private:
 
                     shapeData = new ShapeData;
                     if (!this->addBMPathToAtlas(target,
-                                                &flushInfo,
-                                                atlas,
-                                                shapeData,
-                                                args.fShape,
-                                                this->viewMatrix())) {
+                                              &flushInfo,
+                                              atlas,
+                                              shapeData,
+                                              args.fShape,
+                                              this->viewMatrix())) {
                         delete shapeData;
                         continue;
                     }
@@ -479,6 +479,7 @@ private:
         shapeData->fKey.set(shape, dimension);
         shapeData->fID = id;
 
+        // set the bounds rect to the original bounds
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
         shapeData->fBounds.fLeft /= scale;
@@ -614,10 +615,22 @@ private:
         }
 
         // set up texture coordinates
-        uint16_t l = shapeData->fTextureCoords.fLeft;
-        uint16_t t = shapeData->fTextureCoords.fTop;
-        uint16_t r = shapeData->fTextureCoords.fRight;
-        uint16_t b = shapeData->fTextureCoords.fBottom;
+        SkScalar texLeft = shapeData->fTextureCoords.fLeft;
+        SkScalar texTop = shapeData->fTextureCoords.fTop;
+        SkScalar texRight = shapeData->fTextureCoords.fRight;
+        SkScalar texBottom = shapeData->fTextureCoords.fBottom;
+
+        // convert texcoords to unsigned short format
+        sk_sp<GrTextureProxy> proxy = atlas->getProxy();
+
+        // The proxy must be functionally exact for this normalization to work correctly
+        SkASSERT(GrResourceProvider::IsFunctionallyExact(proxy.get()));
+        SkScalar uFactor = 65535.f / proxy->width();
+        SkScalar vFactor = 65535.f / proxy->height();
+        uint16_t l = (uint16_t)(texLeft*uFactor);
+        uint16_t t = (uint16_t)(texTop*vFactor);
+        uint16_t r = (uint16_t)(texRight*uFactor);
+        uint16_t b = (uint16_t)(texBottom*vFactor);
 
         // set vertex texture coords
         intptr_t textureCoordOffset = offset + sizeof(SkPoint) + sizeof(GrColor);
