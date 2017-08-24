@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "476b9a19_1d7c3f30",
+        "filename": "src/jumper/SkJumper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-24T17:32:27Z",
+      "side": 1,
+      "message": "we may need a new guard, the chromium rebaseline for this landed :(",
+      "range": {
+        "startLine": 72,
+        "startChar": 7,
+        "endLine": 72,
+        "endChar": 34
+      },
+      "revId": "b9d071ea8bbb3de5d34e546d64e20e2fa4617652",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

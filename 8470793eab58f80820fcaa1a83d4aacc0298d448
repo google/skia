@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35334dd2_68507c33",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-24T17:32:27Z",
+      "side": 1,
+      "message": "nit: I was just a bit confused by \"greyscale\", maybe something like single_channel_coverage (or inverted into multi_channel_coverage) would be easier to grok.  Or feel free to leave along if this is known/common naming.",
+      "range": {
+        "startLine": 65,
+        "startChar": 63,
+        "endLine": 65,
+        "endChar": 81
+      },
+      "revId": "8470793eab58f80820fcaa1a83d4aacc0298d448",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
