@@ -39,7 +39,8 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->commandBuffer()->discard();
+        SkASSERT(state->rtCommandBuffer());
+        state->rtCommandBuffer()->discard();
     }
 
     typedef GrOp INHERITED;
