@@ -56,8 +56,7 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     SkCommandLineConfigGpu(const SkString& tag, const SkTArray<SkString>& viaParts,
                            ContextType contextType, bool useNVPR, bool useInstanced, bool useDIText,
                            int samples, SkColorType colorType, SkAlphaType alphaType,
-                           sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers,
-                           bool testThreading);
+                           sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers);
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
     ContextType getContextType() const { return fContextType; }
     ContextOverrides getContextOverrides() const { return fContextOverrides; }
@@ -72,7 +71,6 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
-    bool getTestThreading() const { return fTestThreading; }
 
   private:
     ContextType fContextType;
@@ -82,7 +80,6 @@ class SkCommandLineConfigGpu : public SkCommandLineConfig {
     SkColorType fColorType;
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
-    bool fTestThreading;
 };
 #endif
 

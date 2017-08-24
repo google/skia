@@ -260,7 +260,6 @@
       "glsrgb",
       "gles",
       "glesdft",
-      "gltestthreading",
       "--src",
       "tests",
       "gm",

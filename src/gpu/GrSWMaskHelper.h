@@ -8,15 +8,22 @@
 #ifndef GrSWMaskHelper_DEFINED
 #define GrSWMaskHelper_DEFINED
 
+#include "GrColor.h"
+#include "GrRenderTargetContext.h"
 #include "SkAutoPixmapStorage.h"
+#include "SkBitmap.h"
 #include "SkDraw.h"
 #include "SkMatrix.h"
 #include "SkRasterClip.h"
 #include "SkRegion.h"
 #include "SkTypes.h"
 
+class GrClip;
+class GrPaint;
 class GrShape;
-class GrTextureProxy;
+class GrStyle;
+class GrTexture;
+struct GrUserStencilSettings;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering
@@ -27,15 +34,14 @@ class GrTextureProxy;
  *
  *      draw one or more paths/rects specifying the required boolean ops
  *
- *   toTextureProxy();   // to get it from the internal bitmap to the GPU
+ *   toTexture();   // to get it from the internal bitmap to the GPU
  *
  * The result of this process will be the final mask (on the GPU) in the
  * upper left hand corner of the texture.
  */
 class GrSWMaskHelper : SkNoncopyable {
 public:
-    GrSWMaskHelper(SkAutoPixmapStorage* pixels = nullptr)
-            : fPixels(pixels ? pixels : &fPixelsStorage) { }
+    GrSWMaskHelper() { }
 
     // set up the internal state in preparation for draws. Since many masks
     // may be accumulated in the helper during creation, "resultBounds"
@@ -51,17 +57,28 @@ public:
 
     sk_sp<GrTextureProxy> toTextureProxy(GrContext*, SkBackingFit fit);
 
+    // Convert mask generation results to a signed distance field
+    void toSDF(unsigned char* sdf);
+
     // Reset the internal bitmap
     void clear(uint8_t alpha) {
-        fPixels->erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
+        fPixels.erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
     }
 
+    // Canonical usage utility that draws a single path and uploads it
+    // to the GPU. The result is returned.
+    static sk_sp<GrTextureProxy> DrawShapeMaskToTexture(GrContext*,
+                                                        const GrShape&,
+                                                        const SkIRect& resultBounds,
+                                                        GrAA,
+                                                        SkBackingFit,
+                                                        const SkMatrix* matrix);
+
 private:
-    SkMatrix             fMatrix;
-    SkAutoPixmapStorage* fPixels;
-    SkAutoPixmapStorage  fPixelsStorage;
-    SkDraw               fDraw;
-    SkRasterClip         fRasterClip;
+    SkMatrix            fMatrix;
+    SkAutoPixmapStorage fPixels;
+    SkDraw              fDraw;
+    SkRasterClip        fRasterClip;
 
     typedef SkNoncopyable INHERITED;
 };

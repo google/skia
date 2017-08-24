@@ -20,7 +20,6 @@
 #include "SkDebugCanvas.h"
 #include "SkDeferredCanvas.h"
 #include "SkDocument.h"
-#include "SkExecutor.h"
 #include "SkImageGenerator.h"
 #include "SkImageGeneratorCG.h"
 #include "SkImageGeneratorWIC.h"
@@ -62,7 +61,6 @@
 DEFINE_bool(multiPage, false, "For document-type backends, render the source"
             " into multiple pages");
 DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
-DECLARE_int32(gpuThreads);
 
 using sk_gpu_test::GrContextFactory;
 
@@ -1317,13 +1315,8 @@ GPUSink::GPUSink(GrContextFactory::ContextType ct,
 
 DEFINE_bool(drawOpClip, false, "Clip each GrDrawOp to its device bounds for testing.");
 
-Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkString* log) const {
-    return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
-}
-
-Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
-                      const GrContextOptions& baseOptions) const {
-    GrContextOptions grOptions = baseOptions;
+Error GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log) const {
+    GrContextOptions grOptions = fBaseContextOptions;
 
     src.modifyGrContextOptions(&grOptions);
 
@@ -1369,58 +1362,6 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
-    }
-    return "";
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-GPUThreadTestingSink::GPUThreadTestingSink(GrContextFactory::ContextType ct,
-                                           GrContextFactory::ContextOverrides overrides,
-                                           int samples,
-                                           bool diText,
-                                           SkColorType colorType,
-                                           SkAlphaType alphaType,
-                                           sk_sp<SkColorSpace> colorSpace,
-                                           bool threaded,
-                                           const GrContextOptions& grCtxOptions)
-        : INHERITED(ct, overrides, samples, diText, colorType, alphaType, std::move(colorSpace),
-                    threaded, grCtxOptions)
-        , fExecutor(SkExecutor::MakeThreadPool(FLAGS_gpuThreads)) {
-    SkASSERT(fExecutor);
-}
-
-Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream,
-                                 SkString* log) const {
-    // Draw twice, once with worker threads, and once without. Verify that we get the same result.
-    // Also, force us to only use the software path renderer, so we really stress-test the threaded
-    // version of that code.
-    GrContextOptions contextOptions = this->baseContextOptions();
-    contextOptions.fGpuPathRenderers = GrContextOptions::GpuPathRenderers::kNone;
-
-    contextOptions.fExecutor = fExecutor.get();
-    Error err = this->onDraw(src, dst, wStream, log, contextOptions);
-    if (!err.isEmpty() || !dst) {
-        return err;
-    }
-
-    SkBitmap reference;
-    SkString refLog;
-    SkDynamicMemoryWStream refStream;
-    contextOptions.fExecutor = nullptr;
-    Error refErr = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
-    if (!refErr.isEmpty()) {
-        return refErr;
-    }
-
-    // The dimensions are a property of the Src only, and so should be identical.
-    SkASSERT(reference.getSize() == dst->getSize());
-    if (reference.getSize() != dst->getSize()) {
-        return "Dimensions don't match reference";
-    }
-    // All SkBitmaps in DM are tight, so this comparison is easy.
-    if (0 != memcmp(reference.getPixels(), dst->getPixels(), reference.getSize())) {
-        return "Pixels don't match reference";
     }
     return "";
 }
@@ -1617,7 +1558,7 @@ static Error check_against_reference(const SkBitmap* bitmap, const Src& src, Sin
         if (reference.getSize() != bitmap->getSize()) {
             return "Dimensions don't match reference";
         }
-        // All SkBitmaps in DM are tight, so this comparison is easy.
+        // All SkBitmaps in DM are pre-locked and tight, so this comparison is easy.
         if (0 != memcmp(reference.getPixels(), bitmap->getPixels(), reference.getSize())) {
             return "Pixels don't match reference";
         }
