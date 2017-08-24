@@ -22,6 +22,30 @@
       "revId": "8470793eab58f80820fcaa1a83d4aacc0298d448",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98170945_7c4f90bc",
+        "filename": "src/core/SkBlendMode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2017-08-24T17:44:02Z",
+      "side": 1,
+      "message": "Went with rgb_coverage.  How\u0027s that sound?",
+      "parentUuid": "35334dd2_68507c33",
+      "range": {
+        "startLine": 65,
+        "startChar": 63,
+        "endLine": 65,
+        "endChar": 81
+      },
+      "revId": "8470793eab58f80820fcaa1a83d4aacc0298d448",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
