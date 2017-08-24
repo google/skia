@@ -430,17 +430,24 @@ bool Definition::crossCheckInside(const char* start, const char* end,
                 }
             } else if (!incEof && '#' == inc.peek() && (defEof || '#' != def.peek())) {
                 inc.next();
-                SkASSERT(inc.startsWith("if"));
-                inc.skipToEndBracket("#");
-                SkASSERT(inc.startsWith("#endif"));
-                inc.skipToEndBracket("\n");
+                if (inc.startsWith("if")) {
+                    inc.skipToEndBracket("\n");
+                } else if (inc.startsWith("endif")) {
+                    inc.skipToEndBracket("\n");
+                } else {
+                    SkASSERT(0); // incomplete
+                    return false;
+                }
             } else {
                 break;
             }
             inc.next();
         } while (true);
         if (defEof || incEof) {
-            return defEof == incEof || (!defEof && ';' == def.peek());
+            if (defEof == incEof || (!defEof && ';' == def.peek())) {
+                return true;
+            }
+            return false;  // allow setting breakpoint on failure
         }
         char defCh;
         do {
@@ -1960,7 +1967,7 @@ string BmhParser::word(const string& prefix, const string& delimiter) {
 
 DEFINE_string2(bmh, b, "", "A path to a *.bmh file or a directory.");
 DEFINE_string2(examples, e, "", "File of fiddlecli input, usually fiddle.json (For now, disables -r -f -s)");
-DEFINE_string2(fiddle, f, "fiddleout.json", "File of fiddlecli output.");
+DEFINE_string2(fiddle, f, "", "File of fiddlecli output, usually fiddleout.json.");
 DEFINE_string2(include, i, "", "A path to a *.h file or a directory.");
 DEFINE_bool2(hack, k, false, "Do a find/replace hack to update all *.bmh files. (Requires -b)");
 DEFINE_bool2(populate, p, false, "Populate include from bmh. (Requires -b -i)");
