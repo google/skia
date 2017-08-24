@@ -97,6 +97,8 @@ static inline const char* GrGLSLTypeString(GrSLType t) {
             return "float3";
         case kVec4f_GrSLType:
             return "float4";
+        case kVec2us_GrSLType:
+            return "uint2";
         case kVec2i_GrSLType:
             return "int2";
         case kVec3i_GrSLType:

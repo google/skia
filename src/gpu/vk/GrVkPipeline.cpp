@@ -34,8 +34,10 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
             return VK_FORMAT_R8_UNORM;
         case kVec4ub_GrVertexAttribType:
             return VK_FORMAT_R8G8B8A8_UNORM;
-        case kVec2us_GrVertexAttribType:
+        case kVec2us_norm_GrVertexAttribType:
             return VK_FORMAT_R16G16_UNORM;
+        case kVec2us_uint_GrVertexAttribType:
+            return VK_FORMAT_R16G16_UINT;
         case kInt_GrVertexAttribType:
             return VK_FORMAT_R32_SINT;
         case kUint_GrVertexAttribType:

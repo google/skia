@@ -37,8 +37,10 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {true, 1, GR_GL_UNSIGNED_BYTE};
         case kVec4ub_GrVertexAttribType:
             return {true, 4, GR_GL_UNSIGNED_BYTE};
-        case kVec2us_GrVertexAttribType:
+        case kVec2us_norm_GrVertexAttribType:
             return {true, 2, GR_GL_UNSIGNED_SHORT};
+        case kVec2us_uint_GrVertexAttribType:
+            return {false, 2, GR_GL_UNSIGNED_SHORT};
         case kInt_GrVertexAttribType:
             return {false, 1, GR_GL_INT};
         case kUint_GrVertexAttribType:

@@ -28,6 +28,8 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
             return 0xF;
         case kVec4f_GrSLType:
             return 0xF;
+        case kVec2us_GrSLType:
+            return 0x3;
         case kVec2i_GrSLType:
             return 0x7;
         case kVec3i_GrSLType:
@@ -76,6 +78,8 @@ static inline uint32_t grsltype_to_vk_size(GrSLType type) {
             return 3 * sizeof(float);
         case kVec4f_GrSLType:
             return 4 * sizeof(float);
+        case kVec2us_GrSLType:
+            return 2 * sizeof(uint16_t);
         case kVec2i_GrSLType:
             return 2 * sizeof(int32_t);
         case kVec3i_GrSLType:
