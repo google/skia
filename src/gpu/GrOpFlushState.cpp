@@ -26,6 +26,10 @@ const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
 }
 
+GrGpuRTCommandBuffer* GrOpFlushState::rtCommandBuffer() {
+    return fCommandBuffer->asRTCommandBuffer();
+}
+
 void* GrOpFlushState::makeVertexSpace(size_t vertexSize, int vertexCount,
                                          const GrBuffer** buffer, int* startVertex) {
     return fVertexPool.makeSpace(vertexSize, vertexCount, buffer, startVertex);

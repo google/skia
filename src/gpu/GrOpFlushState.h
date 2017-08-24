@@ -15,6 +15,7 @@
 
 class GrGpu;
 class GrGpuCommandBuffer;
+class GrGpuRTCommandBuffer;
 class GrResourceProvider;
 
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpList flush. */
@@ -86,6 +87,8 @@ public:
     void putBackVertexSpace(size_t sizeInBytes) { fVertexPool.putBack(sizeInBytes); }
 
     GrGpuCommandBuffer* commandBuffer() { return fCommandBuffer; }
+    // Helper function used by Ops that are only called via RenderTargetOpLists
+    GrGpuRTCommandBuffer* rtCommandBuffer();
     void setCommandBuffer(GrGpuCommandBuffer* buffer) { fCommandBuffer = buffer; }
 
     GrGpu* gpu() { return fGpu; }

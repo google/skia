@@ -133,9 +133,9 @@ private:
             mesh.setNonIndexedNonInstanced(4);
             mesh.setVertexData(fVertexBuffer.get(), 4 * i);
         }
-        state->commandBuffer()->draw(pipeline, GrPipelineDynamicStateTestProcessor(),
-                                     meshes.begin(), kDynamicStates, 4,
-                                     SkRect::MakeIWH(kScreenSize, kScreenSize));
+        state->rtCommandBuffer()->draw(pipeline, GrPipelineDynamicStateTestProcessor(),
+                                       meshes.begin(), kDynamicStates, 4,
+                                       SkRect::MakeIWH(kScreenSize, kScreenSize));
     }
 
     ScissorState                fScissorState;

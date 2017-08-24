@@ -55,7 +55,8 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override {
-        state->commandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
+        SkASSERT(state->rtCommandBuffer());
+        state->rtCommandBuffer()->clearStencilClip(fClip, fInsideStencilMask);
     }
 
     const GrFixedClip fClip;
