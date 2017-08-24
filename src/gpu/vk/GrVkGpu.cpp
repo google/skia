@@ -257,11 +257,16 @@ void GrVkGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGpuCommandBuffer* GrVkGpu::createCommandBuffer(
+GrGpuRTCommandBuffer* GrVkGpu::createCommandBuffer(
             GrRenderTarget* rt, GrSurfaceOrigin origin,
-            const GrGpuCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrVkGpuCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return new GrVkGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
+}
+
+GrGpuTextureCommandBuffer* GrVkGpu::createCommandBuffer(GrTexture* texture,
+                                                        GrSurfaceOrigin origin) {
+    return new GrVkGpuTextureCommandBuffer(this, texture, origin);
 }
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {

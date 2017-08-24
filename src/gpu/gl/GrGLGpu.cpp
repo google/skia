@@ -2427,11 +2427,16 @@ bool GrGLGpu::onReadPixels(GrSurface* surface,
     return true;
 }
 
-GrGpuCommandBuffer* GrGLGpu::createCommandBuffer(
+GrGpuRTCommandBuffer* GrGLGpu::createCommandBuffer(
         GrRenderTarget* rt, GrSurfaceOrigin origin,
-        const GrGpuCommandBuffer::LoadAndStoreInfo&,
-        const GrGpuCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuCommandBuffer(this, rt, origin, stencilInfo);
+        const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return new GrGLGpuRTCommandBuffer(this, rt, origin, stencilInfo);
+}
+
+GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
+                                                        GrSurfaceOrigin origin) {
+    return new GrGLGpuTextureCommandBuffer(this, texture, origin);
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, const SkIRect* bounds, bool disableSRGB) {

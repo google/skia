@@ -370,8 +370,8 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh) {
     GrRenderTargetProxy* proxy = fState->drawOpArgs().fProxy;
     GrPipeline pipeline(proxy, GrPipeline::ScissorState::kDisabled, SkBlendMode::kSrc);
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
-    fState->commandBuffer()->draw(pipeline, mtp, &mesh, nullptr, 1,
-                                  SkRect::MakeIWH(kImageWidth, kImageHeight));
+    fState->rtCommandBuffer()->draw(pipeline, mtp, &mesh, nullptr, 1,
+                                    SkRect::MakeIWH(kImageWidth, kImageHeight));
 }
 
 static void run_test(const char* testName, skiatest::Reporter* reporter,

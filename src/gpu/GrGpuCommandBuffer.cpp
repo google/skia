@@ -16,12 +16,7 @@
 #include "GrRenderTarget.h"
 #include "SkRect.h"
 
-void GrGpuCommandBuffer::submit() {
-    this->gpu()->handleDirtyContext();
-    this->onSubmit();
-}
-
-void GrGpuCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
+void GrGpuRTCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
 #ifdef SK_DEBUG
     GrRenderTarget* rt = fRenderTarget;
     SkASSERT(rt);
@@ -32,16 +27,16 @@ void GrGpuCommandBuffer::clear(const GrFixedClip& clip, GrColor color) {
     this->onClear(clip, color);
 }
 
-void GrGpuCommandBuffer::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+void GrGpuRTCommandBuffer::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-bool GrGpuCommandBuffer::draw(const GrPipeline& pipeline,
-                              const GrPrimitiveProcessor& primProc,
-                              const GrMesh meshes[],
-                              const GrPipeline::DynamicState dynamicStates[],
-                              int meshCount,
-                              const SkRect& bounds) {
+bool GrGpuRTCommandBuffer::draw(const GrPipeline& pipeline,
+                                const GrPrimitiveProcessor& primProc,
+                                const GrMesh meshes[],
+                                const GrPipeline::DynamicState dynamicStates[],
+                                int meshCount,
+                                const SkRect& bounds) {
 #ifdef SK_DEBUG
     SkASSERT(!primProc.hasInstanceAttribs() || this->gpu()->caps()->instanceAttribSupport());
     for (int i = 0; i < meshCount; ++i) {

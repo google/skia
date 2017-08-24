@@ -62,10 +62,18 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
+    std::unique_ptr<GrGpuTextureCommandBuffer> commandBuffer(
+                         flushState->gpu()->createCommandBuffer(fTarget.get()->priv().peekTexture(),
+                                                                fTarget.get()->origin()));
+    flushState->setCommandBuffer(commandBuffer.get());
+
     for (int i = 0; i < fRecordedOps.count(); ++i) {
         // We do not call flushState->setDrawOpArgs as this op list does not support GrDrawOps.
         fRecordedOps[i]->execute(flushState);
     }
+
+    commandBuffer->submit();
+    flushState->setCommandBuffer(nullptr);
 
     return true;
 }

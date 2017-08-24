@@ -152,8 +152,6 @@ public:
         return string;
     }
 
-    virtual bool needsCommandBufferIsolation() const { return false; }
-
 protected:
     /**
      * Indicates that the op will produce geometry that extends beyond its bounds for the

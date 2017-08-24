@@ -97,9 +97,9 @@ public:
     // Called by GrGLBuffer after its buffer object has been destroyed.
     void notifyBufferReleased(const GrGLBuffer*);
 
-    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
-    // on GrGLGpuCommandBuffer.
+    // on GrGLRTGpuCommandBuffer.
     void draw(const GrPipeline&,
               const GrPrimitiveProcessor&,
               const GrMesh[],
@@ -128,14 +128,14 @@ public:
                                        const GrBuffer* instanceBuffer, int instanceCount,
                                        int baseInstance) final;
 
-    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
-    // on GrGLGpuCommandBuffer.
+    // on GrGLGpuRTCommandBuffer.
     void clear(const GrFixedClip&, GrColor, GrRenderTarget*, GrSurfaceOrigin);
 
-    // The GrGLGpuCommandBuffer does not buffer up draws before submitting them to the gpu.
+    // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
-    // function on GrGLGpuCommandBuffer.
+    // function on GrGLGpuRTCommandBuffer.
     void clearStencilClip(const GrFixedClip&, bool insideStencilMask,
                           GrRenderTarget*, GrSurfaceOrigin);
 
@@ -145,10 +145,12 @@ public:
 
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
-    GrGpuCommandBuffer* createCommandBuffer(
+    GrGpuRTCommandBuffer* createCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override;
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();

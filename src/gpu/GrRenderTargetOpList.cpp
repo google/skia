@@ -91,13 +91,13 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu,
-                                                                 GrRenderTarget* rt,
-                                                                 GrSurfaceOrigin origin,
-                                                                 bool clearSB) {
-    static const GrGpuCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
-        GrGpuCommandBuffer::LoadOp::kLoad,
-        GrGpuCommandBuffer::StoreOp::kStore,
+static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
+                                                                   GrRenderTarget* rt,
+                                                                   GrSurfaceOrigin origin,
+                                                                   bool clearSB) {
+    static const GrGpuRTCommandBuffer::LoadAndStoreInfo kBasicLoadStoreInfo {
+        GrGpuRTCommandBuffer::LoadOp::kLoad,
+        GrGpuRTCommandBuffer::StoreOp::kStore,
         GrColor_ILLEGAL
     };
 
@@ -106,19 +106,19 @@ static std::unique_ptr<GrGpuCommandBuffer> create_command_buffer(GrGpu* gpu,
     // to stop splitting up higher level opLists for copyOps to achieve that.
     // Note: we would still need SB loads and stores but they would happen at a
     // lower level (inside the VK command buffer).
-    const GrGpuCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
-        clearSB ? GrGpuCommandBuffer::LoadOp::kClear : GrGpuCommandBuffer::LoadOp::kLoad,
-        GrGpuCommandBuffer::StoreOp::kStore,
+    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo stencilLoadAndStoreInfo {
+        clearSB ? GrGpuRTCommandBuffer::LoadOp::kClear : GrGpuRTCommandBuffer::LoadOp::kLoad,
+        GrGpuRTCommandBuffer::StoreOp::kStore,
     };
 
-    std::unique_ptr<GrGpuCommandBuffer> buffer(
+    std::unique_ptr<GrGpuRTCommandBuffer> buffer(
                             gpu->createCommandBuffer(rt, origin,
                                                      kBasicLoadStoreInfo,       // Color
                                                      stencilLoadAndStoreInfo)); // Stencil
     return buffer;
 }
 
-static inline void finish_command_buffer(GrGpuCommandBuffer* buffer) {
+static inline void finish_command_buffer(GrGpuRTCommandBuffer* buffer) {
     if (!buffer) {
         return;
     }
@@ -140,7 +140,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
     TRACE_EVENT0("skia", TRACE_FUNC);
 #endif
 
-    std::unique_ptr<GrGpuCommandBuffer> commandBuffer = create_command_buffer(
+    std::unique_ptr<GrGpuRTCommandBuffer> commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget.get()->priv().peekRenderTarget(),
                                                     fTarget.get()->origin(),
@@ -156,22 +156,6 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
         TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
 #endif
-
-        if (fRecordedOps[i].fOp->needsCommandBufferIsolation()) {
-            // This op is a special snowflake and must occur between command buffers
-            // TODO: make this go through the command buffer
-            finish_command_buffer(commandBuffer.get());
-
-            commandBuffer.reset();
-            flushState->setCommandBuffer(commandBuffer.get());
-        } else if (!commandBuffer) {
-            commandBuffer = create_command_buffer(flushState->gpu(),
-                                                  fTarget.get()->priv().peekRenderTarget(),
-                                                  fTarget.get()->origin(),
-                                                  false);
-            flushState->setCommandBuffer(commandBuffer.get());
-            commandBuffer->begin();
-        }
 
         GrOpFlushState::DrawOpArgs opArgs {
             fTarget.get()->asRenderTargetProxy(),

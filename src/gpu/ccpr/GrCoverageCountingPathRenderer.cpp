@@ -287,6 +287,7 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
 
 void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fCCPR->fFlushing);
+    SkASSERT(flushState->rtCommandBuffer());
 
     if (!fCCPR->fPerFlushInstanceBuffer) {
         return; // Setup failed.
@@ -319,7 +320,7 @@ void DrawPathsOp::onExecute(GrOpFlushState* flushState) {
                                  batch.fEndInstanceIdx - baseInstance, baseInstance);
         mesh.setVertexData(fCCPR->fPerFlushVertexBuffer.get());
 
-        flushState->commandBuffer()->draw(pipeline, coverProc, &mesh, nullptr, 1, this->bounds());
+        flushState->rtCommandBuffer()->draw(pipeline, coverProc, &mesh, nullptr, 1, this->bounds());
     }
 
     SkASSERT(baseInstance == fBaseInstance + fDebugInstanceCount);

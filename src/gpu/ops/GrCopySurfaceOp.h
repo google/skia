@@ -33,8 +33,6 @@ public:
         return string;
     }
 
-    bool needsCommandBufferIsolation() const override { return true; }
-
 private:
     GrCopySurfaceOp(GrSurfaceProxy* dst, GrSurfaceProxy* src,
                     const SkIRect& srcRect, const SkIPoint& dstPoint)

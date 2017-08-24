@@ -14,7 +14,7 @@
 #include "GrTexture.h"
 #include "SkTHash.h"
 
-class GrMockGpuCommandBuffer;
+class GrMockGpuRTCommandBuffer;
 struct GrMockOptions;
 class GrPipeline;
 
@@ -43,10 +43,12 @@ public:
         *effectiveSampleCnt = rt->numStencilSamples();
     }
 
-    GrGpuCommandBuffer* createCommandBuffer(
+    GrGpuRTCommandBuffer* createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
-                                    const GrGpuCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override;
+                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
@@ -61,7 +63,7 @@ public:
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
-    void submitCommandBuffer(const GrMockGpuCommandBuffer*);
+    void submitCommandBuffer(const GrMockGpuRTCommandBuffer*);
 
 private:
     GrMockGpu(GrContext* context, const GrMockOptions&, const GrContextOptions&);

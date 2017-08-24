@@ -586,9 +586,10 @@ void CoverageOp::drawMaskPrimitives(GrOpFlushState* flushState, const GrPipeline
 
     if (!fMeshesScratchBuffer.empty()) {
         GrCCPRCoverageProcessor proc(mode, fPointsBuffer.get());
-        flushState->commandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
-                                          fDynamicStatesScratchBuffer.begin(),
-                                          fMeshesScratchBuffer.count(), this->bounds());
+        SkASSERT(flushState->rtCommandBuffer());
+        flushState->rtCommandBuffer()->draw(pipeline, proc, fMeshesScratchBuffer.begin(),
+                                            fDynamicStatesScratchBuffer.begin(),
+                                            fMeshesScratchBuffer.count(), this->bounds());
     }
 }
 

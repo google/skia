@@ -96,10 +96,12 @@ public:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override;
 
-    GrGpuCommandBuffer* createCommandBuffer(
+    GrGpuRTCommandBuffer* createCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) override;
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,

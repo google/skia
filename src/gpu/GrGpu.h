@@ -366,15 +366,16 @@ public:
         return fMultisampleSpecs[uniqueID];
     }
 
-    // Creates a GrGpuCommandBuffer in which the GrOpList can send draw commands to instead of
-    // directly to the Gpu object. This currently does not take a GrRenderTarget. The command buffer
-    // is expected to infer the render target from the first draw, clear, or discard. This is an
-    // awkward workaround that goes away after MDB is complete and the render target is known from
-    // the GrRenderTargetOpList.
-    virtual GrGpuCommandBuffer* createCommandBuffer(
+    // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
+    // to the Gpu object.
+    virtual GrGpuRTCommandBuffer* createCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuCommandBuffer::StencilLoadAndStoreInfo&) = 0;
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
+
+    // Creates a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
+    // directly to the Gpu object.
+    virtual GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
