@@ -6,12 +6,12 @@
  */
 
 #include "GrSWMaskHelper.h"
+
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrShape.h"
 #include "GrSurfaceContext.h"
 #include "GrTextureProxy.h"
-#include "SkDistanceFieldGen.h"
 
 /*
  * Convert a boolean operation into a transfer mode code
@@ -76,13 +76,13 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(), resultBounds.height());
 
     const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(bounds.width(), bounds.height());
-    if (!fPixels.tryAlloc(bmImageInfo)) {
+    if (!fPixels->tryAlloc(bmImageInfo)) {
         return false;
     }
-    fPixels.erase(0);
+    fPixels->erase(0);
 
     sk_bzero(&fDraw, sizeof(fDraw));
-    fDraw.fDst      = fPixels;
+    fDraw.fDst      = *fPixels;
     fRasterClip.setRect(bounds);
     fDraw.fRC       = &fRasterClip;
     fDraw.fMatrix   = &fMatrix;
@@ -92,8 +92,8 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds, const SkMatrix* matrix) {
 sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBackingFit fit) {
     GrSurfaceDesc desc;
     desc.fOrigin = kTopLeft_GrSurfaceOrigin;
-    desc.fWidth = fPixels.width();
-    desc.fHeight = fPixels.height();
+    desc.fWidth = fPixels->width();
+    desc.fHeight = fPixels->height();
     desc.fConfig = kAlpha_8_GrPixelConfig;
 
     sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeDeferredSurfaceContext(
@@ -105,39 +105,9 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrContext* context, SkBacki
     }
 
     SkImageInfo ii = SkImageInfo::MakeA8(desc.fWidth, desc.fHeight);
-    if (!sContext->writePixels(ii, fPixels.addr(), fPixels.rowBytes(), 0, 0)) {
+    if (!sContext->writePixels(ii, fPixels->addr(), fPixels->rowBytes(), 0, 0)) {
         return nullptr;
     }
 
     return sContext->asTextureProxyRef();
-}
-
-/**
- * Convert mask generation results to a signed distance field
- */
-void GrSWMaskHelper::toSDF(unsigned char* sdf) {
-    SkGenerateDistanceFieldFromA8Image(sdf, (const unsigned char*)fPixels.addr(),
-                                       fPixels.width(), fPixels.height(), fPixels.rowBytes());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/**
- * Software rasterizes shape to A8 mask and uploads the result to a scratch texture. Returns the
- * resulting texture on success; nullptr on failure.
- */
-sk_sp<GrTextureProxy> GrSWMaskHelper::DrawShapeMaskToTexture(GrContext* context,
-                                                             const GrShape& shape,
-                                                             const SkIRect& resultBounds,
-                                                             GrAA aa,
-                                                             SkBackingFit fit,
-                                                             const SkMatrix* matrix) {
-    GrSWMaskHelper helper;
-
-    if (!helper.init(resultBounds, matrix)) {
-        return nullptr;
-    }
-
-    helper.drawShape(shape, SkRegion::kReplace_Op, aa, 0xFF);
-
-    return helper.toTextureProxy(context, fit);
 }

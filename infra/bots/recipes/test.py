@@ -148,8 +148,10 @@ def dm_flags(api, bot):
 
     # We want to test both the OpenGL config and the GLES config on Linux Intel:
     # GL is used by Chrome, GLES is used by ChromeOS.
+    # Also do the Ganesh threading verification test (render with and without
+    # worker threads, using only the SW path renderer, and compare the results).
     if 'Intel' in bot and api.vars.is_linux:
-      configs.extend(['gles', 'glesdft', 'glessrgb'])
+      configs.extend(['gles', 'glesdft', 'glessrgb', 'gltestthreading'])
 
     # The following devices do not support glessrgb.
     if 'glessrgb' in configs:
@@ -486,6 +488,7 @@ def dm_flags(api, bot):
     match.extend(['~Once', '~Shared'])  # Not sure what's up with these tests.
 
   if 'TSAN' in bot:
+    args.extend(['--gpuThreads', '8'])
     match.extend(['~ReadWriteAlpha'])   # Flaky on TSAN-covered on nvidia bots.
     match.extend(['~RGBA4444TextureTest',  # Flakier than they are important.
                   '~RGB565TextureTest'])
