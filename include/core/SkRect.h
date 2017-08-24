@@ -10,6 +10,7 @@
 
 #include "SkPoint.h"
 #include "SkSize.h"
+#include "../private/SkTFitsIn.h"
 
 struct SkRect;
 
@@ -116,8 +117,8 @@ struct SK_API SkIRect {
     }
 
     bool is16Bit() const {
-        return  SkIsS16(fLeft) && SkIsS16(fTop) &&
-                SkIsS16(fRight) && SkIsS16(fBottom);
+        return  SkTFitsIn<int16_t>(fLeft) && SkTFitsIn<int16_t>(fTop) &&
+                SkTFitsIn<int16_t>(fRight) && SkTFitsIn<int16_t>(fBottom);
     }
 
     /** Set the rectangle to (0,0,0,0)
