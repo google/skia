@@ -17,53 +17,50 @@
 
 class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
 public:
-    GrGLBitmapTextGeoProc() : fColor(GrColor_ILLEGAL), fAtlasSize({0,0}) {}
+    GrGLBitmapTextGeoProc() : fColor(GrColor_ILLEGAL) {}
 
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const GrBitmapTextGeoProc& btgp = args.fGP.cast<GrBitmapTextGeoProc>();
+        const GrBitmapTextGeoProc& cte = args.fGP.cast<GrBitmapTextGeoProc>();
 
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
         GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
 
         // emit attributes
-        varyingHandler->emitAttributes(btgp);
+        varyingHandler->emitAttributes(cte);
 
-        const char* atlasSizeInvName;
-        fAtlasSizeInvUniform = uniformHandler->addUniform(kVertex_GrShaderFlag,
-                                                          kVec2f_GrSLType,
-                                                          kHigh_GrSLPrecision,
-                                                          "AtlasSizeInv",
-                                                          &atlasSizeInvName);
+        // compute numbers to be hardcoded to convert texture coordinates from int to float
+        SkASSERT(cte.numTextureSamplers() == 1);
+        SkDEBUGCODE(GrTexture* atlas = cte.textureSampler(0).peekTexture());
+        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
         GrGLSLVertToFrag v(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &v, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s * %s;", v.vsOut(),
-                                 btgp.inTextureCoords()->fName,
-                                 atlasSizeInvName);
+        vertBuilder->codeAppendf("%s = %s;", v.vsOut(),
+                                 cte.inTextureCoords()->fName);
 
         GrGLSLPPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
-        if (btgp.hasVertexColor()) {
-            varyingHandler->addPassThroughAttribute(btgp.inColor(), args.fOutputColor);
+        if (cte.hasVertexColor()) {
+            varyingHandler->addPassThroughAttribute(cte.inColor(), args.fOutputColor);
         } else {
             this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
                                     &fColorUniform);
         }
 
         // Setup position
-        this->writeOutputPosition(vertBuilder, gpArgs, btgp.inPosition()->fName);
+        this->writeOutputPosition(vertBuilder, gpArgs, cte.inPosition()->fName);
 
         // emit transforms
         this->emitTransforms(vertBuilder,
                              varyingHandler,
                              uniformHandler,
                              gpArgs->fPositionVar,
-                             btgp.inPosition()->fName,
-                             btgp.localMatrix(),
+                             cte.inPosition()->fName,
+                             cte.localMatrix(),
                              args.fFPCoordTransformHandler);
 
-        if (btgp.maskFormat() == kARGB_GrMaskFormat) {
+        if (cte.maskFormat() == kARGB_GrMaskFormat) {
             fragBuilder->codeAppendf("%s = ", args.fOutputColor);
             fragBuilder->appendTextureLookupAndModulate(args.fOutputColor,
                                                         args.fTexSamplers[0],
@@ -87,34 +84,30 @@ public:
             pdman.set4fv(fColorUniform, 1, c);
             fColor = btgp.color();
         }
-
-        SkASSERT(btgp.numTextureSamplers() == 1);
-        GrTexture* atlas = btgp.textureSampler(0).peekTexture();
-        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
-
-        if (fAtlasSize.fWidth != atlas->width() || fAtlasSize.fHeight != atlas->height()) {
-            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
-            fAtlasSize.set(atlas->width(), atlas->height());
-        }
         this->setTransformDataHelper(btgp.localMatrix(), pdman, &transformIter);
     }
 
     static inline void GenKey(const GrGeometryProcessor& proc,
                               const GrShaderCaps&,
                               GrProcessorKeyBuilder* b) {
-        const GrBitmapTextGeoProc& btgp = proc.cast<GrBitmapTextGeoProc>();
+        const GrBitmapTextGeoProc& gp = proc.cast<GrBitmapTextGeoProc>();
         uint32_t key = 0;
-        key |= (btgp.usesLocalCoords() && btgp.localMatrix().hasPerspective()) ? 0x1 : 0x0;
-        key |= btgp.maskFormat() << 1;
+        key |= (gp.usesLocalCoords() && gp.localMatrix().hasPerspective()) ? 0x1 : 0x0;
+        key |= gp.maskFormat() << 1;
         b->add32(key);
+
+        // Currently we hardcode numbers to convert atlas coordinates to normalized floating point
+        SkASSERT(gp.numTextureSamplers() == 1);
+        GrTextureProxy* atlas = gp.textureSampler(0).proxy();
+        if (atlas) {
+            b->add32(atlas->width());
+            b->add32(atlas->height());
+        }
     }
 
 private:
-    GrColor       fColor;
+    GrColor fColor;
     UniformHandle fColorUniform;
-
-    SkISize       fAtlasSize;
-    UniformHandle fAtlasSizeInvUniform;
 
     typedef GrGLSLGeometryProcessor INHERITED;
 };
@@ -140,8 +133,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
     if (hasVertexColor) {
         fInColor = &this->addVertexAttrib("inColor", kVec4ub_GrVertexAttribType);
     }
-
-    fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kVec2us_uint_GrVertexAttribType,
+    fInTextureCoords = &this->addVertexAttrib("inTextureCoords",  kVec2us_GrVertexAttribType,
                                               kHigh_GrSLPrecision);
     this->addTextureSampler(&fTextureSampler);
 }
