@@ -115,9 +115,11 @@ struct GrContextOptions {
     GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
 
     /**
-     * The maximum size of cache textures used for Skia's Glyph cache.
+     * Skia's glyph cache will start out with StartBytes but can grow to MaxBytes
+     * if needed.
      */
-    float fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
+    size_t fGlyphCacheTextureStartBytes = 2048 * 1024 * 4;
+    size_t fGlyphCacheTextureMaxBytes   = 2048 * 2048 * 4;
 
     /**
      * Bugs on certain drivers cause stencil buffers to leak. This flag causes Skia to avoid
