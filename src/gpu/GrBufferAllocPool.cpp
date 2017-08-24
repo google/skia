@@ -38,10 +38,8 @@ do {                                                                            
     (block).fBuffer->unmap();                                                             \
 } while (false)
 
-GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
-                                     GrBufferType bufferType,
-                                     size_t blockSize)
-    : fBlocks(8) {
+GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrBufferType bufferType, size_t blockSize)
+        : fBlocks(8) {
 
     fGpu = SkRef(gpu);
     fCpuData = nullptr;
