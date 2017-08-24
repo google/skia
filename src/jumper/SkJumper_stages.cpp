@@ -329,7 +329,7 @@ BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
 
 BLEND_MODE(modulate) { return s*d; }
 BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
-BLEND_MODE(plus_)    { return s + d; }
+BLEND_MODE(plus_)    { return min(s + d, 1.0f); }  // We can clamp to either 1 or sa.
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 #undef BLEND_MODE
@@ -631,8 +631,8 @@ STAGE(to_srgb) {
 }
 
 STAGE(rgb_to_hsl) {
-    F mx = max(max(r,g), b),
-      mn = min(min(r,g), b),
+    F mx = max(r,g,b),
+      mn = min(r,g,b),
       d = mx - mn,
       d_rcp = 1.0f / d;
 
@@ -673,6 +673,12 @@ STAGE(hsl_to_rgb) {
     b = if_then_else(s == 0, l, hue_to_rgb(h - (1/3.0f)));
 }
 
+// Derive alpha's coverage from rgb coverage and the values of src and dst alpha.
+SI F alpha_coverage_from_rgb_coverage(F a, F da, F cr, F cg, F cb) {
+    return if_then_else(a < da, min(cr,cg,cb)
+                              , max(cr,cg,cb));
+}
+
 STAGE(scale_1_float) {
     auto c = *(const float*)ctx;
 
@@ -691,6 +697,19 @@ STAGE(scale_u8) {
     g = g * c;
     b = b * c;
     a = a * c;
+}
+STAGE(scale_565) {
+    auto ptr = ptr_at_xy<const uint16_t>(ctx, x,y);
+
+    F cr,cg,cb;
+    from_565(load<U16>(ptr, tail), &cr, &cg, &cb);
+
+    F ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
+
+    r = r * cr;
+    g = g * cg;
+    b = b * cb;
+    a = a * ca;
 }
 
 SI F lerp(F from, F to, F t) {
@@ -722,10 +741,12 @@ STAGE(lerp_565) {
     F cr,cg,cb;
     from_565(load<U16>(ptr, tail), &cr, &cg, &cb);
 
+    F ca = alpha_coverage_from_rgb_coverage(a,da, cr,cg,cb);
+
     r = lerp(dr, r, cr);
     g = lerp(dg, g, cg);
     b = lerp(db, b, cb);
-    a = max(lerp(da, a, cr), lerp(da, a, cg), lerp(da, a, cb));
+    a = lerp(da, a, ca);
 }
 
 STAGE(load_tables) {

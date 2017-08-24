@@ -49,11 +49,17 @@ public:
             p.append(SkRasterPipeline::load_8888,     &src_ctx);
         }
 
-        SkBlendMode_AppendStagesNoClamp(fMode, &p);
-        if (aa) {
-            p.append(SkRasterPipeline::lerp_u8, &aa_ctx);
+        if (SkBlendMode_ShouldPreScaleCoverage(fMode, /*rgb_coverage=*/false)) {
+            if (aa) {
+                p.append(SkRasterPipeline::scale_u8, &aa_ctx);
+            }
+            SkBlendMode_AppendStages(fMode, &p);
+        } else {
+            SkBlendMode_AppendStages(fMode, &p);
+            if (aa) {
+                p.append(SkRasterPipeline::lerp_u8, &aa_ctx);
+            }
         }
-        SkBlendMode_AppendClampIfNeeded(fMode, &p);
 
         if (kN32_SkColorType == kBGRA_8888_SkColorType) {
             p.append(SkRasterPipeline::store_bgra, &dst_ctx);

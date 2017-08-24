@@ -62,7 +62,15 @@ bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoe
     return true;
 }
 
-void SkBlendMode_AppendStagesNoClamp(SkBlendMode mode, SkRasterPipeline* p) {
+bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {
+    // The most important things we do here are:
+    //   - always use pre-scaling for plus mode;
+    //   - never use pre-scaling for srcover with 565 coverage.
+    return mode == SkBlendMode::kPlus ||
+          (mode == SkBlendMode::kSrcOver && !rgb_coverage);
+}
+
+void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
     auto stage = SkRasterPipeline::srcover;
     switch (mode) {
         case SkBlendMode::kClear:    stage = SkRasterPipeline::clear; break;
@@ -98,14 +106,6 @@ void SkBlendMode_AppendStagesNoClamp(SkBlendMode mode, SkRasterPipeline* p) {
         case SkBlendMode::kLuminosity: stage = SkRasterPipeline::luminosity; break;
     }
     p->append(stage);
-}
-
-void SkBlendMode_AppendClampIfNeeded(SkBlendMode mode, SkRasterPipeline* p) {
-    if (mode == SkBlendMode::kPlus) {
-        // Both clamp_a and clamp_1 would preserve premultiplication invariants here,
-        // so we pick clamp_1 for being a smidge faster.
-        p->append(SkRasterPipeline::clamp_1);
-    }
 }
 
 SkPM4f SkBlendMode_Apply(SkBlendMode mode, const SkPM4f& src, const SkPM4f& dst) {
