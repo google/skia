@@ -22,6 +22,30 @@
       "revId": "8329e72fea1c0b8dbc698bfe537de37b03e12e7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "785dfd87_93b9631d",
+        "filename": "src/gpu/effects/GrDistanceFieldGeoProc.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-24T15:33:11Z",
+      "side": 1,
+      "message": "Just %s seems to work so let\u0027s try that.",
+      "parentUuid": "28e61193_f021ffb1",
+      "range": {
+        "startLine": 82,
+        "startChar": 39,
+        "endLine": 82,
+        "endChar": 45
+      },
+      "revId": "8329e72fea1c0b8dbc698bfe537de37b03e12e7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
