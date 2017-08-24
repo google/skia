@@ -271,7 +271,7 @@ void CCPRGeometryView::Op::onExecute(GrOpFlushState* state) {
         GR_GL_CALL(glGpu->glInterface(), Enable(GR_GL_LINE_SMOOTH));
     }
 
-    state->commandBuffer()->draw(pipeline, ccprProc, &mesh, nullptr, 1, this->bounds());
+    state->rtCommandBuffer()->draw(pipeline, ccprProc, &mesh, nullptr, 1, this->bounds());
 
     if (glGpu) {
         context->resetContext(kMisc_GrGLBackendState);

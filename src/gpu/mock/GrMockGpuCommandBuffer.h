@@ -11,9 +11,29 @@
 #include "GrGpuCommandBuffer.h"
 #include "GrMockGpu.h"
 
-class GrMockGpuCommandBuffer : public GrGpuCommandBuffer {
+class GrMockGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
-    GrMockGpuCommandBuffer(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin)
+    GrMockGpuTextureCommandBuffer(GrMockGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
+        : INHERITED(texture, origin)
+        , fGpu(gpu) {
+    }
+
+    ~GrMockGpuTextureCommandBuffer() override {}
+
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {}
+    void insertEventMarker(const char*) override {}
+
+private:
+    void submit() override {}
+
+    GrMockGpu* fGpu;
+
+    typedef GrGpuTextureCommandBuffer INHERITED;
+};
+
+class GrMockGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
+public:
+    GrMockGpuRTCommandBuffer(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin)
             : INHERITED(rt, origin)
             , fGpu(gpu) {
     }
@@ -24,6 +44,7 @@ public:
     void insertEventMarker(const char*) override {}
     void begin() override {}
     void end() override {}
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override {}
 
     int numDraws() const { return fNumDraws; }
 
@@ -39,7 +60,7 @@ private:
     GrMockGpu* fGpu;
     int fNumDraws = 0;
 
-    typedef GrGpuCommandBuffer INHERITED;
+    typedef GrGpuRTCommandBuffer INHERITED;
 };
 
 #endif

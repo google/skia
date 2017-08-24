@@ -21,13 +21,44 @@ class GrVkRenderPass;
 class GrVkRenderTarget;
 class GrVkSecondaryCommandBuffer;
 
-class GrVkGpuCommandBuffer : public GrGpuCommandBuffer, private GrMesh::SendToGpuImpl {
+class GrVkGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
-    GrVkGpuCommandBuffer(GrVkGpu*, GrRenderTarget*, GrSurfaceOrigin,
-                         const LoadAndStoreInfo&,
-                         const StencilLoadAndStoreInfo&);
+    GrVkGpuTextureCommandBuffer(GrVkGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
+        : INHERITED(texture, origin)
+        , fGpu(gpu) {
+    }
 
-    ~GrVkGpuCommandBuffer() override;
+    ~GrVkGpuTextureCommandBuffer() override;
+
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+
+    void insertEventMarker(const char*) override;
+
+private:
+    void submit() override;
+
+    struct CopyInfo {
+        CopyInfo(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
+            : fSrc(src), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+
+        GrSurface* fSrc;
+        SkIRect    fSrcRect;
+        SkIPoint   fDstPoint;
+    };
+
+    GrVkGpu*                    fGpu;
+    SkTArray<CopyInfo>          fCopies;
+
+    typedef GrGpuTextureCommandBuffer INHERITED;
+};
+
+class GrVkGpuRTCommandBuffer : public GrGpuRTCommandBuffer, private GrMesh::SendToGpuImpl {
+public:
+    GrVkGpuRTCommandBuffer(GrVkGpu*, GrRenderTarget*, GrSurfaceOrigin,
+                           const LoadAndStoreInfo&,
+                           const StencilLoadAndStoreInfo&);
+
+    ~GrVkGpuRTCommandBuffer() override;
 
     void begin() override { }
     void end() override;
@@ -36,6 +67,8 @@ public:
     void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDrawOp::DeferredUploadFn& upload) override;
+
+    void copy(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
 private:
     void init();
@@ -104,6 +137,15 @@ private:
         GrDrawOp::DeferredUploadFn fUpload;
     };
 
+    struct CopyInfo {
+        CopyInfo(GrSurface* src, const SkIRect& srcRect, const SkIPoint& dstPoint)
+            : fSrc(src), fSrcRect(srcRect), fDstPoint(dstPoint) {}
+
+        GrSurface* fSrc;
+        SkIRect    fSrcRect;
+        SkIPoint   fDstPoint;
+    };
+
     struct CommandBufferInfo {
         const GrVkRenderPass*                  fRenderPass;
         SkTArray<GrVkSecondaryCommandBuffer*>  fCommandBuffers;
@@ -112,6 +154,7 @@ private:
         bool                                   fIsEmpty;
         bool                                   fStartsWithClear;
         SkTArray<InlineUploadInfo>             fPreDrawUploads;
+        SkTArray<CopyInfo>                     fPreCopies;
 
         GrVkSecondaryCommandBuffer* currentCmdBuf() {
             return fCommandBuffers.back();
@@ -129,7 +172,7 @@ private:
     GrColor4f                   fClearColor;
     GrVkPipelineState*          fLastPipelineState;
 
-    typedef GrGpuCommandBuffer INHERITED;
+    typedef GrGpuRTCommandBuffer INHERITED;
 };
 
 #endif
