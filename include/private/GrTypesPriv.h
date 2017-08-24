@@ -185,6 +185,9 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
             return true;
 
         case kVoid_GrSLType:
+        case kBool_GrSLType:
+        case kInt_GrSLType:
+        case kUint_GrSLType:
         case kFloat_GrSLType:
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
@@ -197,9 +200,6 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
         case kBufferSampler_GrSLType:
-        case kInt_GrSLType:
-        case kUint_GrSLType:
-        case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
         case kImageStorage2D_GrSLType:
@@ -220,6 +220,9 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
             return true;
 
         case kVoid_GrSLType:
+        case kBool_GrSLType:
+        case kInt_GrSLType:
+        case kUint_GrSLType:
         case kFloat_GrSLType:
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
@@ -231,9 +234,6 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kMat22f_GrSLType:
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
-        case kInt_GrSLType:
-        case kUint_GrSLType:
-        case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
         case kImageStorage2D_GrSLType:
@@ -251,6 +251,9 @@ static inline bool GrSLTypeIsImageStorage(GrSLType type) {
             return true;
 
         case kVoid_GrSLType:
+        case kBool_GrSLType:
+        case kInt_GrSLType:
+        case kUint_GrSLType:
         case kFloat_GrSLType:
         case kVec2f_GrSLType:
         case kVec3f_GrSLType:
@@ -262,9 +265,6 @@ static inline bool GrSLTypeIsImageStorage(GrSLType type) {
         case kMat22f_GrSLType:
         case kMat33f_GrSLType:
         case kMat44f_GrSLType:
-        case kInt_GrSLType:
-        case kUint_GrSLType:
-        case kBool_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
         case kTexture2DSampler_GrSLType:

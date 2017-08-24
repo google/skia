@@ -80,13 +80,11 @@ public:
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s * %s;", uv.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 atlasSizeInvName);
+                                 dfTexEffect.inTextureCoords()->fName, atlasSizeInvName);
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
         varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s;", st.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName);
+        vertBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
@@ -338,14 +336,12 @@ public:
 
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s * %s;", uv.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 atlasSizeInvName);
+        vertBuilder->codeAppendf("%s = %s * %s;",
+                                 uv.vsOut(), dfTexEffect.inTextureCoords()->fName, atlasSizeInvName);
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
         varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s;", st.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName);
+        vertBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfTexEffect.inColor(), args.fOutputColor);
@@ -609,13 +605,11 @@ public:
         GrGLSLVertToFrag uv(kVec2f_GrSLType);
         varyingHandler->addVarying("TextureCoords", &uv, kHigh_GrSLPrecision);
         vertBuilder->codeAppendf("%s = %s * %s;", uv.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName,
-                                 atlasSizeInvName);
+                                 dfTexEffect.inTextureCoords()->fName, atlasSizeInvName);
 
         GrGLSLVertToFrag st(kVec2f_GrSLType);
         varyingHandler->addVarying("IntTextureCoords", &st, kHigh_GrSLPrecision);
-        vertBuilder->codeAppendf("%s = %s;", st.vsOut(),
-                                 dfTexEffect.inTextureCoords()->fName);
+        vertBuilder->codeAppendf("%s = %s;", st.vsOut(), dfTexEffect.inTextureCoords()->fName);
 
         GrGLSLVertToFrag delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta, kHigh_GrSLPrecision);
