@@ -46,6 +46,30 @@
       "revId": "9c6b6c247b90ef726e8dbbf97e827429357d6724",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3765f88_4f2a0a36",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2017-08-24T16:00:51Z",
+      "side": 1,
+      "message": "\u003e I understand, but the predicate is ( \u003e SkBlendMode::kLastSeparableMode), so I don\u0027t think the guard name is misplaced.\n\n(the CL name OTOH is, I\u0027ll adjust)",
+      "parentUuid": "b1638c1b_792630b2",
+      "range": {
+        "startLine": 909,
+        "startChar": 7,
+        "endLine": 909,
+        "endChar": 41
+      },
+      "revId": "9c6b6c247b90ef726e8dbbf97e827429357d6724",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
