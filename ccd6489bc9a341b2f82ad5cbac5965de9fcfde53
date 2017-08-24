@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8647ff13_5ac44333",
+        "filename": "src/gpu/ops/GrCopySurfaceOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2017-08-24T18:00:18Z",
+      "side": 1,
+      "message": "Do we need to be storing the Dst on the Op anymore? Is the dst just inherent based on the OpList it is recorded to?",
+      "range": {
+        "startLine": 83,
+        "startChar": 9,
+        "endLine": 83,
+        "endChar": 13
+      },
+      "revId": "ccd6489bc9a341b2f82ad5cbac5965de9fcfde53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
