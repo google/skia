@@ -157,6 +157,20 @@ SI V min(V a, V b) {
     return if_then_else(a.u8x4 > b.u8x4, b.u8x4, a.u8x4);
 }
 
+SI V saturated_add(V a, V b) {
+    R a_lo, a_hi,
+      b_lo, b_hi;
+    split(a.u8x4, &a_lo, &a_hi);
+    split(b.u8x4, &b_lo, &b_hi);
+#if defined(__AVX2__)
+    return join(_mm256_adds_epu8(a_lo, b_lo),
+                _mm256_adds_epu8(a_hi, b_hi));
+#else
+    return join(_mm_adds_epu8(a_lo, b_lo),
+                _mm_adds_epu8(a_hi, b_hi));
+#endif
+}
+
 struct Params {
     size_t x,y,tail;
 };
@@ -385,6 +399,7 @@ STAGE(modulate) { src = src*dst; }
 STAGE(multiply) { src = src*inv(alpha(dst)) + dst*inv(alpha(src)) + src*dst; }
 STAGE(screen)   { src = src + inv(src)*dst; }
 STAGE(xor_)     { src = src*inv(alpha(dst)) + dst*inv(alpha(src)); }
+STAGE(plus_)    { src = saturated_add(src, dst); }
 
 SI V srcover_alpha(V src, V dst, V rgb) {
     V a = src + (dst - dst*alpha(src));
@@ -442,8 +457,6 @@ STAGE(overlay) {
 }
 
 // Missing blendmode specializations:
-//
-//   plus        - tricky due to clamping vs. partial coverage (especially with LCD masks).
 //
 //   colorburn  |
 //   colordodge  > these involve division, which makes them (much) slower than the float stages.

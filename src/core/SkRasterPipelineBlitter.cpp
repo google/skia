@@ -52,7 +52,6 @@ public:
 private:
     void append_load_d(SkRasterPipeline*) const;
     void append_blend (SkRasterPipeline*) const;
-    void maybe_clamp  (SkRasterPipeline*) const;
     void append_store (SkRasterPipeline*) const;
 
     // If we have an burst context, use it to fill our shader buffer.
@@ -273,17 +272,13 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
 }
 
 void SkRasterPipelineBlitter::append_blend(SkRasterPipeline* p) const {
-    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
+    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {  // TODO: move to append_load_d
         p->append(SkRasterPipeline::premul_dst);
     }
-    SkBlendMode_AppendStagesNoClamp(fBlend, p);
-    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
+    SkBlendMode_AppendStages(fBlend, p);
+    if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {  // TODO: move to append_store
         p->append(SkRasterPipeline::unpremul);
     }
-}
-
-void SkRasterPipelineBlitter::maybe_clamp(SkRasterPipeline* p) const {
-    SkBlendMode_AppendClampIfNeeded(fBlend, p);
 }
 
 void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {
@@ -328,7 +323,6 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
             if (fBlend != SkBlendMode::kSrc) {
                 this->append_load_d(&p);
                 this->append_blend(&p);
-                this->maybe_clamp(&p);
             }
             this->append_store(&p);
         }
@@ -351,7 +345,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
     if (!fBlitAntiH) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend == SkBlendMode::kSrcOver) {
+        if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
             p.append(SkRasterPipeline::scale_1_float, &fCurrentCoverage);
             this->append_load_d(&p);
             this->append_blend(&p);
@@ -360,7 +354,7 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
             this->append_blend(&p);
             p.append(SkRasterPipeline::lerp_1_float, &fCurrentCoverage);
         }
-        this->maybe_clamp(&p);
+
         this->append_store(&p);
         fBlitAntiH = p.compile();
     }
@@ -405,7 +399,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     if (mask.fFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        if (fBlend == SkBlendMode::kSrcOver) {
+        if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
             p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
             this->append_load_d(&p);
             this->append_blend(&p);
@@ -414,17 +408,22 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
             this->append_blend(&p);
             p.append(SkRasterPipeline::lerp_u8, &fMaskPtr);
         }
-        this->maybe_clamp(&p);
         this->append_store(&p);
         fBlitMaskA8 = p.compile();
     }
     if (mask.fFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
         SkRasterPipeline p(fAlloc);
         p.extend(fColorPipeline);
-        this->append_load_d(&p);
-        this->append_blend(&p);
-        p.append(SkRasterPipeline::lerp_565, &fMaskPtr);
-        this->maybe_clamp(&p);
+        if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/true)) {
+            // Somewhat unusually, scale_565 needs dst loaded first.
+            this->append_load_d(&p);
+            p.append(SkRasterPipeline::scale_565, &fMaskPtr);
+            this->append_blend(&p);
+        } else {
+            this->append_load_d(&p);
+            this->append_blend(&p);
+            p.append(SkRasterPipeline::lerp_565, &fMaskPtr);
+        }
         this->append_store(&p);
         fBlitMaskLCD16 = p.compile();
     }
