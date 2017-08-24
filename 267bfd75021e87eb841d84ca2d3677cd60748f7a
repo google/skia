@@ -22,6 +22,30 @@
       "revId": "267bfd75021e87eb841d84ca2d3677cd60748f7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67955ba6_16f1ae9b",
+        "filename": "include/private/SkTFitsIn.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2017-08-24T21:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30d70f7b_0840fe76",
+      "range": {
+        "startLine": 38,
+        "startChar": 35,
+        "endLine": 38,
+        "endChar": 43
+      },
+      "revId": "267bfd75021e87eb841d84ca2d3677cd60748f7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
