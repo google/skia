@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9407e471_e041b066",
+        "filename": "tools/flags/SkCommonFlags.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-24T14:23:05Z",
+      "side": 1,
+      "message": "I believe you can write this as\n\nSkExecutor* GpuExecutorForTools() {\n  static auto gGpuExecutor \u003d SkExecutor::MakeThreadPool(FLSGS_gpuThreads);\n  return gGPUExecutor.get();\n}\n\nThe initialization of function-scope statics ought to be thread safe.",
+      "revId": "2e073f162c2431a277a78f589e181c777a19fe51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
