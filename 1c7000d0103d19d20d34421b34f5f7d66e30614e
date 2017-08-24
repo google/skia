@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5d3fbad_ba5ff60b",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-24T19:33:45Z",
+      "side": 1,
+      "message": "For parallelism, would it make sense to make this onSubmit and have the submit method at the GrGpuCommandBuffer level? Along with a \"virtual void submit() \u003d 0;\" ?",
+      "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdb14722_63379c70",
+        "filename": "src/gpu/GrGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-24T19:33:45Z",
+      "side": 1,
+      "message": "Should this be on GrGpuCommandBuffer?",
+      "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22de650e_ff3c993b",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2017-08-24T19:33:45Z",
+      "side": 1,
+      "message": "fPreCopies ?",
+      "revId": "1c7000d0103d19d20d34421b34f5f7d66e30614e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
