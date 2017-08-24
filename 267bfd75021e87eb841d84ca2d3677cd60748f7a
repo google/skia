@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30d70f7b_0840fe76",
+        "filename": "include/private/SkTFitsIn.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2017-08-24T20:20:38Z",
+      "side": 1,
+      "message": "Don\u0027t forget to make these uint16_t.  :)",
+      "range": {
+        "startLine": 38,
+        "startChar": 35,
+        "endLine": 38,
+        "endChar": 43
+      },
+      "revId": "267bfd75021e87eb841d84ca2d3677cd60748f7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
